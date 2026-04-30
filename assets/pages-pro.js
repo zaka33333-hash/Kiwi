@@ -5953,3 +5953,1001 @@ handlers['bout-cat-publish'] = () => {
     }, 0);
   };
 })();
+
+/* ═══ STATION ROUTING OVERRIDE · rebuilds nav-menu + nav-kds with multi-station model ═══ */
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Kiwi · Section 2-S · STATION ROUTING
+ * Adds the missing "stations de préparation" feature to the restaurant
+ * vertical: every menu item routes to 1+ prep stations and the KDS lets
+ * the brigade switch between station views.
+ *
+ *   · handlers['nav-menu']  · rebuilt with station-chip rows + edit modal
+ *                             station picker + "Gérer les stations" CTA
+ *   · handlers['nav-kds']   · rebuilt with top station-pill switcher and
+ *                             per-station ticket filtering
+ *
+ * Appended to pages-pro.js at load time so it overrides the previous
+ * implementations.  Vanilla JS · no build · no framework.
+ * ─────────────────────────────────────────────────────────────────────────── */
+(function () {
+  'use strict';
+  if (!window.Kiwi || !window.Kiwi.handlers) return;
+  const Kiwi = window.Kiwi;
+  const { handlers, drawer, modal, toast, confetti } = Kiwi;
+
+  /* ───────────── data · STATIONS registry (mutable, in-memory) ───────────── */
+  const STATIONS = [
+    { id: 'cuisson',  name: 'Cuisson chaude',  color: 'var(--atlas)',   raw: '#0B6E4F', kind: 'kitchen' },
+    { id: 'salade',   name: 'Salade froide',   color: 'var(--success)', raw: '#1FB574', kind: 'kitchen' },
+    { id: 'pastry',   name: 'Pâtisserie',      color: 'var(--warning)', raw: '#D99A2B', kind: 'kitchen' },
+    { id: 'boissons', name: 'Boissons',        color: 'var(--info)',    raw: '#3677A6', kind: 'bar'     },
+    { id: 'bar',      name: 'Bar cocktails',   color: 'var(--riad)',    raw: '#053B2C', kind: 'bar'     },
+    { id: 'bbq',      name: 'Barbecue',        color: '#C24A2E',        raw: '#C24A2E', kind: 'kitchen', custom: true },
+    { id: 'crepes',   name: 'Crêpes bar',      color: '#C97A4A',        raw: '#C97A4A', kind: 'kitchen', custom: true },
+  ];
+  const findStation = (id) => STATIONS.find((s) => s.id === id);
+
+  /* ───────────── data · MENU items (id, name, desc, price, stations[]) ─── */
+  const CATS = [
+    { key: 'entrees',  label: 'Entrées',  count: 5 },
+    { key: 'tajines',  label: 'Tajines',  count: 5 },
+    { key: 'couscous', label: 'Couscous', count: 4 },
+    { key: 'desserts', label: 'Desserts', count: 4 },
+    { key: 'boissons', label: 'Boissons', count: 5 },
+  ];
+  const MENU = {
+    entrees: [
+      { id: 'ent-1', n: 'Salade marocaine',     d: 'Tomate, concombre, oignon, huile d\'olive',     p: 32,  st: 'ok',  stations: ['salade'],            sold: 142, rank: 6  },
+      { id: 'ent-2', n: 'Caviar d\'aubergine',  d: 'Aubergine fumée, ail, cumin',                   p: 28,  st: 'ok',  stations: ['salade'],            sold: 96,  rank: 11 },
+      { id: 'ent-3', n: 'Briouates viande',     d: 'Triangles croustillants, bœuf mijoté',          p: 45,  st: 'ok',  stations: ['cuisson'],           sold: 84,  rank: 8  },
+      { id: 'ent-4', n: 'Harira',               'd': 'Soupe pois chiches & lentilles',              p: 28,  st: 'ok',  stations: ['cuisson'],           sold: 98,  rank: 7  },
+      { id: 'ent-5', n: 'Zaalouk',              d: 'Aubergine fumée, tomate, ail',                  p: 28,  st: 'low', stations: ['salade'],            sold: 56,  rank: 12 },
+    ],
+    tajines: [
+      { id: 'taj-1', n: 'Tajine kefta œuf',     d: 'Viande hachée, œuf, tomate, épices',           p: 85,  st: 'ok',  stations: ['cuisson'],           sold: 312, rank: 1  },
+      { id: 'taj-2', n: 'Tajine agneau pruneaux', d: 'Agneau mijoté, pruneaux, amandes',           p: 110, st: 'out', stations: ['cuisson'],           sold: 184, rank: 4  },
+      { id: 'taj-3', n: 'Tajine poulet citron', d: 'Poulet, olives, citron confit',                p: 95,  st: 'ok',  stations: ['cuisson'],           sold: 226, rank: 3  },
+      { id: 'taj-4', n: 'Méchoui',              d: 'Agneau rôti à la braise, parts pour 2 · 4',    p: 180, st: 'low', stations: ['bbq'],               sold: 24,  rank: 16 },
+      { id: 'taj-5', n: 'Pastilla poulet',      d: 'Feuille fine, amandes, cannelle, sucre glace', p: 120, st: 'low', stations: ['cuisson', 'pastry'], sold: 156, rank: 5  },
+    ],
+    couscous: [
+      { id: 'cou-1', n: 'Couscous royal',       d: 'Bœuf, poulet, merguez, légumes',               p: 95,  st: 'ok',  stations: ['cuisson'],           sold: 287, rank: 2  },
+      { id: 'cou-2', n: 'Couscous légumes',     d: '7 légumes, pois chiches, raisins',             p: 68,  st: 'ok',  stations: ['cuisson'],           sold: 64,  rank: 9  },
+      { id: 'cou-3', n: 'Couscous agneau',      d: 'Agneau braisé, oignons confits',               p: 105, st: 'low', stations: ['cuisson'],           sold: 98,  rank: 7  },
+      { id: 'cou-4', n: 'Couscous tfaya',       d: 'Poulet, oignons caramélisés, raisins',         p: 88,  st: 'ok',  stations: ['cuisson'],           sold: 72,  rank: 10 },
+    ],
+    desserts: [
+      { id: 'des-1', n: 'Msemen beurre & miel', d: 'Crêpe feuilletée, beurre, miel d\'eucalyptus', p: 12,  st: 'ok',  stations: ['pastry'],            sold: 221, rank: 6  },
+      { id: 'des-2', n: 'Crêpe complète',       d: 'Œuf, jambon de dinde, fromage, beurre',        p: 38,  st: 'ok',  stations: ['crepes'],            sold: 64,  rank: 11 },
+      { id: 'des-3', n: 'Cornes de gazelle',    d: 'Pâte d\'amande, fleur d\'oranger',             p: 28,  st: 'low', stations: ['pastry'],            sold: 72,  rank: 11 },
+      { id: 'des-4', n: 'Sellou',               d: 'Graines de sésame, amandes, miel',             p: 30,  st: 'ok',  stations: ['pastry'],            sold: 38,  rank: 13 },
+    ],
+    boissons: [
+      { id: 'bo-1',  n: 'Thé à la menthe',       d: 'Gunpowder, menthe fraîche, sucre',            p: 12,  st: 'ok',  stations: ['boissons'],          sold: 412, rank: 5  },
+      { id: 'bo-2',  n: 'Orange pressée',        d: 'Pressée minute · oranges Souss',              p: 18,  st: 'ok',  stations: ['boissons'],          sold: 198, rank: 7  },
+      { id: 'bo-3',  n: 'Café noir double',      d: 'Espresso double · grain Algeria',             p: 14,  st: 'ok',  stations: ['boissons'],          sold: 124, rank: 10 },
+      { id: 'bo-4',  n: 'Cocktail mocktail',     d: 'Citron vert, menthe, fleur d\'oranger',       p: 32,  st: 'ok',  stations: ['bar'],               sold: 87,  rank: 8  },
+      { id: 'bo-5',  n: 'Limonade traditionnelle', d: 'Citron, eau de fleur d\'oranger, gazeuse', p: 16,  st: 'ok',  stations: ['boissons'],          sold: 54,  rank: 14 },
+    ],
+  };
+  const allItems = () => Object.values(MENU).flat();
+  const itemsForStation = (sid) => allItems().filter((it) => it.stations.includes(sid));
+  const stationStats = (sid) => {
+    const items = itemsForStation(sid);
+    return { items: items.length, sold: items.reduce((acc, it) => acc + it.sold, 0) };
+  };
+
+  /* ───────────── injected styles · station chips + extras ───────────── */
+  if (!document.querySelector('#kiwi-stations-css')) {
+    const css = document.createElement('style');
+    css.id = 'kiwi-stations-css';
+    css.textContent = `
+      .kiwi-st-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.04em; padding: 3px 7px 3px 6px; border-radius: 7px; background: var(--paper-soft); border: 1px solid var(--n-200); color: var(--n-600); white-space: nowrap; line-height: 1.2; }
+      html[data-theme="dark"] .kiwi-st-chip { background: var(--paper-muted); }
+      .kiwi-st-chip i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+      .kiwi-st-chip.solid { background: var(--ink); color: var(--paper); border-color: transparent; }
+      .kiwi-st-chips { display: inline-flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+      .menu-row .kiwi-st-chips { margin-top: 5px; }
+
+      .kiwi-st-pick { display: flex; gap: 7px; flex-wrap: wrap; padding: 4px 0 2px; }
+      .kiwi-st-opt { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--n-200); background: var(--paper-soft); color: var(--n-600); font-size: 12.5px; cursor: pointer; transition: all 140ms; user-select: none; }
+      html[data-theme="dark"] .kiwi-st-opt { background: var(--paper-muted); }
+      .kiwi-st-opt:hover { border-color: var(--ink); color: var(--ink); }
+      .kiwi-st-opt.on { background: var(--atlas); color: var(--paper); border-color: var(--atlas); }
+      .kiwi-st-opt.on i { background: var(--mint) !important; }
+      .kiwi-st-opt i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+      .kiwi-st-opt .kind { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em; opacity: 0.66; text-transform: uppercase; }
+
+      .kiwi-st-mgr { display: grid; grid-template-columns: 28px 1fr auto auto; gap: 14px; align-items: center; padding: 13px 4px; border-bottom: 1px solid var(--n-200); }
+      .kiwi-st-mgr:last-child { border-bottom: 0; }
+      .kiwi-st-mgr .sw { width: 22px; height: 22px; border-radius: 7px; }
+      .kiwi-st-mgr .nm { font-weight: 500; font-size: 14px; letter-spacing: -0.005em; }
+      .kiwi-st-mgr .nm .m { font-size: 11.5px; color: var(--n-500); margin-top: 2px; font-family: var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
+      .kiwi-st-mgr .ct { font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--paper-soft); padding: 4px 9px; border-radius: 999px; font-weight: 500; }
+
+      .kiwi-st-swatch { display: inline-block; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 120ms; }
+      .kiwi-st-swatch:hover { transform: scale(1.08); }
+      .kiwi-st-swatch.on { border-color: var(--ink); transform: scale(1.08); box-shadow: 0 0 0 2px var(--paper); }
+
+      .kds-st-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 8px; margin: 2px 0 14px; border-bottom: 1px solid var(--n-200); }
+      .kds-st-tab { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 10px 10px 0 0; border: 1px solid transparent; background: transparent; color: var(--n-500); font-size: 13px; font-weight: 500; letter-spacing: -0.005em; cursor: pointer; transition: color 140ms, background 140ms; white-space: nowrap; flex-shrink: 0; margin-bottom: -1px; }
+      .kds-st-tab:hover { color: var(--ink); background: var(--paper-soft); }
+      .kds-st-tab.on { color: var(--ink); background: var(--paper); border-color: var(--n-200); border-bottom-color: var(--paper); }
+      html[data-theme="dark"] .kds-st-tab.on { background: var(--paper-muted); border-bottom-color: var(--paper-muted); }
+      .kds-st-tab i { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .kds-st-tab .ct { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); padding: 1px 6px; background: var(--paper-soft); border-radius: 999px; }
+      html[data-theme="dark"] .kds-st-tab .ct { background: var(--paper-muted); }
+      .kds-st-tab.on .ct { color: var(--atlas); background: var(--mint-soft); }
+
+      .kds-tk-st-line { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 13px; line-height: 1.3; }
+      .kds-tk-st-line .q { font-family: var(--mono); font-weight: 600; min-width: 24px; color: var(--n-600); }
+      .kds-tk-st-line .nm { flex: 1; }
+      .kds-tk-st-line .stations { display: inline-flex; gap: 4px; }
+      .kds-tk-st-line.muted { opacity: 0.32; }
+      .kds-tk-st-line.muted .nm { text-decoration: line-through; }
+    `;
+    document.head.appendChild(css);
+  }
+
+  /* ───────────── helpers · station chip rendering ───────────── */
+  const stationChip = (sid, opts = {}) => {
+    const s = findStation(sid);
+    if (!s) return '';
+    const cls = opts.solid ? 'kiwi-st-chip solid' : 'kiwi-st-chip';
+    const bg = opts.solid ? `style="background:${s.raw}; color:var(--paper);"` : '';
+    return `<span class="${cls}" ${bg} title="${s.name} · ${s.kind === 'bar' ? 'bar' : 'cuisine'}"><i style="background:${s.raw};"></i>${s.name}</span>`;
+  };
+  const stationKindLabel = (k) => (k === 'bar' ? 'BAR' : 'CUISINE');
+  const stationSummaryHtml = () => STATIONS.map((s) => {
+    const stats = stationStats(s.id);
+    return `<div style="display:grid; grid-template-columns:14px 1fr auto; gap:10px; align-items:center; background:#fff; border:1px solid var(--n-200); border-radius:10px; padding:10px 12px;"><span style="width:10px; height:10px; border-radius:50%; background:${s.raw};"></span><div><div style="font-weight:500;">${s.name}</div><div style="font-size:10.5px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em; text-transform:uppercase;">${stationKindLabel(s.kind)}${s.custom ? ' · custom' : ''}</div></div><span class="mono" style="font-size:11px; color:var(--n-500);">${stats.items} items · ${stats.sold} vendus</span></div>`;
+  }).join('');
+
+  /* ───────────── helper: dismiss buttons ───────────── */
+  const wireDismiss = (m) => {
+    if (!m || !m.el) return;
+    m.el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-dismiss]')) m.close();
+    });
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *   handlers['nav-menu']  ·  Menu & stations
+   * ═════════════════════════════════════════════════════════════════════════ */
+  handlers['nav-menu'] = () => {
+    let activeCat = 'tajines';
+    const menu86 = new Set(['taj-2']);
+
+    const stockChip = (st) =>
+      st === 'ok'  ? '<span class="chip ok">en stock</span>' :
+      st === 'low' ? '<span class="chip pend">stock bas</span>' :
+                     '<span class="chip ref">RUPTURE</span>';
+
+    const renderRow = (it, idx, total) => {
+      const is86 = menu86.has(it.id);
+      return `
+        <div class="menu-row ${is86 ? 'is-86' : ''}" data-row="${it.id}">
+          <div class="photo">${it.n.includes('Tajine') ? '◉' : it.n.includes('Couscous') ? '◓' : it.n.includes('Café') || it.n.includes('Thé') ? '☕' : it.n.includes('Pastilla') ? '✦' : it.n.includes('Salade') ? '◴' : '●'}</div>
+          <div class="nm">
+            ${it.n}
+            <div class="desc">${it.d}</div>
+            <div class="tags">${stockChip(is86 ? 'out' : it.st)}</div>
+            <div class="kiwi-st-chips" data-st-row="${it.id}">${it.stations.map(stationChip).join('')}</div>
+          </div>
+          <div class="pr">${it.p.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('.', ',')} MAD</div>
+          <div class="rk"><b>#${it.rank}</b><div style="font-size:10px; color:var(--n-500);">${it.sold} vendus</div></div>
+          <div class="menu-cat-actions" style="justify-content:flex-end;">
+            <button class="ord-arrow" data-row-act="up" data-id="${it.id}" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''} aria-label="Monter">▲</button>
+            <button class="ord-arrow" data-row-act="dn" data-id="${it.id}" ${idx === total - 1 ? 'disabled style="opacity:0.3;"' : ''} aria-label="Descendre">▼</button>
+            <span class="toggle-86 ${is86 ? 'on' : ''}" data-row-act="86" data-id="${it.id}" title="${is86 ? 'Réactiver' : '86 it (rupture)'}"></span>
+          </div>
+          <div class="more" data-row-act="edit" data-id="${it.id}">⋯</div>
+        </div>`;
+    };
+
+    const renderItems = (catKey) => {
+      const list = MENU[catKey] || [];
+      return list.map((it, i) => renderRow(it, i, list.length)).join('');
+    };
+
+    const menuDr = drawer({
+      title: 'Menu & stations · Café Atlas',
+      subtitle: `${allItems().length} items actifs · ${CATS.length} catégories · ${STATIONS.length} stations de prép. · ${menu86.size} produits 86\'d`,
+      width: 980,
+      body: `
+        <div class="p-kpis">
+          <div class="p-kpi"><div class="l">CARTE ACTIVE</div><div class="v">${allItems().length}<span class="u">items</span></div><div class="d up">+ 3 ce mois</div></div>
+          <div class="p-kpi"><div class="l">PANIER MOYEN</div><div class="v">158<span class="u"> MAD</span></div><div class="d up">+ 4,2 % vs sem. dernière</div></div>
+          <div class="p-kpi"><div class="l">STATIONS DE PRÉP.</div><div class="v">${STATIONS.length}</div><div class="d">${STATIONS.filter((s) => s.kind === 'kitchen').length} cuisine · ${STATIONS.filter((s) => s.kind === 'bar').length} bar</div></div>
+          <div class="p-kpi" style="background:rgba(201,74,58,0.06); border-color:rgba(201,74,58,0.25);"><div class="l">86'D</div><div class="v" style="color:var(--danger);">${menu86.size}</div><div class="d">tajine agneau · etc.</div></div>
+        </div>
+
+        <div class="menu-ai">
+          <div class="ic">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg>
+          </div>
+          <div class="b">
+            <div class="t">INSIGHT KIWI · STATIONS</div>
+            <div class="n">La station Cuisson chaude porte 64 % du chiffre · pensez à équilibrer.</div>
+            <div class="d">Le tajine kefta œuf et le couscous royal saturent la cuisson aux pics. Le bar et la pâtisserie sont sous-utilisés à midi.</div>
+          </div>
+          <button class="kb" style="background:var(--mint); color:var(--riad);" data-action="menu-promote">Voir suggestions</button>
+        </div>
+
+        <div class="p-toolbar">
+          <div class="p-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+            Rechercher un item, une station, un allergène…
+          </div>
+          <button class="kb ghost" data-action="menu-stations-manage">Gérer les stations</button>
+          <button class="kb ghost" data-action="menu-schedule">Plages horaires</button>
+          <button class="kb atlas" data-action="menu-add">+ Ajouter un item</button>
+        </div>
+
+        <div class="menu-pill-cats" id="menu-cats">
+          ${CATS.map((c) => `<button class="menu-pill-cat ${c.key === activeCat ? 'on' : ''}" data-cat="${c.key}">${c.label}<span class="ct">${c.count}</span></button>`).join('')}
+        </div>
+
+        <div class="p-pane" id="menu-pane">
+          ${renderItems(activeCat)}
+        </div>
+
+        <div class="p-card" style="margin-top:18px;">
+          <div class="head">
+            <h4>Stations actives</h4>
+            <span class="meta">${STATIONS.length} STATIONS · ROUTAGE TICKETS LIVE</span>
+          </div>
+          <div id="menu-stations-summary" style="display:grid; grid-template-columns:repeat(2,1fr); gap:8px; font-size:12.5px;">${stationSummaryHtml()}</div>
+        </div>
+      `,
+      foot: `
+        <div style="display:flex; gap:8px; justify-content:space-between; width:100%; align-items:center;">
+          <span style="font-family:var(--mono); font-size:11px; color:var(--n-500); letter-spacing:0.06em;">SYNC POS · 100 % · ROUTAGE STATIONS LIVE</span>
+          <div style="display:flex; gap:8px;">
+            <button class="kb ghost" data-dismiss>Fermer</button>
+            <button class="kb primary" data-action="menu-publish">Publier la carte</button>
+          </div>
+        </div>
+      `,
+    });
+    wireDismiss(menuDr);
+
+    /* ─── wire: tabs + 86 + reorder + edit + station chip refresh ─── */
+    setTimeout(() => {
+      const root = menuDr.el;
+      if (!root) return;
+      const pane = root.querySelector('#menu-pane');
+
+      const refreshSummary = () => {
+        const sum = root.querySelector('#menu-stations-summary');
+        if (sum) sum.innerHTML = stationSummaryHtml();
+      };
+
+      const refreshRowChips = (id) => {
+        const it = allItems().find((x) => x.id === id);
+        const wrap = root.querySelector(`[data-st-row="${id}"]`);
+        if (it && wrap) wrap.innerHTML = it.stations.map(stationChip).join('');
+      };
+
+      const refreshAllRowChips = () => {
+        root.querySelectorAll('[data-st-row]').forEach((w) => {
+          const id = w.getAttribute('data-st-row');
+          const it = allItems().find((x) => x.id === id);
+          if (it) w.innerHTML = it.stations.map(stationChip).join('');
+        });
+      };
+
+      // expose for handlers fired outside the drawer scope
+      root.__kiwiMenu = { refreshAllRowChips, refreshSummary };
+
+      const wireRows = () => {
+        pane.querySelectorAll('[data-row-act]').forEach((b) => {
+          b.onclick = (e) => {
+            e.stopPropagation();
+            const a = b.getAttribute('data-row-act');
+            const id = b.getAttribute('data-id');
+            const list = MENU[activeCat];
+            const idx = list.findIndex((x) => x.id === id);
+            if (idx < 0) return;
+            const it = list[idx];
+            if (a === '86') {
+              if (menu86.has(id)) menu86.delete(id);
+              else menu86.add(id);
+              toast(menu86.has(id) ? `${it.n} marqué 86 (rupture)` : `${it.n} de retour à la carte`, {
+                type: menu86.has(id) ? 'warn' : 'success',
+                desc: menu86.has(id) ? 'Retiré du POS et de Glovo · Jumia notifié.' : 'Item disponible sur tous les canaux.',
+              });
+              pane.innerHTML = renderItems(activeCat); wireRows();
+            }
+            if (a === 'up' && idx > 0) {
+              [list[idx - 1], list[idx]] = [list[idx], list[idx - 1]];
+              pane.innerHTML = renderItems(activeCat); wireRows();
+              toast(`${it.n} repositionné`, { type: 'info' });
+            }
+            if (a === 'dn' && idx < list.length - 1) {
+              [list[idx], list[idx + 1]] = [list[idx + 1], list[idx]];
+              pane.innerHTML = renderItems(activeCat); wireRows();
+              toast(`${it.n} repositionné`, { type: 'info' });
+            }
+            if (a === 'edit') openItemEdit(it, () => { refreshRowChips(it.id); refreshSummary(); });
+          };
+        });
+        pane.querySelectorAll('.menu-row').forEach((r) => {
+          r.addEventListener('click', (e) => {
+            if (e.target.closest('[data-row-act]')) return;
+            const id = r.getAttribute('data-row');
+            const it = MENU[activeCat].find((x) => x.id === id);
+            if (it) openItemEdit(it, () => { refreshRowChips(it.id); refreshSummary(); });
+          });
+        });
+      };
+
+      root.querySelectorAll('#menu-cats .menu-pill-cat').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-cat');
+          if (key === activeCat) return;
+          activeCat = key;
+          root.querySelectorAll('#menu-cats .menu-pill-cat').forEach((b) => b.classList.toggle('on', b === btn));
+          pane.innerHTML = renderItems(activeCat); wireRows();
+        });
+      });
+      wireRows();
+    }, 0);
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *   Item edit modal (with station picker)
+   * ═════════════════════════════════════════════════════════════════════════ */
+  const openItemEdit = (it, onSave) => {
+    const draftStations = new Set(it.stations);
+
+    const renderStationPicker = () => STATIONS.map((s) => `
+      <button type="button" class="kiwi-st-opt ${draftStations.has(s.id) ? 'on' : ''}" data-st-toggle="${s.id}">
+        <i style="background:${s.raw};"></i>${s.name}
+        <span class="kind">· ${s.kind === 'bar' ? 'bar' : 'cuisine'}</span>
+      </button>`).join('');
+
+    const editM = modal({
+      tag: 'ITEM',
+      title: it.n,
+      desc: it.d,
+      width: 640,
+      body: `
+        <div class="kf-row">
+          <div class="kf-group"><label class="kf-label">Nom</label><input class="kf-input" value="${it.n}" /></div>
+          <div class="kf-group"><label class="kf-label">Prix TTC</label><input class="kf-input mono" value="${it.p}.00" /></div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Description courte</label>
+          <input class="kf-input" value="${it.d}" />
+        </div>
+        <div class="kf-row">
+          <div class="kf-group"><label class="kf-label">Catégorie</label>
+            <select class="kf-input">
+              ${CATS.map((c) => `<option ${MENU[c.key].some((x) => x.id === it.id) ? 'selected' : ''}>${c.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="kf-group"><label class="kf-label">Temps de prep.</label>
+            <select class="kf-input"><option>5 min</option><option>10 min</option><option selected>15 min</option><option>20 min</option><option>25 min</option><option>30 min</option></select>
+          </div>
+        </div>
+
+        <div class="kf-group" style="margin-top:8px;">
+          <label class="kf-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Stations de préparation</span>
+            <span class="meta" style="font-family:var(--mono); font-size:10.5px; color:var(--n-500); letter-spacing:0.06em;">SÉLECTIONNEZ 1 OU PLUSIEURS</span>
+          </label>
+          <div class="kiwi-st-pick" id="kiwi-st-pick">${renderStationPicker()}</div>
+          <div class="kf-help">Le ticket KDS apparaîtra simultanément sur chaque station sélectionnée. Idéal pour les plats croisés (ex. pastilla = cuisson + pâtisserie).</div>
+        </div>
+
+        <div class="kf-group">
+          <label class="kf-label">Modificateurs autorisés</label>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            ${['Sans coriandre', 'Sans piment', 'Pain à part', 'Bien cuit', 'Saignant', 'Sans gluten'].map((m, i) => `<span class="chip ${i < 3 ? 'ok' : 'neutral'}" style="cursor:pointer;">${i < 3 ? '✓ ' : ''}${m}</span>`).join('')}
+          </div>
+        </div>
+
+        <div class="p-card" style="margin:14px 0 0;">
+          <div class="head"><h4 style="font-size:13px;">Performance · 30 derniers jours</h4><span class="meta">RANG #${it.rank}</span></div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; font-size:12.5px;">
+            <div><div style="color:var(--n-500); font-size:11px;">Vendus</div><div class="mono" style="font-size:18px; font-weight:600;">${it.sold}</div></div>
+            <div><div style="color:var(--n-500); font-size:11px;">CA</div><div class="mono" style="font-size:18px; font-weight:600;">${(it.p * it.sold).toLocaleString('fr-FR')} MAD</div></div>
+            <div><div style="color:var(--n-500); font-size:11px;">Marge brute</div><div class="mono" style="font-size:18px; font-weight:600; color:var(--atlas);">66 %</div></div>
+          </div>
+        </div>
+      `,
+      foot: `
+        <button class="kb ghost" data-dismiss>Annuler</button>
+        <button class="kb danger" data-st-delete>Supprimer</button>
+        <button class="kb atlas" data-st-save>Enregistrer</button>
+      `,
+    });
+    wireDismiss(editM);
+
+    setTimeout(() => {
+      const root = editM.el;
+      if (!root) return;
+      const pick = root.querySelector('#kiwi-st-pick');
+      pick.addEventListener('click', (e) => {
+        const t = e.target.closest('[data-st-toggle]');
+        if (!t) return;
+        const sid = t.getAttribute('data-st-toggle');
+        if (draftStations.has(sid)) {
+          if (draftStations.size === 1) {
+            toast('Au moins 1 station requise', { type: 'warn', desc: 'Le ticket doit pouvoir être routé quelque part.' });
+            return;
+          }
+          draftStations.delete(sid);
+        } else {
+          draftStations.add(sid);
+        }
+        t.classList.toggle('on', draftStations.has(sid));
+      });
+
+      root.querySelector('[data-st-save]').addEventListener('click', () => {
+        it.stations = Array.from(draftStations);
+        const stationNames = it.stations.map((sid) => findStation(sid).name).join(' · ');
+        editM.close();
+        toast(`${it.n} mis à jour`, { type: 'success', desc: `Routé sur ${it.stations.length} station${it.stations.length > 1 ? 's' : ''} · ${stationNames}` });
+        onSave?.();
+      });
+      root.querySelector('[data-st-delete]').addEventListener('click', () => {
+        editM.close();
+        toast(`${it.n} supprimé de la carte`, { type: 'warn', desc: 'Item retiré · les commandes ouvertes restent valides.' });
+      });
+    }, 0);
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *   handlers · gestion des stations
+   * ═════════════════════════════════════════════════════════════════════════ */
+  const refreshMenuDrawer = () => {
+    const m = document.querySelector('.kiwi-drawer-backdrop .kiwi-drawer');
+    if (m && m.parentElement && m.parentElement.__kiwiMenu) {
+      m.parentElement.__kiwiMenu.refreshAllRowChips();
+      m.parentElement.__kiwiMenu.refreshSummary();
+    }
+  };
+
+  handlers['menu-stations-manage'] = () => {
+    const renderList = () => STATIONS.map((s) => {
+      const stats = stationStats(s.id);
+      return `
+        <div class="kiwi-st-mgr" data-st-mgr="${s.id}">
+          <span class="sw" style="background:${s.raw};"></span>
+          <div class="nm">${s.name}<div class="m">${stationKindLabel(s.kind)}${s.custom ? ' · personnalisée' : ''}</div></div>
+          <span class="ct">${stats.items} item${stats.items > 1 ? 's' : ''} · ${stats.sold} vendus</span>
+          ${s.custom
+            ? `<button class="kb ghost xs" data-st-delete-id="${s.id}">Supprimer</button>`
+            : `<span class="chip neutral mono" style="font-size:9.5px; padding:3px 8px;">SYSTÈME</span>`}
+        </div>`;
+    }).join('');
+
+    const m = modal({
+      tag: 'STATIONS',
+      title: 'Gérer les stations de préparation',
+      desc: 'Chaque item de la carte est routé vers 1 ou plusieurs stations. Les stations système ne peuvent pas être supprimées.',
+      width: 620,
+      body: `
+        <button class="kb atlas" style="width:100%; justify-content:center; margin-bottom:14px;" data-st-create>+ Créer une station personnalisée</button>
+        <div id="st-mgr-list" style="background:#fff; border:1px solid var(--n-200); border-radius:12px; padding:4px 16px;">${renderList()}</div>
+        <div style="margin-top:12px; padding:12px 14px; background:var(--paper-soft); border-radius:10px; font-size:12.5px; color:var(--n-600); line-height:1.5;">
+          <b>Astuce :</b> ajoutez une station "Pizza four" ou "Bar à jus" si votre établissement a une zone dédiée. Le KDS basculera automatiquement vers la nouvelle station.
+        </div>
+      `,
+      foot: `<button class="kb ghost" data-dismiss>Fermer</button>`,
+    });
+    wireDismiss(m);
+
+    setTimeout(() => {
+      const root = m.el;
+      if (!root) return;
+      const list = root.querySelector('#st-mgr-list');
+
+      const refresh = () => { list.innerHTML = renderList(); };
+
+      root.querySelector('[data-st-create]').addEventListener('click', () => openStationCreate(refresh));
+
+      list.addEventListener('click', (e) => {
+        const del = e.target.closest('[data-st-delete-id]');
+        if (!del) return;
+        const sid = del.getAttribute('data-st-delete-id');
+        const s = findStation(sid);
+        if (!s) return;
+        const stats = stationStats(sid);
+        if (stats.items > 0) {
+          toast(`Impossible · ${stats.items} item${stats.items > 1 ? 's' : ''} routé${stats.items > 1 ? 's' : ''}`, {
+            type: 'warn',
+            desc: `Réaffectez les items de la station "${s.name}" avant de la supprimer.`,
+          });
+          return;
+        }
+        const idx = STATIONS.findIndex((x) => x.id === sid);
+        if (idx >= 0) STATIONS.splice(idx, 1);
+        refresh();
+        refreshMenuDrawer();
+        toast(`Station "${s.name}" supprimée`, { type: 'success' });
+      });
+    }, 0);
+  };
+
+  const openStationCreate = (afterCreate) => {
+    const SWATCHES = [
+      ['var(--atlas)', '#0B6E4F'], ['var(--riad)', '#053B2C'], ['var(--success)', '#1FB574'],
+      ['var(--warning)', '#D99A2B'], ['var(--info)', '#3677A6'], ['var(--danger)', '#C24A2E'],
+      ['#C97A4A', '#C97A4A'], ['#8B5CF6', '#8B5CF6'], ['#0EA5E9', '#0EA5E9'],
+      ['#EC4899', '#EC4899'], ['#F97316', '#F97316'], ['#14B8A6', '#14B8A6'],
+    ];
+    let chosenColor = SWATCHES[0];
+    let chosenKind = 'kitchen';
+
+    const m = modal({
+      tag: 'NOUVELLE STATION',
+      title: 'Créer une station personnalisée',
+      desc: 'Une nouvelle station apparaîtra immédiatement dans le sélecteur d\'item et sur le KDS.',
+      width: 540,
+      body: `
+        <div class="kf-group">
+          <label class="kf-label">Nom de la station</label>
+          <input class="kf-input" id="st-new-name" placeholder="ex. Pizza four · Bar à jus · Sushi" />
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Couleur</label>
+          <div id="st-new-swatches" style="display:flex; gap:8px; flex-wrap:wrap;">
+            ${SWATCHES.map((c, i) => `<span class="kiwi-st-swatch ${i === 0 ? 'on' : ''}" data-sw="${i}" style="background:${c[1]};"></span>`).join('')}
+          </div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Type</label>
+          <div style="display:flex; gap:8px;" id="st-new-kind">
+            <button type="button" class="kb atlas" data-kind="kitchen" style="flex:1; justify-content:center;">Cuisine</button>
+            <button type="button" class="kb ghost" data-kind="bar" style="flex:1; justify-content:center;">Bar</button>
+          </div>
+        </div>
+        <div style="padding:12px 14px; background:var(--paper-soft); border-radius:10px; font-size:12.5px; color:var(--n-600); line-height:1.5;">
+          La station sera disponible sur tous les iPad cuisine et terminaux POS dans les 5 secondes après création.
+        </div>
+      `,
+      foot: `
+        <button class="kb ghost" data-dismiss>Annuler</button>
+        <button class="kb atlas" data-st-create-go>Créer la station</button>
+      `,
+    });
+    wireDismiss(m);
+
+    setTimeout(() => {
+      const root = m.el;
+      if (!root) return;
+      root.querySelector('#st-new-swatches').addEventListener('click', (e) => {
+        const sw = e.target.closest('[data-sw]');
+        if (!sw) return;
+        chosenColor = SWATCHES[+sw.getAttribute('data-sw')];
+        root.querySelectorAll('[data-sw]').forEach((x) => x.classList.toggle('on', x === sw));
+      });
+      root.querySelector('#st-new-kind').addEventListener('click', (e) => {
+        const k = e.target.closest('[data-kind]');
+        if (!k) return;
+        chosenKind = k.getAttribute('data-kind');
+        root.querySelectorAll('[data-kind]').forEach((x) => {
+          x.classList.toggle('atlas', x === k);
+          x.classList.toggle('ghost', x !== k);
+        });
+      });
+
+      root.querySelector('[data-st-create-go]').addEventListener('click', () => {
+        const nameInput = root.querySelector('#st-new-name');
+        const name = (nameInput.value || '').trim();
+        if (!name) {
+          nameInput.focus();
+          toast('Donnez un nom à la station', { type: 'warn' });
+          return;
+        }
+        const id = `st-${Date.now().toString(36)}`;
+        STATIONS.push({ id, name, color: chosenColor[0], raw: chosenColor[1], kind: chosenKind, custom: true });
+        m.close();
+        toast(`Station "${name}" créée`, { type: 'success', desc: 'Disponible sur tous les iPad cuisine et le KDS.' });
+        confetti();
+        afterCreate?.();
+        refreshMenuDrawer();
+      });
+    }, 0);
+  };
+
+  handlers['menu-station-create'] = () => openStationCreate(() => {});
+
+  handlers['menu-promote'] = () => {
+    const m = modal({
+      tag: 'INSIGHT',
+      title: 'Suggestions par station',
+      desc: 'Optimisations détectées par Kiwi sur les 30 derniers jours.',
+      width: 520,
+      body: `
+        <div class="p-card" style="margin:0 0 10px;"><div class="head"><h4 style="font-size:14px;">Cuisson chaude · saturée</h4><span class="chip ref">+18 % temps de prép.</span></div><div style="font-size:12.5px; color:var(--n-500);">Pré-portionner les keftas · gain estimé 90 s/ticket.</div></div>
+        <div class="p-card" style="margin:0 0 10px;"><div class="head"><h4 style="font-size:14px;">Bar cocktails · sous-utilisé midi</h4><span class="chip ok">+ marge potentielle</span></div><div style="font-size:12.5px; color:var(--n-500);">Promouvoir le mocktail · upsell +12 % panier.</div></div>
+        <div class="p-card" style="margin:0;"><div class="head"><h4 style="font-size:14px;">Pâtisserie · pic petit-déjeuner</h4><span class="chip pend">files 8h–10h</span></div><div style="font-size:12.5px; color:var(--n-500);">Lancer le msemen 30 min plus tôt.</div></div>
+      `,
+      foot: `<button class="kb ghost" data-dismiss>Fermer</button><button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Suggestions appliquées',{type:'success'}); window.Kiwi.confetti();">Appliquer le plan</button>`,
+    });
+    wireDismiss(m);
+  };
+
+  handlers['menu-add'] = () => {
+    const m = modal({
+      tag: 'NOUVEAU',
+      title: 'Ajouter un nouvel item',
+      desc: 'Sera publié sur le POS, le QR menu et les agrégateurs en sync.',
+      width: 600,
+      body: `
+        <div class="kf-row">
+          <div class="kf-group"><label class="kf-label">Nom de l'item</label><input class="kf-input" placeholder="ex. Tajine boulettes" /></div>
+          <div class="kf-group"><label class="kf-label">Prix TTC</label><input class="kf-input mono" placeholder="0,00 MAD" /></div>
+        </div>
+        <div class="kf-group"><label class="kf-label">Catégorie</label>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            ${CATS.map((c, i) => `<button class="kb ${i === 1 ? 'atlas' : 'ghost'}" style="flex:1; min-width:90px; justify-content:center;">${c.label}</button>`).join('')}
+          </div>
+        </div>
+        <div class="kf-group"><label class="kf-label">Stations de préparation</label>
+          <div class="kiwi-st-pick">
+            ${STATIONS.map((s, i) => `<span class="kiwi-st-opt ${i === 0 ? 'on' : ''}" data-st-new="${s.id}"><i style="background:${s.raw};"></i>${s.name}</span>`).join('')}
+          </div>
+        </div>
+        <div class="kf-group"><label class="kf-label">Description (visible client)</label><input class="kf-input" placeholder="Ingrédients clés et style" /></div>
+      `,
+      foot: `
+        <button class="kb ghost" data-dismiss>Annuler</button>
+        <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Item publié sur la carte',{type:'success',desc:'Synchronisé sur POS · QR · Glovo · Jumia en 4 sec.'}); window.Kiwi.confetti();">Créer & publier</button>
+      `,
+    });
+    wireDismiss(m);
+    setTimeout(() => {
+      m.el.querySelector('.kiwi-st-pick').addEventListener('click', (e) => {
+        const t = e.target.closest('[data-st-new]');
+        if (!t) return;
+        t.classList.toggle('on');
+      });
+    }, 0);
+  };
+
+  handlers['menu-schedule'] = () => {
+    const m = modal({
+      tag: 'PLAGES HORAIRES',
+      title: 'Carte programmée',
+      desc: 'Affiche / cache automatiquement des items selon le service ou la saison.',
+      width: 600,
+      body: `
+        <div class="p-card" style="margin:0 0 10px;"><div class="head"><h4 style="font-size:14px;">Couscous royal</h4><span class="chip ok">vendredi 11h–15h</span></div><div style="font-size:12.5px; color:var(--n-500);">Affiché automatiquement le vendredi.</div></div>
+        <div class="p-card" style="margin:0 0 10px;"><div class="head"><h4 style="font-size:14px;">Méchoui</h4><span class="chip pend">soir 19h–23h</span></div><div style="font-size:12.5px; color:var(--n-500);">Service du soir uniquement.</div></div>
+        <div class="p-card" style="margin:0;"><div class="head"><h4 style="font-size:14px;">Petit-déj.</h4><span class="chip neutral">8h–11h tous les jours</span></div><div style="font-size:12.5px; color:var(--n-500);">Msemen, harira, café, thé.</div></div>
+      `,
+      foot: `<button class="kb ghost" data-dismiss>Fermer</button><button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Programmation enregistrée',{type:'success'})">+ Ajouter une plage</button>`,
+    });
+    wireDismiss(m);
+  };
+
+  handlers['menu-publish'] = () => {
+    const m = modal({
+      tag: 'PUBLIER',
+      title: 'Publier la carte ?',
+      desc: 'La nouvelle version sera synchronisée sur tous les canaux en moins de 10 secondes.',
+      width: 520,
+      body: `
+        <div class="p-card" style="margin:0;">
+          <div class="head"><h4 style="font-size:14px;">Modifications en attente</h4><span class="meta">DEPUIS 12:42</span></div>
+          <ul style="list-style:none; margin:0; padding:0; font-size:13px;">
+            <li style="padding:8px 0; border-top:1px solid var(--n-200);">~ Routage stations mis à jour sur 4 items</li>
+            <li style="padding:8px 0; border-top:1px solid var(--n-200);">+ Station "Barbecue" créée · 1 item routé</li>
+            <li style="padding:8px 0; border-top:1px solid var(--n-200);">+ Station "Crêpes bar" créée · 1 item routé</li>
+            <li style="padding:8px 0; border-top:1px solid var(--n-200);">86 : Tajine agneau pruneaux <span class="chip ref">RUPTURE</span></li>
+          </ul>
+        </div>
+      `,
+      foot: `<button class="kb ghost" data-dismiss>Garder en brouillon</button><button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Carte publiée sur 4 canaux',{type:'success',desc:'POS · QR menu · Glovo · Jumia synchronisés en 6 sec.'}); window.Kiwi.confetti();">Publier maintenant</button>`,
+    });
+    wireDismiss(m);
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *   handlers['nav-kds']  ·  Écran cuisine avec switcher de stations
+   * ═════════════════════════════════════════════════════════════════════════ */
+  handlers['nav-kds'] = () => {
+    const tickets = [
+      { id: 'T-7821', table: 'T4',  src: 'salle',     cook: 'MM', elapsed: 412, items: [
+        { q: 2, n: 'Salade marocaine',     stations: ['salade'] },
+        { q: 1, n: 'Tajine kefta œuf',     stations: ['cuisson'] },
+        { q: 3, n: 'Thé à la menthe',      stations: ['boissons'] },
+      ] },
+      { id: 'T-7822', table: 'T7',  src: 'salle',     cook: 'MM', elapsed: 198, items: [
+        { q: 1, n: 'Couscous royal',       stations: ['cuisson'] },
+        { q: 1, n: 'Pastilla poulet',      stations: ['cuisson', 'pastry'] },
+      ] },
+      { id: 'T-7823', table: 'T2',  src: 'salle',     cook: 'AY', elapsed: 632, items: [
+        { q: 4, n: 'Briouates viande',     stations: ['cuisson'] },
+        { q: 2, n: 'Caviar d\'aubergine',  stations: ['salade'] },
+      ] },
+      { id: 'T-7824', table: 'TR2', src: 'terrasse',  cook: 'AY', elapsed: 88,  items: [
+        { q: 2, n: 'Méchoui',              stations: ['bbq'] },
+        { q: 1, n: 'Salade marocaine',     stations: ['salade'] },
+        { q: 2, n: 'Orange pressée',       stations: ['boissons'] },
+      ] },
+      { id: 'G-3412', table: 'GLOVO', src: 'livraison', cook: 'MM', elapsed: 548, items: [
+        { q: 2, n: 'Tajine kefta œuf',     stations: ['cuisson'] },
+        { q: 1, n: 'Cocktail mocktail',    stations: ['bar'] },
+      ] },
+      { id: 'T-7825', table: 'T9',  src: 'salle',     cook: 'AY', elapsed: 944, items: [
+        { q: 1, n: 'Pastilla poulet',      stations: ['cuisson', 'pastry'] },
+        { q: 1, n: 'Salade marocaine',     stations: ['salade'] },
+        { q: 2, n: 'Crêpe complète',       stations: ['crepes'] },
+      ] },
+      { id: 'J-8821', table: 'JUMIA', src: 'livraison', cook: 'MM', elapsed: 318, items: [
+        { q: 3, n: 'Tajine kefta œuf',     stations: ['cuisson'] },
+        { q: 2, n: 'Msemen beurre & miel', stations: ['pastry'] },
+      ] },
+      { id: 'T-7826', table: 'TR1', src: 'terrasse',  cook: 'AY', elapsed: 42,  items: [
+        { q: 1, n: 'Méchoui',              stations: ['bbq'] },
+        { q: 4, n: 'Café noir double',     stations: ['boissons'] },
+        { q: 2, n: 'Cocktail mocktail',    stations: ['bar'] },
+      ] },
+      { id: 'T-7827', table: 'T1',  src: 'salle',     cook: 'MM', elapsed: 154, items: [
+        { q: 2, n: 'Crêpe complète',       stations: ['crepes'] },
+        { q: 1, n: 'Msemen beurre & miel', stations: ['pastry'] },
+        { q: 2, n: 'Thé à la menthe',      stations: ['boissons'] },
+      ] },
+    ];
+
+    const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    const cls = (s) => (s < 480 ? 'ok' : s < 900 ? 'warn' : 'over');
+
+    let activeStation = 'all';
+
+    const ticketStationIds = (t) => Array.from(new Set(t.items.flatMap((i) => i.stations)));
+    const itemsForCurrent = (t) => activeStation === 'all' ? t.items : t.items.filter((i) => i.stations.includes(activeStation));
+    const ticketsForCurrent = () => activeStation === 'all' ? tickets : tickets.filter((t) => t.items.some((i) => i.stations.includes(activeStation)));
+
+    const ticketHtml = (t) => {
+      const visible = activeStation === 'all' ? t.items : t.items;
+      return `
+        <div class="kds-tk ${cls(t.elapsed)}" data-tk="${t.id}" data-stations="${ticketStationIds(t).join(' ')}">
+          <div class="kds-tk-head">
+            <div class="kds-tk-id"><b>${t.table}</b><span class="kds-tk-src">· ${t.src}</span></div>
+            <div class="kds-tk-time mono ${cls(t.elapsed)}">${fmt(t.elapsed)}</div>
+          </div>
+          <ul class="kds-tk-items" style="list-style:none; padding:0; margin:0;">
+            ${visible.map((i) => {
+              const inScope = activeStation === 'all' || i.stations.includes(activeStation);
+              return `
+                <li class="kds-tk-st-line ${inScope ? '' : 'muted'}">
+                  <span class="q mono">×${i.q}</span>
+                  <span class="nm">${i.n}</span>
+                  <span class="stations">${i.stations.map(stationChip).join('')}</span>
+                </li>`;
+            }).join('')}
+          </ul>
+          <div class="kds-tk-foot">
+            <span class="kds-tk-cook">Affecté : <b>${t.cook === 'MM' ? 'Mehdi M.' : 'Ayoub Y.'}</b></span>
+            <span class="kds-tk-acts">
+              <button class="kb ghost xs" data-action="kds-recall" data-id="${t.id}">Rappeler</button>
+              <button class="kb atlas xs" data-action="kds-bump" data-id="${t.id}">Bump ✓</button>
+            </span>
+          </div>
+        </div>`;
+    };
+
+    const stationTabsHtml = () => {
+      const allCount = tickets.length;
+      const allDishes = tickets.reduce((acc, t) => acc + t.items.reduce((a, i) => a + i.q, 0), 0);
+      const tabs = [
+        `<button class="kds-st-tab ${activeStation === 'all' ? 'on' : ''}" data-kds-st="all"><i style="background:var(--ink);"></i>Tout <span class="ct">${allCount} tk · ${allDishes}</span></button>`
+      ];
+      STATIONS.forEach((s) => {
+        const tk = tickets.filter((t) => t.items.some((i) => i.stations.includes(s.id)));
+        const dishes = tk.reduce((acc, t) => acc + t.items.filter((i) => i.stations.includes(s.id)).reduce((a, i) => a + i.q, 0), 0);
+        tabs.push(`<button class="kds-st-tab ${activeStation === s.id ? 'on' : ''}" data-kds-st="${s.id}"><i style="background:${s.raw};"></i>${s.name} <span class="ct">${tk.length} tk · ${dishes}</span></button>`);
+      });
+      return tabs.join('');
+    };
+
+    const stationKpiHtml = () => {
+      if (activeStation === 'all') {
+        const dishes = tickets.reduce((acc, t) => acc + t.items.reduce((a, i) => a + i.q, 0), 0);
+        return `<div class="l">STATION ACTIVE</div><div class="v">Tout</div><div class="d">${tickets.length} tickets · ${dishes} plats en file</div>`;
+      }
+      const s = findStation(activeStation);
+      const tk = tickets.filter((t) => t.items.some((i) => i.stations.includes(activeStation)));
+      const dishes = tk.reduce((acc, t) => acc + t.items.filter((i) => i.stations.includes(activeStation)).reduce((a, i) => a + i.q, 0), 0);
+      return `<div class="l">STATION ACTIVE</div><div class="v" style="font-size:18px;">${s.name}</div><div class="d"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${s.raw}; margin-right:5px;"></span>${tk.length} tickets · ${dishes} plats</div>`;
+    };
+
+    const r = drawer({
+      title: 'Écran cuisine · KDS',
+      subtitle: `${tickets.length} tickets en préparation · service midi · ${STATIONS.length} stations actives`,
+      width: 1040,
+      body: `
+        <div class="kds-st-tabs" id="kds-st-tabs">
+          ${stationTabsHtml()}
+        </div>
+
+        <div class="p-kpis kds-stat-strip">
+          <div class="p-kpi"><div class="l">TICKETS ACTIFS</div><div class="v">${tickets.length}</div><div class="d">3 cuisson · 2 salade · 2 livraison · 1 terrasse</div></div>
+          <div class="p-kpi"><div class="l">PRÉP. MOYENNE</div><div class="v">8 min <span class="u">14 s</span></div><div class="d up">SLA 12 min · respecté à 87 %</div></div>
+          <div class="p-kpi" id="kds-station-kpi">${stationKpiHtml()}</div>
+          <div class="p-kpi"><div class="l">PLAT DU MOMENT</div><div class="v" style="font-size:18px;">Tajine kefta</div><div class="d">7 commandes en 30 min</div></div>
+        </div>
+
+        <div class="kds-board">
+          <div class="kds-main">
+            <div class="kds-toolbar">
+              <div style="font-family:var(--mono); font-size:11px; color:var(--n-500); letter-spacing:0.06em;">FILE D'ATTENTE · MISE À JOUR LIVE 3 S</div>
+              <div class="kds-tools">
+                <button class="kb ghost xs" data-action="kds-fullscreen">Plein écran</button>
+                <button class="kb ghost xs" data-action="kds-reassign">Réaffecter cuisinier</button>
+              </div>
+            </div>
+
+            <div class="kds-grid-tk" id="kds-grid">
+              ${tickets.map(ticketHtml).join('')}
+            </div>
+          </div>
+
+          <aside class="kds-side">
+            <div class="kds-side-head">
+              <h5>Notifications cuisine</h5>
+              <span class="chip neutral mono">5 nouvelles</span>
+            </div>
+            <div class="kds-notif warn">
+              <div class="kds-notif-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+              <div><b>Ticket T9 dépasse 15 min</b><div class="m">Pastilla en attente cuisson · prévenir Mehdi M.</div></div>
+            </div>
+            <div class="kds-notif info">
+              <div class="kds-notif-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+              <div><b>Pastilla = 2 stations</b><div class="m">Cuisson + Pâtisserie · le ticket apparaît sur les deux écrans, bumper sur chacun.</div></div>
+            </div>
+            <div class="kds-notif info">
+              <div class="kds-notif-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+              <div><b>Coursier Glovo arrivé</b><div class="m">Ticket G-3412 · prêt comptoir</div></div>
+            </div>
+            <div class="kds-notif warn">
+              <div class="kds-notif-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+              <div><b>Stock bas · feuilles de brick</b><div class="m">3 portions restantes · 86 le plat ?</div><button class="kds-notif-cta" data-action="kds-86" data-item="Pastilla poulet">86 cet item</button></div>
+            </div>
+            <div class="kds-notif">
+              <div class="kds-notif-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
+              <div><b>Sofia (salle) demande</b><div class="m">T4 — sans coriandre sur le tajine</div></div>
+            </div>
+
+            <div class="kds-side-head" style="margin-top:18px;">
+              <h5>Performance cuisinier</h5>
+            </div>
+            <div class="kds-cook">
+              <div class="kds-cook-av">MM</div>
+              <div class="kds-cook-info">
+                <b>Mehdi Mansouri · chef</b>
+                <div class="m">4 tickets actifs · prép. moy. <b>7 min 50 s</b></div>
+              </div>
+              <span class="chip ok">SLA 92 %</span>
+            </div>
+            <div class="kds-cook">
+              <div class="kds-cook-av b">AY</div>
+              <div class="kds-cook-info">
+                <b>Ayoub Yacoubi · auxiliaire</b>
+                <div class="m">5 tickets actifs · prép. moy. <b>9 min 12 s</b></div>
+              </div>
+              <span class="chip pend">SLA 79 %</span>
+            </div>
+          </aside>
+        </div>
+      `,
+      foot: `
+        <button class="kb ghost" data-dismiss>Fermer</button>
+        <button class="kb ghost" data-action="kds-print-summary">Imprimer récap service</button>
+        <button class="kb atlas" data-action="kds-fullscreen">Plein écran station active</button>
+      `,
+    });
+    if (r.el.querySelector('.kiwi-drawer')) {
+      r.el.querySelector('.kiwi-drawer').classList.add('page-xl');
+      r.el.querySelector('.kiwi-drawer').style.width = '1040px';
+    }
+    wireDismiss(r);
+
+    setTimeout(() => {
+      const grid = r.el.querySelector('#kds-grid');
+      const tabsRoot = r.el.querySelector('#kds-st-tabs');
+      const kpi = r.el.querySelector('#kds-station-kpi');
+
+      const renderGrid = () => {
+        const visible = ticketsForCurrent();
+        if (visible.length === 0) {
+          grid.innerHTML = `<div style="grid-column:1/-1; padding:40px 20px; text-align:center; color:var(--n-500); font-size:13px; background:var(--paper-soft); border-radius:12px;">Aucun ticket pour la station <b>${activeStation === 'all' ? 'Tout' : findStation(activeStation).name}</b> en ce moment.</div>`;
+        } else {
+          if (activeStation === 'all') {
+            grid.innerHTML = tickets.map(ticketHtml).join('');
+          } else {
+            grid.innerHTML = visible.map(ticketHtml).join('');
+          }
+        }
+        tabsRoot.innerHTML = stationTabsHtml();
+        kpi.innerHTML = stationKpiHtml();
+      };
+
+      r.el.addEventListener('click', (e) => {
+        const tab = e.target.closest('[data-kds-st]');
+        if (tab) {
+          const newSt = tab.getAttribute('data-kds-st');
+          if (newSt === activeStation) return;
+          activeStation = newSt;
+          renderGrid();
+          const lbl = activeStation === 'all' ? 'Tout' : findStation(activeStation).name;
+          toast(`Vue station · ${lbl}`, { type: 'info', desc: activeStation === 'all' ? 'Tous les tickets actifs.' : 'Seuls les items routés ici sont visibles.' });
+          return;
+        }
+        const tk = e.target.closest('.kds-tk');
+        if (tk && !e.target.closest('button')) {
+          const id = tk.dataset.tk;
+          toast(`Ticket ${id} agrandi`, { type: 'info', desc: 'Mode focus · police × 1,4.' });
+        }
+      });
+    }, 0);
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *   KDS auxiliary handlers
+   * ═════════════════════════════════════════════════════════════════════════ */
+  handlers['kds-bump'] = (el) => {
+    const id = el?.dataset.id || 'ticket';
+    const tk = el?.closest('.kds-tk');
+    const m = modal({
+      tag: 'CUISINE',
+      title: `Bump ticket ${id} ?`,
+      desc: 'Le ticket disparaît de l\'écran cuisine. La salle reçoit la notification « plat prêt ».',
+      width: 460,
+      body: `<div style="display:flex; gap:12px; padding:12px 14px; background:var(--paper-soft); border-radius:10px; font-size:13px; color:var(--n-600); line-height:1.5;">
+        <span style="color:var(--atlas);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></span>
+        <div>Sofia (salle) sera notifiée pour récupérer les plats au pass. Action irréversible — utilisez « Rappeler » si besoin.</div>
+      </div>`,
+      foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-confirm-bump>Bump ${id} ✓</button>`,
+    });
+    wireDismiss(m);
+    setTimeout(() => {
+      m.el.querySelector('[data-confirm-bump]').addEventListener('click', () => {
+        m.close();
+        if (tk) { tk.style.transition = 'all 280ms'; tk.style.opacity = '0'; tk.style.transform = 'translateX(20px)'; setTimeout(() => tk.remove(), 280); }
+        toast(`Ticket ${id} bumpé`, { type: 'success', desc: 'Notification salle envoyée à Sofia · pass · ouvert depuis 4 s.' });
+      });
+    }, 0);
+  };
+
+  handlers['kds-recall'] = (el) => {
+    const id = el?.dataset.id || 'ticket';
+    toast(`Ticket ${id} rappelé en cuisine`, { type: 'warn', desc: 'Le ticket revient en haut de la file · cuisinier averti.' });
+  };
+
+  handlers['kds-86'] = (el) => {
+    const item = el?.dataset.item || 'plat';
+    const m = modal({
+      tag: 'STOCK',
+      title: `Mettre « ${item} » en 86 ?`,
+      desc: 'Le plat devient indisponible sur tous les canaux : POS, Glovo, Jumia, QR table.',
+      width: 480,
+      body: `<div style="font-size:13px; color:var(--n-600); line-height:1.5;">Le client en train de commander voit le plat barré. Vous pouvez le réactiver dès que le stock revient.</div>`,
+      foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb danger" data-confirm-86>Confirmer le 86</button>`,
+    });
+    wireDismiss(m);
+    setTimeout(() => {
+      m.el.querySelector('[data-confirm-86]').addEventListener('click', () => {
+        m.close();
+        toast(`${item} en 86`, { type: 'success', desc: 'Désactivé sur POS, Glovo, Jumia, QR table en 3 secondes.' });
+      });
+    }, 0);
+  };
+
+  handlers['kds-fullscreen'] = () => {
+    toast('Plein écran station active', { type: 'info', desc: 'iPad mural connecté · police × 1,4 · auto-refresh 3 s · interface tactile gants compatible.' });
+  };
+  handlers['kds-reassign'] = () => {
+    toast('Réaffecter ticket', { type: 'info', desc: 'Glissez le ticket vers Mehdi M. ou Ayoub Y. pour transférer.' });
+  };
+  handlers['kds-print-summary'] = () => {
+    toast('Récap service midi imprimé', { type: 'success', desc: '47 plats servis · prép. moy. 8 min 14 s · 3 retours cuisine.' });
+  };
+})();
