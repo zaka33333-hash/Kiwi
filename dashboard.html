@@ -705,15 +705,7 @@
 
   /* ─────────────── DATE RANGE SELECTOR ─────────────── */
   .dash-date-range { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 22px 0 26px; flex-wrap: wrap; }
-  .dash-date-range .dr-label-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
   .dash-date-range .dr-label { font-size: 34px; font-weight: 600; letter-spacing: -0.028em; color: var(--ink); line-height: 1.1; }
-  .dash-date-range .dr-label-date {
-    font-family: var(--serif); font-style: italic; font-weight: 400;
-    font-size: 22px; letter-spacing: -0.015em;
-    color: var(--n-500);
-    line-height: 1.2;
-  }
-  .dash-date-range .dr-label-date:empty { display: none; }
   .dash-date-range .dr-sub { font-size: 13.5px; color: var(--n-500); margin-top: 6px; font-family: var(--mono); letter-spacing: 0.01em; }
   .dr-pills { display: inline-flex; gap: 8px; background: var(--paper-soft); padding: 4px; border-radius: 999px; border: 1px solid var(--n-200); flex-wrap: wrap; }
   .dr-pill { padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--n-500); background: transparent; letter-spacing: -0.005em; transition: background 150ms, color 150ms, box-shadow 150ms; cursor: pointer; white-space: nowrap; }
@@ -895,10 +887,7 @@
       <!-- ═══ DATE RANGE SELECTOR ═══ -->
       <div class="dash-date-range">
         <div>
-          <div class="dr-label-row">
-            <span class="dr-label" data-dr-label>Aujourd'hui</span>
-            <span class="dr-label-date" data-dr-label-date></span>
-          </div>
+          <div class="dr-label" data-dr-label>Aujourd'hui</div>
           <div class="dr-sub" data-dr-sub>24.04.2026</div>
         </div>
         <div class="dr-pills" role="tablist">
