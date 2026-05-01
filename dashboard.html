@@ -684,7 +684,7 @@
 
   /* Dashboard title area */
   .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 16px; }
-  /* Greeting headline — floating with a soft layered shadow + animated gradient on the italic. */
+  /* Greeting headline — floating with a soft layered shadow; italic stays solid atlas. */
   .page-head h1.greeting {
     font-size: 34px; font-weight: 600; letter-spacing: -0.032em; margin: 0; line-height: 1.12;
     text-shadow: 0 8px 28px rgba(11,110,79,0.10), 0 2px 6px rgba(10,15,13,0.06);
@@ -695,23 +695,7 @@
     font-style: italic;
     font-weight: 400;
     letter-spacing: -0.005em;
-    background: linear-gradient(110deg, var(--atlas) 0%, var(--mint) 28%, var(--riad) 58%, var(--atlas) 100%);
-    background-size: 260% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    display: inline-block;
-    animation: greet-shimmer 7s ease-in-out infinite;
-    /* Subtle drop shadow for the italic itself — picks up the atlas tint */
-    filter: drop-shadow(0 4px 14px rgba(11,110,79,0.18));
-  }
-  @keyframes greet-shimmer {
-    0%, 100% { background-position: 0% 50%; }
-    50%      { background-position: 100% 50%; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .page-head h1.greeting em { animation: none; }
+    color: var(--atlas);
   }
   .quick-acts { display: flex; gap: 8px; align-items: center; }
   .btn-slim { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); background: #fff; color: var(--ink); transition: all 150ms; }
@@ -726,9 +710,8 @@
   .dash-date-range .dr-label-date {
     font-family: var(--serif); font-style: italic; font-weight: 400;
     font-size: 22px; letter-spacing: -0.015em;
-    color: var(--atlas);
+    color: var(--n-500);
     line-height: 1.2;
-    opacity: 0.78;
   }
   .dash-date-range .dr-label-date:empty { display: none; }
   .dash-date-range .dr-sub { font-size: 13.5px; color: var(--n-500); margin-top: 6px; font-family: var(--mono); letter-spacing: 0.01em; }
