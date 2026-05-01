@@ -1132,8 +1132,9 @@
 
   function parseAmountFromEl(el) {
     if (!el) return 0;
-    const txt = el.textContent.replace(/[^\d,.\-−]/g, '').replace('−', '-');
-    return parseFloat(txt.replace(/\s/g, '').replace(',', '.')) || 0;
+    const m = el.textContent.replace('−', '-').match(/-?\d+(?:[\s ]\d{3})*(?:[.,]\d+)?/);
+    if (!m) return 0;
+    return parseFloat(m[0].replace(/[\s ]/g, '').replace(',', '.')) || 0;
   }
   function parseIntFromEl(el) {
     if (!el) return 0;
