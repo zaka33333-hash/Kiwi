@@ -1064,6 +1064,19 @@
   const fmtShort = d => `${pad(d.getDate())}.${pad(d.getMonth()+1)}`;
   const offsetDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return d; };
 
+  // French short-month names for the inline date next to the big "Aujourd'hui" label.
+  const FR_MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  const fmtFrenchInlineDate = d => `${d.getDate()} ${FR_MONTHS[d.getMonth()]}`;
+
+  // The inline date that sits next to the big range label (no year).
+  // Returns empty string for ranges where it doesn't make sense.
+  function computeInlineDate(id) {
+    const today = new Date();
+    if (id === 'aujourdhui')  return fmtFrenchInlineDate(today);
+    if (id === 'hier')        return fmtFrenchInlineDate(offsetDays(-1));
+    return '';
+  }
+
   function computeSubLine(id) {
     const today = new Date();
     if (id === 'aujourdhui')  return fmtDate(today);
@@ -1154,8 +1167,13 @@
   function renderSelector() {
     const lang = getLang();
     const labelEl = document.querySelector('[data-dr-label]');
+    const labelDateEl = document.querySelector('[data-dr-label-date]');
     const subEl = document.querySelector('[data-dr-sub]');
     if (labelEl) labelEl.textContent = RANGE_STR[lang]?.[currentRange] || RANGE_STR.fr[currentRange];
+    if (labelDateEl) {
+      const inline = computeInlineDate(currentRange);
+      labelDateEl.textContent = inline ? `· ${inline}` : '';
+    }
     if (subEl)   subEl.textContent = computeSubLine(currentRange);
     document.querySelectorAll('.dr-pill').forEach(p => p.classList.toggle('on', p.dataset.range === currentRange));
   }

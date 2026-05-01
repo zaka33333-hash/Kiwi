@@ -684,10 +684,35 @@
 
   /* Dashboard title area */
   .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 16px; }
-  .page-head h1 { font-size: 30px; font-weight: 600; letter-spacing: -0.032em; margin: 0; line-height: 1.1; }
-  .page-head h1 em { font-family: var(--serif); font-style: italic; color: var(--atlas); font-weight: 400; }
-  .page-head .sub { color: var(--n-500); font-size: 13.5px; margin-top: 5px; display: flex; align-items: center; gap: 10px; }
-  .page-head .sub .pip { width: 4px; height: 4px; background: var(--n-300); border-radius: 50%; }
+  /* Greeting headline — floating with a soft layered shadow + animated gradient on the italic. */
+  .page-head h1.greeting {
+    font-size: 34px; font-weight: 600; letter-spacing: -0.032em; margin: 0; line-height: 1.12;
+    text-shadow: 0 8px 28px rgba(11,110,79,0.10), 0 2px 6px rgba(10,15,13,0.06);
+  }
+  .page-head h1.greeting .greet-text { color: var(--ink); }
+  .page-head h1.greeting em {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    background: linear-gradient(110deg, var(--atlas) 0%, var(--mint) 28%, var(--riad) 58%, var(--atlas) 100%);
+    background-size: 260% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    display: inline-block;
+    animation: greet-shimmer 7s ease-in-out infinite;
+    /* Subtle drop shadow for the italic itself — picks up the atlas tint */
+    filter: drop-shadow(0 4px 14px rgba(11,110,79,0.18));
+  }
+  @keyframes greet-shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .page-head h1.greeting em { animation: none; }
+  }
   .quick-acts { display: flex; gap: 8px; align-items: center; }
   .btn-slim { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); background: #fff; color: var(--ink); transition: all 150ms; }
   .btn-slim:hover { border-color: var(--n-400); }
@@ -696,7 +721,16 @@
 
   /* ─────────────── DATE RANGE SELECTOR ─────────────── */
   .dash-date-range { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 22px 0 26px; flex-wrap: wrap; }
+  .dash-date-range .dr-label-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
   .dash-date-range .dr-label { font-size: 34px; font-weight: 600; letter-spacing: -0.028em; color: var(--ink); line-height: 1.1; }
+  .dash-date-range .dr-label-date {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -0.015em;
+    color: var(--atlas);
+    line-height: 1.2;
+    opacity: 0.78;
+  }
+  .dash-date-range .dr-label-date:empty { display: none; }
   .dash-date-range .dr-sub { font-size: 13.5px; color: var(--n-500); margin-top: 6px; font-family: var(--mono); letter-spacing: 0.01em; }
   .dr-pills { display: inline-flex; gap: 8px; background: var(--paper-soft); padding: 4px; border-radius: 999px; border: 1px solid var(--n-200); flex-wrap: wrap; }
   .dr-pill { padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--n-500); background: transparent; letter-spacing: -0.005em; transition: background 150ms, color 150ms, box-shadow 150ms; cursor: pointer; white-space: nowrap; }
@@ -861,8 +895,7 @@
       <!-- Page head -->
       <div class="page-head">
         <div>
-          <h1>Bonjour Rachid, <em>bonne journée ?</em></h1>
-          <div class="sub">Vendredi 24 avril 2026 · <span data-header-sub>Service midi en cours</span> <span class="pip"></span> Dernière maj il y a 4 sec</div>
+          <h1 class="greeting"><span class="greet-text">Bonjour Rachid,</span> <em>bonne journée&nbsp;?</em></h1>
         </div>
         <div class="quick-acts">
           <button class="btn-slim" data-action="payment-link">
@@ -879,7 +912,10 @@
       <!-- ═══ DATE RANGE SELECTOR ═══ -->
       <div class="dash-date-range">
         <div>
-          <div class="dr-label" data-dr-label>Aujourd'hui</div>
+          <div class="dr-label-row">
+            <span class="dr-label" data-dr-label>Aujourd'hui</span>
+            <span class="dr-label-date" data-dr-label-date></span>
+          </div>
           <div class="dr-sub" data-dr-sub>24.04.2026</div>
         </div>
         <div class="dr-pills" role="tablist">
