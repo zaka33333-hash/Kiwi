@@ -1,0 +1,1588 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Kiwi Caisse — Démo commerçant</title>
+  <meta name="description" content="Écran caissier — démo Kiwi POS" />
+
+  <!-- Fonts (already used across the project) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Lucide icon library -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <style>
+    /* ---------- Tokens (inline, file is standalone) ---------- */
+    :root {
+      --forest:        #1F5D3C;   /* deep brand */
+      --forest-deep:   #164A2F;
+      --emerald:       #3FB67A;   /* accent */
+      --mint-tint:     #EBF5F0;   /* ka-yaklo bg */
+      --mint-edge:     #C5E0D3;   /* ka-yaklo border */
+
+      --paper:         #FAFAF8;   /* sidebar bg */
+      --paper-soft:    #F7F7F5;   /* stat card bg */
+      --paper-mute:    #F4F4F2;   /* khawya / quick action bg */
+      --line:          #E5E5E5;
+      --line-soft:     #EEEEEE;
+
+      --ink:           #111111;
+      --ink-2:         #4A4A4A;
+      --ink-3:         #6B6B6B;
+      --ink-4:         #9A9A9A;
+
+      --danger-mute:   #B85245;
+
+      --sans:  "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --serif: "Instrument Serif", "Times New Roman", serif;
+      --mono:  "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+
+      --r-md: 10px;
+      --r-lg: 12px;
+      --r-xl: 16px;
+      --r-2xl: 20px;
+
+      --shadow-1: 0 1px 2px rgba(17,17,17,.04), 0 4px 10px rgba(17,17,17,.05);
+      --shadow-2: 0 8px 28px rgba(17,17,17,.12), 0 2px 6px rgba(17,17,17,.06);
+
+      --gradient: linear-gradient(135deg, #1F5D3C 0%, #3FB67A 100%);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      letter-spacing: -0.005em;
+    }
+    body { overflow: hidden; }
+
+    button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+    input { font-family: inherit; }
+
+    /* ---------- Top status bar (Android tablet illusion) ---------- */
+    .topbar {
+      height: 40px;
+      background: var(--forest);
+      color: #fff;
+      display: flex; align-items: center;
+      padding: 0 16px;
+      font-size: 11px;
+      letter-spacing: 0.01em;
+      flex: 0 0 40px;
+    }
+    .topbar-left, .topbar-right {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+    }
+    .topbar-right { justify-content: flex-end; gap: 14px; }
+    .topbar-center {
+      flex: 0 0 auto;
+      color: rgba(255,255,255,.6);
+    }
+    .topbar .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 0 0 rgba(63,182,122,.7);
+      animation: pulse-dot 2s infinite;
+    }
+    .topbar svg { width: 13px; height: 13px; opacity: .9; }
+
+    @keyframes pulse-dot {
+      0%   { box-shadow: 0 0 0 0 rgba(63,182,122,.6); }
+      70%  { box-shadow: 0 0 0 6px rgba(63,182,122,0); }
+      100% { box-shadow: 0 0 0 0 rgba(63,182,122,0); }
+    }
+
+    /* ---------- App shell ---------- */
+    .shell {
+      flex: 1;
+      display: flex;
+      height: calc(100vh - 40px);
+      min-height: 0;
+    }
+    body { display: flex; flex-direction: column; }
+
+    /* ---------- Left sidebar ---------- */
+    .sidebar {
+      width: 280px;
+      flex: 0 0 280px;
+      background: var(--paper);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      padding: 22px 18px 18px;
+      gap: 18px;
+      min-height: 0;
+    }
+
+    .brand-row { display: flex; flex-direction: column; gap: 8px; }
+    .wordmark {
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background: linear-gradient(180deg, #1F5D3C 0%, #3FB67A 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-flex;
+      align-items: baseline;
+    }
+    .wordmark .dot { color: var(--emerald); -webkit-text-fill-color: var(--emerald); }
+
+    .duty-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; color: var(--ink-3);
+    }
+    .duty-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--emerald);
+      animation: pulse-dot 2s infinite;
+    }
+
+    .cashier-card {
+      display: flex; flex-direction: column;
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+    }
+    .cashier-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .cashier-role { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+    .cashier-divider { height: 1px; background: var(--line-soft); margin: 10px 0; }
+    .clock-time {
+      font-family: var(--sans);
+      font-feature-settings: "tnum" 1;
+      font-size: 28px; font-weight: 700; color: var(--forest);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .clock-date { font-size: 11px; color: var(--ink-3); margin-top: 4px; text-transform: capitalize; }
+
+    .stats-section { display: flex; flex-direction: column; gap: 8px; }
+    .stat-card {
+      background: var(--paper-soft);
+      border-radius: var(--r-lg);
+      padding: 12px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stat-label { font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.02em; }
+    .stat-value { font-size: 16px; font-weight: 700; color: var(--ink); font-feature-settings: "tnum" 1; }
+    .stat-delta { font-size: 11px; color: var(--emerald); font-weight: 500; margin-top: 2px; }
+    .stat-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .stat-card.compact .stat-value { font-size: 14px; }
+
+    .floor-selector { display: flex; gap: 6px; margin-top: auto; padding-top: 4px; }
+    .floor-pill {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      background: var(--line-soft);
+      color: var(--ink-3);
+      transition: background 200ms ease, color 200ms ease, transform 150ms ease, box-shadow 200ms ease;
+      letter-spacing: -0.01em;
+    }
+    .floor-pill[aria-pressed="true"] {
+      background: var(--gradient);
+      color: #fff;
+      box-shadow: var(--shadow-1);
+    }
+
+    .quick-actions { display: flex; flex-direction: column; gap: 6px; }
+    .qa-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 12px;
+      background: var(--paper-mute);
+      color: var(--ink-2);
+      border-radius: var(--r-lg);
+      font-size: 13px; font-weight: 500;
+      text-align: left;
+      transition: background 150ms ease;
+    }
+    .qa-btn:hover { background: #ECEAE5; }
+    .qa-btn.ghost { background: transparent; color: var(--ink-3); }
+    .qa-btn.ghost:hover { background: var(--paper-mute); color: var(--ink-2); }
+    .qa-btn svg { width: 15px; height: 15px; flex: 0 0 15px; }
+
+    /* ---------- Main floor area ---------- */
+    .main {
+      flex: 1;
+      display: flex; flex-direction: column;
+      min-width: 0; min-height: 0;
+      background: #fff;
+    }
+    .main-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px 14px;
+    }
+    .main-title { font-size: 16px; font-weight: 600; color: var(--ink); }
+    .main-title em { font-family: var(--serif); font-style: italic; color: var(--ink-3); font-weight: 400; margin-left: 6px; font-size: 14px; }
+
+    .legend { display: flex; align-items: center; gap: 14px; font-size: 11px; color: var(--ink-3); }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-swatch {
+      width: 10px; height: 10px; border-radius: 3px; display: inline-block;
+    }
+
+    .floor {
+      flex: 1;
+      padding: 6px 24px 22px;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+    .floor.is-active { display: flex; }
+
+    .zone { display: flex; flex-direction: column; gap: 8px; }
+    .zone-label {
+      font-size: 11px; color: var(--ink-4);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .table-row {
+      display: flex; gap: 12px; align-items: flex-end;
+    }
+    .comptoir {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 0;
+    }
+    .comptoir::before, .comptoir::after {
+      content: ""; flex: 1; height: 1px; background: var(--line);
+    }
+    .comptoir-label {
+      font-size: 10.5px; color: var(--ink-4);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    /* ---------- Table card ---------- */
+    .tbl {
+      position: relative;
+      width: 92px; height: 70px;
+      border-radius: var(--r-lg);
+      padding: 6px 8px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      cursor: pointer;
+      transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 150ms ease;
+      user-select: none;
+    }
+    .tbl:hover { transform: translateY(-1px); }
+    .tbl:active { transform: translateY(0); }
+
+    .tbl.size-6 { width: 124px; }
+    .tbl.size-2 { width: 76px; height: 64px; }
+
+    .tbl-head {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 10px; line-height: 1;
+    }
+    .tbl-num { font-weight: 700; letter-spacing: 0.01em; }
+    .tbl-covers { color: var(--ink-4); font-weight: 500; }
+
+    .tbl-status {
+      font-size: 12px; font-weight: 500;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+    .tbl-elapsed {
+      font-size: 10px;
+      text-align: center;
+      font-feature-settings: "tnum" 1;
+    }
+
+    /* khawya */
+    .tbl[data-status="khawya"] {
+      background: var(--paper-mute);
+      border: 1px solid var(--line);
+    }
+    .tbl[data-status="khawya"] .tbl-status { color: var(--ink-4); }
+    .tbl[data-status="khawya"] .tbl-elapsed { display: none; }
+
+    /* ka-yaklo */
+    .tbl[data-status="ka-yaklo"] {
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+    }
+    .tbl[data-status="ka-yaklo"] .tbl-status { color: var(--forest); }
+    .tbl[data-status="ka-yaklo"] .tbl-elapsed { color: var(--forest); }
+
+    /* bgha-ykhlass — urgent, deep forest, pulsing */
+    .tbl[data-status="bgha-ykhlass"] {
+      background: var(--forest);
+      border: 1px solid transparent;
+      color: #fff;
+      animation: urgent-pulse 2s ease-in-out infinite;
+    }
+    .tbl[data-status="bgha-ykhlass"] .tbl-status { color: #fff; font-size: 13px; font-weight: 700; }
+    .tbl[data-status="bgha-ykhlass"] .tbl-elapsed { color: rgba(255,255,255,.7); }
+    .tbl[data-status="bgha-ykhlass"] .tbl-covers { color: rgba(255,255,255,.7); }
+    .tbl[data-status="bgha-ykhlass"] .urgent-dot {
+      position: absolute; top: 8px; right: 8px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #fff;
+      animation: pulse-dot 1.4s infinite;
+      box-shadow: 0 0 0 0 rgba(255,255,255,.7);
+    }
+
+    @keyframes urgent-pulse {
+      0%, 100% { background-color: #1F5D3C; }
+      50%      { background-color: #2A6F4A; }
+    }
+
+    /* ka-tkhdam — payment in progress */
+    .tbl[data-status="ka-tkhdam"] {
+      background: var(--emerald);
+      border: 1px solid transparent;
+      color: #fff;
+    }
+    .tbl[data-status="ka-tkhdam"] .tbl-status { color: #fff; font-weight: 600; }
+    .tbl[data-status="ka-tkhdam"] .tbl-elapsed { color: rgba(255,255,255,.85); }
+    .tbl[data-status="ka-tkhdam"] .tbl-covers { color: rgba(255,255,255,.8); }
+
+    /* khlass — paid, fading */
+    .tbl[data-status="khlass"] {
+      background: #fff;
+      border: 2px solid var(--emerald);
+    }
+    .tbl[data-status="khlass"] .tbl-status { color: var(--emerald); font-weight: 600; }
+    .tbl[data-status="khlass"] .tbl-elapsed { display: none; }
+
+    .tbl.is-selected {
+      box-shadow: 0 0 0 3px rgba(63,182,122,.25);
+    }
+
+    /* ---------- Right panel ---------- */
+    .rightpanel {
+      width: 340px;
+      flex: 0 0 340px;
+      border-left: 1px solid var(--line);
+      background: #fff;
+      display: flex; flex-direction: column;
+      min-height: 0;
+    }
+
+    .rp-empty {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px 28px;
+      gap: 14px; text-align: center;
+    }
+    .rp-empty .wordmark {
+      font-size: 24px;
+      filter: grayscale(.6); opacity: .6;
+    }
+    .rp-empty p {
+      margin: 0;
+      font-size: 13px; color: var(--ink-4);
+      line-height: 1.5;
+      max-width: 220px;
+    }
+
+    .rp-active {
+      display: none;
+      flex-direction: column;
+      flex: 1; min-height: 0;
+      animation: slide-in 250ms ease-out;
+    }
+    @keyframes slide-in {
+      from { transform: translateX(100%); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    .rp-head {
+      padding: 18px 20px 14px;
+      display: flex; align-items: flex-start; gap: 10px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .rp-head-info { flex: 1; }
+    .rp-table { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+    .rp-substatus { font-size: 12px; margin-top: 4px; font-weight: 500; }
+    .rp-substatus[data-flag="bgha-ykhlass"] { color: var(--forest); }
+    .rp-substatus[data-flag="ka-tkhdam"]    { color: var(--emerald); }
+    .rp-substatus[data-flag="ka-yaklo"]     { color: var(--ink-3); }
+    .rp-close {
+      width: 28px; height: 28px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+      color: var(--ink-3);
+      transition: background 150ms ease;
+    }
+    .rp-close:hover { background: var(--paper-mute); color: var(--ink); }
+    .rp-close svg { width: 16px; height: 16px; }
+
+    .rp-items {
+      flex: 1; overflow-y: auto;
+      padding: 8px 20px 0;
+      mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+    }
+    .rp-items::-webkit-scrollbar { width: 4px; }
+    .rp-items::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+    .rp-item {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 8px; align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--paper-mute);
+      font-size: 13px;
+    }
+    .rp-item:last-child { border-bottom: 0; }
+    .rp-item-qty {
+      font-size: 11px; font-weight: 700;
+      color: var(--ink);
+      background: var(--paper-mute);
+      border-radius: 6px;
+      padding: 4px 6px;
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+    .rp-item-name { color: var(--ink); }
+    .rp-item-price { font-weight: 600; color: var(--ink); font-feature-settings: "tnum" 1; }
+
+    .rp-summary {
+      padding: 12px 20px 6px;
+      border-top: 1px solid var(--line-soft);
+    }
+    .rp-summary-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 13px; color: var(--ink-2);
+      padding: 4px 0;
+    }
+    .rp-summary-row .lbl { color: var(--ink-3); }
+    .rp-summary-row .val { font-feature-settings: "tnum" 1; }
+    .rp-tva-note { font-size: 11px; color: var(--ink-4); padding: 4px 0 8px; }
+
+    .rp-total {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 6px 0 14px;
+      border-top: 1px solid var(--line);
+      margin-top: 6px;
+    }
+    .rp-total .lbl {
+      font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--ink-2);
+    }
+    .rp-total .val {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      font-feature-settings: "tnum" 1;
+      letter-spacing: -0.02em;
+    }
+
+    .rp-pay {
+      padding: 0 20px 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .pay-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      height: 56px;
+      border-radius: var(--r-lg);
+      font-size: 15px; font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: transform 150ms ease, filter 150ms ease;
+    }
+    .pay-btn svg { width: 18px; height: 18px; }
+    .pay-btn:hover { transform: translateY(-1px); }
+    .pay-btn:active { transform: translateY(0); }
+    .pay-card {
+      background: var(--gradient);
+      color: #fff;
+      box-shadow: var(--shadow-1);
+    }
+    .pay-cash {
+      background: var(--ink);
+      color: #fff;
+    }
+    .pay-split {
+      background: var(--paper-mute);
+      color: var(--ink-2);
+      height: 48px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .rp-meta {
+      padding: 8px 20px 16px;
+      display: flex; gap: 16px;
+      border-top: 1px solid var(--line-soft);
+    }
+    .meta-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--ink-2);
+      padding: 6px 0;
+      transition: color 150ms ease;
+    }
+    .meta-btn svg { width: 13px; height: 13px; }
+    .meta-btn:hover { color: var(--ink); }
+    .meta-btn.danger { color: var(--danger-mute); margin-left: auto; }
+    .meta-btn.danger:hover { color: #9C3F33; }
+
+    /* ---------- Modals ---------- */
+    .modal-veil {
+      position: fixed; inset: 0;
+      background: rgba(10, 15, 13, 0.42);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+      animation: fade-in 200ms ease-out;
+    }
+    .modal-veil.is-open { display: flex; }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      width: 480px; max-width: calc(100vw - 48px);
+      background: #fff;
+      border-radius: var(--r-2xl);
+      box-shadow: var(--shadow-2);
+      padding: 28px 28px 24px;
+      animation: pop-in 200ms ease-out;
+    }
+    @keyframes pop-in {
+      from { transform: scale(0.95); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+
+    .modal-title {
+      font-size: 20px; font-weight: 700; color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .modal-subtle { font-size: 12px; color: var(--ink-3); margin: 0 0 16px; }
+    .modal-amount {
+      font-size: 48px; font-weight: 800; color: var(--forest);
+      letter-spacing: -0.03em;
+      font-feature-settings: "tnum" 1;
+      text-align: center;
+      padding: 4px 0 14px;
+      line-height: 1;
+    }
+    .modal-amount.size-md { font-size: 40px; }
+
+    /* card pulsing reader */
+    .reader-stage {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+      min-height: 180px;
+      padding: 12px 0;
+    }
+    .reader-disc {
+      width: 92px; height: 92px;
+      border-radius: 50%;
+      background: rgba(63,182,122,.12);
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 300ms ease;
+    }
+    .reader-disc.flash { background: rgba(63,182,122,.32); }
+    .reader-disc svg { width: 38px; height: 38px; color: var(--forest); }
+    .reader-disc.is-pulsing svg { animation: icon-pulse 1.5s ease-in-out infinite; }
+    @keyframes icon-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: .5; transform: scale(0.94); }
+    }
+    .reader-disc.is-success svg {
+      color: var(--emerald);
+      animation: pop-check 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes pop-check {
+      0%   { transform: scale(0.5); opacity: 0; }
+      60%  { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .reader-status {
+      font-size: 14px; color: var(--ink-3);
+      margin-top: 16px;
+      min-height: 22px;
+    }
+    .reader-status.is-success {
+      font-size: 16px; font-weight: 700; color: var(--emerald);
+    }
+    .reader-method {
+      font-size: 11px; color: var(--ink-4);
+      margin-top: 6px;
+      letter-spacing: 0.04em;
+    }
+    .reader-txn {
+      font-size: 11px; color: var(--ink-4);
+      margin-top: 6px;
+      font-family: var(--mono);
+    }
+    .ellipsis::after {
+      display: inline-block;
+      content: "";
+      animation: ellipsis-cycle 1.4s steps(4, end) infinite;
+      width: 1.2em;
+      text-align: left;
+    }
+    @keyframes ellipsis-cycle {
+      0%   { content: ""; }
+      25%  { content: "."; }
+      50%  { content: ".."; }
+      75%  { content: "..."; }
+      100% { content: ""; }
+    }
+
+    .modal-actions {
+      display: flex; gap: 10px; margin-top: 18px;
+      opacity: 0;
+      transition: opacity 240ms ease;
+    }
+    .modal-actions.is-visible { opacity: 1; }
+    .ma-btn {
+      flex: 1;
+      height: 48px;
+      border-radius: var(--r-lg);
+      font-size: 14px; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 150ms ease, filter 150ms ease;
+    }
+    .ma-btn svg { width: 15px; height: 15px; }
+    .ma-btn.primary { background: var(--gradient); color: #fff; }
+    .ma-btn.secondary { background: var(--paper-mute); color: var(--ink); }
+    .ma-btn:hover { transform: translateY(-1px); }
+
+    .modal-foot {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 12px; color: var(--ink-4);
+      opacity: 0;
+      transition: opacity 240ms ease;
+    }
+    .modal-foot.is-visible { opacity: 1; }
+    .modal-foot a { color: inherit; cursor: pointer; }
+    .modal-foot a:hover { color: var(--ink-2); }
+
+    /* cash modal */
+    .cash-grid { display: flex; flex-direction: column; gap: 12px; }
+    .cash-input-row {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .cash-input-label { font-size: 11px; color: var(--ink-3); font-weight: 500; }
+    .cash-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 22px; font-weight: 700; color: var(--ink);
+      border: 1px solid var(--line); border-radius: var(--r-lg);
+      background: #fff;
+      font-feature-settings: "tnum" 1;
+      letter-spacing: -0.01em;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+    .cash-input:focus {
+      outline: none;
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px rgba(31,93,60,.12);
+    }
+    .cash-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+    .cash-preset {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--paper-mute);
+      font-size: 12px; font-weight: 600;
+      color: var(--ink-2);
+      transition: background 150ms ease;
+    }
+    .cash-preset:hover { background: #ECEAE5; }
+
+    .cash-rendu {
+      padding: 14px 16px;
+      border-radius: var(--r-lg);
+      background: var(--paper-soft);
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .cash-rendu .lbl { font-size: 13px; color: var(--ink-3); }
+    .cash-rendu .val { font-size: 22px; font-weight: 800; color: var(--ink); font-feature-settings: "tnum" 1; }
+    .cash-rendu.is-positive .val { color: var(--emerald); }
+    .cash-rendu.is-short .val { color: var(--danger-mute); font-size: 14px; font-weight: 600; }
+
+    .cash-confirm {
+      width: 100%;
+      height: 52px;
+      border-radius: var(--r-lg);
+      background: var(--gradient);
+      color: #fff;
+      font-size: 15px; font-weight: 600;
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+    .cash-confirm[disabled] {
+      opacity: .35; cursor: not-allowed;
+    }
+    .cash-confirm:not([disabled]):hover { transform: translateY(-1px); }
+
+    .cash-success-rendu {
+      font-size: 36px; font-weight: 800; color: var(--emerald);
+      font-feature-settings: "tnum" 1;
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin: 6px 0 4px;
+    }
+    .cash-success-label {
+      font-size: 12px; color: var(--ink-3);
+      text-align: center;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ---------- Toast ---------- */
+    #toast-stack {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; gap: 8px;
+      z-index: 90;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--ink);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      box-shadow: var(--shadow-2);
+      animation: toast-in 240ms ease-out;
+      pointer-events: all;
+    }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .toast.fade { animation: toast-out 240ms ease-in forwards; }
+    @keyframes toast-out {
+      to { opacity: 0; transform: translateY(8px); }
+    }
+
+    /* ---------- Reduced motion ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+
+    /* ---------- Narrow viewport guard ---------- */
+    .narrow-guard {
+      display: none;
+      position: fixed; inset: 0;
+      background: var(--paper);
+      align-items: center; justify-content: center;
+      flex-direction: column;
+      gap: 14px; padding: 32px;
+      text-align: center;
+      z-index: 200;
+    }
+    .narrow-guard svg { width: 36px; height: 36px; color: var(--forest); }
+    .narrow-guard h2 { margin: 0; font-size: 18px; color: var(--ink); }
+    .narrow-guard p { margin: 0; font-size: 13px; color: var(--ink-3); max-width: 280px; line-height: 1.55; }
+
+    @media (max-width: 768px) {
+      .narrow-guard { display: flex; }
+      .topbar, .shell { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ============ TOP BAR (tablet status) ============ -->
+  <div class="topbar" role="banner" aria-label="Status bar">
+    <div class="topbar-left">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span>DÉMO LIVE · Café Atlas · Maarif</span>
+    </div>
+    <div class="topbar-center">Kiwi Caisse — Version Commerçant</div>
+    <div class="topbar-right">
+      <span aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M2 8.82a15 15 0 0 1 20 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      </span>
+      <span aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="18" height="10" rx="2" ry="2"/><line x1="22" y1="11" x2="22" y2="13"/><rect x="4" y="9" width="11" height="6" fill="currentColor" stroke="none"/></svg>
+      </span>
+      <span id="topbar-clock" class="mono" aria-live="polite">14:32</span>
+    </div>
+  </div>
+
+  <!-- ============ SHELL ============ -->
+  <div class="shell">
+
+    <!-- --------- LEFT SIDEBAR --------- -->
+    <aside class="sidebar" aria-label="Caisse">
+      <div class="brand-row">
+        <div class="wordmark" aria-label="Kiwi">kiwi<span class="dot">.</span></div>
+        <div class="duty-row">
+          <span class="duty-dot" aria-hidden="true"></span>
+          <span>3la khidma</span>
+        </div>
+      </div>
+
+      <div class="cashier-card">
+        <div class="cashier-name">Rachid B.</div>
+        <div class="cashier-role">Caissier</div>
+        <div class="cashier-divider"></div>
+        <div id="clock-time" class="clock-time">14:32</div>
+        <div id="clock-date" class="clock-date">Ljm3a 24 April</div>
+      </div>
+
+      <div class="stats-section" aria-label="Stats du shift">
+        <div class="stat-card">
+          <div class="stat-label">Flous d'lyoum</div>
+          <div class="stat-value">27 512 MAD</div>
+          <div class="stat-delta">+3,2%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Transactions</div>
+          <div class="stat-value">211</div>
+          <div class="stat-delta">+24 mn l7it</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card compact">
+            <div class="stat-label">Moyenn tabla</div>
+            <div class="stat-value">130 MAD</div>
+          </div>
+          <div class="stat-card compact">
+            <div class="stat-label">Tables khlass</div>
+            <div class="stat-value">18 / 21</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-actions" aria-label="Actions rapides">
+        <button class="qa-btn" data-action="vente-rapida">
+          <i data-lucide="shopping-cart"></i>
+          <span>Vente rapida</span>
+        </button>
+        <button class="qa-btn" data-action="remboursement">
+          <i data-lucide="rotate-ccw"></i>
+          <span>Remboursement</span>
+        </button>
+        <button class="qa-btn ghost" data-action="fin-service">
+          <i data-lucide="log-out"></i>
+          <span>Fin d'service</span>
+        </button>
+      </div>
+
+      <div class="floor-selector" role="tablist" aria-label="Sélection plancher">
+        <button class="floor-pill" data-floor="1" aria-pressed="true">Bra</button>
+        <button class="floor-pill" data-floor="2" aria-pressed="false">Fo9</button>
+      </div>
+    </aside>
+
+    <!-- --------- MAIN FLOOR PLAN --------- -->
+    <main class="main">
+      <div class="main-head">
+        <div class="main-title">Plan d'sala<em>— vue caissier</em></div>
+        <div class="legend" aria-label="Légende">
+          <div class="legend-item"><span class="legend-swatch" style="background:#F4F4F2; border:1px solid #E5E5E5;"></span><span>Khawya</span></div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#EBF5F0; border:1px solid #C5E0D3;"></span><span>Ka-yaklo</span></div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#1F5D3C;"></span><span>Bgha ykhlass</span></div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#3FB67A;"></span><span>Ka-tkhdam</span></div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#fff; border:2px solid #3FB67A;"></span><span>Khlass</span></div>
+        </div>
+      </div>
+
+      <!-- Floor 1 -->
+      <section class="floor is-active" data-floor="1" aria-label="Plancher 1">
+        <div class="zone">
+          <div class="zone-label">Mur — fenêtre</div>
+          <div class="table-row" data-zone="window"></div>
+        </div>
+        <div class="comptoir"><span class="comptoir-label">Comptoir</span></div>
+        <div class="zone">
+          <div class="zone-label">Centre</div>
+          <div class="table-row" data-zone="center"></div>
+        </div>
+        <div class="zone">
+          <div class="zone-label">Bar</div>
+          <div class="table-row" data-zone="bar"></div>
+        </div>
+        <div class="zone">
+          <div class="zone-label">Entrée</div>
+          <div class="table-row" data-zone="entry"></div>
+        </div>
+      </section>
+
+      <!-- Floor 2 -->
+      <section class="floor" data-floor="2" aria-label="Plancher 2">
+        <div class="zone">
+          <div class="zone-label">Terrasse</div>
+          <div class="table-row" data-zone="terrace-1"></div>
+          <div class="table-row" data-zone="terrace-2"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- --------- RIGHT BILL PANEL --------- -->
+    <aside class="rightpanel" aria-label="Addition">
+      <!-- empty state -->
+      <div class="rp-empty" id="rp-empty">
+        <div class="wordmark" aria-hidden="true">kiwi<span class="dot">.</span></div>
+        <p>Ktar 3la tabla bach tshuf l'addition.</p>
+      </div>
+
+      <!-- active state -->
+      <div class="rp-active" id="rp-active" hidden>
+        <div class="rp-head">
+          <div class="rp-head-info">
+            <div class="rp-table" id="rp-table">T2 · 2 couverts</div>
+            <div class="rp-substatus" id="rp-substatus" data-flag="bgha-ykhlass">Bgha ykhlass · 12 mn</div>
+          </div>
+          <button class="rp-close" id="rp-close" aria-label="Fermer">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <div class="rp-items" id="rp-items"></div>
+
+        <div class="rp-summary">
+          <div class="rp-summary-row"><span class="lbl">Sous-total</span><span class="val mono" id="rp-subtotal">530 MAD</span></div>
+          <div class="rp-summary-row"><span class="lbl">Service (0%)</span><span class="val mono">0 MAD</span></div>
+          <div class="rp-tva-note">TVA comprise dans les prix</div>
+          <div class="rp-total"><span class="lbl">Total</span><span class="val mono" id="rp-total">530 MAD</span></div>
+        </div>
+
+        <div class="rp-pay">
+          <button class="pay-btn pay-card" id="pay-card">
+            <i data-lucide="credit-card"></i>
+            <span>Payer par carte</span>
+          </button>
+          <button class="pay-btn pay-cash" id="pay-cash">
+            <i data-lucide="banknote"></i>
+            <span>Flous — espèces</span>
+          </button>
+          <button class="pay-btn pay-split" id="pay-split">
+            <i data-lucide="divide"></i>
+            <span>Partager l'addition</span>
+          </button>
+        </div>
+
+        <div class="rp-meta">
+          <button class="meta-btn" data-action="discount">
+            <i data-lucide="badge-percent"></i><span>Réduction</span>
+          </button>
+          <button class="meta-btn" data-action="print-bill">
+            <i data-lucide="printer"></i><span>Imprimer</span>
+          </button>
+          <button class="meta-btn danger" data-action="cancel-table">
+            <i data-lucide="x"></i><span>Annuler mesa</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============ CARD MODAL ============ -->
+  <div class="modal-veil" id="card-modal" role="dialog" aria-modal="true" aria-labelledby="card-modal-title">
+    <div class="modal">
+      <h3 class="modal-title" id="card-modal-title">Payer par carte</h3>
+      <p class="modal-subtle" id="card-modal-sub">Mesa <span data-bind="table">T2</span> · <span data-bind="covers">2</span> couverts</p>
+      <div class="modal-amount" id="card-amount">530,00 MAD</div>
+      <div class="reader-stage">
+        <div class="reader-disc is-pulsing" id="reader-disc">
+          <i data-lucide="credit-card"></i>
+        </div>
+        <div class="reader-status" id="reader-status">Approchez la carte ou le téléphone<span class="ellipsis"></span></div>
+        <div class="reader-method" id="reader-method">Kiwi Tap · NFC · QR</div>
+        <div class="reader-txn" id="reader-txn" hidden></div>
+      </div>
+      <div class="modal-actions" id="card-actions">
+        <button class="ma-btn primary" data-modal-action="print">
+          <i data-lucide="printer"></i><span>Imprimer ticket</span>
+        </button>
+        <button class="ma-btn secondary" data-modal-action="send">
+          <i data-lucide="message-square"></i><span>SMS / WhatsApp</span>
+        </button>
+      </div>
+      <div class="modal-foot" id="card-foot">
+        <a data-modal-action="close">Fermer</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CASH MODAL ============ -->
+  <div class="modal-veil" id="cash-modal" role="dialog" aria-modal="true" aria-labelledby="cash-modal-title">
+    <div class="modal">
+      <h3 class="modal-title" id="cash-modal-title">Payer en espèces</h3>
+      <p class="modal-subtle">Mesa <span data-bind="table">T2</span> · <span data-bind="covers">2</span> couverts</p>
+      <div class="modal-amount size-md" id="cash-amount">530,00 MAD</div>
+
+      <div class="cash-grid" id="cash-step-input">
+        <div class="cash-input-row">
+          <label class="cash-input-label" for="cash-received">Flous reçu</label>
+          <input class="cash-input mono" id="cash-received" type="number" inputmode="numeric" min="0" step="1" value="530" />
+        </div>
+        <div class="cash-presets" aria-label="Ajout rapide">
+          <button class="cash-preset" data-add="50">+50</button>
+          <button class="cash-preset" data-add="100">+100</button>
+          <button class="cash-preset" data-add="200">+200</button>
+          <button class="cash-preset" data-add="500">+500</button>
+        </div>
+        <div class="cash-rendu" id="cash-rendu">
+          <span class="lbl">Rendu</span>
+          <span class="val mono" id="cash-rendu-val">0,00 MAD</span>
+        </div>
+        <button class="cash-confirm" id="cash-confirm" disabled>Confirmer</button>
+      </div>
+
+      <div class="cash-grid" id="cash-step-success" hidden>
+        <div class="reader-stage" style="min-height:140px;">
+          <div class="reader-disc is-success">
+            <i data-lucide="check"></i>
+          </div>
+          <div class="reader-status is-success">Khlass! Espèces confirmées</div>
+        </div>
+        <div class="cash-success-label">Rendu au client</div>
+        <div class="cash-success-rendu mono" id="cash-success-rendu">0,00 MAD</div>
+        <div class="modal-actions is-visible">
+          <button class="ma-btn primary" data-modal-action="print">
+            <i data-lucide="printer"></i><span>Imprimer ticket</span>
+          </button>
+          <button class="ma-btn secondary" data-modal-action="send">
+            <i data-lucide="message-square"></i><span>SMS / WhatsApp</span>
+          </button>
+        </div>
+        <div class="modal-foot is-visible">
+          <a data-modal-action="close">Fermer</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOAST STACK ============ -->
+  <div id="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ============ NARROW VIEWPORT GUARD ============ -->
+  <div class="narrow-guard" aria-hidden="true">
+    <i data-lucide="rotate-cw"></i>
+    <h2>Pivoter l'écran</h2>
+    <p>Ouvre en landscape sur tablet 3afak — Kiwi Caisse a besoin d'au moins 1180px d'largeur.</p>
+  </div>
+
+  <script>
+    /* =========================================================
+       Kiwi Caisse — demo logic
+       Single-file. No build, no framework. Pure browser JS.
+       ========================================================= */
+
+    /* ---------- Helpers ---------- */
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const fmtMAD = n => new Intl.NumberFormat('fr-FR', { useGrouping: true }).format(Math.round(n)) + ' MAD';
+    const fmtMADcents = n => n.toFixed(2).replace('.', ',') + ' MAD';
+
+    /* ---------- DAfr days ---------- */
+    const dafrDays = ['Lhad', 'Ltnin', 'Tlata', 'Larb3a', 'Lkhmis', 'Ljm3a', 'Sbt'];
+    const monthsEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    /* ---------- Live clock ---------- */
+    function tickClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const t = `${hh}:${mm}`;
+      $('#clock-time').textContent = t;
+      $('#topbar-clock').textContent = t;
+      $('#clock-date').textContent = `${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    /* ---------- Table data ---------- */
+    /* status: khawya | ka-yaklo | bgha-ykhlass | ka-tkhdam | khlass */
+    const tables = {
+      // Floor 1
+      T1:  { floor: 1, zone: 'window', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 45 },
+      T2:  { floor: 1, zone: 'window', covers: 2, size: 2, status: 'bgha-ykhlass', elapsed: 12 },
+      T3:  { floor: 1, zone: 'window', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T4:  { floor: 1, zone: 'window', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 22 },
+
+      T5:  { floor: 1, zone: 'center', covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 67 },
+      T6:  { floor: 1, zone: 'center', covers: 5, size: 6, status: 'bgha-ykhlass', elapsed: 8  },
+
+      T7:  { floor: 1, zone: 'bar',    covers: 2, size: 2, status: 'khlass',       elapsed: 0  },
+      T8:  { floor: 1, zone: 'bar',    covers: 2, size: 2, status: 'khawya',       elapsed: 0  },
+      T9:  { floor: 1, zone: 'bar',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 14 },
+      T10: { floor: 1, zone: 'bar',    covers: 2, size: 2, status: 'khawya',       elapsed: 0  },
+
+      T11: { floor: 1, zone: 'entry',  covers: 3, size: 4, status: 'ka-yaklo',     elapsed: 31 },
+      T12: { floor: 1, zone: 'entry',  covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T13: { floor: 1, zone: 'entry',  covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 19 },
+
+      // Floor 2 — terrasse
+      T14: { floor: 2, zone: 'terrace-1', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T15: { floor: 2, zone: 'terrace-1', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 55 },
+      T16: { floor: 2, zone: 'terrace-1', covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 38 },
+      T17: { floor: 2, zone: 'terrace-1', covers: 4, size: 4, status: 'bgha-ykhlass', elapsed: 5  },
+      T18: { floor: 2, zone: 'terrace-2', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T19: { floor: 2, zone: 'terrace-2', covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 28 },
+      T20: { floor: 2, zone: 'terrace-2', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T21: { floor: 2, zone: 'terrace-2', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+    };
+
+    /* ---------- Mock orders per table ---------- */
+    /* T2 hand-spec'd. Others generated from a small menu so the demo doesn't break. */
+    const orders = {
+      T2: [
+        { qty: 2, name: 'Salade marocaine',  total: 90  },
+        { qty: 2, name: 'Tajine kefta',      total: 360 },
+        { qty: 1, name: 'Thé à la menthe',   total: 30  },
+        { qty: 1, name: 'Jus d’avocat', total: 50  },
+      ],
+    };
+
+    /* For other occupied tables, generate plausible orders (deterministic per table id) */
+    const menu = [
+      { name: 'Salade marocaine',     unit: 45 },
+      { name: 'Briouates',            unit: 60 },
+      { name: 'Tajine kefta',         unit: 180 },
+      { name: 'Tajine poulet',        unit: 150 },
+      { name: 'Couscous royal',       unit: 220 },
+      { name: 'Pastilla poulet',      unit: 140 },
+      { name: 'Harira',               unit: 35 },
+      { name: 'Thé à la menthe',      unit: 30 },
+      { name: 'Jus d’orange',    unit: 35 },
+      { name: 'Jus d’avocat',    unit: 50 },
+      { name: 'Eau Aïn Saïss',        unit: 18 },
+      { name: 'Pâtisserie maison',    unit: 45 },
+    ];
+    function generateOrder(tableId, t) {
+      if (orders[tableId]) return orders[tableId];
+      const seed = parseInt(tableId.replace('T',''), 10);
+      const lines = [];
+      // Mains: one per cover (slight variation)
+      const mainIdx = (seed * 3) % 6 + 2; // index in menu (mains are 2..6)
+      const main = menu[mainIdx];
+      lines.push({ qty: t.covers, name: main.name, total: main.unit * t.covers });
+      // Drinks
+      const drinkIdx = 7 + (seed % 4); // 7..10
+      const drink = menu[drinkIdx];
+      lines.push({ qty: t.covers, name: drink.name, total: drink.unit * t.covers });
+      // Starter or dessert sometimes
+      if (seed % 2 === 0) {
+        const starter = menu[seed % 2 === 0 ? 0 : 1];
+        lines.push({ qty: 1, name: starter.name, total: starter.unit });
+      } else {
+        const dessert = menu[11];
+        lines.push({ qty: t.covers, name: dessert.name, total: dessert.unit * t.covers });
+      }
+      orders[tableId] = lines;
+      return lines;
+    }
+
+    /* ---------- Floor plan rendering ---------- */
+    function tableHTML(id, t) {
+      const sizeClass = t.size === 6 ? 'size-6' : (t.size === 2 ? 'size-2' : '');
+      const label = ({
+        'khawya':       'Khawya',
+        'ka-yaklo':     'Ka-yaklo',
+        'bgha-ykhlass': 'Bghaw ykhlass',
+        'ka-tkhdam':    'Ka-tkhdam…',
+        'khlass':       'Khlass ✓',
+      })[t.status];
+      const elapsed = (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam')
+        ? `<div class="tbl-elapsed">${t.elapsed} mn</div>`
+        : '';
+      const dot = t.status === 'bgha-ykhlass' ? '<span class="urgent-dot" aria-hidden="true"></span>' : '';
+      return `
+        <div class="tbl ${sizeClass}" data-table="${id}" data-status="${t.status}" role="button" tabindex="0" aria-label="Table ${id}, ${label}">
+          ${dot}
+          <div class="tbl-head">
+            <span class="tbl-num">${id}</span>
+            <span class="tbl-covers">${t.covers}p</span>
+          </div>
+          <div class="tbl-status">${label}</div>
+          ${elapsed}
+        </div>
+      `;
+    }
+
+    function renderFloor(floorNum) {
+      const zonesByFloor = {
+        1: ['window', 'center', 'bar', 'entry'],
+        2: ['terrace-1', 'terrace-2'],
+      };
+      const zones = zonesByFloor[floorNum];
+      zones.forEach(zoneName => {
+        const wrap = document.querySelector(`.floor[data-floor="${floorNum}"] .table-row[data-zone="${zoneName}"]`);
+        if (!wrap) return;
+        const ids = Object.keys(tables).filter(id => tables[id].floor === floorNum && tables[id].zone === zoneName);
+        wrap.innerHTML = ids.map(id => tableHTML(id, tables[id])).join('');
+      });
+    }
+    renderFloor(1);
+    renderFloor(2);
+
+    /* ---------- Floor switching ---------- */
+    $$('.floor-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.floor;
+        $$('.floor-pill').forEach(p => p.setAttribute('aria-pressed', p === btn ? 'true' : 'false'));
+        $$('.floor').forEach(f => f.classList.toggle('is-active', f.dataset.floor === target));
+      });
+    });
+
+    /* ---------- Toast ---------- */
+    function toast(msg, ms = 1800) {
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = msg;
+      $('#toast-stack').appendChild(el);
+      setTimeout(() => { el.classList.add('fade'); }, ms);
+      setTimeout(() => { el.remove(); }, ms + 280);
+    }
+
+    /* ---------- Right panel state ---------- */
+    let selectedId = null;
+
+    function renderRightPanel(id) {
+      const t = tables[id];
+      const lines = generateOrder(id, t);
+      const total = lines.reduce((sum, l) => sum + l.total, 0);
+
+      $('#rp-table').textContent = `${id} · ${t.covers} couverts`;
+
+      const subEl = $('#rp-substatus');
+      const flag = t.status === 'ka-tkhdam' ? 'ka-tkhdam' : (t.status === 'bgha-ykhlass' ? 'bgha-ykhlass' : 'ka-yaklo');
+      subEl.dataset.flag = flag;
+      const subText = ({
+        'bgha-ykhlass': `Bgha ykhlass · ${t.elapsed} mn`,
+        'ka-tkhdam':    `Ka-tkhdam · ${t.elapsed} mn`,
+        'ka-yaklo':     `Ka-yaklo · ${t.elapsed} mn`,
+      })[flag];
+      subEl.textContent = subText;
+
+      $('#rp-items').innerHTML = lines.map(l => `
+        <div class="rp-item">
+          <span class="rp-item-qty">${l.qty}×</span>
+          <span class="rp-item-name">${l.name}</span>
+          <span class="rp-item-price mono">${fmtMAD(l.total)}</span>
+        </div>
+      `).join('');
+
+      $('#rp-subtotal').textContent = fmtMAD(total);
+      $('#rp-total').textContent = fmtMAD(total);
+
+      // Sync modal labels too
+      $$('[data-bind="table"]').forEach(el => el.textContent = id);
+      $$('[data-bind="covers"]').forEach(el => el.textContent = t.covers);
+      $('#card-amount').textContent = fmtMADcents(total);
+      $('#cash-amount').textContent = fmtMADcents(total);
+      $('#cash-received').value = total;
+      updateRendu();
+    }
+
+    function openTable(id) {
+      const t = tables[id];
+      // Move to ka-tkhdam (payment in progress)
+      t.status = 'ka-tkhdam';
+      selectedId = id;
+      refreshTableNode(id);
+
+      $$('.tbl').forEach(el => el.classList.toggle('is-selected', el.dataset.table === id));
+
+      renderRightPanel(id);
+      $('#rp-empty').hidden = true;
+      $('#rp-empty').style.display = 'none';
+      const active = $('#rp-active');
+      active.hidden = false;
+      active.style.display = 'flex';
+      // re-trigger slide-in animation
+      active.style.animation = 'none';
+      void active.offsetWidth;
+      active.style.animation = '';
+
+      lucide.createIcons();
+    }
+
+    function closeRightPanel() {
+      // If table was ka-tkhdam without paying, revert to its previous state
+      // For demo simplicity: leave it ka-tkhdam (cashier may have stepped away)
+      // Selection visual gone:
+      $$('.tbl').forEach(el => el.classList.remove('is-selected'));
+      selectedId = null;
+      $('#rp-active').hidden = true;
+      $('#rp-active').style.display = 'none';
+      $('#rp-empty').hidden = false;
+      $('#rp-empty').style.display = 'flex';
+    }
+
+    function refreshTableNode(id) {
+      const t = tables[id];
+      const old = document.querySelector(`.tbl[data-table="${id}"]`);
+      if (!old) return;
+      old.outerHTML = tableHTML(id, t);
+      lucide.createIcons();
+      // re-bind click is automatic since we use event delegation below
+    }
+
+    function markPaid(id) {
+      const t = tables[id];
+      t.status = 'khlass';
+      t.elapsed = 0;
+      refreshTableNode(id);
+      // Fade to khawya after 3s
+      setTimeout(() => {
+        if (tables[id] && tables[id].status === 'khlass') {
+          tables[id].status = 'khawya';
+          tables[id].covers = tables[id].covers; // keep covers
+          delete orders[id]; // clear order
+          refreshTableNode(id);
+        }
+      }, 3000);
+    }
+
+    /* Event delegation for tables */
+    document.addEventListener('click', (e) => {
+      const tableEl = e.target.closest('.tbl');
+      if (tableEl) {
+        const id = tableEl.dataset.table;
+        const t = tables[id];
+        if (!t) return;
+        if (t.status === 'khawya')  { toast('Mesa khawya'); return; }
+        if (t.status === 'khlass')  { return; }
+        // For ka-yaklo, bgha-ykhlass, or already ka-tkhdam: open the bill
+        openTable(id);
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.classList.contains('tbl')) {
+        e.preventDefault();
+        document.activeElement.click();
+      }
+    });
+
+    /* ---------- Right panel actions ---------- */
+    $('#rp-close').addEventListener('click', () => {
+      // Revert ka-tkhdam back to its prior live state if user closes without paying
+      if (selectedId) {
+        const t = tables[selectedId];
+        if (t.status === 'ka-tkhdam') {
+          // assume table is still in service — revert to ka-yaklo so it doesn't get stuck
+          t.status = 'ka-yaklo';
+          refreshTableNode(selectedId);
+        }
+      }
+      closeRightPanel();
+    });
+
+    $('#pay-split').addEventListener('click', () => toast('Bientôt disponible — wakha'));
+    $$('.meta-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const a = btn.dataset.action;
+        if (a === 'discount')      toast('Réduction · code PIN sera demandé');
+        else if (a === 'print-bill') toast('Imprimante en cours…');
+        else if (a === 'cancel-table') {
+          if (selectedId) {
+            const t = tables[selectedId];
+            t.status = 'ka-yaklo'; // back to in-service, not paid
+            refreshTableNode(selectedId);
+            closeRightPanel();
+            toast('Mesa rétablie · service en cours');
+          }
+        }
+      });
+    });
+
+    $$('.qa-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const a = btn.dataset.action;
+        if (a === 'vente-rapida')   toast('Vente rapida · scan d’un produit…');
+        else if (a === 'remboursement') toast('Remboursement · choisis transaction');
+        else if (a === 'fin-service')   toast('Fin d’service · vérifier la caisse');
+      });
+    });
+
+    /* ---------- CARD modal ---------- */
+    const cardModal = $('#card-modal');
+    const reader = {
+      disc: $('#reader-disc'),
+      status: $('#reader-status'),
+      method: $('#reader-method'),
+      txn: $('#reader-txn'),
+      actions: $('#card-actions'),
+      foot: $('#card-foot'),
+    };
+    let cardSuccessTimer = null;
+    let cardFootTimer = null;
+
+    function openCardModal() {
+      // Reset to pulsing state
+      reader.disc.classList.remove('is-success', 'flash');
+      reader.disc.classList.add('is-pulsing');
+      reader.disc.innerHTML = '<i data-lucide="credit-card"></i>';
+      reader.status.classList.remove('is-success');
+      reader.status.innerHTML = 'Approchez la carte ou le téléphone<span class="ellipsis"></span>';
+      reader.method.style.display = '';
+      reader.txn.hidden = true;
+      reader.txn.textContent = '';
+      reader.actions.classList.remove('is-visible');
+      reader.foot.classList.remove('is-visible');
+      cardModal.classList.add('is-open');
+      lucide.createIcons();
+
+      cardSuccessTimer = setTimeout(triggerCardSuccess, 2000);
+    }
+    function triggerCardSuccess() {
+      reader.disc.classList.remove('is-pulsing');
+      reader.disc.classList.add('flash', 'is-success');
+      reader.disc.innerHTML = '<i data-lucide="check"></i>';
+      reader.status.classList.add('is-success');
+      reader.status.textContent = 'Khlass! Carte approuvée';
+      reader.method.style.display = 'none';
+      const txn = 'TXN #KW-' + (28000 + Math.floor(Math.random() * 999));
+      reader.txn.textContent = txn;
+      reader.txn.hidden = false;
+      reader.actions.classList.add('is-visible');
+      lucide.createIcons();
+      setTimeout(() => { reader.disc.classList.remove('flash'); }, 600);
+      cardFootTimer = setTimeout(() => { reader.foot.classList.add('is-visible'); }, 1000);
+    }
+    function closeCardModal({ paid = false } = {}) {
+      cardModal.classList.remove('is-open');
+      clearTimeout(cardSuccessTimer);
+      clearTimeout(cardFootTimer);
+      if (paid && selectedId) {
+        markPaid(selectedId);
+        closeRightPanel();
+      }
+    }
+    $('#pay-card').addEventListener('click', openCardModal);
+    cardModal.addEventListener('click', (e) => {
+      if (e.target === cardModal) closeCardModal({ paid: true });
+      const action = e.target.closest('[data-modal-action]')?.dataset.modalAction;
+      if (action === 'close') closeCardModal({ paid: true });
+      if (action === 'print') { toast('Ticket en impression…'); closeCardModal({ paid: true }); }
+      if (action === 'send')  { toast('Envoyé · SMS / WhatsApp'); closeCardModal({ paid: true }); }
+    });
+
+    /* ---------- CASH modal ---------- */
+    const cashModal = $('#cash-modal');
+    const cashInput = $('#cash-received');
+    const cashRendu = $('#cash-rendu');
+    const cashRenduVal = $('#cash-rendu-val');
+    const cashConfirm = $('#cash-confirm');
+    const cashStepInput = $('#cash-step-input');
+    const cashStepSuccess = $('#cash-step-success');
+    const cashSuccessRendu = $('#cash-success-rendu');
+
+    function currentTotal() {
+      if (!selectedId) return 0;
+      const lines = generateOrder(selectedId, tables[selectedId]);
+      return lines.reduce((s, l) => s + l.total, 0);
+    }
+    function updateRendu() {
+      const total = currentTotal();
+      const got = parseFloat(cashInput.value) || 0;
+      const diff = got - total;
+      cashRendu.classList.remove('is-positive', 'is-short');
+      if (got >= total) {
+        cashRendu.classList.toggle('is-positive', diff > 0);
+        cashRenduVal.textContent = fmtMADcents(diff);
+        cashConfirm.disabled = false;
+      } else {
+        cashRendu.classList.add('is-short');
+        cashRenduVal.textContent = 'Insuffisant · manque ' + fmtMAD(total - got);
+        cashConfirm.disabled = true;
+      }
+    }
+    function openCashModal() {
+      cashStepInput.hidden = false;
+      cashStepInput.style.display = '';
+      cashStepSuccess.hidden = true;
+      cashStepSuccess.style.display = 'none';
+      const total = currentTotal();
+      cashInput.value = total;
+      updateRendu();
+      cashModal.classList.add('is-open');
+      setTimeout(() => cashInput.focus(), 60);
+    }
+    function closeCashModal({ paid = false } = {}) {
+      cashModal.classList.remove('is-open');
+      if (paid && selectedId) {
+        markPaid(selectedId);
+        closeRightPanel();
+      }
+    }
+    $('#pay-cash').addEventListener('click', openCashModal);
+    cashInput.addEventListener('input', updateRendu);
+    $$('.cash-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        cashInput.value = (parseFloat(cashInput.value) || 0) + parseFloat(btn.dataset.add);
+        updateRendu();
+      });
+    });
+    cashConfirm.addEventListener('click', () => {
+      const total = currentTotal();
+      const got = parseFloat(cashInput.value) || 0;
+      const change = got - total;
+      cashStepInput.hidden = true;
+      cashStepInput.style.display = 'none';
+      cashStepSuccess.hidden = false;
+      cashStepSuccess.style.display = 'flex';
+      cashSuccessRendu.textContent = fmtMADcents(change);
+      lucide.createIcons();
+    });
+    cashModal.addEventListener('click', (e) => {
+      if (e.target === cashModal) closeCashModal({ paid: !cashStepInput.hidden ? false : true });
+      const action = e.target.closest('[data-modal-action]')?.dataset.modalAction;
+      if (action === 'close') closeCashModal({ paid: true });
+      if (action === 'print') { toast('Ticket en impression…'); closeCashModal({ paid: true }); }
+      if (action === 'send')  { toast('Envoyé · SMS / WhatsApp'); closeCashModal({ paid: true }); }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (cardModal.classList.contains('is-open')) closeCardModal({ paid: false });
+        if (cashModal.classList.contains('is-open')) closeCashModal({ paid: false });
+      }
+    });
+
+    /* ---------- Live elapsed minutes ---------- */
+    setInterval(() => {
+      Object.keys(tables).forEach(id => {
+        const t = tables[id];
+        if (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam') {
+          t.elapsed += 1;
+          // Update DOM in place (cheaper than full re-render)
+          const node = document.querySelector(`.tbl[data-table="${id}"] .tbl-elapsed`);
+          if (node) node.textContent = `${t.elapsed} mn`;
+          // Update right panel substatus if this is the selected one
+          if (id === selectedId) {
+            const sub = $('#rp-substatus');
+            const flag = sub.dataset.flag;
+            const map = {
+              'bgha-ykhlass': 'Bgha ykhlass',
+              'ka-tkhdam':    'Ka-tkhdam',
+              'ka-yaklo':     'Ka-yaklo',
+            };
+            sub.textContent = `${map[flag]} · ${t.elapsed} mn`;
+          }
+        }
+      });
+    }, 60_000);
+
+    /* ---------- Khlass-fade for T7 (preset) ---------- */
+    setTimeout(() => {
+      if (tables.T7 && tables.T7.status === 'khlass') {
+        tables.T7.status = 'khawya';
+        refreshTableNode('T7');
+      }
+    }, 5000);
+
+    /* ---------- Lucide first paint ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+    window.addEventListener('load', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
