@@ -205,19 +205,26 @@
     }
     .stat-card.compact .stat-value { font-size: 14px; }
 
-    .mode-selector { display: flex; gap: 6px; margin-top: auto; padding-top: 4px; }
+    .mode-selector { display: flex; gap: 8px; }
     .mode-pill {
       flex: 1;
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 10px;
-      border-radius: 12px;
+      display: inline-flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px;
+      padding: 18px 10px;
+      border-radius: 14px;
       font-size: 13px; font-weight: 600;
       background: rgba(255,255,255,0.06);
       color: #8f9591;
       transition: background 200ms ease, color 200ms ease, transform 150ms ease, box-shadow 200ms ease;
       letter-spacing: -0.01em;
+      min-height: 88px;
     }
-    .mode-pill svg { width: 14px; height: 14px; flex: 0 0 14px; }
+    .mode-pill svg {
+      width: 26px; height: 26px;
+      flex: 0 0 26px;
+      stroke-width: 1.75;
+    }
+    .mode-pill span { line-height: 1; }
     .mode-pill:hover { background: rgba(255,255,255,0.1); color: var(--paper-cream); }
     .mode-pill[aria-pressed="true"] {
       background: var(--gradient);
@@ -225,7 +232,7 @@
       box-shadow: var(--shadow-1);
     }
 
-    .quick-actions { display: flex; flex-direction: column; gap: 6px; }
+    .quick-actions { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
     .qa-btn {
       display: flex; align-items: center; gap: 10px;
       padding: 11px 12px;
@@ -1018,6 +1025,17 @@
         <div id="clock-date" class="clock-date">Ljm3a 24 April</div>
       </div>
 
+      <div class="mode-selector" role="tablist" aria-label="Mode caisse">
+        <button class="mode-pill" data-mode="salle" aria-pressed="true">
+          <i data-lucide="utensils-crossed"></i>
+          <span>Salle</span>
+        </button>
+        <button class="mode-pill" data-mode="vrap" aria-pressed="false">
+          <i data-lucide="shopping-bag"></i>
+          <span>Vente rapida</span>
+        </button>
+      </div>
+
       <div class="stats-section" aria-label="Stats du shift">
         <div class="stat-card">
           <div class="stat-label">Flous d'lyoum</div>
@@ -1049,17 +1067,6 @@
         <button class="qa-btn ghost" data-action="fin-service">
           <i data-lucide="log-out"></i>
           <span>Fin d'service</span>
-        </button>
-      </div>
-
-      <div class="mode-selector" role="tablist" aria-label="Mode caisse">
-        <button class="mode-pill" data-mode="salle" aria-pressed="true">
-          <i data-lucide="utensils-crossed"></i>
-          <span>Salle</span>
-        </button>
-        <button class="mode-pill" data-mode="vrap" aria-pressed="false">
-          <i data-lucide="shopping-bag"></i>
-          <span>Vente rapida</span>
         </button>
       </div>
     </aside>
