@@ -23,9 +23,12 @@
       --mint-tint:     #EBF5F0;   /* ka-yaklo bg */
       --mint-edge:     #C5E0D3;   /* ka-yaklo border */
 
-      --paper:         #FAFAF8;   /* sidebar bg */
-      --paper-soft:    #F7F7F5;   /* stat card bg */
+      --paper:         #FAFAF8;   /* generic warm bg */
+      --paper-cream:   #F7F5F0;   /* dashboard "paper" — light text on dark */
+      --paper-soft:    #F7F7F5;   /* stat card bg (light variant) */
       --paper-mute:    #F4F4F2;   /* khawya / quick action bg */
+      --mint:          #7DF2B0;   /* dashboard mint accent */
+      --ink-bg:        #0A0F0D;   /* dashboard sidebar bg */
       --line:          #E5E5E5;
       --line-soft:     #EEEEEE;
 
@@ -108,12 +111,13 @@
     }
     body { display: flex; flex-direction: column; }
 
-    /* ---------- Left sidebar ---------- */
+    /* ---------- Left sidebar (dark, dashboard-matching) ---------- */
     .sidebar {
       width: 280px;
       flex: 0 0 280px;
-      background: var(--paper);
-      border-right: 1px solid var(--line);
+      background: var(--ink-bg);
+      border-right: 1px solid rgba(255,255,255,0.06);
+      color: #b5b9b6;
       display: flex;
       flex-direction: column;
       padding: 22px 18px 18px;
@@ -121,7 +125,26 @@
       min-height: 0;
     }
 
-    .brand-row { display: flex; flex-direction: column; gap: 8px; }
+    .brand-row { display: flex; flex-direction: column; gap: 10px; }
+    /* Dashboard-style logo: paper text + separate mint dot (not a period) */
+    .brand-mark {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      color: var(--paper-cream);
+      font-weight: 700;
+      font-size: 26px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin: 0 4px;
+    }
+    .brand-mark i {
+      width: 6px; height: 6px;
+      background: var(--mint);
+      border-radius: 50%;
+      display: inline-block;
+    }
+    /* Right-panel empty-state still uses gradient wordmark */
     .wordmark {
       font-family: var(--sans);
       font-weight: 700;
@@ -139,43 +162,44 @@
 
     .duty-row {
       display: flex; align-items: center; gap: 8px;
-      font-size: 11px; color: var(--ink-3);
+      font-size: 11px; color: #8f9591;
+      margin: 0 4px;
     }
     .duty-dot {
       width: 7px; height: 7px; border-radius: 50%;
-      background: var(--emerald);
+      background: var(--mint);
       animation: pulse-dot 2s infinite;
     }
 
     .cashier-card {
       display: flex; flex-direction: column;
       padding: 12px 14px;
-      background: #fff;
-      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: var(--r-lg);
     }
-    .cashier-name { font-size: 14px; font-weight: 600; color: var(--ink); }
-    .cashier-role { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
-    .cashier-divider { height: 1px; background: var(--line-soft); margin: 10px 0; }
+    .cashier-name { font-size: 14px; font-weight: 600; color: var(--paper-cream); }
+    .cashier-role { font-size: 11px; color: #8f9591; margin-top: 2px; }
+    .cashier-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 10px 0; }
     .clock-time {
       font-family: var(--sans);
       font-feature-settings: "tnum" 1;
-      font-size: 28px; font-weight: 700; color: var(--forest);
+      font-size: 28px; font-weight: 700; color: var(--paper-cream);
       line-height: 1;
       letter-spacing: -0.02em;
     }
-    .clock-date { font-size: 11px; color: var(--ink-3); margin-top: 4px; text-transform: capitalize; }
+    .clock-date { font-size: 11px; color: #8f9591; margin-top: 4px; text-transform: capitalize; }
 
     .stats-section { display: flex; flex-direction: column; gap: 8px; }
     .stat-card {
-      background: var(--paper-soft);
+      background: rgba(255,255,255,0.04);
       border-radius: var(--r-lg);
       padding: 12px;
       display: flex; flex-direction: column; gap: 4px;
     }
-    .stat-label { font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.02em; }
-    .stat-value { font-size: 16px; font-weight: 700; color: var(--ink); font-feature-settings: "tnum" 1; }
-    .stat-delta { font-size: 11px; color: var(--emerald); font-weight: 500; margin-top: 2px; }
+    .stat-label { font-size: 10.5px; color: #8f9591; letter-spacing: 0.02em; }
+    .stat-value { font-size: 16px; font-weight: 700; color: var(--paper-cream); font-feature-settings: "tnum" 1; }
+    .stat-delta { font-size: 11px; color: var(--mint); font-weight: 500; margin-top: 2px; }
     .stat-row {
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
     }
@@ -187,11 +211,12 @@
       padding: 10px 12px;
       border-radius: 999px;
       font-size: 12px; font-weight: 600;
-      background: var(--line-soft);
-      color: var(--ink-3);
+      background: rgba(255,255,255,0.06);
+      color: #8f9591;
       transition: background 200ms ease, color 200ms ease, transform 150ms ease, box-shadow 200ms ease;
       letter-spacing: -0.01em;
     }
+    .floor-pill:hover { background: rgba(255,255,255,0.1); color: var(--paper-cream); }
     .floor-pill[aria-pressed="true"] {
       background: var(--gradient);
       color: #fff;
@@ -202,16 +227,16 @@
     .qa-btn {
       display: flex; align-items: center; gap: 10px;
       padding: 11px 12px;
-      background: var(--paper-mute);
-      color: var(--ink-2);
+      background: rgba(255,255,255,0.05);
+      color: #b5b9b6;
       border-radius: var(--r-lg);
       font-size: 13px; font-weight: 500;
       text-align: left;
-      transition: background 150ms ease;
+      transition: background 150ms ease, color 150ms ease;
     }
-    .qa-btn:hover { background: #ECEAE5; }
-    .qa-btn.ghost { background: transparent; color: var(--ink-3); }
-    .qa-btn.ghost:hover { background: var(--paper-mute); color: var(--ink-2); }
+    .qa-btn:hover { background: rgba(255,255,255,0.09); color: var(--paper-cream); }
+    .qa-btn.ghost { background: transparent; color: #6a6e6c; }
+    .qa-btn.ghost:hover { background: rgba(255,255,255,0.04); color: #b5b9b6; }
     .qa-btn svg { width: 15px; height: 15px; flex: 0 0 15px; }
 
     /* ---------- Main floor area ---------- */
@@ -817,7 +842,7 @@
     <!-- --------- LEFT SIDEBAR --------- -->
     <aside class="sidebar" aria-label="Caisse">
       <div class="brand-row">
-        <div class="wordmark" aria-label="Kiwi">kiwi<span class="dot">.</span></div>
+        <div class="brand-mark" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
         <div class="duty-row">
           <span class="duty-dot" aria-hidden="true"></span>
           <span>3la khidma</span>
