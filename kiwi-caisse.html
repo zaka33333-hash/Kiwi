@@ -1106,7 +1106,7 @@
         <div class="legend" aria-label="Légende">
           <div class="legend-item"><span class="legend-swatch" style="background:#F4F4F2; border:1px solid #E5E5E5;"></span><span>Khawya</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#EBF5F0; border:1px solid #C5E0D3;"></span><span>Ka-yaklo</span></div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#1F5D3C;"></span><span>Bgha ykhlass</span></div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#1F5D3C;"></span><span>Addition</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#3FB67A;"></span><span>Ka-tkhdam</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#fff; border:2px solid #3FB67A;"></span><span>Khlass</span></div>
         </div>
@@ -1173,7 +1173,7 @@
         <div class="rp-head">
           <div class="rp-head-info">
             <div class="rp-table" id="rp-table">T2 · 2 couverts</div>
-            <div class="rp-substatus" id="rp-substatus" data-flag="bgha-ykhlass">Bgha ykhlass · 12 mn</div>
+            <div class="rp-substatus" id="rp-substatus" data-flag="bgha-ykhlass">Addition · 12 mn</div>
           </div>
           <button class="rp-close" id="rp-close" aria-label="Fermer">
             <i data-lucide="x"></i>
@@ -1422,7 +1422,7 @@
       const label = ({
         'khawya':       'Khawya',
         'ka-yaklo':     'Ka-yaklo',
-        'bgha-ykhlass': 'Bghaw ykhlass',
+        'bgha-ykhlass': 'Addition',
         'ka-tkhdam':    'Ka-tkhdam…',
         'khlass':       'Khlass ✓',
       })[t.status];
@@ -1524,7 +1524,7 @@
       const flag = t.status === 'ka-tkhdam' ? 'ka-tkhdam' : (t.status === 'bgha-ykhlass' ? 'bgha-ykhlass' : 'ka-yaklo');
       subEl.dataset.flag = flag;
       const subText = ({
-        'bgha-ykhlass': `Bgha ykhlass · ${t.elapsed} mn`,
+        'bgha-ykhlass': `Addition · ${t.elapsed} mn`,
         'ka-tkhdam':    `Ka-tkhdam · ${t.elapsed} mn`,
         'ka-yaklo':     `Ka-yaklo · ${t.elapsed} mn`,
       })[flag];
@@ -2091,7 +2091,7 @@
             const sub = $('#rp-substatus');
             const flag = sub.dataset.flag;
             const map = {
-              'bgha-ykhlass': 'Bgha ykhlass',
+              'bgha-ykhlass': 'Addition',
               'ka-tkhdam':    'Ka-tkhdam',
               'ka-yaklo':     'Ka-yaklo',
             };
