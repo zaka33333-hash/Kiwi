@@ -305,22 +305,52 @@
       margin: 4px 0 2px;
     }
 
-    /* ---------- Table card ---------- */
+    /* ---------- Table cell (tabletop + chairs) ---------- */
+    .tbl-cell {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 3px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 150ms ease;
+    }
+    .tbl-cell:hover { transform: translateY(-1px); }
+    .tbl-cell:active { transform: translateY(0); }
+    .tbl-cell:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; border-radius: 8px; }
+
+    .tbl-chairs {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      height: 4px;
+      padding: 0 14px;
+    }
+    .chair {
+      flex: 0 1 16px;
+      min-width: 8px;
+      height: 100%;
+      background: #C8C5BD; /* warm muted grey, tones with paper palette */
+      border-radius: 1.5px;
+    }
+    /* For very wide tables (6-tops), let chairs spread a bit more */
+    .tbl-cell .tbl.size-6 ~ .tbl-chairs,
+    .tbl-cell:has(.tbl.size-6) .tbl-chairs { padding: 0 18px; gap: 6px; }
+    /* For small 2-tops, single chair stays centered */
+    .tbl-cell:has(.tbl.size-2) .tbl-chairs { padding: 0 22px; }
+
+    /* ---------- Tabletop ---------- */
     .tbl {
       position: relative;
-      width: 92px; height: 70px;
-      border-radius: var(--r-lg);
+      width: 92px; height: 60px;
+      border-radius: 8px;
       padding: 6px 8px;
       display: flex; flex-direction: column; justify-content: space-between;
-      cursor: pointer;
-      transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 150ms ease;
-      user-select: none;
+      transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
     }
-    .tbl:hover { transform: translateY(-1px); }
-    .tbl:active { transform: translateY(0); }
 
     .tbl.size-6 { width: 124px; }
-    .tbl.size-2 { width: 76px; height: 64px; }
+    .tbl.size-2 { width: 76px; height: 54px; }
 
     .tbl-head {
       display: flex; justify-content: space-between; align-items: center;
@@ -1417,6 +1447,10 @@
     }
 
     /* ---------- Floor plan rendering ---------- */
+    function chairsRow(count) {
+      return `<div class="tbl-chairs" aria-hidden="true">${'<span class="chair"></span>'.repeat(count)}</div>`;
+    }
+
     function tableHTML(id, t) {
       const sizeClass = t.size === 6 ? 'size-6' : (t.size === 2 ? 'size-2' : '');
       const label = ({
@@ -1430,15 +1464,22 @@
         ? `<div class="tbl-elapsed">${t.elapsed} mn</div>`
         : '';
       const dot = t.status === 'bgha-ykhlass' ? '<span class="urgent-dot" aria-hidden="true"></span>' : '';
+      // Distribute chairs around the tabletop: ceil on top, rest on bottom
+      const topChairs = Math.ceil(t.covers / 2);
+      const bottomChairs = t.covers - topChairs;
       return `
-        <div class="tbl ${sizeClass}" data-table="${id}" data-status="${t.status}" role="button" tabindex="0" aria-label="Table ${id}, ${label}">
-          ${dot}
-          <div class="tbl-head">
-            <span class="tbl-num">${id}</span>
-            <span class="tbl-covers">${t.covers}p</span>
+        <div class="tbl-cell" data-table="${id}" role="button" tabindex="0" aria-label="Table ${id}, ${label}, ${t.covers} couverts">
+          ${chairsRow(topChairs)}
+          <div class="tbl ${sizeClass}" data-status="${t.status}">
+            ${dot}
+            <div class="tbl-head">
+              <span class="tbl-num">${id}</span>
+              <span class="tbl-covers">${t.covers}p</span>
+            </div>
+            <div class="tbl-status">${label}</div>
+            ${elapsed}
           </div>
-          <div class="tbl-status">${label}</div>
-          ${elapsed}
+          ${chairsRow(bottomChairs)}
         </div>
       `;
     }
@@ -1557,7 +1598,10 @@
       selectedId = id;
       refreshTableNode(id);
 
-      $$('.tbl').forEach(el => el.classList.toggle('is-selected', el.dataset.table === id));
+      $$('.tbl-cell').forEach(c => {
+        const inner = c.querySelector('.tbl');
+        if (inner) inner.classList.toggle('is-selected', c.dataset.table === id);
+      });
 
       renderRightPanel(id);
       $('#rp-empty').hidden = true;
@@ -1574,7 +1618,7 @@
     }
 
     function showEmpty() {
-      $$('.tbl').forEach(el => el.classList.remove('is-selected'));
+      $$('.tbl').forEach(el => el.classList.remove('is-selected')); // inner tabletops only
       $('#rp-active').hidden = true;
       $('#rp-active').style.display = 'none';
       const empty = $('#rp-empty');
@@ -1590,14 +1634,14 @@
     }
 
     function closeRightPanel() {
-      $$('.tbl').forEach(el => el.classList.remove('is-selected'));
+      $$('.tbl').forEach(el => el.classList.remove('is-selected')); // inner tabletops only
       selectedId = null;
       showEmpty();
     }
 
     function refreshTableNode(id) {
       const t = tables[id];
-      const old = document.querySelector(`.tbl[data-table="${id}"]`);
+      const old = document.querySelector(`.tbl-cell[data-table="${id}"]`);
       if (!old) return;
       old.outerHTML = tableHTML(id, t);
       lucide.createIcons();
@@ -1816,7 +1860,7 @@
     /* Event delegation: tables, menu items, cart qty, cat pills */
     document.addEventListener('click', (e) => {
       // Tables (only in salle mode)
-      const tableEl = e.target.closest('.tbl');
+      const tableEl = e.target.closest('.tbl-cell');
       if (tableEl && mode === 'salle') {
         const id = tableEl.dataset.table;
         const t = tables[id];
@@ -1866,7 +1910,7 @@
       }
     });
     document.addEventListener('keydown', (e) => {
-      if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.classList.contains('tbl')) {
+      if ((e.key === 'Enter' || e.key === ' ') && document.activeElement?.classList.contains('tbl-cell')) {
         e.preventDefault();
         document.activeElement.click();
       }
@@ -2084,7 +2128,7 @@
         if (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam') {
           t.elapsed += 1;
           // Update DOM in place (cheaper than full re-render)
-          const node = document.querySelector(`.tbl[data-table="${id}"] .tbl-elapsed`);
+          const node = document.querySelector(`.tbl-cell[data-table="${id}"] .tbl-elapsed`);
           if (node) node.textContent = `${t.elapsed} mn`;
           // Update right panel substatus if this is the selected one
           if (id === selectedId) {
