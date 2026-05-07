@@ -205,19 +205,21 @@
     }
     .stat-card.compact .stat-value { font-size: 14px; }
 
-    .floor-selector { display: flex; gap: 6px; margin-top: auto; padding-top: 4px; }
-    .floor-pill {
+    .mode-selector { display: flex; gap: 6px; margin-top: auto; padding-top: 4px; }
+    .mode-pill {
       flex: 1;
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-size: 12px; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 10px;
+      border-radius: 12px;
+      font-size: 13px; font-weight: 600;
       background: rgba(255,255,255,0.06);
       color: #8f9591;
       transition: background 200ms ease, color 200ms ease, transform 150ms ease, box-shadow 200ms ease;
       letter-spacing: -0.01em;
     }
-    .floor-pill:hover { background: rgba(255,255,255,0.1); color: var(--paper-cream); }
-    .floor-pill[aria-pressed="true"] {
+    .mode-pill svg { width: 14px; height: 14px; flex: 0 0 14px; }
+    .mode-pill:hover { background: rgba(255,255,255,0.1); color: var(--paper-cream); }
+    .mode-pill[aria-pressed="true"] {
       background: var(--gradient);
       color: #fff;
       box-shadow: var(--shadow-1);
@@ -259,38 +261,41 @@
       width: 10px; height: 10px; border-radius: 3px; display: inline-block;
     }
 
-    .floor {
+    .view {
       flex: 1;
       padding: 6px 24px 22px;
-      overflow: hidden;
       display: none;
       flex-direction: column;
       gap: 14px;
       min-height: 0;
+      overflow: hidden;
     }
-    .floor.is-active { display: flex; }
+    .view.is-active { display: flex; }
+    .view-salle { gap: 16px; overflow-y: auto; }
 
-    .zone { display: flex; flex-direction: column; gap: 8px; }
+    .zone { display: flex; flex-direction: column; gap: 10px; }
+    .zone-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 12px;
+    }
     .zone-label {
       font-size: 11px; color: var(--ink-4);
-      letter-spacing: 0.04em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       font-weight: 500;
     }
+    .zone-count {
+      font-size: 11px; color: var(--ink-4);
+      font-feature-settings: "tnum" 1;
+    }
     .table-row {
       display: flex; gap: 12px; align-items: flex-end;
+      flex-wrap: wrap;
     }
-    .comptoir {
-      display: flex; align-items: center; gap: 10px;
-      padding: 4px 0;
-    }
-    .comptoir::before, .comptoir::after {
-      content: ""; flex: 1; height: 1px; background: var(--line);
-    }
-    .comptoir-label {
-      font-size: 10.5px; color: var(--ink-4);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
+    .zone-divider {
+      height: 1px;
+      background: var(--line-soft);
+      margin: 4px 0 2px;
     }
 
     /* ---------- Table card ---------- */
@@ -389,6 +394,133 @@
       box-shadow: 0 0 0 3px rgba(63,182,122,.25);
     }
 
+    /* ---------- Vente rapida (menu) view ---------- */
+    .vrap-meta {
+      font-size: 11px; color: var(--ink-4);
+      display: flex; align-items: center; gap: 8px;
+      font-feature-settings: "tnum" 1;
+    }
+    .vrap-meta .dot-sep { color: var(--ink-4); opacity: .6; }
+
+    .view-vrap { padding-top: 10px; }
+
+    .cat-pills {
+      display: flex; gap: 6px;
+      overflow-x: auto;
+      padding: 2px 0 14px;
+      flex: 0 0 auto;
+      scrollbar-width: none;
+    }
+    .cat-pills::-webkit-scrollbar { display: none; }
+
+    .cat-pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      background: var(--paper-mute);
+      color: var(--ink-2);
+      white-space: nowrap;
+      transition: background 150ms ease, color 150ms ease;
+    }
+    .cat-pill:hover { background: #ECEAE5; }
+    .cat-pill.is-active {
+      background: var(--ink);
+      color: #fff;
+    }
+    .cat-pill .count { font-size: 10.5px; opacity: .55; margin-left: 6px; font-feature-settings: "tnum" 1; }
+    .cat-pill.is-active .count { opacity: .65; }
+
+    .menu-grid {
+      flex: 1; min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      overflow-y: auto;
+      padding-bottom: 8px;
+      align-content: start;
+    }
+    .menu-grid::-webkit-scrollbar { width: 4px; }
+    .menu-grid::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+    .menu-item {
+      background: var(--paper-mute);
+      border-radius: 12px;
+      border: 1px solid transparent;
+      padding: 14px 14px 12px;
+      display: flex; flex-direction: column;
+      cursor: pointer;
+      transition: background 150ms ease, transform 150ms ease, border-color 150ms ease;
+      min-height: 96px;
+      text-align: left;
+      width: 100%;
+    }
+    .menu-item:hover { background: #ECEAE5; transform: translateY(-1px); }
+    .menu-item:active { transform: translateY(0); }
+    .menu-item-cat {
+      font-size: 9.5px; color: var(--ink-4);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .menu-item-name {
+      font-size: 13px; font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+      flex: 1;
+      letter-spacing: -0.005em;
+    }
+    .menu-item-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 10px;
+      gap: 8px;
+    }
+    .menu-item-price {
+      font-size: 14px; font-weight: 700;
+      color: var(--forest);
+      font-feature-settings: "tnum" 1;
+      letter-spacing: -0.01em;
+    }
+    .menu-item-add {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 600;
+      transition: background 150ms ease, transform 150ms ease;
+      flex: 0 0 26px;
+    }
+    .menu-item:hover .menu-item-add { background: var(--forest); }
+
+    .menu-item.is-in-cart {
+      background: var(--mint-tint);
+      border-color: var(--mint-edge);
+    }
+    .menu-item.is-in-cart .menu-item-add {
+      background: var(--emerald);
+      color: #fff;
+    }
+    .menu-item-qty-badge {
+      position: absolute;
+      top: 6px; right: 6px;
+      min-width: 20px; height: 20px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--emerald);
+      color: #fff;
+      font-size: 10px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .menu-item { position: relative; }
+
+    @keyframes pop-add {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+    .menu-item.pop { animation: pop-add 280ms ease-out; }
+
     /* ---------- Right panel ---------- */
     .rightpanel {
       width: 340px;
@@ -477,6 +609,35 @@
     }
     .rp-item-name { color: var(--ink); }
     .rp-item-price { font-weight: 600; color: var(--ink); font-feature-settings: "tnum" 1; }
+
+    /* Cart line (vente rapida) — adds qty +/- controls */
+    .rp-item--cart {
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+    }
+    .qty-control {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--paper-mute);
+      border-radius: 999px;
+      padding: 2px;
+    }
+    .qty-btn {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--ink);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600;
+      transition: background 150ms ease;
+    }
+    .qty-btn:hover { background: var(--mint-tint); color: var(--forest); }
+    .qty-num {
+      min-width: 18px;
+      text-align: center;
+      font-size: 12px; font-weight: 700;
+      color: var(--ink);
+      font-feature-settings: "tnum" 1;
+    }
 
     .rp-summary {
       padding: 12px 20px 6px;
@@ -881,10 +1042,6 @@
       </div>
 
       <div class="quick-actions" aria-label="Actions rapides">
-        <button class="qa-btn" data-action="vente-rapida">
-          <i data-lucide="shopping-cart"></i>
-          <span>Vente rapida</span>
-        </button>
         <button class="qa-btn" data-action="remboursement">
           <i data-lucide="rotate-ccw"></i>
           <span>Remboursement</span>
@@ -895,15 +1052,22 @@
         </button>
       </div>
 
-      <div class="floor-selector" role="tablist" aria-label="Sélection plancher">
-        <button class="floor-pill" data-floor="1" aria-pressed="true">Bra</button>
-        <button class="floor-pill" data-floor="2" aria-pressed="false">Fo9</button>
+      <div class="mode-selector" role="tablist" aria-label="Mode caisse">
+        <button class="mode-pill" data-mode="salle" aria-pressed="true">
+          <i data-lucide="utensils-crossed"></i>
+          <span>Salle</span>
+        </button>
+        <button class="mode-pill" data-mode="vrap" aria-pressed="false">
+          <i data-lucide="shopping-bag"></i>
+          <span>Vente rapida</span>
+        </button>
       </div>
     </aside>
 
-    <!-- --------- MAIN FLOOR PLAN --------- -->
+    <!-- --------- MAIN AREA (salle + vente rapida) --------- -->
     <main class="main">
-      <div class="main-head">
+      <!-- Header — salle mode -->
+      <div class="main-head" data-mode-section="salle">
         <div class="main-title">Plan d'sala<em>— vue caissier</em></div>
         <div class="legend" aria-label="Légende">
           <div class="legend-item"><span class="legend-swatch" style="background:#F4F4F2; border:1px solid #E5E5E5;"></span><span>Khawya</span></div>
@@ -914,34 +1078,51 @@
         </div>
       </div>
 
-      <!-- Floor 1 -->
-      <section class="floor is-active" data-floor="1" aria-label="Plancher 1">
-        <div class="zone">
-          <div class="zone-label">Mur — fenêtre</div>
-          <div class="table-row" data-zone="window"></div>
+      <!-- Header — vente rapida mode -->
+      <div class="main-head" data-mode-section="vrap" hidden>
+        <div class="main-title">Vente rapida<em>— commande à emporter</em></div>
+        <div class="vrap-meta">
+          <span id="vrap-cat-count">7 catégories</span>
+          <span class="dot-sep">·</span>
+          <span id="vrap-item-count">35 articles</span>
         </div>
-        <div class="comptoir"><span class="comptoir-label">Comptoir</span></div>
+      </div>
+
+      <!-- ===== SALLE VIEW (single floor, 3 zones) ===== -->
+      <section class="view view-salle is-active" data-mode-section="salle" aria-label="Plan de la salle">
         <div class="zone">
-          <div class="zone-label">Centre</div>
-          <div class="table-row" data-zone="center"></div>
+          <div class="zone-head">
+            <span class="zone-label">Salle principale</span>
+            <span class="zone-count" data-zone-count="salle"></span>
+          </div>
+          <div class="table-row" data-zone="salle"></div>
         </div>
+
+        <div class="zone-divider" aria-hidden="true"></div>
+
         <div class="zone">
-          <div class="zone-label">Bar</div>
-          <div class="table-row" data-zone="bar"></div>
+          <div class="zone-head">
+            <span class="zone-label">Terrasse</span>
+            <span class="zone-count" data-zone-count="terrasse"></span>
+          </div>
+          <div class="table-row" data-zone="terrasse"></div>
         </div>
+
+        <div class="zone-divider" aria-hidden="true"></div>
+
         <div class="zone">
-          <div class="zone-label">Entrée</div>
-          <div class="table-row" data-zone="entry"></div>
+          <div class="zone-head">
+            <span class="zone-label">Étage</span>
+            <span class="zone-count" data-zone-count="etage"></span>
+          </div>
+          <div class="table-row" data-zone="etage"></div>
         </div>
       </section>
 
-      <!-- Floor 2 -->
-      <section class="floor" data-floor="2" aria-label="Plancher 2">
-        <div class="zone">
-          <div class="zone-label">Terrasse</div>
-          <div class="table-row" data-zone="terrace-1"></div>
-          <div class="table-row" data-zone="terrace-2"></div>
-        </div>
+      <!-- ===== VENTE RAPIDA VIEW (menu) ===== -->
+      <section class="view view-vrap" data-mode-section="vrap" aria-label="Menu vente rapida" hidden>
+        <div class="cat-pills" id="cat-pills" role="tablist"></div>
+        <div class="menu-grid" id="menu-grid"></div>
       </section>
     </main>
 
@@ -950,7 +1131,7 @@
       <!-- empty state -->
       <div class="rp-empty" id="rp-empty">
         <div class="wordmark" aria-hidden="true">kiwi<span class="dot">.</span></div>
-        <p>Ktar 3la tabla bach tshuf l'addition.</p>
+        <p id="rp-empty-text">Ktar 3la tabla bach tshuf l'addition.</p>
       </div>
 
       <!-- active state -->
@@ -997,7 +1178,7 @@
             <i data-lucide="printer"></i><span>Imprimer</span>
           </button>
           <button class="meta-btn danger" data-action="cancel-table">
-            <i data-lucide="x"></i><span>Annuler mesa</span>
+            <i data-lucide="x"></i><span data-cancel-label>Annuler mesa</span>
           </button>
         </div>
       </div>
@@ -1123,33 +1304,32 @@
     /* ---------- Table data ---------- */
     /* status: khawya | ka-yaklo | bgha-ykhlass | ka-tkhdam | khlass */
     const tables = {
-      // Floor 1
-      T1:  { floor: 1, zone: 'window', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 45 },
-      T2:  { floor: 1, zone: 'window', covers: 2, size: 2, status: 'bgha-ykhlass', elapsed: 12 },
-      T3:  { floor: 1, zone: 'window', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T4:  { floor: 1, zone: 'window', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 22 },
+      // Salle principale (11 tables, ground floor main hall)
+      T1:  { zone: 'salle',    covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 45 },
+      T2:  { zone: 'salle',    covers: 2, size: 2, status: 'bgha-ykhlass', elapsed: 12 },
+      T3:  { zone: 'salle',    covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T4:  { zone: 'salle',    covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 22 },
+      T5:  { zone: 'salle',    covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 67 },
+      T6:  { zone: 'salle',    covers: 5, size: 6, status: 'bgha-ykhlass', elapsed: 8  },
+      T7:  { zone: 'salle',    covers: 2, size: 2, status: 'khlass',       elapsed: 0  },
+      T8:  { zone: 'salle',    covers: 2, size: 2, status: 'khawya',       elapsed: 0  },
+      T9:  { zone: 'salle',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 14 },
+      T10: { zone: 'salle',    covers: 2, size: 2, status: 'khawya',       elapsed: 0  },
+      T11: { zone: 'salle',    covers: 3, size: 4, status: 'ka-yaklo',     elapsed: 31 },
 
-      T5:  { floor: 1, zone: 'center', covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 67 },
-      T6:  { floor: 1, zone: 'center', covers: 5, size: 6, status: 'bgha-ykhlass', elapsed: 8  },
+      // Terrasse (5 tables, outdoor)
+      T12: { zone: 'terrasse', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T13: { zone: 'terrasse', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 19 },
+      T14: { zone: 'terrasse', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T15: { zone: 'terrasse', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 55 },
+      T16: { zone: 'terrasse', covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 38 },
 
-      T7:  { floor: 1, zone: 'bar',    covers: 2, size: 2, status: 'khlass',       elapsed: 0  },
-      T8:  { floor: 1, zone: 'bar',    covers: 2, size: 2, status: 'khawya',       elapsed: 0  },
-      T9:  { floor: 1, zone: 'bar',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 14 },
-      T10: { floor: 1, zone: 'bar',    covers: 2, size: 2, status: 'khawya',       elapsed: 0  },
-
-      T11: { floor: 1, zone: 'entry',  covers: 3, size: 4, status: 'ka-yaklo',     elapsed: 31 },
-      T12: { floor: 1, zone: 'entry',  covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T13: { floor: 1, zone: 'entry',  covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 19 },
-
-      // Floor 2 — terrasse
-      T14: { floor: 2, zone: 'terrace-1', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T15: { floor: 2, zone: 'terrace-1', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 55 },
-      T16: { floor: 2, zone: 'terrace-1', covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 38 },
-      T17: { floor: 2, zone: 'terrace-1', covers: 4, size: 4, status: 'bgha-ykhlass', elapsed: 5  },
-      T18: { floor: 2, zone: 'terrace-2', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T19: { floor: 2, zone: 'terrace-2', covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 28 },
-      T20: { floor: 2, zone: 'terrace-2', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T21: { floor: 2, zone: 'terrace-2', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      // Étage (5 tables, upstairs private room)
+      T17: { zone: 'etage',    covers: 4, size: 4, status: 'bgha-ykhlass', elapsed: 5  },
+      T18: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T19: { zone: 'etage',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 28 },
+      T20: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      T21: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
     };
 
     /* ---------- Mock orders per table ---------- */
@@ -1229,29 +1409,61 @@
       `;
     }
 
-    function renderFloor(floorNum) {
-      const zonesByFloor = {
-        1: ['window', 'center', 'bar', 'entry'],
-        2: ['terrace-1', 'terrace-2'],
-      };
-      const zones = zonesByFloor[floorNum];
+    function renderSalle() {
+      const zones = ['salle', 'terrasse', 'etage'];
       zones.forEach(zoneName => {
-        const wrap = document.querySelector(`.floor[data-floor="${floorNum}"] .table-row[data-zone="${zoneName}"]`);
+        const wrap = document.querySelector(`.view-salle .table-row[data-zone="${zoneName}"]`);
         if (!wrap) return;
-        const ids = Object.keys(tables).filter(id => tables[id].floor === floorNum && tables[id].zone === zoneName);
+        const ids = Object.keys(tables).filter(id => tables[id].zone === zoneName);
         wrap.innerHTML = ids.map(id => tableHTML(id, tables[id])).join('');
+
+        // Count occupied / total
+        const occupied = ids.filter(id => tables[id].status !== 'khawya').length;
+        const countEl = document.querySelector(`.view-salle .zone-count[data-zone-count="${zoneName}"]`);
+        if (countEl) countEl.textContent = `${occupied} / ${ids.length} occupées`;
       });
     }
-    renderFloor(1);
-    renderFloor(2);
+    renderSalle();
 
-    /* ---------- Floor switching ---------- */
-    $$('.floor-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.dataset.floor;
-        $$('.floor-pill').forEach(p => p.setAttribute('aria-pressed', p === btn ? 'true' : 'false'));
-        $$('.floor').forEach(f => f.classList.toggle('is-active', f.dataset.floor === target));
+    /* ---------- Mode switching (Salle ↔ Vente rapida) ---------- */
+    let mode = 'salle';
+    document.body.dataset.mode = mode;
+
+    function setMode(newMode) {
+      if (newMode === mode) return;
+      mode = newMode;
+      document.body.dataset.mode = newMode;
+
+      // Toggle pills
+      $$('.mode-pill').forEach(p => p.setAttribute('aria-pressed', p.dataset.mode === newMode ? 'true' : 'false'));
+
+      // Toggle main headers + views
+      $$('[data-mode-section]').forEach(el => {
+        const match = el.dataset.modeSection === newMode;
+        el.hidden = !match;
+        el.classList.toggle('is-active', match);
       });
+
+      // Update mode-specific labels
+      const cancelLabel = $('[data-cancel-label]');
+      if (cancelLabel) {
+        cancelLabel.textContent = newMode === 'vrap' ? "Vider l'commande" : 'Annuler mesa';
+      }
+
+      // Reset right panel for the new mode
+      if (newMode === 'salle') {
+        // If there's a selected table still open, render it; otherwise empty state
+        if (selectedId) renderRightPanel(selectedId);
+        else showEmpty();
+      } else {
+        // vrap: show cart (or its empty state)
+        renderCart();
+      }
+      lucide.createIcons();
+    }
+
+    $$('.mode-pill').forEach(btn => {
+      btn.addEventListener('click', () => setMode(btn.dataset.mode));
     });
 
     /* ---------- Toast ---------- */
@@ -1327,16 +1539,26 @@
       lucide.createIcons();
     }
 
-    function closeRightPanel() {
-      // If table was ka-tkhdam without paying, revert to its previous state
-      // For demo simplicity: leave it ka-tkhdam (cashier may have stepped away)
-      // Selection visual gone:
+    function showEmpty() {
       $$('.tbl').forEach(el => el.classList.remove('is-selected'));
-      selectedId = null;
       $('#rp-active').hidden = true;
       $('#rp-active').style.display = 'none';
-      $('#rp-empty').hidden = false;
-      $('#rp-empty').style.display = 'flex';
+      const empty = $('#rp-empty');
+      empty.hidden = false;
+      empty.style.display = 'flex';
+      // Mode-aware prompt text
+      const txt = $('#rp-empty-text');
+      if (txt) {
+        txt.textContent = mode === 'vrap'
+          ? 'Vente rapida vide — khtar mn lmenu bach tzid lcommande.'
+          : "Ktar 3la tabla bach tshuf l'addition.";
+      }
+    }
+
+    function closeRightPanel() {
+      $$('.tbl').forEach(el => el.classList.remove('is-selected'));
+      selectedId = null;
+      showEmpty();
     }
 
     function refreshTableNode(id) {
@@ -1345,7 +1567,15 @@
       if (!old) return;
       old.outerHTML = tableHTML(id, t);
       lucide.createIcons();
-      // re-bind click is automatic since we use event delegation below
+      // Update zone occupancy count
+      updateZoneCount(t.zone);
+    }
+
+    function updateZoneCount(zoneName) {
+      const ids = Object.keys(tables).filter(id => tables[id].zone === zoneName);
+      const occupied = ids.filter(id => tables[id].status !== 'khawya').length;
+      const countEl = document.querySelector(`.zone-count[data-zone-count="${zoneName}"]`);
+      if (countEl) countEl.textContent = `${occupied} / ${ids.length} occupées`;
     }
 
     function markPaid(id) {
@@ -1357,24 +1587,229 @@
       setTimeout(() => {
         if (tables[id] && tables[id].status === 'khlass') {
           tables[id].status = 'khawya';
-          tables[id].covers = tables[id].covers; // keep covers
           delete orders[id]; // clear order
           refreshTableNode(id);
         }
       }, 3000);
     }
 
-    /* Event delegation for tables */
+    /* ===========================================================
+       Vente rapida — menu + cart
+       =========================================================== */
+
+    const catLabels = {
+      all:        'Tout',
+      entrees:    'Entrées',
+      tajines:    'Tajines',
+      couscous:   'Couscous',
+      pastillas:  'Pastillas',
+      sandwiches: 'Sandwiches',
+      boissons:   'Boissons',
+      desserts:   'Desserts',
+    };
+
+    const menuItems = [
+      // Entrées
+      { id: 'm-001', cat: 'entrees',    name: 'Salade marocaine',     price: 45  },
+      { id: 'm-002', cat: 'entrees',    name: 'Briouates au fromage', price: 60  },
+      { id: 'm-003', cat: 'entrees',    name: 'Harira',               price: 35  },
+      { id: 'm-004', cat: 'entrees',    name: 'Zaalouk',              price: 40  },
+      { id: 'm-005', cat: 'entrees',    name: 'Taktouka',             price: 40  },
+      { id: 'm-006', cat: 'entrees',    name: 'Soupe du jour',        price: 35  },
+      // Tajines
+      { id: 'm-007', cat: 'tajines',    name: 'Tajine kefta',         price: 180 },
+      { id: 'm-008', cat: 'tajines',    name: 'Tajine poulet citron', price: 150 },
+      { id: 'm-009', cat: 'tajines',    name: 'Tajine agneau pruneaux', price: 220 },
+      { id: 'm-010', cat: 'tajines',    name: 'Tajine 4 légumes',     price: 120 },
+      { id: 'm-011', cat: 'tajines',    name: 'Tajine poisson',       price: 200 },
+      // Couscous
+      { id: 'm-012', cat: 'couscous',   name: 'Couscous royal',       price: 220 },
+      { id: 'm-013', cat: 'couscous',   name: 'Couscous tfaya',       price: 180 },
+      { id: 'm-014', cat: 'couscous',   name: 'Couscous légumes',     price: 140 },
+      // Pastillas
+      { id: 'm-015', cat: 'pastillas',  name: 'Pastilla poulet',      price: 140 },
+      { id: 'm-016', cat: 'pastillas',  name: 'Pastilla seafood',     price: 180 },
+      { id: 'm-017', cat: 'pastillas',  name: 'Pastilla pigeon',      price: 220 },
+      // Sandwiches
+      { id: 'm-018', cat: 'sandwiches', name: 'Sandwich kefta',       price: 50  },
+      { id: 'm-019', cat: 'sandwiches', name: 'Sandwich poulet',      price: 45  },
+      { id: 'm-020', cat: 'sandwiches', name: 'Sandwich thon',        price: 40  },
+      { id: 'm-021', cat: 'sandwiches', name: 'Bocadillo merguez',    price: 55  },
+      { id: 'm-022', cat: 'sandwiches', name: 'Wrap végé',            price: 42  },
+      // Boissons
+      { id: 'm-023', cat: 'boissons',   name: 'Thé à la menthe',      price: 30  },
+      { id: 'm-024', cat: 'boissons',   name: 'Café noir',            price: 15  },
+      { id: 'm-025', cat: 'boissons',   name: 'Café au lait',         price: 18  },
+      { id: 'm-026', cat: 'boissons',   name: 'Cappuccino',           price: 22  },
+      { id: 'm-027', cat: 'boissons',   name: "Jus d'orange",         price: 35  },
+      { id: 'm-028', cat: 'boissons',   name: "Jus d'avocat",         price: 50  },
+      { id: 'm-029', cat: 'boissons',   name: 'Eau Aïn Saïss',        price: 18  },
+      { id: 'm-030', cat: 'boissons',   name: 'Coca-Cola',            price: 25  },
+      // Desserts
+      { id: 'm-031', cat: 'desserts',   name: 'Crème brûlée',         price: 50  },
+      { id: 'm-032', cat: 'desserts',   name: 'Cornes de gazelle',    price: 35  },
+      { id: 'm-033', cat: 'desserts',   name: 'Pâtisserie maison',    price: 45  },
+      { id: 'm-034', cat: 'desserts',   name: 'Fruit de saison',      price: 30  },
+      { id: 'm-035', cat: 'desserts',   name: 'Glace artisanale',     price: 40  },
+    ];
+
+    let activeCat = 'all';
+    let cart = []; // { id, name, price, qty }
+
+    function renderCatPills() {
+      const counts = { all: menuItems.length };
+      menuItems.forEach(m => { counts[m.cat] = (counts[m.cat] || 0) + 1; });
+      const cats = ['all', 'entrees', 'tajines', 'couscous', 'pastillas', 'sandwiches', 'boissons', 'desserts'];
+      $('#cat-pills').innerHTML = cats.map(c => `
+        <button class="cat-pill ${c === activeCat ? 'is-active' : ''}" data-cat="${c}">
+          ${catLabels[c]}<span class="count mono">${counts[c] || 0}</span>
+        </button>
+      `).join('');
+
+      $('#vrap-item-count').textContent = `${menuItems.length} articles`;
+      $('#vrap-cat-count').textContent = `${cats.length - 1} catégories`;
+    }
+
+    function renderMenu() {
+      const items = activeCat === 'all'
+        ? menuItems
+        : menuItems.filter(m => m.cat === activeCat);
+      $('#menu-grid').innerHTML = items.map(m => {
+        const inCart = cart.find(c => c.id === m.id);
+        const qty = inCart ? inCart.qty : 0;
+        return `
+          <button class="menu-item ${qty > 0 ? 'is-in-cart' : ''}" data-menu-id="${m.id}">
+            ${qty > 0 ? `<span class="menu-item-qty-badge mono">×${qty}</span>` : ''}
+            <span class="menu-item-cat">${catLabels[m.cat]}</span>
+            <span class="menu-item-name">${m.name}</span>
+            <span class="menu-item-foot">
+              <span class="menu-item-price mono">${m.price} MAD</span>
+              <span class="menu-item-add" aria-hidden="true">+</span>
+            </span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function addToCart(itemId) {
+      const item = menuItems.find(m => m.id === itemId);
+      if (!item) return;
+      const existing = cart.find(c => c.id === itemId);
+      if (existing) existing.qty++;
+      else cart.push({ id: itemId, name: item.name, price: item.price, qty: 1 });
+
+      // Brief pop animation on the card
+      const card = document.querySelector(`.menu-item[data-menu-id="${itemId}"]`);
+      if (card) {
+        card.classList.remove('pop');
+        void card.offsetWidth;
+        card.classList.add('pop');
+      }
+      renderMenu();
+      renderCart();
+    }
+
+    function changeCartQty(itemId, delta) {
+      const line = cart.find(c => c.id === itemId);
+      if (!line) return;
+      line.qty += delta;
+      if (line.qty <= 0) cart = cart.filter(c => c.id !== itemId);
+      renderMenu();
+      renderCart();
+    }
+
+    function clearCart() {
+      cart = [];
+      renderMenu();
+      renderCart();
+    }
+
+    function renderCart() {
+      const total = cart.reduce((s, l) => s + l.price * l.qty, 0);
+      const itemCount = cart.reduce((s, l) => s + l.qty, 0);
+
+      if (cart.length === 0) {
+        showEmpty();
+        return;
+      }
+
+      // Show active panel with cart contents
+      $('#rp-empty').hidden = true;
+      $('#rp-empty').style.display = 'none';
+      const active = $('#rp-active');
+      active.hidden = false;
+      active.style.display = 'flex';
+
+      // Header
+      $('#rp-table').textContent = 'Vente rapida · à emporter';
+      const sub = $('#rp-substatus');
+      sub.dataset.flag = 'ka-tkhdam';
+      sub.textContent = `${itemCount} article${itemCount > 1 ? 's' : ''} · ${fmtMAD(total)}`;
+
+      // Items with +/- controls
+      $('#rp-items').innerHTML = cart.map(l => `
+        <div class="rp-item rp-item--cart" data-cart-id="${l.id}">
+          <div class="qty-control">
+            <button class="qty-btn" data-cart-action="dec" aria-label="Moins">−</button>
+            <span class="qty-num mono">${l.qty}</span>
+            <button class="qty-btn" data-cart-action="inc" aria-label="Plus">+</button>
+          </div>
+          <span class="rp-item-name">${l.name}</span>
+          <span class="rp-item-price mono">${fmtMAD(l.price * l.qty)}</span>
+        </div>
+      `).join('');
+
+      $('#rp-subtotal').textContent = fmtMAD(total);
+      $('#rp-total').textContent = fmtMAD(total);
+
+      // Sync modal labels
+      $$('[data-bind="table"]').forEach(el => el.textContent = 'Vente rapida');
+      $$('[data-bind="covers"]').forEach(el => el.textContent = `${itemCount} art.`);
+      $('#card-amount').textContent = fmtMADcents(total);
+      $('#cash-amount').textContent = fmtMADcents(total);
+      $('#cash-received').value = total;
+      updateRendu();
+    }
+
+    /* Event delegation: tables, menu items, cart qty, cat pills */
     document.addEventListener('click', (e) => {
+      // Tables (only in salle mode)
       const tableEl = e.target.closest('.tbl');
-      if (tableEl) {
+      if (tableEl && mode === 'salle') {
         const id = tableEl.dataset.table;
         const t = tables[id];
         if (!t) return;
         if (t.status === 'khawya')  { toast('Mesa khawya'); return; }
         if (t.status === 'khlass')  { return; }
-        // For ka-yaklo, bgha-ykhlass, or already ka-tkhdam: open the bill
         openTable(id);
+        return;
+      }
+
+      // Cat pills
+      const catBtn = e.target.closest('.cat-pill');
+      if (catBtn) {
+        activeCat = catBtn.dataset.cat;
+        renderCatPills();
+        renderMenu();
+        return;
+      }
+
+      // Menu items → add to cart
+      const menuCard = e.target.closest('.menu-item');
+      if (menuCard) {
+        addToCart(menuCard.dataset.menuId);
+        return;
+      }
+
+      // Cart qty +/- buttons
+      const qtyBtn = e.target.closest('.qty-btn');
+      if (qtyBtn) {
+        const row = qtyBtn.closest('[data-cart-id]');
+        if (row) {
+          const action = qtyBtn.dataset.cartAction;
+          changeCartQty(row.dataset.cartId, action === 'inc' ? 1 : -1);
+        }
+        return;
       }
     });
     document.addEventListener('keydown', (e) => {
@@ -1386,11 +1821,15 @@
 
     /* ---------- Right panel actions ---------- */
     $('#rp-close').addEventListener('click', () => {
-      // Revert ka-tkhdam back to its prior live state if user closes without paying
+      if (mode === 'vrap') {
+        // Clear cart entirely
+        clearCart();
+        return;
+      }
+      // Salle mode: revert ka-tkhdam back to ka-yaklo so the table doesn't get stuck
       if (selectedId) {
         const t = tables[selectedId];
         if (t.status === 'ka-tkhdam') {
-          // assume table is still in service — revert to ka-yaklo so it doesn't get stuck
           t.status = 'ka-yaklo';
           refreshTableNode(selectedId);
         }
@@ -1398,16 +1837,24 @@
       closeRightPanel();
     });
 
-    $('#pay-split').addEventListener('click', () => toast('Bientôt disponible — wakha'));
+    $('#pay-split').addEventListener('click', () => {
+      if (mode === 'vrap') toast('Vente rapida — paiement en une fois');
+      else toast('Bientôt disponible — wakha');
+    });
     $$('.meta-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const a = btn.dataset.action;
         if (a === 'discount')      toast('Réduction · code PIN sera demandé');
         else if (a === 'print-bill') toast('Imprimante en cours…');
         else if (a === 'cancel-table') {
+          if (mode === 'vrap') {
+            clearCart();
+            toast('Commande vidée');
+            return;
+          }
           if (selectedId) {
             const t = tables[selectedId];
-            t.status = 'ka-yaklo'; // back to in-service, not paid
+            t.status = 'ka-yaklo';
             refreshTableNode(selectedId);
             closeRightPanel();
             toast('Mesa rétablie · service en cours');
@@ -1419,9 +1866,8 @@
     $$('.qa-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const a = btn.dataset.action;
-        if (a === 'vente-rapida')   toast('Vente rapida · scan d’un produit…');
-        else if (a === 'remboursement') toast('Remboursement · choisis transaction');
-        else if (a === 'fin-service')   toast('Fin d’service · vérifier la caisse');
+        if (a === 'remboursement')   toast('Remboursement · choisis transaction');
+        else if (a === 'fin-service') toast("Fin d'service · vérifier la caisse");
       });
     });
 
@@ -1474,7 +1920,10 @@
       cardModal.classList.remove('is-open');
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
-      if (paid && selectedId) {
+      if (!paid) return;
+      if (mode === 'vrap') {
+        clearCart();
+      } else if (selectedId) {
         markPaid(selectedId);
         closeRightPanel();
       }
@@ -1499,6 +1948,9 @@
     const cashSuccessRendu = $('#cash-success-rendu');
 
     function currentTotal() {
+      if (mode === 'vrap') {
+        return cart.reduce((s, l) => s + l.price * l.qty, 0);
+      }
       if (!selectedId) return 0;
       const lines = generateOrder(selectedId, tables[selectedId]);
       return lines.reduce((s, l) => s + l.total, 0);
@@ -1531,7 +1983,10 @@
     }
     function closeCashModal({ paid = false } = {}) {
       cashModal.classList.remove('is-open');
-      if (paid && selectedId) {
+      if (!paid) return;
+      if (mode === 'vrap') {
+        clearCart();
+      } else if (selectedId) {
         markPaid(selectedId);
         closeRightPanel();
       }
@@ -1600,6 +2055,10 @@
         refreshTableNode('T7');
       }
     }, 5000);
+
+    /* ---------- Bootstrap menu (vente rapida) ---------- */
+    renderCatPills();
+    renderMenu();
 
     /* ---------- Lucide first paint ---------- */
     document.addEventListener('DOMContentLoaded', () => {
