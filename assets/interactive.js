@@ -311,8 +311,8 @@
     const items = [
       { sect: 'NAVIGATION' },
       { icon: '📊', label: 'Tableau de bord', sub: 'Vue principale', href: 'dashboard.html', kbd: 'G A' },
-      { icon: '💳', label: 'Transactions', sub: '182 aujourd\'hui', action: () => toast('Page transactions', {type: 'info'}), kbd: 'G T' },
-      { icon: '🏦', label: 'Règlements', sub: 'Prochain · demain 9h00', action: () => toast('Règlements — 23 091 MAD demain', {type: 'info'}), kbd: 'G R' },
+      { icon: '🧾', label: 'Commandes', sub: 'Aujourd\'hui · live', action: () => handlers['nav-transactions']?.(), kbd: 'G C' },
+      // Règlements removed in Kiwi 1.0 — see KIWI_2.0_ROADMAP.md
       { icon: '👥', label: 'Équipe', sub: '8 membres', action: () => toast('Page équipe', {type: 'info'}), kbd: 'G E' },
       { sect: 'ACTIONS RAPIDES' },
       { icon: '➕', label: 'Nouvelle vente', sub: 'Encaisser un montant', action: () => handlers['new-sale']() },
