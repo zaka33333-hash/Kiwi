@@ -1240,43 +1240,105 @@ handlers['nav-equipe'] = () => {
   handlers['add-member'] = () => {
     let pinAuto = String(Math.floor(1000 + Math.random() * 9000));
     const modalHandle = modal({
-      title: '+ Nouveau membre',
-      width: 460,
+      title: 'Nouveau membre',
+      width: 500,
       body: `
-        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:14px; line-height:1.5;">
-          L'employé recevra un SMS avec son PIN et un lien d'invitation pour l'app Kiwi Caisse.
-        </div>
-        <div style="display:grid; gap:11px;">
-          <label style="display:block;">
-            <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:5px;">PRÉNOM</div>
-            <input type="text" data-eq-firstname placeholder="Ex. Yasmine" style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--sans); font-size:13.5px; outline:none; transition:border-color 120ms;" autofocus />
-          </label>
-          <label style="display:block;">
-            <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:5px;">NOM</div>
-            <input type="text" data-eq-lastname placeholder="Ex. Hammadi" style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--sans); font-size:13.5px; outline:none;" />
-          </label>
-          <label style="display:block;">
-            <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:5px;">RÔLE</div>
-            <select data-eq-role style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--sans); font-size:13.5px; outline:none; background:#fff;">
-              ${ROLE_OPTIONS.map(r => `<option value="${r.value}">${r.label}</option>`).join('')}
-            </select>
-          </label>
-          <label style="display:block;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-              <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono);">PIN · 4 CHIFFRES</div>
-              <button data-action="eq-regen-pin" style="padding:0; background:none; border:0; color:var(--atlas); font-size:11px; cursor:pointer;">↻ Régénérer</button>
-            </label>
-            <input type="text" data-eq-pin value="${pinAuto}" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--mono); font-size:15px; letter-spacing:0.2em; outline:none; text-align:center;" />
-          </label>
-          <label style="display:block;">
-            <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:5px;">TÉLÉPHONE <span style="font-weight:400; letter-spacing:0; text-transform:none;">(optionnel)</span></div>
-            <input type="tel" data-eq-phone placeholder="+212 6XX XX XX XX" style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--sans); font-size:13.5px; outline:none;" />
-          </label>
+        <style>
+          [data-eq-form] input,
+          [data-eq-form] select {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid var(--n-300);
+            border-radius: 9px;
+            font-family: var(--sans);
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+            color: var(--ink);
+            transition: border-color 140ms, box-shadow 140ms;
+            box-sizing: border-box;
+          }
+          [data-eq-form] input:focus,
+          [data-eq-form] select:focus {
+            border-color: var(--atlas);
+            box-shadow: 0 0 0 3px rgba(11,110,79,0.12);
+          }
+          [data-eq-form] input::placeholder { color: var(--n-400); }
+          [data-eq-form] .eq-section-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            color: var(--n-500);
+            text-transform: uppercase;
+          }
+          [data-eq-form] .eq-help {
+            font-size: 11.5px;
+            color: var(--n-500);
+            margin-top: 7px;
+            line-height: 1.5;
+          }
+        </style>
+        <div data-eq-form style="padding: 2px 0;">
+
+          <p style="margin: 0 0 22px; font-size: 13px; color: var(--n-500); line-height: 1.6;">
+            Ajoute un employé à <b style="color: var(--ink); font-weight: 600;">${v.name}</b>. Il recevra son PIN par SMS et un lien vers l'app <b style="color: var(--ink); font-weight: 600;">Kiwi Caisse</b>.
+          </p>
+
+          <!-- Identité (prénom + nom in 2 cols) -->
+          <div style="margin-bottom: 20px;">
+            <div class="eq-section-label" style="margin-bottom: 9px;">Identité</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <input type="text" data-eq-firstname placeholder="Prénom" autocomplete="given-name" autofocus />
+              <input type="text" data-eq-lastname  placeholder="Nom"    autocomplete="family-name" />
+            </div>
+          </div>
+
+          <!-- Rôle -->
+          <div style="margin-bottom: 20px;">
+            <div class="eq-section-label" style="margin-bottom: 9px;">Rôle</div>
+            <div style="position: relative;">
+              <select data-eq-role style="padding-right: 38px; appearance: none; -webkit-appearance: none; cursor: pointer;">
+                ${ROLE_OPTIONS.map(r => `<option value="${r.value}">${r.label}</option>`).join('')}
+              </select>
+              <svg style="position: absolute; right: 13px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--n-500);" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </div>
+
+          <!-- PIN Caisse -->
+          <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px;">
+              <div class="eq-section-label">PIN Caisse</div>
+              <button type="button" data-action="eq-regen-pin" style="background: none; border: 0; padding: 4px 8px; margin: -4px -8px; color: var(--atlas); font-size: 11.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: var(--sans); border-radius: 5px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.64A9 9 0 0020.49 15"/></svg>
+                Régénérer
+              </button>
+            </div>
+            <input type="text" data-eq-pin value="${pinAuto}" maxlength="4" inputmode="numeric" pattern="[0-9]{4}"
+                   style="font-family: var(--mono); font-size: 24px; font-weight: 600; letter-spacing: 0.5em; text-align: center; padding: 16px 0 16px 0.5em; background: var(--paper-soft); border-color: var(--n-200); color: var(--ink);" />
+            <div class="eq-help">Envoyé par SMS lors de l'invitation · l'employé peut le changer après sa première connexion.</div>
+          </div>
+
+          <!-- Téléphone (optionnel) -->
+          <div>
+            <div class="eq-section-label" style="margin-bottom: 9px;">
+              Téléphone <span style="color: var(--n-400); font-weight: 400; letter-spacing: 0.02em; text-transform: none; margin-left: 6px;">— optionnel, pour l'invitation SMS</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 92px 1fr; gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: center; padding: 11px 8px; border: 1px solid var(--n-300); border-radius: 9px; background: var(--paper-soft); font-family: var(--mono); font-size: 13px; color: var(--n-600); gap: 5px; box-sizing: border-box;">
+                <span style="font-size: 14px;">🇲🇦</span><span>+212</span>
+              </div>
+              <input type="tel" data-eq-phone placeholder="6XX XX XX XX" autocomplete="tel-national" />
+            </div>
+          </div>
+
         </div>
       `,
       foot: `
         <button class="kb ghost" data-dismiss>Annuler</button>
-        <button class="kb atlas" data-action="eq-submit-member">Ajouter &amp; inviter</button>
+        <button class="kb atlas" data-action="eq-submit-member" style="gap: 7px; padding: 9px 16px; font-weight: 600;">
+          Ajouter &amp; inviter
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
       `,
     });
 
