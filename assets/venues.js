@@ -367,9 +367,26 @@
 
   function renderSidebarCounts() {
     const txCountEl = document.querySelector('a[data-nav="transactions"] .count');
-    if (txCountEl) txCountEl.textContent = String(VENUES[currentVenue].txCount);
+    if (txCountEl) {
+      // Pull the live count from the demo clock so this badge stays in lockstep
+      // with the dashboard's Commandes KPI tile. If the clock isn't running yet
+      // (initial paint before the simulator's first tick), fall back to the
+      // venue's end-of-day target so the badge isn't empty.
+      const live = window.KiwiDemoClock?.getSimState?.()?.cumTx;
+      txCountEl.textContent = String(live != null ? live : VENUES[currentVenue].txCount);
+    }
     const staffCountEl = document.querySelector('a[data-nav="equipe"] .count');
     if (staffCountEl) staffCountEl.textContent = String(VENUES[currentVenue].staffCount);
+  }
+
+  /* Keep the sidebar count in sync with each demo-clock tick (every 3 s). */
+  if (window.KiwiDemoClock?.subscribe) {
+    window.KiwiDemoClock.subscribe(() => renderSidebarCounts());
+  } else {
+    // Demo clock may not be loaded yet — retry once on DOMContentLoaded.
+    document.addEventListener('DOMContentLoaded', () => {
+      window.KiwiDemoClock?.subscribe?.(() => renderSidebarCounts());
+    });
   }
 
   /* ═══════════════ ACTION HANDLERS ═══════════════ */
