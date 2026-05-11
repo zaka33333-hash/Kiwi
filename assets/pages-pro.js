@@ -32,100 +32,18 @@
  * ─────────────────────────────────────────────────────────────────────────── */
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * 1 · ACCUEIL · morning briefing
+ * 1 · ACCUEIL · return to the main dashboard view
+ *     Closes any open drawer/modal and scrolls back to top. No drawer.
  * ─────────────────────────────────────────────────────────────────────────── */
 handlers['nav-accueil'] = () => {
-  const v = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2, '0');
-  const mm = String(now.getMinutes()).padStart(2, '0');
-  const greet = now.getHours() < 12 ? 'Bonjour' : now.getHours() < 18 ? 'Bon après-midi' : 'Bonsoir';
-
-  drawer({
-    title: `${greet}, Badr`,
-    subtitle: `${v.name} · ${hh}:${mm} · service en cours`,
-    width: 760,
-    body: `
-      <div class="p-hero" style="margin-bottom:14px;">
-        <div class="l">RECETTES JOURNÉE · 14:37</div>
-        <div class="big">22 184 <span style="font-size:18px; opacity:0.7;">MAD</span> <span style="font-size:13px; color:var(--mint); margin-left:10px;">+12,4 % vs hier</span></div>
-        <div class="sub">Objectif jour : 31 500 MAD · 70 % atteint · clôture estimée 32 100 MAD</div>
-        <div style="margin-top:14px; height:6px; background:rgba(255,255,255,0.16); border-radius:3px; overflow:hidden;">
-          <div style="height:100%; width:70%; background:linear-gradient(90deg, var(--mint), #C9F6DC); border-radius:3px;"></div>
-        </div>
-      </div>
-
-      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px;">
-        ${[
-          ['RÈGLEMENTS', '14', 'reçus auj.', 'ok'],
-          ['ÉQUIPE', '6 / 8', 'pointés', 'ok'],
-          ['TERMINAUX', '2 / 3', 'en ligne', 'pend'],
-          ['TICKET MOYEN', '178 MAD', '+8 MAD', 'ok'],
-        ].map(([l, big, sub, st]) => `
-          <div style="background:var(--paper-soft); border:1px solid var(--n-200); border-radius:12px; padding:14px;">
-            <div style="font-size:10px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono);">${l}</div>
-            <div style="font-size:20px; font-weight:600; letter-spacing:-0.02em; margin-top:6px; font-feature-settings:'tnum' 1;">${big}</div>
-            <div style="font-size:11px; color:var(--n-500); margin-top:2px;">${sub}</div>
-            <div style="margin-top:8px;"><span class="chip ${st}">${st === 'ok' ? 'Sain' : 'Attention'}</span></div>
-          </div>
-        `).join('')}
-      </div>
-
-      <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:0 0 10px;">Prochaines réservations</div>
-      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px;">
-        ${[
-          ['19h30', 'Khalid Berrada', 'Table 7 · 4 couverts · habitué'],
-          ['20h00', 'Sara M. (anniv.)', 'Table 12 · 6 couverts · gâteau prévu'],
-          ['20h30', 'Walk-in attendu', 'Terrasse · 2 couverts'],
-        ].map(([t, n, m]) => `
-          <div class="p-card" style="margin-bottom:0; padding:14px;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div style="font-family:var(--mono); font-weight:600; font-size:15px; color:var(--atlas);">${t}</div>
-              <div style="font-weight:600; font-size:13.5px;">${n}</div>
-            </div>
-            <div style="font-size:11.5px; color:var(--n-500); margin-top:5px; line-height:1.4;">${m}</div>
-          </div>
-        `).join('')}
-      </div>
-
-      <div style="background:linear-gradient(135deg, var(--ink), var(--ink-soft, #1A201D)); color:var(--paper); border-radius:14px; padding:18px; margin-bottom:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <div>
-            <div style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--mint);">KIWI AI · TO-DO MATIN</div>
-            <div style="font-size:14px; font-weight:600; margin-top:3px;">4 priorités curées par votre IA</div>
-          </div>
-          <span class="chip" style="background:rgba(125,242,176,0.16); color:var(--mint);">prêt</span>
-        </div>
-        ${[
-          ['Valider la commande Bidaoui (vins) — 2 480 MAD', 'Stock vin rouge bas · livraison demain'],
-          ['Approuver la note de frais d\'Amine (320 MAD)', 'Justificatif scanné lundi'],
-          ['Confirmer la réservation 20h Sara M.', 'Anniversaire · gâteau à prévoir'],
-          ['Régler la note électricité Lydec', 'Échéance vendredi · 1 240 MAD'],
-        ].map(([t, m], i) => `
-          <label style="display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-top:1px solid rgba(255,255,255,0.08); cursor:pointer;" data-action="todo-tick" data-arg="${i}">
-            <span style="width:18px; height:18px; border-radius:5px; border:1.5px solid rgba(125,242,176,0.5); flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center;">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="3" style="opacity:0;"><path d="M5 12l5 5L20 7"/></svg>
-            </span>
-            <span style="flex:1;">
-              <div style="font-size:13px; color:var(--paper); font-weight:500;">${t}</div>
-              <div style="font-size:11.5px; color:#a7d5b9; margin-top:2px;">${m}</div>
-            </span>
-          </label>
-        `).join('')}
-      </div>
-
-      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
-        <button class="kb atlas" data-action="new-sale" style="justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Encaisser</button>
-        <button class="kb ghost" data-action="payment-link" style="justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1 1"/><path d="M14 10a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1-1"/></svg>Lien</button>
-        <button class="kb ghost" data-action="export" style="justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M5 10l7 7 7-7M5 21h14"/></svg>Export</button>
-        <button class="kb ghost" data-action="nav-equipe" style="justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Équipe</button>
-      </div>
-    `,
+  // Dismiss any open drawer / modal so the dashboard underneath is fully visible.
+  document.querySelectorAll('.kiwi-drawer-backdrop, .kiwi-modal-backdrop').forEach(el => {
+    el.classList.remove('in');
+    setTimeout(() => el.remove(), 280);
   });
-
-  if (!handlers['todo-tick']) {
-    handlers['todo-tick'] = (i) => toast(['Bidaoui validé · 2 480 MAD','Note de frais approuvée','Réservation confirmée','Lydec programmé vendredi'][i] || 'Tâche cochée', { type: 'success', duration: 2000 });
-  }
+  // Glide back to top of the main view.
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  toast('Accueil · tableau de bord', { type: 'info', duration: 1200 });
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
