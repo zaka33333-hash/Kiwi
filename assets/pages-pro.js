@@ -962,39 +962,53 @@ handlers['nav-equipe'] = () => {
   };
   const STATUS_ORDER = { 'on-shift': 0, 'on-break': 1, 'scheduled': 2, 'clocked-out': 3 };
 
-  /* ─── Timeline bar — 8h to 26h horizontal scale ─── */
+  /* ─── Personal shift timeline — scale = member's own shift only ─── */
   function renderTimeline(m) {
     const status = statusOf(m);
     const now = nowHours();
-    const pctOf = (h) => Math.min(100, Math.max(0, ((h - SCALE_START) / SCALE_SPAN) * 100));
-    const schedL = pctOf(m.shift[0]);
-    const schedW = pctOf(m.shift[1]) - schedL;
+    const startH = m.shift[0], endH = m.shift[1];
+    const span = endH - startH;
+    const pctOf = (h) => Math.min(100, Math.max(0, ((h - startH) / span) * 100));
 
-    let actualW = 0, actualL = schedL;
-    if (status === 'on-shift' || status === 'on-break') {
-      actualW = pctOf(now) - schedL;
-    } else if (status === 'clocked-out') {
-      actualW = schedW; // assume completed
-    }
+    let workedPct, dotPct;
+    if (status === 'clocked-out')     { workedPct = 100; dotPct = 100; }
+    else if (status === 'scheduled')  { workedPct = 0;   dotPct = 0;   }
+    else                              { workedPct = pctOf(now); dotPct = workedPct; }
 
-    const nowL = pctOf(now);
     const roleC = ROLE_COLOR[m.kind] || 'var(--atlas)';
-    const isDone = status === 'clocked-out';
-
-    // Hour ticks at 8, 12, 16, 20, 24
-    const ticks = [8, 12, 16, 20, 24].map(h => `
-      <div style="position:absolute; top:0; bottom:0; left:${pctOf(h)}%; width:1px; background:rgba(10,15,13,0.06);"></div>
-      <div style="position:absolute; bottom:-15px; left:${pctOf(h)}%; transform:translateX(-50%); font-family:var(--mono); font-size:9px; color:var(--n-400); letter-spacing:0.04em;">${h === 24 ? '0h' : h + 'h'}</div>
-    `).join('');
+    const isLive = status === 'on-shift' || status === 'on-break';
+    const breakL = m.breakAt ? pctOf(m.breakAt[0]) : 0;
+    const breakW = m.breakAt ? pctOf(m.breakAt[1]) - breakL : 0;
 
     return `
-      <div style="position:relative; height:18px; background:var(--n-100); border-radius:5px; overflow:visible; margin-bottom:18px;">
-        ${ticks}
-        <div style="position:absolute; top:0; bottom:0; left:${schedL}%; width:${schedW}%; background:${roleC}; opacity:0.18; border-radius:4px;"></div>
-        ${actualW > 0 ? `<div style="position:absolute; top:0; bottom:0; left:${actualL}%; width:${actualW}%; background:${roleC}; border-radius:4px; opacity:${isDone ? 0.55 : 1};"></div>` : ''}
-        ${m.breakAt ? `<div style="position:absolute; top:0; bottom:0; left:${pctOf(m.breakAt[0])}%; width:${pctOf(m.breakAt[1]) - pctOf(m.breakAt[0])}%; background:repeating-linear-gradient(45deg, transparent, transparent 3px, #fff 3px, #fff 5px); border-radius:4px;"></div>` : ''}
-        ${(status === 'on-shift' || status === 'on-break') ? `<div style="position:absolute; top:-3px; bottom:-3px; left:${nowL}%; width:2px; background:var(--ink); z-index:3;"></div>
-        <div style="position:absolute; top:-19px; left:${nowL}%; transform:translateX(-50%); font-family:var(--mono); font-size:9.5px; font-weight:600; color:var(--ink); background:#fff; padding:1px 5px; border-radius:3px; border:1px solid var(--n-200); z-index:4; white-space:nowrap;">${formatTimeHr(now)}</div>` : ''}
+      <div style="position: relative; padding: 14px 4px 4px;">
+        <!-- the rail -->
+        <div style="position: relative; height: 8px; background: linear-gradient(90deg, var(--n-100), #ECEAE4 50%, var(--n-100)); border-radius: 999px; overflow: visible;">
+          ${workedPct > 0 ? `
+            <div style="position: absolute; top: 0; bottom: 0; left: 0; width: ${workedPct}%;
+              background: linear-gradient(90deg, ${roleC}, ${roleC === 'var(--atlas)' ? '#7DF2B0' : '#0B6E4F'});
+              border-radius: 999px;
+              box-shadow: 0 1px 2px rgba(11,110,79,0.18);
+              transition: width 600ms cubic-bezier(0.32, 0.72, 0, 1);"></div>` : ''}
+          ${m.breakAt ? `
+            <div style="position: absolute; top: 0; bottom: 0; left: ${breakL}%; width: ${breakW}%;
+              background: repeating-linear-gradient(45deg, rgba(255,255,255,0.55), rgba(255,255,255,0.55) 3px, transparent 3px, transparent 6px);
+              border-radius: 999px;"></div>` : ''}
+          ${isLive ? `
+            <div style="position: absolute; left: ${dotPct}%; top: 50%; transform: translate(-50%, -50%);
+              width: 16px; height: 16px; border-radius: 50%;
+              background: #fff; border: 3px solid ${roleC};
+              box-shadow: 0 0 0 5px rgba(11,110,79,0.10), 0 2px 6px rgba(10,15,13,0.14);
+              z-index: 2;">
+              <span style="position: absolute; inset: -3px; border-radius: 50%; background: ${roleC}; opacity: 0.28;
+                animation: kw-eq-ripple 1.8s ease-out infinite;"></span>
+            </div>` : ''}
+        </div>
+        <!-- end labels (NO whitespace-collapsing, dedicated start + end) -->
+        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+          <span class="mono" style="font-size: 10.5px; color: var(--n-500); letter-spacing: 0.04em;">${formatTimeHr(startH)}</span>
+          <span class="mono" style="font-size: 10.5px; color: var(--n-500); letter-spacing: 0.04em;">${formatTimeHr(endH >= 24 ? endH - 24 : endH)}</span>
+        </div>
       </div>
     `;
   }
@@ -1135,44 +1149,117 @@ handlers['nav-equipe'] = () => {
           </div>
         </div>
 
+        <style>
+          @keyframes kw-eq-ripple {
+            0%   { transform: scale(1);   opacity: 0.42; }
+            70%  { transform: scale(2.4); opacity: 0;    }
+            100% { transform: scale(2.4); opacity: 0;    }
+          }
+          @keyframes kw-eq-pulse {
+            0%, 100% { opacity: 1; }
+            50%      { opacity: 0.55; }
+          }
+          .kw-eq-row { transition: border-color 180ms, box-shadow 180ms, transform 180ms; }
+          .kw-eq-row.active { background: #fff; }
+          .kw-eq-row.active:hover { box-shadow: 0 1px 0 rgba(10,15,13,0.04), 0 12px 24px -14px rgba(10,15,13,0.16); transform: translateY(-1px); }
+          .kw-eq-row.inactive { background: var(--paper-soft); }
+          .kw-eq-iconbtn { width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); cursor: pointer; transition: all 120ms; }
+          .kw-eq-iconbtn:hover { color: var(--ink); border-color: var(--n-300); }
+          .kw-eq-detailbtn { padding: 5px 11px; font-size: 11.5px; border-radius: 7px; border: 1px solid var(--n-200); background: #fff; color: var(--ink); cursor: pointer; transition: all 120ms; }
+          .kw-eq-detailbtn:hover { background: var(--paper-soft); }
+        </style>
         ${sorted.map(m => {
           const info = STATUS_INFO[m._status];
-          const newChip = m.isNew ? `<span class="chip" style="background:rgba(125,242,176,0.18); color:var(--riad); font-size:9.5px; padding:2px 7px; margin-left:6px;">NOUV.</span>` : '';
+          const newChip = m.isNew ? `<span class="chip" style="background:rgba(125,242,176,0.20); color:var(--riad); font-size:9.5px; padding:2px 7px; margin-left:6px; letter-spacing:0.05em;">NOUV.</span>` : '';
           const roleC = ROLE_COLOR[m.kind] || 'var(--atlas)';
           const isActive = m._status === 'on-shift' || m._status === 'on-break';
-          const durationMins = isActive ? Math.round((nowHours() - m.shift[0]) * 60) : 0;
+          const durationMins  = isActive ? Math.round((nowHours() - m.shift[0]) * 60) : 0;
           const remainingMins = isActive ? Math.round((m.shift[1] - nowHours()) * 60) : 0;
-          const shiftLabel = `${formatTimeHr(m.shift[0])}–${formatTimeHr(m.shift[1] >= 24 ? m.shift[1] - 24 : m.shift[1])}`;
+          const totalMins     = (m.shift[1] - m.shift[0]) * 60;
+          const progressPct   = isActive ? Math.round((durationMins / totalMins) * 100) : (m._status === 'clocked-out' ? 100 : 0);
+          const shiftLabel = `${formatTimeHr(m.shift[0])} → ${formatTimeHr(m.shift[1] >= 24 ? m.shift[1] - 24 : m.shift[1])}`;
+          const teamLabel  = m.team === 'matin' ? 'Équipe matin' : 'Équipe soir';
 
-          return `
-            <div style="padding:14px 0; border-top:1px solid var(--n-200); ${m._status === 'clocked-out' || m._status === 'scheduled' ? 'opacity:0.62;' : ''}">
-              <div style="display:grid; grid-template-columns:42px 1fr auto auto; gap:14px; align-items:center; margin-bottom:${isActive ? '4px' : '0'};">
-                <div class="av ${m.avatar}" style="width:42px; height:42px; font-size:13px;">${m.initials}</div>
-                <div style="min-width:0;">
-                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <div style="font-weight:600; font-size:14px; letter-spacing:-0.005em;">${m.name}</div>
-                    ${newChip}
+          if (isActive) {
+            /* RICH active card */
+            return `
+              <div class="kw-eq-row active" style="position: relative; padding: 16px 18px; border: 1px solid var(--n-200); border-left: 3px solid ${roleC}; border-radius: 12px; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; align-items: flex-start;">
+                  <div class="av ${m.avatar}" style="width: 44px; height: 44px; font-size: 13.5px; font-weight: 600;">${m.initials}</div>
+                  <div style="min-width: 0; padding-top: 1px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                      <div style="font-weight: 600; font-size: 15px; letter-spacing: -0.01em;">${m.name}</div>
+                      ${newChip}
+                    </div>
+                    <div style="font-size: 11.5px; color: var(--n-500); margin-top: 3px; display: flex; align-items: center; gap: 8px;">
+                      <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--n-600); font-weight: 500;">
+                        <i style="width: 6px; height: 6px; border-radius: 2px; background: ${roleC};"></i>${m.role}
+                      </span>
+                      <span style="color: var(--n-300);">·</span>
+                      <span>${teamLabel}</span>
+                    </div>
                   </div>
-                  <div style="display:flex; align-items:center; gap:10px; margin-top:2px; font-size:11.5px; color:var(--n-500); flex-wrap:wrap;">
-                    <span style="display:inline-flex; align-items:center; gap:5px;"><i style="width:6px; height:6px; border-radius:2px; background:${roleC};"></i>${m.role}</span>
-                    <span style="color:var(--n-300);">·</span>
-                    <span style="text-transform:capitalize;">Équipe ${m.team}</span>
-                    <span style="color:var(--n-300);">·</span>
-                    <span class="mono">${shiftLabel}</span>
+                  <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                    <span class="chip ${info.cls}" style="font-size: 10.5px; padding: 3px 10px;">
+                      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${info.dot}; margin-right: 6px; animation: kw-eq-pulse 1.8s ease-in-out infinite;"></span>${info.label}
+                    </span>
+                    <div style="display: flex; gap: 5px;">
+                      <button class="kw-eq-iconbtn" data-action="member-reset-pin" data-arg="${m.id}" title="Réinitialiser le PIN">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                      </button>
+                      <button class="kw-eq-detailbtn" data-action="member-detail" data-arg="${m.name}">Détails</button>
+                    </div>
                   </div>
                 </div>
-                <div style="text-align:right; min-width:90px;">
-                  <span class="chip ${info.cls}" style="font-size:10.5px;"><i style="display:inline-block; width:5px; height:5px; border-radius:50%; background:${info.dot}; margin-right:5px;"></i>${info.label}</span>
-                  ${isActive ? `<div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:4px;">${formatDuration(durationMins)} · reste ${formatDuration(remainingMins)}</div>` : ''}
-                  ${m._status === 'clocked-out' ? `<div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:4px;">sorti à ${formatTimeHr(m.shift[1] >= 24 ? m.shift[1] - 24 : m.shift[1])}</div>` : ''}
-                  ${m._status === 'scheduled' ? `<div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:4px;">prise à ${formatTimeHr(m.shift[0])}</div>` : ''}
-                </div>
-                <div style="display:flex; gap:5px;">
-                  <button class="kb ghost" data-action="member-reset-pin" data-arg="${m.id}" style="padding:5px 9px; font-size:11px;" title="Réinitialiser le PIN">PIN</button>
-                  <button class="kb ghost" data-action="member-detail" data-arg="${m.name}" style="padding:5px 9px; font-size:11px;">Détails</button>
+
+                <!-- Timeline + counters -->
+                <div style="margin-top: 14px; padding-left: 58px;">
+                  ${renderTimeline(m)}
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                    <div style="font-size: 11.5px; color: var(--n-500);">
+                      <span class="mono" style="color: var(--ink); font-weight: 600;">${formatDuration(durationMins)}</span>
+                      <span style="margin: 0 4px;">·</span>
+                      <span style="color: var(--n-500);">${progressPct}% du shift</span>
+                    </div>
+                    <div style="font-size: 11.5px; color: var(--n-500);">
+                      reste <span class="mono" style="color: var(--ink); font-weight: 600;">${formatDuration(remainingMins)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              ${isActive ? renderTimeline(m) : ''}
+            `;
+          }
+
+          /* COMPACT inactive row — one-line summary */
+          const offSubline = (() => {
+            if (m._status === 'clocked-out') return `Service terminé · sorti à <span class="mono">${formatTimeHr(m.shift[1] >= 24 ? m.shift[1] - 24 : m.shift[1])}</span>`;
+            if (m._status === 'scheduled')   return `Prise de service à <span class="mono">${formatTimeHr(m.shift[0])}</span>`;
+            return '';
+          })();
+          return `
+            <div class="kw-eq-row inactive" style="display: grid; grid-template-columns: 36px 1fr auto auto; gap: 12px; align-items: center; padding: 11px 16px; border: 1px solid var(--n-200); border-left: 3px solid ${roleC}; border-radius: 12px; margin-bottom: 8px; opacity: 0.72;">
+              <div class="av ${m.avatar}" style="width: 36px; height: 36px; font-size: 12px;">${m.initials}</div>
+              <div style="min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-weight: 600; font-size: 13.5px; letter-spacing: -0.005em;">${m.name}</span>
+                  ${newChip}
+                </div>
+                <div style="font-size: 11px; color: var(--n-500); margin-top: 2px;">
+                  ${m.role} · ${teamLabel} · <span class="mono">${shiftLabel}</span>
+                </div>
+              </div>
+              <div style="text-align: right; display: flex; flex-direction: column; gap: 3px;">
+                <span class="chip ${info.cls}" style="font-size: 10.5px; padding: 3px 9px;">
+                  <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: ${info.dot}; margin-right: 5px;"></span>${info.label}
+                </span>
+                <span style="font-size: 10.5px; color: var(--n-500);">${offSubline}</span>
+              </div>
+              <div style="display: flex; gap: 5px;">
+                <button class="kw-eq-iconbtn" data-action="member-reset-pin" data-arg="${m.id}" title="Réinitialiser le PIN">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                </button>
+                <button class="kw-eq-detailbtn" data-action="member-detail" data-arg="${m.name}">Détails</button>
+              </div>
             </div>
           `;
         }).join('')}
