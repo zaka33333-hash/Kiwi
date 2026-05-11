@@ -217,7 +217,10 @@
     observeCounters();
     bindMagnetic();
     bindTilt();
-    bindLiveFeed();
+    // bindLiveFeed() removed — dateRange.js now owns the live feed and
+    // drives it from KiwiDemoClock.cumTx instead of random wall-clock
+    // insertions. Calling both would cause duplicate rows with
+    // mismatching time formats.
     bindLiveBadge();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

@@ -2078,9 +2078,9 @@
     const nowSimMins = simHour * 60 + simMin;
 
     /* Time offsets (sim minutes ago) — the latest order is right now,
-     * the next is a couple of sim-minutes back, etc. Clusters tighter
-     * during peak hours, looser during quiet ones. */
-    const offsets = [0, 2, 4, 7, 10, 14];
+     * the next a couple of sim-minutes back, etc. Up to 10 rows so the
+     * feed fills the column height alongside the right-side widgets. */
+    const offsets = [0, 2, 4, 7, 10, 14, 18, 23, 28, 34];
     const today = new Date();
     const dateKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
     const count = Math.min(offsets.length, cumTx);
@@ -2145,15 +2145,22 @@
     if (titleEl) titleEl.textContent = FEED_TITLE[lang]?.[currentRange] || FEED_TITLE.fr[currentRange];
     const subEl = document.querySelector('[data-feed-sub]');
     if (subEl) {
-      const baseSub = FEED_SUB[lang]?.[currentRange] || FEED_SUB.fr[currentRange];
       if (isLive && rows && rows.length === 0) {
         subEl.textContent = lang === 'en' ? 'Service open · awaiting first order'
                           : lang === 'ar' ? 'الخدمة مفتوحة · في انتظار الطلب الأول'
                           : 'Service ouvert · en attente de la 1ʳᵉ commande';
       } else if (isLive) {
-        subEl.textContent = baseSub;
+        /* Live subtitle reflects the actual row count + total today. */
+        const sim = window.KiwiDemoClock?.getSimState?.();
+        const cumTx = sim?.cumTx ?? 0;
+        const n = rows.length;
+        const word = lang === 'en' ? 'last' : lang === 'ar' ? 'آخر' : 'dernières';
+        const total = lang === 'en' ? `· ${cumTx} today`
+                    : lang === 'ar' ? `· ${cumTx} اليوم`
+                    : `· ${cumTx} commande${cumTx > 1 ? 's' : ''} aujourd'hui`;
+        subEl.textContent = `${n} ${word} ${total}`;
       } else {
-        subEl.textContent = baseSub;
+        subEl.textContent = FEED_SUB[lang]?.[currentRange] || FEED_SUB.fr[currentRange];
       }
     }
   }
