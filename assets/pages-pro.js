@@ -175,13 +175,21 @@ handlers['nav-transactions'] = () => {
   function render() {
     const baseRows = rangeRows();
     const refunds  = rangeRefunds();
+    /* ─── HERO = always the unfiltered total for the active range.
+     * The hero number is what should match the dashboard's Commandes KPI tile.
+     * Filters narrow only the table below, not the headline. ─── */
+    const heroTotal  = baseRows.length;
+    const heroSum    = baseRows.reduce((s, r) => s + r.amt, 0);
+    const heroAvg    = heroTotal > 0 ? Math.round(heroSum / heroTotal) : 0;
+
+    /* ─── TABLE = filtered subset ─── */
     const list = activeFilter === 'Remboursements' ? refunds
                : activeFilter === 'Toutes'         ? baseRows
                : baseRows.filter(r => r.cat === activeFilter);
     const total   = list.length;
     const sumAmt  = list.reduce((s, r) => s + r.amt, 0);
-    const avg     = total > 0 ? Math.round(Math.abs(sumAmt) / total) : 0;
     const live    = activeRange === 'aujourdhui';
+    const filtered = activeFilter !== 'Toutes';
     const sortedDesc = list.slice().sort((a, b) => b.simIdx - a.simIdx || b.t.localeCompare(a.t));
     const limit   = expanded ? 500 : 80;
     const display = sortedDesc.slice(0, limit);
@@ -192,8 +200,8 @@ handlers['nav-transactions'] = () => {
     host.innerHTML = `
       <div class="p-hero">
         <div class="l">${live ? "VOLUME AUJOURD'HUI · LIVE" : 'VOLUME · ' + RANGE_LABEL[activeRange].toUpperCase()}</div>
-        <div class="big">${fmt0(Math.abs(sumAmt))} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-        <div class="sub">${total} commande${total > 1 ? 's' : ''} · panier moyen ${avg} MAD · ${live ? 'sync horloge démo · refresh 3 s' : 'données consolidées'}</div>
+        <div class="big">${fmt0(Math.abs(heroSum))} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
+        <div class="sub">${heroTotal} commande${heroTotal > 1 ? 's' : ''} · panier moyen ${heroAvg} MAD · ${live ? 'sync horloge démo · refresh 3 s' : 'données consolidées'}</div>
       </div>
 
       <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">
@@ -203,6 +211,13 @@ handlers['nav-transactions'] = () => {
         <span style="flex:1;"></span>
         <button class="kb ghost" data-action="tx-daterange" style="padding:6px 12px; font-size:12px; gap:6px;">${RANGE_LABEL[activeRange]} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
       </div>
+
+      ${filtered ? `
+        <div style="background:rgba(125,242,176,0.10); border:1px solid rgba(11,110,79,0.16); padding:8px 14px; border-radius:9px; margin-bottom:12px; font-size:12.5px; color:var(--riad); display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <span>Filtre actif : <b>${activeFilter}</b> · ${total} commande${total > 1 ? 's' : ''} affichée${total > 1 ? 's' : ''}${activeFilter !== 'Remboursements' ? ` sur ${heroTotal}` : ''} · ${fmt0(Math.abs(sumAmt))} MAD</span>
+          <button class="kb ghost" data-action="tx-filter" data-arg="Toutes" style="padding:4px 10px; font-size:11.5px;">Effacer</button>
+        </div>
+      ` : ''}
 
       <div style="display:flex; gap:4px; padding:4px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:11px; margin-bottom:14px;">
         ${tabs.map(([k, l]) => {
@@ -291,7 +306,7 @@ handlers['nav-transactions'] = () => {
 
     /* Live subtitle */
     const subEl = dr.el.querySelector('.kiwi-drawer-head p');
-    if (subEl) subEl.textContent = `${total} commande${total > 1 ? 's' : ''} · ${fmt0(Math.abs(sumAmt))} MAD · ${RANGE_LABEL[activeRange]}`;
+    if (subEl) subEl.textContent = `${heroTotal} commande${heroTotal > 1 ? 's' : ''} · ${fmt0(Math.abs(heroSum))} MAD · ${RANGE_LABEL[activeRange]}`;
   }
 
   render();
