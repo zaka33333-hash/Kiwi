@@ -32,7 +32,7 @@
   .kiwi-modal-head h3 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; }
   .kiwi-modal-head p { margin: 5px 0 0; font-size: 14px; color: var(--n-500); line-height: 1.45; }
   .kiwi-modal-head .tag { display: inline-block; margin-bottom: 10px; padding: 4px 10px; background: var(--mint-soft); color: var(--riad); border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; }
-  .kiwi-modal-body { padding: 0 28px 24px; }
+  .kiwi-modal-body { padding: 0 28px 24px; overscroll-behavior: contain; }
   .kiwi-modal-foot { padding: 16px 28px; border-top: 1px solid var(--n-200); display: flex; justify-content: flex-end; gap: 10px; background: rgba(255,255,255,0.5); border-radius: 0 0 22px 22px; }
   .kiwi-modal-close { position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; z-index: 2; }
   .kiwi-modal-close:hover { color: var(--ink); border-color: var(--n-400); }
@@ -45,7 +45,10 @@
   .kiwi-drawer-head { padding: 20px 24px; border-bottom: 1px solid var(--n-200); display: flex; justify-content: space-between; align-items: center; }
   .kiwi-drawer-head h3 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
   .kiwi-drawer-head p { margin: 3px 0 0; font-size: 12.5px; color: var(--n-500); }
-  .kiwi-drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+  .kiwi-drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px; overscroll-behavior: contain; }
+  /* Scroll-lock the underlying page while any drawer/modal is open.
+   * Counter-tracked so nested layers don't unlock prematurely. */
+  html.kiwi-locked, html.kiwi-locked body { overflow: hidden; }
   .kiwi-drawer-foot { padding: 16px 24px; border-top: 1px solid var(--n-200); }
   .kiwi-drawer-close { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; }
   .kiwi-drawer-close:hover { color: var(--ink); border-color: var(--n-400); }
@@ -222,13 +225,33 @@
       </div>
     `;
     document.body.appendChild(back);
+    lockPageScroll();
     requestAnimationFrame(() => back.classList.add('in'));
-    const close = () => { back.classList.remove('in'); setTimeout(() => back.remove(), 280); document.removeEventListener('keydown', esc); };
+    let closed = false;
+    const close = () => {
+      if (closed) return; closed = true;
+      back.classList.remove('in');
+      setTimeout(() => back.remove(), 280);
+      document.removeEventListener('keydown', esc);
+      unlockPageScroll();
+    };
     const esc = (e) => { if (e.key === 'Escape') close(); };
     document.addEventListener('keydown', esc);
     back.addEventListener('click', (e) => { if (e.target === back) close(); });
     back.querySelector('.kiwi-modal-close').onclick = close;
     return { close, el: back };
+  }
+
+  /* ─── Scroll-lock helpers (counter-tracked for nested drawers/modals) ─── */
+  function lockPageScroll() {
+    const n = (window.__kiwiScrollLocks || 0) + 1;
+    window.__kiwiScrollLocks = n;
+    if (n === 1) document.documentElement.classList.add('kiwi-locked');
+  }
+  function unlockPageScroll() {
+    const n = Math.max(0, (window.__kiwiScrollLocks || 0) - 1);
+    window.__kiwiScrollLocks = n;
+    if (n === 0) document.documentElement.classList.remove('kiwi-locked');
   }
 
   /* ═══════════════════════ DRAWER ═══════════════════════ */
@@ -249,8 +272,16 @@
       </div>
     `;
     document.body.appendChild(back);
+    lockPageScroll();
     requestAnimationFrame(() => back.classList.add('in'));
-    const close = () => { back.classList.remove('in'); setTimeout(() => back.remove(), 280); document.removeEventListener('keydown', esc); };
+    let closed = false;
+    const close = () => {
+      if (closed) return; closed = true;
+      back.classList.remove('in');
+      setTimeout(() => back.remove(), 280);
+      document.removeEventListener('keydown', esc);
+      unlockPageScroll();
+    };
     const esc = (e) => { if (e.key === 'Escape') close(); };
     document.addEventListener('keydown', esc);
     back.addEventListener('click', (e) => { if (e.target === back) close(); });

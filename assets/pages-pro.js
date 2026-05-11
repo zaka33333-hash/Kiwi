@@ -41,6 +41,10 @@ handlers['nav-accueil'] = () => {
     el.classList.remove('in');
     setTimeout(() => el.remove(), 280);
   });
+  // Bypass-clear the scroll-lock counter since we just removed backdrops by hand
+  // (instead of going through each drawer's close()).
+  window.__kiwiScrollLocks = 0;
+  document.documentElement.classList.remove('kiwi-locked');
   // Glide back to top of the main view.
   window.scrollTo({ top: 0, behavior: 'smooth' });
   toast('Accueil · tableau de bord', { type: 'info', duration: 1200 });
