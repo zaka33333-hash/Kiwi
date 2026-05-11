@@ -348,6 +348,13 @@ handlers['nav-transactions'] = () => {
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * 3 · TERMINAUX · fleet management
+ *
+ * The fleet is now KiwiPad pro (comptoir), KiwiPad cashless (salle),
+ * KiwiPad (terrasse), KiwiOrders pro (cuisine). Each card swaps its
+ * abstract SVG block for the matching "gamification" product render so
+ * the merchant sees their actual hardware at a glance.
+ *
+ * "Ajouter" and "Demander un terminal" both open the new catalog drawer.
  * ─────────────────────────────────────────────────────────────────────────── */
 handlers['nav-terminaux'] = () => {
   // sparkline helper — 30 points, 0..1 normalized
@@ -364,22 +371,53 @@ handlers['nav-terminaux'] = () => {
   };
   const beat = (n) => Array.from({ length: 30 }, () => Math.max(0.4, n + (Math.random() - 0.5) * 0.5));
 
+  /* The Café Atlas fleet — KiwiPad pro / KiwiPad cashless / KiwiPad / KiwiOrders pro.
+   * `img` points to the gamification PNG; the catalog drawer uses the real photo. */
   const terms = [
-    { id: 'A920PRO-KW-2831', name: 'PAX A920 Pro', loc: 'Comptoir', state: 'on', net: 'Wi-Fi', batt: 87, battStart: 96, fw: '4.2.1', fwUpdate: false, txDay: 87, life: 'loaned', lifeLabel: 'Prêté · Kiwi Pro', spark: beat(0.7) },
-    { id: 'A50-KW-1208', name: 'Samsung A54 SoftPOS', loc: 'Salle', state: 'on', net: '4G', batt: 63, battStart: 92, fw: '2.0.4', fwUpdate: true, txDay: 54, life: 'purchased', lifeLabel: 'Acheté · 03/2025', spark: beat(0.55) },
-    { id: 'A920PRO-KW-2832', name: 'PAX A920 Pro', loc: 'Terrasse', state: 'off', net: 'Hors-ligne', batt: 64, battStart: 88, fw: '4.2.1', fwUpdate: false, txDay: 0, life: 'replacement', lifeLabel: 'Remplacement dû', spark: beat(0.05) },
+    {
+      id: 'KP-PRO-2831', name: 'KiwiPad pro', loc: 'Comptoir',
+      img: 'Hardware_pictures/Hardware_gamefication4.png',
+      state: 'on', net: 'Wi-Fi', batt: 87, battStart: 96,
+      fw: '4.2.1', fwUpdate: false, txDay: 87,
+      life: 'loaned', lifeLabel: 'Prêté · Kiwi Pro',
+      spark: beat(0.7),
+    },
+    {
+      id: 'KP-CL-1208', name: 'KiwiPad cashless', loc: 'Salle',
+      img: 'Hardware_pictures/Hardware_gamefication2.png',
+      state: 'on', net: '4G', batt: 63, battStart: 92,
+      fw: '2.0.4', fwUpdate: true, txDay: 54,
+      life: 'purchased', lifeLabel: 'Acheté · 03/2025',
+      spark: beat(0.55),
+    },
+    {
+      id: 'KP-2832', name: 'KiwiPad', loc: 'Terrasse',
+      img: 'Hardware_pictures/Hardware_gamefication1.png',
+      state: 'off', net: 'Hors-ligne', batt: 64, battStart: 88,
+      fw: '4.2.1', fwUpdate: false, txDay: 0,
+      life: 'replacement', lifeLabel: 'Remplacement dû',
+      spark: beat(0.05),
+    },
+    {
+      id: 'KO-PRO-4501', name: 'KiwiOrders pro', loc: 'Cuisine',
+      img: 'Hardware_pictures/Hardware_KDSgamefication1.png',
+      state: 'on', net: 'Wi-Fi', batt: 100, battStart: 100,
+      fw: '3.1.0', fwUpdate: false, txDay: 132,
+      life: 'loaned', lifeLabel: 'Prêté · Kiwi Pro',
+      spark: beat(0.78),
+    },
   ];
   const lifeChip = { loaned: 'ok', purchased: 'neutral', replacement: 'pend' };
 
   drawer({
     title: 'Parc terminaux',
-    subtitle: `${v_count_active(terms)} / ${terms.length} actifs · uptime 24h 94,2 % · 141 tx aujourd'hui`,
-    width: 760,
+    subtitle: `${v_count_active(terms)} / ${terms.length} actifs · uptime 24h 94,2 % · 273 tx aujourd'hui`,
+    width: 780,
     body: `
       <div class="p-hero">
         <div class="l">ÉTAT DU PARC · CAFÉ ATLAS</div>
         <div class="big">${v_count_active(terms)} / ${terms.length} <span style="font-size:18px; opacity:0.7;">en ligne</span></div>
-        <div class="sub">Batterie moy. 71 % · firmware 4.2.1 majoritaire · 1 mise à jour disponible</div>
+        <div class="sub">Batterie moy. 78 % · firmware à jour majoritaire · 1 mise à jour disponible</div>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -389,9 +427,9 @@ handlers['nav-terminaux'] = () => {
 
       ${terms.map(t => `
         <div class="p-card" style="margin-bottom:10px; ${t.state === 'off' ? 'background:#FFF4DD;' : ''}">
-          <div style="display:grid; grid-template-columns:54px 1fr auto; gap:14px; align-items:center; margin-bottom:12px;">
-            <div style="width:44px; height:64px; border-radius:9px; background:${t.state==='on'?'var(--ink)':'var(--n-300)'}; color:${t.state==='on'?'var(--mint)':'var(--n-500)'}; display:flex; align-items:flex-end; justify-content:center; padding:6px;">
-              <div style="width:18px; height:3px; background:currentColor; border-radius:2px;"></div>
+          <div style="display:grid; grid-template-columns:104px 1fr auto; gap:14px; align-items:center; margin-bottom:12px;">
+            <div style="width:104px; height:80px; border-radius:11px; background:#fff; border:1px solid var(--n-200); display:flex; align-items:center; justify-content:center; padding:6px; ${t.state === 'off' ? 'opacity:0.55;' : ''}">
+              <img src="${t.img}" alt="${t.name}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
             </div>
             <div>
               <div style="font-weight:600; font-size:14.5px; letter-spacing:-0.005em;">${t.name} · ${t.loc}</div>
@@ -427,17 +465,119 @@ handlers['nav-terminaux'] = () => {
 
       <div style="padding:18px; margin-top:6px; background:var(--paper-soft); border-radius:14px; border:1px dashed var(--n-300); text-align:center;">
         <div style="font-weight:600; margin-bottom:4px; font-size:14.5px;">Commander un nouveau terminal</div>
-        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:12px;">PAX A920 Pro prêté gratuitement avec Kiwi Pro · livraison 48h Casablanca</div>
+        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:12px;">KiwiPad pro, Duo, cashless ou KiwiOrders pro · livraison 48h Casablanca</div>
         <button class="kb atlas" data-action="add-terminal" style="padding:9px 18px;">Demander un terminal</button>
       </div>
     `,
   });
 
-  if (!handlers['term-test']) handlers['term-test'] = (id) => toast(`Tx test envoyée · ${id.slice(-4)}`, { type: 'success', duration: 1800 });
-  if (!handlers['term-manage']) handlers['term-manage'] = (id) => toast(`Diagnostic ${id.slice(-4)} · ouvert`, { type: 'info', duration: 1600 });
-  if (!handlers['add-terminal']) handlers['add-terminal'] = () => toast('Demande envoyée · livraison sous 48h', { type: 'success', duration: 2200 });
+  if (!handlers['term-test'])   handlers['term-test']   = (_el, id) => toast(`Tx test envoyée · ${(id||'').slice(-4)}`, { type: 'success', duration: 1800 });
+  if (!handlers['term-manage']) handlers['term-manage'] = (_el, id) => toast(`Diagnostic ${(id||'').slice(-4)} · ouvert`, { type: 'info', duration: 1600 });
+
+  /* "Ajouter" + "Demander un terminal" both open the catalog drawer. */
+  handlers['add-terminal'] = () => handlers['terminal-catalog']?.();
 
   function v_count_active(arr) { return arr.filter(x => x.state === 'on').length; }
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 3b · CATALOGUE HARDWARE — opened from "Demander un terminal"
+ *
+ * 5 products on a 2-column grid. Each card: hero photo, name, price tag,
+ * tagline, description, and a "Commander" CTA that toasts a confirmation.
+ * ─────────────────────────────────────────────────────────────────────────── */
+handlers['terminal-catalog'] = () => {
+  const CATALOG = [
+    {
+      sku: 'kiwipad-pro', name: 'KiwiPad pro', price: '300 €',
+      img: 'Hardware_pictures/Hardware_4.png',
+      tag: 'Comptoir tout-en-un · flagship',
+      desc: 'Tiroir-caisse intégré, imprimante de tickets, lecteur de carte, écran tactile principal. Le poste de référence pour un comptoir actif.',
+      featured: true,
+    },
+    {
+      sku: 'kiwipad-pro-duo', name: 'KiwiPad pro Duo', price: '280 €',
+      img: 'Hardware_pictures/Hardware_3.png',
+      tag: 'Double écran · client + caisse',
+      desc: 'Écran caisse face au serveur + écran client face au comptoir. Idéal pour restaurants premium et concepts où la transparence du total compte.',
+    },
+    {
+      sku: 'kiwipad', name: 'KiwiPad', price: '200 €',
+      img: 'Hardware_pictures/Hardware_1.png',
+      tag: 'Modèle compact · sans tiroir',
+      desc: 'Pad tactile + imprimante de tickets séparée + lecteur PIN. Pour boutiques, terrasses ou postes secondaires.',
+    },
+    {
+      sku: 'kiwiorders-pro', name: 'KiwiOrders pro', price: '180 €',
+      img: 'Hardware_pictures/Hardware_KDS1.png',
+      tag: 'KDS · cuisine + bar + stations',
+      desc: 'Écran KDS sur bras articulé avec imprimante de tickets. Pour cuisine, bar, BBQ ou toute station de préparation reliée à la caisse.',
+    },
+    {
+      sku: 'kiwipad-cashless', name: 'KiwiPad cashless', price: '100 €',
+      img: 'Hardware_pictures/Hardware_2.png',
+      tag: '100 % cashless · tablette + lecteur',
+      desc: 'Tablette tactile + lecteur de carte + imprimante. Pour commerces 100 % cashless sans gestion d\'espèces ni tiroir-caisse.',
+    },
+  ];
+
+  drawer({
+    title: 'Demander un terminal',
+    subtitle: 'Catalogue Kiwi · livraison 48h Casablanca · paiement échelonné disponible',
+    width: 880,
+    body: `
+      <div class="p-hero">
+        <div class="l">CATALOGUE HARDWARE · KIWI 2026</div>
+        <div class="big" style="font-size:26px;">5 modèles <span style="font-size:16px; opacity:0.75;">· dont 1 KDS</span></div>
+        <div class="sub">Le KiwiPad pro et le KiwiOrders pro sont prêtés gratuitement avec l'abonnement Kiwi Pro · les modèles additionnels et upgrades sont facturés.</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+        ${CATALOG.map(p => `
+          <div class="p-card" style="margin:0; padding:0; overflow:hidden; background:#fff; border:1px solid ${p.featured ? 'rgba(11,110,79,0.22)' : 'var(--n-200)'}; ${p.featured ? 'box-shadow:0 1px 0 rgba(11,110,79,0.06), 0 12px 28px -16px rgba(11,110,79,0.18);' : ''}">
+            <div style="position:relative; aspect-ratio:5/3; background:var(--paper-soft); display:flex; align-items:center; justify-content:center; padding:14px; border-bottom:1px solid var(--n-200);">
+              <img src="${p.img}" alt="${p.name}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
+              ${p.featured ? `<span class="chip" style="position:absolute; top:10px; left:10px; background:var(--ink); color:var(--mint); font-size:10px; padding:3px 9px; letter-spacing:0.06em;">FLAGSHIP</span>` : ''}
+              <span style="position:absolute; top:10px; right:10px; background:#fff; border:1px solid var(--n-200); border-radius:999px; padding:4px 10px; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink);">${p.price}</span>
+            </div>
+            <div style="padding:14px 16px 16px;">
+              <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:3px;">
+                <h4 style="margin:0; font-size:15.5px; letter-spacing:-0.01em;">${p.name}</h4>
+              </div>
+              <div style="font-family:var(--mono); font-size:10.5px; color:var(--atlas); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px;">${p.tag}</div>
+              <p style="margin:0 0 12px; font-size:12.5px; color:var(--n-600); line-height:1.5;">${p.desc}</p>
+              <button class="kb ${p.featured ? 'atlas' : 'ghost'}" data-action="catalog-order" data-arg="${p.sku}" style="width:100%; justify-content:center; padding:8px 12px; font-size:12.5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18l-2 13H5L3 3z"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>
+                Commander · ${p.price}
+              </button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="padding:16px 18px; background:var(--ink); color:var(--paper); border-radius:14px;">
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:240px;">
+            <div style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--mint); margin-bottom:4px;">PROGRAMME PRO</div>
+            <div style="font-size:14px; font-weight:600;">1 KiwiPad pro + 1 KiwiOrders pro offerts</div>
+            <div style="font-size:12px; color:#a7d5b9; margin-top:3px;">Inclus dans l'abonnement Kiwi Pro · les pièces additionnelles utilisent le tarif ci-dessus.</div>
+          </div>
+          <button class="kb" data-action="contact-sales" style="background:var(--mint); color:var(--riad); padding:9px 16px; font-size:12.5px; font-weight:600;">Parler à un conseiller</button>
+        </div>
+      </div>
+    `,
+  });
+
+  if (!handlers['catalog-order']) {
+    handlers['catalog-order'] = (_el, sku) => {
+      const p = CATALOG.find(x => x.sku === sku);
+      if (!p) return;
+      toast(`Commande envoyée · ${p.name}`, { type: 'success', duration: 2200, desc: `Livraison 48h à Casablanca · facturation ${p.price} sur votre prochain règlement.` });
+    };
+  }
+  if (!handlers['contact-sales']) {
+    handlers['contact-sales'] = () => toast('Conseiller Kiwi notifié', { type: 'info', duration: 1800, desc: 'Un membre de l\'équipe vous rappellera dans la journée.' });
+  }
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
