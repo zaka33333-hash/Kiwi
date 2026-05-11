@@ -45,10 +45,23 @@
   .kiwi-drawer-head { padding: 20px 24px; border-bottom: 1px solid var(--n-200); display: flex; justify-content: space-between; align-items: center; }
   .kiwi-drawer-head h3 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
   .kiwi-drawer-head p { margin: 3px 0 0; font-size: 12.5px; color: var(--n-500); }
-  .kiwi-drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px; overscroll-behavior: contain; }
+  .kiwi-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    overscroll-behavior: contain;
+    /* Isolate this scroll container's painting so its scroll doesn't
+     * invalidate the backdrop-filter sampling of the body behind it. */
+    contain: layout style paint;
+    -webkit-overflow-scrolling: touch;
+  }
   /* Scroll-lock the underlying page while any drawer/modal is open.
-   * Counter-tracked so nested layers don't unlock prematurely. */
+   * Counter-tracked (window.__kiwiScrollLocks) so nested layers don't
+   * unlock prematurely. We also pause the body's ambient-blob drift
+   * animation — without this, the drawer's backdrop-filter:blur has
+   * to re-sample a moving target every frame, which Safari hates. */
   html.kiwi-locked, html.kiwi-locked body { overflow: hidden; }
+  html.kiwi-locked body { animation-play-state: paused; }
   .kiwi-drawer-foot { padding: 16px 24px; border-top: 1px solid var(--n-200); }
   .kiwi-drawer-close { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; }
   .kiwi-drawer-close:hover { color: var(--ink); border-color: var(--n-400); }
