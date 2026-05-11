@@ -71,14 +71,41 @@ When the payment-processing license lands and we move to **Kiwi 2.0**, walk thro
 
 ---
 
-## 5. Other payment-processing-adjacent surfaces (left in place for now)
+## 5. Sidebar — "Banque commerçant" section (entire block)
+
+**Status in 1.0:** **Entire section removed from sidebar.** Handler code preserved in `assets/features.js`.
+
+**What it contained:**
+- **Kiwi Compte · IBAN** — Kiwi-issued merchant bank account, IBAN management, balance/movements view.
+- **Avance trésorerie (Capital)** — Cash advance / merchant financing product. Needed a balance-sheet position and KYC tooling.
+- **Fidélité clients** — Loyalty program. Not strictly payment-processing, but lives in this section as part of the broader merchant-banking surface. Pulled with the section for now; can be relocated to a different sidebar group in 2.0 if we keep it as a POS feature.
+- **Liens de paiement** — Generate a payment link to send to a customer. Requires acquirer relationship.
+- **Factures & TVA** — Invoicing + VAT export. Most of the value here actually works without processing (PDF generation, VAT period summaries), but pulled with the section in this pass — review for 2.0 whether to reinstate as a pure POS feature earlier.
+- **Analytiques** — Cross-venue analytics, cohort/funnel analysis. Not payment-processing, but currently a placeholder; review for 2.0 whether to wire to real POS-only data.
+
+**Why removed for 1.0:** "Banque commerçant" as a sidebar section communicates "we are your bank" to an investor / merchant — which is not the truth until we hold the license. The few items inside that don't strictly need processing (Fidélité, Factures & TVA, Analytiques) are placeholders today, so removing them costs nothing and avoids selling vapor.
+
+**Where the code lives:**
+- `dashboard.html` → sidebar `<div class="sect">Banque commerçant</div>` + 6 `<a>` blocks — **REMOVED in 1.0**
+- `assets/features.js` → handlers for `kiwi-compte`, `capital`, `loyalty`, `payment-link` — preserved
+- `assets/i18n.js` → `'sidebar.section.bank'` key — preserved (used by other surfaces eventually)
+
+**To re-enable for 2.0:**
+1. Re-insert the section block in `dashboard.html` between `<div data-vertical-section></div>` and `</nav>`.
+2. Wire `kiwi-compte` to real Kiwi merchant-banking onboarding.
+3. Wire `capital` to the underwriting flow.
+4. Wire `payment-link` to the acquirer link-generation API.
+5. Decide whether `loyalty`, `factures-tva`, and `analytiques` should live in this section or in their own group.
+
+---
+
+## 6. Other payment-processing-adjacent surfaces (left in place for now)
 
 These weren't asked to be removed, but flagging for the Kiwi 2.0 walkthrough since they share the same "implies we process payments" problem:
 
 - **Hero card "Net après Kiwi" line** — implies we deduct fees from gross
 - **"Économie vs CMI" mentions** throughout the dashboard
 - **Mix de paiement widget** (Visa/MC/Wallet/Cash breakdown — informational but coupled to processing)
-- **Sidebar "Banque commerçant" section**: Kiwi Compte · IBAN, Avance trésorerie (Capital), Liens de paiement, Factures & TVA
 - **Marketing site stat** `stats.2.l` in `assets/i18n.js`: "Card transaction success rate" — currently orphaned (no DOM consumer found in dashboard, but may surface elsewhere)
 
 Review each one against the "what can the POS-only product honestly claim?" rule before the investor demo. The principle: if it only works because we hold an acquirer relationship, it doesn't belong in 1.0.
@@ -87,6 +114,7 @@ Review each one against the "what can the POS-only product honestly claim?" rule
 
 ## Removal log
 
-| Date       | Commit  | Feature                              | Reason                       |
-| ---------- | ------- | ------------------------------------ | ---------------------------- |
-| 2026-05-11 | (this)  | Règlements (sidebar item + cmd palette) | Phase 1 has no processing license |
+| Date       | Commit  | Feature                                                          | Reason                            |
+| ---------- | ------- | ---------------------------------------------------------------- | --------------------------------- |
+| 2026-05-11 | 20d285a | Règlements (sidebar item + command palette)                      | Phase 1 has no processing license |
+| 2026-05-11 | (this)  | Banque commerçant section (Kiwi Compte · IBAN, Avance trésorerie, Fidélité, Liens de paiement, Factures & TVA, Analytiques) | Phase 1 is POS-only — no banking/lending surface |
