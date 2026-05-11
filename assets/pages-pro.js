@@ -879,170 +879,512 @@ handlers['nav-conformite'] = () => {
   });
 };
 
-/* ═══════════════════ ÉQUIPE ═══════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+ * ÉQUIPE — redesigned for Kiwi 1.0 investor demo
+ *
+ * What you see on open:
+ *   1. Status strip   — live count: En service / En pause / Hors service
+ *   2. Kiwi AI alerts — flagged pointage anomalies (recurring lateness etc.)
+ *   3. Members list   — sorted by status, with timeline bar (8h-2am scale)
+ *                       showing scheduled shift vs actual time worked and a
+ *                       NOW marker pegged to wall-clock time
+ *   4. Permissions    — 5 role cards in a 2-col grid (replaces boring table)
+ *   5. Journal PIN    — kept, polished
+ *
+ * Add-member modal is wired end-to-end: prénom + nom, rôle, PIN (auto-gen),
+ * téléphone (optional) → pushed to in-memory state → drawer re-renders. Wiped
+ * on page reload (no localStorage).
+ *
+ * Removed: green revenue hero, Passations de service, Certifications · suivi.
+ * ─────────────────────────────────────────────────────────────────────────── */
 handlers['nav-equipe'] = () => {
   const v = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas' };
-  const team = [
-    { i: 'FK', k: 'a',   n: 'Fatima Khalki',   role: 'Manager · serveuse senior', online: true,  score: 94, kpi: ['6h25', '42 tx', '5 240 MAD'], cert: 3, badge: 'manager' },
-    { i: 'HJ', k: 'b',   n: 'Hamid Jelloul',   role: 'Serveur · terrasse',        online: true,  score: 88, kpi: ['5h38', '38 tx', '4 680 MAD'], cert: 2, badge: 'server'  },
-    { i: 'SB', k: 'c',   n: 'Sofia Belkadi',   role: 'Barista · comptoir',        online: true,  score: 91, kpi: ['5h08', '54 tx', '3 920 MAD'], cert: 3, badge: 'server'  },
-    { i: 'YA', k: 'd',   n: 'Youssef Amrani',  role: 'Serveur · pause',           online: true,  score: 76, kpi: ['3h22', '25 tx', '2 110 MAD'], cert: 1, badge: 'server'  },
-    { i: 'MM', k: 'off', n: 'Mehdi Mansouri',  role: 'Cuisine · sorti 14:00',     online: false, score: 82, kpi: ['5h12', '—',     '—'        ], cert: 2, badge: 'kitchen' },
+
+  /* ─── Persistent in-memory team state (resets on page reload) ─── */
+  if (!window.__kiwiTeam) {
+    window.__kiwiTeam = {
+      members: [
+        // Équipe matin (8h-16h or short variants)
+        { id: 1, initials: 'FK', name: 'Fatima Khalki',  role: 'Manager',          kind: 'manager', avatar: 'a', team: 'matin', shift: [8, 16],   breakAt: null,        pin: '1234' },
+        { id: 2, initials: 'SB', name: 'Sofia Belkadi',  role: 'Barista',          kind: 'server',  avatar: 'c', team: 'matin', shift: [8, 16],   breakAt: [14, 14.5],  pin: '2345' },
+        { id: 3, initials: 'MM', name: 'Mehdi Mansouri', role: 'Cuisine',          kind: 'kitchen', avatar: 'a', team: 'matin', shift: [8, 14],   breakAt: null,        pin: '3456' },
+        { id: 4, initials: 'LS', name: 'Lina Saidi',     role: 'Caissière',        kind: 'cashier', avatar: 'b', team: 'matin', shift: [9, 15],   breakAt: null,        pin: '4567' },
+        // Équipe soir (17h-1am)
+        { id: 5, initials: 'HJ', name: 'Hamid Jelloul',  role: 'Serveur · terrasse', kind: 'server',  avatar: 'b', team: 'soir',  shift: [17, 25],  breakAt: null,        pin: '5678' },
+        { id: 6, initials: 'YA', name: 'Youssef Amrani', role: 'Serveur · soir',   kind: 'server',  avatar: 'd', team: 'soir',  shift: [17, 25],  breakAt: null,        pin: '6789' },
+        { id: 7, initials: 'NK', name: 'Nawal Kettani',  role: 'Caissière soir',   kind: 'cashier', avatar: 'd', team: 'soir',  shift: [18, 26],  breakAt: null,        pin: '7890' },
+        { id: 8, initials: 'KB', name: 'Karim Berrada',  role: 'Cuisine soir',     kind: 'kitchen', avatar: 'c', team: 'soir',  shift: [17, 25],  breakAt: null,        pin: '8901' },
+      ],
+      nextId: 9,
+    };
+  }
+
+  const ROLE_COLOR = { manager: 'var(--atlas)', server: 'var(--riad)', kitchen: '#D99A2B', cashier: '#0B6E4F', admin: 'var(--ink)' };
+  const ROLE_OPTIONS = [
+    { value: 'server',  label: 'Serveur / Serveuse' },
+    { value: 'manager', label: 'Manager' },
+    { value: 'kitchen', label: 'Cuisine' },
+    { value: 'cashier', label: 'Caissier / Caissière' },
   ];
-  const roleColor = { manager: 'var(--atlas)', server: 'var(--riad)', kitchen: '#D99A2B', cashier: 'var(--atlas-700)', admin: 'var(--ink)' };
-  const caps = ['Encaisser', 'Remboursement', 'Annulation ticket', 'Voir rapports', 'Modifier menu', 'Gérer équipe'];
-  const matrix = [
-    ['Propriétaire', 'admin',   [1,1,1,1,1,1]],
-    ['Manager',      'manager', [1,1,1,1,1,1]],
-    ['Serveur',      'server',  [1,0,1,0,0,0]],
-    ['Cuisine',      'kitchen', [0,0,0,0,0,0]],
-    ['Caissier',     'cashier', [1,0,1,1,0,0]],
-  ];
-  const handoffs = [
-    ['14:02', 'Fatima → Hamid', 'Service midi · 158 couverts · caisse 6 240 MAD comptée', 'ok'],
-    ['Hier 23:14', 'Hamid → Mehdi', 'Service soir · stock pruneaux à 0 · pastilla en rupture', 'pend'],
-    ['Hier 14:00', 'Sofia → Fatima', 'Bar · grain Algeria niveau bas · réappro lundi', 'ok'],
-  ];
-  const pinAudit = [
-    ['14:02', 'Fatima Khalki', 'Annulation ticket #4128', 'ok'],
-    ['13:48', 'Sofia Belkadi', 'Tentative remboursement refusée · niveau insuffisant', 'ref'],
-    ['12:30', 'Hamid Jelloul', 'Ouverture caisse', 'ok'],
-    ['Hier 22:55', 'Youssef Amrani', 'Échec PIN ×3 · réinitialisé par manager', 'pend'],
-  ];
-  const certs = [
-    ['Manipulation alimentaire ONSSA', 5, 4, 'ok'],
-    ['Encaissement Kiwi · niveau 1', 5, 5, 'ok'],
-    ['Service hygiène HACCP', 5, 3, 'pend'],
-    ['Premiers secours SST', 5, 2, 'ref'],
-  ];
-  drawer({
-    title: 'Équipe & permissions',
-    subtitle: `${v.name} · 5 membres · 4 en service · planning à jour`,
-    width: 920,
-    body: `
-      <div class="p-hero" style="background: linear-gradient(135deg, var(--riad), var(--atlas));">
-        <div class="l">PERFORMANCE ÉQUIPE · AUJOURD'HUI</div>
-        <div class="big">15 950 <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-        <div class="sub">159 commandes · panier moyen 100 MAD · pourboire moyen 12 MAD · score moyen 86 / 100</div>
+
+  /* ─── Time helpers (timeline scale: 8h → 26h == 8am to 2am next day) ─── */
+  const SCALE_START = 8, SCALE_END = 26, SCALE_SPAN = SCALE_END - SCALE_START;
+  const nowHours = () => {
+    const d = new Date();
+    return d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
+  };
+  const formatTimeHr = (h) => {
+    const wholeH = Math.floor(h) % 24;
+    const m = Math.round((h - Math.floor(h)) * 60);
+    return `${String(wholeH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  };
+  const formatDuration = (mins) => {
+    if (mins <= 0) return '0m';
+    const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+    if (h === 0) return `${m}m`;
+    return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, '0')}`;
+  };
+
+  /* Derive a member's live status from real-time vs scheduled shift. */
+  function statusOf(m) {
+    const now = nowHours();
+    if (now < m.shift[0]) return 'scheduled';
+    if (now >= m.shift[1]) return 'clocked-out';
+    if (m.breakAt && now >= m.breakAt[0] && now <= m.breakAt[1]) return 'on-break';
+    return 'on-shift';
+  }
+  const STATUS_INFO = {
+    'on-shift':     { label: 'En service',      cls: 'ok',      dot: 'var(--success)', tone: 'rgba(11,110,79,0.10)' },
+    'on-break':     { label: 'En pause',        cls: 'pend',    dot: 'var(--warning)', tone: 'rgba(217,154,43,0.10)' },
+    'clocked-out':  { label: 'Sorti',           cls: 'neutral', dot: 'var(--n-400)',   tone: 'transparent' },
+    'scheduled':    { label: 'Pas encore',      cls: 'neutral', dot: 'var(--n-300)',   tone: 'transparent' },
+    'new':          { label: 'NOUV.',           cls: 'ok',      dot: 'var(--mint)',    tone: 'rgba(125,242,176,0.14)' },
+  };
+  const STATUS_ORDER = { 'on-shift': 0, 'on-break': 1, 'scheduled': 2, 'clocked-out': 3 };
+
+  /* ─── Timeline bar — 8h to 26h horizontal scale ─── */
+  function renderTimeline(m) {
+    const status = statusOf(m);
+    const now = nowHours();
+    const pctOf = (h) => Math.min(100, Math.max(0, ((h - SCALE_START) / SCALE_SPAN) * 100));
+    const schedL = pctOf(m.shift[0]);
+    const schedW = pctOf(m.shift[1]) - schedL;
+
+    let actualW = 0, actualL = schedL;
+    if (status === 'on-shift' || status === 'on-break') {
+      actualW = pctOf(now) - schedL;
+    } else if (status === 'clocked-out') {
+      actualW = schedW; // assume completed
+    }
+
+    const nowL = pctOf(now);
+    const roleC = ROLE_COLOR[m.kind] || 'var(--atlas)';
+    const isDone = status === 'clocked-out';
+
+    // Hour ticks at 8, 12, 16, 20, 24
+    const ticks = [8, 12, 16, 20, 24].map(h => `
+      <div style="position:absolute; top:0; bottom:0; left:${pctOf(h)}%; width:1px; background:rgba(10,15,13,0.06);"></div>
+      <div style="position:absolute; bottom:-15px; left:${pctOf(h)}%; transform:translateX(-50%); font-family:var(--mono); font-size:9px; color:var(--n-400); letter-spacing:0.04em;">${h === 24 ? '0h' : h + 'h'}</div>
+    `).join('');
+
+    return `
+      <div style="position:relative; height:18px; background:var(--n-100); border-radius:5px; overflow:visible; margin-bottom:18px;">
+        ${ticks}
+        <div style="position:absolute; top:0; bottom:0; left:${schedL}%; width:${schedW}%; background:${roleC}; opacity:0.18; border-radius:4px;"></div>
+        ${actualW > 0 ? `<div style="position:absolute; top:0; bottom:0; left:${actualL}%; width:${actualW}%; background:${roleC}; border-radius:4px; opacity:${isDone ? 0.55 : 1};"></div>` : ''}
+        ${m.breakAt ? `<div style="position:absolute; top:0; bottom:0; left:${pctOf(m.breakAt[0])}%; width:${pctOf(m.breakAt[1]) - pctOf(m.breakAt[0])}%; background:repeating-linear-gradient(45deg, transparent, transparent 3px, #fff 3px, #fff 5px); border-radius:4px;"></div>` : ''}
+        ${(status === 'on-shift' || status === 'on-break') ? `<div style="position:absolute; top:-3px; bottom:-3px; left:${nowL}%; width:2px; background:var(--ink); z-index:3;"></div>
+        <div style="position:absolute; top:-19px; left:${nowL}%; transform:translateX(-50%); font-family:var(--mono); font-size:9.5px; font-weight:600; color:var(--ink); background:#fff; padding:1px 5px; border-radius:3px; border:1px solid var(--n-200); z-index:4; white-space:nowrap;">${formatTimeHr(now)}</div>` : ''}
       </div>
+    `;
+  }
 
-      <div class="sh-section">
-        <div class="sh-section-head">
-          <div><h4>Membres · ${v.name}</h4><div class="sub">Score = pointualité × tickets × pourboires × feedback client</div></div>
-          <button class="kb primary" data-action="add-member" style="padding:8px 12px; font-size:12.5px;">+ Ajouter un membre</button>
-        </div>
-        <div class="team-grid">
-          ${team.map(m => {
-            const pctPath = (m.score / 100) * 100;
-            return `
-            <div class="team-mem" style="border-left:3px solid ${roleColor[m.badge]};">
-              <div class="top">
-                <div class="av ${m.k}">${m.i}</div>
-                <div style="flex:1; min-width:0;">
-                  <div class="n">${m.n}</div>
-                  <div class="role">${m.role}</div>
-                </div>
-                <div style="position:relative; width:46px; height:46px; flex-shrink:0;">
-                  <svg viewBox="0 0 42 42" style="width:100%; height:100%;">
-                    <circle cx="21" cy="21" r="17" fill="none" stroke="var(--n-200)" stroke-width="4"/>
-                    <circle cx="21" cy="21" r="17" fill="none" stroke="${m.score >= 90 ? 'var(--atlas)' : m.score >= 80 ? '#7DF2B0' : '#D99A2B'}" stroke-width="4" stroke-dasharray="${pctPath} 107" stroke-dashoffset="25" transform="rotate(-90 21 21)" stroke-linecap="round"/>
-                  </svg>
-                  <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:600; font-size:11.5px; color:var(--ink);">${m.score}</div>
-                </div>
-              </div>
-              <div class="kpis">
-                <div><div class="k">Shift</div><div class="v">${m.kpi[0]}</div></div>
-                <div><div class="k">Tickets</div><div class="v">${m.kpi[1]}</div></div>
-                <div><div class="k">Revenu</div><div class="v">${m.kpi[2]}</div></div>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid var(--n-200); font-size:11px; color:var(--n-500);">
-                <span>${m.cert} certif. à jour</span>
-                <button class="kb ghost" data-action="member-detail" data-arg="${m.n}" style="padding:4px 9px; font-size:11px;">Détails</button>
-              </div>
-            </div>
-          `;}).join('')}
-        </div>
-      </div>
+  /* ─── Kiwi AI · pointage anomaly alerts (mocked patterns) ─── */
+  const AI_ALERTS = [
+    {
+      kind: 'late',
+      title: 'Hamid Jelloul a pointé en retard 3 jours d\'affilée',
+      detail: 'Moyenne +18 min sur la prise de service du soir · pattern récurrent depuis lundi.',
+      action: 'Programmer un point',
+      sev: 'pend',
+    },
+    {
+      kind: 'overtime',
+      title: 'Sofia Belkadi · 3h27 d\'heures sup. non validées',
+      detail: 'Cumul sur la semaine en cours · à valider avant samedi pour intégration paie.',
+      action: 'Valider les heures',
+      sev: 'pend',
+    },
+    {
+      kind: 'absent',
+      title: 'Youssef Amrani n\'a pas pointé hier soir',
+      detail: 'Aucune notification d\'absence reçue · 1ʳᵉ occurrence ce mois-ci.',
+      action: 'Contacter Youssef',
+      sev: 'ref',
+    },
+  ];
 
-      <div class="sh-grid-2">
-        <div class="sh-section" style="margin-bottom:12px;">
-          <div class="sh-section-head" style="margin-bottom:10px;">
-            <div><h4>Matrice de permissions</h4><div class="sub">5 rôles × 6 capacités · modifiable par le propriétaire</div></div>
-            <button class="kb ghost" data-action="edit-perms" style="padding:6px 10px; font-size:11px;">Modifier</button>
-          </div>
-          <div style="overflow-x:auto;">
-            <table class="p-table" style="font-size:12px;">
-              <thead><tr><th>RÔLE</th>${caps.map(c => `<th class="right" style="font-size:9.5px;">${c}</th>`).join('')}</tr></thead>
-              <tbody>
-                ${matrix.map(([role, kind, perms]) => `
-                  <tr>
-                    <td><span style="display:inline-flex; align-items:center; gap:6px;"><i style="display:inline-block; width:8px; height:8px; border-radius:2px; background:${roleColor[kind]};"></i><b>${role}</b></span></td>
-                    ${perms.map(p => `<td class="right">${p ? '<span style="color:var(--atlas); font-weight:600;">●</span>' : '<span style="color:var(--n-300);">○</span>'}</td>`).join('')}
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
+  /* ─── Permissions matrix (5 roles × 6 capabilities) ─── */
+  const CAPS = ['Encaisser', 'Remboursement', 'Annulation ticket', 'Voir rapports', 'Modifier menu', 'Gérer équipe'];
+  const PERMS = [
+    { role: 'Propriétaire', kind: 'admin',   perms: [1,1,1,1,1,1] },
+    { role: 'Manager',      kind: 'manager', perms: [1,1,1,1,1,1] },
+    { role: 'Serveur',      kind: 'server',  perms: [1,0,1,0,0,0] },
+    { role: 'Cuisine',      kind: 'kitchen', perms: [0,0,0,0,0,0] },
+    { role: 'Caissier',     kind: 'cashier', perms: [1,0,1,1,0,0] },
+  ];
 
-        <div class="sh-section" style="margin-bottom:12px;">
-          <div class="sh-section-head" style="margin-bottom:10px;">
-            <div><h4>Passations de service</h4><div class="sub">3 dernières · note vocale + checklist signée</div></div>
-          </div>
-          ${handoffs.map(([t, who, msg, st]) => `
-            <div style="padding:11px 0; border-top:1px solid var(--n-200); font-size:12.5px;">
-              <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
-                <div style="flex:1; min-width:0;"><b>${who}</b><div style="font-size:11px; color:var(--n-500); margin-top:2px; line-height:1.4;">${msg}</div></div>
-                <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
-                  <span class="mono" style="font-size:10.5px; color:var(--n-500);">${t}</span>
-                  <span class="chip ${st}">${st === 'ok' ? 'Validée' : 'À noter'}</span>
-                </div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
+  /* ─── Journal PIN — sensitive actions audit ─── */
+  const PIN_LOG = [
+    ['14:02', 'Fatima Khalki',  'Annulation ticket #4128',                              'ok'],
+    ['13:48', 'Sofia Belkadi',  'Tentative remboursement refusée · niveau insuffisant',  'ref'],
+    ['12:30', 'Hamid Jelloul',  'Ouverture caisse',                                      'ok'],
+    ['Hier 22:55', 'Youssef Amrani', 'Échec PIN ×3 · réinitialisé par manager',         'pend'],
+    ['Hier 21:12', 'Karim Berrada',  'Remboursement validé · 240 MAD',                   'ok'],
+  ];
 
-      <div class="sh-grid-2">
-        <div class="sh-section" style="margin-bottom:0;">
-          <div class="sh-section-head" style="margin-bottom:10px;">
-            <div><h4>Journal PIN &amp; actions sensibles</h4><div class="sub">Annulations · remboursements · ouvertures de caisse</div></div>
-          </div>
-          ${pinAudit.map(([t, who, ev, st]) => `
-            <div style="display:grid; grid-template-columns:90px 1fr auto; gap:12px; align-items:center; padding:10px 0; border-top:1px solid var(--n-200); font-size:12.5px;">
-              <div class="mono" style="font-size:11px; color:var(--n-500);">${t}</div>
-              <div><b>${who}</b><div style="font-size:11px; color:var(--n-500); margin-top:2px;">${ev}</div></div>
-              <span class="chip ${st}">${st === 'ok' ? 'OK' : st === 'pend' ? 'Réinit.' : 'Refusé'}</span>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="sh-section" style="margin-bottom:0;">
-          <div class="sh-section-head" style="margin-bottom:10px;">
-            <div><h4>Certifications · suivi</h4><div class="sub">Renouvellement &amp; rappels automatiques</div></div>
-          </div>
-          ${certs.map(([n, total, ok, st]) => {
-            const pct = (ok / total) * 100;
-            return `
-            <div style="padding:10px 0; border-top:1px solid var(--n-200);">
-              <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:12.5px;">
-                <b style="flex:1;">${n}</b>
-                <span class="mono" style="font-size:11px; color:var(--n-500);">${ok} / ${total}</span>
-                <span class="chip ${st}" style="font-size:10.5px;">${st === 'ok' ? 'À jour' : st === 'pend' ? 'À renouveler' : 'Manquant'}</span>
-              </div>
-              <div style="margin-top:6px; height:5px; background:var(--n-100); border-radius:3px; overflow:hidden;">
-                <div style="height:100%; width:${pct}%; background:${st === 'ok' ? 'var(--atlas)' : st === 'pend' ? 'var(--warning)' : 'var(--danger)'}; border-radius:3px;"></div>
-              </div>
-            </div>
-          `;}).join('')}
-        </div>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Fermer</button>
-      <button class="kb primary" data-action="add-member">+ Ajouter un membre</button>
-    `,
+  /* ─── Open the drawer with a host div, then render into it ─── */
+  let host;
+  const dr = drawer({
+    title: 'Équipe',
+    subtitle: '…',
+    width: 980,
+    body: `<div data-eq-host></div>`,
   });
+  host = dr.el.querySelector('[data-eq-host]');
+
+  function render() {
+    const members = window.__kiwiTeam.members;
+    const decorated = members.map(m => ({ ...m, _status: statusOf(m) }));
+    const counts = decorated.reduce((acc, m) => {
+      if (m._status === 'on-shift') acc.onShift++;
+      else if (m._status === 'on-break') acc.onBreak++;
+      else acc.off++;
+      return acc;
+    }, { onShift: 0, onBreak: 0, off: 0 });
+
+    // Sort by status group, then by name within group
+    const sorted = decorated.slice().sort((a, b) => {
+      const sa = STATUS_ORDER[a._status] ?? 9, sb = STATUS_ORDER[b._status] ?? 9;
+      if (sa !== sb) return sa - sb;
+      return a.name.localeCompare(b.name);
+    });
+
+    // Subtitle live counts
+    const subEl = dr.el.querySelector('.kiwi-drawer-head p');
+    if (subEl) subEl.textContent = `${v.name} · ${counts.onShift} en service · ${counts.onBreak} en pause · ${counts.off} hors service`;
+
+    host.innerHTML = `
+      <!-- Status strip -->
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px;">
+        ${[
+          ['EN SERVICE',     counts.onShift, 'var(--success)', 'rgba(11,110,79,0.08)'],
+          ['EN PAUSE',       counts.onBreak, 'var(--warning)', 'rgba(217,154,43,0.10)'],
+          ['HORS SERVICE',   counts.off,     'var(--n-400)',   'var(--paper-soft)'],
+        ].map(([label, n, dot, bg]) => `
+          <div style="padding:14px 16px; border:1px solid var(--n-200); border-radius:12px; background:${bg};">
+            <div style="display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:10.5px; letter-spacing:0.1em; color:var(--n-500);">
+              <span style="width:7px; height:7px; border-radius:50%; background:${dot};"></span>${label}
+            </div>
+            <div style="font-size:24px; font-weight:600; letter-spacing:-0.02em; margin-top:6px;">${n}<span style="font-size:13px; color:var(--n-500); font-weight:400; margin-left:4px;">/ ${decorated.length}</span></div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Kiwi AI · pointage anomalies -->
+      <div style="background:linear-gradient(135deg, var(--ink) 0%, #15201A 100%); color:var(--paper); border-radius:14px; padding:16px 18px; margin-bottom:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:24px; height:24px; border-radius:7px; background:rgba(125,242,176,0.16); display:flex; align-items:center; justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+            </div>
+            <div>
+              <div style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--mint);">KIWI AI · POINTAGES</div>
+              <div style="font-size:13.5px; font-weight:600; margin-top:2px;">${AI_ALERTS.length} anomalies détectées cette semaine</div>
+            </div>
+          </div>
+          <span class="chip" style="background:rgba(125,242,176,0.16); color:var(--mint); font-size:10.5px; padding:3px 9px;">recommandations</span>
+        </div>
+        ${AI_ALERTS.map(a => `
+          <div style="display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center; padding:10px 0; border-top:1px solid rgba(255,255,255,0.07);">
+            <div>
+              <div style="font-size:13px; font-weight:500; color:var(--paper);">${a.title}</div>
+              <div style="font-size:11.5px; color:#a7d5b9; margin-top:3px; line-height:1.5;">${a.detail}</div>
+            </div>
+            <button class="kb" data-action="ai-pointage" data-arg="${a.kind}" style="background:rgba(125,242,176,0.14); color:var(--mint); padding:6px 12px; font-size:11.5px; white-space:nowrap;">${a.action} →</button>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Members list -->
+      <div style="padding:16px 18px; background:#fff; border:1px solid var(--n-200); border-radius:14px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div>
+            <h4 style="margin:0; font-size:14.5px; letter-spacing:-0.01em;">Membres · ${v.name}</h4>
+            <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">Pointages temps réel via Kiwi Caisse · 2 équipes (matin / soir)</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="kb ghost" data-action="broadcast-team" style="padding:7px 11px; font-size:12px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>
+              Message équipe
+            </button>
+            <button class="kb primary" data-action="add-member" style="padding:7px 12px; font-size:12.5px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Ajouter un membre
+            </button>
+          </div>
+        </div>
+
+        ${sorted.map(m => {
+          const info = STATUS_INFO[m._status];
+          const newChip = m.isNew ? `<span class="chip" style="background:rgba(125,242,176,0.18); color:var(--riad); font-size:9.5px; padding:2px 7px; margin-left:6px;">NOUV.</span>` : '';
+          const roleC = ROLE_COLOR[m.kind] || 'var(--atlas)';
+          const isActive = m._status === 'on-shift' || m._status === 'on-break';
+          const durationMins = isActive ? Math.round((nowHours() - m.shift[0]) * 60) : 0;
+          const remainingMins = isActive ? Math.round((m.shift[1] - nowHours()) * 60) : 0;
+          const shiftLabel = `${formatTimeHr(m.shift[0])}–${formatTimeHr(m.shift[1] >= 24 ? m.shift[1] - 24 : m.shift[1])}`;
+
+          return `
+            <div style="padding:14px 0; border-top:1px solid var(--n-200); ${m._status === 'clocked-out' || m._status === 'scheduled' ? 'opacity:0.62;' : ''}">
+              <div style="display:grid; grid-template-columns:42px 1fr auto auto; gap:14px; align-items:center; margin-bottom:${isActive ? '4px' : '0'};">
+                <div class="av ${m.avatar}" style="width:42px; height:42px; font-size:13px;">${m.initials}</div>
+                <div style="min-width:0;">
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <div style="font-weight:600; font-size:14px; letter-spacing:-0.005em;">${m.name}</div>
+                    ${newChip}
+                  </div>
+                  <div style="display:flex; align-items:center; gap:10px; margin-top:2px; font-size:11.5px; color:var(--n-500); flex-wrap:wrap;">
+                    <span style="display:inline-flex; align-items:center; gap:5px;"><i style="width:6px; height:6px; border-radius:2px; background:${roleC};"></i>${m.role}</span>
+                    <span style="color:var(--n-300);">·</span>
+                    <span style="text-transform:capitalize;">Équipe ${m.team}</span>
+                    <span style="color:var(--n-300);">·</span>
+                    <span class="mono">${shiftLabel}</span>
+                  </div>
+                </div>
+                <div style="text-align:right; min-width:90px;">
+                  <span class="chip ${info.cls}" style="font-size:10.5px;"><i style="display:inline-block; width:5px; height:5px; border-radius:50%; background:${info.dot}; margin-right:5px;"></i>${info.label}</span>
+                  ${isActive ? `<div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:4px;">${formatDuration(durationMins)} · reste ${formatDuration(remainingMins)}</div>` : ''}
+                  ${m._status === 'clocked-out' ? `<div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:4px;">sorti à ${formatTimeHr(m.shift[1] >= 24 ? m.shift[1] - 24 : m.shift[1])}</div>` : ''}
+                  ${m._status === 'scheduled' ? `<div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:4px;">prise à ${formatTimeHr(m.shift[0])}</div>` : ''}
+                </div>
+                <div style="display:flex; gap:5px;">
+                  <button class="kb ghost" data-action="member-reset-pin" data-arg="${m.id}" style="padding:5px 9px; font-size:11px;" title="Réinitialiser le PIN">PIN</button>
+                  <button class="kb ghost" data-action="member-detail" data-arg="${m.name}" style="padding:5px 9px; font-size:11px;">Détails</button>
+                </div>
+              </div>
+              ${isActive ? renderTimeline(m) : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <!-- Permissions matrix — 2-col grid of role cards -->
+      <div style="margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
+          <div>
+            <h4 style="margin:0; font-size:14.5px; letter-spacing:-0.01em;">Matrice de permissions</h4>
+            <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">5 rôles · 6 capacités · modifiable par le propriétaire</div>
+          </div>
+          <button class="kb ghost" data-action="edit-perms" style="padding:6px 11px; font-size:11.5px;">Modifier les rôles</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;">
+          ${PERMS.map(r => {
+            const active = r.perms.filter(Boolean).length;
+            const roleC = ROLE_COLOR[r.kind] || 'var(--atlas)';
+            return `
+              <div style="background:#fff; border:1px solid var(--n-200); border-radius:12px; padding:14px 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                  <div style="display:flex; align-items:center; gap:9px;">
+                    <i style="width:9px; height:9px; border-radius:50%; background:${roleC};"></i>
+                    <b style="font-size:13.5px; letter-spacing:-0.005em;">${r.role}</b>
+                  </div>
+                  <span class="mono" style="font-size:10.5px; color:var(--n-500); background:var(--paper-soft); padding:2px 7px; border-radius:5px;">${active} / ${CAPS.length}</span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 12px;">
+                  ${CAPS.map((c, i) => `
+                    <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:${r.perms[i] ? 'var(--ink)' : 'var(--n-400)'};">
+                      ${r.perms[i]
+                        ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${roleC}" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>`
+                        : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>`
+                      }
+                      ${c}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Journal PIN -->
+      <div style="background:#fff; border:1px solid var(--n-200); border-radius:14px; padding:16px 18px;">
+        <div style="margin-bottom:10px;">
+          <h4 style="margin:0; font-size:14.5px; letter-spacing:-0.01em;">Journal PIN &amp; actions sensibles</h4>
+          <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">Annulations · remboursements · ouvertures de caisse · échecs de saisie</div>
+        </div>
+        ${PIN_LOG.map(([t, who, ev, st]) => `
+          <div style="display:grid; grid-template-columns:90px 1fr auto; gap:14px; align-items:center; padding:10px 0; border-top:1px solid var(--n-200); font-size:12.5px;">
+            <div class="mono" style="font-size:11px; color:var(--n-500);">${t}</div>
+            <div><b>${who}</b><div style="font-size:11px; color:var(--n-500); margin-top:2px;">${ev}</div></div>
+            <span class="chip ${st}">${st === 'ok' ? 'OK' : st === 'pend' ? 'Réinit.' : 'Refusé'}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  render();
+
+  /* ─── ADD MEMBER MODAL — wired end-to-end ─── */
+  handlers['add-member'] = () => {
+    let pinAuto = String(Math.floor(1000 + Math.random() * 9000));
+    const modalHandle = modal({
+      title: '+ Nouveau membre',
+      width: 460,
+      body: `
+        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:14px; line-height:1.5;">
+          L'employé recevra un SMS avec son PIN et un lien d'invitation pour l'app Kiwi Caisse.
+        </div>
+        <div style="display:grid; gap:11px;">
+          <label style="display:block;">
+            <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:5px;">PRÉNOM</div>
+            <input type="text" data-eq-firstname placeholder="Ex. Yasmine" style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--sans); font-size:13.5px; outline:none; transition:border-color 120ms;" autofocus />
+          </label>
+          <label style="display:block;">
+            <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:5px;">NOM</div>
+            <input type="text" data-eq-lastname placeholder="Ex. Hammadi" style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--sans); font-size:13.5px; outline:none;" />
+          </label>
+          <label style="display:block;">
+            <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:5px;">RÔLE</div>
+            <select data-eq-role style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--sans); font-size:13.5px; outline:none; background:#fff;">
+              ${ROLE_OPTIONS.map(r => `<option value="${r.value}">${r.label}</option>`).join('')}
+            </select>
+          </label>
+          <label style="display:block;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+              <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono);">PIN · 4 CHIFFRES</div>
+              <button data-action="eq-regen-pin" style="padding:0; background:none; border:0; color:var(--atlas); font-size:11px; cursor:pointer;">↻ Régénérer</button>
+            </label>
+            <input type="text" data-eq-pin value="${pinAuto}" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--mono); font-size:15px; letter-spacing:0.2em; outline:none; text-align:center;" />
+          </label>
+          <label style="display:block;">
+            <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:5px;">TÉLÉPHONE <span style="font-weight:400; letter-spacing:0; text-transform:none;">(optionnel)</span></div>
+            <input type="tel" data-eq-phone placeholder="+212 6XX XX XX XX" style="width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:8px; font-family:var(--sans); font-size:13.5px; outline:none;" />
+          </label>
+        </div>
+      `,
+      foot: `
+        <button class="kb ghost" data-dismiss>Annuler</button>
+        <button class="kb atlas" data-action="eq-submit-member">Ajouter &amp; inviter</button>
+      `,
+    });
+
+    // Regen PIN button
+    handlers['eq-regen-pin'] = () => {
+      pinAuto = String(Math.floor(1000 + Math.random() * 9000));
+      const pinEl = modalHandle.el.querySelector('[data-eq-pin]');
+      if (pinEl) pinEl.value = pinAuto;
+    };
+
+    // Submit
+    handlers['eq-submit-member'] = () => {
+      const fn = (modalHandle.el.querySelector('[data-eq-firstname]')?.value || '').trim();
+      const ln = (modalHandle.el.querySelector('[data-eq-lastname]')?.value  || '').trim();
+      const role = modalHandle.el.querySelector('[data-eq-role]')?.value || 'server';
+      const pin = (modalHandle.el.querySelector('[data-eq-pin]')?.value || pinAuto).trim();
+      const phone = (modalHandle.el.querySelector('[data-eq-phone]')?.value || '').trim();
+
+      if (!fn || !ln) {
+        toast('Prénom et nom requis', { type: 'pend', duration: 1800 });
+        return;
+      }
+      if (!/^\d{4}$/.test(pin)) {
+        toast('PIN invalide · 4 chiffres requis', { type: 'pend', duration: 1800 });
+        return;
+      }
+
+      const initials = (fn[0] + ln[0]).toUpperCase();
+      const roleLabel = ROLE_OPTIONS.find(r => r.value === role)?.label.split(' / ')[0] || 'Serveur';
+      const id = window.__kiwiTeam.nextId++;
+      const newMember = {
+        id, initials,
+        name: `${fn} ${ln}`,
+        role: roleLabel,
+        kind: role,
+        avatar: ['a','b','c','d'][id % 4],
+        team: nowHours() < 14 ? 'soir' : 'matin', // schedule for the next shift
+        shift: nowHours() < 14 ? [17, 25] : [8, 16],
+        breakAt: null,
+        pin,
+        isNew: true,
+      };
+      window.__kiwiTeam.members.push(newMember);
+
+      modalHandle.close();
+      render();
+      toast(`${fn} ${ln} ajouté·e à l'équipe`, {
+        type: 'success',
+        duration: 2400,
+        desc: phone
+          ? `SMS d'invitation envoyé au ${phone} · PIN ${pin} · prochaine prise de service ${newMember.shift[0]}h00.`
+          : `PIN ${pin} · prochaine prise de service ${newMember.shift[0]}h00.`,
+      });
+    };
+  };
+
+  /* ─── Quick-action handlers (reset PIN, broadcast, AI alert) ─── */
+  handlers['member-reset-pin'] = (_el, id) => {
+    const m = window.__kiwiTeam.members.find(x => String(x.id) === String(id));
+    if (!m) return;
+    const newPin = String(Math.floor(1000 + Math.random() * 9000));
+    m.pin = newPin;
+    toast(`PIN réinitialisé · ${m.name}`, {
+      type: 'success',
+      duration: 2200,
+      desc: `Nouveau PIN ${newPin} envoyé par SMS · ancien PIN désactivé immédiatement.`,
+    });
+  };
+
+  handlers['broadcast-team'] = () => {
+    const composer = modal({
+      title: 'Message à l\'équipe',
+      width: 440,
+      body: `
+        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:12px; line-height:1.5;">
+          Envoie une notification push à tous les appareils Kiwi Caisse de l'équipe.
+        </div>
+        <textarea data-eq-broadcast placeholder="Ex. Réservation 20h table 12 · 8 couverts · préparez la salle privée." rows="4" style="width:100%; padding:11px 13px; border:1px solid var(--n-300); border-radius:9px; font-family:var(--sans); font-size:13px; resize:vertical; outline:none;" autofocus></textarea>
+      `,
+      foot: `
+        <button class="kb ghost" data-dismiss>Annuler</button>
+        <button class="kb atlas" data-action="eq-send-broadcast">Envoyer à 8 appareils</button>
+      `,
+    });
+    handlers['eq-send-broadcast'] = () => {
+      const msg = (composer.el.querySelector('[data-eq-broadcast]')?.value || '').trim();
+      if (!msg) { toast('Message vide', { type: 'pend' }); return; }
+      composer.close();
+      toast('Message envoyé à 8 appareils Kiwi Caisse', {
+        type: 'success',
+        duration: 2200,
+        desc: msg.length > 70 ? msg.slice(0, 70) + '…' : msg,
+      });
+    };
+  };
+
+  handlers['ai-pointage'] = (_el, kind) => {
+    const labels = {
+      late:     ['Point programmé · Hamid Jelloul', 'Convocation 15h jeudi · note ajoutée au dossier.'],
+      overtime: ['Heures validées · Sofia Belkadi', '3h27 ajoutées au prochain bulletin paie.'],
+      absent:   ['Youssef contacté', 'SMS envoyé · accusé de réception en attente.'],
+    };
+    const [t, d] = labels[kind] || ['Action effectuée', 'Recommandation Kiwi AI appliquée.'];
+    toast(t, { type: 'success', duration: 2200, desc: d });
+  };
+
+  if (!handlers['member-detail']) handlers['member-detail'] = (el) => toast(`Profil de ${el?.dataset?.arg || 'l\'employé'}`, { type: 'info', desc: 'Pointage · revenus · pourboires · historique disciplinaire.' });
+  if (!handlers['edit-perms'])    handlers['edit-perms']    = () => toast('Éditeur de permissions', { type: 'info', desc: 'Cochez/décochez les capacités par rôle · changement appliqué immédiatement.' });
 };
 
 /* ═══════════════════ PAIE & PLANNING ═══════════════════ */
@@ -1384,9 +1726,8 @@ handlers['kyc-replace']     = () => toast('Re-upload document', { type: 'info', 
 handlers['cal-export']      = () => toast('Calendrier .ics exporté', { type: 'success', desc: 'Importable dans Google Calendar, Outlook, Apple Calendar.' });
 handlers['audit-export']    = () => toast('Export CSV signé', { type: 'success', desc: 'Hash SHA-256 + signature horodatée Bank Al-Maghrib.' });
 handlers['rotate-secret']   = () => toast('Rotation manuelle initiée', { type: 'info', desc: 'Nouveau secret généré · ancien valide 24 h pour transition.' });
-handlers['add-member']      = () => toast('Assistant nouveau membre', { type: 'info', desc: 'Étape 1/4 · identité → 2/4 contrat → 3/4 rôle & PIN → 4/4 SMS d\'invitation.' });
-handlers['member-detail']   = (el) => toast(`Profil de ${el?.dataset?.arg || 'l\'employé'}`, { type: 'info', desc: 'Pointage · revenus · pourboires · certifications · historique disciplinaire.' });
-handlers['edit-perms']      = () => toast('Éditeur de permissions', { type: 'info', desc: 'Cochez/décochez les capacités par rôle · changement appliqué immédiatement.' });
+// add-member / member-detail / edit-perms are now registered inside
+// nav-equipe's handler so they can close over the live team state.
 handlers['payslip-pdf']     = () => toast('Bulletin PDF généré · Fatima Khalki', { type: 'success', desc: 'Bulletin avril 2026 envoyé par WhatsApp.' });
 handlers['generate-payslips'] = () => toast('5 bulletins générés', { type: 'success', desc: 'PDF + CSV DGI prêts · envoi WhatsApp en file.' });
 handlers['export-dgi']      = () => toast('Export DGI · CSV', { type: 'success', desc: 'Fichier conforme au format DGI 2026 · prêt pour télédéclaration.' });
