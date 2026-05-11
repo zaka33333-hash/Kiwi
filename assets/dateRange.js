@@ -1719,8 +1719,9 @@
       return `${sign}${txt} %`;
     }
 
-    // True if the x-axis labels are hourly (e.g. "11h"). Daily ranges keep
-    // the snap-to-day behavior; hourly ranges get per-minute interpolation.
+    // True if the x-axis labels are hourly (e.g. "11h"). Hourly ranges
+    // get per-minute interpolation; daily ranges (7j / 30j) get per-hour
+    // interpolation so the hover feels equally fluid.
     const isHourly = !!data.xLabels?.[0]?.endsWith('h');
 
     function move(evt) {
@@ -1784,20 +1785,56 @@
         timeLabel = `${String(safeHour).padStart(2, '0')}h${String(minWithin).padStart(2, '0')}`;
         refIdx = hourIdx;
       } else {
-        // ─── DAILY: snap to nearest non-null point (existing behavior) ───
-        let best = Infinity, idx = 0;
-        for (let i = 0; i < xs.length; i++) {
-          if (data.rev[i] == null) continue;
-          const d = Math.abs(xs[i] - xVB);
-          if (d < best) { best = d; idx = i; }
+        // ─── DAILY (7j / 30j): per-hour interpolation between day points.
+        // The chart only has daily totals, so we lerp the value linearly
+        // between two adjacent days and show "Mar 23 · 14h" as the label.
+        // Visually identical fluidity to the hourly path. ───
+        const fx = Math.max(0, Math.min(1, (xVB - PAD.left) / innerW));
+        const dayCount = xs.length - 1;
+        if (dayCount <= 0) {
+          // Single-point fallback (shouldn't happen in practice)
+          sx = xs[0]; sy = yScale(data.rev[0]);
+          valueAtCursor = data.rev[0]; prevAtCursor = data.revPrev ? data.revPrev[0] : null;
+          timeLabel = data.xLabels[0] || ''; refIdx = 0;
+        } else {
+          const TOTAL_H = dayCount * 24;
+          let totalH = Math.round(fx * TOTAL_H);
+          let dayIdx = Math.min(xs.length - 1, Math.floor(totalH / 24));
+          let hourWithin = totalH - dayIdx * 24;
+          if (dayIdx >= xs.length - 1) { dayIdx = xs.length - 1; hourWithin = 0; }
+
+          const vLow  = data.rev[dayIdx];
+          const vHigh = data.rev[dayIdx + 1];
+          if (vLow == null) { svg.classList.remove('is-hover'); return; }
+
+          if (vHigh == null || dayIdx >= xs.length - 1) {
+            valueAtCursor = vLow;
+          } else {
+            valueAtCursor = vLow + (vHigh - vLow) * (hourWithin / 24);
+          }
+
+          if (data.revPrev) {
+            const pLow  = data.revPrev[dayIdx];
+            const pHigh = data.revPrev[dayIdx + 1];
+            if (pLow != null && pHigh != null && dayIdx < xs.length - 1) {
+              prevAtCursor = pLow + (pHigh - pLow) * (hourWithin / 24);
+            } else if (pLow != null) {
+              prevAtCursor = pLow;
+            }
+          }
+
+          const fSnap = totalH / TOTAL_H;
+          sx = PAD.left + fSnap * innerW;
+          sy = yScale(valueAtCursor);
+          cmpY = (prevAtCursor != null) ? yScale(prevAtCursor) : null;
+
+          // "Mar 23 · 14h" — append hour only when between day boundaries
+          const dayLabel = data.xLabels[dayIdx] || '';
+          timeLabel = (hourWithin > 0 && dayIdx < xs.length - 1)
+            ? `${dayLabel} · ${hourWithin}h`
+            : dayLabel;
+          refIdx = dayIdx;
         }
-        sx = xs[idx];
-        sy = yScale(data.rev[idx]);
-        cmpY = data.revPrev ? yScale(data.revPrev[idx]) : null;
-        valueAtCursor = data.rev[idx];
-        prevAtCursor  = data.revPrev ? data.revPrev[idx] : null;
-        timeLabel = data.xLabels[idx] || '';
-        refIdx = idx;
       }
 
       const showCmpNow = !!showComparison && cmpY != null;
@@ -1819,16 +1856,25 @@
       // Tooltip — two heights: compact (180×54) when no compare, expanded (224×84) with compare
       const tipW = showCmpNow ? 224 : 180;
       const tipH = showCmpNow ? 84  : 54;
-      const ANCHOR_GAP = 16;        // gap between tooltip bottom and the hovered dot
+      const ANCHOR_GAP = 16;        // gap between tooltip edge and the hovered dot
       const rectX = -tipW / 2;
-      const rectY = -tipH - ANCHOR_GAP;
+
+      // Flip strategy — tooltip ABOVE the dot by default, but if the dot
+      // is high (small sy) the tooltip would clip the top edge AND overlap
+      // the dot itself. In that case flip BELOW the dot so the dot stays
+      // visible. This is the bug the user reported: green box covering
+      // the green hover point on high values.
+      const tipFitsAbove = sy >= PAD.top + tipH + ANCHOR_GAP + 4;
+      const tipBelow = !tipFitsAbove;
+      const rectY = tipBelow ? ANCHOR_GAP : -tipH - ANCHOR_GAP;
 
       tipRect.setAttribute('x', rectX.toFixed(1));
       tipRect.setAttribute('y', rectY.toFixed(1));
       tipRect.setAttribute('width',  tipW);
       tipRect.setAttribute('height', tipH);
 
-      // Vertical layout inside the rect: top→bottom = label, value, (cmp)
+      // Vertical layout inside the rect: text positions are relative to
+      // rectY, so they flip automatically with the rect.
       if (showCmpNow) {
         tipLabel.setAttribute('y', (rectY + 22).toFixed(1));   // top row
         tipValue.setAttribute('y', (rectY + 48).toFixed(1));   // middle
@@ -1838,9 +1884,8 @@
         tipValue.setAttribute('y', (rectY + 44).toFixed(1));
       }
 
-      // Position the tip group near the hovered dot, kept on-canvas
-      const minTipY = PAD.top + tipH + ANCHOR_GAP + 4;     // keep tip below top edge
-      const tipDy = Math.max(sy, minTipY);
+      // Anchor at the dot; horizontal clamping keeps it on-canvas.
+      const tipDy = sy;
       const halfW = tipW / 2 + 8;
       let tipDx = 0;
       if (sx - halfW < 4)         tipDx = halfW + 8 - sx;          // push right
