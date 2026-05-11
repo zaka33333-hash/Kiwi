@@ -101,9 +101,9 @@
   };
   const COVERS_LABEL = { fr: 'couverts', en: 'guests', ar: 'زبون' };
 
-  const FEED_TITLE = { fr: { aujourdhui: 'Transactions en direct', hier: 'Transactions · hier', septJours: 'Transactions · 7 derniers jours', trenteJours: 'Transactions · 30 derniers jours', personnalise: 'Transactions en direct' },
-                       en: { aujourdhui: 'Live transactions', hier: 'Yesterday\'s transactions', septJours: 'Transactions · last 7 days', trenteJours: 'Transactions · last 30 days', personnalise: 'Live transactions' },
-                       ar: { aujourdhui: 'المعاملات المباشرة', hier: 'معاملات أمس', septJours: 'معاملات · آخر 7 أيام', trenteJours: 'معاملات · آخر 30 يومًا', personnalise: 'المعاملات المباشرة' } };
+  const FEED_TITLE = { fr: { aujourdhui: 'Commandes en direct', hier: 'Commandes · hier', septJours: 'Commandes · 7 derniers jours', trenteJours: 'Commandes · 30 derniers jours', personnalise: 'Commandes en direct' },
+                       en: { aujourdhui: 'Live orders', hier: 'Yesterday\'s orders', septJours: 'Orders · last 7 days', trenteJours: 'Orders · last 30 days', personnalise: 'Live orders' },
+                       ar: { aujourdhui: 'الطلبات المباشرة', hier: 'طلبات أمس', septJours: 'طلبات · آخر 7 أيام', trenteJours: 'طلبات · آخر 30 يومًا', personnalise: 'الطلبات المباشرة' } };
   const FEED_SUB =   { fr: { aujourdhui: '6 dernières · flux temps réel', hier: 'Dernières du service de hier', septJours: 'Échantillon · 7 derniers jours', trenteJours: 'Échantillon · 30 derniers jours', personnalise: '6 dernières · flux temps réel' },
                        en: { aujourdhui: 'Last 6 · real-time feed', hier: 'Last 6 from yesterday', septJours: 'Sample · last 7 days', trenteJours: 'Sample · last 30 days', personnalise: 'Last 6 · real-time feed' },
                        ar: { aujourdhui: 'آخر 6 · تدفّق لحظي', hier: 'آخر 6 من أمس', septJours: 'عيّنة · آخر 7 أيام', trenteJours: 'عيّنة · آخر 30 يومًا', personnalise: 'آخر 6 · تدفّق لحظي' } };
@@ -2001,35 +2001,161 @@
     }
   }
 
-  /* ═══════════════ RENDER: LIVE FEED ═══════════════ */
+  /* ═══════════════ RENDER: LIVE FEED ═══════════════
+   * On "aujourdhui" the feed is driven by KiwiDemoClock.cumTx — same
+   * source as the dashboard's Commandes KPI tile + the Commandes drawer.
+   * At minute :00 of each real hour cumTx = 0 → feed is empty. As the
+   * hour progresses, cumTx grows and the feed shows the last 6 orders
+   * (cards + mobile + cash, deterministic seeded by venue+date+orderIdx
+   * so the same order #57 always looks the same).
+   *
+   * For non-today ranges (hier / 7j / 30j) the static FEED_BY_VENUE
+   * historical samples are still used. */
+
+  /* Deterministic order generator — same (venue, date, idx) always
+   * yields the same order object, so the feed visually stabilises and
+   * doesn't shuffle on every clock tick. */
+  function buildOrder(venue, dateKey, idx) {
+    const seedStr = `${venue}-${dateKey}-${idx}`;
+    let h = 2166136261;
+    for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+    const rnd = () => {
+      h |= 0; h = (h + 0x6D2B79F5) | 0;
+      let t = Math.imul(h ^ (h >>> 15), 1 | h);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+
+    /* Payment-method mix: 20% Visa, 20% MC, 15% Tap, 15% QR, 30% cash —
+     * realistic for a Moroccan café/restaurant. */
+    const r = rnd();
+    let method, primary, sub, flag;
+    if (r < 0.20) {
+      method = 'visa';
+      const last4 = String(Math.floor(rnd() * 10000)).padStart(4, '0');
+      primary = `Visa •• ${last4}`;
+      const banks = [['ma', 'Carte marocaine · Attijariwafa'], ['ma', 'Carte marocaine · BMCE'], ['ma', 'Carte marocaine · CIH'], ['fr', 'Carte française · Société Générale'], ['es', 'Carte espagnole · CaixaBank']];
+      const b = banks[Math.floor(rnd() * banks.length)]; flag = b[0]; sub = b[1];
+    } else if (r < 0.40) {
+      method = 'mc';
+      const last4 = String(Math.floor(rnd() * 10000)).padStart(4, '0');
+      primary = `Mastercard •• ${last4}`;
+      const banks = [['ma', 'Carte marocaine · BOA'], ['ma', 'Carte marocaine · CIH'], ['fr', 'Carte française · BNP Paribas']];
+      const b = banks[Math.floor(rnd() * banks.length)]; flag = b[0]; sub = b[1];
+    } else if (r < 0.55) {
+      method = 'tap'; primary = 'Kiwi Tap'; flag = 'ma'; sub = 'NFC · contactless';
+    } else if (r < 0.70) {
+      method = 'qr'; primary = 'Kiwi Wallet QR'; flag = 'ma'; sub = 'Client abonné';
+    } else {
+      method = 'cash'; primary = 'Espèces'; flag = 'ma'; sub = 'Cash · table';
+    }
+
+    const customers = ['Karim B.', 'Sara L.', 'Youssef A.', 'Nawal K.', 'Hassan J.', 'Imane M.', 'Mehdi R.', 'Fatima Z.', 'Rachid O.', 'Lina S.', 'Ahmed T.', 'Yasmine H.', 'Julie M.', 'Fadoua K.', 'Hind M.', 'Walid F.', 'Soukaina A.', 'Aïcha R.', 'Brahim K.', 'Salma F.'];
+    const customer = customers[Math.floor(rnd() * customers.length)];
+    const tableNum = 1 + Math.floor(rnd() * 12);
+    const amt = Math.round((40 + rnd() * 360) * 100) / 100;
+    const tipAmt = rnd() > 0.6 ? Math.round(amt * 0.1 * 100) / 100 : 0;
+
+    const fmt = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return {
+      method, primary, sub, flag,
+      ctx: `${customer} · T${tableNum}`,
+      amt: fmt(amt),
+      tip: tipAmt > 0 ? `+${fmt(tipAmt)}` : '—',
+      neg: false,
+    };
+  }
+
+  /* Pull the last 6 orders from the simulator's current cumTx. */
+  function buildLiveFeed(venue) {
+    const sim = window.KiwiDemoClock?.getSimState?.();
+    if (!sim) return [];
+    const cumTx = sim.cumTx || 0;
+    if (cumTx === 0) return [];
+
+    const simHour = (11 + sim.simIdx) % 24;
+    const simMin  = sim.simMinute || 0;
+    const nowSimMins = simHour * 60 + simMin;
+
+    /* Time offsets (sim minutes ago) — the latest order is right now,
+     * the next is a couple of sim-minutes back, etc. Clusters tighter
+     * during peak hours, looser during quiet ones. */
+    const offsets = [0, 2, 4, 7, 10, 14];
+    const today = new Date();
+    const dateKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    const count = Math.min(offsets.length, cumTx);
+
+    const out = [];
+    for (let slot = 0; slot < count; slot++) {
+      const orderIdx = cumTx - slot; // latest first
+      const o = buildOrder(venue, dateKey, orderIdx);
+
+      let tsMins = nowSimMins - offsets[slot];
+      if (tsMins < 0) tsMins += 24 * 60;
+      const th = Math.floor(tsMins / 60) % 24;
+      const tm = Math.round(tsMins % 60);
+      o.t = `${String(th).padStart(2, '0')}:${String(tm).padStart(2, '0')}`;
+      o.isNew = (slot === 0);
+      out.push(o);
+    }
+    return out;
+  }
 
   function renderFeed() {
     const lang = getLang();
     const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
-    const rows = vData(FEED_BY_VENUE, currentRange);
+    const isLive = effective === 'aujourdhui';
+
+    const venue = window.KiwiVenue?.getVenue?.() || 'cafeAtlas';
+    const rows = isLive ? buildLiveFeed(venue) : vData(FEED_BY_VENUE, currentRange);
     const wrap = document.querySelector('[data-feed]');
-    if (wrap && rows) {
-      wrap.innerHTML = rows.map(r => `
-        <div class="feed-row${r.isNew ? ' new' : ''}">
-          <div class="t">${r.t}</div>
-          <div class="method">
-            <div class="ci ${r.method}">${r.method === 'tap' ? 'NFC' : r.method === 'qr' ? 'QR' : ''}</div>
-            <div class="desc">
-              <div class="primary">${r.primary}</div>
-              <div class="sub"><span class="flag ${r.flag}"></span>${r.sub}</div>
+
+    if (wrap) {
+      if (!rows || rows.length === 0) {
+        /* Empty state — start of hour, no orders yet. */
+        wrap.innerHTML = `
+          <div style="padding: 36px 14px; text-align: center; color: var(--n-500); font-size: 13px;">
+            <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; background:var(--paper-soft); border-radius:999px; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; color:var(--n-600); margin-bottom:10px;">
+              <span class="pulse-dot" style="width:6px; height:6px; background:var(--atlas);"></span>SERVICE OUVERT
             </div>
+            <div style="font-weight: 500; color: var(--ink); font-size: 14px;">Première commande à venir</div>
+            <div style="margin-top: 4px; font-size: 12px;">Le flux s'active dès la première vente saisie sur la caisse.</div>
           </div>
-          <div class="ctx">${r.ctx}</div>
-          <div class="amt"${r.neg ? ' style="color: var(--danger);"' : ''}>${r.amt}</div>
-          <div class="tip"${r.tip === '—' ? ' style="color: var(--n-400);"' : ''}>${r.tip}</div>
-          <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
-        </div>
-      `).join('');
+        `;
+      } else {
+        wrap.innerHTML = rows.map(r => `
+          <div class="feed-row${r.isNew ? ' new' : ''}">
+            <div class="t">${r.t}</div>
+            <div class="method">
+              <div class="ci ${r.method}">${r.method === 'tap' ? 'NFC' : r.method === 'qr' ? 'QR' : r.method === 'cash' ? 'MAD' : ''}</div>
+              <div class="desc">
+                <div class="primary">${r.primary}</div>
+                <div class="sub"><span class="flag ${r.flag}"></span>${r.sub}</div>
+              </div>
+            </div>
+            <div class="ctx">${r.ctx}</div>
+            <div class="amt"${r.neg ? ' style="color: var(--danger);"' : ''}>${r.amt}</div>
+            <div class="tip"${r.tip === '—' ? ' style="color: var(--n-400);"' : ''}>${r.tip}</div>
+            <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
+          </div>
+        `).join('');
+      }
     }
     const titleEl = document.querySelector('[data-feed-title]');
     if (titleEl) titleEl.textContent = FEED_TITLE[lang]?.[currentRange] || FEED_TITLE.fr[currentRange];
     const subEl = document.querySelector('[data-feed-sub]');
-    if (subEl) subEl.textContent = FEED_SUB[lang]?.[currentRange] || FEED_SUB.fr[currentRange];
+    if (subEl) {
+      const baseSub = FEED_SUB[lang]?.[currentRange] || FEED_SUB.fr[currentRange];
+      if (isLive && rows && rows.length === 0) {
+        subEl.textContent = lang === 'en' ? 'Service open · awaiting first order'
+                          : lang === 'ar' ? 'الخدمة مفتوحة · في انتظار الطلب الأول'
+                          : 'Service ouvert · en attente de la 1ʳᵉ commande';
+      } else if (isLive) {
+        subEl.textContent = baseSub;
+      } else {
+        subEl.textContent = baseSub;
+      }
+    }
   }
 
   /* ═══════════════ RENDER: SETTLEMENT ═══════════════ */
@@ -2306,6 +2432,7 @@
             renderKpiBand();
             renderRevChart();
             renderHeatmap();
+            renderFeed();
           } finally {
             liveTickInProgress = false;
           }

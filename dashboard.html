@@ -607,6 +607,7 @@
   .feed-row .method .ci.tap { background: var(--atlas); color: var(--mint); }
   .feed-row .method .ci.qr { background: var(--ink); color: var(--mint); }
   .feed-row .method .ci.cmi { background: linear-gradient(135deg, #C41E3A, #8B1025); color: #fff; }
+  .feed-row .method .ci.cash { background: var(--paper-soft); color: var(--n-600); border: 1px solid var(--n-200); font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.04em; }
   .feed-row .method .desc { line-height: 1.3; }
   .feed-row .method .desc .primary { color: var(--ink); font-weight: 500; }
   .feed-row .method .desc .sub { color: var(--n-500); font-size: 11px; margin-top: 1px; display: flex; align-items: center; gap: 5px; }
@@ -1075,92 +1076,11 @@
               <a href="#" style="font-size: 13px; color: var(--atlas); font-weight: 500;">Tout voir →</a>
             </div>
           </div>
-          <div class="feed" data-feed>
-            <div class="feed-row new">
-              <div class="t">14:37</div>
-              <div class="method">
-                <div class="ci visa"></div>
-                <div class="desc">
-                  <div class="primary">Visa •• 4291</div>
-                  <div class="sub"><span class="flag ma"></span>Carte marocaine · Attijariwafa</div>
-                </div>
-              </div>
-              <div class="ctx">Karim B. · T4</div>
-              <div class="amt">240,00</div>
-              <div class="tip">+24,00</div>
-              <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
-            </div>
-            <div class="feed-row">
-              <div class="t">14:32</div>
-              <div class="method">
-                <div class="ci tap">NFC</div>
-                <div class="desc">
-                  <div class="primary">Kiwi Tap</div>
-                  <div class="sub"><span class="flag ma"></span>Client #3412 · Kiwi Wallet</div>
-                </div>
-              </div>
-              <div class="ctx">Client #3412 · T7</div>
-              <div class="amt">180,00</div>
-              <div class="tip" style="color: var(--n-400);">—</div>
-              <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
-            </div>
-            <div class="feed-row">
-              <div class="t">14:18</div>
-              <div class="method">
-                <div class="ci mc"></div>
-                <div class="desc">
-                  <div class="primary">Mastercard •• 7820</div>
-                  <div class="sub"><span class="flag fr"></span>Carte française · BNP Paribas</div>
-                </div>
-              </div>
-              <div class="ctx">Sara L. · T2</div>
-              <div class="amt">85,50</div>
-              <div class="tip">+8,55</div>
-              <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
-            </div>
-            <div class="feed-row">
-              <div class="t">14:03</div>
-              <div class="method">
-                <div class="ci qr">QR</div>
-                <div class="desc">
-                  <div class="primary">Kiwi Wallet QR</div>
-                  <div class="sub"><span class="flag ma"></span>Nawal K. · abonnée</div>
-                </div>
-              </div>
-              <div class="ctx">Nawal K. · T6</div>
-              <div class="amt">62,00</div>
-              <div class="tip" style="color: var(--n-400);">—</div>
-              <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
-            </div>
-            <div class="feed-row">
-              <div class="t">13:57</div>
-              <div class="method">
-                <div class="ci visa"></div>
-                <div class="desc">
-                  <div class="primary">Visa •• 0043</div>
-                  <div class="sub"><span class="flag es"></span>Carte espagnole · CaixaBank</div>
-                </div>
-              </div>
-              <div class="ctx">Youssef A. · T1</div>
-              <div class="amt">312,00</div>
-              <div class="tip">+30,00</div>
-              <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
-            </div>
-            <div class="feed-row">
-              <div class="t">13:41</div>
-              <div class="method">
-                <div class="ci mc"></div>
-                <div class="desc">
-                  <div class="primary">Mastercard •• 1209</div>
-                  <div class="sub"><span class="flag ma"></span>Remboursement · CMI</div>
-                </div>
-              </div>
-              <div class="ctx">Hassan J. · T3</div>
-              <div class="amt" style="color: var(--danger);">−155,00</div>
-              <div class="tip" style="color: var(--n-400);">—</div>
-              <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
-            </div>
-          </div>
+          <!-- Live feed body is rendered by dateRange.js renderFeed() —
+               for aujourdhui it pulls from KiwiDemoClock.cumTx, so the
+               feed starts empty at the top of each real hour and fills
+               in as the simulated day progresses. -->
+          <div class="feed" data-feed></div>
         </div>
 
         <!-- Service du soir + Stock à recommander
