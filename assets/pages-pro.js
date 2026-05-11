@@ -391,8 +391,8 @@ handlers['nav-terminaux'] = () => {
       spark: beat(0.55),
     },
     {
-      id: 'KP-2832', name: 'KiwiPad', loc: 'Terrasse',
-      img: 'Hardware_pictures/Hardware_gamefication1.png',
+      id: 'KP-PRO-2832', name: 'KiwiPad pro', loc: 'Terrasse',
+      img: 'Hardware_pictures/Hardware_gamefication4.png',
       state: 'off', net: 'Hors-ligne', batt: 64, battStart: 88,
       fw: '4.2.1', fwUpdate: false, txDay: 0,
       life: 'replacement', lifeLabel: 'Remplacement dû',
@@ -465,7 +465,7 @@ handlers['nav-terminaux'] = () => {
 
       <div style="padding:18px; margin-top:6px; background:var(--paper-soft); border-radius:14px; border:1px dashed var(--n-300); text-align:center;">
         <div style="font-weight:600; margin-bottom:4px; font-size:14.5px;">Commander un nouveau terminal</div>
-        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:12px;">KiwiPad pro, Duo, cashless ou KiwiOrders pro · livraison 48h Casablanca</div>
+        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:12px;">KiwiPad pro, KiwiPad cashless ou KiwiOrders pro · livraison 48h Casablanca</div>
         <button class="kb atlas" data-action="add-terminal" style="padding:9px 18px;">Demander un terminal</button>
       </div>
     `,
@@ -491,27 +491,15 @@ handlers['terminal-catalog'] = () => {
     {
       sku: 'kiwipad-pro', name: 'KiwiPad pro', price: '300 €',
       img: 'Hardware_pictures/Hardware_4.png',
-      tag: 'Comptoir tout-en-un · flagship',
-      desc: 'Tiroir-caisse intégré, imprimante de tickets, lecteur de carte, écran tactile principal. Le poste de référence pour un comptoir actif.',
+      tag: 'Comptoir modulaire · flagship 2026',
+      desc: 'Écran tactile sur pied réglable, imprimante de tickets, tiroir-caisse intégré, lecteur de carte sans fil. Design discret, modules détachables. Le poste de référence Kiwi.',
       featured: true,
     },
     {
-      sku: 'kiwipad-pro-duo', name: 'KiwiPad pro Duo', price: '280 €',
-      img: 'Hardware_pictures/Hardware_3.png',
-      tag: 'Double écran · client + caisse',
-      desc: 'Écran caisse face au serveur + écran client face au comptoir. Idéal pour restaurants premium et concepts où la transparence du total compte.',
-    },
-    {
-      sku: 'kiwipad', name: 'KiwiPad', price: '200 €',
-      img: 'Hardware_pictures/Hardware_1.png',
-      tag: 'Modèle compact · sans tiroir',
-      desc: 'Pad tactile + imprimante de tickets séparée + lecteur PIN. Pour boutiques, terrasses ou postes secondaires.',
-    },
-    {
-      sku: 'kiwiorders-pro', name: 'KiwiOrders pro', price: '180 €',
+      sku: 'kiwiorders-pro', name: 'KiwiOrders pro', price: '200 €',
       img: 'Hardware_pictures/Hardware_KDS1.png',
       tag: 'KDS · cuisine + bar + stations',
-      desc: 'Écran KDS sur bras articulé avec imprimante de tickets. Pour cuisine, bar, BBQ ou toute station de préparation reliée à la caisse.',
+      desc: 'Écran KDS sur bras articulé avec imprimante de tickets. Pour cuisine, bar, BBQ ou toute station de préparation reliée à la caisse principale.',
     },
     {
       sku: 'kiwipad-cashless', name: 'KiwiPad cashless', price: '100 €',
@@ -528,25 +516,23 @@ handlers['terminal-catalog'] = () => {
     body: `
       <div class="p-hero">
         <div class="l">CATALOGUE HARDWARE · KIWI 2026</div>
-        <div class="big" style="font-size:26px;">5 modèles <span style="font-size:16px; opacity:0.75;">· dont 1 KDS</span></div>
+        <div class="big" style="font-size:26px;">3 modèles <span style="font-size:16px; opacity:0.75;">· dont 1 KDS</span></div>
         <div class="sub">Le KiwiPad pro et le KiwiOrders pro sont prêtés gratuitement avec l'abonnement Kiwi Pro · les modèles additionnels et upgrades sont facturés.</div>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
         ${CATALOG.map(p => `
-          <div class="p-card" style="margin:0; padding:0; overflow:hidden; background:#fff; border:1px solid ${p.featured ? 'rgba(11,110,79,0.22)' : 'var(--n-200)'}; ${p.featured ? 'box-shadow:0 1px 0 rgba(11,110,79,0.06), 0 12px 28px -16px rgba(11,110,79,0.18);' : ''}">
-            <div style="position:relative; aspect-ratio:5/3; background:var(--paper-soft); display:flex; align-items:center; justify-content:center; padding:14px; border-bottom:1px solid var(--n-200);">
+          <div class="p-card" style="margin:0; padding:0; overflow:hidden; background:#fff; ${p.featured ? 'grid-column:1 / -1; display:grid; grid-template-columns:1.1fr 1fr;' : ''} border:1px solid ${p.featured ? 'rgba(11,110,79,0.22)' : 'var(--n-200)'}; ${p.featured ? 'box-shadow:0 1px 0 rgba(11,110,79,0.06), 0 14px 32px -18px rgba(11,110,79,0.22);' : ''}">
+            <div style="position:relative; ${p.featured ? 'aspect-ratio:auto; min-height:260px;' : 'aspect-ratio:5/3;'} background:var(--paper-soft); display:flex; align-items:center; justify-content:center; padding:${p.featured ? '20' : '14'}px; ${p.featured ? 'border-right:1px solid var(--n-200);' : 'border-bottom:1px solid var(--n-200);'}">
               <img src="${p.img}" alt="${p.name}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
-              ${p.featured ? `<span class="chip" style="position:absolute; top:10px; left:10px; background:var(--ink); color:var(--mint); font-size:10px; padding:3px 9px; letter-spacing:0.06em;">FLAGSHIP</span>` : ''}
-              <span style="position:absolute; top:10px; right:10px; background:#fff; border:1px solid var(--n-200); border-radius:999px; padding:4px 10px; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink);">${p.price}</span>
+              ${p.featured ? `<span class="chip" style="position:absolute; top:12px; left:12px; background:var(--ink); color:var(--mint); font-size:10px; padding:4px 10px; letter-spacing:0.08em;">FLAGSHIP 2026</span>` : ''}
+              <span style="position:absolute; top:${p.featured ? '12' : '10'}px; right:${p.featured ? '12' : '10'}px; background:#fff; border:1px solid var(--n-200); border-radius:999px; padding:4px 10px; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink);">${p.price}</span>
             </div>
-            <div style="padding:14px 16px 16px;">
-              <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:3px;">
-                <h4 style="margin:0; font-size:15.5px; letter-spacing:-0.01em;">${p.name}</h4>
-              </div>
-              <div style="font-family:var(--mono); font-size:10.5px; color:var(--atlas); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px;">${p.tag}</div>
-              <p style="margin:0 0 12px; font-size:12.5px; color:var(--n-600); line-height:1.5;">${p.desc}</p>
-              <button class="kb ${p.featured ? 'atlas' : 'ghost'}" data-action="catalog-order" data-arg="${p.sku}" style="width:100%; justify-content:center; padding:8px 12px; font-size:12.5px;">
+            <div style="padding:${p.featured ? '20px 22px' : '14px 16px 16px'}; display:flex; flex-direction:column;">
+              <h4 style="margin:0 0 4px; font-size:${p.featured ? '20' : '15.5'}px; letter-spacing:-0.015em;">${p.name}</h4>
+              <div style="font-family:var(--mono); font-size:${p.featured ? '11' : '10.5'}px; color:var(--atlas); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:10px;">${p.tag}</div>
+              <p style="margin:0 0 14px; font-size:${p.featured ? '13.5' : '12.5'}px; color:var(--n-600); line-height:1.55; flex:1;">${p.desc}</p>
+              <button class="kb ${p.featured ? 'atlas' : 'ghost'}" data-action="catalog-order" data-arg="${p.sku}" style="width:100%; justify-content:center; padding:${p.featured ? '10px 16px' : '8px 12px'}; font-size:${p.featured ? '13' : '12.5'}px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18l-2 13H5L3 3z"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>
                 Commander · ${p.price}
               </button>
