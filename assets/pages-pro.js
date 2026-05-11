@@ -47,76 +47,199 @@ handlers['nav-accueil'] = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * 2 · TRANSACTIONS · 3-tab nav · filters · réconciliation · anti-fraude
+ * 2 · COMMANDES · live-synced order log, deterministic across opens
+ *
+ * Row count + cumulative volume are pulled from KiwiDemoClock so the drawer
+ * always matches the dashboard's Commandes KPI tile (which is also driven
+ * by the same simulator). The drawer subscribes to clock ticks and re-renders
+ * as new orders come in.
+ *
+ * Filters (Toutes / Cartes / Mobile / Espèces / Remboursements), the date
+ * range selector (Aujourd'hui / Hier / 7 j / 30 j), the tabs (Toutes /
+ * Réconciliation / Anti-fraude) and the row-click detail are all wired.
  * ─────────────────────────────────────────────────────────────────────────── */
 handlers['nav-transactions'] = () => {
-  const methods = [
-    { m: 'visa', n: 'Visa', mask: '4291' }, { m: 'mc', n: 'Mastercard', mask: '7820' },
-    { m: 'tap', n: 'Kiwi Tap', mask: 'NFC' }, { m: 'qr', n: 'Kiwi Wallet', mask: 'QR' },
-    { m: 'visa', n: 'Visa', mask: '0043' }, { m: 'mc', n: 'Mastercard', mask: '1209' },
-    { m: 'visa', n: 'Visa', mask: '8124' }, { m: 'mc', n: 'Mastercard', mask: '6670' },
-    { m: 'cash', n: 'Espèces', mask: '—' },
-  ];
-  const customers = ['Karim B.', 'Sara L.', 'Youssef A.', 'Nawal K.', 'Hassan J.', 'Imane M.', 'Mehdi R.', 'Fatima Z.', 'Rachid O.', 'Lina S.', 'Ahmed T.', 'Yasmine H.'];
-  const rows = [];
-  const now = new Date();
-  let tot = 0;
-  for (let i = 0; i < 22; i++) {
-    const t = new Date(now - (i * 6 + Math.random() * 4) * 60_000);
-    const m = methods[Math.floor(Math.random() * methods.length)];
-    const amt = Math.round((40 + Math.random() * 360) * 100) / 100;
-    tot += amt;
-    const tip = Math.random() > 0.6 ? Math.round(amt * 0.1 * 100) / 100 : 0;
-    rows.push({ t: `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`, ...m, c: customers[Math.floor(Math.random() * customers.length)], amt, tip, status: Math.random() > 0.95 ? 'pend' : 'ok' });
+  const venue = (window.KiwiVenue?.getVenue?.()) || 'cafeAtlas';
+  const DAILY_TARGET = ({ cafeAtlas: 215, maisonMansour: 48, spaBahia: 22 })[venue] || 215;
+
+  /* Deterministic PRNG (Mulberry32 + FNV-1a seed). Keeps the day's order
+   * pool stable across drawer opens — closing and reopening shows the same
+   * commandes you saw before. */
+  function makeRng(seedStr) {
+    let h = 2166136261;
+    for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return () => {
+      h |= 0; h = (h + 0x6D2B79F5) | 0;
+      let t = Math.imul(h ^ (h >>> 15), 1 | h);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
   }
 
-  const fmt = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/ |,/g, m => m === ',' ? ',' : ' ');
+  const METHODS = {
+    Cartes:    [{ n: 'Visa', mask: '4291' }, { n: 'Mastercard', mask: '7820' }, { n: 'Visa', mask: '0043' }, { n: 'Visa', mask: '8124' }, { n: 'Mastercard', mask: '1209' }, { n: 'Mastercard', mask: '6670' }],
+    Mobile:    [{ n: 'Kiwi Tap', mask: 'NFC' }, { n: 'Kiwi Wallet', mask: 'QR' }, { n: 'Apple Pay', mask: 'NFC' }, { n: 'Google Pay', mask: 'NFC' }],
+    'Espèces': [{ n: 'Espèces', mask: '—' }],
+  };
+  const CUSTOMERS = ['Karim B.', 'Sara L.', 'Youssef A.', 'Nawal K.', 'Hassan J.', 'Imane M.', 'Mehdi R.', 'Fatima Z.', 'Rachid O.', 'Lina S.', 'Ahmed T.', 'Yasmine H.', 'Omar F.', 'Naima Z.', 'Tarik B.', 'Aïcha M.', 'Walid K.', 'Soukaina A.', 'Reda H.', 'Salma F.', 'Hicham D.', 'Mariam S.', 'Brahim K.', 'Latifa O.', 'Khalid R.'];
+
+  /* Build a chronologically sorted pool. simIdx (0..15 == 11h..02h) lets us
+   * slice "the first N orders of the day" deterministically against cumTx. */
+  function buildPool(salt, size) {
+    const today = new Date();
+    const rng = makeRng(`${venue}-${today.getFullYear()}-${today.getMonth()}-${today.getDate()}-${salt}`);
+    const pool = [];
+    for (let i = 0; i < size; i++) {
+      const r = rng();
+      const cat = r < 0.66 ? 'Cartes' : r < 0.92 ? 'Mobile' : 'Espèces';
+      const opts = METHODS[cat];
+      const m = opts[Math.floor(rng() * opts.length)];
+      const amt = Math.round((40 + rng() * 360) * 100) / 100;
+      const tip = rng() > 0.6 ? Math.round(amt * 0.1 * 100) / 100 : 0;
+      const simIdx = Math.floor(rng() * 16);
+      const minute = Math.floor(rng() * 60);
+      const realHour = (11 + simIdx) % 24;
+      pool.push({
+        id: `KW-${(70000 + i + Math.floor(rng() * 9999)).toString().padStart(5, '0')}`,
+        t: `${realHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
+        simIdx,
+        n: m.n, mask: m.mask, cat,
+        c: CUSTOMERS[Math.floor(rng() * CUSTOMERS.length)],
+        amt, tip,
+        status: rng() > 0.95 ? 'pend' : 'ok',
+      });
+    }
+    pool.sort((a, b) => a.simIdx - b.simIdx || a.t.localeCompare(b.t));
+    return pool;
+  }
+
+  function buildRefunds(sourcePool, n) {
+    const rng = makeRng(`${venue}-ref-${n}`);
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const src = sourcePool[Math.floor(rng() * sourcePool.length)] || sourcePool[0];
+      if (!src) break;
+      out.push({
+        id: `KW-RB-${(40000 + i).toString().padStart(5, '0')}`,
+        t: src.t, n: src.n, mask: src.mask, c: src.c,
+        amt: -Math.round(src.amt * (0.4 + rng() * 0.5) * 100) / 100,
+        tip: 0, status: 'ref', cat: 'Remboursements', simIdx: src.simIdx,
+      });
+    }
+    return out;
+  }
+
+  /* Pre-build all four range pools so opening the drawer is instant. */
+  const POOL = {
+    aujourdhui: buildPool('today', DAILY_TARGET + 40),
+    hier:       buildPool('y1',    DAILY_TARGET),
+    sept:       buildPool('w1',    DAILY_TARGET * 7),
+    trente:     buildPool('m1',    DAILY_TARGET * 30),
+  };
+
+  const fmt2 = (n) => Math.abs(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const fmt0 = (n) => Math.round(n).toLocaleString('fr-FR').replace(/,/g, ' ');
 
-  drawer({
-    title: 'Commandes',
-    subtitle: `${rows.length} commandes · ${fmt0(tot)} MAD aujourd'hui`,
-    width: 920,
-    body: `
+  /* Drawer state */
+  let activeFilter = 'Toutes';
+  let activeRange  = 'aujourdhui';
+  let activeTab    = 'flux';
+  let expanded     = false;
+  let unsub        = null;
+
+  function getCumTx() {
+    return window.KiwiDemoClock?.getSimState?.()?.cumTx ?? Math.round(DAILY_TARGET * 0.7);
+  }
+  function rangeRows() {
+    if (activeRange === 'aujourdhui') return POOL.aujourdhui.slice(0, getCumTx());
+    if (activeRange === 'hier')       return POOL.hier;
+    if (activeRange === 'sept')       return POOL.sept;
+    return POOL.trente;
+  }
+  function rangeRefunds() {
+    const base = rangeRows();
+    const n    = activeRange === 'aujourdhui' ? Math.max(1, Math.floor(getCumTx() / 40))
+                : activeRange === 'hier'       ? 8
+                : activeRange === 'sept'       ? 28
+                : 115;
+    return buildRefunds(base.length ? base : POOL.aujourdhui, n);
+  }
+
+  const RANGE_LABEL = { aujourdhui: "Aujourd'hui", hier: 'Hier', sept: '7 derniers jours', trente: '30 derniers jours' };
+  const FILTERS     = ['Toutes', 'Cartes', 'Mobile', 'Espèces', 'Remboursements'];
+
+  let host;
+  const dr = drawer({ title: 'Commandes', subtitle: '…', width: 920, body: `<div data-tx-host></div>` });
+  host = dr.el.querySelector('[data-tx-host]');
+
+  function render() {
+    const baseRows = rangeRows();
+    const refunds  = rangeRefunds();
+    const list = activeFilter === 'Remboursements' ? refunds
+               : activeFilter === 'Toutes'         ? baseRows
+               : baseRows.filter(r => r.cat === activeFilter);
+    const total   = list.length;
+    const sumAmt  = list.reduce((s, r) => s + r.amt, 0);
+    const avg     = total > 0 ? Math.round(Math.abs(sumAmt) / total) : 0;
+    const live    = activeRange === 'aujourdhui';
+    const sortedDesc = list.slice().sort((a, b) => b.simIdx - a.simIdx || b.t.localeCompare(a.t));
+    const limit   = expanded ? 500 : 80;
+    const display = sortedDesc.slice(0, limit);
+    const hidden  = Math.max(0, total - display.length);
+
+    const tabs = [['flux','Toutes'], ['rec','Réconciliation'], ['fra','Anti-fraude']];
+
+    host.innerHTML = `
       <div class="p-hero">
-        <div class="l">VOLUME AUJOURD'HUI</div>
-        <div class="big">${fmt0(tot)} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-        <div class="sub">${rows.length} commandes · panier moyen ${Math.round(tot / rows.length)} MAD · 0 litige actif</div>
+        <div class="l">${live ? "VOLUME AUJOURD'HUI · LIVE" : 'VOLUME · ' + RANGE_LABEL[activeRange].toUpperCase()}</div>
+        <div class="big">${fmt0(Math.abs(sumAmt))} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
+        <div class="sub">${total} commande${total > 1 ? 's' : ''} · panier moyen ${avg} MAD · ${live ? 'sync horloge démo · refresh 3 s' : 'données consolidées'}</div>
       </div>
 
       <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">
-        ${['Toutes','Cartes','Mobile','Espèces','Remboursements'].map((c, i) => `
-          <button class="chip ${i===0?'ok':'neutral'}" data-action="tx-filter" data-arg="${c}" style="padding:6px 12px; font-size:12px; cursor:pointer; border:0;">${c}</button>
+        ${FILTERS.map(c => `
+          <button class="chip ${activeFilter === c ? 'ok' : 'neutral'}" data-action="tx-filter" data-arg="${c}" style="padding:6px 12px; font-size:12px; cursor:pointer; border:0;">${c}</button>
         `).join('')}
         <span style="flex:1;"></span>
-        <button class="kb ghost" data-action="tx-daterange" style="padding:6px 12px; font-size:12px; gap:6px;">Aujourd'hui <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+        <button class="kb ghost" data-action="tx-daterange" style="padding:6px 12px; font-size:12px; gap:6px;">${RANGE_LABEL[activeRange]} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
       </div>
 
       <div style="display:flex; gap:4px; padding:4px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:11px; margin-bottom:14px;">
-        ${[['flux','Toutes','on'],['rec','Réconciliation',''],['fra','Anti-fraude','']].map(([k,l,o]) => `
-          <button class="tx-tab ${o}" data-tx-tab="${k}" style="flex:1; padding:9px 12px; border:0; background:${o?'#fff':'transparent'}; color:${o?'var(--ink)':'var(--n-500)'}; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; box-shadow:${o?'0 1px 2px rgba(0,0,0,0.05)':'none'};">${l}</button>
-        `).join('')}
+        ${tabs.map(([k, l]) => {
+          const on = activeTab === k;
+          return `<button class="tx-tab ${on ? 'on' : ''}" data-tx-tab="${k}" style="flex:1; padding:9px 12px; border:0; background:${on?'#fff':'transparent'}; color:${on?'var(--ink)':'var(--n-500)'}; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; box-shadow:${on?'0 1px 2px rgba(0,0,0,0.05)':'none'};">${l}</button>`;
+        }).join('')}
       </div>
 
-      <div data-tx-pane="flux">
-        <table class="p-table">
-          <thead><tr><th>HEURE</th><th>MÉTHODE</th><th>CLIENT</th><th class="right">MONTANT</th><th class="right">POURBOIRE</th><th>STATUT</th></tr></thead>
-          <tbody>
-            ${rows.map(r => `
-              <tr data-action="tx-detail" data-arg="${r.t}">
-                <td class="mono">${r.t}</td>
-                <td><b>${r.n}</b> <span style="color:var(--n-500);">${r.mask}</span></td>
-                <td style="color:var(--n-600);">${r.c}</td>
-                <td class="mono right">${fmt(r.amt)}</td>
-                <td class="mono right" style="color:${r.tip > 0 ? 'var(--success)' : 'var(--n-400)'};">${r.tip > 0 ? '+' + fmt(r.tip) : '—'}</td>
-                <td><span class="chip ${r.status === 'ok' ? 'ok' : 'pend'}">${r.status === 'ok' ? 'Réglé' : 'Attente'}</span></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+      <div data-tx-pane="flux" style="display:${activeTab === 'flux' ? '' : 'none'};">
+        ${display.length === 0 ? `
+          <div style="padding:40px 16px; text-align:center; color:var(--n-500); font-size:13px;">Aucune commande pour ce filtre.</div>
+        ` : `
+          <table class="p-table">
+            <thead><tr><th>HEURE</th><th>MÉTHODE</th><th>CLIENT</th><th class="right">MONTANT</th><th class="right">POURBOIRE</th><th>STATUT</th></tr></thead>
+            <tbody>
+              ${display.map(r => `
+                <tr data-action="tx-detail" data-arg="${r.id}" style="cursor:pointer;">
+                  <td class="mono">${r.t}</td>
+                  <td><b>${r.n}</b> <span style="color:var(--n-500);">${r.mask}</span></td>
+                  <td style="color:var(--n-600);">${r.c}</td>
+                  <td class="mono right" style="${r.amt < 0 ? 'color:var(--danger);' : ''}">${r.amt < 0 ? '−' : ''}${fmt2(r.amt)}</td>
+                  <td class="mono right" style="color:${r.tip > 0 ? 'var(--success)' : 'var(--n-400)'};">${r.tip > 0 ? '+' + fmt2(r.tip) : '—'}</td>
+                  <td><span class="chip ${r.status === 'ok' ? 'ok' : 'pend'}">${r.status === 'ok' ? 'Réglé' : r.status === 'ref' ? 'Remboursé' : 'Attente'}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          ${hidden > 0 ? `
+            <div style="text-align:center; padding:14px; color:var(--n-500); font-size:12px;">
+              ${hidden} commande${hidden > 1 ? 's' : ''} plus ancienne${hidden > 1 ? 's' : ''} masquée${hidden > 1 ? 's' : ''} ·
+              <a href="#" data-action="tx-show-all" style="color:var(--atlas); font-weight:500;">Tout afficher</a>
+            </div>
+          ` : ''}
+        `}
       </div>
 
-      <div data-tx-pane="rec" style="display:none;">
+      <div data-tx-pane="rec" style="display:${activeTab === 'rec' ? '' : 'none'};">
         <div class="p-card" style="background:#fff;">
           <div class="head"><h4>Règlement du 28 avril</h4><span class="chip ok">Rapproché</span></div>
           <table class="p-table" style="margin-top:6px;">
@@ -134,7 +257,7 @@ handlers['nav-transactions'] = () => {
         </div>
       </div>
 
-      <div data-tx-pane="fra" style="display:none;">
+      <div data-tx-pane="fra" style="display:${activeTab === 'fra' ? '' : 'none'};">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
           <span class="chip" style="background:#FFF4DD; color:#8A6210;">2 alertes ouvertes</span>
           <span style="font-size:11.5px; color:var(--n-500);">Modèle : Kiwi Sentinel · 30 j fenêtre glissante</span>
@@ -159,21 +282,53 @@ handlers['nav-transactions'] = () => {
           </div>
         `).join('')}
       </div>
-    `,
-  }).el.querySelectorAll('.tx-tab').forEach(btn => {
-    btn.onclick = () => {
-      const k = btn.dataset.txTab;
-      btn.parentElement.querySelectorAll('.tx-tab').forEach(b => { b.classList.remove('on'); b.style.background = 'transparent'; b.style.color = 'var(--n-500)'; b.style.boxShadow = 'none'; });
-      btn.classList.add('on'); btn.style.background = '#fff'; btn.style.color = 'var(--ink)'; btn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
-      btn.closest('.kiwi-drawer-body').querySelectorAll('[data-tx-pane]').forEach(p => { p.style.display = p.dataset.txPane === k ? '' : 'none'; });
-    };
-  });
+    `;
 
-  if (!handlers['tx-filter']) handlers['tx-filter'] = (c) => toast(`Filtre · ${c}`, { type: 'info', duration: 1400 });
-  if (!handlers['tx-daterange']) handlers['tx-daterange'] = () => toast('Sélecteur de période — bientôt', { type: 'info', duration: 1400 });
+    /* Wire tab buttons (rebound on every render since innerHTML wipes listeners). */
+    host.querySelectorAll('.tx-tab').forEach(btn => {
+      btn.onclick = () => { activeTab = btn.dataset.txTab; render(); };
+    });
+
+    /* Live subtitle */
+    const subEl = dr.el.querySelector('.kiwi-drawer-head p');
+    if (subEl) subEl.textContent = `${total} commande${total > 1 ? 's' : ''} · ${fmt0(Math.abs(sumAmt))} MAD · ${RANGE_LABEL[activeRange]}`;
+  }
+
+  render();
+
+  /* Action handlers — (element, arg) signature per interactive.js routing */
+  handlers['tx-filter'] = (_el, c) => {
+    if (FILTERS.indexOf(c) === -1) return;
+    activeFilter = c;
+    expanded = false;
+    render();
+  };
+  handlers['tx-daterange'] = (el) => {
+    if (!el) return;
+    menu(el, [
+      { label: "Aujourd'hui",       active: activeRange === 'aujourdhui', onClick: () => { activeRange = 'aujourdhui'; activeFilter = 'Toutes'; expanded = false; render(); } },
+      { label: 'Hier',               active: activeRange === 'hier',       onClick: () => { activeRange = 'hier';       activeFilter = 'Toutes'; expanded = false; render(); } },
+      { sep: true },
+      { label: '7 derniers jours',   active: activeRange === 'sept',       onClick: () => { activeRange = 'sept';       activeFilter = 'Toutes'; expanded = false; render(); } },
+      { label: '30 derniers jours',  active: activeRange === 'trente',     onClick: () => { activeRange = 'trente';     activeFilter = 'Toutes'; expanded = false; render(); } },
+    ]);
+  };
+  handlers['tx-show-all'] = () => { expanded = true; render(); };
+  handlers['tx-detail']   = (_el, id) => toast(`Commande ${id || ''} · détails`, { type: 'info', duration: 1500 });
   if (!handlers['fra-investigate']) handlers['fra-investigate'] = () => toast('Dossier ouvert · équipe risque notifiée', { type: 'info', duration: 1800 });
-  if (!handlers['fra-allow']) handlers['fra-allow'] = () => toast('Marqué légitime · modèle mis à jour', { type: 'success', duration: 1600 });
-  if (!handlers['fra-block']) handlers['fra-block'] = () => toast('Carte bloquée · client contacté', { type: 'success', duration: 1800 });
+  if (!handlers['fra-allow'])       handlers['fra-allow']       = () => toast('Marqué légitime · modèle mis à jour', { type: 'success', duration: 1600 });
+  if (!handlers['fra-block'])       handlers['fra-block']       = () => toast('Carte bloquée · client contacté', { type: 'success', duration: 1800 });
+
+  /* Live updates from the demo clock (only when viewing today). */
+  if (window.KiwiDemoClock?.subscribe) {
+    unsub = window.KiwiDemoClock.subscribe(() => {
+      if (!dr.el.isConnected) { unsub?.(); unsub = null; return; }
+      if (activeRange !== 'aujourdhui') return;
+      render();
+    });
+  }
+  const origClose = dr.close;
+  dr.close = () => { unsub?.(); unsub = null; origClose(); };
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
