@@ -156,14 +156,14 @@ handlers['nav-transactions'] = () => {
   const fmt0 = (n) => Math.round(n).toLocaleString('fr-FR').replace(/,/g, ' ');
 
   drawer({
-    title: 'Transactions',
-    subtitle: `${rows.length} transactions · ${fmt0(tot)} MAD aujourd'hui`,
+    title: 'Commandes',
+    subtitle: `${rows.length} commandes · ${fmt0(tot)} MAD aujourd'hui`,
     width: 920,
     body: `
       <div class="p-hero">
         <div class="l">VOLUME AUJOURD'HUI</div>
         <div class="big">${fmt0(tot)} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-        <div class="sub">${rows.length} transactions · panier moyen ${Math.round(tot / rows.length)} MAD · 0 litige actif</div>
+        <div class="sub">${rows.length} commandes · panier moyen ${Math.round(tot / rows.length)} MAD · 0 litige actif</div>
       </div>
 
       <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">
@@ -203,7 +203,7 @@ handlers['nav-transactions'] = () => {
           <div class="head"><h4>Règlement du 28 avril</h4><span class="chip ok">Rapproché</span></div>
           <table class="p-table" style="margin-top:6px;">
             <tbody>
-              <tr><td>Volume brut · 174 transactions</td><td class="mono right">+30 482,50 MAD</td></tr>
+              <tr><td>Volume brut · 174 commandes</td><td class="mono right">+30 482,50 MAD</td></tr>
               <tr><td style="color:var(--n-500);">Interchange Visa/MC (1,18 %)</td><td class="mono right" style="color:var(--danger);">−359,69 MAD</td></tr>
               <tr><td style="color:var(--n-500);">Frais réseau Kiwi (0,30 %)</td><td class="mono right" style="color:var(--danger);">−91,45 MAD</td></tr>
               <tr><td style="color:var(--n-500);">TVA sur frais</td><td class="mono right" style="color:var(--danger);">−90,23 MAD</td></tr>
@@ -223,7 +223,7 @@ handlers['nav-transactions'] = () => {
         </div>
         ${[
           { t: 'Visa •• 0043 — 3ᵉ remboursement cette semaine', d: 'Pattern récurrent · 240 MAD à chaque fois · adresse IP changeante', risk: 'Élevé' },
-          { t: 'Kiwi Wallet QR — pic anormal 13:42', d: '7 transactions du même device en 4 minutes · panier moyen 38 MAD', risk: 'Moyen' },
+          { t: 'Kiwi Wallet QR — pic anormal 13:42', d: '7 commandes du même device en 4 minutes · panier moyen 38 MAD', risk: 'Moyen' },
         ].map(a => `
           <div class="p-card" style="background:#fff;">
             <div class="head">
@@ -462,7 +462,7 @@ handlers['nav-reglements'] = () => {
         <div style="font-size:13px; font-weight:600; margin-bottom:10px;">Détail du règlement de demain (28 avril → 29 avril)</div>
         <table class="p-table">
           <tbody>
-            <tr><td>Volume brut · 142 transactions</td><td class="mono right">+23 484,80 MAD</td></tr>
+            <tr><td>Volume brut · 142 commandes</td><td class="mono right">+23 484,80 MAD</td></tr>
             <tr><td style="color:var(--n-500);">Interchange Visa/MC (1,18 %)</td><td class="mono right" style="color:var(--danger);">−277,12 MAD</td></tr>
             <tr><td style="color:var(--n-500);">Frais réseau Kiwi (0,30 %)</td><td class="mono right" style="color:var(--danger);">−70,45 MAD</td></tr>
             <tr><td style="color:var(--n-500);">TVA sur frais</td><td class="mono right" style="color:var(--danger);">−46,23 MAD</td></tr>
@@ -709,7 +709,7 @@ handlers['nav-equipe'] = () => {
       <div class="p-hero" style="background: linear-gradient(135deg, var(--riad), var(--atlas));">
         <div class="l">PERFORMANCE ÉQUIPE · AUJOURD'HUI</div>
         <div class="big">15 950 <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-        <div class="sub">159 transactions · panier moyen 100 MAD · pourboire moyen 12 MAD · score moyen 86 / 100</div>
+        <div class="sub">159 commandes · panier moyen 100 MAD · pourboire moyen 12 MAD · score moyen 86 / 100</div>
       </div>
 
       <div class="sh-section">
@@ -3944,7 +3944,7 @@ handlers['bout-cat-publish'] = () => {
             <h4>Émission rapide d'un remboursement</h4>
             <span class="meta">3 OPTIONS</span>
           </div>
-          <div style="font-size: 12.5px; color: var(--n-500); margin-bottom: 12px; line-height: 1.45;">Choisissez le canal — la transaction d'origine sera automatiquement liée pour la conformité.</div>
+          <div style="font-size: 12.5px; color: var(--n-500); margin-bottom: 12px; line-height: 1.45;">Choisissez le canal — la commande d'origine sera automatiquement liée pour la conformité.</div>
           <div class="p-grid-3">
             <button class="kb ghost" style="padding: 14px; flex-direction: column; gap: 8px; min-height: 76px; align-items: center; justify-content: center;" data-action="ret-refund-original">
               ${SVG.coin}

@@ -124,7 +124,7 @@
    * Sparkline shape per key is owned by dateRange.js. */
   const KPI_BY_TYPE = {
     restaurant: [
-      { key: 'tx',         label: 'Transactions',      i18n: 'dash.kpi.tx' },
+      { key: 'tx',         label: 'Commandes',         i18n: 'dash.kpi.tx' },
       { key: 'panier',     label: 'Panier moyen',      i18n: 'dash.kpi.basket' },
       { key: 'tips',       label: 'Pourboires',        i18n: 'dash.kpi.tips' },
       { key: 'success',    label: 'Taux succès',       i18n: 'dash.kpi.success' },
@@ -132,7 +132,7 @@
       { key: 'regulars',   label: 'Clients réguliers', i18n: 'dash.kpi.regular' },
     ],
     boutique: [
-      { key: 'tx',         label: 'Transactions',      i18n: 'dash.kpi.tx' },
+      { key: 'tx',         label: 'Commandes',         i18n: 'dash.kpi.tx' },
       { key: 'panier',     label: 'Panier moyen',      i18n: 'dash.kpi.basket' },
       { key: 'tauxRetour', label: 'Taux retour',       i18n: 'dash.kpi.returnRate' },
       { key: 'success',    label: 'Taux succès',       i18n: 'dash.kpi.success' },
@@ -165,7 +165,7 @@
     },
     maisonMansour: {
       title: 'Vos clients touristes dépensent en moyenne +35 % par panier',
-      obs: 'Les paniers réglés sur cartes étrangères (38 % des transactions) atteignent en moyenne 380 MAD, contre 282 MAD sur les cartes marocaines. Les acheteurs allemands et espagnols sont sur-représentés.',
+      obs: 'Les paniers réglés sur cartes étrangères (38 % des commandes) atteignent en moyenne 380 MAD, contre 282 MAD sur les cartes marocaines. Les acheteurs allemands et espagnols sont sur-représentés.',
       act: '→ Activer un catalogue PDF en anglais sur le terminal Kiwi et un onglet « Tax-free » pourrait lifter le panier moyen de 6-9 %.',
     },
     spaBahia: {

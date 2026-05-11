@@ -354,14 +354,14 @@
       rows.push({ t: `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`, ...m, c: customers[Math.floor(Math.random() * customers.length)], amt, tip, status: Math.random() > 0.95 ? 'pend' : 'ok' });
     }
     drawer({
-      title: 'Transactions',
-      subtitle: `${rows.length} transactions · ${tot.toFixed(0)} MAD aujourd'hui`,
+      title: 'Commandes',
+      subtitle: `${rows.length} commandes · ${tot.toFixed(0)} MAD aujourd'hui`,
       width: 920,
       body: `
         <div class="p-hero">
           <div class="l">VOLUME AUJOURD'HUI</div>
           <div class="big">${tot.toLocaleString('fr-FR', {maximumFractionDigits: 0})} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-          <div class="sub">${rows.length} transactions · panier moyen ${Math.round(tot / rows.length)} MAD</div>
+          <div class="sub">${rows.length} commandes · panier moyen ${Math.round(tot / rows.length)} MAD</div>
         </div>
         <div class="p-toolbar">
           <div class="p-search">
@@ -580,7 +580,7 @@
         <div class="p-hero" style="background: linear-gradient(135deg, var(--riad), var(--atlas));">
           <div class="l">PERFORMANCE ÉQUIPE · AUJOURD'HUI</div>
           <div class="big">16 340 <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-          <div class="sub">159 transactions · panier moyen 103 MAD · pourboire moyen 12 MAD</div>
+          <div class="sub">159 commandes · panier moyen 103 MAD · pourboire moyen 12 MAD</div>
         </div>
 
         <div class="team-grid">
@@ -601,7 +601,7 @@
               </div>
               <div class="kpis">
                 <div><div class="k">Shift</div><div class="v">${shift}</div></div>
-                <div><div class="k">Transactions</div><div class="v">${tx}</div></div>
+                <div><div class="k">Commandes</div><div class="v">${tx}</div></div>
                 <div><div class="k">Revenu</div><div class="v">${rev}</div></div>
               </div>
             </div>
