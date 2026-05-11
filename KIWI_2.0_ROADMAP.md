@@ -112,9 +112,33 @@ Review each one against the "what can the POS-only product honestly claim?" rule
 
 ---
 
+## 7. Dashboard right column · "Prochain règlement" hero + "Calendrier des règlements"
+
+**Status in 1.0:** **Both widgets removed from the dashboard.** Replaced with operations-focused widgets (Service du soir + Stock à recommander).
+
+**What they were:**
+- **Prochain règlement** (dark-atlas gradient card): showed next T+1 settlement amount, IBAN destination, Kiwi commission deducted, and an "Régler instantanément · 1,50 MAD" CTA for express payout.
+- **Calendrier des règlements** (7-day mini-calendar): forward forecast of daily settlement amounts with weekly projection total.
+
+**Why removed for 1.0:** Pure payment-processing surface. Saying "23 091 MAD arrive demain à 9 h 00 sur votre IBAN BMCE ••3291" implies Kiwi handles money movement — which we don't until the license lands.
+
+**What replaced them (Kiwi 1.0):**
+- **Service du soir** — uses the same `.settle` premium dark-atlas card style, but content is restaurant operations: count of covers expected tonight, next 3 reservations with table assignments + notes (habitué / anniversaire / 1ʳᵉ visite chips), CTA "Voir le plan de salle".
+- **Stock à recommander** — utility card listing the 3 items running low with severity dots (red = rupture imminente, orange = bas), supplier names, suggested reorder quantity + price, total commande suggérée, and a one-click "Commander chez tous les fournisseurs" CTA wired to the existing `stock-reorder` handler.
+
+**To re-enable for 2.0:** Both widgets' original HTML is preserved verbatim in git history (commit before this one). Find them by `grep "PROCHAIN RÈGLEMENT"` against pre-2.0 dashboard.html. The replacement widgets stay in 2.0 alongside the settlement views — they're useful in both phases.
+
+**Where the legacy code still lives:**
+- `dashboard.html` → the widgets are gone, but the `.settle` and `.timeline-day` CSS classes are kept (used by the new Service du soir card and could be repurposed).
+- `assets/i18n.js` → `dash.settle.*` and `dash.timeline.*` keys still defined.
+- `assets/interactive.js` → `instant-settle` quick-action in the global "+" menu (line 321) still references settlement — review for 2.0 cleanup pass.
+
+---
+
 ## Removal log
 
 | Date       | Commit  | Feature                                                          | Reason                            |
 | ---------- | ------- | ---------------------------------------------------------------- | --------------------------------- |
 | 2026-05-11 | 20d285a | Règlements (sidebar item + command palette)                      | Phase 1 has no processing license |
-| 2026-05-11 | (this)  | Banque commerçant section (Kiwi Compte · IBAN, Avance trésorerie, Fidélité, Liens de paiement, Factures & TVA, Analytiques) | Phase 1 is POS-only — no banking/lending surface |
+| 2026-05-11 | aa7387f | Banque commerçant section (Kiwi Compte · IBAN, Avance trésorerie, Fidélité, Liens de paiement, Factures & TVA, Analytiques) | Phase 1 is POS-only — no banking/lending surface |
+| 2026-05-11 | (this)  | Dashboard "Prochain règlement" + "Calendrier des règlements" — replaced with Service du soir + Stock à recommander | Pure payment-processing surface; replacement is operations-focused |
