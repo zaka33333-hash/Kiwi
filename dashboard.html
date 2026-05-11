@@ -16,38 +16,40 @@
 <link rel="stylesheet" href="assets/pages-pro.css" />
 <style>
   /* ─────────────── SHELL ─────────────── */
+  /* Ambient blobs — four soft radial gradients pinned to the viewport
+   * corners, sitting directly on the body so they always paint behind
+   * content. The neutral base (#F8F7F3) is between paper and n-50 —
+   * warm without being yellow. background-attachment:fixed keeps the
+   * blobs glued to the viewport on scroll. */
   body {
-    background: #F8F7F3;
+    background-color: #F8F7F3;
+    background-image:
+      radial-gradient(60% 50% at 0% 0%,    rgba(11, 110, 79, 0.16), transparent 65%),
+      radial-gradient(55% 45% at 100% 0%,  rgba(125, 242, 176, 0.13), transparent 65%),
+      radial-gradient(65% 55% at 0% 100%,  rgba(217, 154, 43, 0.07), transparent 70%),
+      radial-gradient(60% 50% at 100% 100%, rgba(5, 59, 44, 0.12), transparent 65%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 100% 100%;
     font-size: 14px;
     color: var(--ink);
-    position: relative;
   }
-  /* Ambient blobs — four soft radial gradients pinned to the corners,
-   * fixed to the viewport so they stay put on scroll, and given a 60 s
-   * drift cycle that scales/translates the layer by a hair so the page
-   * subtly breathes without ever drawing attention. The neutral base
-   * (#F8F7F3) sits between paper and n-50 — warm but not yellow. */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(60% 50% at 0% 0%,    rgba(11, 110, 79, 0.10), transparent 65%),
-      radial-gradient(55% 45% at 100% 0%,  rgba(125, 242, 176, 0.09), transparent 65%),
-      radial-gradient(65% 55% at 0% 100%,  rgba(217, 154, 43, 0.05), transparent 70%),
-      radial-gradient(60% 50% at 100% 100%, rgba(5, 59, 44, 0.07), transparent 65%);
-    animation: ambient-drift 60s ease-in-out infinite alternate;
-    will-change: transform, opacity;
-  }
+  /* Kill the global SVG-noise grain overlay (defined in polish.css as
+   * body::after, z-index 1000, mix-blend-mode: multiply). That was the
+   * paper-grain look — replaced now by the ambient-blob system above. */
+  body::after { content: none !important; display: none !important; }
+
+  /* Subtle 60 s breathing motion. The whole blob system gently drifts
+   * scale ~1.03 + translate ~1 %, alternating ease-in-out, so the page
+   * feels alive without ever being loud. Respects prefers-reduced-motion. */
+  body { animation: ambient-drift 60s ease-in-out infinite alternate; }
   @keyframes ambient-drift {
-    0%   { transform: translate3d(0, 0, 0) scale(1);    opacity: 1;    }
-    50%  { transform: translate3d(-1%, -0.6%, 0) scale(1.03); opacity: 0.92; }
-    100% { transform: translate3d(0.6%, 0.4%, 0) scale(1.02); opacity: 0.96; }
+    0%   { background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%; }
+    50%  { background-position: -2% -1%, 102% -1%, -1% 101%, 101% 102%; }
+    100% { background-position: 1% 0%, 99% 1%, 0% 100%, 100% 100%; }
   }
   @media (prefers-reduced-motion: reduce) {
-    body::before { animation: none; }
+    body { animation: none; }
   }
 
   /* Demo banner */
