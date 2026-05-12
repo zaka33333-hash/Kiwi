@@ -1521,15 +1521,8 @@
   const cells    = document.querySelectorAll('[data-kiwi-pin] .kiwi-pin-cell');
   if (!lock || !greet || !pinInput || !cells.length) return;
 
-  /* Already unlocked in this tab? Skip both overlays. */
-  const UNLOCK_KEY = 'kiwi-unlocked';
-  try {
-    if (sessionStorage.getItem(UNLOCK_KEY) === '1') {
-      lock.remove();
-      greet.remove();
-      return;
-    }
-  } catch (_) {}
+  /* No persistence — the lock + greeting flow ALWAYS replays on reload
+   * so the demo entry sequence is fully repeatable. */
 
   /* Prevent the page from scrolling while the lock is up. */
   document.documentElement.style.overflow = 'hidden';
@@ -1561,8 +1554,6 @@
   }
 
   function unlock() {
-    try { sessionStorage.setItem(UNLOCK_KEY, '1'); } catch (_) {}
-
     /* Stagger the success pop on each cell (left → right). */
     cells.forEach((c, i) => {
       setTimeout(() => c.classList.add('is-success'), i * 70);
