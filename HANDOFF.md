@@ -1,7 +1,7 @@
 # Kiwi — Agent Handoff Document
 
-**Last updated:** 2026-04-24
-**Location:** `/Users/zaka/Desktop/Gemma/kiwi/` (mirror at `/tmp/kiwi-preview/`)
+**Last updated:** 2026-05-12
+**Location:** `/Users/badrosonair/Documents/kiwi/` (mirror at `/tmp/kiwi-preview/`) · GitHub `https://github.com/badro99/Kiwi` (auto-pushed after every edit — see `CLAUDE.md` §1)
 **Status:** High-fidelity interactive prototype. Not production code. Demo-ready for investor + client meetings.
 **Founders:** Badr-Eddin Bakkioui (CEO) & Zakariae Attahiri (CTO · COO) · `invest@kiwi.ma` · Tanger
 
@@ -282,12 +282,151 @@ If you're an agent inheriting this project:
 
 ---
 
-## 10. Contact
+## 10. Build log since 2026-04-25 — the "merchant operations" layer
+
+Everything below was added **after** the original handoff was written. It is the
+work that should drive the next pass on the seed deck and pitch website. All
+commits are on `main` at `github.com/badro99/Kiwi`; commit hashes referenced
+inline for traceability.
+
+### 11.1 Dashboard entry sequence — PIN lock + greeting flash (`47efc33`, `0dc12b3`, `314ba2b`, `21b8030`)
+
+The dashboard no longer drops the user straight into the merchant view. On
+every reload the experience is:
+
+1. **Full-viewport PIN lock** — 4-digit numeric pad over a paper-colored canvas.
+   Code mocked as `1234`. Cells animate `is-success` left → right on entry.
+2. **Greeting flash** — "Bonjour Rachid," lands centered, holds ~600 ms, then a
+   green Instrument-Serif italic types in to the right of the comma
+   ("bienvenue dans Kiwi.") via a single max-width CSS transition with a caret
+   on the ::after pseudo. See `/tmp/kiwi-greet-new.js` for the canonical
+   timeline (cells settle 460 ms → lock fades → 1400 ms typewriter starts →
+   2400 ms caret drops → 3200 ms greeting fades + dashboard dives in →
+   4000 ms greeting removed).
+3. **Dashboard "dive in"** — the demo bar + main app fade-up from underneath
+   the greeting on a synchronized timeline.
+
+This entry exists to make the seed-deck screen-recordings open with a moment
+of brand voice instead of a static dashboard. Worth a 3-second clip in the
+"Product" slide.
+
+### 11.2 Caisse (in-resto checkout) — full PIN + équipe + split bill (`d4dc9f3`, `9f75584`, `95c4052`, `856acaf`)
+
+The caisse surface (the on-Android-tablet checkout the staff use) is now a
+miniature product of its own:
+
+- **Staff PIN login** before any cashier action — each server has a 4-digit
+  code, with an "Équipe" tab tracking who is on shift, on break, with
+  messages to/from the manager.
+- **Server assignment to tables** — visible avatars on every table tile
+  (even empty ones) so the owner sees who owns which section at a glance.
+- **Persistent split bill** — by item, by guest, or equal parts. State
+  survives table switches and reopens with the bill mid-split.
+- **Gamification** — tip leaderboard + service-speed badges per server,
+  displayed in the Équipe tab.
+- **iOS-style entry animation** after PIN success — zoom-in + welcome
+  banner gradient. Matches the dashboard greeting flash in feel.
+
+### 11.3 Serveur mobile app (`5982ea0`, `a3f279d`, `4d03e84`, `f45c1ad`, `70c1a5c`, `7ca843e`, `74cbd22`, `b401d7e`, `03daae3`)
+
+A **separate mobile-first surface** for waiters running on their own Android
+phone. Same brand language as caisse but with mobile-native gestures:
+
+- 4-digit PIN before pointage (clock-in)
+- "Vos tables ce soir" landing — the server sees only their own assigned
+  tables, ranked by oldest order time
+- Menu with category tabs, item modifiers, and a sticky "Voir la commande"
+  bar that only appears in the Menu tab (regression-tested)
+- Split par article (inverse model: pick the guest first, then tap items)
+  + "Toutes regroupé par serveur" view
+- Explicit "Lancer la commande" button — order isn't sent to the KDS until
+  the server taps it (no auto-fire on item add)
+- Background-persistent split — server can leave the table mid-split, come
+  back, state is intact
+
+**Implication for the deck:** Kiwi is no longer "the merchant dashboard" — it
+is a 3-surface system (owner dashboard / cashier caisse / server mobile)
+unified by the same brand. The pitch site needs a triptych shot.
+
+### 11.4 Owner-perspective restaurant operations (`57edeb7`, `b6a712f`, `8f8eb04`)
+
+The four restaurant features on the sidebar (Tables & additions, Menu, KDS,
+Stock ingrédients) were reframed from "what a cashier does" to "what the
+owner does from anywhere":
+
+- **Tables & additions redesigned** as a strategic floor-plan tool — assign
+  tables to waiters, drag-rearrange the layout, swap between presets
+  (midi / soir / event), view per-table revenue performance + reservations
+  + AI insights. **No cashier surfaces** (no "encaisser", no payment
+  capture — those live on the Android caisse only).
+- **Fullpage drawer mode** added to the interaction layer. New API:
+  `Kiwi.fullpage({title, subtitle, body, foot})` — same DOM as `drawer()`
+  but slides up from the bottom into a full-viewport overlay with
+  max-width 1480 body centered and sticky head/foot. Tables, Menu, KDS,
+  and Stock all open as fullpages now (they were cramped as side drawers
+  — these surfaces will hold a lot of functionality going forward).
+
+### 11.5 What this means for the seed deck + pitch site
+
+The originals (built 2026-04-24) frame Kiwi as a single merchant dashboard
+with Phase 1 SaaS pricing. They are now **incomplete** because they don't
+show:
+
+1. The 3-surface system (owner dashboard / caisse / serveur mobile)
+2. PIN-locked staff workflows + server gamification
+3. The full restaurant-operations suite (Tables / Menu / KDS / Stock as
+   first-class fullpages, not sidebar items)
+4. The cinematic entry sequence (PIN → greeting flash → dive-in)
+
+When updating the deck and pitch website, the new narrative arcs to
+emphasize are:
+
+- **"One system, three surfaces."** Owner gets the dashboard. Cashier gets
+  the caisse. Server gets the mobile app. All branded Kiwi, all sync'd.
+- **"Designed for the owner who isn't in the restaurant."** The dashboard
+  is strategic (assign tables, rebalance sections, see AI insights), not
+  operational. The Android tablet and the server phone do the operational
+  work.
+- **"Staff are first-class."** PIN logins, équipe panel, leaderboards,
+  pauses/messages, split-bill persistence. Not bolted on — designed in.
+- **Phase 1 pricing unchanged.** Kiwi Basic 399 MAD/mo, Kiwi Pro 699 MAD/mo,
+  hardware loaned free, T+1 settlement. Don't add public numbers / asks /
+  projections to external materials (see `CLAUDE.md` and the no-public-
+  numbers memo).
+
+### 11.6 New / renamed file map (delta from §2)
+
+```
+kiwi/
+├── caisse.html            ★ NEW · in-resto Android-tablet checkout
+├── serveur.html           ★ NEW · server mobile app
+├── CLAUDE.md              ★ NEW · agent operating rules (read first)
+├── KIWI_2.0_ROADMAP.md    Roadmap doc (was already present 04-25)
+└── assets/
+    ├── pages-pro.js       ★ NEW · owner-perspective restaurant features
+    │                       (overrides nav-tables, nav-menu, nav-kds,
+    │                        nav-stock from pages.js — last wins)
+    ├── dateRange.js       ★ NEW · single source of truth for the
+    │                       dashboard's selected date range + per-range
+    │                       data; owns the live transaction feed
+    ├── interactive.js     UPDATED · added Kiwi.fullpage() API + the
+    │                       `.kiwi-fullpage` CSS block
+    └── greet.js / lock.js Entry-sequence runtime (see /tmp/kiwi-greet-new.js
+                           for the canonical timeline reference)
+```
+
+Old paths in §2 referencing `/Users/zaka/Desktop/Gemma/kiwi/` are stale —
+the project moved to `/Users/badrosonair/Documents/kiwi/` and is now
+git-tracked with auto-push.
+
+---
+
+## 11. Contact
 
 - **Founders:** Badr-Eddin Bakkioui (CEO) & Zakariae Attahiri (CTO · COO) · invest@kiwi.ma · Tanger, Maroc
 - **Preview URL (local):** http://localhost:4321/index.html
-- **Source repo:** `/Users/zaka/Desktop/Gemma/kiwi/` (not yet in git — consider initializing)
-- **Memory:** `/Users/zaka/.claude/projects/-Users-zaka-Desktop-Gemma/memory/MEMORY.md`
+- **Source repo:** `/Users/badrosonair/Documents/kiwi/` · GitHub `github.com/badro99/Kiwi` (auto-pushed)
+- **Memory:** `/Users/badrosonair/.claude/projects/-Users-badrosonair-Documents-kiwi/memory/MEMORY.md`
 
 ---
 
