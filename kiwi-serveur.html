@@ -728,6 +728,48 @@
 
     .td-btn-row { display: flex; gap: 8px; }
 
+    /* Split-in-progress banner */
+    .td-split-banner {
+      background: linear-gradient(135deg, var(--mint-tint) 0%, #DEF2E5 100%);
+      border: 1px solid var(--mint-edge);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .td-split-banner-row { display: flex; align-items: center; gap: 12px; }
+    .td-split-banner-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--gradient);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex: 0 0 40px;
+      box-shadow: 0 4px 12px rgba(31,93,60,0.25);
+    }
+    .td-split-banner-icon svg { width: 18px; height: 18px; }
+    .td-split-banner-text { flex: 1; min-width: 0; }
+    .td-split-banner-title {
+      font-size: 13.5px; font-weight: 700;
+      color: var(--forest-deep);
+      letter-spacing: -0.005em;
+    }
+    .td-split-banner-sub {
+      font-size: 12px; color: var(--ink-3);
+      margin-top: 2px;
+      font-feature-settings: "tnum" 1;
+    }
+    .td-split-progress {
+      height: 6px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .td-split-progress-fill {
+      height: 100%;
+      background: var(--gradient);
+      border-radius: 999px;
+      transition: width 400ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
     /* Lancer la commande — pulses gently to attract attention when dirty */
     .td-btn.lancer-btn {
       box-shadow: 0 4px 12px rgba(63,182,122,0.28);
@@ -1619,9 +1661,19 @@
       font-size: 12px; color: var(--ink-4);
     }
 
-    .split-flow-header { display: flex; align-items: center; margin-bottom: 16px; }
+    .split-flow-header { display: flex; align-items: center; margin-bottom: 16px; gap: 8px; }
     .split-flow-title { font-size: 17px; font-weight: 700; color: var(--ink); }
     .split-flow-progress { font-size: 12px; color: var(--ink-4); margin-left: auto; font-feature-settings: "tnum" 1; }
+    .split-flow-close {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--paper-mute);
+      color: var(--ink-3);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 32px;
+      transition: background 150ms ease;
+    }
+    .split-flow-close:active { background: #ECEAE5; }
+    .split-flow-close svg { width: 16px; height: 16px; }
 
     .split-parts-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; transition: opacity 300ms; }
     .split-part-card {
@@ -2365,6 +2417,9 @@
             <div class="split-flow-header">
               <div class="split-flow-title">Encaisser les parts</div>
               <div class="split-flow-progress" id="split-flow-progress">0 / 0</div>
+              <button class="split-flow-close" id="split-flow-close" aria-label="Plus tard">
+                <i data-lucide="x"></i>
+              </button>
             </div>
             <div class="split-parts-list" id="split-parts-list"></div>
             <div class="split-all-done" id="split-all-done" hidden>
@@ -2761,10 +2816,13 @@
     function tableCardHTML(id, t, opts = {}) {
       const total = (t.status === 'khawya' || t.status === 'khlass') ? 0 : getTableTotal(id);
       const statusTxt = statusLabel[t.status];
+      const split = tableSplits.get(id);
       let line2 = '';
-      if (t.status === 'khawya')       line2 = 'Disponible';
-      else if (t.status === 'khlass')  line2 = 'Réglée ✓';
-      else                             line2 = `${statusTxt} · ${t.elapsed} mn`;
+      if (split) {
+        line2 = `Split en cours · ${split.paidCount}/${split.parts.length} réglées`;
+      } else if (t.status === 'khawya')      line2 = 'Disponible';
+      else if (t.status === 'khlass')        line2 = 'Réglée ✓';
+      else                                    line2 = `${statusTxt} · ${t.elapsed} mn`;
 
       const showAmount = total > 0;
       const urgentDot = t.status === 'bgha-ykhlass' ? '<span class="tc-pulse-dot"></span>' : '';
@@ -2943,6 +3001,11 @@
     function renderTableDetail() {
       const id = activeTableId;
       if (!id) return;
+      // Special path: if this table has a split in progress, show
+      // the resume/cancel view instead of the normal order detail.
+      if (tableSplits.has(id)) {
+        return renderTableDetailSplit(id);
+      }
       const t = tables[id];
       const order = ensureTableOrder(id);
       const total = order.reduce((s, l) => s + l.price * l.qty, 0);
@@ -3067,6 +3130,59 @@
       lucide.createIcons();
     }
 
+    /* Special table detail view when a split is in progress */
+    function renderTableDetailSplit(id) {
+      const t = tables[id];
+      const split = tableSplits.get(id);
+      const paidTotal = split.parts.reduce((s, p) => s + (p.paid ? p.amount : 0), 0);
+      const remaining = split.parts.length - split.paidCount;
+      const remainingAmt = split.total - paidTotal;
+      const pct = Math.round((split.paidCount / split.parts.length) * 100);
+
+      $('#td-table-name').textContent = `${id} · ${t.covers} couvert${t.covers > 1 ? 's' : ''}`;
+      $('#td-table-meta').textContent = `Split en cours · ${split.paidCount}/${split.parts.length} réglées`;
+      const pill = $('#td-status-pill');
+      pill.dataset.status = 'ka-tkhdam';
+      pill.textContent = `Split ${split.paidCount}/${split.parts.length}`;
+
+      // Body: split banner with progress + read-only order
+      const order = ensureTableOrder(id);
+      const orderHTML = order.map(l => `
+        <div class="td-item" style="opacity:0.55">
+          <span style="font-weight:700;width:32px;text-align:center;font-feature-settings:'tnum' 1;">${l.qty}×</span>
+          <span class="td-item-name">${l.name}</span>
+          <span class="td-item-price">${fmtMAD(l.price * l.qty)}</span>
+        </div>
+      `).join('');
+
+      $('#td-body').innerHTML = `
+        <div class="td-split-banner">
+          <div class="td-split-banner-row">
+            <div class="td-split-banner-icon"><i data-lucide="split"></i></div>
+            <div class="td-split-banner-text">
+              <div class="td-split-banner-title">Split en cours · ${split.paidCount}/${split.parts.length}</div>
+              <div class="td-split-banner-sub">${fmtMAD(paidTotal)} réglés / ${fmtMAD(split.total)} · reste ${fmtMAD(remainingAmt)}</div>
+            </div>
+          </div>
+          <div class="td-split-progress">
+            <div class="td-split-progress-fill" style="width:${pct}%"></div>
+          </div>
+        </div>
+        <div class="td-order-list">${orderHTML}</div>
+      `;
+
+      // Footer: primary Continuer + cancel
+      $('#td-footer').innerHTML = `
+        <button class="td-btn primary lancer-btn" data-action="resume-split">
+          <i data-lucide="play"></i> Continuer le split · ${remaining} part${remaining > 1 ? 's' : ''}
+        </button>
+        <button class="td-btn danger sm" data-action="cancel-split">
+          <i data-lucide="x"></i> Annuler le split
+        </button>
+      `;
+      lucide.createIcons();
+    }
+
     /* ---- back button ---- */
     $('#td-back').addEventListener('click', () => {
       activeTableId = null;
@@ -3120,10 +3236,29 @@
         tables[id].status = 'khawya';
         tables[id].elapsed = 0;
         delete tableOrders[id];
+        dirtyOrders.delete(id);
+        tableSplits.delete(id);
         activeTableId = null;
         showScreen('screen-main');
         renderTables();
         toast(`Mesa ${id} fermée`);
+      } else if (action === 'resume-split') {
+        // Reopen the split modal directly on the flow screen
+        openSplitModal(activeTableId);
+      } else if (action === 'cancel-split') {
+        const id = activeTableId;
+        const sp = tableSplits.get(id);
+        const paidCount = sp ? sp.paidCount : 0;
+        const confirmMsg = paidCount > 0
+          ? `Annuler le split? ${paidCount} part${paidCount > 1 ? 's' : ''} déjà réglée${paidCount > 1 ? 's' : ''} ne ${paidCount > 1 ? 'seront' : 'sera'} pas remboursée${paidCount > 1 ? 's' : ''}.`
+          : 'Annuler le split en cours?';
+        if (!confirm(confirmMsg)) return;
+        tableSplits.delete(id);
+        // Restore table to bgha-ykhlass so the cashier can encaisser normally
+        if (tables[id]) tables[id].status = 'bgha-ykhlass';
+        renderTableDetail();
+        if (currentTab === 'tables') renderTables();
+        toast('Split annulé');
       }
     });
 
@@ -3670,12 +3805,57 @@
       activeConvive: 1,
       flow: null,
     };
+
+    /* Persisted splits per table — survives modal close, table switch, etc.
+       Allows the server to start a split, dismiss the modal, help other
+       customers, and come back to keep encaisser. */
+    const tableSplits = new Map();   // tableId → { mode, parts, paidCount, total }
+
+    function saveSplitFlow() {
+      if (!splitState.tableId || !splitState.flow) return;
+      tableSplits.set(splitState.tableId, {
+        mode: splitState.splitMode,
+        total: splitState.total,
+        parts: splitState.flow.parts.map(p => ({ ...p })),
+        paidCount: splitState.flow.paidCount,
+      });
+    }
+
+    function loadSplitFlow(tableId) {
+      const saved = tableSplits.get(tableId);
+      if (!saved) return false;
+      splitState.tableId  = tableId;
+      splitState.total    = saved.total;
+      splitState.splitMode = saved.mode;
+      splitState.flow = {
+        parts: saved.parts.map(p => ({ ...p })),
+        paidCount: saved.paidCount,
+      };
+      return true;
+    }
     function effectiveTipPct() {
       if (splitState.tipMode === 'autre') return splitState.customTipPct;
       return parseFloat(splitState.tipMode) || 0;
     }
     function openSplitModal(tableId) {
       const t = tables[tableId];
+
+      // If a split is already in progress for this table, resume it
+      // directly on the payment-flow screen (skip setup).
+      if (tableSplits.has(tableId)) {
+        loadSplitFlow(tableId);
+        $('#split-table-label').textContent = tableId;
+        $('#split-setup').hidden = true;
+        $('#split-flow').hidden  = false;
+        $('#split-all-done').hidden = true;
+        $('#split-parts-list').style.opacity = '';
+        // Keep ka-tkhdam status (it's already ka-tkhdam from when split was launched)
+        renderSplitFlow();
+        $('#split-modal').classList.add('is-open');
+        lucide.createIcons();
+        return;
+      }
+
       const order = ensureTableOrder(tableId);
       // Aggregate per unique item name (so the pool shows one row per
       // dish with its remaining count, not one card per unit)
@@ -3709,15 +3889,27 @@
       lucide.createIcons();
     }
     function closeSplitModal({ skipRevert = false } = {}) {
+      // If a flow exists and isn't fully paid, persist it so the server
+      // can resume later. Table stays ka-tkhdam during the suspended split.
+      const hasUnfinishedFlow = splitState.flow && splitState.tableId
+        && splitState.flow.paidCount < splitState.flow.parts.length;
+      if (hasUnfinishedFlow) {
+        saveSplitFlow();
+      } else if (!skipRevert && splitState.tableId && !tableSplits.has(splitState.tableId)) {
+        // Setup phase only (no flow launched) — revert ka-tkhdam to bgha-ykhlass
+        const t = tables[splitState.tableId];
+        if (t?.status === 'ka-tkhdam') t.status = 'bgha-ykhlass';
+      }
+
       $('#split-modal').classList.remove('is-open');
       splitPayCallback = null;
       cashAmountOverride = null;
-      if (!skipRevert && splitState.tableId) {
-        const t = tables[splitState.tableId];
-        if (t?.status === 'ka-tkhdam') {
-          t.status = 'bgha-ykhlass';
-          if (currentTab === 'tables') renderTables();
-        }
+
+      // Refresh views so list/detail reflect the new state
+      if (currentTab === 'tables') renderTables();
+      if (currentTab === 'paiement') renderPaiement();
+      if (activeTableId && $('#screen-table').classList.contains('is-active')) {
+        renderTableDetail();
       }
     }
     function renderSplitSetup() {
@@ -4044,11 +4236,20 @@
       p.paid = true;
       p.payMethod = method;
       splitState.flow.paidCount++;
+      // Persist progress so it survives a modal dismissal
+      saveSplitFlow();
       renderSplitFlow();
+      // Live-update the underlying table card if visible
+      if (currentTab === 'tables') renderTables();
+      if (currentTab === 'paiement') renderPaiement();
+
       if (splitState.flow.paidCount >= splitState.flow.parts.length) {
         $('#split-parts-list').style.opacity = '0.45';
         $('#split-all-done').hidden = false;
-        if (splitState.tableId) markTablePaid(splitState.tableId);
+        if (splitState.tableId) {
+          tableSplits.delete(splitState.tableId);
+          markTablePaid(splitState.tableId);
+        }
         lucide.createIcons();
       }
     }
@@ -4092,9 +4293,11 @@
       if (e.target.closest('#split-launch')) { launchSplitFlow(); return; }
       if (e.target.closest('#split-cancel')) { closeSplitModal(); return; }
       if (e.target.closest('#split-done-close')) { closeSplitModal({ skipRevert: true }); return; }
+      // "Plus tard" — close the flow without losing progress
+      if (e.target.closest('#split-flow-close')) { closeSplitModal(); return; }
       const payBtn = e.target.closest('[data-pay-part]');
       if (payBtn) { paySplitPart(parseInt(payBtn.dataset.payPart), payBtn.dataset.payMethod); return; }
-      if (e.target === $('#split-modal') && !$('#split-flow').hidden) return;
+      // Tap on backdrop — always allowed now (progress persists per-table)
       if (e.target === $('#split-modal')) closeSplitModal();
     });
     document.addEventListener('input', (e) => {
