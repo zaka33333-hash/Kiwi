@@ -1011,6 +1011,50 @@
       to { opacity: 0; transform: translateY(8px); }
     }
 
+    /* ---------- New Table Modal — covers picker ---------- */
+    .modal.modal-new-table { width: 380px; }
+    .nt-chips {
+      display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+      margin: 16px 0;
+    }
+    .nt-chip {
+      width: 52px; height: 52px; border-radius: var(--r-lg);
+      background: var(--paper-mute); color: var(--ink);
+      font-size: 18px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 150ms, color 150ms;
+    }
+    .nt-chip:hover { background: #ECEAE5; }
+    .nt-chip.is-active { background: var(--forest); color: #fff; }
+    .nt-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+    /* Validate order button in right panel */
+    .pay-validate { background: var(--gradient); color: #fff; }
+    .pay-validate:hover { filter: brightness(1.06); }
+    .pay-cancel-order { background: var(--paper-mute); color: var(--ink-2); height: 44px; font-size: 13px; font-weight: 500; }
+    .pay-cancel-order:hover { background: #ECEAE5; }
+
+    #rp-pay-normal { display: flex; flex-direction: column; gap: 8px; }
+    #rp-pay-order  { display: flex; flex-direction: column; gap: 8px; }
+
+    /* Order mode banner in main header */
+    .order-mode-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(63,182,122,.15); color: var(--forest);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.03em;
+      margin-left: 10px; vertical-align: middle;
+    }
+    .order-mode-badge svg { width: 12px; height: 12px; }
+
+    /* Order panel empty state */
+    .rp-order-empty {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 28px 20px; gap: 10px; text-align: center; flex: 1;
+    }
+    .rp-order-empty svg { opacity: .35; }
+    .rp-order-empty p { margin: 0; font-size: 13px; color: var(--ink-4); line-height: 1.5; max-width: 200px; }
+
     /* ---------- Split Bill Modal ---------- */
     .modal.modal-split {
       width: 560px;
@@ -1407,18 +1451,32 @@
         </div>
 
         <div class="rp-pay">
-          <button class="pay-btn pay-card" id="pay-card">
-            <i data-lucide="credit-card"></i>
-            <span>Payer par carte</span>
-          </button>
-          <button class="pay-btn pay-cash" id="pay-cash">
-            <i data-lucide="banknote"></i>
-            <span>Flous — espèces</span>
-          </button>
-          <button class="pay-btn pay-split" id="pay-split">
-            <i data-lucide="divide"></i>
-            <span>Partager l'addition</span>
-          </button>
+          <!-- Normal payment buttons (salle read-to-pay + vrap) -->
+          <div id="rp-pay-normal">
+            <button class="pay-btn pay-card" id="pay-card">
+              <i data-lucide="credit-card"></i>
+              <span>Payer par carte</span>
+            </button>
+            <button class="pay-btn pay-cash" id="pay-cash">
+              <i data-lucide="banknote"></i>
+              <span>Flous — espèces</span>
+            </button>
+            <button class="pay-btn pay-split" id="pay-split">
+              <i data-lucide="divide"></i>
+              <span>Partager l'addition</span>
+            </button>
+          </div>
+          <!-- Order-mode buttons (new table being built) -->
+          <div id="rp-pay-order" hidden>
+            <button class="pay-btn pay-validate" id="validate-order">
+              <i data-lucide="check-circle-2"></i>
+              <span>Envoyer en cuisine</span>
+            </button>
+            <button class="pay-btn pay-cancel-order" id="cancel-new-order">
+              <i data-lucide="x"></i>
+              <span>Annuler commande</span>
+            </button>
+          </div>
         </div>
 
         <div class="rp-meta">
@@ -1434,6 +1492,22 @@
         </div>
       </div>
     </aside>
+  </div>
+
+  <!-- ============ NEW TABLE MODAL ============ -->
+  <div class="modal-veil" id="new-table-modal" role="dialog" aria-modal="true" aria-labelledby="nt-title">
+    <div class="modal modal-new-table">
+      <div class="split-badge">Nouvelle mesa</div>
+      <h3 class="modal-title" id="nt-title" style="margin-bottom:4px;">Ouvrir <span id="nt-table-id">T3</span></h3>
+      <p class="modal-subtle" style="margin-bottom:0;">Combien de couverts?</p>
+      <div class="nt-chips" id="nt-covers-chips"></div>
+      <div class="nt-actions">
+        <button class="ma-btn secondary" id="nt-cancel" style="flex:1;">Annuler</button>
+        <button class="ma-btn primary" id="nt-confirm" style="flex:2;">
+          <i data-lucide="door-open"></i> Ouvrir la mesa
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- ============ SPLIT BILL MODAL ============ -->
@@ -1696,6 +1770,10 @@
     ];
     function generateOrder(tableId, t) {
       if (orders[tableId]) return orders[tableId];
+      // Live order built by cashier — convert to {qty,name,total} format
+      if (tableId in tableOrders) {
+        return tableOrders[tableId].map(l => ({ qty: l.qty, name: l.name, total: l.price * l.qty }));
+      }
       const seed = parseInt(tableId.replace('T',''), 10);
       const lines = [];
       // Mains: one per cover (slight variation)
@@ -1772,45 +1850,78 @@
     }
     renderSalle();
 
-    /* ---------- Mode switching (Salle ↔ Vente rapida) ---------- */
+    /* ---------- Mode switching (Salle ↔ Vente rapida ↔ Order) ---------- */
     let mode = 'salle';
     document.body.dataset.mode = mode;
+
+    // Live per-table orders built by the cashier (format: {id,name,price,qty}[])
+    const tableOrders = {};
+    // New-table modal state
+    let newTableId = null;
+    let newTableCovers = 2;
 
     function setMode(newMode) {
       if (newMode === mode) return;
       mode = newMode;
       document.body.dataset.mode = newMode;
 
-      // Toggle pills
-      $$('.mode-pill').forEach(p => p.setAttribute('aria-pressed', p.dataset.mode === newMode ? 'true' : 'false'));
+      // Pills: only salle/vrap get pressed; order mode = neither
+      $$('.mode-pill').forEach(p =>
+        p.setAttribute('aria-pressed',
+          (newMode === 'salle' || newMode === 'vrap') && p.dataset.mode === newMode ? 'true' : 'false'));
 
       // Toggle main headers + views
+      // 'order' mode reuses the vrap menu sections
       $$('[data-mode-section]').forEach(el => {
-        const match = el.dataset.modeSection === newMode;
+        const sec = el.dataset.modeSection;
+        const match = sec === newMode || (newMode === 'order' && sec === 'vrap');
         el.hidden = !match;
         el.classList.toggle('is-active', match);
       });
 
+      // Update vrap header text depending on context
+      const vrapTitle = $('.main-head[data-mode-section="vrap"] .main-title');
+      if (vrapTitle) {
+        if (newMode === 'order' && selectedId) {
+          const t = tables[selectedId];
+          vrapTitle.innerHTML = `Commande <strong style="color:var(--forest)">${selectedId}</strong>
+            <span class="order-mode-badge"><i data-lucide="pencil-line"></i> en cours</span>
+            <em>— ${t.covers} couvert${t.covers > 1 ? 's' : ''}</em>`;
+        } else {
+          vrapTitle.innerHTML = 'Vente rapida<em>— commande à emporter</em>';
+        }
+      }
+
       // Update mode-specific labels
       const cancelLabel = $('[data-cancel-label]');
       if (cancelLabel) {
-        cancelLabel.textContent = newMode === 'vrap' ? "Vider l'commande" : 'Annuler mesa';
+        cancelLabel.textContent = newMode === 'vrap' ? "Vider l'commande"
+          : newMode === 'order' ? 'Annuler commande' : 'Annuler mesa';
       }
 
-      // Reset right panel for the new mode
+      // Reset right panel
       if (newMode === 'salle') {
-        // If there's a selected table still open, render it; otherwise empty state
+        showPayButtons(false);
         if (selectedId) renderRightPanel(selectedId);
         else showEmpty();
+      } else if (newMode === 'order') {
+        renderOrderPanel(selectedId);
       } else {
-        // vrap: show cart (or its empty state)
+        showPayButtons(false);
         renderCart();
       }
       lucide.createIcons();
     }
 
     $$('.mode-pill').forEach(btn => {
-      btn.addEventListener('click', () => setMode(btn.dataset.mode));
+      btn.addEventListener('click', () => {
+        // Prevent accidentally leaving order mode via pills
+        if (mode === 'order') {
+          toast('Valide ou annule la commande d\'abord');
+          return;
+        }
+        setMode(btn.dataset.mode);
+      });
     });
 
     /* ---------- Toast ---------- */
@@ -1861,6 +1972,7 @@
       $('#cash-amount').textContent = fmtMADcents(total);
       $('#cash-received').value = total;
       updateRendu();
+      showPayButtons(false);
     }
 
     function openTable(id) {
@@ -2024,8 +2136,11 @@
       const items = activeCat === 'all'
         ? menuItems
         : menuItems.filter(m => m.cat === activeCat);
+      // In order mode, qty comes from the table's live order; otherwise from cart
+      const activeSource = (mode === 'order' && selectedId)
+        ? (tableOrders[selectedId] || []) : cart;
       $('#menu-grid').innerHTML = items.map(m => {
-        const inCart = cart.find(c => c.id === m.id);
+        const inCart = activeSource.find(c => c.id === m.id);
         const qty = inCart ? inCart.qty : 0;
         const control = qty > 0
           ? `
@@ -2127,6 +2242,7 @@
       $('#cash-amount').textContent = fmtMADcents(total);
       $('#cash-received').value = total;
       updateRendu();
+      showPayButtons(false);
     }
 
     /* Event delegation: tables, menu items, cart qty, cat pills */
@@ -2137,7 +2253,7 @@
         const id = tableEl.dataset.table;
         const t = tables[id];
         if (!t) return;
-        if (t.status === 'khawya')  { toast('Mesa khawya'); return; }
+        if (t.status === 'khawya')  { openNewTableModal(id); return; }
         if (t.status === 'khlass')  { return; }
         openTable(id);
         return;
@@ -2158,25 +2274,39 @@
         const card = stepBtn.closest('.menu-item');
         if (card) {
           const action = stepBtn.dataset.step;
-          changeCartQty(card.dataset.menuId, action === 'inc' ? 1 : -1);
+          if (mode === 'order' && selectedId) {
+            changeTableOrderQty(selectedId, card.dataset.menuId, action === 'inc' ? 1 : -1);
+          } else {
+            changeCartQty(card.dataset.menuId, action === 'inc' ? 1 : -1);
+          }
         }
         return;
       }
 
-      // Menu card body → add one to cart
+      // Menu card body → add one (to table order or cart depending on mode)
       const menuCard = e.target.closest('.menu-item');
       if (menuCard) {
-        addToCart(menuCard.dataset.menuId);
+        if (mode === 'order' && selectedId) {
+          addToTableOrder(selectedId, menuCard.dataset.menuId);
+        } else {
+          addToCart(menuCard.dataset.menuId);
+        }
         return;
       }
 
-      // Cart qty +/- buttons
+      // Cart qty +/- buttons (vente rapida)
       const qtyBtn = e.target.closest('.qty-btn');
       if (qtyBtn) {
         const row = qtyBtn.closest('[data-cart-id]');
         if (row) {
           const action = qtyBtn.dataset.cartAction;
           changeCartQty(row.dataset.cartId, action === 'inc' ? 1 : -1);
+        }
+        // Order panel qty +/- buttons
+        const oRow = qtyBtn.closest('[data-order-id]');
+        if (oRow && mode === 'order' && selectedId) {
+          const action = qtyBtn.dataset.cartAction;
+          changeTableOrderQty(selectedId, oRow.dataset.orderId, action === 'inc' ? 1 : -1);
         }
         return;
       }
@@ -2442,6 +2572,208 @@
         refreshTableNode('T7');
       }
     }, 5000);
+
+    /* ===========================================================
+       New Table — open empty table, take order
+       =========================================================== */
+
+    /* ---- helpers ---- */
+    function showPayButtons(forOrder) {
+      const normal = $('#rp-pay-normal');
+      const order  = $('#rp-pay-order');
+      normal.hidden = forOrder;
+      normal.style.display = forOrder ? 'none' : '';
+      order.hidden  = !forOrder;
+      order.style.display = forOrder ? 'flex' : 'none';
+    }
+
+    /* ---- covers modal ---- */
+    function openNewTableModal(tableId) {
+      newTableId = tableId;
+      newTableCovers = Math.max(2, tables[tableId]?.covers || 2);
+      $('#nt-table-id').textContent = tableId;
+      renderNewTableChips();
+      $('#new-table-modal').classList.add('is-open');
+      lucide.createIcons();
+    }
+
+    function renderNewTableChips() {
+      $('#nt-covers-chips').innerHTML = [1,2,3,4,5,6,7,8].map(n =>
+        `<button class="nt-chip ${n === newTableCovers ? 'is-active' : ''}" data-nt-covers="${n}">${n}</button>`
+      ).join('');
+    }
+
+    function confirmNewTable() {
+      if (!newTableId) return;
+      $('#new-table-modal').classList.remove('is-open');
+      const t = tables[newTableId];
+      t.covers  = newTableCovers;
+      t.size    = newTableCovers >= 5 ? 6 : (newTableCovers <= 2 ? 2 : 4);
+      t.status  = 'ka-yaklo';
+      t.elapsed = 0;
+      tableOrders[newTableId] = [];
+      refreshTableNode(newTableId);
+      selectedId = newTableId;
+      newTableId = null;
+      setMode('order');
+    }
+
+    document.getElementById('new-table-modal').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-nt-covers]');
+      if (chip) { newTableCovers = parseInt(chip.dataset.ntCovers); renderNewTableChips(); return; }
+      if (e.target.closest('#nt-confirm')) { confirmNewTable(); return; }
+      if (e.target.closest('#nt-cancel') || e.target === $('#new-table-modal'))
+        { $('#new-table-modal').classList.remove('is-open'); return; }
+    });
+
+    /* ---- table order management ---- */
+    function addToTableOrder(tableId, itemId) {
+      if (!tableOrders[tableId]) tableOrders[tableId] = [];
+      const item = menuItems.find(m => m.id === itemId);
+      if (!item) return;
+      const existing = tableOrders[tableId].find(l => l.id === itemId);
+      if (existing) existing.qty++;
+      else tableOrders[tableId].push({ id: itemId, name: item.name, price: item.price, qty: 1 });
+      // Pop animation on card
+      const card = document.querySelector(`.menu-item[data-menu-id="${itemId}"]`);
+      if (card) { card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop'); }
+      renderMenu();
+      renderOrderPanel(tableId);
+    }
+
+    function changeTableOrderQty(tableId, itemId, delta) {
+      if (!tableOrders[tableId]) return;
+      const line = tableOrders[tableId].find(l => l.id === itemId);
+      if (!line) return;
+      line.qty += delta;
+      if (line.qty <= 0) tableOrders[tableId] = tableOrders[tableId].filter(l => l.id !== itemId);
+      renderMenu();
+      renderOrderPanel(tableId);
+    }
+
+    /* ---- order panel (right panel while building an order) ---- */
+    function renderOrderPanel(tableId) {
+      if (!tableId) return;
+      const t = tables[tableId];
+      const order = tableOrders[tableId] || [];
+      const total = order.reduce((s, l) => s + l.price * l.qty, 0);
+      const itemCount = order.reduce((s, l) => s + l.qty, 0);
+
+      $('#rp-empty').hidden = true;
+      $('#rp-empty').style.display = 'none';
+      const active = $('#rp-active');
+      active.hidden = false;
+      active.style.display = 'flex';
+
+      $('#rp-table').textContent = `${tableId} · ${t.covers} couvert${t.covers > 1 ? 's' : ''}`;
+      const sub = $('#rp-substatus');
+      sub.dataset.flag = 'ka-yaklo';
+      sub.textContent = order.length === 0
+        ? 'Nouvelle mesa — en attente de commande'
+        : `${itemCount} article${itemCount > 1 ? 's' : ''} · ${fmtMAD(total)}`;
+
+      if (order.length === 0) {
+        $('#rp-items').innerHTML = `
+          <div class="rp-order-empty">
+            <i data-lucide="shopping-cart" style="width:34px;height:34px;color:#9A9A9A;display:block;margin:0 auto 10px;"></i>
+            <p>Sélectionnez des articles dans le menu à gauche</p>
+          </div>`;
+      } else {
+        $('#rp-items').innerHTML = order.map(l => `
+          <div class="rp-item rp-item--cart" data-order-id="${l.id}">
+            <div class="qty-control">
+              <button class="qty-btn" data-cart-action="dec" aria-label="Moins">−</button>
+              <span class="qty-num mono">${l.qty}</span>
+              <button class="qty-btn" data-cart-action="inc" aria-label="Plus">+</button>
+            </div>
+            <span class="rp-item-name">${l.name}</span>
+            <span class="rp-item-price mono">${fmtMAD(l.price * l.qty)}</span>
+          </div>`).join('');
+      }
+
+      $('#rp-subtotal').textContent = fmtMAD(total);
+      $('#rp-total').textContent = fmtMAD(total);
+      showPayButtons(true);
+      lucide.createIcons();
+    }
+
+    /* ---- validate (send to kitchen) ---- */
+    function validateOrder(tableId) {
+      if (!tableId) return;
+      const t = tables[tableId];
+      t.status  = 'ka-yaklo';
+      t.elapsed = 0;
+      refreshTableNode(tableId);
+
+      // Restore vrap header text
+      const vrapTitle = $('.main-head[data-mode-section="vrap"] .main-title');
+      if (vrapTitle) vrapTitle.innerHTML = 'Vente rapida<em>— commande à emporter</em>';
+
+      // Switch back to salle mode directly (bypass guard)
+      mode = 'salle';
+      document.body.dataset.mode = 'salle';
+      $$('.mode-pill').forEach(p =>
+        p.setAttribute('aria-pressed', p.dataset.mode === 'salle' ? 'true' : 'false'));
+      $$('[data-mode-section]').forEach(el => {
+        const m = el.dataset.modeSection;
+        el.hidden = m !== 'salle';
+        el.classList.toggle('is-active', m === 'salle');
+      });
+      const cancelLabel = $('[data-cancel-label]');
+      if (cancelLabel) cancelLabel.textContent = 'Annuler mesa';
+
+      // Show right panel with the table (pay buttons ready if order > 0)
+      selectedId = tableId;
+      $$('.tbl-cell').forEach(c => {
+        const inner = c.querySelector('.tbl');
+        if (inner) inner.classList.toggle('is-selected', c.dataset.table === tableId);
+      });
+      showPayButtons(false);
+      renderRightPanel(tableId);
+      $('#rp-empty').hidden = true;
+      $('#rp-empty').style.display = 'none';
+      $('#rp-active').hidden = false;
+      $('#rp-active').style.display = 'flex';
+      lucide.createIcons();
+
+      const n = (tableOrders[tableId] || []).reduce((s, l) => s + l.qty, 0);
+      toast(`Mesa ${tableId} ouverte · ${n > 0 ? n + ' article' + (n > 1 ? 's' : '') + ' en cuisine' : 'commande vide'}`);
+    }
+
+    /* ---- cancel new order ---- */
+    function cancelNewOrder() {
+      if (!selectedId) return;
+      delete tableOrders[selectedId];
+      const t = tables[selectedId];
+      t.status  = 'khawya';
+      t.elapsed = 0;
+      // Restore original covers (2 by default if we changed it)
+      refreshTableNode(selectedId);
+      selectedId = null;
+      // Restore vrap header
+      const vrapTitle = $('.main-head[data-mode-section="vrap"] .main-title');
+      if (vrapTitle) vrapTitle.innerHTML = 'Vente rapida<em>— commande à emporter</em>';
+      mode = 'salle';
+      document.body.dataset.mode = 'salle';
+      $$('.mode-pill').forEach(p =>
+        p.setAttribute('aria-pressed', p.dataset.mode === 'salle' ? 'true' : 'false'));
+      $$('[data-mode-section]').forEach(el => {
+        const m = el.dataset.modeSection;
+        el.hidden = m !== 'salle';
+        el.classList.toggle('is-active', m === 'salle');
+      });
+      const cancelLabel = $('[data-cancel-label]');
+      if (cancelLabel) cancelLabel.textContent = 'Annuler mesa';
+      showPayButtons(false);
+      showEmpty();
+      lucide.createIcons();
+      toast('Commande annulée · mesa remise à zéro');
+    }
+
+    document.getElementById('validate-order').addEventListener('click', () => {
+      if (mode === 'order' && selectedId) validateOrder(selectedId);
+    });
+    document.getElementById('cancel-new-order').addEventListener('click', cancelNewOrder);
 
     /* ===========================================================
        Split Bill
