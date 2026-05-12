@@ -754,9 +754,172 @@
   .status-bar { display: flex; justify-content: space-between; padding: 18px 32px; color: var(--n-500); font-size: 12px; background: var(--n-50); border-top: 1px solid var(--n-200); flex-wrap: wrap; gap: 16px; }
   .status-bar .pip { width: 6px; height: 6px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 6px; }
   .status-bar a { color: var(--atlas); }
+
+  /* ─────────────── LOCK SCREEN ─────────────── */
+  /* Inline greeting is hidden — the one-time greeting flash overlay handles it. */
+  .page-head h1.greeting { display: none; }
+
+  .kiwi-lock {
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(80% 60% at 30% 20%, rgba(125,242,176,0.10), transparent 60%),
+      radial-gradient(70% 55% at 75% 85%, rgba(11,110,79,0.20), transparent 60%),
+      linear-gradient(135deg, #0A1612, #0A0F0D);
+    color: var(--paper);
+    transition: opacity 540ms cubic-bezier(0.32, 0.72, 0, 1), transform 540ms cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: opacity, transform;
+  }
+  .kiwi-lock.is-unlocking { opacity: 0; transform: scale(1.03); pointer-events: none; }
+  .kiwi-lock-inner {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 48px 40px;
+    max-width: 460px; width: 100%;
+    text-align: center;
+  }
+  .kiwi-lock-brand {
+    display: inline-flex; align-items: baseline; gap: 4px;
+    font-size: 38px; font-weight: 700; color: var(--paper);
+    letter-spacing: -0.06em;
+    margin-bottom: 32px;
+  }
+  .kiwi-lock-brand i {
+    width: 8px; height: 8px; background: var(--mint); border-radius: 50%;
+    animation: kw-lock-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes kw-lock-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(125,242,176, 0.55); }
+    50%      { box-shadow: 0 0 0 8px rgba(125,242,176, 0); }
+  }
+  .kiwi-lock-title {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: 30px; color: var(--paper);
+    letter-spacing: -0.012em;
+    margin-bottom: 6px;
+  }
+  .kiwi-lock-sub {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 40px;
+  }
+  .kiwi-lock-pin {
+    display: flex; gap: 12px; margin-bottom: 22px;
+  }
+  .kiwi-pin-cell {
+    width: 58px; height: 72px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid rgba(125,242,176,0.18);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 28px; font-weight: 600;
+    color: var(--paper);
+    transition: background 240ms cubic-bezier(0.32, 0.72, 0, 1),
+                border-color 240ms cubic-bezier(0.32, 0.72, 0, 1),
+                box-shadow 240ms cubic-bezier(0.32, 0.72, 0, 1),
+                transform 240ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .kiwi-pin-cell.is-filled {
+    background: rgba(125,242,176,0.12);
+    border-color: var(--mint);
+    box-shadow: 0 0 0 4px rgba(125,242,176, 0.14);
+  }
+  .kiwi-pin-cell.is-success { animation: kw-pin-success 340ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+  @keyframes kw-pin-success {
+    0%   { transform: scale(1);   background: rgba(125,242,176,0.12); border-color: var(--mint); }
+    45%  { transform: scale(1.18); background: var(--mint); color: var(--riad); border-color: var(--mint); box-shadow: 0 0 0 10px rgba(125,242,176, 0.30); }
+    100% { transform: scale(1.02); background: var(--mint); color: var(--riad); border-color: var(--mint); box-shadow: 0 0 0 0 rgba(125,242,176, 0); }
+  }
+  .kiwi-lock-help {
+    font-size: 12.5px; color: #c6ead4;
+    line-height: 1.5;
+  }
+  .kiwi-lock-help b { color: var(--mint); font-family: var(--mono); font-weight: 400; }
+  /* Hidden input — captures keystrokes */
+  .kiwi-pin-input {
+    position: absolute; opacity: 0; left: -9999px;
+    height: 0; width: 0; padding: 0; margin: 0; border: 0;
+  }
+
+  /* ─────────────── GREETING FLASH ─────────────── */
+  .kiwi-greet {
+    position: fixed; inset: 0; z-index: 99998;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #F8F7F3 0%, #F1EFE8 55%, #ECEAE3 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 720ms cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: opacity;
+  }
+  .kiwi-greet::before {
+    /* Subtle ambient blobs behind the text */
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(60% 50% at 15% 30%, rgba(11,110,79,0.10), transparent 60%),
+      radial-gradient(50% 45% at 85% 80%, rgba(125,242,176,0.10), transparent 60%);
+    pointer-events: none;
+  }
+  .kiwi-greet.is-visible { opacity: 1; }
+  .kiwi-greet-inner {
+    position: relative; z-index: 1;
+    padding: 0 32px;
+    text-align: center;
+    transform: translateY(28px) scale(0.97);
+    opacity: 0;
+    transition: transform 800ms cubic-bezier(0.32, 0.72, 0, 1), opacity 800ms ease;
+  }
+  .kiwi-greet.is-visible .kiwi-greet-inner {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  .kiwi-greet h1 {
+    margin: 0; line-height: 1.12;
+    font-size: 64px; font-weight: 600; letter-spacing: -0.034em;
+    color: var(--ink);
+    text-shadow: 0 8px 32px rgba(11,110,79,0.10), 0 2px 6px rgba(10,15,13,0.05);
+  }
+  .kiwi-greet h1 em {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    color: var(--atlas);
+  }
+  .kiwi-greet-sub {
+    font-family: var(--mono); font-size: 11.5px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--n-500);
+    margin-top: 22px;
+  }
+  @media (max-width: 720px) {
+    .kiwi-greet h1 { font-size: 40px; }
+  }
 </style>
 </head>
 <body>
+
+<!-- PIN lock screen (full-viewport, shown until 4-digit unlock) -->
+<div class="kiwi-lock" data-kiwi-lock>
+  <div class="kiwi-lock-inner">
+    <div class="kiwi-lock-brand">kiwi<i></i></div>
+    <div class="kiwi-lock-title">Bienvenue, Rachid</div>
+    <div class="kiwi-lock-sub">Café Atlas · Maarif</div>
+    <div class="kiwi-lock-pin" data-kiwi-pin>
+      <div class="kiwi-pin-cell" data-cell="0"></div>
+      <div class="kiwi-pin-cell" data-cell="1"></div>
+      <div class="kiwi-pin-cell" data-cell="2"></div>
+      <div class="kiwi-pin-cell" data-cell="3"></div>
+    </div>
+    <input type="tel" inputmode="numeric" maxlength="4" class="kiwi-pin-input" data-kiwi-pin-input autocomplete="off" autofocus />
+    <div class="kiwi-lock-help">Saisis ton <b>code à 4 chiffres</b> pour ouvrir le tableau de bord</div>
+  </div>
+</div>
+
+<!-- One-time greeting flash, revealed once after PIN unlock then dismissed -->
+<div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
+  <div class="kiwi-greet-inner">
+    <h1><span>Bonjour Rachid,</span> <em>bonne journée&nbsp;?</em></h1>
+    <div class="kiwi-greet-sub" data-kiwi-greet-sub>Café Atlas · service ouvert</div>
+  </div>
+</div>
 
 <!-- Demo banner -->
 <div class="demo-bar">
@@ -1347,5 +1510,93 @@
 <script src="assets/venues.js" defer></script>
 <script src="assets/demoClock.js" defer></script>
 <script src="assets/dateRange.js" defer></script>
+
+<!-- PIN lock + greeting flash controller -->
+<script>
+(function () {
+  'use strict';
+  const lock     = document.querySelector('[data-kiwi-lock]');
+  const greet    = document.querySelector('[data-kiwi-greet]');
+  const pinInput = document.querySelector('[data-kiwi-pin-input]');
+  const cells    = document.querySelectorAll('[data-kiwi-pin] .kiwi-pin-cell');
+  if (!lock || !greet || !pinInput || !cells.length) return;
+
+  /* Already unlocked in this tab? Skip both overlays. */
+  const UNLOCK_KEY = 'kiwi-unlocked';
+  try {
+    if (sessionStorage.getItem(UNLOCK_KEY) === '1') {
+      lock.remove();
+      greet.remove();
+      return;
+    }
+  } catch (_) {}
+
+  /* Prevent the page from scrolling while the lock is up. */
+  document.documentElement.style.overflow = 'hidden';
+
+  /* Focus the hidden input + keep it focused if user clicks elsewhere
+   * inside the lock. */
+  const refocus = () => pinInput.focus();
+  setTimeout(refocus, 180);
+  lock.addEventListener('click', refocus);
+  document.addEventListener('keydown', (e) => {
+    /* Keep keystrokes flowing into the input even if it loses focus. */
+    if (!lock.isConnected) return;
+    if (document.activeElement !== pinInput) pinInput.focus();
+  });
+
+  function paintCells() {
+    const val = pinInput.value.replace(/\D/g, '').slice(0, 4);
+    if (val !== pinInput.value) pinInput.value = val;
+    cells.forEach((c, i) => {
+      const filled = i < val.length;
+      c.classList.toggle('is-filled', filled);
+      c.textContent = filled ? '•' : '';
+    });
+    if (val.length === 4) {
+      /* Any 4-digit PIN unlocks for the demo. Slight delay so the user
+       * sees the 4th cell fill before the celebration. */
+      setTimeout(unlock, 140);
+    }
+  }
+
+  function unlock() {
+    try { sessionStorage.setItem(UNLOCK_KEY, '1'); } catch (_) {}
+
+    /* Stagger the success pop on each cell (left → right). */
+    cells.forEach((c, i) => {
+      setTimeout(() => c.classList.add('is-success'), i * 70);
+    });
+
+    /* After the cells have popped, fade out the lock and reveal the
+     * greeting flash on top of the dashboard underneath. */
+    setTimeout(() => {
+      lock.classList.add('is-unlocking');
+      greet.classList.add('is-visible');
+      greet.setAttribute('aria-hidden', 'false');
+    }, 460);
+
+    /* Once the lock has faded, remove it from the DOM. */
+    setTimeout(() => {
+      if (lock.parentNode) lock.remove();
+      document.documentElement.style.overflow = '';
+    }, 1100);
+
+    /* Hold the greeting for ~2.6 s of readable time, then fade out. */
+    setTimeout(() => {
+      greet.classList.remove('is-visible');
+      greet.setAttribute('aria-hidden', 'true');
+    }, 3500);
+
+    /* Once the greeting has faded out, remove it. */
+    setTimeout(() => {
+      if (greet.parentNode) greet.remove();
+    }, 4400);
+  }
+
+  pinInput.addEventListener('input', paintCells);
+})();
+</script>
+
 </body>
 </html>
