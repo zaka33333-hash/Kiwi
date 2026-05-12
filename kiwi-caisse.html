@@ -1242,6 +1242,469 @@
     }
     .split-close-btn:hover { background: #ECEAE5; }
 
+    /* ===========================================================
+       PIN LOGIN SCREEN
+       =========================================================== */
+    .pin-screen {
+      position: fixed; inset: 0;
+      background: linear-gradient(180deg, #0A0F0D 0%, #102018 60%, #1F5D3C 100%);
+      z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+      padding: 32px;
+      color: #fff;
+      animation: pin-fade-in 400ms ease-out;
+    }
+    .pin-screen.is-leaving {
+      animation: pin-fade-out 480ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+    @keyframes pin-fade-in {
+      from { opacity: 0; transform: scale(1.02); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pin-fade-out {
+      0%   { opacity: 1; transform: scale(1); filter: blur(0); }
+      100% { opacity: 0; transform: scale(0.98); filter: blur(6px); }
+    }
+    .pin-brand {
+      font-size: 32px; font-weight: 700; letter-spacing: -0.05em;
+      display: inline-flex; align-items: baseline; gap: 5px;
+      color: var(--paper-cream);
+      margin-bottom: 36px;
+    }
+    .pin-brand i {
+      width: 8px; height: 8px; background: var(--mint); border-radius: 50%;
+      display: inline-block;
+    }
+    .pin-greet {
+      font-family: var(--serif); font-style: italic;
+      font-size: 22px; color: rgba(255,255,255,.78);
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .pin-greet b { font-style: normal; font-family: var(--sans); font-weight: 600; color: #fff; }
+    .pin-prompt {
+      font-size: 13px; color: rgba(255,255,255,.55);
+      letter-spacing: 0.04em;
+      margin-bottom: 26px;
+    }
+    .pin-dots {
+      display: flex; gap: 16px; margin-bottom: 32px;
+    }
+    .pin-dot {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.35);
+      background: transparent;
+      transition: background 180ms, transform 200ms, border-color 180ms;
+    }
+    .pin-dot.is-filled {
+      background: var(--mint);
+      border-color: var(--mint);
+      transform: scale(1.08);
+    }
+    .pin-screen.is-error .pin-dots { animation: pin-shake 380ms cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+    @keyframes pin-shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-7px); }
+      40%, 80% { transform: translateX(7px); }
+    }
+    .pin-pad {
+      display: grid; grid-template-columns: repeat(3, 76px);
+      gap: 14px;
+    }
+    .pin-key {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: rgba(255,255,255,.07);
+      color: #fff;
+      font-size: 28px; font-weight: 500;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 140ms, transform 100ms;
+      font-feature-settings: "tnum" 1;
+    }
+    .pin-key:hover { background: rgba(255,255,255,.13); }
+    .pin-key:active { transform: scale(0.94); background: rgba(125,242,176,.22); }
+    .pin-key.is-action {
+      background: transparent;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      color: rgba(255,255,255,.55);
+    }
+    .pin-key.is-action svg { width: 22px; height: 22px; }
+    .pin-key.is-action:hover { color: #fff; background: rgba(255,255,255,.05); }
+    .pin-foot {
+      margin-top: 28px;
+      font-size: 11px; color: rgba(255,255,255,.4);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    /* ===========================================================
+       WELCOME BANNER (gamification)
+       =========================================================== */
+    .welcome-banner {
+      position: fixed; left: 50%; top: 56px;
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: saturate(140%) blur(8px);
+      border: 1px solid var(--line-soft);
+      border-radius: 999px;
+      padding: 10px 18px 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: var(--shadow-2);
+      z-index: 80;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 320ms, transform 480ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .welcome-banner.is-visible {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+    .welcome-banner-icon {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--gradient);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff;
+    }
+    .welcome-banner-icon svg { width: 15px; height: 15px; }
+    .welcome-banner-text {
+      font-size: 13.5px; color: var(--ink);
+    }
+    .welcome-banner-text em {
+      font-family: var(--serif); font-style: italic; color: var(--ink-3);
+    }
+
+    /* Entry stagger animations (gamification) */
+    @keyframes rise-fade {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    body.is-unlocked .sidebar > * { animation: rise-fade 520ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+    body.is-unlocked .sidebar > *:nth-child(1) { animation-delay: 40ms; }
+    body.is-unlocked .sidebar > *:nth-child(2) { animation-delay: 100ms; }
+    body.is-unlocked .sidebar > *:nth-child(3) { animation-delay: 160ms; }
+    body.is-unlocked .sidebar > *:nth-child(4) { animation-delay: 220ms; }
+    body.is-unlocked .sidebar > *:nth-child(5) { animation-delay: 280ms; }
+    body.is-unlocked .main-head { animation: rise-fade 520ms 180ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+    body.is-unlocked .view-salle .zone {
+      animation: rise-fade 600ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    body.is-unlocked .view-salle .zone:nth-of-type(1) { animation-delay: 260ms; }
+    body.is-unlocked .view-salle .zone:nth-of-type(2) { animation-delay: 340ms; }
+    body.is-unlocked .view-salle .zone:nth-of-type(3) { animation-delay: 420ms; }
+
+    /* ===========================================================
+       SERVER AVATARS ON TABLE CARDS
+       =========================================================== */
+    .tbl-server {
+      position: absolute;
+      top: -7px; right: -7px;
+      width: 20px; height: 20px; border-radius: 50%;
+      font-size: 9.5px; font-weight: 700; color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.18);
+      letter-spacing: 0.02em;
+      z-index: 2;
+    }
+    .tbl-server.is-pause { filter: grayscale(.6) opacity(.55); }
+
+    /* ===========================================================
+       SIDEBAR — TEAM BUTTON
+       =========================================================== */
+    .team-trigger {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 12px;
+      background: rgba(125,242,176,.10);
+      color: var(--mint);
+      border-radius: var(--r-lg);
+      font-size: 13px; font-weight: 600;
+      transition: background 150ms, color 150ms;
+      text-align: left;
+    }
+    .team-trigger:hover { background: rgba(125,242,176,.18); }
+    .team-trigger svg { width: 16px; height: 16px; flex: 0 0 16px; }
+    .team-trigger .count {
+      margin-left: auto;
+      background: var(--mint); color: var(--ink-bg);
+      font-size: 11px; font-weight: 800;
+      padding: 2px 8px; border-radius: 999px;
+      font-feature-settings: "tnum" 1;
+    }
+
+    /* ===========================================================
+       TEAM DRAWER (right slide-in)
+       =========================================================== */
+    .drawer-veil {
+      position: fixed; inset: 0;
+      background: rgba(10, 15, 13, 0.42);
+      display: none;
+      z-index: 110;
+      animation: fade-in 220ms ease-out;
+    }
+    .drawer-veil.is-open { display: block; }
+    .drawer {
+      position: fixed; top: 0; right: 0; height: 100%;
+      width: 420px; max-width: calc(100vw - 60px);
+      background: #fff;
+      box-shadow: -8px 0 32px rgba(10,15,13,.18);
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 340ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .drawer-veil.is-open .drawer { transform: translateX(0); }
+    .drawer-head {
+      padding: 22px 24px 14px;
+      display: flex; align-items: center;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .drawer-title {
+      font-size: 18px; font-weight: 700; color: var(--ink);
+      flex: 1;
+    }
+    .drawer-title em {
+      font-family: var(--serif); font-style: italic;
+      color: var(--ink-3); font-weight: 400; margin-left: 6px; font-size: 14px;
+    }
+    .drawer-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--ink-3); transition: background 150ms;
+    }
+    .drawer-close:hover { background: var(--paper-mute); color: var(--ink); }
+    .drawer-close svg { width: 16px; height: 16px; }
+    .drawer-body {
+      flex: 1; overflow-y: auto;
+      padding: 14px 24px 24px;
+    }
+    .drawer-body::-webkit-scrollbar { width: 4px; }
+    .drawer-body::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+    .team-section-label {
+      font-size: 10.5px; color: var(--ink-4);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 12px 0 10px; font-weight: 500;
+    }
+    .team-section-label:first-child { margin-top: 0; }
+
+    .team-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--r-lg);
+      margin-bottom: 8px;
+      transition: border-color 150ms, background 150ms;
+    }
+    .team-card.is-pause { background: var(--paper-soft); }
+    .team-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 13px;
+      flex: 0 0 40px;
+      letter-spacing: 0.02em;
+      position: relative;
+    }
+    .team-avatar .badge-dot {
+      position: absolute; bottom: -1px; right: -1px;
+      width: 12px; height: 12px; border-radius: 50%;
+      border: 2px solid #fff;
+    }
+    .team-avatar .badge-dot.on  { background: var(--emerald); }
+    .team-avatar .badge-dot.off { background: var(--ink-4); }
+    .team-avatar .badge-dot.pause { background: var(--danger-mute); }
+    .team-info { flex: 1; min-width: 0; }
+    .team-name { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+    .team-meta {
+      font-size: 11.5px; color: var(--ink-3); margin-top: 2px;
+      font-feature-settings: "tnum" 1;
+    }
+    .team-meta .pause-tick { color: var(--danger-mute); font-weight: 600; }
+    .team-actions {
+      display: flex; gap: 6px; flex: 0 0 auto;
+    }
+    .team-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--paper-mute); color: var(--ink-2);
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 150ms, color 150ms;
+    }
+    .team-btn:hover { background: #ECEAE5; color: var(--ink); }
+    .team-btn svg { width: 14px; height: 14px; }
+    .team-btn.danger { background: rgba(184,82,69,.10); color: var(--danger-mute); }
+    .team-btn.danger:hover { background: rgba(184,82,69,.18); }
+    .team-btn.primary { background: var(--gradient); color: #fff; }
+    .team-btn.primary:hover { filter: brightness(1.08); }
+
+    .team-broadcast {
+      display: flex; gap: 8px; margin-top: 14px;
+    }
+    .team-broadcast button {
+      flex: 1;
+      height: 44px; border-radius: var(--r-lg);
+      background: var(--ink); color: #fff;
+      font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: filter 150ms, transform 150ms;
+    }
+    .team-broadcast button:hover { transform: translateY(-1px); filter: brightness(1.1); }
+    .team-broadcast button svg { width: 15px; height: 15px; }
+
+    /* ===========================================================
+       MESSAGE COMPOSER MODAL
+       =========================================================== */
+    .modal.modal-msg { width: 440px; }
+    .msg-target {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: var(--paper-soft);
+      border-radius: var(--r-lg);
+      margin-bottom: 12px;
+      font-size: 13px; color: var(--ink-2);
+    }
+    .msg-target .team-avatar { width: 28px; height: 28px; font-size: 11px; flex: 0 0 28px; }
+    .msg-target .team-avatar .badge-dot { display: none; }
+    .msg-input {
+      width: 100%;
+      min-height: 90px;
+      padding: 12px 14px;
+      font-size: 14px; font-family: var(--sans);
+      border: 1px solid var(--line); border-radius: var(--r-lg);
+      background: #fff;
+      resize: vertical;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .msg-input:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 3px rgba(31,93,60,.1); }
+    .msg-quick {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin: 10px 0 14px;
+    }
+    .msg-quick button {
+      padding: 6px 12px; border-radius: 999px;
+      background: var(--paper-mute);
+      color: var(--ink-2); font-size: 12px; font-weight: 500;
+      transition: background 150ms;
+    }
+    .msg-quick button:hover { background: #ECEAE5; }
+
+    /* ===========================================================
+       REASSIGN SERVER MODAL
+       =========================================================== */
+    .modal.modal-reassign { width: 420px; }
+    .reassign-list {
+      display: flex; flex-direction: column; gap: 6px;
+      margin: 10px 0 4px;
+    }
+    .reassign-opt {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px;
+      border: 1.5px solid var(--line); border-radius: var(--r-lg);
+      cursor: pointer;
+      transition: border-color 150ms, background 150ms;
+      background: #fff;
+      text-align: left;
+      width: 100%;
+    }
+    .reassign-opt:hover { border-color: var(--forest); }
+    .reassign-opt.is-current { background: var(--mint-tint); border-color: var(--forest); }
+    .reassign-opt .team-avatar { width: 32px; height: 32px; font-size: 12px; flex: 0 0 32px; }
+    .reassign-opt .team-avatar .badge-dot { display: none; }
+    .reassign-opt-info { flex: 1; min-width: 0; }
+    .reassign-opt-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .reassign-opt-meta { font-size: 11.5px; color: var(--ink-4); margin-top: 1px; }
+    .reassign-opt-badge {
+      padding: 3px 9px; border-radius: 999px;
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .reassign-opt-badge.on  { background: rgba(63,182,122,.14); color: var(--forest); }
+    .reassign-opt-badge.pause { background: rgba(184,82,69,.12); color: var(--danger-mute); }
+    .reassign-opt-badge.off { background: var(--paper-mute); color: var(--ink-4); }
+
+    /* ===========================================================
+       RIGHT PANEL — SERVER LINE + SPLIT IN PROGRESS
+       =========================================================== */
+    .rp-server-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px;
+      background: var(--paper-soft);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .rp-server-row .team-avatar {
+      width: 28px; height: 28px; font-size: 11px; flex: 0 0 28px;
+    }
+    .rp-server-row .team-avatar .badge-dot { display: none; }
+    .rp-server-info { flex: 1; min-width: 0; }
+    .rp-server-info .lbl { font-size: 10.5px; color: var(--ink-4); letter-spacing: 0.05em; text-transform: uppercase; }
+    .rp-server-info .nm { font-size: 13px; font-weight: 600; color: var(--ink); margin-top: 1px; }
+    .rp-server-reassign {
+      font-size: 12px; color: var(--forest);
+      font-weight: 600;
+      padding: 6px 10px; border-radius: 999px;
+      background: rgba(63,182,122,.12);
+      transition: background 150ms;
+    }
+    .rp-server-reassign:hover { background: rgba(63,182,122,.22); }
+
+    .rp-split-card {
+      margin: 12px 20px;
+      padding: 14px 16px;
+      border-radius: var(--r-lg);
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+    }
+    .rp-split-card-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .rp-split-card-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--gradient); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 32px;
+    }
+    .rp-split-card-icon svg { width: 16px; height: 16px; }
+    .rp-split-card-title { font-size: 13px; font-weight: 700; color: var(--forest); }
+    .rp-split-card-sub { font-size: 11px; color: var(--ink-3); margin-top: 1px; font-feature-settings: "tnum" 1; }
+    .rp-split-bar {
+      height: 6px; border-radius: 999px;
+      background: rgba(31,93,60,.10);
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .rp-split-bar-fill {
+      height: 100%; background: var(--gradient);
+      border-radius: 999px;
+      transition: width 600ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .rp-split-actions { display: flex; gap: 6px; }
+    .rp-split-actions button {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      transition: filter 150ms, transform 150ms;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .rp-split-actions button svg { width: 13px; height: 13px; }
+    .rp-split-resume {
+      background: var(--gradient); color: #fff;
+    }
+    .rp-split-resume:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .rp-split-cancel {
+      background: rgba(184,82,69,.12); color: var(--danger-mute);
+    }
+    .rp-split-cancel:hover { background: rgba(184,82,69,.22); }
+
+    /* Split-flow "Plus tard" close */
+    .split-flow-close {
+      width: 30px; height: 30px; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--ink-3);
+      margin-left: 6px;
+      transition: background 150ms, color 150ms;
+    }
+    .split-flow-close:hover { background: var(--paper-mute); color: var(--ink); }
+    .split-flow-close svg { width: 16px; height: 16px; }
+
     /* ---------- Reduced motion ---------- */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -1274,6 +1737,40 @@
 </head>
 
 <body>
+  <!-- ============ PIN LOGIN SCREEN ============ -->
+  <div class="pin-screen" id="pin-screen" role="dialog" aria-modal="true" aria-label="Code d'accès">
+    <div class="pin-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
+    <div class="pin-greet">Sba7 lkhir, <b>Rachid</b></div>
+    <div class="pin-prompt">CODE CAISSE · 4 CHIFFRES</div>
+    <div class="pin-dots" id="pin-dots" aria-hidden="true">
+      <span class="pin-dot"></span><span class="pin-dot"></span>
+      <span class="pin-dot"></span><span class="pin-dot"></span>
+    </div>
+    <div class="pin-pad" id="pin-pad">
+      <button class="pin-key" data-pin="1">1</button>
+      <button class="pin-key" data-pin="2">2</button>
+      <button class="pin-key" data-pin="3">3</button>
+      <button class="pin-key" data-pin="4">4</button>
+      <button class="pin-key" data-pin="5">5</button>
+      <button class="pin-key" data-pin="6">6</button>
+      <button class="pin-key" data-pin="7">7</button>
+      <button class="pin-key" data-pin="8">8</button>
+      <button class="pin-key" data-pin="9">9</button>
+      <button class="pin-key is-action" data-pin="forgot">SOS</button>
+      <button class="pin-key" data-pin="0">0</button>
+      <button class="pin-key is-action" data-pin="back" aria-label="Effacer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H7l-5 7 5 7h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+      </button>
+    </div>
+    <div class="pin-foot">Démo · n'importe quel code accepté</div>
+  </div>
+
+  <!-- ============ WELCOME BANNER ============ -->
+  <div class="welcome-banner" id="welcome-banner" role="status" aria-live="polite">
+    <span class="welcome-banner-icon"><i data-lucide="sparkles"></i></span>
+    <span class="welcome-banner-text"><b>Sba7 lkhir Rachid</b> <em>— 3 serveurs 3la khidma, 11 tables ka-yaklo</em></span>
+  </div>
+
   <!-- ============ TOP BAR (tablet status) ============ -->
   <div class="topbar" role="banner" aria-label="Status bar">
     <div class="topbar-left">
@@ -1346,6 +1843,12 @@
           </div>
         </div>
       </div>
+
+      <button class="team-trigger" id="open-team" aria-label="Équipe">
+        <i data-lucide="users"></i>
+        <span>Équipe</span>
+        <span class="count" id="team-count">3</span>
+      </button>
 
       <div class="quick-actions" aria-label="Actions rapides">
         <button class="qa-btn" data-action="remboursement">
@@ -1439,6 +1942,36 @@
           <button class="rp-close" id="rp-close" aria-label="Fermer">
             <i data-lucide="x"></i>
           </button>
+        </div>
+
+        <!-- Server assignment row -->
+        <div class="rp-server-row" id="rp-server-row" hidden>
+          <span class="team-avatar" id="rp-server-avatar" style="background:#3FB67A;">YA</span>
+          <div class="rp-server-info">
+            <div class="lbl">Servi par</div>
+            <div class="nm" id="rp-server-name">Yassir A.</div>
+          </div>
+          <button class="rp-server-reassign" data-action="reassign-server">Changer</button>
+        </div>
+
+        <!-- Split-in-progress card (shown when table has an active split) -->
+        <div class="rp-split-card" id="rp-split-card" hidden>
+          <div class="rp-split-card-head">
+            <span class="rp-split-card-icon"><i data-lucide="divide"></i></span>
+            <div style="flex:1;min-width:0;">
+              <div class="rp-split-card-title">Split en cours</div>
+              <div class="rp-split-card-sub" id="rp-split-card-sub">0 / 0 réglées</div>
+            </div>
+          </div>
+          <div class="rp-split-bar"><div class="rp-split-bar-fill" id="rp-split-bar-fill" style="width:0%"></div></div>
+          <div class="rp-split-actions">
+            <button class="rp-split-resume" data-action="resume-split">
+              <i data-lucide="play"></i> Reprendre
+            </button>
+            <button class="rp-split-cancel" data-action="cancel-split">
+              <i data-lucide="x"></i> Annuler
+            </button>
+          </div>
         </div>
 
         <div class="rp-items" id="rp-items"></div>
@@ -1582,6 +2115,9 @@
         <div class="split-flow-header">
           <div class="split-flow-title">Encaisser les parts</div>
           <div class="split-flow-progress" id="split-flow-progress">0 / 0 réglées</div>
+          <button class="split-flow-close" id="split-flow-close" aria-label="Plus tard" title="Plus tard">
+            <i data-lucide="x"></i>
+          </button>
         </div>
         <div class="split-parts-list" id="split-parts-list"></div>
         <div class="split-all-done" id="split-all-done" hidden>
@@ -1672,6 +2208,57 @@
     </div>
   </div>
 
+  <!-- ============ TEAM DRAWER ============ -->
+  <div class="drawer-veil" id="team-drawer" role="dialog" aria-modal="true" aria-labelledby="team-drawer-title">
+    <aside class="drawer" aria-label="Équipe">
+      <div class="drawer-head">
+        <div class="drawer-title" id="team-drawer-title">Équipe<em>— shift en cours</em></div>
+        <button class="drawer-close" id="team-drawer-close" aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="drawer-body" id="team-drawer-body"></div>
+    </aside>
+  </div>
+
+  <!-- ============ REASSIGN SERVER MODAL ============ -->
+  <div class="modal-veil" id="reassign-modal" role="dialog" aria-modal="true" aria-labelledby="reassign-title">
+    <div class="modal modal-reassign">
+      <div class="split-badge">Réassigner</div>
+      <h3 class="modal-title" id="reassign-title">Serveur pour <span id="reassign-table-id">T2</span></h3>
+      <p class="modal-subtle">Khtar serveur jdid · les commandes en cours suivent.</p>
+      <div class="reassign-list" id="reassign-list"></div>
+      <div class="nt-actions" style="margin-top:14px;">
+        <button class="ma-btn secondary" id="reassign-cancel" style="flex:1;">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MESSAGE COMPOSER MODAL ============ -->
+  <div class="modal-veil" id="msg-modal" role="dialog" aria-modal="true" aria-labelledby="msg-title">
+    <div class="modal modal-msg">
+      <div class="split-badge">Message</div>
+      <h3 class="modal-title" id="msg-title">Envoyer un message</h3>
+      <div class="msg-target" id="msg-target">
+        <span class="team-avatar" id="msg-target-avatar" style="background:#3FB67A;">YA</span>
+        <span><b id="msg-target-name">Yassir A.</b> <span style="color:var(--ink-4);" id="msg-target-status">· 3la khidma</span></span>
+      </div>
+      <textarea class="msg-input" id="msg-input" placeholder="Écris ton message en darija/français…"></textarea>
+      <div class="msg-quick">
+        <button data-msg="Table prête, viens ramasser 3afak.">Table prête</button>
+        <button data-msg="Khalik blati svp · client attend.">Client attend</button>
+        <button data-msg="Reviens à la caisse stp.">Caisse</button>
+        <button data-msg="Pause finie, 3awd l'service.">Fin pause</button>
+      </div>
+      <div class="nt-actions">
+        <button class="ma-btn secondary" id="msg-cancel" style="flex:1;">Annuler</button>
+        <button class="ma-btn primary" id="msg-send" style="flex:2;">
+          <i data-lucide="send"></i> Envoyer
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ TOAST STACK ============ -->
   <div id="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
@@ -1711,35 +2298,49 @@
     tickClock();
     setInterval(tickClock, 1000);
 
+    /* ---------- Server / staff data ---------- */
+    /* status: 'on' (3la khidma) | 'pause' (en pause) | 'off' (clocked out) */
+    const servers = {
+      YA: { id: 'YA', name: 'Yassir A.',  color: '#3FB67A', status: 'on',    breakStart: null, since: '08:12' },
+      ME: { id: 'ME', name: 'Mehdi K.',   color: '#1F5D3C', status: 'pause', breakStart: Date.now() - 8 * 60 * 1000, since: '08:00' },
+      KA: { id: 'KA', name: 'Karim B.',   color: '#D49F2E', status: 'on',    breakStart: null, since: '08:30' },
+      SO: { id: 'SO', name: 'Sofia L.',   color: '#7A5BC9', status: 'on',    breakStart: null, since: '11:00' },
+      HA: { id: 'HA', name: 'Hamza T.',   color: '#B85245', status: 'off',   breakStart: null, since: '—' },
+    };
+    function serverInitials(s) { return s.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase(); }
+
     /* ---------- Table data ---------- */
     /* status: khawya | ka-yaklo | bgha-ykhlass | ka-tkhdam | khlass */
+    /* server: server id assigned (only meaningful when table is occupied) */
     const tables = {
-      // Salle principale (11 tables, ground floor main hall)
-      T1:  { zone: 'salle',    covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 45 },
-      T2:  { zone: 'salle',    covers: 2, size: 2, status: 'bgha-ykhlass', elapsed: 12 },
-      T3:  { zone: 'salle',    covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T4:  { zone: 'salle',    covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 22 },
-      T5:  { zone: 'salle',    covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 67 },
-      T6:  { zone: 'salle',    covers: 5, size: 6, status: 'bgha-ykhlass', elapsed: 8  },
-      T7:  { zone: 'salle',    covers: 2, size: 2, status: 'khlass',       elapsed: 0  },
-      T8:  { zone: 'salle',    covers: 2, size: 2, status: 'khawya',       elapsed: 0  },
-      T9:  { zone: 'salle',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 14 },
-      T10: { zone: 'salle',    covers: 2, size: 2, status: 'khawya',       elapsed: 0  },
-      T11: { zone: 'salle',    covers: 3, size: 4, status: 'ka-yaklo',     elapsed: 31 },
+      // Salle principale — Yassir's section
+      T1:  { zone: 'salle',    covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 45, server: 'YA' },
+      T2:  { zone: 'salle',    covers: 2, size: 2, status: 'bgha-ykhlass', elapsed: 12, server: 'YA' },
+      T3:  { zone: 'salle',    covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'YA' },
+      T4:  { zone: 'salle',    covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 22, server: 'YA' },
+      // Mehdi (en pause) — tables temporarily covered
+      T5:  { zone: 'salle',    covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 67, server: 'ME' },
+      T6:  { zone: 'salle',    covers: 5, size: 6, status: 'bgha-ykhlass', elapsed: 8,  server: 'ME' },
+      T7:  { zone: 'salle',    covers: 2, size: 2, status: 'khlass',       elapsed: 0,  server: 'ME' },
+      T8:  { zone: 'salle',    covers: 2, size: 2, status: 'khawya',       elapsed: 0,  server: 'ME' },
+      // Karim's section
+      T9:  { zone: 'salle',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 14, server: 'KA' },
+      T10: { zone: 'salle',    covers: 2, size: 2, status: 'khawya',       elapsed: 0,  server: 'KA' },
+      T11: { zone: 'salle',    covers: 3, size: 4, status: 'ka-yaklo',     elapsed: 31, server: 'KA' },
 
-      // Terrasse (5 tables, outdoor)
-      T12: { zone: 'terrasse', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T13: { zone: 'terrasse', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 19 },
-      T14: { zone: 'terrasse', covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T15: { zone: 'terrasse', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 55 },
-      T16: { zone: 'terrasse', covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 38 },
+      // Terrasse — Karim + Sofia
+      T12: { zone: 'terrasse', covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'KA' },
+      T13: { zone: 'terrasse', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 19, server: 'KA' },
+      T14: { zone: 'terrasse', covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'SO' },
+      T15: { zone: 'terrasse', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 55, server: 'SO' },
+      T16: { zone: 'terrasse', covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 38, server: 'SO' },
 
-      // Étage (5 tables, upstairs private room)
-      T17: { zone: 'etage',    covers: 4, size: 4, status: 'bgha-ykhlass', elapsed: 5  },
-      T18: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T19: { zone: 'etage',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 28 },
-      T20: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
-      T21: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0  },
+      // Étage — Sofia
+      T17: { zone: 'etage',    covers: 4, size: 4, status: 'bgha-ykhlass', elapsed: 5,  server: 'SO' },
+      T18: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'SO' },
+      T19: { zone: 'etage',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 28, server: 'YA' },
+      T20: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'YA' },
+      T21: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'YA' },
     };
 
     /* ---------- Mock orders per table ---------- */
@@ -1814,14 +2415,24 @@
         ? `<div class="tbl-elapsed">${t.elapsed} mn</div>`
         : '';
       const dot = t.status === 'bgha-ykhlass' ? '<span class="urgent-dot" aria-hidden="true"></span>' : '';
+      // Server avatar badge — only when occupied
+      let serverBadge = '';
+      if (t.status !== 'khawya' && t.status !== 'khlass' && t.server) {
+        const s = servers[t.server];
+        if (s) {
+          const cls = s.status === 'pause' ? 'is-pause' : '';
+          serverBadge = `<span class="tbl-server ${cls}" style="background:${s.color};" title="Servi par ${s.name}${s.status === 'pause' ? ' (en pause)' : ''}">${serverInitials(s)}</span>`;
+        }
+      }
       // Distribute chairs around the tabletop: ceil on top, rest on bottom
       const topChairs = Math.ceil(t.covers / 2);
       const bottomChairs = t.covers - topChairs;
       return `
         <div class="tbl-cell" data-table="${id}" role="button" tabindex="0" aria-label="Table ${id}, ${label}, ${t.covers} couverts">
           ${chairsRow(topChairs)}
-          <div class="tbl ${sizeClass}" data-status="${t.status}">
+          <div class="tbl ${sizeClass}" data-status="${t.status}" style="position:relative;">
             ${dot}
+            ${serverBadge}
             <div class="tbl-head">
               <span class="tbl-num">${id}</span>
               <span class="tbl-covers">${t.covers}p</span>
@@ -1953,6 +2564,21 @@
         'ka-yaklo':     `Ka-yaklo · ${t.elapsed} mn`,
       })[flag];
       subEl.textContent = subText;
+
+      // Server row
+      const serverRow = $('#rp-server-row');
+      if (mode !== 'vrap' && t.server && servers[t.server]) {
+        const s = servers[t.server];
+        $('#rp-server-avatar').textContent = serverInitials(s);
+        $('#rp-server-avatar').style.background = s.color;
+        $('#rp-server-name').textContent = s.name + (s.status === 'pause' ? ' · en pause' : '');
+        serverRow.hidden = false;
+      } else {
+        serverRow.hidden = true;
+      }
+
+      // Split-in-progress card
+      renderRpSplitCard(id);
 
       $('#rp-items').innerHTML = lines.map(l => `
         <div class="rp-item">
@@ -2212,6 +2838,10 @@
       const active = $('#rp-active');
       active.hidden = false;
       active.style.display = 'flex';
+
+      // Hide server row and split card in vrap mode
+      const sr = $('#rp-server-row'); if (sr) sr.hidden = true;
+      const sc = $('#rp-split-card'); if (sc) sc.hidden = true;
 
       // Header
       $('#rp-table').textContent = 'Vente rapida · à emporter';
@@ -2664,6 +3294,19 @@
       const active = $('#rp-active');
       active.hidden = false;
       active.style.display = 'flex';
+
+      // Show server row in order mode too
+      const sr = $('#rp-server-row');
+      if (sr && t.server && servers[t.server]) {
+        const s = servers[t.server];
+        $('#rp-server-avatar').textContent = serverInitials(s);
+        $('#rp-server-avatar').style.background = s.color;
+        $('#rp-server-name').textContent = s.name + (s.status === 'pause' ? ' · en pause' : '');
+        sr.hidden = false;
+      } else if (sr) {
+        sr.hidden = true;
+      }
+      const sc = $('#rp-split-card'); if (sc) sc.hidden = true;
 
       $('#rp-table').textContent = `${tableId} · ${t.covers} couvert${t.covers > 1 ? 's' : ''}`;
       const sub = $('#rp-substatus');
@@ -3131,9 +3774,463 @@
       }
     }, { capture: false });
 
+    /* ===========================================================
+       PIN LOGIN
+       =========================================================== */
+    const pinScreen = $('#pin-screen');
+    let pinBuffer = '';
+
+    function renderPinDots() {
+      $$('#pin-dots .pin-dot').forEach((d, i) => {
+        d.classList.toggle('is-filled', i < pinBuffer.length);
+      });
+    }
+
+    function unlockApp() {
+      pinScreen.classList.add('is-leaving');
+      setTimeout(() => {
+        pinScreen.style.display = 'none';
+        document.body.classList.add('is-unlocked');
+        // Welcome banner reveal
+        setTimeout(() => {
+          const wb = $('#welcome-banner');
+          if (wb) {
+            wb.classList.add('is-visible');
+            setTimeout(() => wb.classList.remove('is-visible'), 3800);
+          }
+        }, 320);
+      }, 480);
+    }
+
+    $('#pin-pad').addEventListener('click', (e) => {
+      const key = e.target.closest('.pin-key');
+      if (!key) return;
+      const v = key.dataset.pin;
+      if (v === 'back') {
+        pinBuffer = pinBuffer.slice(0, -1);
+        renderPinDots();
+        return;
+      }
+      if (v === 'forgot') {
+        toast('SOS · contacte le manager');
+        return;
+      }
+      if (pinBuffer.length >= 4) return;
+      pinBuffer += v;
+      renderPinDots();
+      if (pinBuffer.length === 4) {
+        // Demo: any 4-digit code unlocks
+        setTimeout(unlockApp, 180);
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (pinScreen.style.display === 'none') return;
+      if (/^[0-9]$/.test(e.key) && pinBuffer.length < 4) {
+        pinBuffer += e.key;
+        renderPinDots();
+        if (pinBuffer.length === 4) setTimeout(unlockApp, 180);
+      } else if (e.key === 'Backspace') {
+        pinBuffer = pinBuffer.slice(0, -1);
+        renderPinDots();
+      }
+    });
+
+    /* ===========================================================
+       TEAM DRAWER — list servers, break management, send message
+       =========================================================== */
+    function activeServerCount() {
+      return Object.values(servers).filter(s => s.status === 'on').length;
+    }
+    function pauseElapsedMn(s) {
+      if (!s.breakStart) return 0;
+      return Math.floor((Date.now() - s.breakStart) / 60000);
+    }
+    function updateTeamCount() {
+      $('#team-count').textContent = activeServerCount();
+    }
+
+    function teamCardHTML(s) {
+      const initials = serverInitials(s);
+      const isPause = s.status === 'pause';
+      const isOff   = s.status === 'off';
+      const dotClass = isPause ? 'pause' : (isOff ? 'off' : 'on');
+      let meta = '';
+      let actions = '';
+      if (s.status === 'on') {
+        const myTables = Object.entries(tables)
+          .filter(([_, t]) => t.server === s.id && t.status !== 'khawya' && t.status !== 'khlass').length;
+        meta = `3la khidma depuis ${s.since} · ${myTables} table${myTables !== 1 ? 's' : ''} actives`;
+        actions = `
+          <button class="team-btn" data-team-action="message" data-server="${s.id}" title="Envoyer un message">
+            <i data-lucide="message-square"></i>
+          </button>
+          <button class="team-btn danger" data-team-action="start-pause" data-server="${s.id}" title="Donner une pause">
+            <i data-lucide="coffee"></i>
+          </button>
+        `;
+      } else if (s.status === 'pause') {
+        const mn = pauseElapsedMn(s);
+        meta = `<span class="pause-tick">En pause · ${mn} mn</span>`;
+        actions = `
+          <button class="team-btn" data-team-action="message" data-server="${s.id}" title="Envoyer un message">
+            <i data-lucide="message-square"></i>
+          </button>
+          <button class="team-btn primary" data-team-action="end-pause" data-server="${s.id}" title="Fin de pause">
+            <i data-lucide="play"></i>
+          </button>
+        `;
+      } else {
+        meta = 'Pas en service · fin de shift';
+        actions = `
+          <button class="team-btn" data-team-action="message" data-server="${s.id}" title="Envoyer un message" disabled style="opacity:.35;">
+            <i data-lucide="message-square"></i>
+          </button>
+        `;
+      }
+      return `
+        <div class="team-card ${isPause ? 'is-pause' : ''}" data-team-card="${s.id}">
+          <span class="team-avatar" style="background:${s.color};">
+            ${initials}
+            <span class="badge-dot ${dotClass}"></span>
+          </span>
+          <div class="team-info">
+            <div class="team-name">${s.name}</div>
+            <div class="team-meta">${meta}</div>
+          </div>
+          <div class="team-actions">${actions}</div>
+        </div>
+      `;
+    }
+
+    function renderTeamDrawer() {
+      const onDuty = Object.values(servers).filter(s => s.status === 'on');
+      const onPause = Object.values(servers).filter(s => s.status === 'pause');
+      const offDuty = Object.values(servers).filter(s => s.status === 'off');
+
+      let html = '';
+      html += `<div class="team-section-label">3la khidma · ${onDuty.length}</div>`;
+      html += onDuty.map(teamCardHTML).join('') || '<div class="team-meta" style="padding:6px 4px;">Aucun serveur actif.</div>';
+
+      if (onPause.length) {
+        html += `<div class="team-section-label">En pause · ${onPause.length}</div>`;
+        html += onPause.map(teamCardHTML).join('');
+      }
+      if (offDuty.length) {
+        html += `<div class="team-section-label">Pas en service · ${offDuty.length}</div>`;
+        html += offDuty.map(teamCardHTML).join('');
+      }
+
+      html += `
+        <div class="team-broadcast">
+          <button id="team-broadcast-all" type="button">
+            <i data-lucide="megaphone"></i> Message à toute l'équipe
+          </button>
+        </div>
+      `;
+      $('#team-drawer-body').innerHTML = html;
+      lucide.createIcons();
+      updateTeamCount();
+    }
+
+    function openTeamDrawer() {
+      renderTeamDrawer();
+      $('#team-drawer').classList.add('is-open');
+    }
+    function closeTeamDrawer() {
+      $('#team-drawer').classList.remove('is-open');
+    }
+
+    $('#open-team').addEventListener('click', openTeamDrawer);
+    $('#team-drawer-close').addEventListener('click', closeTeamDrawer);
+    $('#team-drawer').addEventListener('click', (e) => {
+      if (e.target === $('#team-drawer')) closeTeamDrawer();
+
+      const card = e.target.closest('[data-team-action]');
+      if (card) {
+        const act = card.dataset.teamAction;
+        const sid = card.dataset.server;
+        if (act === 'start-pause') {
+          servers[sid].status = 'pause';
+          servers[sid].breakStart = Date.now();
+          toast(`${servers[sid].name} · pause démarrée`);
+          renderTeamDrawer();
+          renderSalle();
+          updateTeamCount();
+        } else if (act === 'end-pause') {
+          const mn = pauseElapsedMn(servers[sid]);
+          servers[sid].status = 'on';
+          servers[sid].breakStart = null;
+          toast(`${servers[sid].name} · fin de pause (${mn} mn)`);
+          renderTeamDrawer();
+          renderSalle();
+          updateTeamCount();
+        } else if (act === 'message') {
+          openMsgModal(sid);
+        }
+        return;
+      }
+
+      if (e.target.closest('#team-broadcast-all')) {
+        openMsgModal('ALL');
+      }
+    });
+
+    // Live pause-timer ticker
+    setInterval(() => {
+      if (!$('#team-drawer').classList.contains('is-open')) return;
+      $$('[data-team-card]').forEach(card => {
+        const s = servers[card.dataset.teamCard];
+        if (s && s.status === 'pause') {
+          const tick = card.querySelector('.pause-tick');
+          if (tick) tick.textContent = `En pause · ${pauseElapsedMn(s)} mn`;
+        }
+      });
+    }, 30000);
+
+    /* ===========================================================
+       MESSAGE COMPOSER
+       =========================================================== */
+    let msgTargetId = null;
+    function openMsgModal(targetId) {
+      msgTargetId = targetId;
+      const isAll = targetId === 'ALL';
+      const av = $('#msg-target-avatar');
+      const nm = $('#msg-target-name');
+      const st = $('#msg-target-status');
+      if (isAll) {
+        av.textContent = '∀';
+        av.style.background = 'var(--ink)';
+        nm.textContent = 'Toute l\'équipe';
+        st.textContent = `· ${activeServerCount()} serveurs 3la khidma`;
+      } else {
+        const s = servers[targetId];
+        av.textContent = serverInitials(s);
+        av.style.background = s.color;
+        nm.textContent = s.name;
+        st.textContent = s.status === 'on' ? '· 3la khidma'
+                       : s.status === 'pause' ? `· en pause depuis ${pauseElapsedMn(s)} mn`
+                       : '· hors service';
+      }
+      $('#msg-input').value = '';
+      $('#msg-modal').classList.add('is-open');
+      setTimeout(() => $('#msg-input').focus(), 80);
+    }
+    function closeMsgModal() {
+      $('#msg-modal').classList.remove('is-open');
+      msgTargetId = null;
+    }
+    $('#msg-cancel').addEventListener('click', closeMsgModal);
+    $('#msg-modal').addEventListener('click', (e) => {
+      if (e.target === $('#msg-modal')) closeMsgModal();
+      const quick = e.target.closest('[data-msg]');
+      if (quick) {
+        $('#msg-input').value = quick.dataset.msg;
+        $('#msg-input').focus();
+      }
+    });
+    $('#msg-send').addEventListener('click', () => {
+      const text = $('#msg-input').value.trim();
+      if (!text) { toast('Écris un message d\'abord'); return; }
+      const target = msgTargetId === 'ALL'
+        ? `équipe (${activeServerCount()} serveurs)`
+        : servers[msgTargetId].name;
+      toast(`Message envoyé à ${target} ✓`);
+      closeMsgModal();
+    });
+
+    /* ===========================================================
+       REASSIGN SERVER MODAL
+       =========================================================== */
+    let reassignTableId = null;
+    function openReassignModal(tableId) {
+      reassignTableId = tableId;
+      const t = tables[tableId];
+      $('#reassign-table-id').textContent = tableId;
+
+      const html = Object.values(servers)
+        .filter(s => s.status !== 'off')
+        .map(s => {
+          const initials = serverInitials(s);
+          const isCurrent = s.id === t.server;
+          const badge = s.status === 'on'
+            ? '<span class="reassign-opt-badge on">3la khidma</span>'
+            : '<span class="reassign-opt-badge pause">En pause</span>';
+          const myTables = Object.entries(tables)
+            .filter(([_, tt]) => tt.server === s.id && tt.status !== 'khawya' && tt.status !== 'khlass').length;
+          return `
+            <button class="reassign-opt ${isCurrent ? 'is-current' : ''}" data-reassign="${s.id}" type="button">
+              <span class="team-avatar" style="background:${s.color};">${initials}</span>
+              <div class="reassign-opt-info">
+                <div class="reassign-opt-name">${s.name}${isCurrent ? ' · actuel' : ''}</div>
+                <div class="reassign-opt-meta">${myTables} table${myTables !== 1 ? 's' : ''} actives</div>
+              </div>
+              ${badge}
+            </button>
+          `;
+        }).join('');
+      $('#reassign-list').innerHTML = html;
+      $('#reassign-modal').classList.add('is-open');
+      lucide.createIcons();
+    }
+    function closeReassignModal() {
+      $('#reassign-modal').classList.remove('is-open');
+      reassignTableId = null;
+    }
+    $('#reassign-cancel').addEventListener('click', closeReassignModal);
+    $('#reassign-modal').addEventListener('click', (e) => {
+      if (e.target === $('#reassign-modal')) closeReassignModal();
+      const opt = e.target.closest('[data-reassign]');
+      if (opt && reassignTableId) {
+        const newSid = opt.dataset.reassign;
+        const t = tables[reassignTableId];
+        const oldSid = t.server;
+        if (newSid === oldSid) { closeReassignModal(); return; }
+        t.server = newSid;
+        refreshTableNode(reassignTableId);
+        if (selectedId === reassignTableId) renderRightPanel(reassignTableId);
+        toast(`Table ${reassignTableId} → ${servers[newSid].name}`);
+        closeReassignModal();
+      }
+    });
+
+    /* ===========================================================
+       SPLIT BILL — persistence (background / resume / cancel)
+       =========================================================== */
+    const tableSplits = new Map(); // tableId → { mode, total, parts, paidCount }
+
+    function saveSplitFlow() {
+      if (!splitState.tableId || !splitState.flow) return;
+      tableSplits.set(splitState.tableId, {
+        mode:      splitState.splitMode,
+        total:     splitState.total,
+        parts:     splitState.flow.parts.map(p => ({ ...p })),
+        paidCount: splitState.flow.paidCount,
+      });
+    }
+
+    function loadSplitFlow(tableId) {
+      const saved = tableSplits.get(tableId);
+      if (!saved) return false;
+      const t = tables[tableId];
+      const lines = generateOrder(tableId, t);
+      Object.assign(splitState, {
+        tableId,
+        total:     saved.total,
+        lines,
+        splitMode: saved.mode,
+        numParts:  saved.parts.length,
+        tipMode:   '0', customTipPct: 0,
+        numConvives: saved.parts.length,
+        assignments: {},
+        flow: {
+          parts: saved.parts.map(p => ({ ...p })),
+          paidCount: saved.paidCount,
+        },
+      });
+      return true;
+    }
+
+    function renderRpSplitCard(id) {
+      const card = $('#rp-split-card');
+      if (!card) return;
+      const saved = tableSplits.get(id);
+      if (!saved) { card.hidden = true; return; }
+      const pct = Math.round((saved.paidCount / saved.parts.length) * 100);
+      $('#rp-split-card-sub').textContent =
+        `${saved.paidCount} / ${saved.parts.length} parts réglées · ${pct}%`;
+      $('#rp-split-bar-fill').style.width = pct + '%';
+      card.hidden = false;
+    }
+
+    /* "Plus tard" — background the split */
+    $('#split-flow-close').addEventListener('click', () => {
+      saveSplitFlow();
+      const t = tables[splitState.tableId];
+      if (t && t.status === 'ka-tkhdam') {
+        t.status = 'bgha-ykhlass';
+        refreshTableNode(splitState.tableId);
+      }
+      $('#split-modal').classList.remove('is-open');
+      toast('Split en pause · reprends quand tu veux');
+      if (selectedId === splitState.tableId) renderRightPanel(selectedId);
+    });
+
+    // Patch markSplitPartPaid via wrapper — save on every payment, delete on done
+    const _origMarkPaid = markSplitPartPaid;
+    markSplitPartPaid = function(partIdx, method) {
+      _origMarkPaid(partIdx, method);
+      if (splitState.flow.paidCount >= splitState.flow.parts.length) {
+        tableSplits.delete(splitState.tableId);
+      } else {
+        saveSplitFlow();
+        if (selectedId === splitState.tableId) renderRpSplitCard(selectedId);
+      }
+    };
+
+    // Patch openSplitModal — if a saved split exists, jump directly to flow screen
+    const _origOpenSplit = openSplitModal;
+    openSplitModal = function(tableId) {
+      if (tableSplits.has(tableId)) {
+        loadSplitFlow(tableId);
+        $('#split-table-label').textContent = tableId;
+        $('#split-setup').hidden = true;
+        $('#split-flow').hidden = false;
+        $('#split-all-done').hidden = splitState.flow.paidCount < splitState.flow.parts.length;
+        renderSplitFlow();
+        $('#split-modal').classList.add('is-open');
+        lucide.createIcons();
+        return;
+      }
+      _origOpenSplit(tableId);
+    };
+
+    // Allow backdrop click to background mid-flow (instead of locking)
+    // Replace the lock with a save-and-close on the existing handler
+    // (The previous listener returned early on flow screen; we add a global capture)
+    document.addEventListener('click', (e) => {
+      if (e.target === $('#split-modal') && !$('#split-flow').hidden && $('#split-modal').classList.contains('is-open')) {
+        // Background the split rather than block
+        saveSplitFlow();
+        const t = tables[splitState.tableId];
+        if (t && t.status === 'ka-tkhdam') {
+          t.status = 'bgha-ykhlass';
+          refreshTableNode(splitState.tableId);
+        }
+        $('#split-modal').classList.remove('is-open');
+        toast('Split en pause · reprends quand tu veux');
+        if (selectedId === splitState.tableId) renderRightPanel(selectedId);
+      }
+    }, true);
+
+    /* ===========================================================
+       RP actions: reassign + split resume/cancel
+       =========================================================== */
+    document.addEventListener('click', (e) => {
+      const act = e.target.closest('[data-action]');
+      if (!act) return;
+      const name = act.dataset.action;
+      if (name === 'reassign-server' && selectedId) {
+        openReassignModal(selectedId);
+      } else if (name === 'resume-split' && selectedId) {
+        openSplitModal(selectedId);
+      } else if (name === 'cancel-split' && selectedId) {
+        if (!confirm('Annuler le split en cours? Les parts déjà payées seront conservées comme réglées.')) return;
+        tableSplits.delete(selectedId);
+        const t = tables[selectedId];
+        if (t.status === 'ka-tkhdam') {
+          t.status = 'bgha-ykhlass';
+          refreshTableNode(selectedId);
+        }
+        renderRightPanel(selectedId);
+        toast('Split annulé');
+      }
+    });
+
     /* ---------- Bootstrap menu (vente rapida) ---------- */
     renderCatPills();
     renderMenu();
+    updateTeamCount();
+    renderPinDots();
 
     /* ---------- Lucide first paint ---------- */
     document.addEventListener('DOMContentLoaded', () => {
