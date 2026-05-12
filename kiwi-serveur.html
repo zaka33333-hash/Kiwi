@@ -728,6 +728,16 @@
 
     .td-btn-row { display: flex; gap: 8px; }
 
+    /* Lancer la commande — pulses gently to attract attention when dirty */
+    .td-btn.lancer-btn {
+      box-shadow: 0 4px 12px rgba(63,182,122,0.28);
+      animation: lancer-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes lancer-pulse {
+      0%, 100% { box-shadow: 0 4px 12px rgba(63,182,122,0.28); }
+      50%      { box-shadow: 0 4px 22px rgba(63,182,122,0.55), 0 0 0 6px rgba(63,182,122,0.10); }
+    }
+
     /* ===========================================================
        MENU TAB
        =========================================================== */
@@ -2533,6 +2543,9 @@
 
     /* tableOrders is the editable store — populated lazily on first open */
     const tableOrders = {};
+    /* Tables with unsent changes (need "Lancer la commande" to send to terminals) */
+    const dirtyOrders = new Set();
+    function markDirty(tableId) { if (tableId) dirtyOrders.add(tableId); }
     function ensureTableOrder(id) {
       if (!tableOrders[id]) {
         const t = tables[id];
@@ -2992,6 +3005,11 @@
 
       // Footer buttons depend on status
       const footer = $('#td-footer');
+      const isDirty = dirtyOrders.has(id);
+      const lancerHTML = isDirty ? `
+        <button class="td-btn primary lancer-btn" data-action="lancer">
+          <i data-lucide="send-horizontal"></i> Lancer la commande
+        </button>` : '';
       let fHTML = '';
       if (t.status === 'ka-yaklo') {
         if (order.length === 0) {
@@ -3004,9 +3022,9 @@
             </button>
           `;
         } else {
-          fHTML = `
-            <button class="td-btn primary" data-action="take-order">
-              <i data-lucide="plus"></i> Ajouter articles
+          fHTML = lancerHTML + `
+            <button class="td-btn ${isDirty ? 'ghost' : 'primary'}" data-action="take-order">
+              <i data-lucide="plus"></i> ${isDirty ? 'Ajouter encore' : 'Ajouter articles'}
             </button>
             <div class="td-btn-row">
               <button class="td-btn warn row-pair" data-action="ask-bill">
@@ -3019,8 +3037,8 @@
           `;
         }
       } else if (t.status === 'bgha-ykhlass') {
-        fHTML = `
-          <button class="td-btn primary" data-action="pay">
+        fHTML = lancerHTML + `
+          <button class="td-btn ${isDirty ? 'dark' : 'primary'}" data-action="pay">
             <i data-lucide="credit-card"></i> Encaisser ${fmtMAD(total)}
           </button>
           <div class="td-btn-row">
@@ -3067,6 +3085,26 @@
         menuContextId = activeTableId;
         showScreen('screen-main');
         setTab('menu');
+      } else if (action === 'lancer') {
+        // Send the order to the kitchen + bar terminals
+        dirtyOrders.delete(activeTableId);
+        renderTableDetail();
+        // Count routing for a richer toast (food → cuisine, drinks → bar)
+        const order = tableOrders[activeTableId] || [];
+        const drinkCats = new Set(['boissons']);
+        const foodIds = order.filter(l => {
+          const m = menuItems.find(mm => mm.id === l.id);
+          return !m || !drinkCats.has(m.cat);
+        }).reduce((s, l) => s + l.qty, 0);
+        const drinkIds = order.filter(l => {
+          const m = menuItems.find(mm => mm.id === l.id);
+          return m && drinkCats.has(m.cat);
+        }).reduce((s, l) => s + l.qty, 0);
+        let msg = `Mesa ${activeTableId} · commande envoyée`;
+        if (foodIds > 0 && drinkIds > 0)      msg += ` · cuisine + bar`;
+        else if (foodIds > 0)                 msg += ` · cuisine`;
+        else if (drinkIds > 0)                msg += ` · bar`;
+        toast(msg);
       } else if (action === 'ask-bill') {
         const t = tables[activeTableId];
         t.status = 'bgha-ykhlass';
@@ -3106,6 +3144,7 @@
       if (!line) return;
       line.qty += delta;
       if (line.qty <= 0) tableOrders[tableId] = order.filter(l => l.id !== lineId);
+      markDirty(tableId);
     }
 
     /* ---------- New Table modal ---------- */
@@ -3238,6 +3277,7 @@
       const existing = tableOrders[tableId].find(l => l.id === itemId);
       if (existing) existing.qty++;
       else tableOrders[tableId].push({ id: itemId, name: item.name, price: item.price, qty: 1 });
+      markDirty(tableId);
       const card = document.querySelector(`.menu-item[data-menu-id="${itemId}"]`);
       if (card) { card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop'); }
       renderMenu();
@@ -3250,6 +3290,7 @@
       if (!line) return;
       line.qty += delta;
       if (line.qty <= 0) tableOrders[tableId] = tableOrders[tableId].filter(l => l.id !== itemId);
+      markDirty(tableId);
       renderMenu();
       renderCartBar();
     }
