@@ -132,6 +132,114 @@
     .screen-table.is-active { transform: translateX(0); }
 
     /* ===========================================================
+       PIN LOGIN SCREEN
+       =========================================================== */
+    .screen-pin {
+      background: var(--ink-bg);
+      color: var(--paper-cream);
+      align-items: center;
+      justify-content: space-between;
+      padding: 48px 28px 36px;
+    }
+    .pin-top {
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .pin-brand {
+      display: inline-flex; align-items: baseline; gap: 5px;
+      color: var(--paper-cream);
+      font-weight: 700;
+      font-size: 36px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+    .pin-brand i {
+      width: 8px; height: 8px;
+      background: var(--mint);
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .pin-tagline {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 14px;
+      color: rgba(247,245,240,0.55);
+    }
+    .pin-mid {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .pin-greeting {
+      font-size: 22px; font-weight: 600;
+      letter-spacing: -0.015em;
+      text-align: center;
+    }
+    .pin-hint {
+      font-size: 12px;
+      color: rgba(247,245,240,0.55);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .pin-dots {
+      display: flex;
+      gap: 18px;
+      margin-top: 4px;
+    }
+    .pin-dots.shake { animation: pin-shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+    @keyframes pin-shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .pin-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(247,245,240,0.3);
+      background: transparent;
+      transition: background 200ms ease, border-color 200ms ease, transform 200ms ease;
+    }
+    .pin-dot.is-filled {
+      background: var(--mint);
+      border-color: var(--mint);
+      transform: scale(1.05);
+    }
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      width: 100%;
+      max-width: 280px;
+    }
+    .pin-key {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      color: var(--paper-cream);
+      font-size: 26px; font-weight: 500;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 120ms ease, transform 80ms ease;
+      letter-spacing: -0.01em;
+    }
+    .pin-key:active {
+      background: rgba(255,255,255,0.2);
+      transform: scale(0.95);
+    }
+    .pin-key.pin-key-empty {
+      background: transparent;
+      pointer-events: none;
+    }
+    .pin-key.pin-key-back {
+      background: transparent;
+      color: rgba(247,245,240,0.55);
+    }
+    .pin-key.pin-key-back svg {
+      width: 22px; height: 22px;
+    }
+    .pin-key.pin-key-back:active {
+      background: rgba(255,255,255,0.1);
+      color: var(--paper-cream);
+    }
+
+    /* ===========================================================
        CLOCK-IN SCREEN
        =========================================================== */
     .screen-clockin {
@@ -1323,8 +1431,44 @@
   <div class="phone-frame">
     <div class="app">
 
+      <!-- ============ PIN LOGIN SCREEN ============ -->
+      <section class="screen screen-pin is-active" id="screen-pin" aria-label="Connexion PIN">
+        <div class="pin-top">
+          <div class="pin-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
+          <div class="pin-tagline">— version serveur</div>
+        </div>
+
+        <div class="pin-mid">
+          <div class="pin-greeting">Slm Yassir</div>
+          <div class="pin-hint">Entrez votre code</div>
+          <div class="pin-dots" id="pin-dots" aria-hidden="true">
+            <span class="pin-dot"></span>
+            <span class="pin-dot"></span>
+            <span class="pin-dot"></span>
+            <span class="pin-dot"></span>
+          </div>
+        </div>
+
+        <div class="pin-keypad" id="pin-keypad" role="group" aria-label="Clavier numérique">
+          <button class="pin-key" data-key="1">1</button>
+          <button class="pin-key" data-key="2">2</button>
+          <button class="pin-key" data-key="3">3</button>
+          <button class="pin-key" data-key="4">4</button>
+          <button class="pin-key" data-key="5">5</button>
+          <button class="pin-key" data-key="6">6</button>
+          <button class="pin-key" data-key="7">7</button>
+          <button class="pin-key" data-key="8">8</button>
+          <button class="pin-key" data-key="9">9</button>
+          <span class="pin-key pin-key-empty" aria-hidden="true"></span>
+          <button class="pin-key" data-key="0">0</button>
+          <button class="pin-key pin-key-back" data-key="back" aria-label="Effacer">
+            <i data-lucide="delete"></i>
+          </button>
+        </div>
+      </section>
+
       <!-- ============ CLOCK-IN SCREEN ============ -->
-      <section class="screen screen-clockin is-active" id="screen-clockin" aria-label="Pointer l'arrivée">
+      <section class="screen screen-clockin" id="screen-clockin" aria-label="Pointer l'arrivée">
         <div class="ci-top">
           <div class="ci-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
           <div class="ci-tagline">— version serveur</div>
@@ -1867,6 +2011,49 @@
       }
     }
 
+    /* ---------- PIN login ---------- */
+    let pinInput = '';
+
+    function renderPinDots() {
+      $$('.pin-dot').forEach((d, i) => {
+        d.classList.toggle('is-filled', i < pinInput.length);
+      });
+    }
+
+    function handlePinKey(key) {
+      if (key === 'back') {
+        if (pinInput.length === 0) return;
+        pinInput = pinInput.slice(0, -1);
+        renderPinDots();
+        return;
+      }
+      if (pinInput.length >= 4) return;
+      pinInput += key;
+      renderPinDots();
+
+      if (pinInput.length === 4) {
+        // For demo: any 4 digits are valid → proceed to clock-in
+        setTimeout(() => {
+          pinInput = '';
+          renderPinDots();
+          showScreen('screen-clockin');
+        }, 240);
+      }
+    }
+
+    $('#pin-keypad').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-key]');
+      if (!btn) return;
+      handlePinKey(btn.dataset.key);
+    });
+
+    // Physical keyboard support (desktop demo)
+    document.addEventListener('keydown', (e) => {
+      if (!$('#screen-pin').classList.contains('is-active')) return;
+      if (e.key >= '0' && e.key <= '9') { handlePinKey(e.key); return; }
+      if (e.key === 'Backspace')         { handlePinKey('back'); return; }
+    });
+
     /* ---------- Clock-in / Clock-out ---------- */
     $('#ci-button').addEventListener('click', () => {
       shiftStart = new Date();
@@ -1878,13 +2065,15 @@
     });
 
     function clockOut() {
-      // Reset shift state, return to clock-in screen
+      // Reset shift state, return to PIN screen (full logout)
       shiftStart = null;
       activeTableId = null;
       menuContextId = null;
       tablesPaid = 0;
+      pinInput = '';
+      renderPinDots();
       // Note: table data stays as-is (refresh = full reset)
-      showScreen('screen-clockin');
+      showScreen('screen-pin');
       toast('À l3afya · fin de service');
     }
 
