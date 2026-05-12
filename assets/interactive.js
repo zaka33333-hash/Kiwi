@@ -66,6 +66,51 @@
   .kiwi-drawer-close { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; }
   .kiwi-drawer-close:hover { color: var(--ink); border-color: var(--n-400); }
 
+  /* ── Fullpage drawer · used for Tables/Menu/KDS/Stock ───────────────────
+   * Backdrop covers viewport, inner panel fills it, slides up + fades in.
+   * Head and foot stay full-bleed (sticky head); body is centered with a
+   * max-width so content breathes on wide monitors but never gets lost on
+   * 1280-wide displays.  Slightly slower easing than the side drawer so the
+   * "this is a whole page, not a panel" feeling reads. */
+  .kiwi-drawer-backdrop.kiwi-fullpage { background: rgba(10,15,13,0.65); backdrop-filter: blur(8px); }
+  .kiwi-fullpage .kiwi-drawer {
+    position: fixed; inset: 0;
+    width: 100vw; max-width: 100vw;
+    height: 100vh; max-height: 100vh;
+    transform: translateY(28px) scale(0.985);
+    opacity: 0;
+    transition: transform 420ms cubic-bezier(0.32,0.72,0,1), opacity 300ms ease;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--paper);
+  }
+  .kiwi-fullpage.in .kiwi-drawer { transform: translateY(0) scale(1); opacity: 1; }
+  .kiwi-fullpage .kiwi-drawer-head {
+    padding: 22px max(48px, calc((100vw - 1480px) / 2 + 48px));
+    position: sticky; top: 0; z-index: 5;
+    background: var(--paper);
+    border-bottom: 1px solid var(--n-200);
+  }
+  .kiwi-fullpage .kiwi-drawer-head h3 { font-size: 22px; letter-spacing: -0.025em; }
+  .kiwi-fullpage .kiwi-drawer-head p  { font-size: 13px; margin-top: 4px; }
+  .kiwi-fullpage .kiwi-drawer-body {
+    padding: 28px max(48px, calc((100vw - 1480px) / 2 + 48px)) 40px;
+  }
+  .kiwi-fullpage .kiwi-drawer-foot {
+    padding: 16px max(48px, calc((100vw - 1480px) / 2 + 48px));
+    background: var(--paper);
+    box-shadow: 0 -6px 18px -10px rgba(10,15,13,0.12);
+  }
+  .kiwi-fullpage .kiwi-drawer-close {
+    width: 38px; height: 38px; border-radius: 12px;
+  }
+  /* Small-viewport guard: tighter gutters under 900 px wide */
+  @media (max-width: 900px) {
+    .kiwi-fullpage .kiwi-drawer-head,
+    .kiwi-fullpage .kiwi-drawer-body,
+    .kiwi-fullpage .kiwi-drawer-foot { padding-left: 20px; padding-right: 20px; }
+  }
+
   /* Command palette */
   .kp { position: fixed; top: 16vh; left: 50%; transform: translateX(-50%) scale(0.97); width: min(600px, calc(100vw - 40px)); background: var(--paper); border-radius: 16px; z-index: 9995; box-shadow: 0 40px 80px -20px rgba(10,15,13,0.35), 0 4px 8px rgba(10,15,13,0.05); opacity: 0; transition: opacity 200ms, transform 200ms cubic-bezier(0.32,0.72,0,1); overflow: hidden; }
   .kp.in { opacity: 1; transform: translateX(-50%) scale(1); }
@@ -267,12 +312,21 @@
     if (n === 0) document.documentElement.classList.remove('kiwi-locked');
   }
 
-  /* ═══════════════════════ DRAWER ═══════════════════════ */
-  function drawer({title = '', subtitle = '', body = '', foot = '', width = 420}) {
+  /* ═══════════════════════ DRAWER ═══════════════════════
+   * Standard mode: 420-px-wide right-side drawer slides in.
+   * Fullpage mode (`fullpage: true`): full-viewport overlay that
+   *   slides up + fades in. Used for the 4 restaurant features
+   *   (Tables, Menu, KDS, Stock) — they hold so much content
+   *   that the 1080-px drawer was choking the layout.
+   *   Both modes share the same DOM (.kiwi-drawer-*), so existing
+   *   content code is untouched — only the outer .kiwi-fullpage
+   *   class toggles a different layout via CSS.
+   * ────────────────────────────────────────────────────── */
+  function drawer({title = '', subtitle = '', body = '', foot = '', width = 420, fullpage = false}) {
     const back = document.createElement('div');
-    back.className = 'kiwi-drawer-backdrop';
+    back.className = 'kiwi-drawer-backdrop' + (fullpage ? ' kiwi-fullpage' : '');
     back.innerHTML = `
-      <div class="kiwi-drawer" style="width:${width}px;">
+      <div class="kiwi-drawer"${fullpage ? '' : ` style="width:${width}px;"`}>
         <div class="kiwi-drawer-head">
           <div>
             <h3>${title}</h3>
@@ -1513,6 +1567,7 @@
   /* ─── Global handle for escape on drawers/modals is done per-instance ─── */
 
   /* ─── Expose a tiny API for inline usage if needed ─── */
-  window.Kiwi = { toast, modal, drawer, menu, commandPalette, confetti, handlers };
+  const fullpage = (opts) => drawer({ ...opts, fullpage: true });
+  window.Kiwi = { toast, modal, drawer, fullpage, menu, commandPalette, confetti, handlers };
 
 })();

@@ -20,6 +20,7 @@
   const Kiwi = window.Kiwi;
   const handlers = Kiwi.handlers;
   const drawer = Kiwi.drawer;
+  const fullpage = Kiwi.fullpage;
   const modal = Kiwi.modal;
   const toast = Kiwi.toast;
   const menu = Kiwi.menu;
@@ -725,6 +726,7 @@ handlers['nav-reglements'] = () => {
   const Kiwi = window.Kiwi;
   const handlers = Kiwi.handlers;
   const drawer = Kiwi.drawer;
+  const fullpage = Kiwi.fullpage;
   const modal = Kiwi.modal;
   const toast = Kiwi.toast;
   const menu = Kiwi.menu;
@@ -1898,6 +1900,7 @@ handlers['resv-buffer']     = () => toast('Buffer 15 min appliqué', { type: 'su
   const Kiwi = window.Kiwi;
   const handlers = Kiwi.handlers;
   const drawer = Kiwi.drawer;
+  const fullpage = Kiwi.fullpage;
   const modal = Kiwi.modal;
   const toast = Kiwi.toast;
   const menu = Kiwi.menu;
@@ -2061,8 +2064,8 @@ handlers['nav-tables'] = () => {
     </div>
   `;
 
-  /* ─── Drawer body ─── */
-  const dr = drawer({
+  /* ─── Full-page body ─── */
+  const dr = fullpage({
     title: 'Plan de salle & stratégie · Café Atlas',
     subtitle: `${occupied}/${TABLES.length} occupées · ${covers} couverts en service · ${free} libres · top : ${topTable.id} (${topTable.rev.toLocaleString('fr-FR')} MAD)`,
     width: 1120,
@@ -2863,6 +2866,7 @@ handlers['menu-publish'] = () => {
   const Kiwi = window.Kiwi;
   const handlers = Kiwi.handlers;
   const drawer = Kiwi.drawer;
+  const fullpage = Kiwi.fullpage;
   const modal = Kiwi.modal;
   const toast = Kiwi.toast;
   const menu = Kiwi.menu;
@@ -3134,7 +3138,7 @@ handlers['menu-publish'] = () => {
         </div>`;
     };
 
-    const r = drawer({
+    const r = fullpage({
       title: 'Stock ingrédients',
       subtitle: '20 ingrédients suivis · 5 alertes · 5 fournisseurs locaux · réappro auto active sur 14',
       width: 1000,
@@ -3463,6 +3467,7 @@ handlers['menu-publish'] = () => {
   const Kiwi = window.Kiwi;
   const handlers = Kiwi.handlers;
   const drawer = Kiwi.drawer;
+  const fullpage = Kiwi.fullpage;
   const modal = Kiwi.modal;
   const toast = Kiwi.toast;
   const menu = Kiwi.menu;
@@ -6893,7 +6898,7 @@ handlers['bout-cat-publish'] = () => {
       return list.map((it, i) => renderRow(it, i, list.length)).join('');
     };
 
-    const menuDr = drawer({
+    const menuDr = fullpage({
       title: 'Menu & stations · Café Atlas',
       subtitle: `${allItems().length} items actifs · ${CATS.length} catégories · ${STATIONS.length} stations de prép. · ${menu86.size} produits 86\'d`,
       width: 980,
@@ -7502,7 +7507,7 @@ handlers['bout-cat-publish'] = () => {
       return `<div class="l">STATION ACTIVE</div><div class="v" style="font-size:18px;">${s.name}</div><div class="d"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${s.raw}; margin-right:5px;"></span>${tk.length} tickets · ${dishes} plats</div>`;
     };
 
-    const r = drawer({
+    const r = fullpage({
       title: 'Écran cuisine · KDS',
       subtitle: `${tickets.length} tickets en préparation · service midi · ${STATIONS.length} stations actives`,
       width: 1040,
