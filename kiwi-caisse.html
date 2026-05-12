@@ -1011,6 +1011,193 @@
       to { opacity: 0; transform: translateY(8px); }
     }
 
+    /* ---------- Split Bill Modal ---------- */
+    .modal.modal-split {
+      width: 560px;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .modal.modal-split::-webkit-scrollbar { width: 4px; }
+    .modal.modal-split::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+    .split-badge {
+      display: inline-flex; align-items: center;
+      padding: 4px 10px; border-radius: 999px;
+      background: var(--mint-tint); color: var(--forest);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 10px;
+    }
+    .split-title { font-size: 20px; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
+    .split-subtitle { font-size: 12px; color: var(--ink-3); margin: 0 0 18px; line-height: 1.5; }
+
+    .split-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+    .split-tab {
+      padding: 14px 16px; border-radius: var(--r-lg);
+      border: 1.5px solid var(--line);
+      display: flex; align-items: center; gap: 12px;
+      text-align: left; cursor: pointer;
+      transition: border-color 150ms, background 150ms;
+      background: #fff;
+    }
+    .split-tab:hover { border-color: #bbb; }
+    .split-tab.is-active { border-color: var(--forest); background: var(--mint-tint); }
+    .split-tab-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--paper-mute);
+      display: flex; align-items: center; justify-content: center; flex: 0 0 40px;
+    }
+    .split-tab.is-active .split-tab-icon { background: rgba(31,93,60,.14); }
+    .split-tab-icon svg { width: 18px; height: 18px; color: var(--ink-3); }
+    .split-tab.is-active .split-tab-icon svg { color: var(--forest); }
+    .split-tab-text { display: flex; flex-direction: column; }
+    .split-tab-title { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+    .split-tab-desc { font-size: 11px; color: var(--ink-4); margin-top: 2px; line-height: 1.3; }
+
+    .split-section-label {
+      font-size: 11px; font-weight: 500; color: var(--ink-3);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+    }
+    .split-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .split-chip {
+      padding: 8px 16px; border-radius: 999px;
+      font-size: 13px; font-weight: 600;
+      background: var(--paper-mute); color: var(--ink-2);
+      transition: background 150ms, color 150ms;
+    }
+    .split-chip:hover { background: #ECEAE5; }
+    .split-chip.is-active { background: var(--forest); color: #fff; }
+
+    .split-tip-custom { display: none; margin-top: -8px; margin-bottom: 16px; }
+    .split-tip-custom.is-visible { display: block; }
+    .split-tip-input {
+      width: 100%; padding: 10px 14px;
+      font-size: 15px; font-weight: 600; color: var(--ink);
+      border: 1px solid var(--line); border-radius: var(--r-lg); background: #fff;
+      font-family: var(--mono); font-feature-settings: "tnum" 1;
+    }
+    .split-tip-input:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 3px rgba(31,93,60,.1); }
+
+    .split-summary {
+      background: var(--paper-soft); border-radius: var(--r-lg);
+      padding: 14px 16px; margin-bottom: 18px;
+    }
+    .split-summary-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 13px; color: var(--ink-3); margin-bottom: 4px;
+    }
+    .split-summary-row .val { font-feature-settings: "tnum" 1; color: var(--ink-2); }
+    .split-per-person {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--line);
+    }
+    .split-per-person .lbl { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .split-per-person .val {
+      font-size: 22px; font-weight: 800; color: var(--forest);
+      font-feature-settings: "tnum" 1; letter-spacing: -0.02em;
+    }
+
+    /* Par article */
+    .split-items {
+      border: 1px solid var(--line-soft); border-radius: var(--r-lg);
+      max-height: 200px; overflow-y: auto; margin-bottom: 14px;
+    }
+    .split-items::-webkit-scrollbar { width: 4px; }
+    .split-items::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+    .split-item-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-bottom: 1px solid var(--paper-mute); font-size: 13px;
+    }
+    .split-item-row:last-child { border-bottom: 0; }
+    .split-item-name { flex: 1; color: var(--ink); }
+    .split-item-price { color: var(--ink-3); font-feature-settings: "tnum" 1; white-space: nowrap; font-size: 12px; }
+    .split-convive-chips { display: flex; gap: 4px; margin-left: 6px; }
+    .split-convive-chip {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--paper-mute); color: var(--ink-3);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 120ms, color 120ms; cursor: pointer;
+    }
+    .split-convive-chip:hover { background: var(--mint-tint); color: var(--forest); }
+    .split-convive-chip.is-assigned { background: var(--forest); color: #fff; }
+
+    .split-article-totals { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .split-convive-total {
+      flex: 1; min-width: 80px; background: var(--paper-soft);
+      border-radius: var(--r-lg); padding: 8px 12px; text-align: center;
+    }
+    .split-convive-total .lbl { font-size: 10px; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.06em; }
+    .split-convive-total .val { font-size: 15px; font-weight: 700; color: var(--ink); font-feature-settings: "tnum" 1; margin-top: 2px; }
+    .split-convive-total.is-unassigned .lbl { color: var(--danger-mute); }
+    .split-convive-total.is-unassigned .val { color: var(--danger-mute); }
+
+    .split-launch {
+      width: 100%; height: 52px; border-radius: var(--r-lg);
+      background: var(--gradient); color: #fff;
+      font-size: 15px; font-weight: 600;
+      transition: opacity 150ms, transform 150ms;
+    }
+    .split-launch:hover { transform: translateY(-1px); }
+    .split-cancel-link {
+      display: block; text-align: center; margin-top: 12px;
+      font-size: 12px; color: var(--ink-4); cursor: pointer; transition: color 150ms;
+    }
+    .split-cancel-link:hover { color: var(--ink-2); }
+
+    /* Payment flow */
+    .split-flow-header { display: flex; align-items: center; margin-bottom: 16px; }
+    .split-flow-title { font-size: 18px; font-weight: 700; color: var(--ink); }
+    .split-flow-progress { font-size: 12px; color: var(--ink-4); margin-left: auto; font-feature-settings: "tnum" 1; }
+
+    .split-parts-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 6px; transition: opacity 300ms; }
+    .split-part-card {
+      border: 1.5px solid var(--line); border-radius: var(--r-lg);
+      padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+      transition: border-color 200ms, background 200ms;
+    }
+    .split-part-card.is-paid { border-color: var(--mint-edge); background: var(--mint-tint); }
+    .split-part-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--paper-mute); color: var(--ink);
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex: 0 0 32px;
+    }
+    .split-part-num svg { width: 14px; height: 14px; }
+    .split-part-card.is-paid .split-part-num { background: var(--emerald); color: #fff; }
+    .split-part-info { flex: 1; min-width: 0; }
+    .split-part-amount { font-size: 18px; font-weight: 800; color: var(--ink); font-feature-settings: "tnum" 1; letter-spacing: -0.02em; }
+    .split-part-card.is-paid .split-part-amount { color: var(--forest); }
+    .split-part-label { font-size: 11px; color: var(--ink-4); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .split-part-paid-label { font-size: 12px; font-weight: 600; color: var(--forest); margin-top: 2px; }
+    .split-part-btns { display: flex; gap: 6px; flex: 0 0 auto; }
+    .split-part-btn {
+      padding: 8px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+      transition: transform 100ms, opacity 150ms;
+    }
+    .split-part-btn svg { width: 13px; height: 13px; }
+    .split-part-btn.carte { background: var(--gradient); color: #fff; }
+    .split-part-btn.cash-dark { background: var(--ink); color: #fff; }
+    .split-part-btn:hover { transform: translateY(-1px); }
+
+    .split-all-done { text-align: center; padding: 16px 0 4px; }
+    .split-done-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(63,182,122,.15);
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
+    }
+    .split-done-icon svg { width: 28px; height: 28px; color: var(--emerald); }
+    .split-all-done h3 { margin: 0 0 4px; font-size: 18px; font-weight: 700; color: var(--ink); }
+    .split-all-done p { margin: 0 0 16px; font-size: 13px; color: var(--ink-3); }
+    .split-close-btn {
+      width: 100%; height: 48px; border-radius: var(--r-lg);
+      background: var(--paper-mute); color: var(--ink);
+      font-size: 14px; font-weight: 600; transition: background 150ms;
+    }
+    .split-close-btn:hover { background: #ECEAE5; }
+
     /* ---------- Reduced motion ---------- */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -1247,6 +1434,91 @@
         </div>
       </div>
     </aside>
+  </div>
+
+  <!-- ============ SPLIT BILL MODAL ============ -->
+  <div class="modal-veil" id="split-modal" role="dialog" aria-modal="true" aria-labelledby="split-modal-title">
+    <div class="modal modal-split">
+
+      <!-- ── SETUP SCREEN ── -->
+      <div id="split-setup">
+        <div class="split-badge">Split Bill</div>
+        <h3 class="split-title" id="split-modal-title">Diviser l'addition · <span id="split-table-label">T2</span></h3>
+        <p class="split-subtitle">Choisissez un mode de partage. Chaque part part avec son ticket et son TPE.</p>
+
+        <!-- Mode tabs -->
+        <div class="split-tabs">
+          <button class="split-tab is-active" data-split-tab="egal">
+            <div class="split-tab-icon"><i data-lucide="equal"></i></div>
+            <div class="split-tab-text">
+              <div class="split-tab-title">À parts égales</div>
+              <div class="split-tab-desc" id="split-egal-desc">2 parts · — chacun</div>
+            </div>
+          </button>
+          <button class="split-tab" data-split-tab="article">
+            <div class="split-tab-icon"><i data-lucide="list"></i></div>
+            <div class="split-tab-text">
+              <div class="split-tab-title">Par article</div>
+              <div class="split-tab-desc">Assignez chaque ligne à un convive</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- À PARTS ÉGALES content -->
+        <div id="split-egal-content">
+          <div class="split-section-label">Nombre de parts</div>
+          <div class="split-chips" id="split-parts-chips"></div>
+
+          <div class="split-section-label">Pourboire commun</div>
+          <div class="split-chips" id="split-tip-chips"></div>
+          <div class="split-tip-custom" id="split-tip-custom">
+            <input class="split-tip-input" id="split-tip-input" type="number" min="0" max="100" step="0.5" placeholder="Entrez un %" />
+          </div>
+
+          <div class="split-summary">
+            <div class="split-summary-row">
+              <span>Total à diviser</span>
+              <span class="val mono" id="split-total-display">—</span>
+            </div>
+            <div class="split-summary-row" id="split-tip-row" style="display:none">
+              <span id="split-tip-label">+ pourboire 10%</span>
+              <span class="val mono" id="split-tip-display">—</span>
+            </div>
+            <div class="split-per-person">
+              <span class="lbl">Par convive</span>
+              <span class="val mono" id="split-per-person">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAR ARTICLE content -->
+        <div id="split-article-content" hidden>
+          <div class="split-section-label">Nombre de convives</div>
+          <div class="split-chips" id="split-convives-chips"></div>
+          <div class="split-items" id="split-items-list"></div>
+          <div class="split-article-totals" id="split-article-totals"></div>
+        </div>
+
+        <button class="split-launch" id="split-launch">Lancer le split</button>
+        <a class="split-cancel-link" id="split-cancel">Annuler</a>
+      </div>
+
+      <!-- ── PAYMENT FLOW SCREEN ── -->
+      <div id="split-flow" hidden>
+        <div class="split-flow-header">
+          <div class="split-flow-title">Encaisser les parts</div>
+          <div class="split-flow-progress" id="split-flow-progress">0 / 0 réglées</div>
+        </div>
+        <div class="split-parts-list" id="split-parts-list"></div>
+        <div class="split-all-done" id="split-all-done" hidden>
+          <div class="split-done-icon"><i data-lucide="check-circle-2"></i></div>
+          <h3>Tout khlass!</h3>
+          <p>L'addition est soldée · choukran</p>
+          <button class="split-close-btn" id="split-done-close">Fermer</button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- ============ CARD MODAL ============ -->
@@ -1935,8 +2207,8 @@
     });
 
     $('#pay-split').addEventListener('click', () => {
-      if (mode === 'vrap') toast('Vente rapida — paiement en une fois');
-      else toast('Bientôt disponible — wakha');
+      if (mode === 'vrap') { toast('Vente rapida — paiement en une fois'); return; }
+      if (selectedId) openSplitModal(selectedId);
     });
     $$('.meta-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2018,6 +2290,12 @@
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
       if (!paid) return;
+      if (splitPayCallback) {
+        const cb = splitPayCallback;
+        splitPayCallback = null;
+        cb();
+        return;
+      }
       if (mode === 'vrap') {
         clearCart();
       } else if (selectedId) {
@@ -2044,7 +2322,11 @@
     const cashStepSuccess = $('#cash-step-success');
     const cashSuccessRendu = $('#cash-success-rendu');
 
+    // When a split part is being paid, this overrides currentTotal()
+    let cashAmountOverride = null;
+
     function currentTotal() {
+      if (cashAmountOverride !== null) return cashAmountOverride;
       if (mode === 'vrap') {
         return cart.reduce((s, l) => s + l.price * l.qty, 0);
       }
@@ -2074,13 +2356,21 @@
       cashStepSuccess.style.display = 'none';
       const total = currentTotal();
       cashInput.value = total;
+      $('#cash-amount').textContent = fmtMADcents(total);
       updateRendu();
       cashModal.classList.add('is-open');
       setTimeout(() => cashInput.focus(), 60);
     }
     function closeCashModal({ paid = false } = {}) {
+      cashAmountOverride = null;
       cashModal.classList.remove('is-open');
       if (!paid) return;
+      if (splitPayCallback) {
+        const cb = splitPayCallback;
+        splitPayCallback = null;
+        cb();
+        return;
+      }
       if (mode === 'vrap') {
         clearCart();
       } else if (selectedId) {
@@ -2152,6 +2442,362 @@
         refreshTableNode('T7');
       }
     }, 5000);
+
+    /* ===========================================================
+       Split Bill
+       =========================================================== */
+
+    let splitPayCallback = null;
+
+    const splitState = {
+      tableId: null,
+      total: 0,
+      lines: [],
+      splitMode: 'egal',   // 'egal' | 'article'
+      numParts: 2,
+      tipMode: '0',        // '0','5','10','15','autre'
+      customTipPct: 0,
+      numConvives: 2,
+      assignments: {},     // lineIdx → conviveNum (1-based); 0 = unassigned
+      flow: null,          // { parts:[{amount,label,paid,payMethod}], paidCount }
+    };
+
+    function effectiveTipPct() {
+      if (splitState.tipMode === 'autre') return splitState.customTipPct;
+      return parseFloat(splitState.tipMode) || 0;
+    }
+
+    /* ---- open ---- */
+    function openSplitModal(tableId) {
+      const t = tables[tableId];
+      const lines = generateOrder(tableId, t);
+      const total = lines.reduce((s, l) => s + l.total, 0);
+
+      Object.assign(splitState, {
+        tableId, total, lines,
+        splitMode: 'egal',
+        numParts: Math.max(2, t.covers || 2),
+        tipMode: '0', customTipPct: 0,
+        numConvives: Math.max(2, t.covers || 2),
+        assignments: {}, flow: null,
+      });
+
+      $('#split-table-label').textContent = tableId;
+      $('#split-setup').hidden = false;
+      $('#split-flow').hidden = true;
+      $('#split-all-done').hidden = true;
+
+      renderSplitSetup();
+      $('#split-modal').classList.add('is-open');
+      lucide.createIcons();
+    }
+
+    function closeSplitModal({ skipRevert = false } = {}) {
+      $('#split-modal').classList.remove('is-open');
+      splitPayCallback = null;
+      cashAmountOverride = null;
+      // If the table was opened into ka-tkhdam just for split, revert it
+      if (!skipRevert && splitState.tableId) {
+        const t = tables[splitState.tableId];
+        if (t && t.status === 'ka-tkhdam') {
+          t.status = 'bgha-ykhlass';
+          refreshTableNode(splitState.tableId);
+        }
+      }
+    }
+
+    /* ---- setup screen ---- */
+    function renderSplitSetup() {
+      $$('[data-split-tab]').forEach(tab =>
+        tab.classList.toggle('is-active', tab.dataset.splitTab === splitState.splitMode));
+
+      $('#split-egal-content').hidden = splitState.splitMode !== 'egal';
+      $('#split-article-content').hidden = splitState.splitMode !== 'article';
+
+      if (splitState.splitMode === 'egal') {
+        renderPartsChips();
+        renderTipChips();
+        updateSplitSummary();
+      } else {
+        renderConvivesChips();
+        renderArticleItems();
+        updateArticleTotals();
+      }
+      lucide.createIcons();
+    }
+
+    function renderPartsChips() {
+      const opts = [2, 3, 4, 5, 6, 8];
+      $('#split-parts-chips').innerHTML = opts.map(n =>
+        `<button class="split-chip ${n === splitState.numParts ? 'is-active' : ''}" data-parts="${n}">${n}</button>`
+      ).join('');
+    }
+
+    function renderTipChips() {
+      const opts = [
+        { label: '0 %',  val: '0'   },
+        { label: '5 %',  val: '5'   },
+        { label: '10 %', val: '10'  },
+        { label: '15 %', val: '15'  },
+        { label: 'autre',val: 'autre'},
+      ];
+      $('#split-tip-chips').innerHTML = opts.map(o =>
+        `<button class="split-chip ${o.val === splitState.tipMode ? 'is-active' : ''}" data-tip="${o.val}">${o.label}</button>`
+      ).join('');
+      const customVisible = splitState.tipMode === 'autre';
+      $('#split-tip-custom').classList.toggle('is-visible', customVisible);
+      if (customVisible) {
+        const inp = $('#split-tip-input');
+        inp.value = splitState.customTipPct || '';
+        setTimeout(() => inp.focus(), 60);
+      }
+    }
+
+    function updateSplitSummary() {
+      const tipPct = effectiveTipPct();
+      const tipAmt = splitState.total * tipPct / 100;
+      const withTip = splitState.total + tipAmt;
+      const perPerson = withTip / splitState.numParts;
+
+      $('#split-total-display').textContent = fmtMADcents(splitState.total);
+      const tipRow = $('#split-tip-row');
+      if (tipPct > 0) {
+        tipRow.style.display = '';
+        $('#split-tip-label').textContent = `+ pourboire ${tipPct}%`;
+        $('#split-tip-display').textContent = `+ ${fmtMADcents(tipAmt)}`;
+      } else {
+        tipRow.style.display = 'none';
+      }
+      $('#split-per-person').textContent = fmtMADcents(perPerson);
+      $('#split-egal-desc').textContent = `${splitState.numParts} parts · ${fmtMADcents(perPerson)} chacun`;
+    }
+
+    function renderConvivesChips() {
+      const opts = [2, 3, 4, 5, 6, 8];
+      $('#split-convives-chips').innerHTML = opts.map(n =>
+        `<button class="split-chip ${n === splitState.numConvives ? 'is-active' : ''}" data-convives="${n}">${n} convives</button>`
+      ).join('');
+    }
+
+    function renderArticleItems() {
+      const n = splitState.numConvives;
+      $('#split-items-list').innerHTML = splitState.lines.map((l, idx) => {
+        const assigned = splitState.assignments[idx] || 0;
+        const chips = Array.from({ length: n }, (_, i) => {
+          const c = i + 1;
+          return `<button class="split-convive-chip ${assigned === c ? 'is-assigned' : ''}" data-item="${idx}" data-convive="${c}">${c}</button>`;
+        }).join('');
+        return `
+          <div class="split-item-row">
+            <span class="split-item-name">${l.qty > 1 ? `${l.qty}× ` : ''}${l.name}</span>
+            <span class="split-item-price mono">${fmtMAD(l.total)}</span>
+            <div class="split-convive-chips">${chips}</div>
+          </div>`;
+      }).join('');
+    }
+
+    function updateArticleTotals() {
+      const n = splitState.numConvives;
+      const totals = {};
+      for (let c = 1; c <= n; c++) totals[c] = 0;
+      splitState.lines.forEach((l, idx) => {
+        const c = splitState.assignments[idx] || 0;
+        if (c >= 1 && c <= n) totals[c] += l.total;
+      });
+      const unassigned = splitState.lines.reduce((s, l, idx) =>
+        (splitState.assignments[idx] || 0) === 0 ? s + l.total : s, 0);
+
+      $('#split-article-totals').innerHTML =
+        Array.from({ length: n }, (_, i) => {
+          const c = i + 1;
+          return `<div class="split-convive-total">
+            <div class="lbl">Convive ${c}</div>
+            <div class="val mono">${fmtMAD(totals[c])}</div>
+          </div>`;
+        }).join('') +
+        (unassigned > 0 ? `<div class="split-convive-total is-unassigned">
+            <div class="lbl">Non assigné</div>
+            <div class="val mono">${fmtMAD(unassigned)}</div>
+          </div>` : '');
+    }
+
+    /* ---- launch flow ---- */
+    function launchSplitFlow() {
+      const parts = [];
+      if (splitState.splitMode === 'egal') {
+        const tipPct = effectiveTipPct();
+        const perPerson = (splitState.total * (1 + tipPct / 100)) / splitState.numParts;
+        const label = tipPct > 0 ? `Part égale + pourboire ${tipPct}%` : 'Part égale';
+        for (let i = 0; i < splitState.numParts; i++) {
+          parts.push({ amount: perPerson, label, paid: false, payMethod: null });
+        }
+      } else {
+        const n = splitState.numConvives;
+        const unassignedTotal = splitState.lines.reduce((s, l, idx) =>
+          (splitState.assignments[idx] || 0) === 0 ? s + l.total : s, 0);
+        for (let c = 1; c <= n; c++) {
+          let amt = splitState.lines.reduce((s, l, idx) =>
+            (splitState.assignments[idx] || 0) === c ? s + l.total : s, 0);
+          amt += unassignedTotal / n;   // spread unassigned evenly
+          const items = splitState.lines
+            .filter((_, idx) => (splitState.assignments[idx] || 0) === c)
+            .map(l => l.name).join(', ');
+          parts.push({ amount: amt, label: items || 'Articles non assignés', paid: false, payMethod: null });
+        }
+      }
+
+      splitState.flow = { parts, paidCount: 0 };
+      $('#split-setup').hidden = true;
+      $('#split-flow').hidden = false;
+      renderSplitFlow();
+      lucide.createIcons();
+    }
+
+    function renderSplitFlow() {
+      const { parts, paidCount } = splitState.flow;
+      $('#split-flow-progress').textContent = `${paidCount} / ${parts.length} réglées`;
+      $('#split-parts-list').innerHTML = parts.map((p, idx) => {
+        if (p.paid) {
+          return `<div class="split-part-card is-paid" data-part="${idx}">
+            <div class="split-part-num"><i data-lucide="check"></i></div>
+            <div class="split-part-info">
+              <div class="split-part-amount">${fmtMADcents(p.amount)}</div>
+              <div class="split-part-paid-label">Réglé · ${p.payMethod === 'carte' ? 'Carte' : 'Espèces'}</div>
+            </div>
+          </div>`;
+        }
+        return `<div class="split-part-card" data-part="${idx}">
+          <div class="split-part-num">${idx + 1}</div>
+          <div class="split-part-info">
+            <div class="split-part-amount">${fmtMADcents(p.amount)}</div>
+            <div class="split-part-label">${p.label}</div>
+          </div>
+          <div class="split-part-btns">
+            <button class="split-part-btn carte" data-pay-part="${idx}" data-pay-method="carte">
+              <i data-lucide="credit-card"></i> Carte
+            </button>
+            <button class="split-part-btn cash-dark" data-pay-part="${idx}" data-pay-method="cash">
+              <i data-lucide="banknote"></i> Cash
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function paySplitPart(partIdx, method) {
+      const part = splitState.flow.parts[partIdx];
+      if (!part || part.paid) return;
+
+      // Bind modal subtitle to the split context
+      $$('[data-bind="table"]').forEach(el => el.textContent = `Part ${partIdx + 1}`);
+      $$('[data-bind="covers"]').forEach(el => el.textContent = splitState.tableId);
+
+      if (method === 'carte') {
+        $('#card-amount').textContent = fmtMADcents(part.amount);
+        splitPayCallback = () => markSplitPartPaid(partIdx, 'carte');
+        openCardModal();
+      } else {
+        cashAmountOverride = part.amount;
+        splitPayCallback = () => markSplitPartPaid(partIdx, 'cash');
+        openCashModal();
+      }
+    }
+
+    function markSplitPartPaid(partIdx, method) {
+      const p = splitState.flow.parts[partIdx];
+      p.paid = true;
+      p.payMethod = method;
+      splitState.flow.paidCount++;
+      renderSplitFlow();
+
+      if (splitState.flow.paidCount >= splitState.flow.parts.length) {
+        // All parts settled — mark table paid
+        $('#split-parts-list').style.opacity = '0.45';
+        $('#split-all-done').hidden = false;
+        if (splitState.tableId) markPaid(splitState.tableId);
+        lucide.createIcons();
+      }
+    }
+
+    /* ---- events ---- */
+    $('#split-modal').addEventListener('click', (e) => {
+      // Tab switch
+      const tab = e.target.closest('[data-split-tab]');
+      if (tab) { splitState.splitMode = tab.dataset.splitTab; renderSplitSetup(); return; }
+
+      // Parts chips
+      const partsChip = e.target.closest('[data-parts]');
+      if (partsChip) {
+        splitState.numParts = parseInt(partsChip.dataset.parts);
+        renderPartsChips(); updateSplitSummary(); return;
+      }
+
+      // Tip chips
+      const tipChip = e.target.closest('[data-tip]');
+      if (tipChip) {
+        splitState.tipMode = tipChip.dataset.tip;
+        renderTipChips(); updateSplitSummary(); return;
+      }
+
+      // Convives chips (par article mode)
+      const convivesChip = e.target.closest('[data-convives]');
+      if (convivesChip) {
+        splitState.numConvives = parseInt(convivesChip.dataset.convives);
+        splitState.assignments = {};
+        renderConvivesChips(); renderArticleItems(); updateArticleTotals(); return;
+      }
+
+      // Convive assignment chip
+      const conviveChip = e.target.closest('[data-convive]');
+      if (conviveChip) {
+        const idx = parseInt(conviveChip.dataset.item);
+        const c   = parseInt(conviveChip.dataset.convive);
+        if (splitState.assignments[idx] === c) delete splitState.assignments[idx];
+        else splitState.assignments[idx] = c;
+        renderArticleItems(); updateArticleTotals(); return;
+      }
+
+      // Launch button
+      if (e.target.closest('#split-launch')) { launchSplitFlow(); return; }
+
+      // Cancel link
+      if (e.target.closest('#split-cancel')) { closeSplitModal(); return; }
+
+      // Done close
+      if (e.target.closest('#split-done-close')) {
+        closeSplitModal({ skipRevert: true });
+        closeRightPanel();
+        return;
+      }
+
+      // Pay-part buttons
+      const payBtn = e.target.closest('[data-pay-part]');
+      if (payBtn) {
+        paySplitPart(parseInt(payBtn.dataset.payPart), payBtn.dataset.payMethod);
+        return;
+      }
+
+      // Click on veil backdrop (only allowed on setup screen, not mid-flow)
+      if (e.target === $('#split-modal') && !$('#split-flow').hidden) return;
+      if (e.target === $('#split-modal')) closeSplitModal();
+    });
+
+    // Custom tip percentage input
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'split-tip-input') {
+        splitState.customTipPct = parseFloat(e.target.value) || 0;
+        updateSplitSummary();
+      }
+    });
+
+    // Escape also closes split modal (same handler already closes card/cash)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && $('#split-modal').classList.contains('is-open')) {
+        if (!$('#split-flow').hidden) return; // don't accidentally close mid-flow
+        closeSplitModal();
+      }
+    }, { capture: false });
 
     /* ---------- Bootstrap menu (vente rapida) ---------- */
     renderCatPills();
