@@ -877,26 +877,44 @@
     margin: 0; line-height: 1.12;
     font-size: 64px; font-weight: 600; letter-spacing: -0.034em;
     color: var(--ink);
-    text-shadow: 0 8px 32px rgba(11,110,79,0.10), 0 2px 6px rgba(10,15,13,0.05);
+    /* Light shadow only — heavy blur on text repaints every animation
+     * frame and tanks fluidity. */
+    text-shadow: 0 2px 6px rgba(10,15,13,0.05);
     white-space: nowrap;
   }
+  /* The em itself stays plain inline so its baseline aligns naturally
+   * with the surrounding sans. All the reveal mechanics happen on the
+   * wrapper. */
   .kiwi-greet h1 em {
     font-family: var(--serif); font-style: italic; font-weight: 400;
     color: var(--atlas);
-    display: inline-block;
-    max-width: 0;
-    overflow: hidden;
-    vertical-align: baseline;
-    white-space: nowrap;
-    transition: max-width 320ms cubic-bezier(0.32, 0.72, 0, 1);
+    display: inline;
   }
-  .kiwi-greet h1 em.is-typing::after {
-    content: '|';
-    color: var(--atlas);
-    font-style: normal;
-    font-weight: 300;
-    margin-left: 2px;
-    animation: kw-greet-cursor 0.9s steps(1) infinite;
+  /* The wrapper does the smooth max-width reveal — single CSS transition,
+   * GPU-friendly, no setTimeout drift. vertical-align:top aligns the
+   * inline-block's top to the parent line box's top, so its inner text
+   * baseline lines up with the surrounding text baseline. */
+  .kiwi-greet h1 .em-clip {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    max-width: 0;
+    white-space: nowrap;
+    vertical-align: top;
+    transition: max-width 960ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .kiwi-greet h1 .em-clip.is-revealed {
+    max-width: var(--em-w, 700px);
+  }
+  /* Blinking caret sits at the right edge of the clip-wrapper and so
+   * tracks the reveal edge as the width animates. */
+  .kiwi-greet h1 .em-clip.is-typing::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 18%; bottom: 16%;
+    width: 2.5px;
+    background: var(--atlas);
+    animation: kw-greet-cursor 0.7s steps(1) infinite;
   }
   @keyframes kw-greet-cursor {
     0%, 55%   { opacity: 1; }
@@ -1596,32 +1614,32 @@
   if (app)     app.classList.add('kw-app-hidden');
   if (demoBar) demoBar.classList.add('kw-bar-hidden');
 
-  /* The greeting's <em> already exists with the full text — capture it
-   * once, then blank the em so the typewriter can refill it. */
+  /* Wrap the greeting's <em> in a clip-span and measure its natural
+   * width up-front. The reveal becomes a single GPU-friendly max-width
+   * transition — no per-character textContent mutation, no setTimeout
+   * drift, perfectly 60 fps fluid. Em stays plain display:inline so its
+   * baseline aligns with the surrounding sans correctly. */
   const greetH1 = greet.querySelector('h1');
-  const greetEm = greetH1 ? greetH1.querySelector('em') : null;
-  const EM_TEXT = greetEm ? greetEm.textContent : '';     // "bonne journée ?"
-  if (greetEm) greetEm.textContent = '';
+  let emClip = null;
+  if (greetH1) {
+    const greetEm = greetH1.querySelector('em');
+    if (greetEm) {
+      /* Measure em's natural inline width. em is plain inline in our
+       * CSS so getBoundingClientRect gives the real text width. */
+      const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 6;
 
-  /* Measure the em's natural width with full text so the expansion
-   * animation knows where to stop. Done off-screen with a clone so the
-   * visible em never flashes. */
-  function measureEmWidth() {
-    if (!greetEm) return 0;
-    const clone = greetEm.cloneNode(false);
-    clone.style.maxWidth = 'none';
-    clone.style.position = 'absolute';
-    clone.style.visibility = 'hidden';
-    clone.style.left = '-9999px';
-    clone.textContent = EM_TEXT;
-    greetEm.parentNode.appendChild(clone);
-    const w = Math.ceil(clone.offsetWidth) + 8;
-    clone.remove();
-    return w;
+      /* Wrap em in the clip-span; the wrapper handles overflow + the
+       * max-width transition, em itself is undisturbed. */
+      emClip = document.createElement('span');
+      emClip.className = 'em-clip';
+      emClip.style.setProperty('--em-w', naturalW + 'px');
+      greetEm.parentNode.insertBefore(emClip, greetEm);
+      emClip.appendChild(greetEm);
+    }
   }
 
   function unlock() {
-    /* Stagger the success pop on each cell (left → right). */
+    /* Stagger the success pop on each cell (left -> right). */
     cells.forEach((c, i) => {
       setTimeout(() => c.classList.add('is-success'), i * 70);
     });
@@ -1641,38 +1659,23 @@
     }, 1100);
 
     /* 1400 ms: "Bonjour Rachid," has been alone-centered for ~600 ms,
-     *          letting the eye land on it. Expand the em's max-width
-     *          so it claims its final space inline (320 ms). The flex/
-     *          inline layout naturally pushes "Bonjour Rachid," left as
-     *          the em widens — that's the "shift to the left" beat. */
+     *          letting the eye land on it. Trigger the em's max-width
+     *          reveal — a single 960 ms CSS transition handles both the
+     *          shift-left of "Bonjour Rachid," (the h1 line stays
+     *          centered while the em widens) AND the typewriter-style
+     *          left-to-right reveal of the green italic. A caret rides
+     *          the right edge via the .is-typing ::after pseudo. */
     setTimeout(() => {
-      if (!greetEm) return;
-      const w = measureEmWidth();
-      greetEm.style.maxWidth = w + 'px';
-      greetEm.classList.add('is-typing');  // shows the blinking cursor
+      if (emClip) emClip.classList.add('is-revealed', 'is-typing');
     }, 1400);
 
-    /* 1720 ms: em width done. Typewriter fills the em character by
-     *          character. Slightly faster on whitespace so spaces don't
-     *          feel like a pause. */
+    /* 2400 ms: reveal complete — drop the caret so the final sentence
+     *          reads cleanly without a blinking bar. */
     setTimeout(() => {
-      if (!greetEm) return;
-      let i = 0;
-      const tick = () => {
-        if (i >= EM_TEXT.length) {
-          greetEm.classList.remove('is-typing');  // hide cursor
-          return;
-        }
-        greetEm.textContent = EM_TEXT.slice(0, i + 1);
-        i++;
-        const ch = EM_TEXT[i - 1];
-        const delay = (ch === ' ' || ch === ' ') ? 35 : 58;
-        setTimeout(tick, delay);
-      };
-      tick();
-    }, 1720);
+      if (emClip) emClip.classList.remove('is-typing');
+    }, 2400);
 
-    /* 3200 ms: full sentence has been visible for ~600 ms. Fade out the
+    /* 3200 ms: full sentence has been visible for ~800 ms. Fade out the
      *          greeting AND simultaneously "dive in" the dashboard. */
     setTimeout(() => {
       greet.classList.remove('is-visible');
