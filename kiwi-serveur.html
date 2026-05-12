@@ -1347,6 +1347,164 @@
     }
     .split-items-cards::-webkit-scrollbar { width: 4px; }
     .split-items-cards::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+
+    /* Convive tabs with running totals */
+    .split-convives-tabs {
+      display: flex; gap: 6px;
+      overflow-x: auto;
+      padding: 2px 0 4px;
+      scrollbar-width: none;
+      margin-bottom: 4px;
+    }
+    .split-convives-tabs::-webkit-scrollbar { display: none; }
+    .split-conv-tab {
+      flex: 0 0 auto;
+      min-width: 78px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--paper-mute);
+      border: 1.5px solid transparent;
+      text-align: center;
+      display: flex; flex-direction: column; gap: 2px;
+      transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 80ms ease;
+    }
+    .split-conv-tab:active { transform: scale(0.96); }
+    .split-conv-tab.is-active {
+      background: var(--forest);
+      border-color: var(--forest);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(31,93,60,0.22);
+    }
+    .split-conv-tab-label {
+      font-size: 10.5px;
+      color: var(--ink-3);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .split-conv-tab.is-active .split-conv-tab-label { color: rgba(255,255,255,0.75); }
+    .split-conv-tab-total {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+      font-feature-settings: "tnum" 1;
+      letter-spacing: -0.01em;
+    }
+    .split-conv-tab.is-active .split-conv-tab-total { color: #fff; }
+
+    /* Item pool — one card per unique dish */
+    .split-pool {
+      display: flex; flex-direction: column;
+      gap: 8px;
+      max-height: 260px; overflow-y: auto;
+    }
+    .split-pool::-webkit-scrollbar { width: 4px; }
+    .split-pool::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+    .split-pool-item {
+      background: var(--paper-mute);
+      border-radius: 12px;
+      padding: 11px 14px;
+      display: flex; align-items: center; gap: 10px;
+      transition: background 150ms ease, transform 80ms ease, opacity 200ms ease;
+      width: 100%;
+      text-align: left;
+    }
+    .split-pool-item:not(.is-empty):active { transform: scale(0.99); }
+    .split-pool-item:not(.is-empty):hover { background: #ECEAE5; }
+    .split-pool-item.is-empty {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    .split-pool-item-info { flex: 1; min-width: 0; }
+    .split-pool-item-name {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .split-pool-item-meta {
+      font-size: 11.5px;
+      color: var(--ink-3);
+      margin-top: 2px;
+      font-feature-settings: "tnum" 1;
+    }
+    .split-pool-item-meta .remaining {
+      color: var(--forest);
+      font-weight: 700;
+    }
+    .split-pool-item.is-empty .remaining { color: var(--ink-4); font-weight: 500; }
+    .split-pool-item-add {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--forest);
+      color: #fff;
+      font-size: 20px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 600;
+      flex: 0 0 34px;
+      transition: background 150ms ease;
+    }
+    .split-pool-item.is-empty .split-pool-item-add {
+      background: var(--line);
+      color: var(--ink-4);
+    }
+
+    /* Convive cart (assigned items for the active convive) */
+    .split-convive-cart {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+      border-radius: 12px;
+    }
+    .split-convive-cart-title {
+      font-size: 10.5px;
+      color: var(--forest-deep);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .split-convive-cart-total {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--forest);
+      font-feature-settings: "tnum" 1;
+      letter-spacing: -0.01em;
+    }
+    .split-convive-cart-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(31,93,60,0.1);
+      font-size: 13px;
+    }
+    .split-convive-cart-row:last-child { border-bottom: 0; }
+    .split-convive-cart-name { color: var(--ink); flex: 1; }
+    .split-convive-cart-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .split-convive-cart-price {
+      font-size: 12px;
+      color: var(--ink-3);
+      font-feature-settings: "tnum" 1;
+    }
+    .split-convive-cart-remove {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(184,82,69,0.12);
+      color: var(--danger-mute);
+      font-size: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 150ms ease;
+    }
+    .split-convive-cart-remove:active { background: rgba(184,82,69,0.22); }
+    .split-convive-cart-empty-state {
+      text-align: center; font-size: 12px; color: var(--ink-4);
+      font-style: italic;
+      margin-top: 12px;
+      padding: 10px;
+      background: var(--paper-soft);
+      border-radius: 10px;
+    }
     .split-item-card {
       background: var(--paper-mute);
       border: 1.5px solid transparent;
@@ -2173,19 +2331,20 @@
               <div class="split-help-box">
                 <i data-lucide="lightbulb"></i>
                 <div class="split-help-text">
-                  <strong>Comment ça marche?</strong><br/>
-                  Tapez le numéro d'un convive pour lui attribuer chaque article. Chacun paie ses propres articles.
+                  Choisissez un convive, puis tapez sur les articles qu'il a consommés.
                 </div>
               </div>
 
               <div class="split-step-label"><span class="split-step-num">1</span> Combien de convives?</div>
               <div class="split-chips" id="split-convives-chips"></div>
 
-              <div class="split-step-label"><span class="split-step-num">2</span> Attribuez chaque article</div>
-              <div class="split-items-cards" id="split-items-list"></div>
+              <div class="split-step-label"><span class="split-step-num">2</span> Sélectionnez le convive</div>
+              <div class="split-convives-tabs" id="split-convives-tabs"></div>
 
-              <div class="split-step-label"><span class="split-step-num">3</span> Récapitulatif par convive</div>
-              <div class="split-article-totals" id="split-article-totals"></div>
+              <div class="split-step-label"><span class="split-step-num">3</span> Tapez les articles consommés</div>
+              <div class="split-pool" id="split-pool"></div>
+
+              <div id="split-convive-cart"></div>
             </div>
 
             <button class="split-launch" id="split-launch">Lancer le split</button>
@@ -3458,10 +3617,17 @@
 
     /* ---------- SPLIT BILL ---------- */
     const splitState = {
-      tableId: null, total: 0, lines: [],
-      splitMode: 'egal', numParts: 2,
-      tipMode: '0', customTipPct: 0,
-      numConvives: 2, assignments: {}, flow: null,
+      tableId: null,
+      total: 0,
+      itemTotals: {},     // { itemName: { totalQty, unitPrice } }
+      splitMode: 'egal',
+      numParts: 2,
+      tipMode: '0',
+      customTipPct: 0,
+      numConvives: 2,
+      perConvive: {},     // { conviveNum: { itemName: qty } }
+      activeConvive: 1,
+      flow: null,
     };
     function effectiveTipPct() {
       if (splitState.tipMode === 'autre') return splitState.customTipPct;
@@ -3470,23 +3636,23 @@
     function openSplitModal(tableId) {
       const t = tables[tableId];
       const order = ensureTableOrder(tableId);
-      // Flatten each multi-qty line into individual units so the cashier
-      // can assign each unit to a different convive (one tajine each, etc.)
-      const lines = order.flatMap(l =>
-        Array.from({ length: l.qty }, () => ({
-          name: l.name,
-          qty: 1,
-          total: l.price,
-        }))
-      );
-      const total = lines.reduce((s, l) => s + l.total, 0);
+      // Aggregate per unique item name (so the pool shows one row per
+      // dish with its remaining count, not one card per unit)
+      const itemTotals = {};
+      order.forEach(l => {
+        if (!itemTotals[l.name]) {
+          itemTotals[l.name] = { totalQty: 0, unitPrice: l.price };
+        }
+        itemTotals[l.name].totalQty += l.qty;
+      });
+      const total = order.reduce((s, l) => s + l.price * l.qty, 0);
       Object.assign(splitState, {
-        tableId, total, lines,
+        tableId, total, itemTotals,
         splitMode: 'egal',
         numParts: Math.max(2, t.covers || 2),
         tipMode: '0', customTipPct: 0,
         numConvives: Math.max(2, t.covers || 2),
-        assignments: {}, flow: null,
+        perConvive: {}, activeConvive: 1, flow: null,
       });
       $('#split-table-label').textContent = tableId;
       $('#split-setup').hidden = false;
@@ -3520,10 +3686,119 @@
       if (splitState.splitMode === 'egal') {
         renderPartsChips(); renderTipChips(); updateSplitSummary();
       } else {
-        renderConvivesChips(); renderArticleItems(); updateArticleTotals();
+        renderArticleMode();
       }
       lucide.createIcons();
     }
+
+    /* ---- Par article helpers ---- */
+    function remainingQty(itemName) {
+      const total = splitState.itemTotals[itemName]?.totalQty || 0;
+      let assigned = 0;
+      for (const c in splitState.perConvive) {
+        assigned += splitState.perConvive[c][itemName] || 0;
+      }
+      return total - assigned;
+    }
+    function conviveTotal(c) {
+      const map = splitState.perConvive[c] || {};
+      let sum = 0;
+      for (const name in map) {
+        sum += map[name] * (splitState.itemTotals[name]?.unitPrice || 0);
+      }
+      return sum;
+    }
+    function assignUnit(itemName) {
+      if (remainingQty(itemName) <= 0) return;
+      const c = splitState.activeConvive;
+      if (!splitState.perConvive[c]) splitState.perConvive[c] = {};
+      splitState.perConvive[c][itemName] = (splitState.perConvive[c][itemName] || 0) + 1;
+    }
+    function unassignUnit(itemName) {
+      const c = splitState.activeConvive;
+      const map = splitState.perConvive[c];
+      if (!map || !map[itemName]) return;
+      map[itemName]--;
+      if (map[itemName] <= 0) delete map[itemName];
+    }
+
+    /* ---- Par article renderers ---- */
+    function renderArticleMode() {
+      renderConvivesChips();
+      renderConvivesTabs();
+      renderPool();
+      renderConviveCart();
+      lucide.createIcons();
+    }
+
+    function renderConvivesTabs() {
+      const n = splitState.numConvives;
+      $('#split-convives-tabs').innerHTML = Array.from({ length: n }, (_, i) => {
+        const c = i + 1;
+        const isActive = c === splitState.activeConvive;
+        return `
+          <button class="split-conv-tab ${isActive ? 'is-active' : ''}" data-conv-tab="${c}">
+            <span class="split-conv-tab-label">Conv ${c}</span>
+            <span class="split-conv-tab-total">${fmtMAD(conviveTotal(c))}</span>
+          </button>`;
+      }).join('');
+    }
+
+    function renderPool() {
+      const items = Object.entries(splitState.itemTotals);
+      $('#split-pool').innerHTML = items.map(([name, info]) => {
+        const rem = remainingQty(name);
+        const isEmpty = rem <= 0;
+        return `
+          <button class="split-pool-item ${isEmpty ? 'is-empty' : ''}" data-pool-item="${name}">
+            <div class="split-pool-item-info">
+              <div class="split-pool-item-name">${name}</div>
+              <div class="split-pool-item-meta">
+                <span class="remaining">${rem}</span> / ${info.totalQty} restant${info.totalQty > 1 ? 's' : ''} · ${info.unitPrice} MAD chacun
+              </div>
+            </div>
+            <div class="split-pool-item-add">+</div>
+          </button>`;
+      }).join('');
+    }
+
+    function renderConviveCart() {
+      const c = splitState.activeConvive;
+      const cart = splitState.perConvive[c] || {};
+      const entries = Object.entries(cart);
+      const wrap = $('#split-convive-cart');
+
+      if (entries.length === 0) {
+        wrap.innerHTML = `<div class="split-convive-cart-empty-state">Convive ${c} n'a encore rien · tapez un article ci-dessus</div>`;
+        return;
+      }
+      const total = conviveTotal(c);
+      const rowsHTML = entries.map(([name, qty]) => {
+        const unitPrice = splitState.itemTotals[name].unitPrice;
+        const lineTotal = qty * unitPrice;
+        const qtyPrefix = qty > 1 ? `${qty}× ` : '';
+        return `
+          <div class="split-convive-cart-row">
+            <span class="split-convive-cart-name">${qtyPrefix}${name}</span>
+            <div class="split-convive-cart-actions">
+              <span class="split-convive-cart-price">${fmtMAD(lineTotal)}</span>
+              <button class="split-convive-cart-remove" data-remove-item="${name}" aria-label="Retirer">×</button>
+            </div>
+          </div>`;
+      }).join('');
+      wrap.innerHTML = `
+        <div class="split-convive-cart">
+          <div class="split-convive-cart-title">
+            <span>Articles de Convive ${c}</span>
+            <span class="split-convive-cart-total">${fmtMAD(total)}</span>
+          </div>
+          ${rowsHTML}
+        </div>`;
+    }
+
+    /* Backward-compat stubs (legacy callers no-op) */
+    function renderArticleItems() { renderArticleMode(); }
+    function updateArticleTotals() { /* totals are now baked into convive tabs */ }
     function renderPartsChips() {
       $('#split-parts-chips').innerHTML = [2,3,4,5,6,8].map(n =>
         `<button class="split-chip ${n === splitState.numParts ? 'is-active' : ''}" data-parts="${n}">${n}</button>`
@@ -3617,23 +3892,28 @@
         }
       } else {
         const n = splitState.numConvives;
-        const unassignedTotal = splitState.lines.reduce((s, l, idx) =>
-          (splitState.assignments[idx] || 0) === 0 ? s + l.total : s, 0);
+        // Total of items still unassigned — split evenly across all convives
+        const unassignedTotal = Object.entries(splitState.itemTotals).reduce((s, [name, info]) => {
+          return s + remainingQty(name) * info.unitPrice;
+        }, 0);
+        const unassignedPerConv = unassignedTotal / n;
+
         for (let c = 1; c <= n; c++) {
-          let amt = splitState.lines.reduce((s, l, idx) =>
-            (splitState.assignments[idx] || 0) === c ? s + l.total : s, 0);
-          amt += unassignedTotal / n;
-          // Group identical items in the label: "2× Tajine poisson, Jus d'orange"
-          const counts = {};
-          splitState.lines.forEach((l, idx) => {
-            if ((splitState.assignments[idx] || 0) === c) {
-              counts[l.name] = (counts[l.name] || 0) + 1;
-            }
-          });
-          const items = Object.entries(counts)
+          const cart = splitState.perConvive[c] || {};
+          const amt = Object.entries(cart).reduce((s, [name, qty]) => {
+            return s + qty * (splitState.itemTotals[name]?.unitPrice || 0);
+          }, 0) + unassignedPerConv;
+
+          if (amt < 0.01) continue; // skip empty convives
+
+          const items = Object.entries(cart)
             .map(([name, qty]) => qty > 1 ? `${qty}× ${name}` : name)
             .join(', ');
-          parts.push({ amount: amt, label: items || 'Part équilibrée', paid: false, payMethod: null });
+          parts.push({
+            amount: amt,
+            label: items || 'Part équilibrée',
+            paid: false, payMethod: null,
+          });
         }
       }
       splitState.flow = { parts, paidCount: 0 };
@@ -3738,19 +4018,35 @@
       if (partsChip) { splitState.numParts = parseInt(partsChip.dataset.parts); renderPartsChips(); updateSplitSummary(); return; }
       const tipChip = e.target.closest('[data-tip]');
       if (tipChip) { splitState.tipMode = tipChip.dataset.tip; renderTipChips(); updateSplitSummary(); return; }
+      // 1 · Number of convives → reset assignments
       const convivesChip = e.target.closest('[data-convives]');
       if (convivesChip) {
         splitState.numConvives = parseInt(convivesChip.dataset.convives);
-        splitState.assignments = {};
-        renderConvivesChips(); renderArticleItems(); updateArticleTotals(); return;
+        splitState.perConvive = {};
+        splitState.activeConvive = 1;
+        renderArticleMode();
+        return;
       }
-      const conviveChip = e.target.closest('[data-convive]');
-      if (conviveChip) {
-        const idx = parseInt(conviveChip.dataset.item);
-        const c   = parseInt(conviveChip.dataset.convive);
-        if (splitState.assignments[idx] === c) delete splitState.assignments[idx];
-        else splitState.assignments[idx] = c;
-        renderArticleItems(); updateArticleTotals(); return;
+      // 2 · Switch the active convive (tab)
+      const convTab = e.target.closest('[data-conv-tab]');
+      if (convTab) {
+        splitState.activeConvive = parseInt(convTab.dataset.convTab);
+        renderArticleMode();
+        return;
+      }
+      // 3 · Tap an item in the pool → assign one unit to active convive
+      const poolItem = e.target.closest('[data-pool-item]');
+      if (poolItem) {
+        assignUnit(poolItem.dataset.poolItem);
+        renderArticleMode();
+        return;
+      }
+      // × on an assigned item → remove one unit from active convive
+      const removeBtn = e.target.closest('[data-remove-item]');
+      if (removeBtn) {
+        unassignUnit(removeBtn.dataset.removeItem);
+        renderArticleMode();
+        return;
       }
       if (e.target.closest('#split-launch')) { launchSplitFlow(); return; }
       if (e.target.closest('#split-cancel')) { closeSplitModal(); return; }
