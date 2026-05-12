@@ -878,10 +878,45 @@
     font-size: 64px; font-weight: 600; letter-spacing: -0.034em;
     color: var(--ink);
     text-shadow: 0 8px 32px rgba(11,110,79,0.10), 0 2px 6px rgba(10,15,13,0.05);
+    white-space: nowrap;
   }
   .kiwi-greet h1 em {
     font-family: var(--serif); font-style: italic; font-weight: 400;
     color: var(--atlas);
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    vertical-align: baseline;
+    white-space: nowrap;
+    transition: max-width 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .kiwi-greet h1 em.is-typing::after {
+    content: '|';
+    color: var(--atlas);
+    font-style: normal;
+    font-weight: 300;
+    margin-left: 2px;
+    animation: kw-greet-cursor 0.9s steps(1) infinite;
+  }
+  @keyframes kw-greet-cursor {
+    0%, 55%   { opacity: 1; }
+    56%, 100% { opacity: 0; }
+  }
+
+  /* Dashboard dive-in (.app + .demo-bar revealed after greeting fades). */
+  .kw-app-hidden {
+    opacity: 0;
+    transform: scale(0.95) translateY(16px);
+  }
+  .app {
+    transition: opacity 720ms cubic-bezier(0.32, 0.72, 0, 1),
+                transform 720ms cubic-bezier(0.32, 0.72, 0, 1);
+    transform-origin: top center;
+    will-change: opacity, transform;
+  }
+  .kw-bar-hidden { opacity: 0; }
+  .demo-bar {
+    transition: opacity 480ms cubic-bezier(0.32, 0.72, 0, 1);
   }
   .kiwi-greet-sub {
     font-family: var(--mono); font-size: 11.5px;
@@ -1553,36 +1588,103 @@
     }
   }
 
+  /* Pre-hide the dashboard underneath so it can "dive in" after the
+   * greeting finishes — without this you'd see the dashboard already
+   * fully-formed behind the greeting during the crossfade. */
+  const app     = document.querySelector('.app');
+  const demoBar = document.querySelector('.demo-bar');
+  if (app)     app.classList.add('kw-app-hidden');
+  if (demoBar) demoBar.classList.add('kw-bar-hidden');
+
+  /* The greeting's <em> already exists with the full text — capture it
+   * once, then blank the em so the typewriter can refill it. */
+  const greetH1 = greet.querySelector('h1');
+  const greetEm = greetH1 ? greetH1.querySelector('em') : null;
+  const EM_TEXT = greetEm ? greetEm.textContent : '';     // "bonne journée ?"
+  if (greetEm) greetEm.textContent = '';
+
+  /* Measure the em's natural width with full text so the expansion
+   * animation knows where to stop. Done off-screen with a clone so the
+   * visible em never flashes. */
+  function measureEmWidth() {
+    if (!greetEm) return 0;
+    const clone = greetEm.cloneNode(false);
+    clone.style.maxWidth = 'none';
+    clone.style.position = 'absolute';
+    clone.style.visibility = 'hidden';
+    clone.style.left = '-9999px';
+    clone.textContent = EM_TEXT;
+    greetEm.parentNode.appendChild(clone);
+    const w = Math.ceil(clone.offsetWidth) + 8;
+    clone.remove();
+    return w;
+  }
+
   function unlock() {
     /* Stagger the success pop on each cell (left → right). */
     cells.forEach((c, i) => {
       setTimeout(() => c.classList.add('is-success'), i * 70);
     });
 
-    /* After the cells have popped, fade out the lock and reveal the
-     * greeting flash on top of the dashboard underneath. */
+    /* 460 ms: cells settled. Fade out the lock and reveal the greeting
+     *         flash (its inner card slides up + fades in over 800 ms). */
     setTimeout(() => {
       lock.classList.add('is-unlocking');
       greet.classList.add('is-visible');
       greet.setAttribute('aria-hidden', 'false');
     }, 460);
 
-    /* Once the lock has faded, remove it from the DOM. */
+    /* 1100 ms: lock fade done, remove from DOM. */
     setTimeout(() => {
       if (lock.parentNode) lock.remove();
       document.documentElement.style.overflow = '';
     }, 1100);
 
-    /* Hold the greeting for ~2.6 s of readable time, then fade out. */
+    /* 1400 ms: "Bonjour Rachid," has been alone-centered for ~600 ms,
+     *          letting the eye land on it. Expand the em's max-width
+     *          so it claims its final space inline (320 ms). The flex/
+     *          inline layout naturally pushes "Bonjour Rachid," left as
+     *          the em widens — that's the "shift to the left" beat. */
+    setTimeout(() => {
+      if (!greetEm) return;
+      const w = measureEmWidth();
+      greetEm.style.maxWidth = w + 'px';
+      greetEm.classList.add('is-typing');  // shows the blinking cursor
+    }, 1400);
+
+    /* 1720 ms: em width done. Typewriter fills the em character by
+     *          character. Slightly faster on whitespace so spaces don't
+     *          feel like a pause. */
+    setTimeout(() => {
+      if (!greetEm) return;
+      let i = 0;
+      const tick = () => {
+        if (i >= EM_TEXT.length) {
+          greetEm.classList.remove('is-typing');  // hide cursor
+          return;
+        }
+        greetEm.textContent = EM_TEXT.slice(0, i + 1);
+        i++;
+        const ch = EM_TEXT[i - 1];
+        const delay = (ch === ' ' || ch === ' ') ? 35 : 58;
+        setTimeout(tick, delay);
+      };
+      tick();
+    }, 1720);
+
+    /* 3200 ms: full sentence has been visible for ~600 ms. Fade out the
+     *          greeting AND simultaneously "dive in" the dashboard. */
     setTimeout(() => {
       greet.classList.remove('is-visible');
       greet.setAttribute('aria-hidden', 'true');
-    }, 3500);
+      if (app)     app.classList.remove('kw-app-hidden');
+      if (demoBar) demoBar.classList.remove('kw-bar-hidden');
+    }, 3200);
 
-    /* Once the greeting has faded out, remove it. */
+    /* 4000 ms: greeting fully faded — remove from DOM. */
     setTimeout(() => {
       if (greet.parentNode) greet.remove();
-    }, 4400);
+    }, 4000);
   }
 
   pinInput.addEventListener('input', paintCells);
