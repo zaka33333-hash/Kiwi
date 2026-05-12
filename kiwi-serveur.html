@@ -1728,6 +1728,15 @@
     .colleague-avatar.on-pause {
       background: linear-gradient(135deg, #C77526, #B85245);
     }
+    .colleague-avatar.is-me {
+      background: var(--gradient);
+    }
+    .colleague-you {
+      font-weight: 400;
+      color: var(--forest);
+      font-size: 11px;
+      letter-spacing: -0.005em;
+    }
     .colleague-info { flex: 1; min-width: 0; }
     .colleague-name { font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: -0.005em; }
     .colleague-status {
@@ -2673,35 +2682,46 @@
     }
 
     function renderAllTables() {
-      // All 21 tables grouped by zone. Server chip shown on non-own tables.
+      // All 21 tables grouped by server. Order: current user first,
+      // then on-pause colleagues (urgent coverage), then other colleagues.
       const titleHTML = `
         <div class="scope-title">
           <span>Toutes les tables</span>
           <span class="scope-count-pill">${Object.keys(tables).length}</span>
         </div>`;
 
-      const zones = [
-        { key: 'salle',    label: 'Salle principale' },
-        { key: 'terrasse', label: 'Terrasse'         },
-        { key: 'etage',    label: 'Étage'            },
-      ];
-      const zonesHTML = zones.map(z => {
-        const ids = Object.keys(tables).filter(id => tables[id].zone === z.key);
+      const orderedIds = Object.keys(servers).sort((a, b) => {
+        if (a === currentUser) return -1;
+        if (b === currentUser) return 1;
+        const aP = servers[a].status === 'on-pause' ? 0 : 1;
+        const bP = servers[b].status === 'on-pause' ? 0 : 1;
+        return aP - bP;
+      });
+
+      const sectionsHTML = orderedIds.map(sid => {
+        const ids = Object.keys(tables).filter(id => tables[id].server === sid);
         if (ids.length === 0) return '';
-        const occ = ids.filter(id => tables[id].status !== 'khawya').length;
+        const s = servers[sid];
+        const isMe = sid === currentUser;
+        const isOnPause = s.status === 'on-pause';
+        const statusText = isOnPause ? '☕ En pause · à couvrir' : 'En service';
         return `
           <div class="zone-block">
-            <div class="section-title-row">
-              <span class="section-title">${z.label}</span>
-              <span class="section-count">${occ} / ${ids.length} occupées</span>
+            <div class="colleague-header">
+              <div class="colleague-avatar ${isOnPause ? 'on-pause' : ''} ${isMe ? 'is-me' : ''}">${s.initials}</div>
+              <div class="colleague-info">
+                <div class="colleague-name">${s.name}${isMe ? ' <span class="colleague-you">· vous</span>' : ''}</div>
+                <div class="colleague-status ${isOnPause ? 'on-pause' : ''}">${statusText}</div>
+              </div>
+              <span class="colleague-count">${ids.length} table${ids.length > 1 ? 's' : ''}</span>
             </div>
             <div class="table-list">
-              ${ids.map(id => tableCardHTML(id, tables[id], { showServer: true })).join('')}
+              ${ids.map(id => tableCardHTML(id, tables[id], { showServer: !isMe })).join('')}
             </div>
           </div>`;
       }).join('');
 
-      return titleHTML + zonesHTML;
+      return titleHTML + sectionsHTML;
     }
 
     $('#scope-toggle').addEventListener('click', (e) => {
@@ -3450,7 +3470,15 @@
     function openSplitModal(tableId) {
       const t = tables[tableId];
       const order = ensureTableOrder(tableId);
-      const lines = order.map(l => ({ name: l.name, qty: l.qty, total: l.price * l.qty }));
+      // Flatten each multi-qty line into individual units so the cashier
+      // can assign each unit to a different convive (one tajine each, etc.)
+      const lines = order.flatMap(l =>
+        Array.from({ length: l.qty }, () => ({
+          name: l.name,
+          qty: 1,
+          total: l.price,
+        }))
+      );
       const total = lines.reduce((s, l) => s + l.total, 0);
       Object.assign(splitState, {
         tableId, total, lines,
@@ -3595,10 +3623,17 @@
           let amt = splitState.lines.reduce((s, l, idx) =>
             (splitState.assignments[idx] || 0) === c ? s + l.total : s, 0);
           amt += unassignedTotal / n;
-          const items = splitState.lines
-            .filter((_, idx) => (splitState.assignments[idx] || 0) === c)
-            .map(l => l.name).join(', ');
-          parts.push({ amount: amt, label: items || 'Non assignés', paid: false, payMethod: null });
+          // Group identical items in the label: "2× Tajine poisson, Jus d'orange"
+          const counts = {};
+          splitState.lines.forEach((l, idx) => {
+            if ((splitState.assignments[idx] || 0) === c) {
+              counts[l.name] = (counts[l.name] || 0) + 1;
+            }
+          });
+          const items = Object.entries(counts)
+            .map(([name, qty]) => qty > 1 ? `${qty}× ${name}` : name)
+            .join(', ');
+          parts.push({ amount: amt, label: items || 'Part équilibrée', paid: false, payMethod: null });
         }
       }
       splitState.flow = { parts, paidCount: 0 };
