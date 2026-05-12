@@ -3183,8 +3183,7 @@ handlers['menu-publish'] = () => {
         <button class="kb atlas" data-action="stock-reorder-all">Lancer commande groupée · 5 alertes</button>
       `,
     });
-    r.el.querySelector('.kiwi-drawer').classList.add('page-xl');
-    r.el.querySelector('.kiwi-drawer').style.width = '1000px';
+    // Fullpage mode owns its own layout — don't pin a fixed width.
 
     // Filter pills
     r.el.addEventListener('click', (e) => {
@@ -6721,7 +6720,7 @@ handlers['bout-cat-publish'] = () => {
   'use strict';
   if (!window.Kiwi || !window.Kiwi.handlers) return;
   const Kiwi = window.Kiwi;
-  const { handlers, drawer, modal, toast, confetti } = Kiwi;
+  const { handlers, drawer, fullpage, modal, toast, confetti } = Kiwi;
 
   /* ───────────── data · STATIONS registry (mutable, in-memory) ───────────── */
   const STATIONS = [
@@ -7592,10 +7591,7 @@ handlers['bout-cat-publish'] = () => {
         <button class="kb atlas" data-action="kds-fullscreen">Plein écran station active</button>
       `,
     });
-    if (r.el.querySelector('.kiwi-drawer')) {
-      r.el.querySelector('.kiwi-drawer').classList.add('page-xl');
-      r.el.querySelector('.kiwi-drawer').style.width = '1040px';
-    }
+    // Fullpage mode owns its own layout — don't pin a fixed width.
     wireDismiss(r);
 
     setTimeout(() => {
