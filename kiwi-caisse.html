@@ -1570,6 +1570,16 @@
       z-index: 2;
     }
     .tbl-server.is-pause { filter: grayscale(.6) opacity(.55); }
+    /* On empty / paid-out tables: dimmer + smaller so the section ownership
+       is visible without competing with the table's idle look */
+    .tbl-server.is-idle {
+      opacity: 0.6;
+      width: 17px; height: 17px;
+      font-size: 8.5px;
+      border-color: rgba(255,255,255,0.92);
+      box-shadow: 0 1px 2px rgba(0,0,0,.12);
+    }
+    .tbl-server.is-off { filter: grayscale(.85) opacity(.45); }
 
     /* ===========================================================
        SIDEBAR — TEAM BUTTON
@@ -2592,14 +2602,21 @@
         ? `<div class="tbl-elapsed">${t.elapsed} mn</div>`
         : '';
       const dot = t.status === 'bgha-ykhlass' ? '<span class="urgent-dot" aria-hidden="true"></span>' : '';
-      // Server avatar badge — only when occupied
+      // Server avatar badge — always shown (even on empty tables) so the
+      // cashier/manager always knows who's responsible for the section
       let serverBadge = '';
-      if (t.status !== 'khawya' && t.status !== 'khlass' && t.server) {
+      if (t.server && servers[t.server]) {
         const s = servers[t.server];
-        if (s) {
-          const cls = s.status === 'pause' ? 'is-pause' : '';
-          serverBadge = `<span class="tbl-server ${cls}" style="background:${s.color};" title="Servi par ${s.name}${s.status === 'pause' ? ' (en pause)' : ''}">${serverInitials(s)}</span>`;
-        }
+        const isPause = s.status === 'pause';
+        const isOff   = s.status === 'off';
+        const isEmpty = t.status === 'khawya' || t.status === 'khlass';
+        const cls = [
+          isPause ? 'is-pause' : '',
+          isEmpty ? 'is-idle'  : '',
+          isOff   ? 'is-off'   : '',
+        ].filter(Boolean).join(' ');
+        const why = isPause ? ' (en pause)' : isOff ? ' (hors service)' : '';
+        serverBadge = `<span class="tbl-server ${cls}" style="background:${s.color};" title="Section de ${s.name}${why}">${serverInitials(s)}</span>`;
       }
       // Distribute chairs around the tabletop: ceil on top, rest on bottom
       const topChairs = Math.ceil(t.covers / 2);
