@@ -1931,146 +1931,310 @@ function wireDismiss(m) {
 /* ═══════════════════════════════════════════════════════════════════════════
  * 1 ·  TABLES & ADDITIONS  ·  width 1080
  * ═══════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 1 ·  TABLES & PLAN DE SALLE  ·  owner-focused · width 1120
+ *   ─ Cashier/server surfaces (encaisser, split bill, fusion d'additions)
+ *     live on the Android app for waiters & caisse — NOT on the owner's
+ *     dashboard. This drawer is the operator's strategic command of the
+ *     floor: layout editing, server-section assignment, performance heat,
+ *     incoming reservations, AI capacity insights.
+ * ═══════════════════════════════════════════════════════════════════════════ */
 handlers['nav-tables'] = () => {
   const TABLES = [
-    { id: 'T1',  zone: 'Salle',    state: 'occupied',    seats: 4, mins: 18, total: 340, server: 'FK', items: 6 },
-    { id: 'T2',  zone: 'Salle',    state: 'paid',        seats: 2, mins: 0,  total: 286, server: 'HJ', items: 4 },
-    { id: 'T3',  zone: 'Salle',    state: 'libre',       seats: 4 },
-    { id: 'T4',  zone: 'Salle',    state: 'pay-pending', seats: 4, mins: 32, total: 215, server: 'FK', items: 5 },
-    { id: 'T5',  zone: 'Salle',    state: 'occupied',    seats: 2, mins: 6,  total: 84,  server: 'SB', items: 2 },
-    { id: 'T6',  zone: 'Salle',    state: 'cleaning',    seats: 4, mins: 0,  total: 0,   server: 'YA' },
-    { id: 'T7',  zone: 'Salle',    state: 'libre',       seats: 6 },
-    { id: 'T8',  zone: 'Salle',    state: 'occupied',    seats: 2, mins: 12, total: 88,  server: 'HJ', items: 3 },
-    { id: 'T9',  zone: 'Salle',    state: 'occupied',    seats: 4, mins: 24, total: 446, server: 'MM', items: 8 },
-    { id: 'T10', zone: 'Salle',    state: 'libre',       seats: 2 },
-    { id: 'T11', zone: 'Salle',    state: 'occupied',    seats: 6, mins: 41, total: 612, server: 'FK', items: 11 },
-    { id: 'T12', zone: 'Salle',    state: 'pay-pending', seats: 4, mins: 28, total: 380, server: 'SB', items: 7 },
-    { id: 'TR1', zone: 'Terrasse', state: 'occupied',    seats: 2, mins: 9,  total: 92,  server: 'YA', items: 3 },
-    { id: 'TR2', zone: 'Terrasse', state: 'libre',       seats: 4 },
-    { id: 'TR3', zone: 'Terrasse', state: 'occupied',    seats: 4, mins: 36, total: 528, server: 'MM', items: 9 },
-    { id: 'TR4', zone: 'Terrasse', state: 'libre',       seats: 2 },
+    { id: 'T1',  zone: 'Salle',    state: 'occupied',    seats: 4, mins: 18, rev: 1840, turns: 3, server: 'FK', section: 'A' },
+    { id: 'T2',  zone: 'Salle',    state: 'paid',        seats: 2, mins: 0,  rev: 980,  turns: 4, server: 'HJ', section: 'A' },
+    { id: 'T3',  zone: 'Salle',    state: 'libre',       seats: 4, rev: 320,  turns: 1, server: 'HJ', section: 'A', flag: 'dead' },
+    { id: 'T4',  zone: 'Salle',    state: 'pay-pending', seats: 4, mins: 32, rev: 1620, turns: 2, server: 'FK', section: 'A' },
+    { id: 'T5',  zone: 'Salle',    state: 'occupied',    seats: 2, mins: 6,  rev: 740,  turns: 3, server: 'SB', section: 'B' },
+    { id: 'T6',  zone: 'Salle',    state: 'cleaning',    seats: 4, mins: 0,  rev: 1280, turns: 3, server: 'YA', section: 'B' },
+    { id: 'T7',  zone: 'Salle',    state: 'libre',       seats: 6, rev: 2640, turns: 3, server: 'MM', section: 'B', flag: 'top' },
+    { id: 'T8',  zone: 'Salle',    state: 'occupied',    seats: 2, mins: 12, rev: 680,  turns: 4, server: 'HJ', section: 'A' },
+    { id: 'T9',  zone: 'Salle',    state: 'occupied',    seats: 4, mins: 24, rev: 1980, turns: 2, server: 'MM', section: 'B' },
+    { id: 'T10', zone: 'Salle',    state: 'libre',       seats: 2, rev: 380,  turns: 1, server: 'SB', section: 'B', flag: 'dead' },
+    { id: 'T11', zone: 'Salle',    state: 'occupied',    seats: 6, mins: 41, rev: 2410, turns: 2, server: 'FK', section: 'A' },
+    { id: 'T12', zone: 'Salle',    state: 'pay-pending', seats: 4, mins: 28, rev: 1540, turns: 2, server: 'SB', section: 'B' },
+    { id: 'TR1', zone: 'Terrasse', state: 'occupied',    seats: 2, mins: 9,  rev: 920,  turns: 4, server: 'YA', section: 'C' },
+    { id: 'TR2', zone: 'Terrasse', state: 'libre',       seats: 4, rev: 1480, turns: 2, server: 'YA', section: 'C' },
+    { id: 'TR3', zone: 'Terrasse', state: 'occupied',    seats: 4, mins: 36, rev: 2120, turns: 3, server: 'MM', section: 'C' },
+    { id: 'TR4', zone: 'Terrasse', state: 'libre',       seats: 2, rev: 640,  turns: 2, server: 'YA', section: 'C' },
   ];
   const STAFF = [
-    { i: 'FK', cls: 'a', name: 'Fatima Khalki',  active: 3, capacity: 4 },
-    { i: 'HJ', cls: 'b', name: 'Hamid Jelloul',  active: 2, capacity: 4 },
-    { i: 'SB', cls: 'c', name: 'Sofia Belkadi',  active: 2, capacity: 4 },
-    { i: 'YA', cls: 'd', name: 'Youssef Amrani', active: 2, capacity: 3 },
-    { i: 'MM', cls: 'a', name: 'Mehdi Mansouri', active: 2, capacity: 3 },
+    { i: 'FK', cls: 'a', name: 'Fatima Khalki',  section: 'A', tables: ['T1','T4','T11'], rev: 5870 },
+    { i: 'HJ', cls: 'b', name: 'Hamid Jelloul',  section: 'A', tables: ['T2','T3','T8'],  rev: 2340 },
+    { i: 'SB', cls: 'c', name: 'Sofia Belkadi',  section: 'B', tables: ['T5','T10','T12'], rev: 2660 },
+    { i: 'YA', cls: 'd', name: 'Youssef Amrani', section: 'C', tables: ['T6','TR1','TR2','TR4'], rev: 3040 },
+    { i: 'MM', cls: 'a', name: 'Mehdi Mansouri', section: 'B', tables: ['T7','T9','TR3'], rev: 6740 },
+  ];
+  const SECTIONS = [
+    { k: 'A', name: 'Salle A',  color: 'var(--atlas)',     server: 'FK', co: 'Fatima' },
+    { k: 'B', name: 'Salle B',  color: 'var(--riad)',      server: 'MM', co: 'Mehdi' },
+    { k: 'C', name: 'Terrasse', color: 'var(--warning)',   server: 'YA', co: 'Youssef' },
+  ];
+  const RESAS = [
+    { time: '19:30', name: 'Famille El Idrissi', party: 4, table: 'T11', tag: 'habitué',     note: 'Aime T11 — proche fenêtre' },
+    { time: '19:45', name: 'M. & Mme Benani',    party: 2, table: 'TR1', tag: 'anniversaire', note: '15 ans de mariage · dessert offert' },
+    { time: '20:00', name: 'Groupe Bouazza',     party: 6, table: 'T7',  tag: 'VIP',         note: '3e visite cette semaine · vin rouge ouvert' },
+    { time: '20:15', name: 'Walking-in prévu',   party: 2, table: '—',   tag: 'walk-in',     note: 'Sur projection · garder T5 ou T8 libre' },
+    { time: '20:30', name: 'Hassan Chakir',      party: 4, table: 'T1',  tag: '1re visite',  note: 'Pas de coriandre' },
+    { time: '21:00', name: 'Table Senhaji',      party: 4, table: 'T9',  tag: 'régulier',    note: 'Préfère terrasse si dispo' },
+  ];
+  const AI_INSIGHTS = [
+    { tone: 'opp',  ic: '↗', title: 'T7 est votre meilleur 6-couverts',     desc: '6 740 MAD générés ce mois · 3,2× la moyenne. Toujours bookable, ne jamais joindre.', action: { label: 'Verrouiller T7', toast: 'T7 marquée comme table prioritaire · ne sera plus jointe par défaut.' } },
+    { tone: 'warn', ic: '⊘', title: 'T3 + T10 sont des "sièges morts"',     desc: 'Rotation 1,2/jour · revenu/couvert 30 % en dessous moyenne. Fusionner en un 4-couverts récupère 1,8 m².', action: { label: 'Simuler la fusion', toast: 'Simulation : +12 % capacité utile · −1,8 m² · gain estimé 480 MAD/jour.' } },
+    { tone: 'idea', ic: 'AI', title: 'Service du soir saturé à 20:00',     desc: 'Pic prévu 20:00–21:00 · 92 % d\'occupation. Décaler 2 résas vers 19:15 fluidifierait la cuisine.', action: { label: 'Appeler les clients', toast: 'Brief envoyé à l\'équipe service · 2 clients à recontacter.' } },
   ];
   const stateLabel = (s) => ({ occupied: 'occupée', libre: 'libre', 'pay-pending': 'addition', cleaning: 'nettoyage', paid: 'payée' })[s] || s;
-  const stateChip  = (s) => ({ occupied: 'ok', libre: 'neutral', 'pay-pending': 'pend', cleaning: 'ref', paid: 'neutral' })[s] || 'neutral';
+
   const occupied = TABLES.filter(t => t.state === 'occupied' || t.state === 'pay-pending').length;
   const free = TABLES.filter(t => t.state === 'libre').length;
   const cleaning = TABLES.filter(t => t.state === 'cleaning').length;
   const covers = TABLES.filter(t => t.state === 'occupied' || t.state === 'pay-pending').reduce((s, t) => s + (t.seats || 0), 0);
-  const liveTotal = TABLES.filter(t => t.state === 'occupied' || t.state === 'pay-pending').reduce((s, t) => s + (t.total || 0), 0);
+  const topTable = [...TABLES].sort((a,b) => (b.rev||0) - (a.rev||0))[0];
+  const deadSeats = TABLES.filter(t => t.flag === 'dead');
+  const revPerCover = Math.round(TABLES.reduce((s,t) => s + (t.rev||0), 0) / TABLES.reduce((s,t) => s + (t.seats||0), 0));
 
-  const tableCard = (t) => `
-    <div class="tbl ${t.state === 'libre' ? '' : t.state}" data-tbl="${t.id}">
-      ${t.server ? `<span class="tbl-srv ${STAFF.find(s => s.i === t.server)?.cls || 'a'}">${t.server}</span>` : ''}
-      <div class="tbl-n">${t.id}</div>
-      <div class="tbl-state">${t.state === 'libre' ? `${t.seats} couverts · libre` : t.state === 'cleaning' ? 'nettoyage 2 min' : t.state === 'paid' ? 'payée 12:30' : `${t.seats} couverts · ${t.mins} min`}</div>
-      ${t.total ? `<div class="tbl-amt">${t.total.toLocaleString('fr-FR')} MAD</div>` : ''}
+  /* ─── Floor: each table rendered with state + section accent ─── */
+  const sectionColor = (sec) => SECTIONS.find(s => s.k === sec)?.color || 'var(--n-300)';
+  const tableCard = (t, viewMode) => {
+    const sec = sectionColor(t.section);
+    const heat = viewMode === 'perf' ? Math.min(1, (t.rev || 0) / 2800) : 0;
+    const heatBg = viewMode === 'perf'
+      ? `linear-gradient(180deg, rgba(11,110,79,${0.06 + heat*0.32}) 0%, rgba(11,110,79,${0.02 + heat*0.18}) 100%)`
+      : '';
+    const resa = RESAS.find(r => r.table === t.id);
+    const showResa = viewMode === 'resa' && resa;
+    const flagBadge = t.flag === 'top' ? `<span class="tbl-flag top" title="Meilleure table">★</span>` : t.flag === 'dead' ? `<span class="tbl-flag dead" title="Siège mort">⊘</span>` : '';
+    return `
+      <div class="tbl owner-tbl ${t.state === 'libre' ? '' : t.state}" data-tbl="${t.id}" style="${viewMode === 'sect' ? `border-left:4px solid ${sec};` : ''}${heatBg ? `background:${heatBg};` : ''}">
+        ${flagBadge}
+        <div class="tbl-n">${t.id}</div>
+        ${viewMode === 'perf' ? `
+          <div class="tbl-state mono" style="color:var(--atlas); font-weight:600;">${(t.rev||0).toLocaleString('fr-FR')} MAD</div>
+          <div class="tbl-state" style="font-size:10.5px; color:var(--n-500);">${t.turns} rotations · ${t.seats} couv.</div>
+        ` : viewMode === 'sect' ? `
+          <div class="tbl-state">${t.seats} couv. · section ${t.section}</div>
+          <div class="tbl-state mono" style="font-size:10.5px; color:${sec}; font-weight:600;">${STAFF.find(s => s.i === t.server)?.name.split(' ')[0] || '—'}</div>
+        ` : showResa ? `
+          <div class="tbl-state" style="color:var(--atlas); font-weight:600;">${resa.time} · ${resa.name.split(' ')[0]}</div>
+          <div class="tbl-state" style="font-size:10.5px; color:var(--n-500);">${resa.party} couv. · ${resa.tag}</div>
+        ` : `
+          <div class="tbl-state">${t.state === 'libre' ? `${t.seats} couv. · libre` : t.state === 'cleaning' ? 'nettoyage' : t.state === 'paid' ? 'payée' : `${t.seats} couv. · ${t.mins} min`}</div>
+          ${t.state !== 'libre' && t.state !== 'cleaning' ? `<div class="tbl-state mono" style="font-size:10.5px; color:var(--n-500);">serveur ${t.server}</div>` : ''}
+        `}
+      </div>
+    `;
+  };
+
+  /* ─── Top-of-floor view tabs ─── */
+  const renderFloor = (view) => `
+    <div class="floor-meta">
+      <div class="floor-tabs" data-floor-tabs>
+        <button class="ft ${view==='live'?'active':''}" data-fview="live">État live</button>
+        <button class="ft ${view==='perf'?'active':''}" data-fview="perf">Performance</button>
+        <button class="ft ${view==='sect'?'active':''}" data-fview="sect">Sections</button>
+        <button class="ft ${view==='resa'?'active':''}" data-fview="resa">Réservations</button>
+      </div>
+      <div class="floor-legend-box">
+        ${view==='live' ? `
+          <span class="floor-legend">
+            <span><i style="background:var(--atlas);"></i>occupée</span>
+            <span><i style="background:var(--warning);"></i>addition</span>
+            <span><i style="background:var(--info);"></i>nettoyage</span>
+            <span><i style="background:var(--success);"></i>payée</span>
+            <span><i style="background:var(--n-300);"></i>libre</span>
+          </span>
+        ` : view==='perf' ? `<span style="font-size:11px; color:var(--n-500);">Plus vert = plus de revenu généré · cumul 30 j</span>`
+          : view==='sect' ? `<span style="font-size:11px; color:var(--n-500);">3 sections · glissez une table pour la réassigner</span>`
+          : `<span style="font-size:11px; color:var(--n-500);">6 réservations ce soir · 20 couverts attendus</span>`
+        }
+      </div>
+    </div>
+
+    <div class="floor-zone" style="margin-top:14px;">SALLE INTÉRIEURE</div>
+    <div class="floor" style="grid-template-columns:repeat(6,1fr);">
+      ${TABLES.filter(t => t.zone === 'Salle').map(t => tableCard(t, view)).join('')}
+    </div>
+
+    <div class="floor-zone">TERRASSE</div>
+    <div class="floor" style="grid-template-columns:repeat(4,1fr);">
+      ${TABLES.filter(t => t.zone === 'Terrasse').map(t => tableCard(t, view)).join('')}
     </div>
   `;
-  const occBars = Array.from({ length: 14 }, (_, i) => {
-    const isNow = i === 7;
-    const isFuture = i > 7;
-    const h = isNow ? 95 : isFuture ? 30 + Math.random() * 30 : 50 + Math.random() * 45;
-    return `<div class="bar ${isNow ? 'now' : isFuture ? 'future' : ''}" style="height:${h}%;" title="${11 + i}h00 · ${Math.round(h)}%"></div>`;
-  }).join('');
 
+  /* ─── Drawer body ─── */
   const dr = drawer({
-    title: 'Tables & additions · Café Atlas',
-    subtitle: `${occupied}/${TABLES.length} occupées · ${covers} couverts en service · ${free} libres · ${cleaning} en nettoyage`,
-    width: 1080,
+    title: 'Plan de salle & stratégie · Café Atlas',
+    subtitle: `${occupied}/${TABLES.length} occupées · ${covers} couverts en service · ${free} libres · top : ${topTable.id} (${topTable.rev.toLocaleString('fr-FR')} MAD)`,
+    width: 1120,
     body: `
+      <style>
+        .owner-tbl { cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; position:relative; }
+        .owner-tbl:hover { transform:translateY(-2px); box-shadow:0 8px 22px -12px rgba(11,110,79,0.22); }
+        .tbl-flag { position:absolute; top:6px; right:6px; width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; font-family:var(--mono); }
+        .tbl-flag.top  { background:var(--mint); color:var(--riad); }
+        .tbl-flag.dead { background:var(--n-200); color:var(--n-600); }
+        .floor-tabs { display:flex; gap:4px; padding:3px; background:var(--paper-soft); border-radius:10px; }
+        .floor-tabs .ft { background:transparent; border:none; padding:7px 14px; border-radius:7px; font-size:12px; font-weight:500; color:var(--n-600); cursor:pointer; transition:.18s; letter-spacing:0.01em; }
+        .floor-tabs .ft:hover { color:var(--ink); }
+        .floor-tabs .ft.active { background:var(--paper); color:var(--ink); box-shadow:0 1px 3px rgba(10,15,13,0.06); font-weight:600; }
+        .floor-legend-box { display:flex; align-items:center; }
+        .layout-presets { display:flex; gap:6px; align-items:center; }
+        .layout-presets .lp { padding:7px 12px; border:1px solid var(--n-200); background:var(--paper); border-radius:8px; font-size:12px; cursor:pointer; color:var(--n-700); transition:.18s; }
+        .layout-presets .lp:hover { border-color:var(--atlas); color:var(--atlas); }
+        .layout-presets .lp.active { background:var(--riad); color:var(--paper); border-color:var(--riad); font-weight:600; }
+        .ai-card { background:linear-gradient(180deg, rgba(125,242,176,0.10) 0%, rgba(11,110,79,0.04) 100%); border:1px solid rgba(11,110,79,0.18); border-radius:12px; padding:14px; }
+        .ai-row { display:flex; gap:12px; padding:12px 0; border-top:1px dashed rgba(11,110,79,0.18); }
+        .ai-row:first-child { border-top:none; padding-top:4px; }
+        .ai-ic { width:30px; height:30px; border-radius:50%; background:var(--mint); color:var(--riad); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:var(--mono); flex-shrink:0; }
+        .ai-row.warn .ai-ic { background:var(--warning); color:var(--paper); }
+        .ai-row.opp  .ai-ic { background:var(--mint); }
+        .ai-body { flex:1; }
+        .ai-body h5 { font-size:13px; font-weight:600; margin:0 0 4px; color:var(--ink); }
+        .ai-body p  { font-size:12px; color:var(--n-600); line-height:1.5; margin:0 0 8px; }
+        .ai-body .kb { padding:5px 10px; font-size:11px; }
+        .ai-brand { display:flex; align-items:center; gap:6px; font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--atlas); margin-bottom:10px; text-transform:uppercase; }
+        .ai-brand::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--mint); box-shadow:0 0 8px rgba(125,242,176,0.6); }
+        .resa-row { display:grid; grid-template-columns:54px 1fr auto; gap:10px; padding:10px 0; border-top:1px solid var(--n-200); align-items:center; font-size:13px; }
+        .resa-row:first-child { border-top:none; padding-top:4px; }
+        .resa-time { font-family:var(--mono); font-weight:600; color:var(--ink); font-size:12.5px; }
+        .resa-name { font-weight:500; }
+        .resa-meta { font-size:11px; color:var(--n-500); margin-top:2px; display:flex; gap:6px; align-items:center; }
+        .resa-chip { padding:2px 7px; border-radius:99px; font-size:9.5px; font-weight:600; font-family:var(--mono); letter-spacing:0.04em; text-transform:uppercase; }
+        .resa-chip.habitue  { background:rgba(11,110,79,0.10); color:var(--atlas); }
+        .resa-chip.anniversaire { background:rgba(255,182,77,0.16); color:#a85d00; }
+        .resa-chip.vip { background:var(--riad); color:var(--mint); }
+        .resa-chip.walkin { background:var(--n-200); color:var(--n-700); }
+        .resa-chip.regulier { background:rgba(11,110,79,0.10); color:var(--atlas); }
+        .resa-chip.first { background:rgba(125,242,176,0.30); color:var(--riad); }
+        .resa-tbl { font-family:var(--mono); font-size:12px; color:var(--atlas); font-weight:600; }
+        .perf-row { display:grid; grid-template-columns:36px 1fr auto; gap:10px; align-items:center; padding:8px 0; font-size:13px; }
+        .perf-row + .perf-row { border-top:1px solid var(--n-200); }
+        .perf-id { font-family:var(--mono); font-weight:700; color:var(--ink); font-size:12.5px; }
+        .perf-bar { height:6px; background:var(--n-200); border-radius:3px; overflow:hidden; }
+        .perf-bar > i { display:block; height:100%; background:linear-gradient(90deg, var(--atlas), var(--mint)); border-radius:3px; }
+        .perf-amt { font-family:var(--mono); font-size:12px; color:var(--atlas); font-weight:600; }
+        .sect-card { background:var(--paper); border:1px solid var(--n-200); border-radius:10px; padding:12px; }
+        .sect-head { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; margin-bottom:8px; }
+        .sect-dot { width:10px; height:10px; border-radius:3px; }
+        .sect-meta { font-size:11px; color:var(--n-500); margin-top:6px; line-height:1.5; }
+      </style>
+
       <div class="p-kpis">
-        <div class="p-kpi"><div class="l">EN SERVICE</div><div class="v">${occupied}<span class="u">/ ${TABLES.length}</span></div><div class="d up">vélocité 42 min · cible 45</div></div>
-        <div class="p-kpi"><div class="l">COUVERTS</div><div class="v">${covers}</div><div class="d">prochain seating ~ 15:20</div></div>
-        <div class="p-kpi"><div class="l">ADDITIONS LIVE</div><div class="v">${liveTotal.toLocaleString('fr-FR')}<span class="u"> MAD</span></div><div class="d">ticket moyen 165 MAD</div></div>
-        <div class="p-kpi"><div class="l">EN ATTENTE</div><div class="v" style="color:var(--warning);">2</div><div class="d">T4 · 4 min · T12 · 2 min</div></div>
+        <div class="p-kpi"><div class="l">EN SERVICE</div><div class="v">${occupied}<span class="u">/ ${TABLES.length}</span></div><div class="d up">${covers} couverts · vélocité 42 min</div></div>
+        <div class="p-kpi"><div class="l">REVENU / COUVERT</div><div class="v">${revPerCover.toLocaleString('fr-FR')}<span class="u"> MAD</span></div><div class="d up">+ 8 % vs cible mensuelle</div></div>
+        <div class="p-kpi"><div class="l">MEILLEURE TABLE</div><div class="v" style="color:var(--atlas);">${topTable.id}</div><div class="d">${topTable.rev.toLocaleString('fr-FR')} MAD · ${topTable.turns} rot/jour</div></div>
+        <div class="p-kpi"><div class="l">SIÈGES MORTS</div><div class="v" style="color:var(--warning);">${deadSeats.length}</div><div class="d">${deadSeats.map(t => t.id).join(', ')} · à optimiser</div></div>
       </div>
 
       <div class="p-toolbar">
-        <div class="p-search">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-          Rechercher une table, un serveur, un client…
+        <div class="layout-presets">
+          <span style="font-size:11px; color:var(--n-500); letter-spacing:0.06em; font-family:var(--mono); margin-right:4px;">PLAN</span>
+          <button class="lp" data-action="tables-layout-midi">Service midi</button>
+          <button class="lp active" data-action="tables-layout-soir">Service soir</button>
+          <button class="lp" data-action="tables-layout-event">Événement</button>
         </div>
-        <button class="kb ghost" data-action="tables-move">Déplacer</button>
-        <button class="kb ghost" data-action="tables-merge">Fusionner</button>
-        <button class="kb ghost" data-action="tables-split">Split bill</button>
-        <button class="kb atlas" data-action="tables-new">+ Nouvelle table</button>
+        <div style="flex:1;"></div>
+        <button class="kb ghost" data-action="tables-edit-mode">✎ Modifier le plan</button>
+        <button class="kb ghost" data-action="tables-rebalance">Auto-équilibrer</button>
+        <button class="kb atlas" data-action="tables-new">+ Ajouter une table</button>
       </div>
 
       <div class="p-divider-l">Plan de salle</div>
 
-      <div class="floor-meta">
-        <span class="floor-legend">
-          <span><i style="background:var(--atlas);"></i>occupée</span>
-          <span><i style="background:var(--warning);"></i>addition</span>
-          <span><i style="background:var(--info);"></i>nettoyage</span>
-          <span><i style="background:var(--success);"></i>payée</span>
-          <span><i style="background:var(--n-300);"></i>libre</span>
-        </span>
-        <span style="font-family:var(--mono); font-size:10.5px; color:var(--n-500); letter-spacing:0.08em;">CLIQUEZ UNE TABLE → ADDITION LIVE</span>
+      <div data-floor-container>
+        ${renderFloor('live')}
       </div>
 
-      <div class="floor-zone" style="margin-top:0;">SALLE INTÉRIEURE</div>
-      <div class="floor" style="grid-template-columns:repeat(6,1fr);">
-        ${TABLES.filter(t => t.zone === 'Salle').map(tableCard).join('')}
-      </div>
-
-      <div class="floor-zone">TERRASSE</div>
-      <div class="floor" style="grid-template-columns:repeat(4,1fr);">
-        ${TABLES.filter(t => t.zone === 'Terrasse').map(tableCard).join('')}
-      </div>
-
-      <div class="p-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px;">
+      <div class="p-grid-2" style="display:grid; grid-template-columns:1.05fr 1fr; gap:14px; margin-top:18px;">
         <div class="p-card">
           <div class="head">
-            <h4>Charge par serveur</h4>
-            <div class="meta">SHIFT MIDI · ${STAFF.length} ACTIFS</div>
+            <h4>Sections & affectation serveurs</h4>
+            <div class="meta">SHIFT SOIR · ${STAFF.length} ACTIFS</div>
           </div>
-          <div class="srv-load">
-            ${STAFF.map(s => {
-              const pct = Math.round((s.active / s.capacity) * 100);
-              const cls = pct >= 100 ? 'over' : pct >= 75 ? 'busy' : '';
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+            ${SECTIONS.map(sec => {
+              const tbls = TABLES.filter(t => t.section === sec.k);
+              const totalSeats = tbls.reduce((s,t) => s + t.seats, 0);
+              const staff = STAFF.find(s => s.i === sec.server);
               return `
-                <div class="srv-load-row">
-                  <div class="av ${s.cls}">${s.i}</div>
-                  <div class="nm">${s.name}</div>
-                  <div class="b"><div class="${cls}" style="width:${Math.min(pct, 100)}%;"></div></div>
-                  <div class="v">${s.active}/${s.capacity}</div>
+                <div class="sect-card">
+                  <div class="sect-head"><span class="sect-dot" style="background:${sec.color};"></span>${sec.name}</div>
+                  <div style="font-size:11.5px; color:var(--n-700);"><b>${tbls.length} tables</b> · ${totalSeats} couverts</div>
+                  <div class="sect-meta">Serveur · <b style="color:var(--ink);">${sec.co}</b><br/>Revenu shift · <span class="mono" style="color:var(--atlas);">${staff.rev.toLocaleString('fr-FR')} MAD</span></div>
                 </div>
               `;
             }).join('')}
           </div>
-          <div style="font-size:11.5px; color:var(--n-500); margin-top:12px; padding-top:10px; border-top:1px solid var(--n-200);">
-            Fatima est saturée — réassigner T11 à Hamid ?
-            <button class="kb ghost" style="margin-left:8px; padding:4px 10px; font-size:11px;" data-action="tables-rebalance">Auto-équilibrer</button>
+          <div style="display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--n-200); align-items:center;">
+            <span style="font-size:11.5px; color:var(--n-500); flex:1;">Charge bien équilibrée · écart max 18 % entre sections.</span>
+            <button class="kb ghost" style="padding:5px 10px; font-size:11px;" data-action="tables-section-edit">Reconfigurer</button>
           </div>
+        </div>
+
+        <div class="p-card ai-card" style="margin:0;">
+          <div class="ai-brand">Kiwi AI · stratégie de salle</div>
+          ${AI_INSIGHTS.map(ai => `
+            <div class="ai-row ${ai.tone}">
+              <div class="ai-ic">${ai.ic}</div>
+              <div class="ai-body">
+                <h5>${ai.title}</h5>
+                <p>${ai.desc}</p>
+                <button class="kb ghost" onclick="window.Kiwi.toast('${ai.action.label}',{type:'info',desc:${JSON.stringify(ai.action.toast)}})">${ai.action.label}</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="p-grid-2" style="display:grid; grid-template-columns:1.05fr 1fr; gap:14px; margin-top:14px;">
+        <div class="p-card">
+          <div class="head">
+            <h4>Réservations à venir · ce soir</h4>
+            <div class="meta">6 RÉSAS · 20 COUVERTS</div>
+          </div>
+          ${RESAS.map(r => `
+            <div class="resa-row">
+              <div class="resa-time">${r.time}</div>
+              <div>
+                <div class="resa-name">${r.name} <span style="color:var(--n-500); font-weight:400;">· ${r.party} couv.</span></div>
+                <div class="resa-meta">
+                  <span class="resa-chip ${r.tag==='habitué'?'habitue':r.tag==='1re visite'?'first':r.tag==='walk-in'?'walkin':r.tag}">${r.tag}</span>
+                  ${r.note}
+                </div>
+              </div>
+              <div class="resa-tbl">${r.table}</div>
+            </div>
+          `).join('')}
         </div>
 
         <div class="p-card">
           <div class="head">
-            <h4>Occupation horaire</h4>
-            <div class="meta">11H00 → 17H00 · LIVE</div>
+            <h4>Performance par table · 30 j</h4>
+            <div class="meta">REVENU CUMULÉ</div>
           </div>
-          <div class="occ-timeline">${occBars}</div>
-          <div class="occ-axis"><span>11h</span><span>12h</span><span>13h</span><span>14h</span><span>15h</span><span>16h</span><span>17h</span></div>
-          <div style="font-size:11.5px; color:var(--n-500); margin-top:12px; padding-top:10px; border-top:1px solid var(--n-200);">
-            Pic 13:00–13:30 (95 % salle) · creux prévu 16h00.
-          </div>
+          ${[...TABLES].sort((a,b) => (b.rev||0)-(a.rev||0)).slice(0,8).map(t => {
+            const max = topTable.rev;
+            const pct = Math.round(((t.rev||0)/max)*100);
+            return `
+              <div class="perf-row">
+                <div class="perf-id">${t.id}</div>
+                <div>
+                  <div style="font-size:11px; color:var(--n-500); margin-bottom:4px;">${t.seats} couv. · ${t.turns} rot/jour ${t.flag==='dead'?'· <span style="color:var(--warning);">siège mort</span>':t.flag==='top'?'· <span style="color:var(--atlas);">★ top</span>':''}</div>
+                  <div class="perf-bar"><i style="width:${pct}%;"></i></div>
+                </div>
+                <div class="perf-amt">${(t.rev||0).toLocaleString('fr-FR')}</div>
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
     `,
     foot: `
       <div style="display:flex; gap:8px; justify-content:space-between; width:100%; align-items:center;">
-        <span style="font-family:var(--mono); font-size:11px; color:var(--n-500); letter-spacing:0.06em;">SALLE LIVE · MAJ 2 SEC</span>
+        <span style="font-family:var(--mono); font-size:11px; color:var(--n-500); letter-spacing:0.06em;">PLAN ENREGISTRÉ · MAJ AUTO</span>
         <div style="display:flex; gap:8px;">
+          <button class="kb ghost" data-action="tables-export-plan">Exporter le plan</button>
           <button class="kb ghost" data-dismiss>Fermer</button>
-          <button class="kb primary" data-action="tables-close-service">Clôturer le service</button>
         </div>
       </div>
     `
@@ -2078,313 +2242,184 @@ handlers['nav-tables'] = () => {
 
   wireDismiss(dr);
 
-  /* — wire up table click → open live check drawer — */
-  setTimeout(() => {
-    document.querySelectorAll('.kiwi-drawer .tbl[data-tbl]').forEach(el => {
-      el.addEventListener('click', () => {
-        const id = el.getAttribute('data-tbl');
-        const t = TABLES.find(x => x.id === id);
-        if (!t) return;
-        if (t.state === 'libre') {
-          handlers['tables-new']?.(id);
-          return;
-        }
-        if (t.state === 'cleaning') {
-          wireDismiss(modal({
-            tag: 'NETTOYAGE',
-            title: `Table ${id} · en nettoyage`,
-            desc: 'Marquez comme prête pour réinsérer dans la rotation.',
-            width: 480,
-            body: `<p style="font-size:13.5px; color:var(--n-600); line-height:1.5;">Nettoyage commencé à 13:42 · serveur ${t.server}. Le minuteur de réinsertion bascule la table sur "libre" automatiquement après 3 minutes.</p>`,
-            foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Table ${id} prête · libre',{type:'success',desc:'La table est de nouveau réservable.'})">Marquer comme libre</button>`
-          }));
-          return;
-        }
-        openLiveCheck(t);
-      });
-    });
-  }, 0);
-};
-
-/* ─── Live check (nested drawer) ────────────────────────────────────────── */
-function openLiveCheck(t) {
-  const ITEMS = {
-    T1:  [['2', 'Tajine kefta œuf', 'sans coriandre · pain à part', 85, 170], ['1', 'Couscous royal', 'sans piment', 95, 95], ['1', 'Pastilla au poulet', '', 120, 120], ['4', 'Thé à la menthe', 'sucre à part', 12, 48]],
-    T4:  [['2', 'Salade marocaine', '', 32, 64], ['1', 'Méchoui', 'parts pour 2', 180, 180], ['2', 'Orange pressée', 'sans glace', 18, 36], ['2', 'Briouates', '', 45, 90]],
-    T5:  [['2', 'Msemen beurre & miel', '', 12, 24], ['2', 'Thé à la menthe', '', 12, 24], ['1', 'Harira', 'extra dattes', 28, 28]],
-    T8:  [['1', 'Tajine kefta œuf', '', 85, 85], ['1', 'Salade marocaine', '', 32, 32], ['1', 'Thé à la menthe', '', 12, 12]],
-    T9:  [['2', 'Pastilla au poulet', '', 120, 240], ['1', 'Couscous royal', 'sans piment', 95, 95], ['2', 'Briouates', '', 45, 90], ['4', 'Orange pressée', '', 18, 72], ['4', 'Thé à la menthe', '', 12, 48]],
-    T11: [['1', 'Méchoui', 'parts pour 4', 180, 180], ['2', 'Couscous royal', '', 95, 190], ['2', 'Tajine kefta œuf', 'sans coriandre', 85, 170], ['2', 'Salade marocaine', '', 32, 64], ['6', 'Thé à la menthe', '', 12, 72], ['1', 'Briouates', '', 45, 45]],
-    T12: [['2', 'Tajine kefta œuf', '', 85, 170], ['2', 'Couscous royal', '', 95, 190], ['2', 'Harira', '', 28, 56]],
-    TR1: [['2', 'Salade marocaine', '', 32, 64], ['1', 'Briouates', '', 45, 45], ['2', 'Orange pressée', '', 18, 36]],
-    TR3: [['1', 'Méchoui', '', 180, 180], ['2', 'Pastilla au poulet', '', 120, 240], ['2', 'Tajine kefta œuf', '', 85, 170], ['4', 'Thé à la menthe', '', 12, 48]],
-  };
-  const lines = ITEMS[t.id] || [['1', 'Tajine kefta œuf', '', 85, 85], ['2', 'Thé à la menthe', '', 12, 24]];
-  const subtotal = lines.reduce((s, l) => s + l[4], 0);
-  const tip = Math.round(subtotal * 0.10);
-  const tva = Math.round(subtotal * 0.20);
-  const total = subtotal + tip;
-
-  const checkDr = window.Kiwi.drawer({
-    title: `Table ${t.id} · addition live`,
-    subtitle: `${t.seats} couverts · serveur ${t.server} · ouverte il y a ${t.mins} min`,
-    width: 480,
-    body: `
-      <div class="check">
-        <div class="check-head">
-          <h4>${lines.length} lignes · ${lines.reduce((s, l) => s + parseInt(l[0], 10), 0)} pièces</h4>
-          <span class="meta">REF #${t.id}-${(Math.random()*9000+1000|0)}</span>
-        </div>
-        <ul>
-          ${lines.map(([qty, name, mod, , line]) => `
-            <li>
-              <span class="qty">×${qty}</span>
-              <span class="nm">${name}${mod ? `<div class="mod">${mod}</div>` : ''}</span>
-              <span class="pr">${line.toFixed(2).replace('.', ',')} MAD</span>
-              <span class="rm" title="Retirer la ligne"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M6 6l1 14a2 2 0 002 2h6a2 2 0 002-2l1-14"/></svg></span>
-            </li>
-          `).join('')}
-        </ul>
-        <div class="check-foot">
-          <dl>
-            <dt>Sous-total HT</dt><dd>${(subtotal - tva).toFixed(2).replace('.', ',')} MAD</dd>
-            <dt>TVA 20 %</dt><dd>${tva.toFixed(2).replace('.', ',')} MAD</dd>
-            <dt>Pourboire suggéré 10 %</dt><dd>+ ${tip.toFixed(2).replace('.', ',')} MAD</dd>
-          </dl>
-          <dl class="total">
-            <dt>Total à encaisser</dt><dd>${total.toFixed(2).replace('.', ',')} MAD</dd>
-          </dl>
-        </div>
-        <div class="check-actions">
-          <button class="kb ghost" data-chk="add">+ Ajouter article</button>
-          <button class="kb ghost" data-chk="rm-tip">Retirer pourboire</button>
-          <button class="kb ghost" data-chk="split">Split bill</button>
-          <button class="kb ghost" data-chk="move">Déplacer table</button>
-          <button class="kb ghost span2" data-chk="print">Imprimer ticket cuisine</button>
-          <button class="kb atlas span2" data-chk="pay">Encaisser ${total.toFixed(2).replace('.', ',')} MAD</button>
-        </div>
-      </div>
-    `,
-    foot: `<button class="kb ghost" data-dismiss style="width:100%;">Fermer le check</button>`
-  });
-  if (typeof wireDismiss === 'function') wireDismiss(checkDr);
-
-  setTimeout(() => {
-    const root = checkDr.el;
-    if (!root) return;
-    root.querySelectorAll('[data-chk]').forEach(b => {
-      b.onclick = () => {
-        const a = b.getAttribute('data-chk');
-        if (a === 'pay') {
-          window.Kiwi.toast(`Table ${t.id} encaissée · ${total} MAD`, { type: 'success', desc: `Reçu envoyé au client · pourboire ${tip} MAD pour ${t.server}.` });
-          window.Kiwi.confetti();
-          root.querySelector('.kiwi-drawer-close')?.click();
-        }
-        if (a === 'add')   window.Kiwi.toast('Catalogue ouvert', { type: 'info', desc: 'Tapotez un plat pour l\'ajouter à la table.' });
-        if (a === 'rm-tip') window.Kiwi.toast('Pourboire retiré', { type: 'info' });
-        if (a === 'split') window.Kiwi.handlers['tables-split']?.(t.id);
-        if (a === 'move')  window.Kiwi.handlers['tables-move']?.(t.id);
-        if (a === 'print') window.Kiwi.toast('Ticket envoyé en cuisine', { type: 'success', desc: 'Imprimé sur EPSON TM-T20III · station Tajines.' });
-        if (a === 'rm') window.Kiwi.toast('Ligne retirée du check', { type: 'info' });
+  /* ─── View-tab switching: re-render floor inline ─── */
+  let currentView = 'live';
+  const rebindTabs = () => {
+    const tabs = dr.el.querySelectorAll('[data-floor-tabs] .ft');
+    tabs.forEach(tb => {
+      tb.onclick = () => {
+        currentView = tb.getAttribute('data-fview');
+        const container = dr.el.querySelector('[data-floor-container]');
+        if (container) container.innerHTML = renderFloor(currentView);
+        rebindTabs();
+        rebindTableClicks();
       };
     });
-    root.querySelectorAll('.check li .rm').forEach(b => {
-      b.onclick = () => window.Kiwi.toast('Ligne retirée du check', { type: 'info', desc: 'Le ticket cuisine sera mis à jour.' });
+  };
+
+  /* ─── Click any table → open Insights modal (owner POV, NOT encaisser) ─── */
+  const rebindTableClicks = () => {
+    dr.el.querySelectorAll('.owner-tbl').forEach(el => {
+      el.onclick = () => {
+        const id = el.getAttribute('data-tbl');
+        const t = TABLES.find(x => x.id === id);
+        if (t) openTableInsights(t);
+      };
     });
+  };
+
+  setTimeout(() => {
+    rebindTabs();
+    rebindTableClicks();
   }, 0);
-}
-
-/* ─── Auxiliary table handlers ─────────────────────────────────────────── */
-handlers['tables-merge'] = () => {
-  wireDismiss(modal({
-    tag: 'FUSIONNER',
-    title: 'Fusionner deux additions',
-    desc: 'Les lignes seront combinées sur une seule note. Le serveur principal reste celui de la table cible.',
-    width: 540,
-    body: `
-      <div class="kf-group">
-        <label class="kf-label">Table source</label>
-        <select class="kf-input" id="tm-from">
-          <option>T9 · 4 couverts · 446 MAD</option>
-          <option>T11 · 6 couverts · 612 MAD</option>
-          <option>TR3 · 4 couverts · 528 MAD</option>
-        </select>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Table cible (récepteur)</label>
-        <select class="kf-input" id="tm-to">
-          <option>T1 · 4 couverts · 340 MAD</option>
-          <option>T5 · 2 couverts · 84 MAD</option>
-          <option>T8 · 2 couverts · 88 MAD</option>
-          <option>T12 · 4 couverts · 380 MAD</option>
-        </select>
-      </div>
-      <div class="kf-help">Astuce — la fusion est tracée dans le journal · réversible pendant 5 min.</div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Tables fusionnées',{type:'success',desc:'Note unique · serveur Fatima · pourboire suggéré recalculé.'})">Fusionner</button>
-    `
-  }));
 };
 
-handlers['tables-split'] = (sourceId) => {
-  const source = sourceId || 'T11';
-  wireDismiss(modal({
-    tag: 'SPLIT BILL',
-    title: `Diviser l'addition · ${source}`,
-    desc: 'Choisissez un mode de partage. Chaque part part avec son ticket et son TPE.',
-    width: 600,
-    body: `
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
-        <div class="wiz-choice selected"><div class="wc-ic">≡</div><div><div class="wc-t">À parts égales</div><div class="wc-d">6 couverts · 102,00 MAD chacun</div></div></div>
-        <div class="wiz-choice"><div class="wc-ic">⊟</div><div><div class="wc-t">Par article</div><div class="wc-d">Glissez chaque ligne sur un convive</div></div></div>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Nombre de parts</label>
-        <div style="display:flex; gap:6px;">
-          ${[2, 3, 4, 5, 6, 8].map(n => `<button class="kb ${n===6?'atlas':'ghost'}" style="flex:1; justify-content:center;">${n}</button>`).join('')}
-        </div>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Pourboire commun</label>
-        <div style="display:flex; gap:6px;">
-          ${['0 %', '5 %', '10 %', '15 %', 'autre'].map((p, i) => `<button class="kb ${i===2?'atlas':'ghost'}" style="flex:1; justify-content:center;">${p}</button>`).join('')}
-        </div>
-      </div>
-      <div style="background:var(--paper-soft); border-radius:10px; padding:12px 14px; font-size:13px;">
-        <div style="display:flex; justify-content:space-between;"><span>Total à diviser</span><span class="mono"><b>612,00 MAD</b></span></div>
-        <div style="display:flex; justify-content:space-between; color:var(--n-500); margin-top:4px; font-size:12px;"><span>+ pourboire 10 %</span><span class="mono">+ 61,20 MAD</span></div>
-        <div style="display:flex; justify-content:space-between; padding-top:8px; margin-top:8px; border-top:1px solid var(--n-200);"><span><b>Par convive</b></span><span class="mono" style="color:var(--atlas); font-weight:600; font-size:15px;">112,20 MAD</span></div>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Split en 6 parts envoyé',{type:'success',desc:'6 tickets séparés · TPE flash sur 3 terminaux'}); window.Kiwi.confetti();">Lancer le split</button>
-    `
-  }));
-};
+/* ─── Table Insights — owner-perspective table profile ───────────────────── */
+function openTableInsights(t) {
+  const STAFF_NAMES = { FK: 'Fatima Khalki', HJ: 'Hamid Jelloul', SB: 'Sofia Belkadi', YA: 'Youssef Amrani', MM: 'Mehdi Mansouri' };
+  const nextResa = ({
+    T1: '20:30 · Hassan Chakir · 4 couverts',
+    T7: '20:00 · Groupe Bouazza · 6 couverts · VIP',
+    T9: '21:00 · Table Senhaji · 4 couverts',
+    T11: '19:30 · Famille El Idrissi · 4 couverts · habitué',
+    TR1: '19:45 · M. & Mme Benani · 2 couverts · anniversaire',
+  })[t.id] || 'aucune réservation ce soir';
+  const aiTip = t.flag === 'top'
+    ? 'Table-vedette · à protéger des fusions et à proposer en priorité aux VIP.'
+    : t.flag === 'dead'
+      ? 'Sous-performe · revenu/couvert 30 % en dessous moyenne. Envisager une fusion ou un repositionnement.'
+      : t.seats >= 6
+        ? 'Grande table · rotation lente mais ticket élevé. Idéale pour les groupes en soirée.'
+        : 'Performance moyenne · bonne rotation. Stable, peu d\'optimisation à faire.';
 
-handlers['tables-move'] = (sourceId) => {
   wireDismiss(modal({
-    tag: 'DÉPLACER',
-    title: `Déplacer la table${sourceId ? ` ${sourceId}` : ''}`,
-    desc: 'La note, le serveur et le ticket cuisine suivent la table choisie.',
-    width: 480,
-    body: `
-      <div class="kf-group">
-        <label class="kf-label">De</label>
-        <select class="kf-input" ${sourceId ? 'disabled' : ''}>
-          <option>${sourceId || 'T9'} · 4 couverts</option>
-          ${!sourceId ? '<option>T11 · 6 couverts</option><option>TR3 · 4 couverts</option>' : ''}
-        </select>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Vers</label>
-        <select class="kf-input">
-          <option>T3 · 4 couverts · libre</option>
-          <option>T7 · 6 couverts · libre</option>
-          <option>T10 · 2 couverts · libre</option>
-          <option>TR2 · 4 couverts · libre · terrasse</option>
-          <option>TR4 · 2 couverts · libre · terrasse</option>
-        </select>
-      </div>
-      <label style="display:flex; gap:10px; align-items:center; padding:10px 12px; background:var(--paper-soft); border-radius:10px; font-size:13px; cursor:pointer;">
-        <input type="checkbox" checked /> Conserver le serveur actuel
-      </label>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Table déplacée',{type:'success',desc:'Le ticket cuisine et le check ont suivi · client averti.'})">Déplacer</button>
-    `
-  }));
-};
-
-handlers['tables-new'] = (preselect) => {
-  const free = ['T3', 'T7', 'T10', 'TR2', 'TR4'];
-  wireDismiss(modal({
-    tag: 'OUVRIR',
-    title: 'Ouvrir une nouvelle table',
-    desc: 'Wizard rapide — taille de la table → choix → assignation serveur.',
+    tag: `TABLE ${t.id}`,
+    title: `${t.id} · ${t.zone} · ${t.seats} couverts`,
+    desc: `${stateLabelOwner(t.state)} · serveur assigné : ${STAFF_NAMES[t.server] || '—'}`,
     width: 560,
     body: `
-      <div class="kf-group">
-        <label class="kf-label">1 · Couverts</label>
-        <div style="display:flex; gap:6px;">
-          ${[1, 2, 3, 4, 5, 6, '7+'].map((n, i) => `<button class="kb ${i===1?'atlas':'ghost'}" style="flex:1; justify-content:center;">${n}</button>`).join('')}
-        </div>
+      <style>
+        .ti-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+        .ti-stat { background:var(--paper-soft); border-radius:10px; padding:12px 14px; }
+        .ti-stat .l { font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-bottom:4px; }
+        .ti-stat .v { font-size:20px; font-weight:600; color:var(--ink); }
+        .ti-stat .v.atlas { color:var(--atlas); }
+        .ti-stat .d { font-size:11px; color:var(--n-500); margin-top:2px; }
+        .ti-section { padding-top:14px; margin-top:14px; border-top:1px solid var(--n-200); }
+        .ti-section h5 { font-size:11px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin:0 0 8px; }
+        .ti-row { font-size:13px; color:var(--n-700); padding:6px 0; display:flex; justify-content:space-between; }
+        .ti-row b { color:var(--ink); }
+        .ti-ai { background:linear-gradient(180deg, rgba(125,242,176,0.12) 0%, rgba(11,110,79,0.04) 100%); border:1px solid rgba(11,110,79,0.18); border-radius:10px; padding:12px 14px; margin-top:14px; }
+        .ti-ai-brand { font-size:10px; font-family:var(--mono); letter-spacing:0.1em; color:var(--atlas); display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+        .ti-ai-brand::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--mint); }
+        .ti-ai p { font-size:12.5px; line-height:1.5; color:var(--n-700); margin:0; }
+      </style>
+
+      <div class="ti-grid">
+        <div class="ti-stat"><div class="l">REVENU 30 J</div><div class="v atlas">${(t.rev||0).toLocaleString('fr-FR')} <span style="font-size:13px; color:var(--n-500);">MAD</span></div><div class="d">cumul mensuel</div></div>
+        <div class="ti-stat"><div class="l">ROTATIONS / JOUR</div><div class="v">${t.turns}</div><div class="d">${t.turns >= 3 ? 'bonne velocité' : 'rotation lente'}</div></div>
+        <div class="ti-stat"><div class="l">REVENU / COUVERT</div><div class="v">${Math.round((t.rev||0)/(t.seats*30)).toLocaleString('fr-FR')}<span style="font-size:13px; color:var(--n-500);"> MAD</span></div><div class="d">par siège · jour moyen</div></div>
+        <div class="ti-stat"><div class="l">ÉTAT ACTUEL</div><div class="v" style="color:${t.state==='occupied'?'var(--atlas)':t.state==='pay-pending'?'var(--warning)':t.state==='cleaning'?'var(--info)':'var(--n-500)'};">${stateLabelOwner(t.state)}</div><div class="d">${t.state === 'occupied' || t.state === 'pay-pending' ? `assise il y a ${t.mins} min` : '—'}</div></div>
       </div>
-      <div class="kf-group">
-        <label class="kf-label">2 · Table libre</label>
-        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px;">
-          ${free.map(id => `<button class="kb ${id===(preselect||'T3')?'atlas':'ghost'}" style="justify-content:center; padding:14px 0; flex-direction:column; gap:2px;"><b>${id}</b><span style="font-size:10px; color:var(--n-500); font-family:var(--mono);">${id.startsWith('TR')?'terrasse':'salle'}</span></button>`).join('')}
-        </div>
+
+      <div class="ti-section">
+        <h5>Affectation</h5>
+        <div class="ti-row"><span>Section</span><b>${({A:'Salle A',B:'Salle B',C:'Terrasse'})[t.section] || '—'}</b></div>
+        <div class="ti-row"><span>Serveur</span><b>${STAFF_NAMES[t.server] || '—'}</b></div>
+        <div class="ti-row"><span>Prochaine réservation</span><b style="color:var(--atlas);">${nextResa}</b></div>
       </div>
-      <div class="kf-group">
-        <label class="kf-label">3 · Serveur assigné</label>
-        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-          ${[['FK','Fatima','a','3/4'],['HJ','Hamid','b','2/4'],['SB','Sofia','c','2/4'],['YA','Youssef','d','2/3'],['MM','Mehdi','a','2/3']].map(([i, n, c, l], idx) => `
-            <button class="kb ${idx===1?'atlas':'ghost'}" style="flex:1; min-width:100px; justify-content:flex-start; gap:8px;">
-              <span style="width:22px; height:22px; border-radius:50%; background:var(--${c==='a'?'atlas':c==='b'?'riad':c==='c'?'warning':'atlas-700'}); color:var(--paper); display:inline-flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700; font-family:var(--mono);">${i}</span>
-              ${n} <span style="opacity:0.7; font-family:var(--mono); font-size:10.5px; margin-left:4px;">${l}</span>
-            </button>
-          `).join('')}
-        </div>
-        <div class="kf-help">Hamid recommandé · charge la plus faible.</div>
+
+      <div class="ti-ai">
+        <div class="ti-ai-brand">Kiwi AI · recommandation</div>
+        <p>${aiTip}</p>
       </div>
     `,
     foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Table ${preselect||'T3'} ouverte',{type:'success',desc:'Couvert pour 2 · serveur Hamid · catalogue ouvert.'}); window.Kiwi.confetti();">Ouvrir la table</button>
+      <button class="kb ghost" data-dismiss>Fermer</button>
+      <button class="kb ghost" data-dismiss onclick="window.Kiwi.toast('Réassignation de ${t.id}',{type:'info',desc:'Choisissez un nouveau serveur dans Sections.'})">Réassigner serveur</button>
+      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('${t.id} marquée comme prioritaire',{type:'success',desc:'Apparaîtra en haut des suggestions de réservation.'})">Marquer prioritaire</button>
     `
   }));
+}
+function stateLabelOwner(s) {
+  return ({ occupied: 'En service', libre: 'Libre', 'pay-pending': 'Addition en cours', cleaning: 'En nettoyage', paid: 'Payée, en repos' })[s] || s;
+}
+
+/* ─── Auxiliary owner-level handlers ─────────────────────────────────────── */
+handlers['tables-new'] = () => {
+  wireDismiss(modal({
+    tag: 'AJOUTER',
+    title: 'Ajouter une table au plan',
+    desc: 'Configurez la nouvelle table puis glissez-la sur le plan en mode édition.',
+    width: 520,
+    body: `
+      <div class="kf-group">
+        <label class="kf-label">Identifiant</label>
+        <input class="kf-input" value="T13" />
+      </div>
+      <div class="kf-group">
+        <label class="kf-label">Couverts</label>
+        <div style="display:flex; gap:6px;">
+          ${[1, 2, 4, 6, 8, 10].map((n, i) => `<button class="kb ${i===2?'atlas':'ghost'}" style="flex:1; justify-content:center;">${n}</button>`).join('')}
+        </div>
+      </div>
+      <div class="kf-group">
+        <label class="kf-label">Section</label>
+        <div style="display:flex; gap:6px;">
+          <button class="kb atlas" style="flex:1; justify-content:center;">Salle A</button>
+          <button class="kb ghost" style="flex:1; justify-content:center;">Salle B</button>
+          <button class="kb ghost" style="flex:1; justify-content:center;">Terrasse</button>
+        </div>
+      </div>
+      <div class="kf-help">La table sera ajoutée au plan en cours et synchronisée sur l'app serveur.</div>
+    `,
+    foot: `
+      <button class="kb ghost" data-dismiss>Annuler</button>
+      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Table T13 ajoutée',{type:'success',desc:'4 couverts · Salle A · à glisser sur le plan.'}); window.Kiwi.confetti();">Ajouter la table</button>
+    `
+  }));
+};
+
+handlers['tables-edit-mode'] = () => {
+  Kiwi.toast('Mode édition activé', { type: 'info', desc: 'Glissez les tables pour repositionner · double-clic pour éditer les couverts.' });
 };
 
 handlers['tables-rebalance'] = () => {
   wireDismiss(modal({
     tag: 'AUTO-ÉQUILIBRER',
-    title: 'Réassigner pour équilibrer la charge',
-    desc: 'Suggestion calculée à partir des charges actives et des compétences déclarées.',
-    width: 480,
+    title: 'Rééquilibrer les sections',
+    desc: 'Kiwi AI propose une nouvelle répartition pour égaliser la charge des serveurs.',
+    width: 520,
     body: `
       <div class="p-card" style="margin:0;">
-        <div class="head"><h4>2 réassignations proposées</h4><span class="meta">SHIFT MIDI</span></div>
+        <div class="head"><h4>3 réassignations suggérées</h4><span class="meta">SHIFT SOIR</span></div>
         <ul style="list-style:none; padding:0; margin:0;">
-          <li style="padding:10px 0; border-top:1px solid var(--n-200); font-size:13px; display:flex; justify-content:space-between;"><span>T11 · <b>Fatima</b> → <b>Hamid</b></span><span style="font-family:var(--mono); color:var(--success);">−25 % charge</span></li>
-          <li style="padding:10px 0; border-top:1px solid var(--n-200); font-size:13px; display:flex; justify-content:space-between;"><span>TR3 · <b>Mehdi</b> → <b>Sofia</b></span><span style="font-family:var(--mono); color:var(--success);">−12 % charge</span></li>
+          <li style="padding:10px 0; border-top:1px solid var(--n-200); font-size:13px; display:flex; justify-content:space-between;"><span>T11 · Salle A · <b>Fatima</b> → <b>Mehdi</b></span><span style="font-family:var(--mono); color:var(--success);">−18 % charge</span></li>
+          <li style="padding:10px 0; border-top:1px solid var(--n-200); font-size:13px; display:flex; justify-content:space-between;"><span>TR3 · Terrasse · <b>Mehdi</b> → <b>Youssef</b></span><span style="font-family:var(--mono); color:var(--success);">−12 % charge</span></li>
+          <li style="padding:10px 0; border-top:1px solid var(--n-200); font-size:13px; display:flex; justify-content:space-between;"><span>T5 · Salle B · <b>Sofia</b> → <b>Hamid</b></span><span style="font-family:var(--mono); color:var(--success);">−8 % charge</span></li>
         </ul>
+      </div>
+      <div style="margin-top:12px; padding:10px 12px; background:var(--paper-soft); border-radius:10px; font-size:12px; color:var(--n-600);">
+        Écart de charge après équilibrage : <b style="color:var(--atlas);">7 %</b> (vs 22 % actuel).
       </div>
     `,
     foot: `
       <button class="kb ghost" data-dismiss>Garder tel quel</button>
-      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Charge équilibrée',{type:'success',desc:'2 tables réassignées · Fatima notifiée par push.'})">Appliquer</button>
+      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Sections rééquilibrées',{type:'success',desc:'3 tables réassignées · serveurs notifiés sur leur app.'})">Appliquer</button>
     `
   }));
 };
 
-handlers['tables-close-service'] = () => {
-  wireDismiss(modal({
-    tag: 'FERMETURE DE SERVICE',
-    title: 'Clôturer le service ?',
-    desc: '4 tables encore actives. La clôture déclenche : impression Z, export comptable, push de paie shift, archivage des tickets.',
-    width: 520,
-    body: `
-      <div class="p-card" style="margin:0;">
-        <div class="head"><h4>État actuel</h4><span class="meta">15:42</span></div>
-        <dl style="display:grid; grid-template-columns:1fr auto; gap:6px 14px; font-size:13px; margin:0;">
-          <dt style="color:var(--n-500);">Tables actives</dt><dd class="mono"><b>4</b></dd>
-          <dt style="color:var(--n-500);">Couverts servis</dt><dd class="mono">52</dd>
-          <dt style="color:var(--n-500);">CA encaissé</dt><dd class="mono"><b style="color:var(--atlas);">12 408,50 MAD</b></dd>
-          <dt style="color:var(--n-500);">Pourboires</dt><dd class="mono">847,20 MAD</dd>
-        </dl>
-      </div>
-      <p style="margin:14px 0 0; font-size:12.5px; color:var(--n-500); line-height:1.5;">Vous pouvez forcer l'encaissement des 4 dernières tables avant la clôture.</p>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb danger" data-dismiss onclick="window.Kiwi.toast('Service clôturé',{type:'success',desc:'Z imprimé · pourboires distribués · prêt pour le service du soir.'}); window.Kiwi.confetti();">Clôturer maintenant</button>
-    `
-  }));
+handlers['tables-section-edit'] = () => {
+  Kiwi.toast('Reconfiguration des sections', { type: 'info', desc: 'Glissez les tables d\'une section à l\'autre directement sur le plan.' });
+};
+
+handlers['tables-layout-midi']  = () => Kiwi.toast('Plan midi chargé',  { type: 'success', desc: '14 tables actives · pas de terrasse étendue.' });
+handlers['tables-layout-soir']  = () => Kiwi.toast('Plan soir chargé',  { type: 'success', desc: '16 tables actives · terrasse complète.' });
+handlers['tables-layout-event'] = () => Kiwi.toast('Plan événement',     { type: 'info', desc: 'Configuration banquet · 1 grande tablée de 18 couverts.' });
+
+handlers['tables-export-plan'] = () => {
+  Kiwi.toast('Plan exporté en PDF', { type: 'success', desc: 'Plan-de-salle-CafeAtlas-Soir.pdf · 1 page A3.' });
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
