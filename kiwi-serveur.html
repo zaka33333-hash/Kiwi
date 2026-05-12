@@ -1294,6 +1294,123 @@
       font-feature-settings: "tnum" 1; letter-spacing: -0.02em;
     }
 
+    /* Par article — redesign for clarity */
+    .split-help-box {
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .split-help-box svg {
+      width: 18px; height: 18px;
+      color: var(--forest);
+      flex: 0 0 18px;
+      margin-top: 2px;
+    }
+    .split-help-text {
+      font-size: 12.5px;
+      color: var(--forest-deep);
+      line-height: 1.5;
+    }
+    .split-help-text strong {
+      font-weight: 700;
+      color: var(--forest);
+    }
+    .split-step-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+      margin-top: 18px;
+      letter-spacing: -0.005em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .split-step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--forest);
+      color: #fff;
+      font-size: 11px; font-weight: 700;
+      flex: 0 0 20px;
+    }
+    .split-items-cards {
+      display: flex; flex-direction: column;
+      gap: 8px;
+      margin-bottom: 4px;
+      max-height: 260px; overflow-y: auto;
+      border-radius: 10px;
+    }
+    .split-items-cards::-webkit-scrollbar { width: 4px; }
+    .split-items-cards::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+    .split-item-card {
+      background: var(--paper-mute);
+      border: 1.5px solid transparent;
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: background 200ms ease, border-color 200ms ease;
+    }
+    .split-item-card.is-assigned {
+      background: var(--mint-tint);
+      border-color: var(--mint-edge);
+    }
+    .split-item-card-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .split-item-card-name {
+      font-size: 13.5px;
+      color: var(--ink);
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      flex: 1; min-width: 0;
+    }
+    .split-item-card-price {
+      font-size: 13px; font-weight: 700;
+      color: var(--ink);
+      font-feature-settings: "tnum" 1;
+      white-space: nowrap;
+    }
+    .split-item-card-body {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .split-item-card-prompt {
+      font-size: 10.5px;
+      color: var(--ink-3);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+      flex: 0 0 auto;
+    }
+    .split-convive-chips-row {
+      display: flex; gap: 6px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+    .split-convive-pick {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1.5px solid var(--line);
+      color: var(--ink-3);
+      font-size: 13px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+    }
+    .split-convive-pick:active { transform: scale(0.9); }
+    .split-convive-pick.is-assigned {
+      background: var(--forest);
+      border-color: var(--forest);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(31,93,60,0.28);
+    }
+
+    /* Legacy split-items (kept for safety; new UI uses split-items-cards) */
     .split-items {
       border: 1px solid var(--line-soft); border-radius: var(--r-lg);
       max-height: 200px; overflow-y: auto; margin-bottom: 14px;
@@ -1752,15 +1869,8 @@
           <!-- TABLES TAB -->
           <div class="tab tab-tables is-active" data-tab="tables">
             <div class="scope-toggle" id="scope-toggle">
-              <button class="scope-btn is-active" data-scope="mine">Mes tables<span class="scope-count" id="scope-mine-count">7</span></button>
-              <button class="scope-btn" data-scope="colleagues">Collègues<span class="scope-count" id="scope-coll-count">14</span></button>
-            </div>
-
-            <div class="filter-chips" id="filter-chips">
-              <button class="filter-chip is-active" data-filter="all">Tout<span class="count" id="cnt-all">21</span></button>
-              <button class="filter-chip" data-filter="occupied">Occupées<span class="count" id="cnt-occupied">0</span></button>
-              <button class="filter-chip" data-filter="bgha">À régler<span class="count" id="cnt-bgha">0</span></button>
-              <button class="filter-chip" data-filter="khawya">Vides<span class="count" id="cnt-khawya">0</span></button>
+              <button class="scope-btn is-active" data-scope="mine">Mes tables<span class="scope-count" id="scope-mine-count">5</span></button>
+              <button class="scope-btn" data-scope="all">Toutes<span class="scope-count" id="scope-all-count">21</span></button>
             </div>
 
             <div id="tables-zones"></div>
@@ -2051,9 +2161,21 @@
             </div>
 
             <div id="split-article-content" hidden>
-              <div class="split-section-label">Convives</div>
+              <div class="split-help-box">
+                <i data-lucide="lightbulb"></i>
+                <div class="split-help-text">
+                  <strong>Comment ça marche?</strong><br/>
+                  Tapez le numéro d'un convive pour lui attribuer chaque article. Chacun paie ses propres articles.
+                </div>
+              </div>
+
+              <div class="split-step-label"><span class="split-step-num">1</span> Combien de convives?</div>
               <div class="split-chips" id="split-convives-chips"></div>
-              <div class="split-items" id="split-items-list"></div>
+
+              <div class="split-step-label"><span class="split-step-num">2</span> Attribuez chaque article</div>
+              <div class="split-items-cards" id="split-items-list"></div>
+
+              <div class="split-step-label"><span class="split-step-num">3</span> Récapitulatif par convive</div>
               <div class="split-article-totals" id="split-article-totals"></div>
             </div>
 
@@ -2122,18 +2244,18 @@
     };
 
     /* ---------- Tables (assigned per server) ---------- */
-    /* Yassir: T1-T7 (salle principale)  · 7 tables                      */
-    /* Mehdi  : T8-T11 (en pause! salle) · 4 tables — Yassir peut couvrir */
-    /* Karim  : T12-T16 (terrasse)       · 5 tables                       */
-    /* Sofia  : T17-T21 (étage)          · 5 tables                       */
+    /* Yassir : T1, T2, T3, T4, T19 — 5 tables (mix de zones + statuts)  */
+    /* Mehdi  : T5-T11 (en pause!)  — 7 tables — Yassir peut couvrir     */
+    /* Karim  : T12-T16 (terrasse)  — 5 tables                            */
+    /* Sofia  : T17, T18, T20, T21 (étage) — 4 tables                    */
     const tables = {
       T1:  { zone: 'salle',    server: 'yassir', covers: 4, status: 'ka-yaklo',     elapsed: 45 },
       T2:  { zone: 'salle',    server: 'yassir', covers: 2, status: 'bgha-ykhlass', elapsed: 12 },
       T3:  { zone: 'salle',    server: 'yassir', covers: 4, status: 'khawya',       elapsed: 0  },
       T4:  { zone: 'salle',    server: 'yassir', covers: 4, status: 'ka-yaklo',     elapsed: 22 },
-      T5:  { zone: 'salle',    server: 'yassir', covers: 6, status: 'ka-yaklo',     elapsed: 67 },
-      T6:  { zone: 'salle',    server: 'yassir', covers: 5, status: 'bgha-ykhlass', elapsed: 8  },
-      T7:  { zone: 'salle',    server: 'yassir', covers: 2, status: 'khlass',       elapsed: 0  },
+      T5:  { zone: 'salle',    server: 'mehdi',  covers: 6, status: 'ka-yaklo',     elapsed: 67 },
+      T6:  { zone: 'salle',    server: 'mehdi',  covers: 5, status: 'bgha-ykhlass', elapsed: 8  },
+      T7:  { zone: 'salle',    server: 'mehdi',  covers: 2, status: 'khlass',       elapsed: 0  },
       T8:  { zone: 'salle',    server: 'mehdi',  covers: 2, status: 'khawya',       elapsed: 0  },
       T9:  { zone: 'salle',    server: 'mehdi',  covers: 2, status: 'ka-yaklo',     elapsed: 14 },
       T10: { zone: 'salle',    server: 'mehdi',  covers: 2, status: 'khawya',       elapsed: 0  },
@@ -2145,7 +2267,7 @@
       T16: { zone: 'terrasse', server: 'karim',  covers: 6, status: 'ka-yaklo',     elapsed: 38 },
       T17: { zone: 'etage',    server: 'sofia',  covers: 4, status: 'bgha-ykhlass', elapsed: 5  },
       T18: { zone: 'etage',    server: 'sofia',  covers: 4, status: 'khawya',       elapsed: 0  },
-      T19: { zone: 'etage',    server: 'sofia',  covers: 2, status: 'ka-yaklo',     elapsed: 28 },
+      T19: { zone: 'etage',    server: 'yassir', covers: 2, status: 'ka-yaklo',     elapsed: 28 },
       T20: { zone: 'etage',    server: 'sofia',  covers: 4, status: 'khawya',       elapsed: 0  },
       T21: { zone: 'etage',    server: 'sofia',  covers: 4, status: 'khawya',       elapsed: 0  },
     };
@@ -2266,7 +2388,7 @@
     let menuContextId = null;        // table for which menu is collecting items
     let activeFilter = 'all';
     let activeCat = 'all';
-    let currentScope = 'mine';       // 'mine' | 'colleagues'
+    let currentScope = 'mine';       // 'mine' | 'all'
     let shiftStart = null;
     let tablesPaid = 0;
 
@@ -2436,14 +2558,8 @@
     };
 
     function updateFilterCounts() {
-      const all = Object.values(tables);
-      $('#cnt-all').textContent = all.length;
-      $('#cnt-occupied').textContent = all.filter(t => t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam').length;
-      $('#cnt-bgha').textContent = all.filter(t => t.status === 'bgha-ykhlass').length;
-      $('#cnt-khawya').textContent = all.filter(t => t.status === 'khawya').length;
-
-      // Bottom tab badge
-      const bghaCnt = all.filter(t => t.status === 'bgha-ykhlass').length;
+      // Bottom-tab "Paiement" badge: count tables that demand the bill
+      const bghaCnt = Object.values(tables).filter(t => t.status === 'bgha-ykhlass').length;
       const badge = $('#bt-pay-badge');
       if (bghaCnt > 0) {
         badge.textContent = bghaCnt;
@@ -2492,27 +2608,23 @@
 
     function renderTables() {
       updateFilterCounts();
-      $$('.filter-chip').forEach(c => c.classList.toggle('is-active', c.dataset.filter === activeFilter));
       $$('.scope-btn').forEach(b => b.classList.toggle('is-active', b.dataset.scope === currentScope));
 
-      // Update scope counts (always reflect totals, not filtered)
+      // Scope counts (always reflect totals)
       const mineCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
-      const collCount = Object.keys(tables).length - mineCount;
+      const allCount = Object.keys(tables).length;
       $('#scope-mine-count').textContent = mineCount;
-      $('#scope-coll-count').textContent = collCount;
+      $('#scope-all-count').textContent = allCount;
 
       const wrap = $('#tables-zones');
-      wrap.innerHTML = currentScope === 'mine' ? renderOwnTables() : renderColleagueTables();
+      wrap.innerHTML = currentScope === 'mine' ? renderOwnTables() : renderAllTables();
       lucide.createIcons();
     }
 
     function renderOwnTables() {
-      const myIds = Object.keys(tables).filter(id =>
-        tables[id].server === currentUser && filterMatches(tables[id])
-      );
-      const myTotal = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
+      const myIds = Object.keys(tables).filter(id => tables[id].server === currentUser);
 
-      // Pause-alert banner (any colleague on pause?)
+      // Pause-alert banner if any colleague on pause
       const paused = Object.entries(servers)
         .filter(([id, s]) => id !== currentUser && s.status === 'on-pause');
       let alertHTML = '';
@@ -2520,26 +2632,23 @@
         alertHTML = paused.map(([id, s]) => {
           const n = Object.keys(tables).filter(tid => tables[tid].server === id).length;
           return `
-            <div class="colleague-alert" data-go-colleagues="${id}">
+            <div class="colleague-alert" data-go-all="${id}">
               <div class="colleague-alert-icon"><i data-lucide="coffee"></i></div>
               <div class="colleague-alert-text">
                 <div class="colleague-alert-title">${s.name} en pause</div>
                 <div class="colleague-alert-sub">${n} table${n > 1 ? 's' : ''} à couvrir · tapez pour voir</div>
               </div>
               <i data-lucide="chevron-right" class="colleague-alert-chev"></i>
-            </div>
-          `;
+            </div>`;
         }).join('');
       }
 
-      // Big section title
       const titleHTML = `
         <div class="scope-title">
           <span>Vos tables ${timeOfDay()}</span>
-          <span class="scope-count-pill">${myTotal}</span>
+          <span class="scope-count-pill">${myIds.length}</span>
         </div>`;
 
-      // Zones (only mine)
       const zones = [
         { key: 'salle',    label: 'Salle principale' },
         { key: 'terrasse', label: 'Terrasse'         },
@@ -2548,13 +2657,11 @@
       const zonesHTML = zones.map(z => {
         const ids = myIds.filter(id => tables[id].zone === z.key);
         if (ids.length === 0) return '';
-        const total = Object.keys(tables).filter(id =>
-          tables[id].zone === z.key && tables[id].server === currentUser).length;
         return `
           <div class="zone-block">
             <div class="section-title-row">
               <span class="section-title">${z.label}</span>
-              <span class="section-count">${ids.length} / ${total}</span>
+              <span class="section-count">${ids.length} table${ids.length > 1 ? 's' : ''}</span>
             </div>
             <div class="table-list">
               ${ids.map(id => tableCardHTML(id, tables[id])).join('')}
@@ -2562,68 +2669,40 @@
           </div>`;
       }).join('');
 
-      if (myIds.length === 0) {
-        return alertHTML + titleHTML + `
-          <div class="scope-empty">
-            <i data-lucide="filter-x"></i>
-            <p>Aucune de vos tables ne correspond à ce filtre.</p>
-          </div>`;
-      }
       return alertHTML + titleHTML + zonesHTML;
     }
 
-    function renderColleagueTables() {
-      // Sort: on-pause colleagues first
-      const colleagueIds = Object.keys(servers)
-        .filter(id => id !== currentUser)
-        .sort((a, b) => {
-          const aP = servers[a].status === 'on-pause' ? 0 : 1;
-          const bP = servers[b].status === 'on-pause' ? 0 : 1;
-          return aP - bP;
-        });
+    function renderAllTables() {
+      // All 21 tables grouped by zone. Server chip shown on non-own tables.
+      const titleHTML = `
+        <div class="scope-title">
+          <span>Toutes les tables</span>
+          <span class="scope-count-pill">${Object.keys(tables).length}</span>
+        </div>`;
 
-      let html = '';
-      let anyVisible = false;
-      for (const cid of colleagueIds) {
-        const c = servers[cid];
-        const ids = Object.keys(tables).filter(id =>
-          tables[id].server === cid && filterMatches(tables[id])
-        );
-        if (ids.length === 0) continue;
-        anyVisible = true;
-        const total = Object.keys(tables).filter(id => tables[id].server === cid).length;
-        const isOnPause = c.status === 'on-pause';
-        html += `
+      const zones = [
+        { key: 'salle',    label: 'Salle principale' },
+        { key: 'terrasse', label: 'Terrasse'         },
+        { key: 'etage',    label: 'Étage'            },
+      ];
+      const zonesHTML = zones.map(z => {
+        const ids = Object.keys(tables).filter(id => tables[id].zone === z.key);
+        if (ids.length === 0) return '';
+        const occ = ids.filter(id => tables[id].status !== 'khawya').length;
+        return `
           <div class="zone-block">
-            <div class="colleague-header">
-              <div class="colleague-avatar ${isOnPause ? 'on-pause' : ''}">${c.initials}</div>
-              <div class="colleague-info">
-                <div class="colleague-name">${c.name}</div>
-                <div class="colleague-status ${isOnPause ? 'on-pause' : ''}">${isOnPause ? '☕ En pause · à couvrir' : 'En service'}</div>
-              </div>
-              <span class="colleague-count">${ids.length} / ${total}</span>
+            <div class="section-title-row">
+              <span class="section-title">${z.label}</span>
+              <span class="section-count">${occ} / ${ids.length} occupées</span>
             </div>
             <div class="table-list">
               ${ids.map(id => tableCardHTML(id, tables[id], { showServer: true })).join('')}
             </div>
           </div>`;
-      }
+      }).join('');
 
-      if (!anyVisible) {
-        return `<div class="scope-empty">
-          <i data-lucide="filter-x"></i>
-          <p>Aucune table de collègue ne correspond à ce filtre.</p>
-        </div>`;
-      }
-      return html;
+      return titleHTML + zonesHTML;
     }
-
-    $('#filter-chips').addEventListener('click', (e) => {
-      const chip = e.target.closest('[data-filter]');
-      if (!chip) return;
-      activeFilter = chip.dataset.filter;
-      renderTables();
-    });
 
     $('#scope-toggle').addEventListener('click', (e) => {
       const btn = e.target.closest('[data-scope]');
@@ -2632,10 +2711,10 @@
       renderTables();
     });
 
-    // Colleague-pause alert → switch to Collègues view
+    // Colleague-pause alert → switch to "Toutes" view
     document.addEventListener('click', (e) => {
-      if (e.target.closest('[data-go-colleagues]')) {
-        currentScope = 'colleagues';
+      if (e.target.closest('[data-go-all]')) {
+        currentScope = 'all';
         renderTables();
       }
     });
@@ -3200,8 +3279,13 @@
       cardModal.classList.remove('is-open');
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
+      // Cancelled mid-split flow → restore split modal
+      if (!paid && splitPayCallback) {
+        splitPayCallback = null;
+        $('#split-modal').classList.add('is-open');
+        return;
+      }
       if (!paid) {
-        // Revert ka-tkhdam if user closed without paying
         if (tableId && tables[tableId]?.status === 'ka-tkhdam') {
           tables[tableId].status = 'bgha-ykhlass';
           if (currentTab === 'tables') renderTables();
@@ -3282,6 +3366,12 @@
     function closeCashModal({ paid = false, tableId = null } = {}) {
       cashAmountOverride = null;
       cashModal.classList.remove('is-open');
+      // Cancelled mid-split flow → restore split modal
+      if (!paid && splitPayCallback) {
+        splitPayCallback = null;
+        $('#split-modal').classList.add('is-open');
+        return;
+      }
       if (!paid) {
         if (tableId && tables[tableId]?.status === 'ka-tkhdam') {
           tables[tableId].status = 'bgha-ykhlass';
@@ -3447,15 +3537,21 @@
       const n = splitState.numConvives;
       $('#split-items-list').innerHTML = splitState.lines.map((l, idx) => {
         const assigned = splitState.assignments[idx] || 0;
+        const isAssigned = assigned > 0;
         const chips = Array.from({length: n}, (_, i) => {
           const c = i + 1;
-          return `<button class="split-convive-chip ${assigned === c ? 'is-assigned' : ''}" data-item="${idx}" data-convive="${c}">${c}</button>`;
+          return `<button class="split-convive-pick ${assigned === c ? 'is-assigned' : ''}" data-item="${idx}" data-convive="${c}" aria-label="Convive ${c}">${c}</button>`;
         }).join('');
         return `
-          <div class="split-item-row">
-            <span class="split-item-name">${l.qty > 1 ? `${l.qty}× ` : ''}${l.name}</span>
-            <span class="split-item-price">${fmtMAD(l.total)}</span>
-            <div class="split-convive-chips">${chips}</div>
+          <div class="split-item-card ${isAssigned ? 'is-assigned' : ''}">
+            <div class="split-item-card-head">
+              <div class="split-item-card-name">${l.qty > 1 ? `${l.qty}× ` : ''}${l.name}</div>
+              <div class="split-item-card-price">${fmtMAD(l.total)}</div>
+            </div>
+            <div class="split-item-card-body">
+              <span class="split-item-card-prompt">Pour qui?</span>
+              <div class="split-convive-chips-row">${chips}</div>
+            </div>
           </div>`;
       }).join('');
     }
@@ -3546,11 +3642,18 @@
       const part = splitState.flow.parts[partIdx];
       if (!part || part.paid) return;
       payTableId = splitState.tableId;
+
+      // Hide the split modal while the sub-modal (card/cash) is active.
+      // The close handlers will re-open it.
+      $('#split-modal').classList.remove('is-open');
+
       if (method === 'carte') {
         $('#card-amount').textContent = fmtMADcents(part.amount);
         $$('[data-bind="table"]').forEach(el => el.textContent = `Part ${partIdx + 1} · ${splitState.tableId}`);
-        splitPayCallback = () => markSplitPartPaid(partIdx, 'carte');
-        // open card modal directly (without re-marking ka-tkhdam)
+        splitPayCallback = () => {
+          markSplitPartPaid(partIdx, 'carte');
+          $('#split-modal').classList.add('is-open');
+        };
         reader.disc.classList.remove('is-success', 'flash');
         reader.disc.classList.add('is-pulsing');
         reader.disc.innerHTML = '<i data-lucide="credit-card"></i>';
@@ -3566,8 +3669,10 @@
       } else {
         cashAmountOverride = part.amount;
         $$('[data-bind="table"]').forEach(el => el.textContent = `Part ${partIdx + 1} · ${splitState.tableId}`);
-        splitPayCallback = () => markSplitPartPaid(partIdx, 'cash');
-        // open cash modal directly
+        splitPayCallback = () => {
+          markSplitPartPaid(partIdx, 'cash');
+          $('#split-modal').classList.add('is-open');
+        };
         cashStepInput.hidden = false;
         cashStepSuccess.hidden = true;
         cashInput.value = part.amount;
