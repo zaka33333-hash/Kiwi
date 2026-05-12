@@ -1416,6 +1416,245 @@
     .toast.fade { animation: toast-out 240ms ease-in forwards; }
     @keyframes toast-out { to { opacity: 0; transform: translateY(8px); } }
 
+    /* ===========================================================
+       Clock-in animation — Apple-style spring transitions
+       =========================================================== */
+    .ci-btn { position: relative; overflow: hidden; }
+    .ci-btn-check {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.4);
+      pointer-events: none;
+    }
+    .ci-btn-check svg { width: 28px; height: 28px; color: #fff; stroke-width: 3; }
+    .ci-btn.is-loading {
+      background: var(--emerald);
+      box-shadow: 0 8px 32px rgba(63,182,122,0.45), 0 0 0 6px rgba(63,182,122,0.18);
+      pointer-events: none;
+    }
+    .ci-btn.is-loading > i,
+    .ci-btn.is-loading > span:not(.ci-btn-check) {
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .ci-btn.is-loading .ci-btn-check {
+      animation: ci-check-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms forwards;
+    }
+    @keyframes ci-check-pop {
+      0%   { opacity: 0; transform: scale(0.4); }
+      55%  { opacity: 1; transform: scale(1.15); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Clock-in screen leaves the stage */
+    .screen-clockin.is-leaving {
+      animation: clockin-leave 540ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+    @keyframes clockin-leave {
+      0%   { transform: scale(1); opacity: 1; filter: blur(0); }
+      100% { transform: scale(1.08); opacity: 0; filter: blur(6px); }
+    }
+
+    /* Main app zooms in like opening an iOS app */
+    .screen-main.is-entering {
+      animation: main-enter 640ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes main-enter {
+      0%   { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1);    opacity: 1; }
+    }
+    /* Stagger inner content rise */
+    .tab-tables.is-fresh > * {
+      animation: rise-in 580ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    .tab-tables.is-fresh > *:nth-child(1) { animation-delay: 120ms; }
+    .tab-tables.is-fresh > *:nth-child(2) { animation-delay: 220ms; }
+    .tab-tables.is-fresh > *:nth-child(3) { animation-delay: 320ms; }
+    .tab-tables.is-fresh > *:nth-child(4) { animation-delay: 420ms; }
+    @keyframes rise-in {
+      from { transform: translateY(18px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* Welcome banner — auto-dismissing celebration */
+    .welcome-banner {
+      position: absolute;
+      top: calc(var(--topbar-h) + 14px);
+      left: 16px; right: 16px;
+      background: var(--gradient);
+      color: #fff;
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 14px 32px rgba(31,93,60,0.32);
+      z-index: 80;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-20px) scale(0.96);
+    }
+    .welcome-banner.is-visible {
+      animation: welcome-show 4400ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+    @keyframes welcome-show {
+      0%   { opacity: 0; transform: translateY(-20px) scale(0.96); }
+      8%   { opacity: 1; transform: translateY(0)     scale(1);    }
+      85%  { opacity: 1; transform: translateY(0)     scale(1);    }
+      100% { opacity: 0; transform: translateY(-12px) scale(0.98); }
+    }
+    .wb-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      display: flex; align-items: center; justify-content: center;
+      flex: 0 0 36px;
+    }
+    .wb-icon svg { width: 18px; height: 18px; }
+    .wb-text { flex: 1; min-width: 0; }
+    .wb-line1 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+    .wb-line2 { font-size: 11.5px; margin-top: 2px; opacity: 0.9; }
+
+    /* ===========================================================
+       Scope toggle (Mes tables / Collègues) — segmented control
+       =========================================================== */
+    .scope-toggle {
+      display: flex;
+      background: var(--paper-mute);
+      border-radius: 12px;
+      padding: 3px;
+      gap: 2px;
+      margin-bottom: 8px;
+    }
+    .scope-btn {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 9px;
+      font-size: 12.5px; font-weight: 600;
+      color: var(--ink-3);
+      letter-spacing: -0.005em;
+      transition: background 220ms ease, color 220ms ease, box-shadow 220ms ease;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .scope-btn .scope-count {
+      font-size: 10.5px;
+      opacity: 0.6;
+      font-feature-settings: "tnum" 1;
+      letter-spacing: -0.01em;
+    }
+    .scope-btn.is-active {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04);
+    }
+    .scope-btn.is-active .scope-count { opacity: 0.7; }
+
+    /* Section big title for "Vos tables ce soir" */
+    .scope-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin: 8px 4px 4px;
+      display: flex; align-items: baseline; justify-content: space-between;
+    }
+    .scope-title .scope-count-pill {
+      font-family: var(--sans);
+      font-style: normal;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--mint-tint);
+      color: var(--forest);
+      letter-spacing: -0.01em;
+    }
+
+    /* Colleague pause alert (shown in "Mes tables" view) */
+    .colleague-alert {
+      background: linear-gradient(135deg, #C77526 0%, #B85245 100%);
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 6px 18px rgba(184,82,69,0.22);
+      cursor: pointer;
+      transition: transform 100ms ease, filter 150ms ease;
+    }
+    .colleague-alert:active { transform: scale(0.99); }
+    .colleague-alert-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      display: flex; align-items: center; justify-content: center;
+      flex: 0 0 36px;
+    }
+    .colleague-alert-icon svg { width: 18px; height: 18px; }
+    .colleague-alert-text { flex: 1; min-width: 0; }
+    .colleague-alert-title { font-size: 13.5px; font-weight: 700; letter-spacing: -0.005em; }
+    .colleague-alert-sub { font-size: 11.5px; margin-top: 2px; opacity: 0.9; }
+    .colleague-alert-chev { width: 18px; height: 18px; opacity: 0.7; flex: 0 0 18px; }
+
+    /* Colleague subsection header */
+    .colleague-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .colleague-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--ink-bg);
+      color: var(--paper-cream);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex: 0 0 32px;
+      letter-spacing: -0.01em;
+    }
+    .colleague-avatar.on-pause {
+      background: linear-gradient(135deg, #C77526, #B85245);
+    }
+    .colleague-info { flex: 1; min-width: 0; }
+    .colleague-name { font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: -0.005em; }
+    .colleague-status {
+      font-size: 11px;
+      color: var(--ink-4);
+      margin-top: 1px;
+    }
+    .colleague-status.on-pause {
+      color: var(--danger-mute);
+      font-weight: 600;
+    }
+    .colleague-count {
+      font-size: 11px; color: var(--ink-4);
+      font-feature-settings: "tnum" 1;
+    }
+
+    /* Server initials badge on table cards (collègues view only) */
+    .tc-server-chip {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--ink-3);
+      background: rgba(0,0,0,0.06);
+      padding: 1px 6px;
+      border-radius: 999px;
+      letter-spacing: 0.03em;
+      margin-left: 6px;
+    }
+    .table-card[data-status="bgha-ykhlass"] .tc-server-chip,
+    .table-card[data-status="ka-tkhdam"]    .tc-server-chip {
+      background: rgba(255,255,255,0.22);
+      color: #fff;
+    }
+
+    /* Empty state for own tables when filter has no matches */
+    .scope-empty {
+      padding: 32px 20px;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      background: var(--paper-soft);
+      border-radius: var(--r-lg);
+    }
+    .scope-empty svg { width: 28px; height: 28px; color: var(--ink-4); opacity: 0.4; }
+    .scope-empty p { margin: 0; font-size: 13px; color: var(--ink-3); max-width: 220px; line-height: 1.5; }
+
     /* ---------- Reduced motion ---------- */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -1485,6 +1724,9 @@
           <button class="ci-btn" id="ci-button">
             <i data-lucide="log-in"></i>
             <span>Pointer l'arrivée</span>
+            <span class="ci-btn-check" aria-hidden="true">
+              <i data-lucide="check"></i>
+            </span>
           </button>
           <div class="ci-restaurant">Maarif · Casablanca</div>
         </div>
@@ -1509,6 +1751,11 @@
 
           <!-- TABLES TAB -->
           <div class="tab tab-tables is-active" data-tab="tables">
+            <div class="scope-toggle" id="scope-toggle">
+              <button class="scope-btn is-active" data-scope="mine">Mes tables<span class="scope-count" id="scope-mine-count">7</span></button>
+              <button class="scope-btn" data-scope="colleagues">Collègues<span class="scope-count" id="scope-coll-count">14</span></button>
+            </div>
+
             <div class="filter-chips" id="filter-chips">
               <button class="filter-chip is-active" data-filter="all">Tout<span class="count" id="cnt-all">21</span></button>
               <button class="filter-chip" data-filter="occupied">Occupées<span class="count" id="cnt-occupied">0</span></button>
@@ -1568,6 +1815,15 @@
           </div>
 
         </main>
+
+        <!-- Welcome banner (shown briefly after clock-in) -->
+        <div class="welcome-banner" id="welcome-banner" aria-hidden="true">
+          <div class="wb-icon"><i data-lucide="party-popper"></i></div>
+          <div class="wb-text">
+            <div class="wb-line1" id="wb-line1">Bonjour Yassir!</div>
+            <div class="wb-line2" id="wb-line2">7 tables ce soir · bon service</div>
+          </div>
+        </div>
 
         <!-- Floating cart bar (only when in menu tab with active table context) -->
         <div class="menu-cart-bar" id="menu-cart-bar">
@@ -1856,30 +2112,53 @@
     tickClock();
     setInterval(tickClock, 1000);
 
-    /* ---------- Tables (same data as caisse) ---------- */
-    const tables = {
-      T1:  { zone: 'salle',    covers: 4, status: 'ka-yaklo',     elapsed: 45 },
-      T2:  { zone: 'salle',    covers: 2, status: 'bgha-ykhlass', elapsed: 12 },
-      T3:  { zone: 'salle',    covers: 4, status: 'khawya',       elapsed: 0  },
-      T4:  { zone: 'salle',    covers: 4, status: 'ka-yaklo',     elapsed: 22 },
-      T5:  { zone: 'salle',    covers: 6, status: 'ka-yaklo',     elapsed: 67 },
-      T6:  { zone: 'salle',    covers: 5, status: 'bgha-ykhlass', elapsed: 8  },
-      T7:  { zone: 'salle',    covers: 2, status: 'khlass',       elapsed: 0  },
-      T8:  { zone: 'salle',    covers: 2, status: 'khawya',       elapsed: 0  },
-      T9:  { zone: 'salle',    covers: 2, status: 'ka-yaklo',     elapsed: 14 },
-      T10: { zone: 'salle',    covers: 2, status: 'khawya',       elapsed: 0  },
-      T11: { zone: 'salle',    covers: 3, status: 'ka-yaklo',     elapsed: 31 },
-      T12: { zone: 'terrasse', covers: 4, status: 'khawya',       elapsed: 0  },
-      T13: { zone: 'terrasse', covers: 4, status: 'ka-yaklo',     elapsed: 19 },
-      T14: { zone: 'terrasse', covers: 4, status: 'khawya',       elapsed: 0  },
-      T15: { zone: 'terrasse', covers: 4, status: 'ka-yaklo',     elapsed: 55 },
-      T16: { zone: 'terrasse', covers: 6, status: 'ka-yaklo',     elapsed: 38 },
-      T17: { zone: 'etage',    covers: 4, status: 'bgha-ykhlass', elapsed: 5  },
-      T18: { zone: 'etage',    covers: 4, status: 'khawya',       elapsed: 0  },
-      T19: { zone: 'etage',    covers: 2, status: 'ka-yaklo',     elapsed: 28 },
-      T20: { zone: 'etage',    covers: 4, status: 'khawya',       elapsed: 0  },
-      T21: { zone: 'etage',    covers: 4, status: 'khawya',       elapsed: 0  },
+    /* ---------- Servers (Yassir + 3 collègues) ---------- */
+    const currentUser = 'yassir';
+    const servers = {
+      yassir: { name: 'Yassir K.', initials: 'YK', status: 'on-duty'  },
+      mehdi:  { name: 'Mehdi A.',  initials: 'MA', status: 'on-pause' },
+      karim:  { name: 'Karim B.',  initials: 'KB', status: 'on-duty'  },
+      sofia:  { name: 'Sofia L.',  initials: 'SL', status: 'on-duty'  },
     };
+
+    /* ---------- Tables (assigned per server) ---------- */
+    /* Yassir: T1-T7 (salle principale)  · 7 tables                      */
+    /* Mehdi  : T8-T11 (en pause! salle) · 4 tables — Yassir peut couvrir */
+    /* Karim  : T12-T16 (terrasse)       · 5 tables                       */
+    /* Sofia  : T17-T21 (étage)          · 5 tables                       */
+    const tables = {
+      T1:  { zone: 'salle',    server: 'yassir', covers: 4, status: 'ka-yaklo',     elapsed: 45 },
+      T2:  { zone: 'salle',    server: 'yassir', covers: 2, status: 'bgha-ykhlass', elapsed: 12 },
+      T3:  { zone: 'salle',    server: 'yassir', covers: 4, status: 'khawya',       elapsed: 0  },
+      T4:  { zone: 'salle',    server: 'yassir', covers: 4, status: 'ka-yaklo',     elapsed: 22 },
+      T5:  { zone: 'salle',    server: 'yassir', covers: 6, status: 'ka-yaklo',     elapsed: 67 },
+      T6:  { zone: 'salle',    server: 'yassir', covers: 5, status: 'bgha-ykhlass', elapsed: 8  },
+      T7:  { zone: 'salle',    server: 'yassir', covers: 2, status: 'khlass',       elapsed: 0  },
+      T8:  { zone: 'salle',    server: 'mehdi',  covers: 2, status: 'khawya',       elapsed: 0  },
+      T9:  { zone: 'salle',    server: 'mehdi',  covers: 2, status: 'ka-yaklo',     elapsed: 14 },
+      T10: { zone: 'salle',    server: 'mehdi',  covers: 2, status: 'khawya',       elapsed: 0  },
+      T11: { zone: 'salle',    server: 'mehdi',  covers: 3, status: 'ka-yaklo',     elapsed: 31 },
+      T12: { zone: 'terrasse', server: 'karim',  covers: 4, status: 'khawya',       elapsed: 0  },
+      T13: { zone: 'terrasse', server: 'karim',  covers: 4, status: 'ka-yaklo',     elapsed: 19 },
+      T14: { zone: 'terrasse', server: 'karim',  covers: 4, status: 'khawya',       elapsed: 0  },
+      T15: { zone: 'terrasse', server: 'karim',  covers: 4, status: 'ka-yaklo',     elapsed: 55 },
+      T16: { zone: 'terrasse', server: 'karim',  covers: 6, status: 'ka-yaklo',     elapsed: 38 },
+      T17: { zone: 'etage',    server: 'sofia',  covers: 4, status: 'bgha-ykhlass', elapsed: 5  },
+      T18: { zone: 'etage',    server: 'sofia',  covers: 4, status: 'khawya',       elapsed: 0  },
+      T19: { zone: 'etage',    server: 'sofia',  covers: 2, status: 'ka-yaklo',     elapsed: 28 },
+      T20: { zone: 'etage',    server: 'sofia',  covers: 4, status: 'khawya',       elapsed: 0  },
+      T21: { zone: 'etage',    server: 'sofia',  covers: 4, status: 'khawya',       elapsed: 0  },
+    };
+
+    /* ---------- Time-of-day greeting helper ---------- */
+    function timeOfDay() {
+      const h = new Date().getHours();
+      if (h >= 5  && h < 11) return 'ce matin';
+      if (h >= 11 && h < 15) return 'ce midi';
+      if (h >= 15 && h < 18) return 'cet après-midi';
+      if (h >= 18 && h < 23) return 'ce soir';
+      return 'cette nuit';
+    }
 
     /* Pre-seeded orders for already-occupied tables (read-only mock) */
     const seedOrders = {
@@ -1987,6 +2266,7 @@
     let menuContextId = null;        // table for which menu is collecting items
     let activeFilter = 'all';
     let activeCat = 'all';
+    let currentScope = 'mine';       // 'mine' | 'colleagues'
     let shiftStart = null;
     let tablesPaid = 0;
 
@@ -2056,13 +2336,55 @@
 
     /* ---------- Clock-in / Clock-out ---------- */
     $('#ci-button').addEventListener('click', () => {
-      shiftStart = new Date();
-      showScreen('screen-main');
-      setTab('tables');
-      renderAll();
-      lucide.createIcons();
-      toast('Bienvenue Yassir · service ouvert');
+      const btn = $('#ci-button');
+      if (btn.classList.contains('is-loading')) return;
+      btn.classList.add('is-loading');
+
+      // Phase 1: button morphs into a check (~640ms total)
+      // Phase 2: clock-in screen zooms out + blurs (overlapping start at +640ms)
+      // Phase 3: main screen zooms in + stagger reveal of content
+      setTimeout(() => {
+        $('#screen-clockin').classList.add('is-leaving');
+        setTimeout(() => {
+          // Initialize shift state
+          shiftStart = new Date();
+          // Hard-switch screens
+          $$('.screen').forEach(s => s.classList.remove('is-active', 'is-leaving'));
+          const main = $('#screen-main');
+          main.classList.add('is-active', 'is-entering');
+          // Reset button for future logout cycles
+          btn.classList.remove('is-loading');
+          // Initialize app state
+          setTab('tables');
+          renderAll();
+          // Stagger reveal of tables content
+          const tab = $('.tab-tables');
+          tab.classList.add('is-fresh');
+          setTimeout(() => tab.classList.remove('is-fresh'), 1300);
+          setTimeout(() => main.classList.remove('is-entering'), 700);
+          lucide.createIcons();
+          showWelcomeBanner();
+        }, 380);
+      }, 640);
     });
+
+    function showWelcomeBanner() {
+      const myCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
+      const paused = Object.entries(servers).filter(([id, s]) => id !== currentUser && s.status === 'on-pause');
+      $('#wb-line1').textContent = `Bonjour Yassir!`;
+      const tod = timeOfDay();
+      let line2 = `${myCount} tables ${tod} · bon service`;
+      if (paused.length > 0) {
+        line2 = `${myCount} tables ${tod} · ${paused[0][1].name.split(' ')[0]} en pause`;
+      }
+      $('#wb-line2').textContent = line2;
+      const banner = $('#welcome-banner');
+      // restart animation
+      banner.classList.remove('is-visible');
+      void banner.offsetWidth;
+      banner.classList.add('is-visible');
+      lucide.createIcons();
+    }
 
     function clockOut() {
       // Reset shift state, return to PIN screen (full logout)
@@ -2139,7 +2461,7 @@
       return true;
     }
 
-    function tableCardHTML(id, t) {
+    function tableCardHTML(id, t, opts = {}) {
       const total = (t.status === 'khawya' || t.status === 'khlass') ? 0 : getTableTotal(id);
       const statusTxt = statusLabel[t.status];
       let line2 = '';
@@ -2149,13 +2471,15 @@
 
       const showAmount = total > 0;
       const urgentDot = t.status === 'bgha-ykhlass' ? '<span class="tc-pulse-dot"></span>' : '';
-      const arrowColor = t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam' ? '#fff' : 'currentColor';
+      const serverChip = (opts.showServer && t.server && t.server !== currentUser)
+        ? `<span class="tc-server-chip">${servers[t.server].initials}</span>`
+        : '';
 
       return `
         <div class="table-card" data-status="${t.status}" data-table="${id}" role="button" tabindex="0">
           <div class="tc-num">${id}</div>
           <div class="tc-info">
-            <div class="tc-line1">${id} · ${t.covers} couvert${t.covers > 1 ? 's' : ''} ${urgentDot}</div>
+            <div class="tc-line1">${id} · ${t.covers} couvert${t.covers > 1 ? 's' : ''} ${serverChip} ${urgentDot}</div>
             <div class="tc-line2">${line2}</div>
           </div>
           <div class="tc-right">
@@ -2169,42 +2493,129 @@
     function renderTables() {
       updateFilterCounts();
       $$('.filter-chip').forEach(c => c.classList.toggle('is-active', c.dataset.filter === activeFilter));
+      $$('.scope-btn').forEach(b => b.classList.toggle('is-active', b.dataset.scope === currentScope));
 
+      // Update scope counts (always reflect totals, not filtered)
+      const mineCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
+      const collCount = Object.keys(tables).length - mineCount;
+      $('#scope-mine-count').textContent = mineCount;
+      $('#scope-coll-count').textContent = collCount;
+
+      const wrap = $('#tables-zones');
+      wrap.innerHTML = currentScope === 'mine' ? renderOwnTables() : renderColleagueTables();
+      lucide.createIcons();
+    }
+
+    function renderOwnTables() {
+      const myIds = Object.keys(tables).filter(id =>
+        tables[id].server === currentUser && filterMatches(tables[id])
+      );
+      const myTotal = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
+
+      // Pause-alert banner (any colleague on pause?)
+      const paused = Object.entries(servers)
+        .filter(([id, s]) => id !== currentUser && s.status === 'on-pause');
+      let alertHTML = '';
+      if (paused.length > 0) {
+        alertHTML = paused.map(([id, s]) => {
+          const n = Object.keys(tables).filter(tid => tables[tid].server === id).length;
+          return `
+            <div class="colleague-alert" data-go-colleagues="${id}">
+              <div class="colleague-alert-icon"><i data-lucide="coffee"></i></div>
+              <div class="colleague-alert-text">
+                <div class="colleague-alert-title">${s.name} en pause</div>
+                <div class="colleague-alert-sub">${n} table${n > 1 ? 's' : ''} à couvrir · tapez pour voir</div>
+              </div>
+              <i data-lucide="chevron-right" class="colleague-alert-chev"></i>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Big section title
+      const titleHTML = `
+        <div class="scope-title">
+          <span>Vos tables ${timeOfDay()}</span>
+          <span class="scope-count-pill">${myTotal}</span>
+        </div>`;
+
+      // Zones (only mine)
       const zones = [
         { key: 'salle',    label: 'Salle principale' },
         { key: 'terrasse', label: 'Terrasse'         },
         { key: 'etage',    label: 'Étage'            },
       ];
-
-      const html = zones.map(z => {
-        const ids = Object.keys(tables).filter(id =>
-          tables[id].zone === z.key && filterMatches(tables[id])
-        );
+      const zonesHTML = zones.map(z => {
+        const ids = myIds.filter(id => tables[id].zone === z.key);
         if (ids.length === 0) return '';
-        const total = Object.keys(tables).filter(id => tables[id].zone === z.key).length;
-        const occ = Object.keys(tables).filter(id => tables[id].zone === z.key && tables[id].status !== 'khawya').length;
+        const total = Object.keys(tables).filter(id =>
+          tables[id].zone === z.key && tables[id].server === currentUser).length;
         return `
           <div class="zone-block">
             <div class="section-title-row">
               <span class="section-title">${z.label}</span>
-              <span class="section-count">${occ} / ${total} occupées</span>
+              <span class="section-count">${ids.length} / ${total}</span>
             </div>
             <div class="table-list">
               ${ids.map(id => tableCardHTML(id, tables[id])).join('')}
             </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
 
-      const wrap = $('#tables-zones');
-      wrap.innerHTML = html || `
-        <div class="empty-state">
-          <div class="empty-state-icon"><i data-lucide="filter-x"></i></div>
-          <h3>Aucune table</h3>
-          <p>Aucune table ne correspond à ce filtre. Essayez "Tout".</p>
-        </div>
-      `;
-      lucide.createIcons();
+      if (myIds.length === 0) {
+        return alertHTML + titleHTML + `
+          <div class="scope-empty">
+            <i data-lucide="filter-x"></i>
+            <p>Aucune de vos tables ne correspond à ce filtre.</p>
+          </div>`;
+      }
+      return alertHTML + titleHTML + zonesHTML;
+    }
+
+    function renderColleagueTables() {
+      // Sort: on-pause colleagues first
+      const colleagueIds = Object.keys(servers)
+        .filter(id => id !== currentUser)
+        .sort((a, b) => {
+          const aP = servers[a].status === 'on-pause' ? 0 : 1;
+          const bP = servers[b].status === 'on-pause' ? 0 : 1;
+          return aP - bP;
+        });
+
+      let html = '';
+      let anyVisible = false;
+      for (const cid of colleagueIds) {
+        const c = servers[cid];
+        const ids = Object.keys(tables).filter(id =>
+          tables[id].server === cid && filterMatches(tables[id])
+        );
+        if (ids.length === 0) continue;
+        anyVisible = true;
+        const total = Object.keys(tables).filter(id => tables[id].server === cid).length;
+        const isOnPause = c.status === 'on-pause';
+        html += `
+          <div class="zone-block">
+            <div class="colleague-header">
+              <div class="colleague-avatar ${isOnPause ? 'on-pause' : ''}">${c.initials}</div>
+              <div class="colleague-info">
+                <div class="colleague-name">${c.name}</div>
+                <div class="colleague-status ${isOnPause ? 'on-pause' : ''}">${isOnPause ? '☕ En pause · à couvrir' : 'En service'}</div>
+              </div>
+              <span class="colleague-count">${ids.length} / ${total}</span>
+            </div>
+            <div class="table-list">
+              ${ids.map(id => tableCardHTML(id, tables[id], { showServer: true })).join('')}
+            </div>
+          </div>`;
+      }
+
+      if (!anyVisible) {
+        return `<div class="scope-empty">
+          <i data-lucide="filter-x"></i>
+          <p>Aucune table de collègue ne correspond à ce filtre.</p>
+        </div>`;
+      }
+      return html;
     }
 
     $('#filter-chips').addEventListener('click', (e) => {
@@ -2212,6 +2623,21 @@
       if (!chip) return;
       activeFilter = chip.dataset.filter;
       renderTables();
+    });
+
+    $('#scope-toggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-scope]');
+      if (!btn) return;
+      currentScope = btn.dataset.scope;
+      renderTables();
+    });
+
+    // Colleague-pause alert → switch to Collègues view
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('[data-go-colleagues]')) {
+        currentScope = 'colleagues';
+        renderTables();
+      }
     });
 
     document.addEventListener('click', (e) => {
@@ -2615,7 +3041,14 @@
     /* ---------- Paiement tab ---------- */
     function renderPaiement() {
       const list = $('#paiement-list');
-      const payable = Object.keys(tables).filter(id => tables[id].status === 'bgha-ykhlass');
+      // Sort: own tables first, then colleagues
+      const payable = Object.keys(tables)
+        .filter(id => tables[id].status === 'bgha-ykhlass')
+        .sort((a, b) => {
+          const aMine = tables[a].server === currentUser ? 0 : 1;
+          const bMine = tables[b].server === currentUser ? 0 : 1;
+          return aMine - bMine;
+        });
       if (payable.length === 0) {
         list.innerHTML = `
           <div class="empty-state">
@@ -2625,7 +3058,8 @@
           </div>
         `;
       } else {
-        list.innerHTML = `<div class="table-list">${payable.map(id => tableCardHTML(id, tables[id])).join('')}</div>`;
+        // Show server badge on cards so user knows mine vs collègue
+        list.innerHTML = `<div class="table-list">${payable.map(id => tableCardHTML(id, tables[id], { showServer: true })).join('')}</div>`;
       }
       lucide.createIcons();
     }
