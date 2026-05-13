@@ -901,13 +901,10 @@
     max-width: 0;
     white-space: nowrap;
     vertical-align: top;
-    /* border-box so padding-right is INCLUDED in max-width — otherwise
-     * padding leaks past max-width:0 and the first glyph peeks through
-     * before the reveal starts. */
-    box-sizing: border-box;
-    /* padding-right gives the italic ink (terminal "?" swash, "é" accent)
-     * room before overflow:hidden clips it. */
-    padding-right: 0.18em;
+    /* NO padding — padding has a fixed length that browsers won't shrink
+     * below, so even with max-width:0 the padding box would render and
+     * leak the first glyph. The +24px buffer baked into naturalW (JS)
+     * gives the italic ink all the trailing room it needs without padding. */
     transition: max-width 960ms cubic-bezier(0.32, 0.72, 0, 1);
   }
   .kiwi-greet h1 .em-clip.is-revealed {
