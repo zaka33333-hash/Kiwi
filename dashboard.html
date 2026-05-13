@@ -1635,7 +1635,7 @@
        * caret pinned to the right edge, we need generous trailing room
        * so overflow:hidden doesn't shave the tail off. Erring high here
        * is safe — the extra px is invisible whitespace at sentence end. */
-      const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 44;
+      const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 72;
 
       /* Wrap em in the clip-span; the wrapper handles overflow + the
        * max-width transition, em itself is undisturbed. */
