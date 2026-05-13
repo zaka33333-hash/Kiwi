@@ -617,16 +617,65 @@
   function exitFusion(opts = {}) {
     if (fusionAnimating) return;
     if (currentVenue !== 'fusion') return;
-    // Soft exit — no big animation, just palette flip + data swap.
-    document.body.classList.remove('fusion-mode');
-    // Drop the dark theme unless the user had it set independently
-    // (we treat fusion as the only path that engages it for now).
-    document.documentElement.removeAttribute('data-theme');
+
     const target = opts.targetVenue || preFusionVenue || DEFAULT_VENUE;
-    currentVenue = REAL_VENUES.includes(target) ? target : DEFAULT_VENUE;
-    try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
-    renderAll();
-    subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
+    const nextVenue = REAL_VENUES.includes(target) ? target : DEFAULT_VENUE;
+    const overlay = document.querySelector('[data-fusion-overlay]');
+
+    // Graceful fallback — no overlay element → soft swap.
+    if (!overlay) {
+      document.body.classList.remove('fusion-mode');
+      document.documentElement.removeAttribute('data-theme');
+      currentVenue = nextVenue;
+      try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
+      renderAll();
+      subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
+      return;
+    }
+
+    fusionAnimating = true;
+
+    // Inverse CRT sequence — two lines slide in from the edges to meet at
+    // center, the seed ignites and collapses to a point, then theme reverts.
+    overlay.classList.remove('exiting');
+    overlay.innerHTML = `
+      <div class="fo-stars"></div>
+      <div class="fo-crt-line top-exit"></div>
+      <div class="fo-crt-line bot-exit"></div>
+      <div class="fo-crt-seed exit"></div>
+    `;
+    overlay.offsetHeight; // reflow → animations replay
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+
+    /* Exit choreography:
+     *   t=0.00  overlay fades in dark over the fusion dashboard
+     *   t=0.10  two CRT lines slide IN from top + bottom edges → meet at center
+     *   t=0.85  seed ignites at center, pulses brightest at t=1.20
+     *   t=1.45  seed collapses horizontally to a point + theme/data swap UNDER overlay
+     *   t=1.95  overlay fades out, restored single-venue dashboard revealed
+     *   t=2.55  cleanup
+     */
+
+    setTimeout(() => {
+      document.body.classList.remove('fusion-mode');
+      document.documentElement.removeAttribute('data-theme');
+      currentVenue = nextVenue;
+      try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
+      renderAll();
+      subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
+    }, 1450);
+
+    setTimeout(() => {
+      overlay.classList.add('exiting');
+      overlay.classList.remove('active');
+    }, 1950);
+    setTimeout(() => {
+      overlay.setAttribute('aria-hidden', 'true');
+      overlay.innerHTML = '';
+      overlay.classList.remove('exiting');
+      fusionAnimating = false;
+    }, 2550);
   }
 
   function registerHandlers() {
