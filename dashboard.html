@@ -1686,30 +1686,74 @@
     opacity: 0;
     filter: blur(1px);
   }
-  .fo-flash { animation: fo-flash 0.62s cubic-bezier(0.2,0.7,0.3,1) forwards 0.3s; }
+  .fo-flash { animation: fo-flash 0.62s cubic-bezier(0.2,0.7,0.3,1) forwards 1.25s; }
   @keyframes fo-flash {
     0%   { transform: scale(0);   opacity: 0; }
     20%  { transform: scale(1.6); opacity: 1; }
     100% { transform: scale(16);  opacity: 0; }
   }
 
-  /* Concentric shockwave rings */
-  .fo-ring {
-    position: absolute; left: 50%; top: 50%;
-    width: 240px; height: 240px;
-    margin: -120px 0 0 -120px;
-    border-radius: 50%;
-    border: 2px solid #FF8FC8;
-    transform: scale(0);
+  /* ── Smart-TV CRT opening ──────────────────────────────────────────────
+   * fo-crt-seed: a 3px-tall hairline at vertical center that ignites first
+   *   (mimics the bright horizontal line on an old TV warming up).
+   * fo-crt-line.top / .bot: two thicker bright bars that start at center,
+   *   then slide apart vertically — top to y=0, bottom to y=100% — opening
+   *   the screen like a CRT. Each leaves a bright leading edge with a soft
+   *   trailing glow that fades out as the lines reach the screen edges.
+   * Timing slots in BEFORE the flash so flash/particles read as the
+   *   impact AFTER the screen has cracked open. */
+  .fo-crt-seed {
+    position: absolute; left: 0; right: 0; top: 50%;
+    height: 3px; margin-top: -1.5px;
+    background: linear-gradient(90deg,
+      transparent 0%, rgba(255,143,200,0.55) 12%,
+      #fff 40%, #FF8FC8 50%, #fff 60%,
+      rgba(255,143,200,0.55) 88%, transparent 100%);
+    box-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 38px rgba(255,143,200,0.85);
+    transform: scaleX(0);
+    transform-origin: 50% 50%;
     opacity: 0;
-    box-shadow: 0 0 40px rgba(255,143,200,0.6), inset 0 0 24px rgba(255,143,200,0.4);
+    animation: fo-crt-seed 0.55s cubic-bezier(0.22,0.72,0,1) forwards 0.05s;
   }
-  .fo-ring.r1 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 0.35s; }
-  .fo-ring.r2 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 0.5s; border-color: #C1487E; }
-  .fo-ring.r3 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 0.65s; border-color: rgba(255,255,255,0.55); }
-  @keyframes fo-ring {
-    0%   { transform: scale(0);   opacity: 1; border-width: 4px; }
-    100% { transform: scale(9);   opacity: 0; border-width: 0.3px; }
+  @keyframes fo-crt-seed {
+    0%   { transform: scaleX(0);    opacity: 0; }
+    25%  { transform: scaleX(0.65); opacity: 1; }
+    70%  { transform: scaleX(1);    opacity: 1; }
+    100% { transform: scaleX(1);    opacity: 0.85; }
+  }
+
+  .fo-crt-line {
+    position: absolute; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(255,143,200,0.0) 20%,
+      rgba(255,143,200,0.55) 45%,
+      #fff 50%,
+      rgba(255,143,200,0.55) 55%,
+      rgba(255,143,200,0.0) 80%,
+      transparent 100%);
+    box-shadow: 0 0 22px rgba(255,255,255,0.85), 0 0 60px rgba(255,143,200,0.7);
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .fo-crt-line.top {
+    top: 50%; margin-top: -3px;
+    animation: fo-crt-top 0.95s cubic-bezier(0.55,0.05,0.25,1) forwards 0.55s;
+  }
+  .fo-crt-line.bot {
+    top: 50%; margin-top: -3px;
+    animation: fo-crt-bot 0.95s cubic-bezier(0.55,0.05,0.25,1) forwards 0.55s;
+  }
+  @keyframes fo-crt-top {
+    0%   { transform: translateY(0);     opacity: 1; height: 6px; }
+    55%  { opacity: 1; }
+    100% { transform: translateY(-50vh); opacity: 0; height: 2px; }
+  }
+  @keyframes fo-crt-bot {
+    0%   { transform: translateY(0);    opacity: 1; height: 6px; }
+    55%  { opacity: 1; }
+    100% { transform: translateY(50vh); opacity: 0; height: 2px; }
   }
 
   /* The fused sigil — a six-point star made of three rotated diamonds,
@@ -1753,7 +1797,7 @@
     color: #FF8FC8;
     text-transform: uppercase;
     opacity: 0;
-    animation: fo-label 0.55s ease-out forwards 0.85s;
+    animation: fo-label 0.55s ease-out forwards 1.6s;
     text-shadow: 0 0 12px rgba(255,143,200,0.7);
     white-space: nowrap;
   }
@@ -1780,7 +1824,7 @@
       rgba(255,143,200,0.45) 66%,
       transparent 80%);
     transform: translateX(-110%);
-    animation: fo-sweep 0.9s cubic-bezier(0.55,0.05,0.35,1) forwards 1.05s;
+    animation: fo-sweep 0.9s cubic-bezier(0.55,0.05,0.35,1) forwards 1.8s;
     mix-blend-mode: screen;
     pointer-events: none;
   }
@@ -1794,7 +1838,7 @@
     box-shadow: 0 0 12px #FF8FC8;
     transform: translate(-50%,-50%);
     opacity: 0;
-    animation: fo-particle 1.2s cubic-bezier(0.22,0.72,0,1) forwards 0.35s;
+    animation: fo-particle 1.2s cubic-bezier(0.22,0.72,0,1) forwards 1.3s;
   }
   @keyframes fo-particle {
     0%   { transform: translate(-50%,-50%) translate(0, 0) scale(1); opacity: 1; }

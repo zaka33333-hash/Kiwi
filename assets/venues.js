@@ -537,10 +537,10 @@
     }
     overlay.innerHTML = `
       <div class="fo-stars"></div>
+      <div class="fo-crt-seed"></div>
+      <div class="fo-crt-line top"></div>
+      <div class="fo-crt-line bot"></div>
       <div class="fo-flash"></div>
-      <div class="fo-ring r1"></div>
-      <div class="fo-ring r2"></div>
-      <div class="fo-ring r3"></div>
       ${particles.join('')}
       <div class="fo-label">
         FUSION ACTIVE
@@ -578,11 +578,13 @@
 
     /* Choreography timeline (matches CSS keyframes):
      *   t=0.00  overlay fades in, starfield drifts
-     *   t=0.30  flash explodes + shockwave rings expand + particle burst
-     *   t=0.85  mono "FUSION ACTIVE" label fades in
-     *   t=1.05  Bougainvillée diagonal sweep + theme/data swap UNDER overlay
-     *   t=1.75  overlay fades out, dashboard fully revealed
-     *   t=2.35  cleanup
+     *   t=0.05  CRT hairline ignites + extends across vertical center
+     *   t=0.55  two CRT lines split — top and bottom slide apart (TV-on)
+     *   t=1.25  flash + particle burst at impact (lines have cleared screen)
+     *   t=1.60  mono "FUSION ACTIVE" label fades in
+     *   t=1.80  Bougainvillée diagonal sweep + theme/data swap UNDER overlay
+     *   t=2.55  overlay fades out, dashboard fully revealed
+     *   t=3.15  cleanup
      */
 
     // Swap palette + data during the sweep, so when the overlay fades the
@@ -597,19 +599,19 @@
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
-    }, 1050);
+    }, 1800);
 
     // Fade overlay back out, then clear markup.
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 1750);
+    }, 2550);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 2350);
+    }, 3150);
   }
 
   function exitFusion(opts = {}) {
