@@ -960,16 +960,38 @@
    * rotates, diagonal sweep paints the new theme onto the UI.
    * ══════════════════════════════════════════════════════════════════════════ */
 
-  /* Theme override — only active while body.fusion-mode is set */
+  /* Theme override — only active while body.fusion-mode is set.
+   * Full dark mode: paper/ink flip, neutral ramp reversed onto rgba whites
+   * over a Nuit base. Brand tokens swing to Bougainvillée. */
   body.fusion-mode {
-    --atlas:     #C1487E;   /* Bougainvillée Vif → primary */
-    --atlas-600: #D45F95;
-    --atlas-700: #A33867;
-    --riad:      #1B0E2E;   /* Bougainvillée Nuit → deep */
-    --riad-deep: #0F081B;
-    --mint:      #FF8FC8;   /* Bougainvillée Fleur → accent */
-    --mint-soft: #FFCFE2;
+    --atlas:       #C1487E;   /* Bougainvillée Vif */
+    --atlas-600:   #D45F95;
+    --atlas-700:   #A33867;
+    --riad:        #1B0E2E;   /* Bougainvillée Nuit */
+    --riad-deep:   #0F081B;
+    --mint:        #FF8FC8;   /* Bougainvillée Fleur */
+    --mint-soft:   #3A1E4D;   /* dark velvet replacement for mint-soft pastel */
+    --paper:       #14081F;
+    --paper-soft:  #1F0D2E;
+    --paper-muted: #2A1340;
+    --ink:         #F4ECF2;
+    --ink-soft:    #DEC9D6;
+    --n-50:        rgba(255,255,255,0.04);
+    --n-100:       rgba(255,255,255,0.06);
+    --n-200:       rgba(255,255,255,0.10);
+    --n-300:       rgba(255,255,255,0.16);
+    --n-400:       #6F5F76;
+    --n-500:       #a18098;
+    --n-600:       #c4a7b9;
+    --n-700:       #e0ccd6;
+    --n-800:       #f4ecf2;
   }
+  body.fusion-mode {
+    background: #14081F !important;
+    color: var(--ink);
+    transition: background 480ms cubic-bezier(0.32,0.72,0,1);
+  }
+  body.fusion-mode .main { color: var(--ink); }
   /* Cross-fade brand transitions in fusion mode — every coloured element
    * inherits a 480ms ease so the palette swap doesn't snap. */
   body.fusion-mode .sidebar nav a,
@@ -1020,6 +1042,249 @@
   body.fusion-mode .venue-row-icon { color: #C1487E !important; }
   body.fusion-mode .hai-eyebrow,
   body.fusion-mode .ultra-tag { color: #FF8FC8 !important; }
+
+  /* ─── Dark surfaces: every white/paper card → Nuit velvet ─── */
+  body.fusion-mode .kpi-m,
+  body.fusion-mode .block,
+  body.fusion-mode .rev-card,
+  body.fusion-mode .upgrade-pro-card,
+  body.fusion-mode .topbar,
+  body.fusion-mode .integ-card {
+    background: #1F0D2E !important;
+    border-color: rgba(255,143,200,0.10) !important;
+    color: var(--ink);
+  }
+  /* Pure-white inline backgrounds (style="background:#fff") on KPI tiles */
+  body.fusion-mode .kpi-m { background: #1F0D2E !important; }
+  body.fusion-mode .kpi-m:hover { border-color: rgba(255,143,200,0.28) !important; }
+  body.fusion-mode .kpi-m .l .ico {
+    background: rgba(255,143,200,0.10) !important;
+    color: #FF8FC8 !important;
+  }
+  body.fusion-mode .kpi-m .v,
+  body.fusion-mode .kpi-m .u { color: var(--ink) !important; }
+  body.fusion-mode .kpi-m .l,
+  body.fusion-mode .kpi-m .u { color: #a18098 !important; }
+
+  /* Topbar / search */
+  body.fusion-mode .topbar { background: rgba(20,8,31,0.85) !important; border-bottom-color: rgba(255,143,200,0.08) !important; }
+  body.fusion-mode .search-big {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,143,200,0.10) !important;
+    color: var(--ink) !important;
+  }
+  body.fusion-mode .search-big .k span {
+    background: rgba(255,255,255,0.06) !important;
+    color: #a18098 !important;
+    border-color: rgba(255,143,200,0.10) !important;
+  }
+  body.fusion-mode .breadcrumb,
+  body.fusion-mode .breadcrumb b { color: var(--ink) !important; }
+  body.fusion-mode .breadcrumb .sep { color: #6F5F76 !important; }
+
+  /* Block headings + section meta */
+  body.fusion-mode .block-head .t,
+  body.fusion-mode .block-head .t * { color: var(--ink) !important; }
+  body.fusion-mode .block-head .s,
+  body.fusion-mode .block-head .s * { color: #a18098 !important; }
+  body.fusion-mode .block-head .t .pulse-dot { background: #FF8FC8 !important; }
+
+  /* Range pills */
+  body.fusion-mode .dr-pills {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,143,200,0.10) !important;
+  }
+  body.fusion-mode .dr-pill { color: #a18098 !important; }
+  body.fusion-mode .dr-pill.on {
+    background: linear-gradient(135deg, #C1487E 0%, #5C1F4E 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 14px -4px rgba(193,72,126,0.55) !important;
+  }
+
+  /* Range mini-buttons */
+  body.fusion-mode .range { color: #a18098 !important; }
+  body.fusion-mode .range span { color: #a18098 !important; }
+  body.fusion-mode .range span.on { background: rgba(255,143,200,0.14) !important; color: #FF8FC8 !important; }
+  body.fusion-mode .range span:hover:not(.on) { color: var(--ink) !important; }
+
+  /* Heatmap "Heures de pointe" — green ramp → Bougainvillée ramp */
+  body.fusion-mode .hh-cell.i0 { background: #2A1340 !important; }
+  body.fusion-mode .hh-cell.i1 { background: #4A1F5C !important; }
+  body.fusion-mode .hh-cell.i2 { background: #7A2F7E !important; }
+  body.fusion-mode .hh-cell.i3 { background: #B85090 !important; }
+  body.fusion-mode .hh-cell.i4 { background: #FF8FC8 !important; }
+  body.fusion-mode .hh-cell.now { box-shadow: 0 0 0 2px #FF8FC8, 0 0 16px -2px rgba(255,143,200,0.6) !important; }
+  body.fusion-mode .hh-col .lbl,
+  body.fusion-mode .hh-foot { color: #a18098 !important; }
+
+  /* Revenue line chart — every green stroke/fill → Vif/Fleur */
+  body.fusion-mode .rev-line-halo,
+  body.fusion-mode .rev-line { stroke: #FF8FC8 !important; }
+  body.fusion-mode .rev-area { fill: rgba(255,143,200,0.18) !important; }
+  body.fusion-mode .rev-live-dot { fill: #FF8FC8 !important; stroke: #1F0D2E !important; }
+  body.fusion-mode .rev-grid line { stroke: rgba(255,255,255,0.06) !important; }
+  body.fusion-mode .rev-axis text,
+  body.fusion-mode .rev-axis-x text,
+  body.fusion-mode .rev-axis-y text { fill: #a18098 !important; }
+
+  /* Mix donut — replace green slices via inline CSS overrides */
+  body.fusion-mode .mix-legend .dot.card { background: #FF8FC8 !important; }
+  body.fusion-mode .mix-legend .dot.cash { background: #C1487E !important; }
+  body.fusion-mode .mix-legend .dot.transfer { background: #5C1F4E !important; }
+
+  /* Feed rows */
+  body.fusion-mode .feed-row { border-color: rgba(255,255,255,0.06) !important; }
+  body.fusion-mode .feed-row .method .ci.cash {
+    background: rgba(255,255,255,0.05) !important;
+    color: #c4a7b9 !important;
+    border-color: rgba(255,143,200,0.12) !important;
+  }
+  body.fusion-mode .feed-row .amt { color: var(--ink) !important; }
+  body.fusion-mode .feed-row .meta,
+  body.fusion-mode .feed-row .time { color: #a18098 !important; }
+
+  /* Chips */
+  body.fusion-mode .chip.ok { background: rgba(255,143,200,0.14) !important; color: #FF8FC8 !important; }
+  body.fusion-mode .chip { color: #c4a7b9 !important; }
+
+  /* Settlement card */
+  body.fusion-mode .settle {
+    background: linear-gradient(135deg, #5C1F4E 0%, #1B0E2E 120%) !important;
+  }
+
+  /* Timeline */
+  body.fusion-mode .timeline-day {
+    background: #2A1340 !important;
+    border-color: rgba(255,143,200,0.10) !important;
+    color: var(--ink) !important;
+  }
+  body.fusion-mode .timeline-day.today {
+    background: #14081F !important;
+    border-color: #14081F !important;
+  }
+  body.fusion-mode .timeline-day.tomorrow {
+    background: #C1487E !important;
+    border-color: #C1487E !important;
+  }
+
+  /* Staff avatars (atlas bg → Vif) */
+  body.fusion-mode .staff-row .av { background: #C1487E !important; color: #fff !important; }
+  body.fusion-mode .staff-row .name { color: var(--ink) !important; }
+  body.fusion-mode .staff-row .role { color: #a18098 !important; }
+
+  /* Buttons */
+  body.fusion-mode .btn-slim {
+    background: rgba(255,255,255,0.04) !important;
+    color: #c4a7b9 !important;
+    border-color: rgba(255,143,200,0.10) !important;
+  }
+  body.fusion-mode .btn-slim.primary {
+    background: #FF8FC8 !important;
+    color: #1B0E2E !important;
+    border-color: #FF8FC8 !important;
+  }
+  body.fusion-mode .icon-btn {
+    background: rgba(255,255,255,0.04) !important;
+    color: #c4a7b9 !important;
+  }
+
+  /* Hero AI card inputs */
+  body.fusion-mode .hai-input {
+    background: rgba(0,0,0,0.32) !important;
+    border-color: rgba(255,143,200,0.18) !important;
+  }
+  body.fusion-mode .hai-send {
+    background: rgba(255,143,200,0.12) !important;
+    color: #FF8FC8 !important;
+  }
+  body.fusion-mode .hai-send:hover { background: rgba(255,143,200,0.22) !important; }
+  body.fusion-mode .hai-rec::before { background: #FF8FC8 !important; }
+  body.fusion-mode .hai-rec-act { color: #FF8FC8 !important; }
+
+  /* Hero goal bar */
+  body.fusion-mode .hero-goal .g-fill {
+    background: linear-gradient(90deg, #FF8FC8, #C1487E) !important;
+  }
+
+  /* Sparklines — keep stroke Vif */
+  body.fusion-mode .kpi-m .sp path { stroke: #FF8FC8 !important; }
+
+  /* Sidebar tweaks */
+  body.fusion-mode .sidebar {
+    background: #0F081B !important;
+    color: #c4a7b9;
+  }
+  body.fusion-mode .sidebar .merchant { border-color: rgba(255,255,255,0.06) !important; }
+  body.fusion-mode .sidebar nav a .tag {
+    background: rgba(255,143,200,0.12) !important;
+    color: #FF8FC8 !important;
+  }
+  body.fusion-mode .sidebar nav a .count {
+    background: rgba(255,255,255,0.06) !important;
+    color: #c4a7b9 !important;
+  }
+  body.fusion-mode .sidebar nav a:hover { background: rgba(255,143,200,0.06) !important; color: var(--ink) !important; }
+  body.fusion-mode .sidebar nav a.active::before { background: #FF8FC8 !important; }
+  body.fusion-mode .sidebar .sect { color: #6F5F76 !important; }
+  body.fusion-mode .sidebar .upsell {
+    background: linear-gradient(145deg, rgba(255,143,200,0.10), rgba(193,72,126,0.16)) !important;
+    border-color: rgba(255,143,200,0.18) !important;
+  }
+  body.fusion-mode .sidebar .upsell button {
+    background: #FF8FC8 !important;
+    color: #1B0E2E !important;
+  }
+  body.fusion-mode .sidebar .avatar {
+    background: linear-gradient(135deg, #FF8FC8, #C1487E) !important;
+    color: #1B0E2E !important;
+  }
+
+  /* Demo bar */
+  body.fusion-mode .demo-bar {
+    background: #0F081B !important;
+    border-bottom-color: rgba(255,143,200,0.10) !important;
+  }
+  body.fusion-mode .demo-bar a { color: #FF8FC8 !important; }
+
+  /* Venue dropdown when open in fusion mode — keep its surface readable */
+  body.fusion-mode .venue-dropdown {
+    background: #1F0D2E !important;
+    border-color: rgba(255,143,200,0.18) !important;
+    box-shadow: 0 18px 40px -10px rgba(0,0,0,0.6) !important;
+  }
+  body.fusion-mode .venue-row { color: var(--ink) !important; }
+  body.fusion-mode .venue-row:hover:not(.active) { background: rgba(255,143,200,0.06) !important; }
+  body.fusion-mode .venue-row.active { background: rgba(255,143,200,0.10) !important; }
+  body.fusion-mode .venue-row-name { color: var(--ink) !important; }
+  body.fusion-mode .venue-row-type { color: #a18098 !important; }
+  body.fusion-mode .venue-action.return-cta {
+    background: rgba(255,143,200,0.10) !important;
+    color: #FF8FC8 !important;
+  }
+  body.fusion-mode .venue-action.return-cta .va-icon {
+    background: rgba(255,143,200,0.18) !important;
+    color: #FF8FC8 !important;
+  }
+  body.fusion-mode .venue-action.return-cta .va-title { color: var(--ink) !important; }
+
+  /* Hero "Net après Kiwi" + breakdown text */
+  body.fusion-mode .hero-breakdown .b .v,
+  body.fusion-mode .hero-breakdown .b .v .d { color: #fff !important; }
+  body.fusion-mode .hero-breakdown .b .v .d { color: #FF8FC8 !important; }
+
+  /* Loc-switch tile when in fusion */
+  body.fusion-mode .loc-switch {
+    background: rgba(255,143,200,0.06) !important;
+    border-color: rgba(255,143,200,0.18) !important;
+  }
+  body.fusion-mode .loc-switch .name { color: var(--ink) !important; }
+  body.fusion-mode .loc-switch .meta { color: #a18098 !important; }
+
+  /* Upgrade-tip pastel mint-soft → dark velvet */
+  body.fusion-mode .upgrade-tip {
+    background: rgba(255,143,200,0.08) !important;
+    color: var(--ink) !important;
+  }
 
   /* Sidebar "first 7 only" — vertical-section is hidden, replaced by a
    * compact aggregated-KPI card. Animated with the same fade pattern as
@@ -1228,7 +1493,7 @@
     opacity: 0;
     filter: blur(1px);
   }
-  .fo-flash { animation: fo-flash 0.62s cubic-bezier(0.2,0.7,0.3,1) forwards 1.45s; }
+  .fo-flash { animation: fo-flash 0.62s cubic-bezier(0.2,0.7,0.3,1) forwards 0.3s; }
   @keyframes fo-flash {
     0%   { transform: scale(0);   opacity: 0; }
     20%  { transform: scale(1.6); opacity: 1; }
@@ -1246,9 +1511,9 @@
     opacity: 0;
     box-shadow: 0 0 40px rgba(255,143,200,0.6), inset 0 0 24px rgba(255,143,200,0.4);
   }
-  .fo-ring.r1 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 1.5s; }
-  .fo-ring.r2 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 1.65s; border-color: #C1487E; }
-  .fo-ring.r3 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 1.80s; border-color: rgba(255,255,255,0.55); }
+  .fo-ring.r1 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 0.35s; }
+  .fo-ring.r2 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 0.5s; border-color: #C1487E; }
+  .fo-ring.r3 { animation: fo-ring 1.6s cubic-bezier(0.22,0.72,0,1) forwards 0.65s; border-color: rgba(255,255,255,0.55); }
   @keyframes fo-ring {
     0%   { transform: scale(0);   opacity: 1; border-width: 4px; }
     100% { transform: scale(9);   opacity: 0; border-width: 0.3px; }
@@ -1295,7 +1560,7 @@
     color: #FF8FC8;
     text-transform: uppercase;
     opacity: 0;
-    animation: fo-label 0.55s ease-out forwards 2.05s;
+    animation: fo-label 0.55s ease-out forwards 0.85s;
     text-shadow: 0 0 12px rgba(255,143,200,0.7);
     white-space: nowrap;
   }
@@ -1322,7 +1587,7 @@
       rgba(255,143,200,0.45) 66%,
       transparent 80%);
     transform: translateX(-110%);
-    animation: fo-sweep 0.9s cubic-bezier(0.55,0.05,0.35,1) forwards 2.35s;
+    animation: fo-sweep 0.9s cubic-bezier(0.55,0.05,0.35,1) forwards 1.05s;
     mix-blend-mode: screen;
     pointer-events: none;
   }
@@ -1336,7 +1601,7 @@
     box-shadow: 0 0 12px #FF8FC8;
     transform: translate(-50%,-50%);
     opacity: 0;
-    animation: fo-particle 1.2s cubic-bezier(0.22,0.72,0,1) forwards 1.5s;
+    animation: fo-particle 1.2s cubic-bezier(0.22,0.72,0,1) forwards 0.35s;
   }
   @keyframes fo-particle {
     0%   { transform: translate(-50%,-50%) translate(0, 0) scale(1); opacity: 1; }

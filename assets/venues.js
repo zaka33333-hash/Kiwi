@@ -530,50 +530,18 @@
       const dist = 180 + Math.random() * 240;
       const px = Math.cos(angle) * dist;
       const py = Math.sin(angle) * dist;
-      const delay = 1.5 + Math.random() * 0.15;
+      const delay = 0.35 + Math.random() * 0.15;
       particles.push(
         `<div class="fo-particle" style="--px:${px.toFixed(1)}px;--py:${py.toFixed(1)}px;animation-delay:${delay.toFixed(2)}s;"></div>`
       );
     }
     overlay.innerHTML = `
       <div class="fo-stars"></div>
-      <div class="fo-orbs">
-        <div class="fo-orb o1"><div class="fo-orb-trail"></div></div>
-        <div class="fo-orb o2"><div class="fo-orb-trail"></div></div>
-        <div class="fo-orb o3"><div class="fo-orb-trail"></div></div>
-      </div>
       <div class="fo-flash"></div>
       <div class="fo-ring r1"></div>
       <div class="fo-ring r2"></div>
       <div class="fo-ring r3"></div>
       ${particles.join('')}
-      <div class="fo-sigil">
-        <div class="fo-sigil-glow"></div>
-        <svg viewBox="0 0 200 200" fill="none">
-          <!-- Three overlapping diamonds = the three venues fused -->
-          <g stroke="#FF8FC8" stroke-width="1.4" stroke-linejoin="round">
-            <polygon points="100,18 158,100 100,182 42,100" fill="rgba(255,143,200,0.06)"/>
-            <polygon points="100,18 158,100 100,182 42,100" transform="rotate(60 100 100)" fill="rgba(193,72,126,0.06)"/>
-            <polygon points="100,18 158,100 100,182 42,100" transform="rotate(120 100 100)" fill="rgba(27,14,46,0.0)"/>
-          </g>
-          <!-- Inner hex ring -->
-          <polygon points="100,52 138,76 138,124 100,148 62,124 62,76"
-                   fill="none" stroke="#FF8FC8" stroke-width="1.2" opacity="0.75"/>
-          <!-- Three venue dots at hex vertices -->
-          <circle cx="100" cy="52"  r="6" fill="#1FB574"/>
-          <circle cx="138" cy="124" r="6" fill="#E5B85F"/>
-          <circle cx="62"  cy="124" r="6" fill="#FF8FC8"/>
-          <!-- Connecting lines between the three venue dots -->
-          <g stroke="#FF8FC8" stroke-width="0.7" opacity="0.55">
-            <line x1="100" y1="52"  x2="138" y2="124"/>
-            <line x1="138" y1="124" x2="62"  y2="124"/>
-            <line x1="62"  y1="124" x2="100" y2="52"/>
-          </g>
-          <!-- Central K mark -->
-          <circle cx="100" cy="100" r="14" fill="#FF8FC8" opacity="0.9"/>
-          <circle cx="100" cy="100" r="22" fill="none" stroke="#FFCFE2" stroke-width="0.8" opacity="0.6"/>
-        </svg>
-      </div>
       <div class="fo-label">
         FUSION ACTIVE
         <span class="fo-label-sub">3 emplacements · vue consolidée</span>
@@ -610,14 +578,11 @@
 
     /* Choreography timeline (matches CSS keyframes):
      *   t=0.00  overlay fades in, starfield drifts
-     *   t=0.25  orbs begin flying from corners
-     *   t=1.45  impact flash explodes at center
-     *   t=1.50  three shockwave rings expand outward
-     *   t=1.55  sigil scales in + slow spin
-     *   t=1.50  particle burst (18 dots fanned around impact)
-     *   t=2.05  mono label fades in under sigil
-     *   t=2.35  Bougainvillée diagonal sweep + theme + data swap UNDER overlay
-     *   t=3.05  overlay fades out, dashboard fully revealed
+     *   t=0.30  flash explodes + shockwave rings expand + particle burst
+     *   t=0.85  mono "FUSION ACTIVE" label fades in
+     *   t=1.05  Bougainvillée diagonal sweep + theme/data swap UNDER overlay
+     *   t=1.75  overlay fades out, dashboard fully revealed
+     *   t=2.35  cleanup
      */
 
     // Swap palette + data during the sweep, so when the overlay fades the
@@ -628,19 +593,19 @@
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
-    }, 2350);
+    }, 1050);
 
     // Fade overlay back out, then clear markup.
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 3050);
+    }, 1750);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 3650);
+    }, 2350);
   }
 
   function exitFusion(opts = {}) {
