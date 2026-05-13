@@ -901,6 +901,10 @@
     max-width: 0;
     white-space: nowrap;
     vertical-align: top;
+    /* border-box so padding-right is INCLUDED in max-width — otherwise
+     * padding leaks past max-width:0 and the first glyph peeks through
+     * before the reveal starts. */
+    box-sizing: border-box;
     /* padding-right gives the italic ink (terminal "?" swash, "é" accent)
      * room before overflow:hidden clips it. */
     padding-right: 0.18em;
