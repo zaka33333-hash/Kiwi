@@ -1676,15 +1676,17 @@
      *          the right edge via the .is-typing ::after pseudo. */
     setTimeout(() => {
       if (emClip) {
-        /* Re-measure now: the initial measurement at script-init may have
-         * run before Instrument Serif italic finished loading, returning a
-         * narrower fallback-font width. By t=1400 fonts are guaranteed
-         * loaded (greeting has been visible 940ms). The em's own layout
-         * box is unaffected by the parent's overflow:hidden, so we can
-         * read its true width even while clipped. */
+        /* Re-measure now that fonts are guaranteed loaded. getBoundingClientRect
+         * returns the advance-width-based layout box; italic glyphs paint
+         * well past that ("?" terminal swash, "é" accent). We add a buffer
+         * proportional to font-size (~0.5em) so it scales across breakpoints. */
         const innerEm = emClip.querySelector('em');
         if (innerEm) {
-          const liveW = Math.ceil(innerEm.getBoundingClientRect().width) + 44;
+          const fontPx = parseFloat(getComputedStyle(innerEm).fontSize) || 64;
+          /* 1.5em buffer: at 64px h1 that's ~96px, at 40px mobile ~60px.
+           * The h1 is text-align:center so trailing whitespace is invisible —
+           * erring extreme-high here costs nothing visually. */
+          const liveW = Math.ceil(innerEm.getBoundingClientRect().width) + Math.ceil(fontPx * 1.5);
           emClip.style.setProperty('--em-w', liveW + 'px');
         }
         emClip.classList.add('is-revealed', 'is-typing');
