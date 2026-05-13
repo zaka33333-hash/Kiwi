@@ -1675,7 +1675,20 @@
      *          left-to-right reveal of the green italic. A caret rides
      *          the right edge via the .is-typing ::after pseudo. */
     setTimeout(() => {
-      if (emClip) emClip.classList.add('is-revealed', 'is-typing');
+      if (emClip) {
+        /* Re-measure now: the initial measurement at script-init may have
+         * run before Instrument Serif italic finished loading, returning a
+         * narrower fallback-font width. By t=1400 fonts are guaranteed
+         * loaded (greeting has been visible 940ms). The em's own layout
+         * box is unaffected by the parent's overflow:hidden, so we can
+         * read its true width even while clipped. */
+        const innerEm = emClip.querySelector('em');
+        if (innerEm) {
+          const liveW = Math.ceil(innerEm.getBoundingClientRect().width) + 44;
+          emClip.style.setProperty('--em-w', liveW + 'px');
+        }
+        emClip.classList.add('is-revealed', 'is-typing');
+      }
     }, 1400);
 
     /* 2400 ms: reveal complete — drop the caret so the final sentence
