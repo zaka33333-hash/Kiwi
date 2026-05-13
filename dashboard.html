@@ -1449,6 +1449,34 @@
     background: #FFCFE2 !important;
   }
 
+  /* Kiwi AI · pointages block — uses var(--ink) gradient + var(--paper)
+   * body text. Both tokens flip in fusion mode → the gradient becomes
+   * bone→near-black and the title becomes invisible. Force a dark Nuit
+   * gradient and bone-coloured title; recolour the mint-rgba chip + button
+   * surfaces; swap the hardcoded green sub-text colour for Fleur-tinted bone. */
+  body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] {
+    background: linear-gradient(135deg, #1F0D2E 0%, #14081F 100%) !important;
+    color: #F4ECF2 !important;
+    border: 1px solid rgba(255,143,200,0.14) !important;
+  }
+  body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] [style*="color:var(--paper)"],
+  body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] [style*="color: var(--paper)"] {
+    color: #F4ECF2 !important;
+  }
+  body.fusion-mode [style*="color:#a7d5b9"],
+  body.fusion-mode [style*="color: #a7d5b9"] { color: #c4a7b9 !important; }
+
+  /* Mint-rgba inline backgrounds anywhere on the page → Fleur-rgba */
+  body.fusion-mode [style*="background:rgba(125,242,176"],
+  body.fusion-mode [style*="background: rgba(125,242,176"] {
+    background: rgba(255,143,200,0.16) !important;
+    color: #FF8FC8 !important;
+  }
+  body.fusion-mode [style*="color:var(--mint)"],
+  body.fusion-mode [style*="color: var(--mint)"] { color: #FF8FC8 !important; }
+  /* SVG strokes that reference --mint directly */
+  body.fusion-mode [stroke="var(--mint)"] { stroke: #FF8FC8 !important; }
+
   /* Sidebar "first 7 only" — vertical-section is hidden, replaced by a
    * compact aggregated-KPI card. Animated with the same fade pattern as
    * the regular vertical section swap. */
