@@ -673,11 +673,15 @@
     if (!/dashboard\.html/.test(location.pathname)) return;
     let stored = null;
     try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
-    currentVenue = VALID.includes(stored) ? stored : DEFAULT_VENUE;
-    if (currentVenue === 'fusion') {
-      preFusionVenue = DEFAULT_VENUE;
-      document.body.classList.add('fusion-mode');
+    // Fusion mode is intentionally NOT persisted across reloads — the merchant
+    // always lands in single-store view and must re-trigger the merge.
+    if (stored === 'fusion') {
+      stored = null;
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
     }
+    currentVenue = REAL_VENUES.includes(stored) ? stored : DEFAULT_VENUE;
+    // Defensive: strip any stale fusion-mode class left on body.
+    document.body.classList.remove('fusion-mode');
 
     registerHandlers();
     setupDropdownClosers();
