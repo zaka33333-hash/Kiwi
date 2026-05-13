@@ -589,6 +589,10 @@
     // dashboard already wears Bougainvillée. The sweep visually paints it.
     setTimeout(() => {
       document.body.classList.add('fusion-mode');
+      // Engage the existing dark theme so every modal/drawer/menu (defined
+      // in theme.css) re-skins automatically. body.fusion-mode then layers
+      // Bougainvillée brand tokens on top of the dark surface tokens.
+      document.documentElement.setAttribute('data-theme', 'dark');
       currentVenue = 'fusion';
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
       renderAll();
@@ -613,6 +617,9 @@
     if (currentVenue !== 'fusion') return;
     // Soft exit — no big animation, just palette flip + data swap.
     document.body.classList.remove('fusion-mode');
+    // Drop the dark theme unless the user had it set independently
+    // (we treat fusion as the only path that engages it for now).
+    document.documentElement.removeAttribute('data-theme');
     const target = opts.targetVenue || preFusionVenue || DEFAULT_VENUE;
     currentVenue = REAL_VENUES.includes(target) ? target : DEFAULT_VENUE;
     try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
@@ -680,8 +687,9 @@
       try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
     }
     currentVenue = REAL_VENUES.includes(stored) ? stored : DEFAULT_VENUE;
-    // Defensive: strip any stale fusion-mode class left on body.
+    // Defensive: strip any stale fusion-mode class + dark theme attribute.
     document.body.classList.remove('fusion-mode');
+    document.documentElement.removeAttribute('data-theme');
 
     registerHandlers();
     setupDropdownClosers();

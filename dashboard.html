@@ -1289,6 +1289,135 @@
     color: var(--ink) !important;
   }
 
+  /* ─── Drawer + modal content (rendered by pages-pro.js / features.js)
+   *      Most of the brand-coloured greens are baked into SVG fill="…" and
+   *      inline style="background:#fff" attributes. Override surgically. ─── */
+
+  /* SVG bar charts: any rect/path with a hardcoded Atlas/Mint fill flips
+   * to Vif/Fleur in fusion mode. Targets the "Heures vs cible" chart
+   * and the Aperçu bulletin / Pourboires donut. */
+  body.fusion-mode svg rect[fill="#7DF2B0"],
+  body.fusion-mode svg path[fill="#7DF2B0"],
+  body.fusion-mode svg circle[fill="#7DF2B0"] { fill: #FF8FC8 !important; }
+  body.fusion-mode svg rect[fill="#0B6E4F"],
+  body.fusion-mode svg path[fill="#0B6E4F"],
+  body.fusion-mode svg circle[fill="#0B6E4F"] { fill: #C1487E !important; }
+  body.fusion-mode svg rect[fill="#13855F"],
+  body.fusion-mode svg path[fill="#13855F"] { fill: #C1487E !important; }
+  body.fusion-mode svg rect[fill="#E8F5EC"] { fill: #2A1340 !important; }
+  body.fusion-mode svg rect[fill="#B9E5CC"] { fill: #4A1F5C !important; }
+  body.fusion-mode svg rect[fill="#7FD4A4"] { fill: #7A2F7E !important; }
+  body.fusion-mode svg rect[fill="#3FB57A"] { fill: #B85090 !important; }
+  body.fusion-mode svg rect[fill="#E8E6E0"] { fill: rgba(255,255,255,0.06) !important; }
+  /* Tick labels / axis text on the dashboard's SVG */
+  body.fusion-mode svg text[fill="#6F6C65"],
+  body.fusion-mode svg text[fill="#A8A49A"] { fill: #a18098 !important; }
+  body.fusion-mode svg text[fill="#0A0F0D"],
+  body.fusion-mode svg text[fill="#0B6E4F"] { fill: #F4ECF2 !important; }
+  body.fusion-mode svg line[stroke="#A8A49A"] { stroke: rgba(255,143,200,0.30) !important; }
+
+  /* Inline style="background:#fff" — used throughout the drawers for
+   * payslip tables, payment-link cards, agent-action rows, toggle thumbs.
+   * Attribute selectors target the literal hex; we cover the common
+   * whitespace variants. */
+  body.fusion-mode [style*="background:#fff"]:not(.kiwi-toast),
+  body.fusion-mode [style*="background: #fff"]:not(.kiwi-toast),
+  body.fusion-mode [style*="background:#FFF"]:not(.kiwi-toast),
+  body.fusion-mode [style*="background: #FFF"]:not(.kiwi-toast) {
+    background: #1F0D2E !important;
+    border-color: rgba(255,143,200,0.12) !important;
+  }
+  body.fusion-mode [style*="background:#FAFAF8"],
+  body.fusion-mode [style*="background:#F7F5F0"],
+  body.fusion-mode [style*="background:var(--paper)"],
+  body.fusion-mode [style*="background:var(--paper-soft)"] {
+    background: #1F0D2E !important;
+  }
+
+  /* Inline style="color:var(--ink)" → var(--ink) is light in fusion, ok.
+   * style="color:var(--n-500)" / "color:var(--n-600)" inherit dark text
+   * on dark — wait, they're tokens that ALSO flip in fusion. ✓
+   *
+   * Hardcoded #0A0F0D (ink) / #0B6E4F (atlas) inline though stay dark. */
+  body.fusion-mode [style*="color:#0A0F0D"],
+  body.fusion-mode [style*="color: #0A0F0D"] { color: #F4ECF2 !important; }
+  body.fusion-mode [style*="color:#0B6E4F"],
+  body.fusion-mode [style*="color: #0B6E4F"] { color: #FF8FC8 !important; }
+  body.fusion-mode [style*="color:#13855F"] { color: #FF8FC8 !important; }
+
+  /* Buttons rendered via the .kb (interactive.js) family — keep them
+   * legible. Default .kb.ghost has #fff bg + ink text; in fusion it
+   * becomes ink-on-ink without overrides. */
+  body.fusion-mode .kb.ghost {
+    background: rgba(255,255,255,0.04) !important;
+    color: var(--ink) !important;
+    border-color: rgba(255,143,200,0.14) !important;
+  }
+  body.fusion-mode .kb.ghost:hover {
+    background: rgba(255,143,200,0.08) !important;
+    border-color: rgba(255,143,200,0.28) !important;
+  }
+  body.fusion-mode .kb.atlas {
+    background: #C1487E !important;
+    color: #fff !important;
+  }
+  body.fusion-mode .kb.atlas:hover { background: #D45F95 !important; }
+
+  /* Chips used in modals (chip.ok / chip.warn / chip.live etc) */
+  body.fusion-mode .chip.warn { background: rgba(217,154,43,0.18) !important; color: #E5B85F !important; }
+  body.fusion-mode .chip.live { background: rgba(255,143,200,0.18) !important; color: #FF8FC8 !important; }
+  body.fusion-mode .chip.danger { background: rgba(201,74,58,0.20) !important; color: #E07A6B !important; }
+
+  /* The drawer's "sh-section" cards in payroll/team/etc */
+  body.fusion-mode .sh-section,
+  body.fusion-mode .sh-lvs,
+  body.fusion-mode .sh-grid-2 > * {
+    background: transparent !important;
+    color: var(--ink);
+  }
+  body.fusion-mode .sh-section-head h4 { color: var(--ink) !important; }
+  body.fusion-mode .sh-section-head .sub { color: #a18098 !important; }
+  body.fusion-mode .sh-lvs-num { color: var(--ink) !important; }
+
+  /* Pricing comparison modal (Kiwi Pro vs Ultra) — checkmarks were green */
+  body.fusion-mode .kiwi-modal [style*="color:var(--atlas)"] { color: #FF8FC8 !important; }
+  body.fusion-mode .upgrade-pro-eyebrow { color: #FF8FC8 !important; }
+  body.fusion-mode .upgrade-pro-price { color: var(--ink) !important; }
+  body.fusion-mode .upgrade-pro-tag {
+    background: rgba(255,143,200,0.14) !important;
+    color: #FF8FC8 !important;
+  }
+
+  /* Reservation drawer: pink/violet header gradient with dark "38 couverts"
+   * unreadable on the gradient — force the count + headline to bone. */
+  body.fusion-mode [data-reservations-drawer] h2,
+  body.fusion-mode [data-reservations-drawer] .count,
+  body.fusion-mode .rsv-hero,
+  body.fusion-mode .rsv-hero * { color: #fff !important; }
+
+  /* Generic fallback: any drawer/modal heading should be on bone */
+  body.fusion-mode .kiwi-drawer h1,
+  body.fusion-mode .kiwi-drawer h2,
+  body.fusion-mode .kiwi-drawer h3,
+  body.fusion-mode .kiwi-drawer h4,
+  body.fusion-mode .kiwi-drawer b,
+  body.fusion-mode .kiwi-modal h1,
+  body.fusion-mode .kiwi-modal h2,
+  body.fusion-mode .kiwi-modal h3,
+  body.fusion-mode .kiwi-modal h4 { color: var(--ink) !important; }
+
+  /* Staff progress bar (the green/orange thick line under each row) — these
+   * use a hardcoded gradient or hex. We can't catch every variant but a
+   * filter shift gets us in the right family. */
+  body.fusion-mode .av { background: linear-gradient(135deg, #FF8FC8, #C1487E) !important; color: #1B0E2E !important; }
+
+  /* Sidebar "kiwi" upsell — was already dark in light mode (Nuit bg).
+   * In fusion the inner heading h4 / p was using --paper which now flips dark. */
+  body.fusion-mode .sidebar .upsell h4 { color: #F4ECF2 !important; }
+  body.fusion-mode .sidebar .upsell p { color: #c4a7b9 !important; }
+  body.fusion-mode .sidebar .merchant .n { color: #F4ECF2 !important; }
+  body.fusion-mode .sidebar .merchant .r { color: #a18098 !important; }
+
   /* Sidebar "first 7 only" — vertical-section is hidden, replaced by a
    * compact aggregated-KPI card. Animated with the same fade pattern as
    * the regular vertical section swap. */
