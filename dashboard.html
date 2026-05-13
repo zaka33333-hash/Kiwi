@@ -901,6 +901,9 @@
     max-width: 0;
     white-space: nowrap;
     vertical-align: top;
+    /* padding-right gives the italic ink (terminal "?" swash, "é" accent)
+     * room before overflow:hidden clips it. */
+    padding-right: 0.18em;
     transition: max-width 960ms cubic-bezier(0.32, 0.72, 0, 1);
   }
   .kiwi-greet h1 .em-clip.is-revealed {
@@ -1626,7 +1629,11 @@
     if (greetEm) {
       /* Measure em's natural inline width. em is plain inline in our
        * CSS so getBoundingClientRect gives the real text width. */
-      const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 6;
+      /* +24px: italic glyphs (esp. terminal "?" / "é") paint past their
+       * advance-width — "ink overflow". Combined with the 2.5px caret on
+       * the right edge, we need generous trailing room so overflow:hidden
+       * doesn't shave the tail off. */
+      const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 24;
 
       /* Wrap em in the clip-span; the wrapper handles overflow + the
        * max-width transition, em itself is undisturbed. */
