@@ -1466,6 +1466,18 @@
       border-color: var(--mint);
       transform: scale(1.08);
     }
+    /* Success pop — fires left → right when the 4th digit lands.
+     * Adapted from the dashboard's kw-pin-success: scale-up + mint flash
+     * + outward glow ring that dissipates. */
+    .pin-dot.is-success { animation: pin-success-pop 360ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+    @keyframes pin-success-pop {
+      0%   { transform: scale(1.08); background: var(--mint); border-color: var(--mint);
+             box-shadow: 0 0 0 0 rgba(125,242,176, 0.55); }
+      45%  { transform: scale(1.55); background: var(--mint); border-color: var(--mint);
+             box-shadow: 0 0 0 10px rgba(125,242,176, 0.35); }
+      100% { transform: scale(1.18); background: var(--mint); border-color: var(--mint);
+             box-shadow: 0 0 0 0 rgba(125,242,176, 0); }
+    }
     .pin-screen.is-error .pin-dots { animation: pin-shake 380ms cubic-bezier(0.36, 0.07, 0.19, 0.97); }
     @keyframes pin-shake {
       0%, 100% { transform: translateX(0); }
@@ -4252,23 +4264,31 @@
         }
       }
 
-      // t=0: cross-fade — PIN out, greeting in
-      pinScreen.classList.add('is-leaving');
-      if (greetEl) {
-        greetEl.classList.add('is-visible');
-        greetEl.setAttribute('aria-hidden', 'false');
-      }
+      // t=0..210: success pop on the 4 dots, staggered left → right.
+      const dots = $$('#pin-dots .pin-dot');
+      dots.forEach((d, i) => {
+        setTimeout(() => d.classList.add('is-success'), i * 70);
+      });
 
-      // t=480: PIN gone
-      setTimeout(() => { pinScreen.style.display = 'none'; }, 480);
+      // t=460: cross-fade — PIN out, greeting in (after the pop has played)
+      setTimeout(() => {
+        pinScreen.classList.add('is-leaving');
+        if (greetEl) {
+          greetEl.classList.add('is-visible');
+          greetEl.setAttribute('aria-hidden', 'false');
+        }
+      }, 460);
 
-      // t=1400: typewriter starts
-      setTimeout(() => emClip && emClip.classList.add('is-revealed', 'is-typing'), 1400);
+      // t=940: PIN gone
+      setTimeout(() => { pinScreen.style.display = 'none'; }, 940);
 
-      // t=2400: caret drops
-      setTimeout(() => emClip && emClip.classList.remove('is-typing'), 2400);
+      // t=1860: typewriter starts
+      setTimeout(() => emClip && emClip.classList.add('is-revealed', 'is-typing'), 1860);
 
-      // t=3200: greeting fades + dashboard dives in (existing iOS zoom + sidebar stagger)
+      // t=2860: caret drops
+      setTimeout(() => emClip && emClip.classList.remove('is-typing'), 2860);
+
+      // t=3660: greeting fades + dashboard dives in (existing iOS zoom + sidebar stagger)
       setTimeout(() => {
         if (greetEl) {
           greetEl.classList.remove('is-visible');
@@ -4282,10 +4302,10 @@
           if (shellEl)  shellEl.classList.remove('is-entering');
           if (topbarEl) topbarEl.classList.remove('is-entering');
         }, 760);
-      }, 3200);
+      }, 3660);
 
-      // t=4000: greeting removed
-      setTimeout(() => { if (greetEl && greetEl.parentNode) greetEl.remove(); }, 4000);
+      // t=4460: greeting removed
+      setTimeout(() => { if (greetEl && greetEl.parentNode) greetEl.remove(); }, 4460);
     }
 
     $('#pin-pad').addEventListener('click', (e) => {

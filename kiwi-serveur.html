@@ -202,6 +202,17 @@
       border-color: var(--mint);
       transform: scale(1.05);
     }
+    /* Success pop — fires left → right when the 4th digit lands.
+     * Mirrors the dashboard's PIN-success choreography on a smaller dot. */
+    .pin-dot.is-success { animation: pin-success-pop 360ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+    @keyframes pin-success-pop {
+      0%   { transform: scale(1.05); background: var(--mint); border-color: var(--mint);
+             box-shadow: 0 0 0 0 rgba(125,242,176, 0.55); }
+      45%  { transform: scale(1.55); background: var(--mint); border-color: var(--mint);
+             box-shadow: 0 0 0 10px rgba(125,242,176, 0.35); }
+      100% { transform: scale(1.18); background: var(--mint); border-color: var(--mint);
+             box-shadow: 0 0 0 0 rgba(125,242,176, 0); }
+    }
     .pin-keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -2770,12 +2781,19 @@
       renderPinDots();
 
       if (pinInput.length === 4) {
-        // For demo: any 4 digits are valid → proceed to clock-in
+        // Success pop on the 4 dots, staggered left → right.
+        const dots = $$('.pin-dot');
+        dots.forEach((d, i) => {
+          setTimeout(() => d.classList.add('is-success'), i * 70);
+        });
+        // Wait for the pop choreography (~500ms total — 3*70 stagger + 360 anim)
+        // before transitioning to the clock-in screen, so the user sees it.
         setTimeout(() => {
           pinInput = '';
-          renderPinDots();
+          // Clear both filled + success states for next login cycle
+          dots.forEach(d => d.classList.remove('is-success', 'is-filled'));
           showScreen('screen-clockin');
-        }, 240);
+        }, 560);
       }
     }
 
