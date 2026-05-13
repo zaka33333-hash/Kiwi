@@ -1418,6 +1418,37 @@
   body.fusion-mode .sidebar .merchant .n { color: #F4ECF2 !important; }
   body.fusion-mode .sidebar .merchant .r { color: #a18098 !important; }
 
+  /* Équipe drawer member rows — .kw-eq-row.active is hardcoded background:#fff
+   * in pages-pro.js (a class selector, not inline style, so my generic
+   * [style*="background:#fff"] override doesn't catch it). */
+  body.fusion-mode .kw-eq-row.active {
+    background: #1F0D2E !important;
+    border-color: rgba(255,143,200,0.12) !important;
+  }
+  body.fusion-mode .kw-eq-row.inactive {
+    background: rgba(255,255,255,0.03) !important;
+    border-color: rgba(255,143,200,0.10) !important;
+  }
+  body.fusion-mode .kw-eq-row.active:hover {
+    box-shadow: 0 1px 0 rgba(255,143,200,0.04), 0 12px 24px -14px rgba(255,143,200,0.18) !important;
+  }
+  body.fusion-mode .kw-eq-iconbtn,
+  body.fusion-mode .kw-eq-detailbtn {
+    background: rgba(255,255,255,0.04) !important;
+    color: #c4a7b9 !important;
+    border-color: rgba(255,143,200,0.12) !important;
+  }
+  /* Timeline rail — the inline gradient bakes #ECEAE4 as the centre stop */
+  body.fusion-mode [style*="#ECEAE4"] {
+    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.06)) !important;
+  }
+  /* Live progress-dot uses background:#fff hardcoded inline — invisible-ish
+   * over the gradient. Keep white centre but tighten border to Fleur for the
+   * cleanest read. (Selector deliberately narrow to not catch other dots.) */
+  body.fusion-mode .kw-eq-row [style*="border-radius: 50%"][style*="background: #fff"] {
+    background: #FFCFE2 !important;
+  }
+
   /* Sidebar "first 7 only" — vertical-section is hidden, replaced by a
    * compact aggregated-KPI card. Animated with the same fade pattern as
    * the regular vertical section swap. */
