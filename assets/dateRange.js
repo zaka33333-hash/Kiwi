@@ -20,10 +20,71 @@
   const getDateRange = () => currentRange;
   const getShowComparison = () => showComparison;
   const getCurrentVenue = () => (window.KiwiVenue?.getVenue?.() || 'cafeAtlas');
+
+  /* ─── Fusion-mode aggregator ───────────────────────────────────────────
+   * When the merchant has activated "Fusionner les 3 emplacements", every
+   * venue-keyed table is summed across cafeAtlas + maisonMansour + spaBahia.
+   *
+   * Strategy: recursive merge that sums numerics and arrays of numerics,
+   * deep-merges objects, and falls back to cafeAtlas for non-aggregable
+   * shapes (strings, booleans, null). Keys flagged as "rate-like" (delta*,
+   * pct, taux, rate, success, ratio) are averaged instead of summed so
+   * percentages don't blow past 100. */
+  const FUSION_AVG_KEYS = /(^delta|^pct$|^percent$|^rate$|^success$|^ratio$|^taux|^score$|^health$|^panier$|^basket$|^avg|^moy)/i;
+  function isPlainObj(o) {
+    return o && typeof o === 'object' && !Array.isArray(o);
+  }
+  function aggFusion(values, parentKey, rateCtx) {
+    const defined = values.filter(v => v !== undefined && v !== null);
+    if (defined.length === 0) return values[0] ?? null;
+    const first = defined[0];
+    // Rate context: once an ancestor key is "rate-like" (success/ratio/taux/
+    // delta…) every numeric descendant averages instead of sums. This keeps
+    // a fused success of 95% × 92% × 88% reading as ~91%, not 275%.
+    const myRateCtx = rateCtx || FUSION_AVG_KEYS.test(String(parentKey || ''));
+    if (typeof first === 'number') {
+      const sum = defined.reduce((a, v) => a + (typeof v === 'number' ? v : 0), 0);
+      return myRateCtx ? sum / defined.length : sum;
+    }
+    if (typeof first === 'string' || typeof first === 'boolean') {
+      // Take cafeAtlas (index 0 in source order) — labels/copy don't aggregate.
+      return values[0] ?? first;
+    }
+    if (Array.isArray(first)) {
+      const maxLen = Math.max(...defined.map(a => Array.isArray(a) ? a.length : 0));
+      const out = [];
+      for (let i = 0; i < maxLen; i++) {
+        const slice = defined.map(a => Array.isArray(a) ? a[i] : undefined);
+        out.push(aggFusion(slice, parentKey, myRateCtx));
+      }
+      return out;
+    }
+    if (isPlainObj(first)) {
+      const keys = new Set();
+      defined.forEach(o => isPlainObj(o) && Object.keys(o).forEach(k => keys.add(k)));
+      const out = {};
+      keys.forEach(k => {
+        const slice = defined.map(o => isPlainObj(o) ? o[k] : undefined);
+        out[k] = aggFusion(slice, k, myRateCtx);
+      });
+      return out;
+    }
+    return first;
+  }
   // Resolve a venue-keyed table for the active venue + range, with cafeAtlas fallback.
   function vData(table, range) {
     const v = getCurrentVenue();
     const eff = range === 'personnalise' ? 'aujourdhui' : range;
+    if (v === 'fusion') {
+      const slices = [
+        table?.cafeAtlas?.[eff],
+        table?.maisonMansour?.[eff],
+        table?.spaBahia?.[eff],
+      ];
+      const merged = aggFusion(slices, '');
+      // If every slice was null/undefined fallback gracefully.
+      return merged ?? table?.cafeAtlas?.[eff];
+    }
     return table?.[v]?.[eff] ?? table?.cafeAtlas?.[eff];
   }
   // True only on the live "today" range, with the demo clock active.

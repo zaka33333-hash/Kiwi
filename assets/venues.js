@@ -15,10 +15,17 @@
 
   const STORAGE_KEY = 'kiwiVenue';
   const DEFAULT_VENUE = 'cafeAtlas';
-  const VALID = ['cafeAtlas', 'maisonMansour', 'spaBahia'];
+  // Real venues the merchant can switch between, plus the synthetic 'fusion'
+  // venue that aggregates all three (multi-site view).
+  const REAL_VENUES = ['cafeAtlas', 'maisonMansour', 'spaBahia'];
+  const VALID = [...REAL_VENUES, 'fusion'];
   const subscribers = new Set();
   let currentVenue = DEFAULT_VENUE;
   let dropdownOpen = false;
+  // Snapshot of the venue we came from before fusion was engaged, so the
+  // "Revenir" affordance returns the merchant where they were.
+  let preFusionVenue = DEFAULT_VENUE;
+  let fusionAnimating = false;
 
   /* ═══════════════ VENUES REGISTRY ═══════════════ */
 
@@ -61,6 +68,21 @@
       ice: '0029502800027',
       txCount: 20,
       staffCount: 3,
+    },
+    // Synthetic "fusion" venue — represents the merchant's full portfolio.
+    // Numeric fields are sums; dateRange.js fans this out for every table.
+    fusion: {
+      id: 'fusion',
+      name: 'Vue fusionnée',
+      location: '3 emplacements',
+      fullDisplay: 'Vue fusionnée · 3 emplacements',
+      type: 'fusion',
+      typeLabel: 'Multi-sites · Casa / Marrakech',
+      siblings: 'Café Atlas · Maison Mansour · Spa Bahia',
+      status: 'En service',
+      ice: 'multi-ICE',
+      txCount: 244,           // 182 + 42 + 20
+      staffCount: 14,         // 8 + 3 + 3
     },
   };
 
@@ -147,14 +169,24 @@
       { key: 'ratio',      label: 'Ratio card / cash', i18n: 'dash.kpi.ratio' },
       { key: 'regulars',   label: 'Clients fidèles',   i18n: 'dash.kpi.loyalCustomers' },
     ],
+    // Fusion = portfolio-wide KPIs. Same six tiles render in the band, but
+    // the values are aggregated sums (see dateRange.js · vData fusion path).
+    fusion: [
+      { key: 'tx',         label: 'Transactions totales', i18n: 'dash.kpi.tx' },
+      { key: 'panier',     label: 'Panier moyen pondéré', i18n: 'dash.kpi.basket' },
+      { key: 'tips',       label: 'Pourboires cumulés',   i18n: 'dash.kpi.tips' },
+      { key: 'success',    label: 'Taux succès moyen',    i18n: 'dash.kpi.success' },
+      { key: 'ratio',      label: 'Ratio card / cash',    i18n: 'dash.kpi.ratio' },
+      { key: 'regulars',   label: 'Clients fidèles',      i18n: 'dash.kpi.regular' },
+    ],
   };
 
   /* ═══════════════ HEADER + DEMO BAR + FOOTER PER VENUE ═══════════════ */
 
   const HEADER_SUB = {
-    fr: { cafeAtlas: 'Service midi en cours', maisonMansour: 'Boutique ouverte · 10h–20h', spaBahia: 'Espace ouvert · réservations en cours' },
-    en: { cafeAtlas: 'Lunch service in progress', maisonMansour: 'Boutique open · 10am–8pm', spaBahia: 'Spa open · bookings in progress' },
-    ar: { cafeAtlas: 'خدمة الغداء جارية', maisonMansour: 'البوتيك مفتوح · 10ص–8م', spaBahia: 'الفضاء مفتوح · الحجوزات جارية' },
+    fr: { cafeAtlas: 'Service midi en cours', maisonMansour: 'Boutique ouverte · 10h–20h', spaBahia: 'Espace ouvert · réservations en cours', fusion: '3 emplacements actifs · vue consolidée' },
+    en: { cafeAtlas: 'Lunch service in progress', maisonMansour: 'Boutique open · 10am–8pm', spaBahia: 'Spa open · bookings in progress', fusion: '3 active locations · consolidated view' },
+    ar: { cafeAtlas: 'خدمة الغداء جارية', maisonMansour: 'البوتيك مفتوح · 10ص–8م', spaBahia: 'الفضاء مفتوح · الحجوزات جارية', fusion: '3 مواقع نشطة · عرض موحّد' },
   };
 
   const HERO_AI_REC = {
@@ -172,6 +204,11 @@
       title: 'Le créneau 14h-15h du mardi est sous-utilisé (38 % rempli)',
       obs: 'Sur les 4 dernières semaines, ce créneau affiche un taux de remplissage de 38 % seulement, contre 87 % en moyenne sur la semaine. Vos clientes fidèles n\'y sont jamais venues.',
       act: '→ Pousser un message WhatsApp aux 47 clients fidèles avec une offre « -20 % mardi 14h-15h » pourrait combler 4-6 créneaux/semaine.',
+    },
+    fusion: {
+      title: 'Café Atlas génère 58 % du CA · concentration à diversifier',
+      obs: 'Sur les 30 derniers jours, Café Atlas (58 %) tire le portefeuille, devant Maison Mansour (24 %) et Spa Bahia (18 %). Les 3 sites partagent 312 clients communs — déjà fidèles à l\'écosystème — qu\'on peut activer en cross-sell.',
+      act: '→ Lancer une carte fidélité unifiée Kiwi pour les 312 clients cross-site pourrait lifter le CA global de 4-7 %.',
     },
   };
 
@@ -191,13 +228,22 @@
       obs: 'Sur les 4 dernières semaines, 11 créneaux/semaine restent vacants l\'après-midi (14h–16h). Vos 47 clientes fidèles ont un taux d\'ouverture WhatsApp de 92 %.',
       cta: '→ Lancer la campagne WhatsApp',
     },
+    fusion: {
+      title: 'Synchroniser les heures creuses inter-sites sur le même mardi',
+      obs: 'Vos 3 sites partagent une même fenêtre creuse 15h–17h (22 % de capacité moyenne). Une campagne unifiée « Mardi Kiwi · -15 % cross-site » programmée sur les 3 caisses simultanément multiplie la portée par 3.',
+      cta: '→ Programmer la campagne tri-site',
+    },
   };
+
+  /* Mix CMI savings · fusion sums the 3 venues' monthly savings */
+  /* Bench labels · fusion override */
 
   /* Mix de paiement bottom callout — savings vs CMI scales with revenue */
   const MIX_CMI_SAVINGS = {
     cafeAtlas:     '~3 900 MAD ce mois',
     maisonMansour: '~1 700 MAD ce mois',
     spaBahia:     '~1 350 MAD ce mois',
+    fusion:        '~6 950 MAD ce mois · 3 sites',
   };
 
   /* Vous vs … benchmark labels */
@@ -205,6 +251,7 @@
     cafeAtlas:     { title: 'Vous vs cafés similaires',     sub: '147 cafés casablancais · même gamme de ticket moyen' },
     maisonMansour: { title: 'Vous vs boutiques similaires', sub: '89 boutiques marocaines · gamme premium' },
     spaBahia:     { title: 'Vous vs spas similaires',      sub: '42 spas haut de gamme · Casa / Marrakech' },
+    fusion:        { title: 'Portfolio vs marchands multi-sites', sub: '38 marchands Kiwi · 3+ emplacements actifs' },
   };
 
   /* ═══════════════ STATE ═══════════════ */
@@ -217,6 +264,9 @@
   function setVenue(id) {
     if (!VALID.includes(id)) return;
     if (id === currentVenue) return;
+    // Switching to a real venue from anywhere → ensure fusion-mode class is off.
+    // (Switching INTO fusion goes through enterFusion(), not setVenue.)
+    if (REAL_VENUES.includes(id)) document.body.classList.remove('fusion-mode');
     currentVenue = id;
     try { localStorage.setItem(STORAGE_KEY, id); } catch (_) {}
     renderAll();
@@ -251,9 +301,10 @@
   function renderDropdown() {
     const wrap = document.querySelector('[data-venue-dropdown]');
     if (!wrap) return;
-    wrap.innerHTML = VALID.map(id => {
+    const inFusion = currentVenue === 'fusion';
+    const venueRows = REAL_VENUES.map(id => {
       const v = VENUES[id];
-      const isActive = id === currentVenue;
+      const isActive = !inFusion && id === currentVenue;
       return `
         <button type="button" class="venue-row${isActive ? ' active' : ''}" data-action="venue-pick" data-venue="${id}">
           <div class="venue-row-icon">${TYPE_ICONS[v.type] || TYPE_ICONS.restaurant}</div>
@@ -265,6 +316,31 @@
         </button>
       `;
     }).join('');
+
+    // CTA appended at the bottom of the dropdown — toggles fusion mode.
+    const cta = inFusion ? `
+        <button type="button" class="venue-action return-cta" data-action="venue-exit-fusion">
+          <div class="va-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <div class="va-body">
+            <div class="va-title">Revenir à la vue simple</div>
+            <div class="va-sub" style="font-size:11px;color:var(--n-500);margin-top:1px;">Repasser sur un seul emplacement</div>
+          </div>
+        </button>
+      ` : `
+        <button type="button" class="venue-action fusion-cta" data-action="venue-enter-fusion">
+          <div class="va-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3.5 7M16 8l-3.5 7"/></svg>
+          </div>
+          <div class="va-body">
+            <div class="va-title">Fusionner les 3 emplacements</div>
+            <div class="va-sub">Vue consolidée · données multi-sites</div>
+          </div>
+        </button>
+      `;
+
+    wrap.innerHTML = venueRows + cta;
   }
 
   function toggleDropdown() {
@@ -297,9 +373,37 @@
 
   /* ═══════════════ RENDER: SIDEBAR VERTICAL SECTION ═══════════════ */
 
+  /* Sidebar block shown in fusion mode in place of the per-vertical section.
+   * 4 cross-store KPIs that only make sense at the portfolio level. */
+  function fusionSidebarHtml() {
+    return `
+      <div class="fusion-kpis">
+        <div class="fk-head"><i></i>VUE PORTFOLIO</div>
+        <div class="fk-row"><span class="fk-l">Emplacements actifs</span><span class="fk-v">3 / 3</span></div>
+        <div class="fk-row"><span class="fk-l">CA cumulé · 30j</span><span class="fk-v">1,47 M MAD</span></div>
+        <div class="fk-row"><span class="fk-l">Top site</span><span class="fk-v">Café Atlas</span></div>
+        <div class="fk-row"><span class="fk-l">Personnel total</span><span class="fk-v">14</span></div>
+        <div class="fk-row"><span class="fk-l">Clients cross-site</span><span class="fk-v">312</span></div>
+      </div>
+    `;
+  }
+
   function renderVerticalSection(opts = {}) {
     const wrap = document.querySelector('[data-vertical-section]');
     if (!wrap) return;
+    // In fusion mode: replace the per-vertical menu with the aggregated
+    // portfolio KPI block. Same fade-in/out as the regular swap.
+    if (currentVenue === 'fusion') {
+      const html = fusionSidebarHtml();
+      if (opts.skipFade) { wrap.innerHTML = html; return; }
+      wrap.classList.add('vert-fading');
+      setTimeout(() => {
+        wrap.innerHTML = html;
+        wrap.offsetHeight;
+        wrap.classList.remove('vert-fading');
+      }, 150);
+      return;
+    }
     const v = VENUES[currentVenue];
     const sect = VERTICAL_SECTIONS[v.type];
     if (!sect) return;
@@ -394,20 +498,173 @@
   function onVenueToggle() { toggleDropdown(); }
   function onVenuePick(el) {
     const id = el?.dataset?.venue;
-    if (id && VALID.includes(id)) {
-      setVenue(id);
+    if (id && REAL_VENUES.includes(id)) {
+      // If switching from fusion → real venue: also tear down fusion mode.
+      if (currentVenue === 'fusion') {
+        exitFusion({ targetVenue: id });
+      } else {
+        setVenue(id);
+      }
       closeDropdown();
     }
+  }
+  function onVenueEnterFusion() {
+    closeDropdown();
+    enterFusion();
+  }
+  function onVenueExitFusion() {
+    closeDropdown();
+    exitFusion();
+  }
+
+  /* ═══════════════ FUSION MODE — sci-fi transition + state swap ═══════════════ */
+
+  // Build the overlay's internal markup the first time we activate. We keep
+  // the orbs/sigil/particles as raw DOM so the choreography is idempotent
+  // (re-trigger by toggling .active off → animation reflows on next entry).
+  function buildOverlayMarkup(overlay) {
+    // Particle burst — 18 dots fanned around the impact point at random radii.
+    const particles = [];
+    for (let i = 0; i < 18; i++) {
+      const angle = (i / 18) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+      const dist = 180 + Math.random() * 240;
+      const px = Math.cos(angle) * dist;
+      const py = Math.sin(angle) * dist;
+      const delay = 1.5 + Math.random() * 0.15;
+      particles.push(
+        `<div class="fo-particle" style="--px:${px.toFixed(1)}px;--py:${py.toFixed(1)}px;animation-delay:${delay.toFixed(2)}s;"></div>`
+      );
+    }
+    overlay.innerHTML = `
+      <div class="fo-stars"></div>
+      <div class="fo-orbs">
+        <div class="fo-orb o1"><div class="fo-orb-trail"></div></div>
+        <div class="fo-orb o2"><div class="fo-orb-trail"></div></div>
+        <div class="fo-orb o3"><div class="fo-orb-trail"></div></div>
+      </div>
+      <div class="fo-flash"></div>
+      <div class="fo-ring r1"></div>
+      <div class="fo-ring r2"></div>
+      <div class="fo-ring r3"></div>
+      ${particles.join('')}
+      <div class="fo-sigil">
+        <div class="fo-sigil-glow"></div>
+        <svg viewBox="0 0 200 200" fill="none">
+          <!-- Three overlapping diamonds = the three venues fused -->
+          <g stroke="#FF8FC8" stroke-width="1.4" stroke-linejoin="round">
+            <polygon points="100,18 158,100 100,182 42,100" fill="rgba(255,143,200,0.06)"/>
+            <polygon points="100,18 158,100 100,182 42,100" transform="rotate(60 100 100)" fill="rgba(193,72,126,0.06)"/>
+            <polygon points="100,18 158,100 100,182 42,100" transform="rotate(120 100 100)" fill="rgba(27,14,46,0.0)"/>
+          </g>
+          <!-- Inner hex ring -->
+          <polygon points="100,52 138,76 138,124 100,148 62,124 62,76"
+                   fill="none" stroke="#FF8FC8" stroke-width="1.2" opacity="0.75"/>
+          <!-- Three venue dots at hex vertices -->
+          <circle cx="100" cy="52"  r="6" fill="#1FB574"/>
+          <circle cx="138" cy="124" r="6" fill="#E5B85F"/>
+          <circle cx="62"  cy="124" r="6" fill="#FF8FC8"/>
+          <!-- Connecting lines between the three venue dots -->
+          <g stroke="#FF8FC8" stroke-width="0.7" opacity="0.55">
+            <line x1="100" y1="52"  x2="138" y2="124"/>
+            <line x1="138" y1="124" x2="62"  y2="124"/>
+            <line x1="62"  y1="124" x2="100" y2="52"/>
+          </g>
+          <!-- Central K mark -->
+          <circle cx="100" cy="100" r="14" fill="#FF8FC8" opacity="0.9"/>
+          <circle cx="100" cy="100" r="22" fill="none" stroke="#FFCFE2" stroke-width="0.8" opacity="0.6"/>
+        </svg>
+      </div>
+      <div class="fo-label">
+        FUSION ACTIVE
+        <span class="fo-label-sub">3 emplacements · vue consolidée</span>
+      </div>
+      <div class="fo-sweep"></div>
+    `;
+  }
+
+  function enterFusion() {
+    if (fusionAnimating) return;
+    if (currentVenue === 'fusion') return;
+    fusionAnimating = true;
+    preFusionVenue = currentVenue;
+
+    const overlay = document.querySelector('[data-fusion-overlay]');
+    if (!overlay) {
+      // No overlay → just swap state silently (graceful fallback).
+      currentVenue = 'fusion';
+      document.body.classList.add('fusion-mode');
+      try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
+      renderAll();
+      subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
+      fusionAnimating = false;
+      return;
+    }
+
+    // Reset + build a fresh markup so animations replay from t=0.
+    overlay.classList.remove('exiting');
+    buildOverlayMarkup(overlay);
+    // Force reflow before flipping .active so transitions trigger cleanly.
+    overlay.offsetHeight;
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+
+    /* Choreography timeline (matches CSS keyframes):
+     *   t=0.00  overlay fades in, starfield drifts
+     *   t=0.25  orbs begin flying from corners
+     *   t=1.45  impact flash explodes at center
+     *   t=1.50  three shockwave rings expand outward
+     *   t=1.55  sigil scales in + slow spin
+     *   t=1.50  particle burst (18 dots fanned around impact)
+     *   t=2.05  mono label fades in under sigil
+     *   t=2.35  Bougainvillée diagonal sweep + theme + data swap UNDER overlay
+     *   t=3.05  overlay fades out, dashboard fully revealed
+     */
+
+    // Swap palette + data during the sweep, so when the overlay fades the
+    // dashboard already wears Bougainvillée. The sweep visually paints it.
+    setTimeout(() => {
+      document.body.classList.add('fusion-mode');
+      currentVenue = 'fusion';
+      try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
+      renderAll();
+      subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
+    }, 2350);
+
+    // Fade overlay back out, then clear markup.
+    setTimeout(() => {
+      overlay.classList.add('exiting');
+      overlay.classList.remove('active');
+    }, 3050);
+    setTimeout(() => {
+      overlay.setAttribute('aria-hidden', 'true');
+      overlay.innerHTML = '';
+      overlay.classList.remove('exiting');
+      fusionAnimating = false;
+    }, 3650);
+  }
+
+  function exitFusion(opts = {}) {
+    if (fusionAnimating) return;
+    if (currentVenue !== 'fusion') return;
+    // Soft exit — no big animation, just palette flip + data swap.
+    document.body.classList.remove('fusion-mode');
+    const target = opts.targetVenue || preFusionVenue || DEFAULT_VENUE;
+    currentVenue = REAL_VENUES.includes(target) ? target : DEFAULT_VENUE;
+    try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
+    renderAll();
+    subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
   }
 
   function registerHandlers() {
     const tryReg = () => {
       if (window.Kiwi?.handlers) {
-        window.Kiwi.handlers['venue-toggle'] = onVenueToggle;
-        window.Kiwi.handlers['venue-pick'] = onVenuePick;
+        window.Kiwi.handlers['venue-toggle']        = onVenueToggle;
+        window.Kiwi.handlers['venue-pick']          = onVenuePick;
+        window.Kiwi.handlers['venue-enter-fusion']  = onVenueEnterFusion;
+        window.Kiwi.handlers['venue-exit-fusion']   = onVenueExitFusion;
         // Override the legacy 'location-switch' handler so the old
         // Casa/Marrakech menu doesn't pop when the user clicks the venue tile.
-        window.Kiwi.handlers['location-switch'] = onVenueToggle;
+        window.Kiwi.handlers['location-switch']     = onVenueToggle;
         return;
       }
       setTimeout(tryReg, 30);
@@ -452,6 +709,10 @@
     let stored = null;
     try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
     currentVenue = VALID.includes(stored) ? stored : DEFAULT_VENUE;
+    if (currentVenue === 'fusion') {
+      preFusionVenue = DEFAULT_VENUE;
+      document.body.classList.add('fusion-mode');
+    }
 
     registerHandlers();
     setupDropdownClosers();
@@ -476,6 +737,10 @@
     getHeatmapAiRec: id => HEATMAP_AI_REC[id || currentVenue] || HEATMAP_AI_REC.cafeAtlas,
     getMixCmiSavings: id => MIX_CMI_SAVINGS[id || currentVenue] || MIX_CMI_SAVINGS.cafeAtlas,
     getBenchLabels: id => BENCH_LABELS[id || currentVenue] || BENCH_LABELS.cafeAtlas,
+    isFusion: () => currentVenue === 'fusion',
+    enterFusion,
+    exitFusion,
+    REAL_VENUES,
     VENUES,
     KPI_BY_TYPE,
   };
