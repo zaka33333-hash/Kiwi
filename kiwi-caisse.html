@@ -1556,6 +1556,11 @@
       0%   { transform: translateY(-6px); opacity: 0; }
       100% { transform: translateY(0);    opacity: 1; }
     }
+    /* Pre-hide shell + topbar so the greeting flash fully covers the
+     * area underneath while the PIN cross-fades into the greeting.
+     * Revealed at unlock via body.is-unlocked. */
+    .shell, .topbar { opacity: 0; }
+    body.is-unlocked .shell, body.is-unlocked .topbar { opacity: 1; }
     .shell.is-entering {
       animation: shell-enter 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
       transform-origin: 50% 55%;
@@ -1929,6 +1934,97 @@
       .narrow-guard { display: flex; }
       .topbar, .shell { display: none; }
     }
+
+    /* ===========================================================
+       GREETING FLASH (full-viewport, plays after PIN unlock,
+       before the shell rises in). Mirrors the dashboard's intro
+       sequence — same timing, same typewriter italic, same caret.
+       =========================================================== */
+    .kiwi-greet {
+      position: fixed; inset: 0; z-index: 99998;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, #F8F7F3 0%, #F1EFE8 55%, #ECEAE3 100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 720ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: opacity;
+    }
+    .kiwi-greet::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(60% 50% at 15% 30%, rgba(31,93,60,0.10), transparent 60%),
+        radial-gradient(50% 45% at 85% 80%, rgba(125,242,176,0.10), transparent 60%);
+      pointer-events: none;
+    }
+    .kiwi-greet.is-visible { opacity: 1; }
+    .kiwi-greet-inner {
+      position: relative; z-index: 1;
+      padding: 0 32px;
+      text-align: center;
+      transform: translateY(28px) scale(0.97);
+      opacity: 0;
+      transition: transform 800ms cubic-bezier(0.32, 0.72, 0, 1), opacity 800ms ease;
+    }
+    .kiwi-greet.is-visible .kiwi-greet-inner {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    .kiwi-greet h1 {
+      margin: 0; line-height: 1.12;
+      font-size: 64px; font-weight: 600; letter-spacing: -0.034em;
+      color: var(--ink);
+      text-shadow: 0 2px 6px rgba(10,15,13,0.05);
+      white-space: nowrap;
+    }
+    .kiwi-greet h1 em {
+      font-family: var(--serif); font-style: italic; font-weight: 400;
+      color: var(--forest);
+      display: inline;
+    }
+    .kiwi-greet h1 .em-clip {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      max-width: 0;
+      white-space: nowrap;
+      vertical-align: top;
+      transition: max-width 960ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .kiwi-greet h1 .em-clip.is-revealed {
+      max-width: var(--em-w, 700px);
+    }
+    .kiwi-greet h1 .em-clip.is-typing::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 18%; bottom: 16%;
+      width: 2.5px;
+      background: var(--forest);
+      animation: kw-greet-cursor 0.7s steps(1) infinite;
+    }
+    @keyframes kw-greet-cursor {
+      0%, 55%   { opacity: 1; }
+      56%, 100% { opacity: 0; }
+    }
+    .kiwi-greet-sub {
+      font-family: var(--mono); font-size: 11.5px;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ink-3);
+      margin-top: 22px;
+    }
+    .kiwi-greet-sub em {
+      font-family: var(--serif); font-style: italic;
+      text-transform: none; letter-spacing: normal;
+      color: var(--forest);
+    }
+    @media (max-width: 900px) {
+      .kiwi-greet h1 { font-size: 44px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .kiwi-greet, .kiwi-greet-inner { transition: opacity 200ms ease !important; }
+      .kiwi-greet h1 .em-clip { transition: none !important; }
+      .kiwi-greet h1 .em-clip.is-revealed { max-width: var(--em-w, 700px) !important; }
+      .kiwi-greet h1 .em-clip.is-typing::after { animation: none !important; opacity: 0; }
+    }
   </style>
 </head>
 
@@ -1961,8 +2057,16 @@
     <div class="pin-foot">Démo · n'importe quel code accepté</div>
   </div>
 
-  <!-- ============ WELCOME BANNER ============ -->
-  <div class="welcome-banner" id="welcome-banner" role="status" aria-live="polite">
+  <!-- ============ GREETING FLASH (post-PIN, pre-shell) ============ -->
+  <div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
+    <div class="kiwi-greet-inner">
+      <h1><span id="greet-line1">Sba7 lkhir Rachid,</span> <em id="greet-em">3awd marhba.</em></h1>
+      <div class="kiwi-greet-sub" id="greet-sub">Café Atlas · service ouvert</div>
+    </div>
+  </div>
+
+  <!-- ============ WELCOME BANNER (kept for non-entry toasts) ============ -->
+  <div class="welcome-banner" id="welcome-banner" role="status" aria-live="polite" hidden>
     <span class="welcome-banner-icon"><i data-lucide="sparkles"></i></span>
     <div class="welcome-banner-text">
       <div class="wb-line1" id="wb-line1">Sba7 lkhir Rachid</div>
@@ -4108,47 +4212,80 @@
     }
 
     function unlockApp() {
-      pinScreen.classList.add('is-leaving');
-      // Kick off the iOS-style zoom-in for the shell + topbar fade at the same time —
-      // they're behind the PIN, so the user sees the whole app rise up as the PIN dissolves.
+      /* Sequence — mirrors the dashboard entry exactly:
+       *   0       PIN fades out + greeting backdrop fades in (cross-fade)
+       *   ~480    PIN removed from DOM; greeting h1 has slid into place
+       *   1400    typewriter italic begins (max-width 0 → measured)
+       *   2400    caret drops, sentence reads clean
+       *   3200    greeting fades + shell dives in (iOS zoom + sidebar stagger)
+       *   4000    greeting removed from DOM
+       */
       const shellEl  = document.querySelector('.shell');
       const topbarEl = document.querySelector('.topbar');
-      if (shellEl)  shellEl.classList.add('is-entering');
-      if (topbarEl) topbarEl.classList.add('is-entering');
+      const greetEl  = document.querySelector('[data-kiwi-greet]');
 
-      setTimeout(() => {
-        pinScreen.style.display = 'none';
-        document.body.classList.add('is-unlocked');
+      // --- Populate dynamic greeting text BEFORE measuring em width ---
+      const onCount  = Object.values(servers).filter(s => s.status === 'on').length;
+      const eatCount = Object.values(tables).filter(t =>
+        t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass'
+      ).length;
+      const hour = new Date().getHours();
+      const greetWord = hour < 11 ? 'Sba7 lkhir' : (hour < 17 ? 'Salam' : 'Msa lkhir');
+      const line1El = document.getElementById('greet-line1');
+      const subEl   = document.getElementById('greet-sub');
+      if (line1El) line1El.textContent = `${greetWord} Rachid,`;
+      if (subEl)   subEl.innerHTML = `${onCount} serveur${onCount > 1 ? 's' : ''} 3la khidma <em>·</em> ${eatCount} table${eatCount > 1 ? 's' : ''} ka-yaklo`;
 
-        // Populate welcome banner with live counts (servers on duty + tables eating)
-        const onCount  = Object.values(servers).filter(s => s.status === 'on').length;
-        const eatCount = Object.values(tables).filter(t =>
-          t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass'
-        ).length;
-        const hour = new Date().getHours();
-        const greetWord = hour < 11 ? 'Sba7 lkhir' : (hour < 17 ? 'Salam' : 'Msa lkhir');
-        const line1El = $('#wb-line1');
-        const line2El = $('#wb-line2');
-        if (line1El) line1El.textContent = `${greetWord} Rachid`;
-        if (line2El) {
-          line2El.innerHTML = `${onCount} serveur${onCount > 1 ? 's' : ''} 3la khidma <em>·</em> ${eatCount} table${eatCount > 1 ? 's' : ''} ka-yaklo`;
+      // --- Wrap <em> in .em-clip and measure its natural width ---
+      let emClip = null;
+      if (greetEl) {
+        const greetH1 = greetEl.querySelector('h1');
+        const greetEm = greetH1 && greetH1.querySelector('em');
+        if (greetEm && !greetEm.parentNode.classList.contains('em-clip')) {
+          // Force layout to get true width — em is plain inline so rect.width is the text width.
+          const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 6;
+          emClip = document.createElement('span');
+          emClip.className = 'em-clip';
+          emClip.style.setProperty('--em-w', naturalW + 'px');
+          greetEm.parentNode.insertBefore(emClip, greetEm);
+          emClip.appendChild(greetEm);
         }
+      }
 
-        // Show the welcome banner once the stagger has settled
-        setTimeout(() => {
-          const wb = $('#welcome-banner');
-          if (wb) {
-            wb.classList.add('is-visible');
-            setTimeout(() => wb.classList.remove('is-visible'), 4400);
-          }
-        }, 420);
+      // t=0: cross-fade — PIN out, greeting in
+      pinScreen.classList.add('is-leaving');
+      if (greetEl) {
+        greetEl.classList.add('is-visible');
+        greetEl.setAttribute('aria-hidden', 'false');
+      }
 
-        // Clean up entering classes once the zoom-in finishes
+      // t=480: PIN gone
+      setTimeout(() => { pinScreen.style.display = 'none'; }, 480);
+
+      // t=1400: typewriter starts
+      setTimeout(() => emClip && emClip.classList.add('is-revealed', 'is-typing'), 1400);
+
+      // t=2400: caret drops
+      setTimeout(() => emClip && emClip.classList.remove('is-typing'), 2400);
+
+      // t=3200: greeting fades + dashboard dives in (existing iOS zoom + sidebar stagger)
+      setTimeout(() => {
+        if (greetEl) {
+          greetEl.classList.remove('is-visible');
+          greetEl.setAttribute('aria-hidden', 'true');
+        }
+        document.body.classList.add('is-unlocked');
+        if (shellEl)  shellEl.classList.add('is-entering');
+        if (topbarEl) topbarEl.classList.add('is-entering');
+        // Clean up entering classes after the zoom-in finishes
         setTimeout(() => {
           if (shellEl)  shellEl.classList.remove('is-entering');
           if (topbarEl) topbarEl.classList.remove('is-entering');
         }, 760);
-      }, 480);
+      }, 3200);
+
+      // t=4000: greeting removed
+      setTimeout(() => { if (greetEl && greetEl.parentNode) greetEl.remove(); }, 4000);
     }
 
     $('#pin-pad').addEventListener('click', (e) => {

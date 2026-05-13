@@ -1797,6 +1797,98 @@
     .screen-main.is-entering {
       animation: main-enter 640ms cubic-bezier(0.22, 1, 0.36, 1);
     }
+    /* Hide main app until greeting flash finishes (added on screen-main,
+     * removed when we trigger .is-entering) so the greeting flash fully
+     * covers the area while it fades in. */
+    .screen-main.is-pre-hidden { opacity: 0; pointer-events: none; }
+
+    /* ===========================================================
+       GREETING FLASH (post clock-in, pre main screen).
+       Scoped inside .app via position:absolute so on desktop the
+       phone-frame bezel stays visible around it. On mobile (<500px)
+       .app already fills the viewport so this fills the viewport too.
+       Mirrors the dashboard intro: slide-up h1 → typewriter italic
+       → caret → fade out + dive in.
+       =========================================================== */
+    .kiwi-greet {
+      position: absolute; inset: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, #F8F7F3 0%, #F1EFE8 55%, #ECEAE3 100%);
+      opacity: 0; pointer-events: none;
+      transition: opacity 600ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: opacity;
+    }
+    .kiwi-greet::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(60% 50% at 15% 30%, rgba(31,93,60,0.10), transparent 60%),
+        radial-gradient(50% 45% at 85% 80%, rgba(125,242,176,0.10), transparent 60%);
+      pointer-events: none;
+    }
+    .kiwi-greet.is-visible { opacity: 1; }
+    .kiwi-greet-inner {
+      position: relative; z-index: 1;
+      padding: 0 22px;
+      text-align: center;
+      transform: translateY(22px) scale(0.97);
+      opacity: 0;
+      transition: transform 700ms cubic-bezier(0.32, 0.72, 0, 1), opacity 700ms ease;
+    }
+    .kiwi-greet.is-visible .kiwi-greet-inner {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    .kiwi-greet h1 {
+      margin: 0; line-height: 1.15;
+      font-size: 38px; font-weight: 600; letter-spacing: -0.030em;
+      color: var(--ink);
+      text-shadow: 0 2px 6px rgba(10,15,13,0.05);
+      white-space: nowrap;
+    }
+    .kiwi-greet h1 em {
+      font-family: var(--serif); font-style: italic; font-weight: 400;
+      color: var(--forest);
+      display: inline;
+    }
+    .kiwi-greet h1 .em-clip {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      max-width: 0;
+      white-space: nowrap;
+      vertical-align: top;
+      transition: max-width 820ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .kiwi-greet h1 .em-clip.is-revealed { max-width: var(--em-w, 400px); }
+    .kiwi-greet h1 .em-clip.is-typing::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 18%; bottom: 16%;
+      width: 2px;
+      background: var(--forest);
+      animation: kw-greet-cursor 0.7s steps(1) infinite;
+    }
+    @keyframes kw-greet-cursor {
+      0%, 55%   { opacity: 1; }
+      56%, 100% { opacity: 0; }
+    }
+    .kiwi-greet-sub {
+      font-family: var(--mono); font-size: 10.5px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink-3);
+      margin-top: 18px;
+    }
+    .kiwi-greet-sub em {
+      font-family: var(--serif); font-style: italic;
+      text-transform: none; letter-spacing: normal;
+      color: var(--forest);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .kiwi-greet, .kiwi-greet-inner { transition: opacity 180ms ease !important; }
+      .kiwi-greet h1 .em-clip { transition: none !important; }
+      .kiwi-greet h1 .em-clip.is-revealed { max-width: var(--em-w, 400px) !important; }
+      .kiwi-greet h1 .em-clip.is-typing::after { animation: none !important; opacity: 0; }
+    }
     @keyframes main-enter {
       0%   { transform: scale(0.92); opacity: 0; }
       100% { transform: scale(1);    opacity: 1; }
@@ -2015,6 +2107,14 @@
 <body>
   <div class="phone-frame">
     <div class="app">
+
+      <!-- ============ GREETING FLASH (post clock-in, pre main) ============ -->
+      <div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
+        <div class="kiwi-greet-inner">
+          <h1><span id="greet-line1">Slm Yassir,</span> <em id="greet-em">bon service.</em></h1>
+          <div class="kiwi-greet-sub" id="greet-sub">7 tables ce soir · bonne soirée</div>
+        </div>
+      </div>
 
       <!-- ============ PIN LOGIN SCREEN ============ -->
       <section class="screen screen-pin is-active" id="screen-pin" aria-label="Connexion PIN">
@@ -2698,33 +2798,104 @@
       if (btn.classList.contains('is-loading')) return;
       btn.classList.add('is-loading');
 
-      // Phase 1: button morphs into a check (~640ms total)
-      // Phase 2: clock-in screen zooms out + blurs (overlapping start at +640ms)
-      // Phase 3: main screen zooms in + stagger reveal of content
+      /* New flow — mirrors the dashboard intro sequence:
+       *   0       button morphs into a check
+       *   640     clockin screen leaves (zoom + blur, 380ms)
+       *   1020    GREETING FLASH appears (paper bg fades in, h1 slides up)
+       *   1900    typewriter italic begins
+       *   2700    caret drops, sentence reads clean
+       *   3300    greeting fades + main screen zooms in (existing animation)
+       *   4000    greeting removed
+       */
       setTimeout(() => {
         $('#screen-clockin').classList.add('is-leaving');
+
+        // 380ms later — clockin gone, swap to main (kept hidden) + show greeting
         setTimeout(() => {
-          // Initialize shift state
           shiftStart = new Date();
-          // Hard-switch screens
           $$('.screen').forEach(s => s.classList.remove('is-active', 'is-leaving'));
           const main = $('#screen-main');
-          main.classList.add('is-active', 'is-entering');
-          // Reset button for future logout cycles
+          main.classList.add('is-active', 'is-pre-hidden');
           btn.classList.remove('is-loading');
-          // Initialize app state
+          // Pre-render so the dive-in shows real data, not empty bones
           setTab('tables');
           renderAll();
-          // Stagger reveal of tables content
-          const tab = $('.tab-tables');
-          tab.classList.add('is-fresh');
-          setTimeout(() => tab.classList.remove('is-fresh'), 1300);
-          setTimeout(() => main.classList.remove('is-entering'), 700);
           lucide.createIcons();
-          showWelcomeBanner();
+
+          runGreetingFlash(main);
         }, 380);
       }, 640);
     });
+
+    /* ---------- Greeting flash sequence (post clock-in) ---------- */
+    function runGreetingFlash(mainEl) {
+      const greetEl = $('[data-kiwi-greet]');
+      if (!greetEl) {
+        // Fallback: skip flash, just reveal main
+        mainEl.classList.remove('is-pre-hidden');
+        mainEl.classList.add('is-entering');
+        const tab = $('.tab-tables');
+        tab.classList.add('is-fresh');
+        setTimeout(() => tab.classList.remove('is-fresh'), 1300);
+        setTimeout(() => mainEl.classList.remove('is-entering'), 700);
+        return;
+      }
+
+      // --- Dynamic copy ---
+      const myCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
+      const tod = (typeof timeOfDay === 'function') ? timeOfDay() : 'ce soir';
+      const paused = Object.entries(servers).filter(([id, s]) => id !== currentUser && s.status === 'on-pause');
+      const line1El = $('#greet-line1');
+      const subEl   = $('#greet-sub');
+      const userName = (servers[currentUser] && servers[currentUser].name) ? servers[currentUser].name.split(' ')[0] : 'Yassir';
+      if (line1El) line1El.textContent = `Slm ${userName},`;
+      if (subEl) {
+        let sub = `${myCount} table${myCount > 1 ? 's' : ''} ${tod} · bon service`;
+        if (paused.length > 0) sub = `${myCount} table${myCount > 1 ? 's' : ''} ${tod} · ${paused[0][1].name.split(' ')[0]} en pause`;
+        subEl.textContent = sub;
+      }
+
+      // --- Wrap <em> in .em-clip + measure natural width ---
+      let emClip = null;
+      const greetH1 = greetEl.querySelector('h1');
+      const greetEm = greetH1 && greetH1.querySelector('em');
+      if (greetEm && !greetEm.parentNode.classList.contains('em-clip')) {
+        const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 6;
+        emClip = document.createElement('span');
+        emClip.className = 'em-clip';
+        emClip.style.setProperty('--em-w', naturalW + 'px');
+        greetEm.parentNode.insertBefore(emClip, greetEm);
+        emClip.appendChild(greetEm);
+      } else if (greetEm) {
+        // Re-fire path (logout/login): wrapper exists, re-measure
+        emClip = greetEm.parentNode;
+        emClip.classList.remove('is-revealed', 'is-typing');
+        // Force reflow before re-revealing
+        void emClip.offsetWidth;
+      }
+
+      // t=0: show backdrop + slide up h1
+      greetEl.classList.add('is-visible');
+      greetEl.setAttribute('aria-hidden', 'false');
+
+      // t=880: typewriter italic begins
+      setTimeout(() => emClip && emClip.classList.add('is-revealed', 'is-typing'), 880);
+
+      // t=1680: caret drops
+      setTimeout(() => emClip && emClip.classList.remove('is-typing'), 1680);
+
+      // t=2280: greeting fades + main zooms in
+      setTimeout(() => {
+        greetEl.classList.remove('is-visible');
+        greetEl.setAttribute('aria-hidden', 'true');
+        mainEl.classList.remove('is-pre-hidden');
+        mainEl.classList.add('is-entering');
+        const tab = $('.tab-tables');
+        tab.classList.add('is-fresh');
+        setTimeout(() => tab.classList.remove('is-fresh'), 1300);
+        setTimeout(() => mainEl.classList.remove('is-entering'), 700);
+      }, 2280);
+    }
 
     function showWelcomeBanner() {
       const myCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
