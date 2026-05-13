@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Kiwi Wallet · L'app qui remplace votre portefeuille</title>
+<title>Kiwi · La première banque en ligne du Maroc</title>
+<meta name="description" content="Compte, carte, paiements, investissement et transferts diaspora. Une banque pensée pour les Marocains, dans votre poche." />
 <link rel="icon" href="assets/favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,661 +14,971 @@
 <link rel="stylesheet" href="assets/polish.css" />
 <link rel="stylesheet" href="assets/ux.css" />
 <style>
-  body { background: var(--paper); overflow-x: hidden; }
+  :root { --hero-bg: #02201A; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1280px; padding: 0 28px; margin: 0 auto; }
+  .wrap-sm { max-width: 880px; padding: 0 28px; margin: 0 auto; }
+  .editorial { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+  .mono { font-family: var(--mono); font-feature-settings: "tnum" 1; }
+  .num { font-feature-settings: "tnum" 1, "ss01" 1; letter-spacing: -0.02em; }
 
-  .nav { position: sticky; top: 0; z-index: 60; background: rgba(247,245,240,0.85); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(0,0,0,0.04); }
-  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
-  .nav-logo { display: inline-flex; align-items: baseline; gap: 4px; font-weight: 700; font-size: 26px; letter-spacing: -0.05em; color: var(--atlas); }
+  /* ============ NAV ============ */
+  .nav { position: sticky; top: 0; z-index: 80; background: rgba(2,32,26,0.72); backdrop-filter: blur(22px) saturate(140%); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; color: var(--paper); }
+  .nav-logo { display: inline-flex; align-items: baseline; gap: 4px; font-weight: 700; font-size: 24px; letter-spacing: -0.05em; color: var(--paper); }
   .nav-logo .dot { width: 6px; height: 6px; background: var(--mint); border-radius: 50%; translate: 0 -2px; }
-  .nav-links { display: flex; gap: 30px; font-size: 14px; color: var(--n-700); }
+  .nav-links { display: flex; gap: 28px; font-size: 13.5px; color: #c6ead4; }
+  .nav-links a { color: inherit; transition: color .2s; }
+  .nav-links a:hover { color: var(--mint); }
+  .nav-cta { display: flex; gap: 10px; align-items: center; }
+  .btn-ghost-light { color: var(--paper); padding: 9px 16px; font-size: 13.5px; border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; transition: all .2s; }
+  .btn-ghost-light:hover { background: rgba(255,255,255,0.06); border-color: var(--mint); }
+  .btn-mint { background: var(--mint); color: var(--riad-deep); font-weight: 600; padding: 10px 18px; border-radius: 999px; font-size: 13.5px; transition: transform .2s, background .2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-mint:hover { background: #a2f7c5; transform: translateY(-1px); }
+  @media (max-width: 840px) { .nav-links { display: none; } }
 
-  /* Hero */
-  .wallet-hero { padding: 80px 0 60px; background: var(--riad-deep); color: var(--paper); border-radius: 0 0 40px 40px; position: relative; overflow: hidden; }
-  .wallet-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 80% at 70% 20%, rgba(125,242,176,0.2), transparent 60%); pointer-events: none; }
-  .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
-  @media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; } }
-  .wallet-hero h1 { font-size: clamp(44px, 6vw, 88px); letter-spacing: -0.04em; line-height: 0.98; margin: 18px 0 22px; font-weight: 600; }
-  .wallet-hero h1 em { font-family: var(--serif); font-style: italic; color: var(--mint); font-weight: 400; }
-  .wallet-hero p { font-size: 19px; color: #b0c2bb; line-height: 1.55; max-width: 520px; }
-  .wallet-hero .ctas { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
-  .btn-mint { background: var(--mint); color: var(--riad-deep); font-weight: 600; }
-  .btn-mint:hover { background: #a2f7c5; }
-  .store-btns { display: flex; gap: 12px; margin-top: 22px; }
-  .store-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 10px 16px; border-radius: 12px; color: var(--paper); font-size: 12px; display: flex; align-items: center; gap: 10px; }
-  .store-btn strong { font-size: 14px; display: block; }
+  /* ============ HERO ============ */
+  .hero { background: var(--hero-bg); color: var(--paper); position: relative; overflow: hidden; padding: 100px 0 0; }
+  .hero::before { content: ""; position: absolute; inset: 0; background:
+    radial-gradient(ellipse 80% 60% at 80% 10%, rgba(125,242,176,0.18), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 10% 90%, rgba(11,110,79,0.35), transparent 60%);
+    pointer-events: none; }
+  .hero::after { content: ""; position: absolute; inset: 0; opacity: .04; pointer-events: none;
+    background-image: linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 75%); }
 
-  /* PHONE */
-  .phone-wrap { display: flex; justify-content: center; position: relative; }
-  .phone { width: 320px; background: linear-gradient(145deg, #1a1f1d, #0a0f0d); border-radius: 42px; padding: 10px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 100px -30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05) inset; position: relative; }
-  .phone::before { content: ""; position: absolute; top: 20px; left: 50%; translate: -50%; width: 90px; height: 28px; background: #000; border-radius: 14px; z-index: 3; }
-  .phone-screen { background: var(--atlas); border-radius: 32px; height: 640px; overflow: hidden; position: relative; padding-top: 58px; }
-  .phone-screen .statusbar { position: absolute; top: 16px; left: 28px; right: 28px; display: flex; justify-content: space-between; color: var(--paper); font-size: 11px; font-weight: 600; z-index: 4; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 50px; align-items: center; position: relative; z-index: 2; min-height: 620px; }
+  @media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; padding: 0 0 40px; } }
 
-  /* Wallet home screen */
-  .w-home { padding: 10px 22px 0; color: var(--paper); height: 100%; overflow: hidden; background: linear-gradient(180deg, var(--atlas) 0%, var(--riad) 100%); }
-  .w-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
-  .w-head .hi { font-size: 13px; color: #c6ead4; }
-  .w-head .hi b { color: var(--paper); font-weight: 500; display: block; font-size: 15px; }
-  .w-head .bell { width: 38px; height: 38px; background: rgba(255,255,255,0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
-  .w-head .bell::after { content: ""; position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--mint); border: 2px solid var(--riad); }
-  .w-bal { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 18px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
-  .w-bal .l { font-size: 12px; color: #c6ead4; letter-spacing: 0.05em; }
-  .w-bal .v { font-size: 36px; font-weight: 600; letter-spacing: -0.035em; margin-top: 4px; font-feature-settings: "tnum" 1; }
-  .w-bal .v .u { font-size: 16px; color: #c6ead4; margin-left: 6px; font-weight: 500; }
-  .w-bal .card-num { margin-top: 14px; font-family: var(--mono); font-size: 13px; color: #c6ead4; display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
-  .w-bal .brand-m { font-weight: 600; color: var(--mint); }
-  .w-acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 20px; }
-  .w-act { background: rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: var(--paper); }
-  .w-act i { width: 34px; height: 34px; background: rgba(125,242,176,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--mint); }
-  .w-sect { display: flex; justify-content: space-between; margin: 22px 0 10px; }
-  .w-sect .t { font-size: 13px; font-weight: 500; }
-  .w-sect .l { font-size: 12px; color: var(--mint); }
+  .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(125,242,176,0.10); border: 1px solid rgba(125,242,176,0.25); color: var(--mint); font-size: 12.5px; font-weight: 500; letter-spacing: 0.01em; }
+  .hero-eyebrow .live-dot { width: 6px; height: 6px; background: var(--mint); border-radius: 50%; box-shadow: 0 0 0 0 rgba(125,242,176,0.8); animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(125,242,176,0.7); } 70% { box-shadow: 0 0 0 8px rgba(125,242,176,0); } 100% { box-shadow: 0 0 0 0 rgba(125,242,176,0); } }
 
-  /* Transaction mini rows */
-  .w-tx { display: flex; align-items: center; gap: 12px; padding: 10px 0; font-size: 13px; }
-  .w-tx .av { width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--mint); font-weight: 600; font-size: 11px; flex-shrink: 0; }
-  .w-tx .av.neg { background: rgba(217,154,43,0.15); color: #F5C679; }
-  .w-tx .info { flex: 1; }
-  .w-tx .info .n { font-weight: 500; }
-  .w-tx .info .r { font-size: 11px; color: #9bb5a8; margin-top: 1px; }
-  .w-tx .amt { font-family: var(--mono); font-weight: 500; color: var(--mint); font-size: 12.5px; }
-  .w-tx .amt.out { color: var(--paper); }
+  .hero h1 { font-size: clamp(48px, 7.4vw, 104px); line-height: 0.94; letter-spacing: -0.045em; font-weight: 600; margin: 22px 0 26px; }
+  .hero h1 em { font-family: var(--serif); font-style: italic; color: var(--mint); font-weight: 400; letter-spacing: -0.025em; }
+  .hero p.lead { font-size: 19px; color: #b0c2bb; line-height: 1.55; max-width: 540px; margin: 0 0 36px; }
 
-  /* Tab bar */
-  .w-tabs { position: absolute; left: 16px; right: 16px; bottom: 16px; background: rgba(5,40,30,0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 22px; padding: 12px; display: flex; justify-content: space-around; }
-  .w-tabs .t { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #9bb5a8; font-size: 10px; }
-  .w-tabs .t.on { color: var(--mint); }
+  .hero-form { display: flex; gap: 8px; max-width: 480px; padding: 6px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); border-radius: 999px; backdrop-filter: blur(10px); }
+  .hero-form input { flex: 1; background: transparent; border: 0; color: var(--paper); padding: 12px 18px; font-size: 14.5px; font-family: var(--sans); outline: 0; }
+  .hero-form input::placeholder { color: #88a098; }
+  .hero-form button { background: var(--mint); color: var(--riad-deep); border: 0; padding: 0 22px; border-radius: 999px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: var(--sans); transition: background .2s; }
+  .hero-form button:hover { background: #a2f7c5; }
+  .hero-trust { display: flex; gap: 22px; margin-top: 20px; font-size: 12.5px; color: #88a098; flex-wrap: wrap; }
+  .hero-trust span { display: inline-flex; align-items: center; gap: 7px; }
+  .hero-trust svg { color: var(--mint); }
 
-  /* Second phone: Pay QR screen */
-  .phone.s2 .phone-screen { background: #fff; padding-top: 58px; }
-  .pay-screen { padding: 20px 22px; height: 100%; color: var(--ink); background: var(--paper); }
-  .pay-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .pay-top .close { width: 34px; height: 34px; border-radius: 50%; background: var(--n-100); display: flex; align-items: center; justify-content: center; }
-  .pay-title { font-size: 15px; font-weight: 600; }
-  .pay-merch { text-align: center; margin-top: 24px; }
-  .pay-merch .av { width: 64px; height: 64px; background: var(--atlas); color: var(--mint); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 22px; }
-  .pay-merch .n { font-size: 18px; font-weight: 600; margin-top: 14px; letter-spacing: -0.02em; }
-  .pay-merch .r { color: var(--n-500); font-size: 12px; margin-top: 3px; }
-  .pay-amt { text-align: center; margin-top: 28px; }
-  .pay-amt .v { font-size: 58px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; font-feature-settings: "tnum" 1; }
-  .pay-amt .u { font-size: 14px; color: var(--n-500); margin-top: 6px; }
-  .pay-from { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 14px 16px; margin-top: 28px; display: flex; align-items: center; gap: 12px; }
-  .pay-from .ico { width: 40px; height: 26px; background: linear-gradient(135deg, var(--atlas), var(--atlas-700)); border-radius: 5px; }
-  .pay-from .info { flex: 1; font-size: 13px; }
-  .pay-from .info .r { color: var(--n-500); font-size: 11px; margin-top: 2px; }
-  .pay-confirm { background: var(--ink); color: var(--paper); text-align: center; padding: 16px; border-radius: 14px; margin-top: 20px; font-weight: 500; }
-  .pay-biometric { text-align: center; margin-top: 14px; color: var(--n-500); font-size: 12px; }
+  /* Phone mock — Robinhood / Trade Republic inspired portfolio screen */
+  .phone-stage { position: relative; display: flex; justify-content: center; }
+  .phone { width: 320px; background: linear-gradient(160deg, #1a201d, #050907); border-radius: 44px; padding: 8px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 60px 120px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04) inset; position: relative; z-index: 2; }
+  .phone::before { content: ""; position: absolute; top: 18px; left: 50%; translate: -50%; width: 96px; height: 28px; background: #000; border-radius: 14px; z-index: 5; }
+  .phone-screen { background: #050907; border-radius: 36px; height: 660px; overflow: hidden; position: relative; padding-top: 58px; }
+  .statusbar { position: absolute; top: 18px; left: 30px; right: 30px; display: flex; justify-content: space-between; color: var(--paper); font-size: 12px; font-weight: 600; z-index: 6; font-family: var(--sans); }
+  .sb-icons { display: flex; gap: 6px; }
 
-  /* Third phone: Kiwi Card */
-  .phone.s3 .phone-screen { background: #1a1f1d; padding-top: 58px; }
-  .card-screen { padding: 20px 22px; height: 100%; color: var(--paper); }
-  .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .card-visual { background: linear-gradient(135deg, var(--riad-deep) 0%, var(--atlas-700) 70%, var(--atlas) 100%); border-radius: 20px; padding: 22px; aspect-ratio: 1.585; position: relative; overflow: hidden; border: 1px solid rgba(125,242,176,0.15); }
-  .card-visual::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 80% 10%, rgba(125,242,176,0.3), transparent 60%); pointer-events: none; }
-  .card-visual .brand { font-size: 22px; font-weight: 700; letter-spacing: -0.05em; display: flex; align-items: baseline; gap: 3px; position: relative; }
-  .card-visual .brand i { width: 5px; height: 5px; background: var(--mint); border-radius: 50%; }
-  .card-visual .chip { margin-top: 30px; width: 36px; height: 28px; background: linear-gradient(135deg, #C9C5BC, #8A867E); border-radius: 5px; position: relative; }
-  .card-visual .chip::before, .card-visual .chip::after { content: ""; position: absolute; background: #4B4944; height: 1px; left: 3px; right: 3px; }
-  .card-visual .chip::before { top: 10px; }
-  .card-visual .chip::after { top: 17px; }
-  .card-visual .num { margin-top: 16px; font-family: var(--mono); font-size: 15px; letter-spacing: 0.08em; color: var(--paper); position: relative; }
-  .card-visual .bot { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 18px; font-size: 11px; position: relative; }
-  .card-visual .bot .name { text-transform: uppercase; font-weight: 500; letter-spacing: 0.05em; }
-  .card-visual .bot .m-icon { width: 40px; height: 26px; display: flex; align-items: center; }
-  .card-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; }
-  .card-kpi { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 14px; }
-  .card-kpi .l { font-size: 10px; color: #9bb5a8; text-transform: uppercase; letter-spacing: 0.08em; }
-  .card-kpi .v { font-size: 20px; font-weight: 600; margin-top: 4px; letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
-  .card-kpi .v .u { font-size: 11px; color: #9bb5a8; margin-left: 3px; }
-  .card-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
-  .card-action { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 10px; color: #c6ead4; }
-  .card-action i { width: 30px; height: 30px; background: rgba(125,242,176,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--mint); }
+  /* Portfolio screen */
+  .pf { padding: 8px 22px 0; color: var(--paper); height: 100%; }
+  .pf-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .pf-top .av { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--atlas), var(--mint)); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: var(--riad-deep); }
+  .pf-top .ico { width: 36px; height: 36px; background: rgba(255,255,255,0.06); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .pf-label { font-size: 12px; color: #6b8278; letter-spacing: 0.04em; }
+  .pf-bal { font-size: 42px; font-weight: 600; letter-spacing: -0.04em; margin-top: 2px; font-feature-settings: "tnum" 1; }
+  .pf-bal .u { font-size: 16px; color: #6b8278; margin-left: 6px; font-weight: 500; }
+  .pf-delta { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 13px; color: var(--mint); font-family: var(--mono); }
+  .pf-delta .pill { background: rgba(125,242,176,0.12); padding: 2px 7px; border-radius: 6px; font-size: 11px; }
 
-  /* Section generic */
-  section { padding: 110px 0; }
-  .sec-head { max-width: 760px; margin: 0 auto 50px; text-align: center; }
-  .sec-head.left { text-align: left; margin: 0 0 50px; }
-  .sec-head h2 { font-size: clamp(36px, 4vw, 60px); letter-spacing: -0.035em; line-height: 1.05; margin: 14px 0 18px; font-weight: 600; }
-  .sec-head p { color: var(--n-600); font-size: 19px; line-height: 1.55; margin: 0; }
+  /* Chart */
+  .pf-chart { margin-top: 18px; height: 130px; position: relative; }
+  .pf-chart svg { width: 100%; height: 100%; overflow: visible; }
+  .pf-range { display: flex; gap: 4px; margin-top: 10px; justify-content: space-between; font-size: 11px; color: #6b8278; }
+  .pf-range span { padding: 4px 10px; border-radius: 6px; }
+  .pf-range span.on { background: rgba(125,242,176,0.12); color: var(--mint); }
 
-  /* Features grid */
-  .f-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  @media (max-width: 900px) { .f-grid { grid-template-columns: 1fr; } }
-  .f-card { background: #fff; border: 1px solid var(--n-200); border-radius: 20px; padding: 30px; }
-  .f-card .ico { width: 46px; height: 46px; background: var(--mint-soft); color: var(--atlas); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-  .f-card h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 10px; }
-  .f-card p { font-size: 14.5px; color: var(--n-600); line-height: 1.55; margin: 0; }
-  .f-card.dark { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .f-card.dark .ico { background: rgba(125,242,176,0.1); color: var(--mint); }
-  .f-card.dark p { color: #9ea3a0; }
-  .f-card.atlas { background: var(--atlas); color: var(--paper); border-color: transparent; }
-  .f-card.atlas .ico { background: rgba(125,242,176,0.15); color: var(--mint); }
-  .f-card.atlas p { color: #d0eed9; }
+  .pf-tabs { margin-top: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .pf-tab { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px 6px; text-align: center; font-size: 10.5px; color: #c6ead4; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .pf-tab svg { color: var(--mint); }
 
-  /* Row split demo */
-  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; padding: 80px 0; }
-  @media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: 50px; } }
-  .split h2 { font-size: clamp(32px, 3.5vw, 48px); letter-spacing: -0.03em; line-height: 1.06; margin: 0 0 20px; font-weight: 600; }
-  .split p { font-size: 17px; color: var(--n-600); line-height: 1.6; margin: 0 0 28px; max-width: 460px; }
+  .pf-positions { margin-top: 18px; }
+  .pf-pos-h { display: flex; justify-content: space-between; font-size: 11px; color: #6b8278; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .pf-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+  .pf-row .t { width: 32px; height: 32px; border-radius: 50%; background: var(--atlas); color: var(--mint); font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .pf-row .t.bd { background: #B45A2B; color: #fff; }
+  .pf-row .t.iam { background: #1A4D80; color: #fff; }
+  .pf-row .info { flex: 1; min-width: 0; }
+  .pf-row .info .n { font-size: 13px; font-weight: 500; }
+  .pf-row .info .r { font-size: 10.5px; color: #6b8278; font-family: var(--mono); margin-top: 1px; }
+  .pf-row .v { text-align: right; }
+  .pf-row .v .a { font-family: var(--mono); font-size: 12px; }
+  .pf-row .v .d { font-size: 10.5px; font-family: var(--mono); color: var(--mint); margin-top: 1px; }
+  .pf-row .v .d.dn { color: #F29B8F; }
 
-  /* Split bill demo */
-  .split-demo { background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 20px; padding: 30px; }
-  .split-demo .total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 22px; }
-  .split-demo .total .l { font-size: 13px; color: var(--n-500); text-transform: uppercase; letter-spacing: 0.1em; }
-  .split-demo .total .v { font-size: 40px; font-weight: 600; letter-spacing: -0.035em; }
-  .split-persons { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
-  .split-person { flex: 1; min-width: 90px; background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 14px; text-align: center; position: relative; }
-  .split-person .av { width: 36px; height: 36px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; color: var(--paper); background: var(--atlas); }
-  .split-person .av.b { background: var(--riad); }
-  .split-person .av.c { background: var(--atlas-700); }
-  .split-person .av.d { background: #D99A2B; }
-  .split-person .n { font-size: 13px; font-weight: 500; margin-top: 10px; }
-  .split-person .v { font-size: 15px; font-weight: 600; margin-top: 4px; font-feature-settings: "tnum" 1; color: var(--atlas); }
-  .split-person.paid::before { content: "✓"; position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; background: var(--atlas); color: var(--paper); font-size: 11px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  .split-summary { display: flex; justify-content: space-between; padding: 14px 0 0; border-top: 1px solid var(--n-200); font-size: 13px; color: var(--n-500); margin-top: 8px; }
-  .split-summary b { color: var(--atlas); font-weight: 600; }
+  /* ============ LIVE TICKER ============ */
+  .ticker { background: var(--hero-bg); border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); overflow: hidden; padding: 14px 0; position: relative; z-index: 3; }
+  .ticker-track { display: flex; gap: 48px; white-space: nowrap; animation: scroll 38s linear infinite; width: max-content; }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+  .ticker-item { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: #b0c2bb; font-family: var(--mono); }
+  .ticker-item .name { color: var(--paper); font-weight: 500; font-family: var(--sans); }
+  .ticker-item .v { color: var(--paper); }
+  .ticker-item .d.up { color: var(--mint); }
+  .ticker-item .d.dn { color: #F29B8F; }
 
-  /* Investing block */
-  .inv { background: var(--riad-deep); color: var(--paper); border-radius: 32px; padding: 70px 60px; position: relative; overflow: hidden; }
-  @media (max-width: 900px) { .inv { padding: 40px 28px; border-radius: 24px; } }
-  .inv::before { content: ""; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(125,242,176,0.2), transparent 60%); pointer-events: none; }
-  .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
-  @media (max-width: 900px) { .inv-grid { grid-template-columns: 1fr; gap: 40px; } }
-  .inv h2 { font-size: clamp(36px, 4vw, 56px); letter-spacing: -0.035em; line-height: 1.05; margin: 14px 0 18px; font-weight: 600; }
-  .inv p { color: #b0c2bb; font-size: 17px; line-height: 1.6; margin: 0 0 24px; max-width: 480px; }
-  .inv-assets { background: rgba(255,255,255,0.06); border-radius: 20px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); }
-  .inv-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-  .inv-row:last-child { border-bottom: 0; }
-  .inv-row .ic { width: 40px; height: 40px; border-radius: 12px; background: rgba(125,242,176,0.1); color: var(--mint); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
-  .inv-row .info { flex: 1; }
-  .inv-row .info .n { font-weight: 500; font-size: 14px; }
-  .inv-row .info .r { font-size: 11px; color: #9bb5a8; margin-top: 2px; }
-  .inv-row .v { text-align: right; }
-  .inv-row .v .a { font-family: var(--mono); font-size: 13px; font-weight: 500; }
-  .inv-row .v .d { font-size: 11px; color: var(--mint); margin-top: 2px; }
-  .inv-row .v .d.dn { color: #F29B8F; }
+  /* ============ SECTION FRAME ============ */
+  section { padding: 130px 0; position: relative; }
+  @media (max-width: 720px) { section { padding: 90px 0; } }
+  .sec-head { max-width: 760px; margin: 0 auto 64px; text-align: center; }
+  .sec-head.left { text-align: left; margin: 0 0 64px; max-width: 720px; }
+  .sec-head h2 { font-size: clamp(38px, 5vw, 72px); letter-spacing: -0.04em; line-height: 1.0; margin: 16px 0 22px; font-weight: 600; }
+  .sec-head h2 em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--atlas); }
+  .sec-head p { color: var(--n-500); font-size: 19px; line-height: 1.55; margin: 0; }
+  .eyebrow { display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--atlas); }
 
-  /* Roadmap strip */
-  .rmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  @media (max-width: 900px) { .rmap { grid-template-columns: 1fr 1fr; } }
-  .rmap-card { background: #fff; border: 1px solid var(--n-200); border-radius: 16px; padding: 24px; position: relative; }
-  .rmap-card.active { background: var(--atlas); color: var(--paper); border-color: transparent; }
-  .rmap-card .phase { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--n-500); font-weight: 500; }
-  .rmap-card.active .phase { color: var(--mint); }
-  .rmap-card h4 { font-size: 17px; margin: 6px 0 10px; font-weight: 600; letter-spacing: -0.02em; }
-  .rmap-card ul { list-style: none; padding: 0; margin: 0; }
-  .rmap-card li { font-size: 13px; line-height: 1.5; color: var(--n-600); padding: 4px 0; }
-  .rmap-card.active li { color: #d0eed9; }
+  /* ============ CARDS LINEUP ============ */
+  .cards-sec { background: var(--paper); }
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 980px) { .cards-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; } }
+  .card-tile { background: linear-gradient(180deg, var(--paper-soft), #fff); border: 1px solid var(--n-200); border-radius: 28px; padding: 36px 32px 32px; position: relative; overflow: hidden; transition: transform .3s, box-shadow .3s; }
+  .card-tile:hover { transform: translateY(-6px); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.12); }
+  .card-tile .tier { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--n-500); font-weight: 500; }
+  .card-tile h3 { font-size: 30px; letter-spacing: -0.03em; margin: 4px 0 6px; font-weight: 600; }
+  .card-tile .sub { color: var(--n-500); font-size: 14px; line-height: 1.5; margin: 0 0 28px; min-height: 42px; }
 
-  /* Final */
-  .final-w { background: var(--mint-soft); border-radius: 32px 32px 0 0; text-align: center; padding: 120px 0 140px; }
-  .final-w h2 { font-size: clamp(44px, 6vw, 88px); line-height: 0.98; letter-spacing: -0.04em; font-weight: 600; margin: 0; }
-  .final-w h2 em { font-family: var(--serif); font-style: italic; color: var(--atlas); font-weight: 400; }
-  .final-w p { max-width: 580px; margin: 22px auto 34px; font-size: 18px; color: var(--n-600); }
+  .card-visual { aspect-ratio: 1.585; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25); }
+  .card-visual .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .card-visual .brand { font-size: 20px; font-weight: 700; letter-spacing: -0.05em; display: inline-flex; align-items: baseline; gap: 3px; }
+  .card-visual .brand .d { width: 5px; height: 5px; background: var(--mint); border-radius: 50%; }
+  .card-visual .tag { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; }
+  .card-visual .bot { display: flex; justify-content: space-between; align-items: flex-end; }
+  .card-visual .num { font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; opacity: 0.85; }
+  .card-visual .name { font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .card-visual .m { width: 30px; height: 20px; }
 
-  footer { background: var(--ink); color: var(--paper-muted); padding: 60px 0 40px; }
+  .cv-standard { background: linear-gradient(135deg, #F5F2EA 0%, #E6E1D2 100%); color: var(--ink); border: 1px solid #D4CFC0; }
+  .cv-pro { background: linear-gradient(135deg, var(--atlas) 0%, var(--atlas-700) 60%, var(--riad) 100%); color: var(--paper); position: relative; }
+  .cv-pro::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 80% 10%, rgba(125,242,176,0.3), transparent 65%); }
+  .cv-pro > * { position: relative; }
+  .cv-atlas { background: linear-gradient(135deg, #1A201D 0%, #050907 50%, #2E2D29 100%); color: #E6E1D2; position: relative; }
+  .cv-atlas::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.015) 8px, rgba(255,255,255,0.015) 9px); }
+  .cv-atlas .brand .d { background: #B89B5E; }
+  .cv-atlas > * { position: relative; }
+  .cv-atlas .accent { color: #B89B5E; }
+
+  .card-tile .price { display: flex; align-items: baseline; gap: 6px; margin-top: 28px; }
+  .card-tile .price .v { font-size: 38px; font-weight: 600; letter-spacing: -0.03em; font-feature-settings: "tnum" 1; }
+  .card-tile .price .u { color: var(--n-500); font-size: 13px; }
+  .card-tile.featured { background: linear-gradient(180deg, #fff, var(--mint-soft)); border-color: var(--mint); }
+  .card-tile.featured .badge { position: absolute; top: 22px; right: 22px; background: var(--atlas); color: var(--mint); font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; padding: 5px 10px; border-radius: 999px; text-transform: uppercase; }
+
+  .card-perks { list-style: none; padding: 0; margin: 22px 0 0; }
+  .card-perks li { font-size: 13.5px; color: var(--n-600); padding: 7px 0; display: flex; align-items: flex-start; gap: 10px; line-height: 1.4; border-top: 1px solid var(--n-200); }
+  .card-perks li:first-child { border-top: 0; padding-top: 0; }
+  .card-perks svg { color: var(--atlas); flex-shrink: 0; margin-top: 2px; }
+
+  /* ============ FEATURE BENTO ============ */
+  .bento-sec { background: var(--ink); color: var(--paper); }
+  .bento-sec .sec-head h2 { color: var(--paper); }
+  .bento-sec .sec-head h2 em { color: var(--mint); }
+  .bento-sec .sec-head p { color: #9ea3a0; }
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: minmax(220px, auto); gap: 18px; }
+  @media (max-width: 980px) { .bento { grid-template-columns: 1fr 1fr; } .bento > div { grid-column: span 2 !important; } }
+  @media (max-width: 600px) { .bento { grid-template-columns: 1fr; } .bento > div { grid-column: span 1 !important; } }
+  .bento-card { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 28px; position: relative; overflow: hidden; transition: border-color .25s; }
+  .bento-card:hover { border-color: rgba(125,242,176,0.25); }
+  .bento-card .eyebrow { color: var(--mint); font-size: 11px; }
+  .bento-card h3 { font-size: 24px; font-weight: 600; letter-spacing: -0.025em; margin: 10px 0 10px; line-height: 1.1; }
+  .bento-card p { color: #a0a8a4; font-size: 14px; line-height: 1.55; margin: 0; }
+  .bc-1 { grid-column: span 3; grid-row: span 2; }
+  .bc-2 { grid-column: span 3; grid-row: span 1; }
+  .bc-3 { grid-column: span 3; grid-row: span 1; }
+  .bc-4 { grid-column: span 2; }
+  .bc-5 { grid-column: span 2; }
+  .bc-6 { grid-column: span 2; }
+
+  /* FX widget (Wise-inspired) */
+  .fx { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 18px; margin-top: 22px; }
+  .fx-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 12px 14px; background: rgba(0,0,0,0.25); border-radius: 12px; }
+  .fx-row + .fx-row { margin-top: 8px; }
+  .fx-left { display: flex; align-items: center; gap: 12px; }
+  .fx-flag { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .fx-flag.fr { background: linear-gradient(90deg, #0055A4 33%, #fff 33% 66%, #EF4135 66%); }
+  .fx-flag.ma { background: #C1272D; color: #006233; font-size: 14px; }
+  .fx-flag.eu { background: #003399; color: #FFCC00; }
+  .fx-flag.us { background: linear-gradient(180deg, #fff 50%, #BF0A30 50%); color: #002868; font-size: 12px; }
+  .fx-cur { font-size: 11px; color: #a0a8a4; letter-spacing: 0.08em; }
+  .fx-amt { font-family: var(--mono); font-size: 17px; color: var(--paper); }
+  .fx-rate { background: var(--mint); color: var(--riad-deep); font-size: 11px; padding: 4px 9px; border-radius: 999px; font-weight: 600; font-family: var(--mono); display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; }
+
+  /* Vault progress bars */
+  .vault { background: rgba(255,255,255,0.03); border-radius: 14px; padding: 14px 16px; margin-top: 12px; }
+  .vault + .vault { margin-top: 8px; }
+  .vault-h { display: flex; justify-content: space-between; font-size: 13px; }
+  .vault-h .n { font-weight: 500; }
+  .vault-h .v { font-family: var(--mono); color: #a0a8a4; font-size: 11.5px; }
+  .vault-bar { margin-top: 10px; height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+  .vault-bar > div { height: 100%; background: linear-gradient(90deg, var(--atlas), var(--mint)); border-radius: 999px; }
+
+  /* Stocks chart mini */
+  .chart-mini { margin-top: 18px; height: 90px; }
+  .chart-mini svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* Round-up */
+  .roundup { margin-top: 18px; }
+  .ru-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px dashed rgba(255,255,255,0.08); font-size: 13px; }
+  .ru-row:first-child { border-top: 0; }
+  .ru-row .l { color: #c6ead4; }
+  .ru-row .v { font-family: var(--mono); }
+  .ru-row .v small { color: var(--mint); font-size: 11px; }
+
+  /* ============ DIASPORA ============ */
+  .corridor-sec { background: var(--paper); }
+  .corridor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
+  @media (max-width: 980px) { .corridor-grid { grid-template-columns: 1fr; gap: 50px; } }
+  .corridor-grid h2 { font-size: clamp(36px, 4.5vw, 60px); letter-spacing: -0.035em; line-height: 1.05; margin: 12px 0 22px; font-weight: 600; }
+  .corridor-grid h2 em { font-family: var(--serif); font-style: italic; color: var(--atlas); font-weight: 400; }
+  .corridor-grid p { color: var(--n-500); font-size: 17px; line-height: 1.6; margin: 0 0 28px; max-width: 460px; }
+
+  .send-widget { background: #fff; border: 1px solid var(--n-200); border-radius: 24px; padding: 8px; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.15); }
+  .send-card { padding: 28px; }
+  .send-card .h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .send-card .h .t { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+  .send-card .h .live { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--n-500); font-family: var(--mono); }
+  .send-card .h .live .dt { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+
+  .send-box { background: var(--paper-soft); border-radius: 16px; padding: 18px 20px; }
+  .send-box + .send-box { margin-top: 10px; }
+  .send-box .l { font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; text-transform: uppercase; }
+  .send-box .row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .send-box .amt { font-size: 36px; font-weight: 600; letter-spacing: -0.03em; font-feature-settings: "tnum" 1; color: var(--ink); border: 0; background: transparent; outline: 0; width: 70%; font-family: var(--sans); }
+  .send-box .cur { display: inline-flex; align-items: center; gap: 8px; background: #fff; padding: 7px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); }
+
+  .send-divider { display: flex; align-items: center; gap: 14px; padding: 12px 6px; }
+  .send-divider .line { flex: 1; border-top: 1px dashed var(--n-300); }
+  .send-divider .swap { width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--mint); display: flex; align-items: center; justify-content: center; }
+
+  .send-breakdown { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; padding: 14px 0 0; border-top: 1px solid var(--n-200); font-size: 13px; color: var(--n-500); }
+  .send-breakdown .r { display: flex; justify-content: space-between; }
+  .send-breakdown .r .v { font-family: var(--mono); color: var(--ink); }
+  .send-breakdown .r .v.mint { color: var(--atlas); font-weight: 500; }
+
+  .send-cta { background: var(--ink); color: var(--paper); text-align: center; margin-top: 18px; padding: 16px; border-radius: 14px; font-weight: 500; font-size: 14.5px; }
+
+  .corridor-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 32px; max-width: 460px; }
+  .stat-tile { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 18px 20px; }
+  .stat-tile .v { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; font-feature-settings: "tnum" 1; color: var(--atlas); }
+  .stat-tile .l { font-size: 12px; color: var(--n-500); margin-top: 2px; }
+
+  /* ============ INVEST SECTION ============ */
+  .invest-sec { background: var(--riad-deep); color: var(--paper); overflow: hidden; }
+  .invest-sec::before { content: ""; position: absolute; top: 0; right: -200px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(125,242,176,0.15), transparent 60%); pointer-events: none; }
+  .invest-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 70px; align-items: center; position: relative; z-index: 2; }
+  @media (max-width: 980px) { .invest-grid { grid-template-columns: 1fr; gap: 50px; } }
+  .invest-grid h2 { font-size: clamp(38px, 5vw, 68px); letter-spacing: -0.04em; line-height: 1.0; margin: 14px 0 22px; font-weight: 600; }
+  .invest-grid h2 em { font-family: var(--serif); font-style: italic; color: var(--mint); font-weight: 400; }
+  .invest-grid p { color: #b0c2bb; font-size: 17px; line-height: 1.6; margin: 0 0 28px; max-width: 480px; }
+
+  .invest-panel { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; padding: 32px; }
+  .ip-h { display: flex; justify-content: space-between; align-items: flex-start; }
+  .ip-h .l { font-size: 12px; color: #88a098; letter-spacing: 0.05em; }
+  .ip-h .v { font-size: 44px; font-weight: 600; letter-spacing: -0.04em; margin-top: 4px; font-feature-settings: "tnum" 1; }
+  .ip-h .v .u { font-size: 16px; color: #88a098; margin-left: 6px; font-weight: 500; }
+  .ip-h .d { font-family: var(--mono); font-size: 13px; color: var(--mint); margin-top: 4px; display: inline-flex; align-items: center; gap: 6px; }
+  .ip-range { display: flex; gap: 4px; }
+  .ip-range span { font-size: 11px; color: #88a098; padding: 5px 10px; border-radius: 6px; font-family: var(--mono); }
+  .ip-range span.on { background: rgba(125,242,176,0.12); color: var(--mint); }
+
+  .big-chart { margin-top: 22px; height: 220px; }
+  .big-chart svg { width: 100%; height: 100%; overflow: visible; }
+
+  .holdings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
+  @media (max-width: 600px) { .holdings { grid-template-columns: 1fr; } }
+  .hold { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+  .hold .av { width: 36px; height: 36px; border-radius: 50%; background: var(--atlas); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--mint); flex-shrink: 0; }
+  .hold .info { flex: 1; min-width: 0; }
+  .hold .info .n { font-size: 13px; font-weight: 500; }
+  .hold .info .r { font-size: 11px; color: #88a098; font-family: var(--mono); margin-top: 2px; }
+  .hold .v { text-align: right; }
+  .hold .v .a { font-family: var(--mono); font-size: 12.5px; }
+  .hold .v .d { font-size: 11px; font-family: var(--mono); color: var(--mint); margin-top: 1px; }
+  .hold .v .d.dn { color: #F29B8F; }
+
+  /* ============ VS TRADITIONAL ============ */
+  .vs-sec { background: var(--paper); }
+  .vs-table { background: #fff; border: 1px solid var(--n-200); border-radius: 24px; overflow: hidden; }
+  .vs-table-h { display: grid; grid-template-columns: 1.4fr 1fr 1fr; background: var(--paper-soft); padding: 22px 28px; font-size: 13px; font-weight: 500; color: var(--n-500); letter-spacing: 0.04em; }
+  .vs-table-h .kiwi { color: var(--atlas); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .vs-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 20px 28px; align-items: center; border-top: 1px solid var(--n-200); font-size: 15px; }
+  .vs-row .l { color: var(--n-700); font-weight: 500; }
+  .vs-row .kiwi { color: var(--atlas); font-weight: 500; font-family: var(--mono); }
+  .vs-row .trad { color: var(--n-500); font-family: var(--mono); }
+  .vs-row .check { display: inline-flex; align-items: center; gap: 8px; }
+  @media (max-width: 720px) { .vs-table-h, .vs-row { grid-template-columns: 1fr 1fr; padding-left: 18px; padding-right: 18px; } .vs-table-h .l, .vs-row .l { grid-column: span 2; margin-bottom: 6px; color: var(--n-500); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; } }
+
+  /* ============ SECURITY ============ */
+  .sec-sec { background: var(--ink); color: var(--paper); }
+  .sec-sec .sec-head h2 { color: var(--paper); }
+  .sec-sec .sec-head h2 em { color: var(--mint); }
+  .sec-sec .sec-head p { color: #9ea3a0; }
+  .sec-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .sec-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 540px) { .sec-grid { grid-template-columns: 1fr; } }
+  .sec-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 28px; }
+  .sec-card .ico { width: 42px; height: 42px; background: rgba(125,242,176,0.08); color: var(--mint); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 22px; }
+  .sec-card h4 { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 8px; }
+  .sec-card p { font-size: 13.5px; color: #9ea3a0; line-height: 1.55; margin: 0; }
+
+  .badges { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 50px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .badge-tag { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; font-size: 12.5px; color: #c6ead4; font-family: var(--mono); }
+  .badge-tag .d { width: 6px; height: 6px; background: var(--mint); border-radius: 50%; }
+
+  /* ============ ROADMAP ============ */
+  .road-sec { background: var(--paper); }
+  .road { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .road { grid-template-columns: 1fr 1fr; } }
+  .road-card { background: #fff; border: 1px solid var(--n-200); border-radius: 20px; padding: 28px; position: relative; }
+  .road-card .ph { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--n-500); font-weight: 500; }
+  .road-card.now { background: var(--atlas); color: var(--paper); border-color: transparent; }
+  .road-card.now .ph { color: var(--mint); }
+  .road-card h4 { font-size: 19px; margin: 8px 0 14px; font-weight: 600; letter-spacing: -0.02em; }
+  .road-card ul { list-style: none; padding: 0; margin: 0; }
+  .road-card li { font-size: 13.5px; line-height: 1.5; padding: 5px 0; color: var(--n-600); }
+  .road-card.now li { color: #d0eed9; }
+
+  /* ============ FAQ ============ */
+  .faq-sec { background: #fff; border-top: 1px solid var(--n-200); border-bottom: 1px solid var(--n-200); }
+  .faq { max-width: 760px; margin: 0 auto; }
+  .faq details { border-top: 1px solid var(--n-200); padding: 22px 0; }
+  .faq details:last-child { border-bottom: 1px solid var(--n-200); }
+  .faq summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; list-style: none; font-size: 18px; font-weight: 500; letter-spacing: -0.015em; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-size: 24px; color: var(--n-500); font-weight: 300; transition: transform .25s; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq p { color: var(--n-500); font-size: 15px; line-height: 1.6; margin: 14px 0 0; max-width: 640px; }
+
+  /* ============ FINAL CTA ============ */
+  .final { background: var(--hero-bg); color: var(--paper); border-radius: 40px 40px 0 0; text-align: center; padding: 140px 0 160px; position: relative; overflow: hidden; }
+  .final::before { content: ""; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 10%, rgba(125,242,176,0.2), transparent 60%);
+    pointer-events: none; }
+  .final h2 { font-size: clamp(48px, 7vw, 100px); line-height: 0.96; letter-spacing: -0.045em; font-weight: 600; margin: 0; position: relative; }
+  .final h2 em { font-family: var(--serif); font-style: italic; color: var(--mint); font-weight: 400; }
+  .final p { max-width: 580px; margin: 26px auto 38px; font-size: 18px; color: #b0c2bb; position: relative; }
+  .final .hero-form { margin: 0 auto; position: relative; }
+
+  /* ============ FOOTER ============ */
+  footer { background: var(--hero-bg); color: var(--paper-muted); padding: 70px 0 50px; }
+  .foot-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 50px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  @media (max-width: 880px) { .foot-top { grid-template-columns: 1fr 1fr; } }
+  .foot-top h5 { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #88a098; margin: 0 0 18px; font-weight: 500; }
+  .foot-top ul { list-style: none; padding: 0; margin: 0; }
+  .foot-top li { padding: 5px 0; }
+  .foot-top a { color: #c6ead4; font-size: 13.5px; transition: color .2s; }
+  .foot-top a:hover { color: var(--mint); }
+  .foot-bot { display: flex; justify-content: space-between; align-items: center; padding-top: 30px; font-size: 12.5px; color: #88a098; flex-wrap: wrap; gap: 16px; }
+
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.in { opacity: 1; transform: none; }
 </style>
 </head>
 <body>
 
+<!-- ============ NAV ============ -->
 <nav class="nav">
   <div class="wrap nav-inner">
     <a href="index.html" class="nav-logo">kiwi<i class="dot"></i></a>
     <div class="nav-links">
-      <a href="index.html#produits" class="link">POS</a>
-      <a href="wallet.html" class="link"><b>Wallet</b></a>
-      <a href="index.html#tarifs" class="link">Tarifs</a>
-      <a href="index.html#securite" class="link">Sécurité</a>
+      <a href="#compte">Compte</a>
+      <a href="#carte">Carte</a>
+      <a href="#invest">Investir</a>
+      <a href="#diaspora">Diaspora</a>
+      <a href="#securite">Sécurité</a>
     </div>
-    <div style="display:flex; gap:10px;">
-      <a href="#" data-action="download-app" class="btn btn-atlas" style="padding:10px 18px; font-size:14px;">Télécharger</a>
+    <div class="nav-cta">
+      <a href="index.html#produits" class="btn-ghost-light">Pour commerçants</a>
+      <a href="#waitlist" class="btn-mint">Liste d'attente
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
     </div>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="wallet-hero" style="padding: 80px 0;">
+<!-- ============ HERO ============ -->
+<section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <span class="pill pill-mint rise">Kiwi Wallet · Disponible 2026 Q3</span>
-      <h1 class="rise-2">Le <em>portefeuille</em><br/>marocain.<br/>Dans votre poche.</h1>
-      <p class="rise-3">Payez chez 2 000+ commerçants avec un QR. Envoyez de l'argent à vos amis en 2 secondes. Partagez l'addition sans calculer. Commandez votre Kiwi Card en 30 secondes.</p>
-      <div class="ctas rise-3">
-        <a href="#" data-action="download-app" class="btn btn-mint btn-lg">Télécharger l'app
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-      <div class="store-btns rise-3">
-        <a href="#" class="store-btn">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09M12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-          <div>Télécharger sur<strong>App Store</strong></div>
-        </a>
-        <a href="#" class="store-btn">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5V3.5c0-.38.21-.71.53-.88l9.62 9.38-9.62 9.38A1 1 0 013 20.5zm10.81-8.37l2.54 2.48-10.23 5.81 7.69-8.29zM3.91 2.09l10.23 5.81-2.53 2.47-7.7-8.28zm13.4 9.41l-2.93 1.66-2.77-2.66 2.77-2.66 2.93 1.66a1 1 0 010 2z"/></svg>
-          <div>Disponible sur<strong>Google Play</strong></div>
-        </a>
+      <span class="hero-eyebrow"><span class="live-dot"></span>Bientôt · Liste d'attente ouverte</span>
+      <h1>La première<br/>banque en ligne<br/><em>du Maroc</em>.</h1>
+      <p class="lead">Compte, carte Visa, paiements instantanés, transferts diaspora et investissement — sans frais cachés, sans agence, sans paperasse. Pensée pour les Marocains, ici et ailleurs.</p>
+      <form class="hero-form" data-action="signup" onsubmit="event.preventDefault();">
+        <input type="email" placeholder="votre@email.com" required />
+        <button type="submit">Garder ma place</button>
+      </form>
+      <div class="hero-trust">
+        <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Régulé Bank Al-Maghrib</span>
+        <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Chiffrement bout-en-bout</span>
+        <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Ouverture en 3 min.</span>
       </div>
     </div>
 
-    <!-- Phone + decorative -->
-    <div class="phone-wrap">
-      <div class="phone rise-2">
+    <div class="phone-stage">
+      <div class="phone">
         <div class="phone-screen">
           <div class="statusbar">
             <span>9:41</span>
-            <span style="display:flex; gap:6px;">
-              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 5.5L7 1l6 4.5M3.5 7L7 4.5 10.5 7M6 8.5L7 8l1 .5"/></svg>
-              <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><rect x="0" y="0" width="2" height="10"/><rect x="4" y="2" width="2" height="8"/><rect x="8" y="4" width="2" height="6"/><rect x="12" y="6" width="2" height="4"/></svg>
-              <svg width="20" height="10" viewBox="0 0 20 10" fill="none"><rect x="1" y="1" width="16" height="8" rx="2" stroke="currentColor" stroke-width="1"/><rect x="3" y="3" width="12" height="4" rx="0.5" fill="currentColor"/><rect x="18" y="3" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+            <span class="sb-icons">
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 5.5L7 1l6 4.5"/></svg>
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><rect x="0" y="6" width="2" height="4"/><rect x="4" y="4" width="2" height="6"/><rect x="8" y="2" width="2" height="8"/><rect x="12" y="0" width="2" height="10"/></svg>
+              <svg width="20" height="10" viewBox="0 0 20 10" fill="none"><rect x="1" y="1" width="16" height="8" rx="2" stroke="currentColor" stroke-width="1"/><rect x="3" y="3" width="12" height="4" rx="0.5" fill="currentColor"/></svg>
             </span>
           </div>
-          <div class="w-home">
-            <div class="w-head">
+          <div class="pf">
+            <div class="pf-top">
+              <div class="av">IM</div>
+              <div class="ico">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/></svg>
+              </div>
+            </div>
+            <div class="pf-label">Patrimoine total</div>
+            <div class="pf-bal num">48 217<span class="u">,30 MAD</span></div>
+            <div class="pf-delta"><span>▲ 1 248,40</span><span class="pill">+2,65 % AUJ.</span></div>
+
+            <div class="pf-chart">
+              <svg viewBox="0 0 300 130" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="hg" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0" stop-color="#7DF2B0" stop-opacity="0.4"/>
+                    <stop offset="1" stop-color="#7DF2B0" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,95 C20,90 35,80 55,82 C75,84 85,70 110,68 C135,66 145,55 170,52 C195,49 210,40 235,28 C260,18 280,22 300,15 L300,130 L0,130 Z" fill="url(#hg)"/>
+                <path d="M0,95 C20,90 35,80 55,82 C75,84 85,70 110,68 C135,66 145,55 170,52 C195,49 210,40 235,28 C260,18 280,22 300,15" fill="none" stroke="#7DF2B0" stroke-width="2"/>
+                <circle cx="300" cy="15" r="4" fill="#7DF2B0"/>
+                <circle cx="300" cy="15" r="8" fill="#7DF2B0" opacity="0.25"/>
+              </svg>
+            </div>
+            <div class="pf-range mono">
+              <span>1J</span><span>1S</span><span class="on">1M</span><span>3M</span><span>1A</span><span>Tout</span>
+            </div>
+
+            <div class="pf-tabs">
+              <div class="pf-tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg>Payer</div>
+              <div class="pf-tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>Envoyer</div>
+              <div class="pf-tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg>Investir</div>
+              <div class="pf-tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>Diaspora</div>
+            </div>
+
+            <div class="pf-positions">
+              <div class="pf-pos-h"><span>Positions</span><span>Cours</span></div>
+              <div class="pf-row">
+                <div class="t">ATW</div>
+                <div class="info"><div class="n">Attijariwafa Bank</div><div class="r">+0,82 MAD</div></div>
+                <div class="v"><div class="a">528,40</div><div class="d">+1,82 %</div></div>
+              </div>
+              <div class="pf-row">
+                <div class="t iam">IAM</div>
+                <div class="info"><div class="n">Maroc Telecom</div><div class="r">−0,18 MAD</div></div>
+                <div class="v"><div class="a">94,12</div><div class="d dn">−0,42 %</div></div>
+              </div>
+              <div class="pf-row">
+                <div class="t bd">OCP</div>
+                <div class="info"><div class="n">OCP Bond 2032</div><div class="r">+0,42 %</div></div>
+                <div class="v"><div class="a">1 248,00</div><div class="d">+0,42 %</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TICKER ============ -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickerTrack">
+    <!-- duplicated by JS for seamless scroll -->
+  </div>
+</div>
+
+<!-- ============ THE PRODUCT (compte) ============ -->
+<section id="compte" class="cards-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Le compte Kiwi</span>
+      <h2>Un compte. <em>Trois façons</em><br/>d'en faire plus.</h2>
+      <p>RIB marocain instantané. Carte Visa virtuelle en 30 secondes, physique en 48h. Choisissez le niveau qui vous ressemble — vous pouvez changer à tout moment.</p>
+    </div>
+
+    <div class="cards-grid">
+      <!-- Standard -->
+      <div class="card-tile">
+        <div class="tier">Standard</div>
+        <h3>Kiwi</h3>
+        <p class="sub">Le compte gratuit, sans condition.</p>
+        <div class="card-visual cv-standard">
+          <div class="top">
+            <div class="brand">kiwi<i class="d"></i></div>
+            <div class="tag">Visa Debit</div>
+          </div>
+          <div class="bot">
+            <div>
+              <div class="num">•••• 8124</div>
+              <div class="name" style="margin-top:4px;">I. MOULINE</div>
+            </div>
+            <svg class="m" viewBox="0 0 40 24"><circle cx="14" cy="12" r="9" fill="#1A1F71" opacity="0.85"/><path d="M22 6h6v12h-6z" fill="#F7B600" opacity="0.85"/></svg>
+          </div>
+        </div>
+        <div class="price"><span class="v num">0</span><span class="u">MAD / mois</span></div>
+        <ul class="card-perks">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Compte avec RIB marocain</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Carte virtuelle Visa gratuite</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Paiements QR illimités</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>2 retraits GAB / mois</li>
+        </ul>
+      </div>
+
+      <!-- Pro (featured) -->
+      <div class="card-tile featured" id="carte">
+        <span class="badge">Populaire</span>
+        <div class="tier">Pro</div>
+        <h3>Kiwi Pro</h3>
+        <p class="sub">Pour ceux qui voyagent et investissent.</p>
+        <div class="card-visual cv-pro">
+          <div class="top">
+            <div class="brand">kiwi<i class="d"></i></div>
+            <div class="tag">Visa Platinum</div>
+          </div>
+          <div class="bot">
+            <div>
+              <div class="num">•••• 8124</div>
+              <div class="name" style="margin-top:4px;">I. MOULINE</div>
+            </div>
+            <svg class="m" viewBox="0 0 40 24"><circle cx="14" cy="12" r="9" fill="#fff" opacity="0.95"/><path d="M22 6h6v12h-6z" fill="#7DF2B0" opacity="0.95"/></svg>
+          </div>
+        </div>
+        <div class="price"><span class="v num">49</span><span class="u">MAD / mois</span></div>
+        <ul class="card-perks">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Tout Kiwi Standard</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Carte Visa physique livrée 48h</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Change EUR/USD au taux interbancaire</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Retraits GAB illimités au Maroc</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Cashback 1 % chez commerçants Kiwi</li>
+        </ul>
+      </div>
+
+      <!-- Atlas Metal -->
+      <div class="card-tile">
+        <div class="tier">Atlas · Metal</div>
+        <h3>Kiwi Atlas</h3>
+        <p class="sub">L'expérience signature, en métal brossé.</p>
+        <div class="card-visual cv-atlas">
+          <div class="top">
+            <div class="brand">kiwi<i class="d"></i></div>
+            <div class="tag accent">Visa Infinite</div>
+          </div>
+          <div class="bot">
+            <div>
+              <div class="num">•••• 8124</div>
+              <div class="name" style="margin-top:4px;">I. MOULINE</div>
+            </div>
+            <svg class="m" viewBox="0 0 40 24"><circle cx="14" cy="12" r="9" fill="#B89B5E" opacity="0.9"/><path d="M22 6h6v12h-6z" fill="#E6D9B5" opacity="0.9"/></svg>
+          </div>
+        </div>
+        <div class="price"><span class="v num">149</span><span class="u">MAD / mois</span></div>
+        <ul class="card-perks">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Tout Kiwi Pro</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Carte métal gravée à votre nom</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Salons aéroport Casablanca · Marrakech</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Conciergerie 7j/7 + assurance voyage</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Cashback 2 % · 0 frais à l'étranger</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BENTO FEATURES ============ -->
+<section class="bento-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" style="color: var(--mint);">Ce que vous pouvez faire</span>
+      <h2>Tout votre argent.<br/>Dans une seule <em>app</em>.</h2>
+      <p>Dépensez, économisez, investissez, envoyez. Sans changer d'application, sans frais qui se cachent dans les petites lignes.</p>
+    </div>
+
+    <div class="bento">
+      <!-- Big tile: Wise FX corridor -->
+      <div class="bento-card bc-1">
+        <span class="eyebrow">Multi-devises</span>
+        <h3>Détenez 30+ devises<br/>à l'interbancaire.</h3>
+        <p>EUR, USD, GBP, AED, CAD, CHF… Convertissez en un tap, au taux du marché, frais transparents.</p>
+        <div class="fx">
+          <div class="fx-row">
+            <div class="fx-left">
+              <div class="fx-flag eu">€</div>
               <div>
-                <div class="hi">Bonjour,</div>
-                <b>Imane Mouline</b>
-              </div>
-              <div class="bell">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21a2 2 0 004 0"/></svg>
+                <div class="fx-cur">EUR · Euro</div>
+                <div class="fx-amt">2 450,00</div>
               </div>
             </div>
-            <div class="w-bal">
-              <div class="l">SOLDE DISPONIBLE</div>
-              <div class="v">4 280,50<span class="u">MAD</span></div>
-              <div class="card-num">
-                <span>•••• •••• •••• 8124</span>
-                <span class="brand-m">Kiwi Card</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#88a098;"><path d="M7 17l10-10M17 7H8M17 7v9"/></svg>
+          </div>
+          <div class="fx-row">
+            <div class="fx-left">
+              <div class="fx-flag ma">★</div>
+              <div>
+                <div class="fx-cur">MAD · Dirham</div>
+                <div class="fx-amt">26 814,75</div>
               </div>
             </div>
-            <div class="w-acts">
-              <div class="w-act">
-                <i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h7v7h-7z"/></svg></i>
-                Payer
-              </div>
-              <div class="w-act">
-                <i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></i>
-                Envoyer
-              </div>
-              <div class="w-act">
-                <i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 19l-7-7 7-7"/></svg></i>
-                Recevoir
-              </div>
-              <div class="w-act">
-                <i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></i>
-                Factures
-              </div>
-            </div>
-            <div class="w-sect">
-              <span class="t">Activité récente</span>
-              <span class="l">Tout →</span>
-            </div>
-            <div class="w-tx">
-              <div class="av">CA</div>
-              <div class="info"><div class="n">Café Atlas</div><div class="r">Aujourd'hui, 14:32</div></div>
-              <div class="amt out">−152,90</div>
-            </div>
-            <div class="w-tx">
-              <div class="av">YB</div>
-              <div class="info"><div class="n">Youness (remboursement)</div><div class="r">Hier</div></div>
-              <div class="amt">+80,00</div>
-            </div>
-            <div class="w-tx">
-              <div class="av neg">FA</div>
-              <div class="info"><div class="n">Facture Redal</div><div class="r">Il y a 2 jours</div></div>
-              <div class="amt out">−234,00</div>
+            <div class="fx-rate mono">EUR/MAD 10,9448</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vaults / coffres -->
+      <div class="bento-card bc-2">
+        <span class="eyebrow">Coffres</span>
+        <h3>Objectifs visualisés.</h3>
+        <p>Mettez de côté pour ce qui compte. Voyages, mariage, voiture — chacun son coffre.</p>
+        <div class="vault">
+          <div class="vault-h"><span class="n">✈️ Tokyo 2027</span><span class="v mono">12 400 / 25 000</span></div>
+          <div class="vault-bar"><div style="width:50%"></div></div>
+        </div>
+        <div class="vault">
+          <div class="vault-h"><span class="n">🚗 Acompte voiture</span><span class="v mono">48 700 / 60 000</span></div>
+          <div class="vault-bar"><div style="width:81%"></div></div>
+        </div>
+      </div>
+
+      <!-- Investing teaser -->
+      <div class="bento-card bc-3">
+        <span class="eyebrow">Investir dès 50 MAD</span>
+        <h3>La Bourse de Casablanca,<br/>en fractions.</h3>
+        <div class="chart-mini">
+          <svg viewBox="0 0 300 90" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="cg" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#7DF2B0" stop-opacity="0.35"/>
+                <stop offset="1" stop-color="#7DF2B0" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,60 C30,55 50,65 75,55 C100,45 120,50 145,40 C170,30 195,38 220,28 C245,18 270,22 300,12 L300,90 L0,90 Z" fill="url(#cg)"/>
+            <path d="M0,60 C30,55 50,65 75,55 C100,45 120,50 145,40 C170,30 195,38 220,28 C245,18 270,22 300,12" fill="none" stroke="#7DF2B0" stroke-width="1.8"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Round-ups -->
+      <div class="bento-card bc-4">
+        <span class="eyebrow">Arrondi malin</span>
+        <h3>Économisez sans y penser.</h3>
+        <div class="roundup">
+          <div class="ru-row"><span class="l">Café Atlas</span><span class="v">−42,40 <small>+0,60</small></span></div>
+          <div class="ru-row"><span class="l">BIM</span><span class="v">−87,30 <small>+0,70</small></span></div>
+          <div class="ru-row"><span class="l">Carrefour</span><span class="v">−218,15 <small>+0,85</small></span></div>
+        </div>
+      </div>
+
+      <!-- Bills -->
+      <div class="bento-card bc-5">
+        <span class="eyebrow">Factures</span>
+        <h3>IAM, Inwi, Orange, Redal, ONEE, Lydec.</h3>
+        <p>Un tap, un reçu, une ligne dans votre historique. Programmable, sans frais.</p>
+      </div>
+
+      <!-- Insights -->
+      <div class="bento-card bc-6">
+        <span class="eyebrow">Insights IA</span>
+        <h3>Sachez où va votre argent.</h3>
+        <p>Catégorisation auto, alertes intelligentes, prévisions de fin de mois. En arabe, français ou darija.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIASPORA / CORRIDOR ============ -->
+<section id="diaspora" class="corridor-sec">
+  <div class="wrap corridor-grid">
+    <div>
+      <span class="eyebrow">Diaspora</span>
+      <h2>Envoyez à votre famille<br/>en <em>10 secondes</em>.</h2>
+      <p>5,4 millions de Marocains à l'étranger envoient 115 milliards de dirhams par an. Avec des frais qui mangent jusqu'à 6 % du transfert. Kiwi le fait pour 0,5 %, au taux interbancaire, en quelques secondes.</p>
+      <a href="#waitlist" class="btn btn-atlas btn-lg" style="display:inline-flex;align-items:center;gap:8px;">Rejoindre la diaspora
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <div class="corridor-stats">
+        <div class="stat-tile">
+          <div class="v num">0,5 %</div>
+          <div class="l">frais tout compris</div>
+        </div>
+        <div class="stat-tile">
+          <div class="v num">~10 s.</div>
+          <div class="l">vers compte Kiwi</div>
+        </div>
+        <div class="stat-tile">
+          <div class="v num">30+</div>
+          <div class="l">devises sources</div>
+        </div>
+        <div class="stat-tile">
+          <div class="v num">4 000</div>
+          <div class="l">points cash au Maroc</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="send-widget">
+      <div class="send-card">
+        <div class="h">
+          <div class="t">Envoyer au Maroc</div>
+          <div class="live"><span class="dt"></span>Taux en direct</div>
+        </div>
+
+        <div class="send-box">
+          <div class="l">Vous envoyez</div>
+          <div class="row">
+            <input class="amt num" value="1 000" />
+            <div class="cur">
+              <div class="fx-flag eu" style="width:22px;height:22px;font-size:13px;">€</div>EUR
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
           </div>
-          <div class="w-tabs">
-            <div class="t on">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-6h-6v6H5a2 2 0 01-2-2z"/></svg>
-              Accueil
-            </div>
-            <div class="t">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg>
-              Carte
-            </div>
-            <div class="t">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
-              Investir
-            </div>
-            <div class="t">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-              Réglages
+        </div>
+
+        <div class="send-divider">
+          <div class="line"></div>
+          <div class="swap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4M3 8l4-4 4 4M17 8v12M21 16l-4 4-4-4"/></svg>
+          </div>
+          <div class="line"></div>
+        </div>
+
+        <div class="send-box">
+          <div class="l">Ils reçoivent</div>
+          <div class="row">
+            <input class="amt num" value="10 891,80" readonly />
+            <div class="cur">
+              <div class="fx-flag ma" style="width:22px;height:22px;font-size:11px;">★</div>MAD
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
           </div>
+        </div>
+
+        <div class="send-breakdown">
+          <div class="r"><span>Frais Kiwi (0,5 %)</span><span class="v">5,00 EUR</span></div>
+          <div class="r"><span>Taux EUR / MAD</span><span class="v">10,9444</span></div>
+          <div class="r"><span>Délai estimé</span><span class="v mint">~10 secondes</span></div>
+        </div>
+
+        <div class="send-cta">Envoyer maintenant
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-left:6px;"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 3 PHONES shortcut row -->
-<section style="background: var(--paper); padding: 90px 0;">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">Tout ce que vous faites avec du cash</span>
-      <h2>Plus rapide. Plus traçable. Plus marocain.</h2>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: start;">
-      <!-- Phone 2: Pay QR -->
-      <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
-        <div class="phone s2">
-          <div class="phone-screen">
-            <div class="statusbar" style="color: var(--ink);">
-              <span>9:41</span>
-              <span style="display:flex; gap:6px; color: var(--ink);">
-                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 5.5L7 1l6 4.5M3.5 7L7 4.5 10.5 7M6 8.5L7 8l1 .5"/></svg>
-                <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><rect x="0" y="0" width="2" height="10"/><rect x="4" y="2" width="2" height="8"/><rect x="8" y="4" width="2" height="6"/><rect x="12" y="6" width="2" height="4"/></svg>
-                <svg width="20" height="10" viewBox="0 0 20 10" fill="none"><rect x="1" y="1" width="16" height="8" rx="2" stroke="currentColor" stroke-width="1"/><rect x="3" y="3" width="12" height="4" rx="0.5" fill="currentColor"/></svg>
-              </span>
-            </div>
-            <div class="pay-screen">
-              <div class="pay-top">
-                <div class="close">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
-                </div>
-                <div class="pay-title">Paiement par QR</div>
-                <div style="width:34px;"></div>
-              </div>
-              <div class="pay-merch">
-                <div class="av">CA</div>
-                <div class="n">Café Atlas</div>
-                <div class="r">Maarif · Casablanca</div>
-              </div>
-              <div class="pay-amt">
-                <div class="v">152<span style="color:var(--n-400); font-weight:500;">,90</span></div>
-                <div class="u">MAD · addition table 6</div>
-              </div>
-              <div class="pay-from">
-                <div class="ico"></div>
-                <div class="info">
-                  <div>Kiwi Wallet</div>
-                  <div class="r">Solde 4 280,50 MAD</div>
-                </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-              </div>
-              <div class="pay-confirm">Glisser pour payer</div>
-              <div class="pay-biometric">🔒 Face ID requis</div>
-            </div>
-          </div>
-        </div>
-        <div style="text-align: center; max-width: 280px;">
-          <div class="eyebrow" style="color: var(--atlas);">Payer en QR</div>
-          <h4 style="font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin: 6px 0 8px;">Scannez, validez, c'est réglé.</h4>
-          <p style="color: var(--n-500); font-size: 14px; line-height: 1.5;">Compatible CMI QR, Kiwi QR et tout terminal NFC au Maroc.</p>
-        </div>
-      </div>
-
-      <!-- Phone 3: Kiwi Card -->
-      <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
-        <div class="phone s3">
-          <div class="phone-screen">
-            <div class="statusbar">
-              <span>9:41</span>
-              <span style="display:flex; gap:6px;">
-                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 5.5L7 1l6 4.5M3.5 7L7 4.5 10.5 7M6 8.5L7 8l1 .5"/></svg>
-                <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><rect x="0" y="0" width="2" height="10"/><rect x="4" y="2" width="2" height="8"/><rect x="8" y="4" width="2" height="6"/><rect x="12" y="6" width="2" height="4"/></svg>
-                <svg width="20" height="10" viewBox="0 0 20 10" fill="none"><rect x="1" y="1" width="16" height="8" rx="2" stroke="currentColor" stroke-width="1"/><rect x="3" y="3" width="12" height="4" rx="0.5" fill="currentColor"/></svg>
-              </span>
-            </div>
-            <div class="card-screen">
-              <div class="card-top">
-                <div style="font-size: 22px; font-weight: 600; letter-spacing: -0.02em;">Ma carte</div>
-                <div style="width:34px; height:34px; border-radius:50%; background: rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                </div>
-              </div>
-              <div class="card-visual">
-                <div class="brand">kiwi<i></i></div>
-                <div class="chip"></div>
-                <div class="num">4921 8834 •••• 8124</div>
-                <div class="bot">
-                  <div>
-                    <div style="font-size:8.5px; letter-spacing:0.14em; color:#9bb5a8;">TITULAIRE</div>
-                    <div class="name">I. MOULINE</div>
-                  </div>
-                  <div>
-                    <div style="font-size:8.5px; letter-spacing:0.14em; color:#9bb5a8;">EXP</div>
-                    <div style="font-family: var(--mono); font-size: 12px;">08 / 30</div>
-                  </div>
-                  <div class="m-icon">
-                    <svg viewBox="0 0 40 24">
-                      <circle cx="16" cy="12" r="9" fill="#EB001B" opacity="0.9"/>
-                      <circle cx="24" cy="12" r="9" fill="#F79E1B" opacity="0.9"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div class="card-kpis">
-                <div class="card-kpi">
-                  <div class="l">Dépensé ce mois</div>
-                  <div class="v">3 128<span class="u">MAD</span></div>
-                </div>
-                <div class="card-kpi">
-                  <div class="l">Cashback gagné</div>
-                  <div class="v" style="color: var(--mint);">62<span class="u">MAD</span></div>
-                </div>
-              </div>
-              <div class="card-actions">
-                <div class="card-action">
-                  <i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></i>
-                  Geler
-                </div>
-                <div class="card-action">
-                  <i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M4 6h16M4 18h10"/></svg></i>
-                  Limites
-                </div>
-                <div class="card-action">
-                  <i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></i>
-                  Historique
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style="text-align: center; max-width: 280px;">
-          <div class="eyebrow" style="color: var(--atlas);">Kiwi Card</div>
-          <h4 style="font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin: 6px 0 8px;">Carte virtuelle en 30 secondes.</h4>
-          <p style="color: var(--n-500); font-size: 14px; line-height: 1.5;">Visa ou Mastercard, sans frais cachés. Cashback 1 % chez les commerçants Kiwi.</p>
-        </div>
-      </div>
-
-      <!-- Phone 4: Split bill -->
-      <div style="display: flex; flex-direction: column; align-items: center; gap: 24px;">
-        <div class="phone s2">
-          <div class="phone-screen">
-            <div class="statusbar" style="color: var(--ink);">
-              <span>9:41</span>
-              <span style="display:flex; gap:6px; color: var(--ink);">
-                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 5.5L7 1l6 4.5M3.5 7L7 4.5 10.5 7M6 8.5L7 8l1 .5"/></svg>
-                <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><rect x="0" y="0" width="2" height="10"/><rect x="4" y="2" width="2" height="8"/><rect x="8" y="4" width="2" height="6"/><rect x="12" y="6" width="2" height="4"/></svg>
-                <svg width="20" height="10" viewBox="0 0 20 10" fill="none"><rect x="1" y="1" width="16" height="8" rx="2" stroke="currentColor" stroke-width="1"/><rect x="3" y="3" width="12" height="4" rx="0.5" fill="currentColor"/></svg>
-              </span>
-            </div>
-            <div class="pay-screen" style="background: #fff;">
-              <div class="pay-top">
-                <div class="close">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-                </div>
-                <div class="pay-title">Partager l'addition</div>
-                <div style="width:34px;"></div>
-              </div>
-              <div style="margin-top: 18px; padding: 20px; background: var(--paper-soft); border-radius: 16px;">
-                <div style="font-size: 12px; color: var(--n-500); text-transform: uppercase; letter-spacing: 0.1em;">Addition · Café Atlas</div>
-                <div style="font-size: 36px; font-weight: 600; letter-spacing: -0.035em; margin-top: 4px; font-feature-settings: 'tnum' 1;">344,00 <span style="font-size: 14px; color: var(--n-500);">MAD</span></div>
-                <div style="margin-top: 12px; font-size: 11px; color: var(--n-500);">4 convives · Table T2</div>
-              </div>
-              <div style="margin-top: 22px; font-size: 12.5px; font-weight: 500; color: var(--n-500); text-transform: uppercase; letter-spacing: 0.08em;">Qui paie quoi</div>
-              <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--n-200); border-radius: 12px; background: var(--mint-soft); border-color: var(--mint);">
-                  <div style="width:30px; height:30px; border-radius:50%; background: var(--atlas); color: var(--mint); font-weight: 600; display:flex; align-items:center; justify-content:center; font-size: 11px;">IM</div>
-                  <div style="flex:1; font-size: 13px; font-weight: 500;">Imane (vous)</div>
-                  <div style="font-family: var(--mono); font-weight: 500; font-size: 13px;">86,00</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--n-200); border-radius: 12px;">
-                  <div style="width:30px; height:30px; border-radius:50%; background: var(--riad); color: var(--mint); font-weight: 600; display:flex; align-items:center; justify-content:center; font-size: 11px;">YA</div>
-                  <div style="flex:1; font-size: 13px;">Youssef · <span style="color: var(--success);">payé ✓</span></div>
-                  <div style="font-family: var(--mono); color: var(--success); font-size: 13px;">86,00</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--n-200); border-radius: 12px;">
-                  <div style="width:30px; height:30px; border-radius:50%; background: var(--atlas-700); color: var(--mint); font-weight: 600; display:flex; align-items:center; justify-content:center; font-size: 11px;">SA</div>
-                  <div style="flex:1; font-size: 13px;">Salma · <span style="color: var(--warning);">en attente</span></div>
-                  <div style="font-family: var(--mono); color: var(--n-500); font-size: 13px;">86,00</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--n-200); border-radius: 12px;">
-                  <div style="width:30px; height:30px; border-radius:50%; background: #D99A2B; color: #fff; font-weight: 600; display:flex; align-items:center; justify-content:center; font-size: 11px;">HA</div>
-                  <div style="flex:1; font-size: 13px;">Hassan · <span style="color: var(--n-500);">invitation envoyée</span></div>
-                  <div style="font-family: var(--mono); color: var(--n-500); font-size: 13px;">86,00</div>
-                </div>
-              </div>
-              <div style="margin-top: 20px; padding: 14px; background: var(--ink); color: var(--paper); border-radius: 12px; text-align: center; font-weight: 500; font-size: 14px;">Relancer les invités</div>
-            </div>
-          </div>
-        </div>
-        <div style="text-align: center; max-width: 280px;">
-          <div class="eyebrow" style="color: var(--atlas);">Split bill</div>
-          <h4 style="font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin: 6px 0 8px;">Partagez en darija, sans calculatrice.</h4>
-          <p style="color: var(--n-500); font-size: 14px; line-height: 1.5;">Chaque convive paie sa part, même sans compte Kiwi. Lien WhatsApp, reçu automatique.</p>
-        </div>
+<!-- ============ INVEST ============ -->
+<section id="invest" class="invest-sec">
+  <div class="wrap invest-grid">
+    <div>
+      <span class="hero-eyebrow"><span class="live-dot"></span>Kiwi Invest · Phase 3</span>
+      <h2>Investissez à partir<br/>de <em>50 dirhams</em>.</h2>
+      <p>16 millions d'adultes marocains n'ont jamais investi. Pas par manque d'argent — par manque d'accès. Kiwi ouvre la Bourse de Casablanca, les ETF mondiaux et les fonds AMMC à tout le monde, en fractions.</p>
+      <div style="display:flex; gap: 14px; flex-wrap:wrap; margin-top:8px;">
+        <a href="#waitlist" class="btn-mint">Liste d'attente Invest
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" class="btn-ghost-light">Lire la doc</a>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- FEATURES GRID -->
-<section style="background: #fff; border-top: 1px solid var(--n-200);">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">Ce qu'il y a dedans</span>
-      <h2>Pensé pour un pays qui <em class="editorial" style="color:var(--atlas);">mérite mieux</em>.</h2>
-    </div>
-    <div class="f-grid">
-      <div class="f-card" data-action="diaspora">
-        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg></div>
-        <h3>Envoyer depuis l'étranger</h3>
-        <p>Taux interbancaire + 0,5 % seulement. Livraison en 10 secondes sur Kiwi Wallet, ou cash dans 4 000 agences.</p>
-      </div>
-      <div class="f-card dark">
-        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></div>
-        <h3>Kiwi Card en 30 s.</h3>
-        <p>Carte Visa ou Mastercard, virtuelle immédiatement et physique livrée en 48h. Aucun frais d'émission.</p>
-      </div>
-      <div class="f-card">
-        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 14h.01M12 14h.01"/></svg></div>
-        <h3>Payer les factures</h3>
-        <p>IAM, Inwi, Orange, Lydec, Redal, ONEE, TVA, impôts. Un tap, un reçu, une ligne dans votre historique.</p>
-      </div>
-      <div class="f-card atlas">
-        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 14l4-4 4 4 5-5"/></svg></div>
-        <h3>Investir à partir de 50 MAD</h3>
-        <p>Accès fractionné à des fonds AMMC-régulés. Frais 0,5 %/an. Pensé pour commencer, pas pour les traders.</p>
-      </div>
-      <div class="f-card" data-action="zakat">
-        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg></div>
-        <h3>Zakat · Sadaqa intégrées</h3>
-        <p>Calculateur Zakat selon le nisab actuel · arrondis solidaires sur chaque achat · associations agréées CNDH.</p>
-      </div>
-      <div class="f-card" data-action="sadaqa">
-        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 4.5v6C21 18 17 21.5 12 22 7 21.5 3 18 3 12.5v-6L12 2z"/><path d="M9 12l2 2 4-4"/></svg></div>
-        <h3>Chiffré bout-en-bout</h3>
-        <p>Tokenisation réseau, 3-D Secure 2, détection de fraude temps réel. Votre carte gelée en 1 seconde si elle est volée.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- INVEST -->
-<section style="background: var(--paper);">
-  <div class="wrap">
-    <div class="inv">
-      <div class="inv-grid">
+    <div class="invest-panel">
+      <div class="ip-h">
         <div>
-          <span class="pill pill-mint">Kiwi Invest · 2027 Q2</span>
-          <h2>Votre premier placement<br/>commence à <em class="editorial" style="color:var(--mint);">50 dirhams</em>.</h2>
-          <p>Le Maroc compte 16 millions d'adultes non-bancarisés, et zéro plateforme qui les invite à investir avec leur téléphone. Kiwi Invest change ça. Accès fractionné à des fonds monétaires, actions casablancaises, et — plus tard — ETF mondiaux, sous le cadre AMMC.</p>
-          <div style="margin-top: 30px; display: flex; gap: 12px;">
-            <a href="#" data-action="signup" class="btn btn-mint">Rejoindre la liste d'attente</a>
-          </div>
+          <div class="l">MASI Index · Casablanca</div>
+          <div class="v num">14 218<span class="u">,52</span></div>
+          <div class="d">▲ 184,30 · +1,31 % aujourd'hui</div>
         </div>
-        <div class="inv-assets">
-          <div style="font-size: 12px; color: #9bb5a8; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08);">Portefeuille d'Imane</div>
-          <div class="inv-row">
-            <div class="ic">MM</div>
-            <div class="info"><div class="n">Fonds Monétaire Atlas</div><div class="r">AMMC-régulé · risque 1/7</div></div>
-            <div class="v"><div class="a">1 800 MAD</div><div class="d">+3,8 % / an</div></div>
-          </div>
-          <div class="inv-row">
-            <div class="ic">AW</div>
-            <div class="info"><div class="n">Attijariwafa Bank</div><div class="r">ATW · Casablanca Stock Exchange</div></div>
-            <div class="v"><div class="a">850 MAD</div><div class="d">+7,2 % YTD</div></div>
-          </div>
-          <div class="inv-row">
-            <div class="ic">MT</div>
-            <div class="info"><div class="n">Maroc Telecom</div><div class="r">IAM · Casablanca Stock Exchange</div></div>
-            <div class="v"><div class="a">520 MAD</div><div class="d dn">−1,4 % YTD</div></div>
-          </div>
-          <div class="inv-row">
-            <div class="ic">OT</div>
-            <div class="info"><div class="n">OCP International Bond</div><div class="r">Obligation USD · 2032</div></div>
-            <div class="v"><div class="a">1 100 MAD</div><div class="d">+4,1 % / an</div></div>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 8px;">
-            <div style="font-size: 13px; color: #9bb5a8;">Total</div>
-            <div style="font-family: var(--mono); font-weight: 600; color: var(--mint);">4 270 MAD · +4,3 %</div>
-          </div>
+        <div class="ip-range">
+          <span>1J</span><span>1S</span><span class="on">1M</span><span>1A</span><span>5A</span>
+        </div>
+      </div>
+      <div class="big-chart">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="ig" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#7DF2B0" stop-opacity="0.35"/>
+              <stop offset="1" stop-color="#7DF2B0" stop-opacity="0"/>
+            </linearGradient>
+            <pattern id="grid" width="60" height="44" patternUnits="userSpaceOnUse">
+              <path d="M60 0H0V44" fill="none" stroke="rgba(255,255,255,0.04)"/>
+            </pattern>
+          </defs>
+          <rect width="600" height="220" fill="url(#grid)"/>
+          <path d="M0,170 C40,165 80,150 120,155 C160,160 200,140 240,130 C280,120 320,135 360,115 C400,95 440,100 480,80 C520,60 560,70 600,40 L600,220 L0,220 Z" fill="url(#ig)"/>
+          <path d="M0,170 C40,165 80,150 120,155 C160,160 200,140 240,130 C280,120 320,135 360,115 C400,95 440,100 480,80 C520,60 560,70 600,40" fill="none" stroke="#7DF2B0" stroke-width="2.2"/>
+          <line x1="0" y1="170" x2="600" y2="170" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3 4"/>
+          <circle cx="600" cy="40" r="5" fill="#7DF2B0"/>
+          <circle cx="600" cy="40" r="10" fill="#7DF2B0" opacity="0.25"/>
+        </svg>
+      </div>
+      <div class="holdings">
+        <div class="hold">
+          <div class="av">ATW</div>
+          <div class="info"><div class="n">Attijariwafa</div><div class="r">528,40 MAD</div></div>
+          <div class="v"><div class="a">+1,82 %</div><div class="d">aujourd'hui</div></div>
+        </div>
+        <div class="hold">
+          <div class="av" style="background:#1A4D80;color:#fff;">IAM</div>
+          <div class="info"><div class="n">Maroc Telecom</div><div class="r">94,12 MAD</div></div>
+          <div class="v"><div class="a">−0,42 %</div><div class="d dn">aujourd'hui</div></div>
+        </div>
+        <div class="hold">
+          <div class="av" style="background:#B45A2B;color:#fff;">OCP</div>
+          <div class="info"><div class="n">OCP Group</div><div class="r">1 248,00 MAD</div></div>
+          <div class="v"><div class="a">+0,42 %</div><div class="d">aujourd'hui</div></div>
+        </div>
+        <div class="hold">
+          <div class="av" style="background:#22324A;color:#fff;">ETF</div>
+          <div class="info"><div class="n">S&amp;P 500 frac.</div><div class="r">USD 482,15</div></div>
+          <div class="v"><div class="a">+0,68 %</div><div class="d">aujourd'hui</div></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ROADMAP -->
-<section style="background: #fff;">
+<!-- ============ VS TRADITIONAL ============ -->
+<section class="vs-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Pourquoi Kiwi</span>
+      <h2>Les banques d'avant<br/>vs. <em>la banque d'après</em>.</h2>
+    </div>
+
+    <div class="vs-table">
+      <div class="vs-table-h">
+        <div>Service</div>
+        <div class="kiwi">kiwi<i style="width:5px;height:5px;background:var(--mint);border-radius:50%;display:inline-block;"></i></div>
+        <div>Banque traditionnelle</div>
+      </div>
+      <div class="vs-row">
+        <div class="l">Ouverture de compte</div>
+        <div class="kiwi check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>3 min, mobile</div>
+        <div class="trad">5 jours, agence</div>
+      </div>
+      <div class="vs-row">
+        <div class="l">Frais de tenue de compte</div>
+        <div class="kiwi">0 MAD</div>
+        <div class="trad">~ 480 MAD / an</div>
+      </div>
+      <div class="vs-row">
+        <div class="l">Transfert international</div>
+        <div class="kiwi">0,5 %, ~10 s.</div>
+        <div class="trad">3–6 %, 2–5 jours</div>
+      </div>
+      <div class="vs-row">
+        <div class="l">Carte Visa virtuelle</div>
+        <div class="kiwi check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>30 secondes</div>
+        <div class="trad">Indisponible</div>
+      </div>
+      <div class="vs-row">
+        <div class="l">Investissement fractionné</div>
+        <div class="kiwi check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Dès 50 MAD</div>
+        <div class="trad">Min. 5 000 MAD</div>
+      </div>
+      <div class="vs-row">
+        <div class="l">Support en darija</div>
+        <div class="kiwi check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>24/7, in-app</div>
+        <div class="trad">9h–16h, lun–ven</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECURITY ============ -->
+<section id="securite" class="sec-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow" style="color: var(--mint);">Sécurité &amp; conformité</span>
+      <h2>Votre argent.<br/>Verrouillé comme <em>il se doit</em>.</h2>
+      <p>Bank Al-Maghrib, AMMC, normes PCI-DSS et ISO 27001. Une banque sérieuse, sans le ton paternaliste.</p>
+    </div>
+
+    <div class="sec-grid">
+      <div class="sec-card">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <h4>Carte gelée en 1 tap</h4>
+        <p>Perdue, oubliée au café ? Gelez-la depuis l'app. Dégelez-la dès qu'elle revient.</p>
+      </div>
+      <div class="sec-card">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 4.5v6C21 18 17 21.5 12 22 7 21.5 3 18 3 12.5v-6L12 2z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h4>3-D Secure 2 + Face ID</h4>
+        <p>Chaque paiement validé biométriquement. Tokenisation réseau pour ne jamais exposer votre vrai numéro.</p>
+      </div>
+      <div class="sec-card">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h4>Détection fraude temps réel</h4>
+        <p>Notre moteur IA bloque les paiements suspects en moins de 50 ms — vous décidez en un swipe.</p>
+      </div>
+      <div class="sec-card">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg></div>
+        <h4>Fonds ségrégés</h4>
+        <p>Vos dépôts sont conservés dans des comptes ségrégés chez nos banques partenaires, sous supervision BAM.</p>
+      </div>
+    </div>
+
+    <div class="badges">
+      <span class="badge-tag"><span class="d"></span>Régulé Bank Al-Maghrib</span>
+      <span class="badge-tag"><span class="d"></span>AMMC · Invest</span>
+      <span class="badge-tag"><span class="d"></span>PCI-DSS Level 1</span>
+      <span class="badge-tag"><span class="d"></span>ISO 27001</span>
+      <span class="badge-tag"><span class="d"></span>RGPD &amp; Loi 09-08</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section class="road-sec">
   <div class="wrap">
     <div class="sec-head left">
       <span class="eyebrow">Feuille de route</span>
-      <h2>Trois ans. Une mission.</h2>
-      <p>De l'encaissement par carte à la super-app marocaine. Un chapitre à la fois, sans promesse vide.</p>
+      <h2>Quatre ans.<br/>Une <em>mission</em>.</h2>
+      <p>De l'encaissement par carte à la banque digitale complète. Un chapitre à la fois.</p>
     </div>
-    <div class="rmap">
-      <div class="rmap-card active">
-        <div class="phase">Phase 1 · 2026</div>
-        <h4>POS pour commerçants</h4>
+    <div class="road">
+      <div class="road-card">
+        <div class="ph">Phase 1 · 2026</div>
+        <h4>POS commerçants</h4>
         <ul>
-          <li>SoftPOS + terminal</li>
-          <li>SaaS 399 MAD/mois · règlement T+1</li>
-          <li>Plan de salle, split, tips</li>
+          <li>SoftPOS + terminal Kiwi</li>
+          <li>SaaS, règlement T+1</li>
           <li>Pilote Casablanca</li>
         </ul>
       </div>
-      <div class="rmap-card">
-        <div class="phase">Phase 2 · 2027</div>
-        <h4>Wallet consommateur</h4>
+      <div class="road-card now">
+        <div class="ph">Phase 2 · 2027 · Maintenant</div>
+        <h4>Banque en ligne</h4>
         <ul>
-          <li>P2P, QR, Kiwi Card virtuelle</li>
-          <li>Factures IAM, Redal, ONEE</li>
-          <li>Agent wallet pour non-bancarisés</li>
-          <li>2 villes supplémentaires</li>
-        </ul>
-      </div>
-      <div class="rmap-card">
-        <div class="phase">Phase 3 · 2028</div>
-        <h4>Investir & emprunter</h4>
-        <ul>
-          <li>Kiwi Invest · fonds AMMC</li>
-          <li>Avance trésorerie commerçants</li>
-          <li>Crédit consommateur</li>
+          <li>Compte, carte Visa, QR, factures</li>
+          <li>Coffres, arrondi, insights</li>
           <li>Corridor France ↔ Maroc</li>
         </ul>
       </div>
-      <div class="rmap-card">
-        <div class="phase">Phase 4 · 2029+</div>
+      <div class="road-card">
+        <div class="ph">Phase 3 · 2028</div>
+        <h4>Invest &amp; crédit</h4>
+        <ul>
+          <li>Bourse Casablanca fractionnée</li>
+          <li>ETF mondiaux · fonds AMMC</li>
+          <li>Avance trésorerie</li>
+        </ul>
+      </div>
+      <div class="road-card">
+        <div class="ph">Phase 4 · 2029+</div>
         <h4>La super-app</h4>
         <ul>
           <li>Licence bancaire complète</li>
-          <li>Multi-devise EUR / USD</li>
-          <li>Mobilité, livraison, événements</li>
+          <li>Multi-devise EUR · USD · GBP</li>
           <li>Marché pan-maghrébin</li>
         </ul>
       </div>
@@ -675,32 +986,148 @@
   </div>
 </section>
 
-<!-- FINAL -->
-<section class="final-w">
-  <div class="wrap-sm">
-    <span class="pill pill-mint" style="background: var(--mint); color: var(--riad); border:0; margin-bottom: 30px;">Liste d'attente · accès prioritaire</span>
-    <h2>La banque qui ne vous <em>ressemblait</em> pas<br/>est enfin là.</h2>
-    <p>Rejoignez 18 400 marocains sur la liste d'attente. Lancement au T3 2026 dans tout le Maroc.</p>
-    <div style="display:flex; gap:12px; justify-content:center; flex-wrap: wrap;">
-      <a href="#" data-action="signup" class="btn btn-primary btn-lg">Rejoindre Kiwi Wallet
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
+<!-- ============ FAQ ============ -->
+<section class="faq-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Questions fréquentes</span>
+      <h2>Tout ce qu'on vous a<br/>jamais <em>vraiment</em> expliqué.</h2>
+    </div>
+
+    <div class="faq">
+      <details>
+        <summary>Kiwi est-il une vraie banque ?</summary>
+        <p>Kiwi opère sous agrément établissement de paiement de Bank Al-Maghrib, en partenariat avec une banque marocaine partenaire pour la garde de vos dépôts. La licence bancaire complète est en cours d'instruction pour 2028.</p>
+      </details>
+      <details>
+        <summary>Mes dépôts sont-ils protégés ?</summary>
+        <p>Vos fonds sont conservés dans des comptes ségrégés chez notre banque partenaire, séparés des actifs de Kiwi. Ils sont protégés par le Fonds Collectif de Garantie des Dépôts dans les mêmes conditions qu'une banque classique.</p>
+      </details>
+      <details>
+        <summary>Comment ouvre-t-on un compte ?</summary>
+        <p>Téléchargez l'app, photographiez votre CIN, prenez un selfie pour la vérification biométrique. C'est tout. Votre RIB et votre carte virtuelle sont actifs en moins de 3 minutes.</p>
+      </details>
+      <details>
+        <summary>Quels sont les frais cachés ?</summary>
+        <p>Aucun. C'est notre engagement. Tous les frais — tenue de compte, change, retrait, virement — sont listés en clair dans l'app. Le compte Standard est gratuit, sans condition de revenu ni de solde.</p>
+      </details>
+      <details>
+        <summary>Je vis à l'étranger, puis-je ouvrir un compte ?</summary>
+        <p>Oui, si vous êtes citoyen marocain ou résident MRE. Kiwi est pensé pour la diaspora : envoi vers le Maroc à 0,5 %, gestion multi-devises, carte qui marche en EUR et USD sans frais.</p>
+      </details>
+      <details>
+        <summary>Et si je préfère parler à un humain ?</summary>
+        <p>Support 7j/7 en darija, français et arabe via chat in-app. Pour Kiwi Atlas, conciergerie téléphonique dédiée 24/7.</p>
+      </details>
     </div>
   </div>
 </section>
 
+<!-- ============ FINAL CTA ============ -->
+<section id="waitlist" class="final">
+  <div class="wrap-sm" style="position:relative;">
+    <span class="hero-eyebrow"><span class="live-dot"></span>Accès anticipé · Lancement 2027</span>
+    <h2 style="margin-top:24px;">La banque que vous<br/><em>méritiez</em>.</h2>
+    <p>Rejoignez la liste d'attente. Les premiers inscrits reçoivent leur Kiwi Card avant tout le monde — et l'année Kiwi Pro offerte.</p>
+    <form class="hero-form" data-action="signup" onsubmit="event.preventDefault();">
+      <input type="email" placeholder="votre@email.com" required />
+      <button type="submit">Garder ma place</button>
+    </form>
+    <div class="hero-trust" style="justify-content:center; margin-top:24px;">
+      <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Sans engagement</span>
+      <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Désinscription en un clic</span>
+      <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Vos données restent au Maroc</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
 <footer>
-  <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; font-size: 13px;">
-    <a href="index.html" class="nav-logo" style="color: var(--paper); font-size: 24px;">kiwi<i class="dot"></i></a>
-    <div style="color: #8a8f8d;">© 2026 Kiwi Payments SA — Casablanca, Maroc</div>
-    <div style="display:flex; gap: 24px;">
-      <a href="index.html" class="link">POS</a>
-      <a href="brand.html" class="link">Identité</a>
-      <a href="pitch.html" class="link">Investisseurs</a>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <a href="index.html" class="nav-logo" style="font-size:26px;">kiwi<i class="dot"></i></a>
+        <p style="color:#88a098;font-size:13.5px;line-height:1.6;margin:18px 0 0;max-width:340px;">La première banque en ligne pensée par et pour les Marocains. Tanger · Casablanca.</p>
+      </div>
+      <div>
+        <h5>Produit</h5>
+        <ul>
+          <li><a href="#compte">Compte</a></li>
+          <li><a href="#carte">Carte Visa</a></li>
+          <li><a href="#invest">Investir</a></li>
+          <li><a href="#diaspora">Diaspora</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Entreprise</h5>
+        <ul>
+          <li><a href="index.html#produits">Kiwi POS</a></li>
+          <li><a href="pitch.html">Investisseurs</a></li>
+          <li><a href="brand.html">Identité</a></li>
+          <li><a href="mailto:invest@kiwi.ma">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Légal</h5>
+        <ul>
+          <li><a href="#">Conditions</a></li>
+          <li><a href="#">Confidentialité</a></li>
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">Cookies</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Régulation</h5>
+        <ul>
+          <li><a href="#">Bank Al-Maghrib</a></li>
+          <li><a href="#">AMMC</a></li>
+          <li><a href="#">FCGD</a></li>
+          <li><a href="#">RGPD · 09-08</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <div>© 2026 Kiwi Payments SA — Casablanca, Maroc</div>
+      <div style="display:flex;gap:18px;">
+        <a href="#" style="color:#88a098;">Twitter</a>
+        <a href="#" style="color:#88a098;">Instagram</a>
+        <a href="#" style="color:#88a098;">LinkedIn</a>
+      </div>
     </div>
   </div>
 </footer>
 
+<script>
+  // Live ticker (mock data, animated marquee)
+  (function() {
+    const items = [
+      ['MASI',   '14 218,52', '+1,31 %', 'up'],
+      ['USD/MAD','9,8412',    '−0,12 %', 'dn'],
+      ['EUR/MAD','10,9444',   '+0,08 %', 'up'],
+      ['GBP/MAD','12,7180',   '+0,21 %', 'up'],
+      ['ATW',    '528,40',    '+1,82 %', 'up'],
+      ['IAM',    '94,12',     '−0,42 %', 'dn'],
+      ['OCP',    '1 248,00',  '+0,42 %', 'up'],
+      ['BCP',    '286,50',    '+0,65 %', 'up'],
+      ['LHM',    '2 145,00',  '−0,28 %', 'dn'],
+      ['Or oz',  '2 384 USD', '+0,52 %', 'up'],
+      ['Brent',  '78,42 USD', '−1,12 %', 'dn'],
+      ['BTC',    '94 218',    '+2,18 %', 'up'],
+    ];
+    const html = items.map(([n,v,d,dir]) =>
+      `<span class="ticker-item"><span class="name">${n}</span><span class="v">${v}</span><span class="d ${dir}">${d}</span></span>`
+    ).join('');
+    document.getElementById('tickerTrack').innerHTML = html + html;
+  })();
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.sec-head, .card-tile, .bento-card, .road-card, .sec-card, .hold, .stat-tile').forEach(el => {
+    el.classList.add('reveal'); io.observe(el);
+  });
+</script>
 <script src="assets/i18n.js" defer></script>
 <script src="assets/interactive.js" defer></script>
 <script src="assets/features.js" defer></script>
