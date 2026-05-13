@@ -1630,11 +1630,12 @@
     if (greetEm) {
       /* Measure em's natural inline width. em is plain inline in our
        * CSS so getBoundingClientRect gives the real text width. */
-      /* +24px: italic glyphs (esp. terminal "?" / "é") paint past their
-       * advance-width — "ink overflow". Combined with the 2.5px caret on
-       * the right edge, we need generous trailing room so overflow:hidden
-       * doesn't shave the tail off. */
-      const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 24;
+      /* +44px: italic glyphs (esp. terminal "?" / "é") paint well past
+       * their advance-width — "ink overflow". Combined with the 2.5px
+       * caret pinned to the right edge, we need generous trailing room
+       * so overflow:hidden doesn't shave the tail off. Erring high here
+       * is safe — the extra px is invisible whitespace at sentence end. */
+      const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 44;
 
       /* Wrap em in the clip-span; the wrapper handles overflow + the
        * max-width transition, em itself is undisturbed. */
