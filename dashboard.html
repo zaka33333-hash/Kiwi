@@ -1324,7 +1324,9 @@
   }
   .fusion-kpis .fk-row:first-of-type { border-top: 0; }
   .fusion-kpis .fk-l { font-size: 11.5px; color: #a18098; letter-spacing: 0.01em; }
-  .fusion-kpis .fk-v { font-size: 14px; color: var(--paper); font-weight: 500; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
+  /* fk-v: always rendered on the dark fusion sidebar, so colour is anchored
+   * to a light bone (not var(--paper) — that token is dark in fusion-mode). */
+  .fusion-kpis .fk-v { font-size: 14px; color: #F4ECF2; font-weight: 500; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
 
   /* "Revenir à la vue simple" CTA inside the venue dropdown */
   .venue-action {
