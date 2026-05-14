@@ -6,21 +6,32 @@ For full project context (history, architecture, brand system, roadmap), read **
 
 ---
 
-## 1. Auto-push to GitHub after every edit
+## 1. Auto-push to GitHub AND the local Mac main repo after every edit
 
 The project owner's business partner needs constant access to the latest state on
-GitHub (`https://github.com/badro99/Kiwi`). After **any edits** to files in this
-repo, you must:
+GitHub (`https://github.com/badro99/Kiwi`), and the owner himself works out of the
+main repo at `/Users/badrosonair/Documents/kiwi`. **Both** must be updated after
+every edit — never just one.
+
+After **any edits** to files in this repo, you must:
 
 1. `git add` the changed files (specific paths — never `git add -A` blindly)
 2. `git commit` with a descriptive message in the format `<scope> · <what changed>`
    (e.g. `dashboard · redesign revenue chart tooltip`,
    `wallet · fix split-bill modal close button`)
-3. `git push origin main`
+3. Land the commit on **both** the local main branch and the GitHub remote:
+   - **If working in the main repo directly:** `git push origin main`.
+   - **If working in a worktree** (branch like `claude/*`, which is the default
+     for Claude Code sessions): after committing on the worktree branch, run
+     `git -C /Users/badrosonair/Documents/kiwi merge --ff-only <branch>` to
+     fast-forward main locally, then
+     `git -C /Users/badrosonair/Documents/kiwi push origin main`.
+   - You may also push the worktree branch itself (`git push -u origin <branch>`)
+     if a PR is expected, but the **main** push to origin is the non-negotiable step.
 
 Authentication is cached in macOS Keychain — pushes are silent, no prompts.
-Always end the turn by confirming the push landed (e.g. `git log --oneline -1`
-plus the GitHub URL).
+Always end the turn by confirming the push landed (e.g.
+`git -C /Users/badrosonair/Documents/kiwi log --oneline -1` plus the GitHub URL).
 
 ### Exceptions (don't commit in these cases)
 - **Iteration within one turn.** If the user pivots mid-turn ("make it green / no, red"),
