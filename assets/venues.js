@@ -582,18 +582,18 @@
      *   t=0.55  two CRT lines split — top and bottom slide apart (TV-on)
      *   t=1.25  flash + particle burst at impact (lines have cleared screen)
      *   t=1.60  mono "FUSION ACTIVE" label fades in
-     *   t=1.80  Bougainvillée diagonal sweep + theme/data swap UNDER overlay
+     *   t=1.80  Majorelle diagonal sweep + theme/data swap UNDER overlay
      *   t=2.55  overlay fades out, dashboard fully revealed
      *   t=3.15  cleanup
      */
 
     // Swap palette + data during the sweep, so when the overlay fades the
-    // dashboard already wears Bougainvillée. The sweep visually paints it.
+    // dashboard already wears Majorelle. The sweep visually paints it.
     setTimeout(() => {
       document.body.classList.add('fusion-mode');
       // Engage the existing dark theme so every modal/drawer/menu (defined
       // in theme.css) re-skins automatically. body.fusion-mode then layers
-      // Bougainvillée brand tokens on top of the dark surface tokens.
+      // Majorelle brand tokens on top of the dark surface tokens.
       document.documentElement.setAttribute('data-theme', 'dark');
       currentVenue = 'fusion';
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}

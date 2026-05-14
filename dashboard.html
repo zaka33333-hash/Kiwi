@@ -346,7 +346,7 @@
   .hero-left .greet { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
   .hero-left .live-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(125,242,176,0.12); padding: 5px 11px; border-radius: 999px; font-size: 11px; font-family: var(--mono); color: var(--mint); letter-spacing: 0.08em; border: 1px solid rgba(125,242,176,0.2); }
   .hero-left .live-badge .dot { width: 6px; height: 6px; background: var(--mint); border-radius: 50%; animation: pulse-dot 2s infinite; }
-  .hero-left .meta { font-size: 13px; color: #a7d5b9; font-family: var(--mono); letter-spacing: 0.02em; }
+  .hero-left .meta { font-size: 13px; color: #A8B0C8; font-family: var(--mono); letter-spacing: 0.02em; }
 
   .hero-amount { font-size: clamp(56px, 8vw, 110px); font-weight: 600; letter-spacing: -0.055em; line-height: 0.92; font-feature-settings: "tnum" 1; color: #fff; margin-top: 6px; white-space: nowrap; overflow: hidden; display: block; }
   .hero-amount .currency { font-size: 0.28em; opacity: 0.55; margin-left: 10px; font-weight: 500; letter-spacing: 0.04em; }
@@ -354,7 +354,7 @@
 
   .hero-breakdown { display: flex; gap: 28px; margin-top: 18px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
   .hero-breakdown .b { font-size: 13px; }
-  .hero-breakdown .b .l { font-family: var(--mono); font-size: 10.5px; color: #a7d5b9; letter-spacing: 0.1em; }
+  .hero-breakdown .b .l { font-family: var(--mono); font-size: 10.5px; color: #A8B0C8; letter-spacing: 0.1em; }
   .hero-breakdown .b .v { font-size: 17px; font-weight: 500; margin-top: 3px; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
   .hero-breakdown .b .v .d { font-size: 11.5px; color: var(--mint); margin-left: 6px; font-weight: 500; }
   .hero-breakdown .b .v .d.dn { color: #F29B8F; }
@@ -380,7 +380,7 @@
 
   /* Goal progress */
   .hero-goal { margin-top: 18px; }
-  .hero-goal .g-head { display: flex; justify-content: space-between; font-size: 12px; color: #a7d5b9; font-family: var(--mono); letter-spacing: 0.04em; margin-bottom: 8px; }
+  .hero-goal .g-head { display: flex; justify-content: space-between; font-size: 12px; color: #A8B0C8; font-family: var(--mono); letter-spacing: 0.04em; margin-bottom: 8px; }
   .hero-goal .g-bar { height: 6px; background: rgba(0,0,0,0.25); border-radius: 3px; overflow: hidden; }
   .hero-goal .g-fill { height: 100%; background: linear-gradient(90deg, var(--mint), #5CCFA0); border-radius: 3px; position: relative; transition: width 800ms cubic-bezier(0.32, 0.72, 0, 1); }
   .hero-goal .g-fill::after { content: ""; position: absolute; top: 0; right: 0; width: 24px; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4)); animation: shimmer 2.5s infinite; }
@@ -951,7 +951,7 @@
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-   * FUSION MODE — Bougainvillée palette overrides + sci-fi merge animation
+   * FUSION MODE — Majorelle palette overrides + sci-fi merge animation
    *
    * Triggered when the merchant clicks "Fusionner les 3 emplacements" from
    * the venue dropdown. Shifts the brand tokens (Atlas → Vif, Riad → Nuit,
@@ -962,32 +962,32 @@
 
   /* Theme override — only active while body.fusion-mode is set.
    * Full dark mode: paper/ink flip, neutral ramp reversed onto rgba whites
-   * over a Nuit base. Brand tokens swing to Bougainvillée. */
+   * over a Nuit base. Brand tokens swing to Majorelle. */
   body.fusion-mode {
-    --atlas:       #C1487E;   /* Bougainvillée Vif */
-    --atlas-600:   #D45F95;
-    --atlas-700:   #A33867;
-    --riad:        #1B0E2E;   /* Bougainvillée Nuit */
-    --riad-deep:   #0F081B;
-    --mint:        #FF8FC8;   /* Bougainvillée Fleur */
-    --mint-soft:   #3A1E4D;   /* dark velvet replacement for mint-soft pastel */
-    --paper:       #14081F;
-    --paper-soft:  #1F0D2E;
-    --paper-muted: #2A1340;
-    --ink:         #F4ECF2;
-    --ink-soft:    #DEC9D6;
+    --atlas:       #3955D6;   /* Majorelle Vif */
+    --atlas-600:   #5670E5;
+    --atlas-700:   #2A40A8;
+    --riad:        #0A1230;   /* Majorelle Nuit */
+    --riad-deep:   #050818;
+    --mint:        #5BD5FF;   /* Majorelle Néon */
+    --mint-soft:   #1A2A66;   /* dark velvet replacement for mint-soft pastel */
+    --paper:       #060A1C;
+    --paper-soft:  #0E1638;
+    --paper-muted: #14204A;
+    --ink:         #EEF1FA;
+    --ink-soft:    #C5CDE6;
     --n-50:        rgba(255,255,255,0.04);
     --n-100:       rgba(255,255,255,0.06);
     --n-200:       rgba(255,255,255,0.10);
     --n-300:       rgba(255,255,255,0.16);
-    --n-400:       #6F5F76;
-    --n-500:       #a18098;
-    --n-600:       #c4a7b9;
-    --n-700:       #e0ccd6;
-    --n-800:       #f4ecf2;
+    --n-400:       #5C6280;
+    --n-500:       #8088A8;
+    --n-600:       #A8B0C8;
+    --n-700:       #D5DBEC;
+    --n-800:       #eef1fa;
   }
   body.fusion-mode {
-    background: #14081F !important;
+    background: #060A1C !important;
     color: var(--ink);
     transition: background 480ms cubic-bezier(0.32,0.72,0,1);
   }
@@ -1011,37 +1011,37 @@
   /* Live-badge dot + brand accent dot recolor to Fleur */
   body.fusion-mode .sidebar .brand i,
   body.fusion-mode .live-dot,
-  body.fusion-mode .loc-switch .badge i { background: #FF8FC8 !important; box-shadow: 0 0 8px rgba(255,143,200,0.6); }
-  body.fusion-mode .loc-switch .badge { color: #FF8FC8 !important; }
+  body.fusion-mode .loc-switch .badge i { background: #5BD5FF !important; box-shadow: 0 0 8px rgba(91,213,255,0.6); }
+  body.fusion-mode .loc-switch .badge { color: #5BD5FF !important; }
   /* Hero card gradient + halos in fusion */
   body.fusion-mode .hero-today {
-    background: linear-gradient(135deg, #1B0E2E 0%, #5C1F4E 100%) !important;
+    background: linear-gradient(135deg, #0A1230 0%, #1E2F7C 100%) !important;
   }
   body.fusion-mode .hero-today::before {
-    background: radial-gradient(circle, rgba(255,143,200,0.32), transparent 60%) !important;
+    background: radial-gradient(circle, rgba(91,213,255,0.32), transparent 60%) !important;
   }
   body.fusion-mode .hero-today::after {
-    background: radial-gradient(circle, rgba(193,72,126,0.42), transparent 60%) !important;
+    background: radial-gradient(circle, rgba(57,85,214,0.42), transparent 60%) !important;
   }
   body.fusion-mode .hero-left .live-badge {
-    background: rgba(255,143,200,0.14) !important;
-    border-color: rgba(255,143,200,0.28) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.14) !important;
+    border-color: rgba(91,213,255,0.28) !important;
+    color: #5BD5FF !important;
   }
   body.fusion-mode .hero-left .meta,
   body.fusion-mode .hero-breakdown .b .l,
-  body.fusion-mode .hero-goal .g-head { color: #f4c7dd !important; }
+  body.fusion-mode .hero-goal .g-head { color: #C7D6FF !important; }
   /* Sparkline strokes — recolour to Vif */
-  body.fusion-mode .kpi-m .sp path { stroke: #C1487E !important; }
+  body.fusion-mode .kpi-m .sp path { stroke: #3955D6 !important; }
   /* Sidebar active nav pill */
   body.fusion-mode .sidebar nav a.active {
-    background: rgba(255,143,200,0.10) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.10) !important;
+    color: #5BD5FF !important;
   }
   /* Venue dropdown row icon, hero AI eyebrow */
-  body.fusion-mode .venue-row-icon { color: #C1487E !important; }
+  body.fusion-mode .venue-row-icon { color: #3955D6 !important; }
   body.fusion-mode .hai-eyebrow,
-  body.fusion-mode .ultra-tag { color: #FF8FC8 !important; }
+  body.fusion-mode .ultra-tag { color: #5BD5FF !important; }
 
   /* ─── Dark surfaces: every white/paper card → Nuit velvet ─── */
   body.fusion-mode .kpi-m,
@@ -1050,242 +1050,242 @@
   body.fusion-mode .upgrade-pro-card,
   body.fusion-mode .topbar,
   body.fusion-mode .integ-card {
-    background: #1F0D2E !important;
-    border-color: rgba(255,143,200,0.10) !important;
+    background: #0E1638 !important;
+    border-color: rgba(91,213,255,0.10) !important;
     color: var(--ink);
   }
   /* Pure-white inline backgrounds (style="background:#fff") on KPI tiles */
-  body.fusion-mode .kpi-m { background: #1F0D2E !important; }
-  body.fusion-mode .kpi-m:hover { border-color: rgba(255,143,200,0.28) !important; }
+  body.fusion-mode .kpi-m { background: #0E1638 !important; }
+  body.fusion-mode .kpi-m:hover { border-color: rgba(91,213,255,0.28) !important; }
   body.fusion-mode .kpi-m .l .ico {
-    background: rgba(255,143,200,0.10) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.10) !important;
+    color: #5BD5FF !important;
   }
   body.fusion-mode .kpi-m .v,
   body.fusion-mode .kpi-m .u { color: var(--ink) !important; }
   body.fusion-mode .kpi-m .l,
-  body.fusion-mode .kpi-m .u { color: #a18098 !important; }
+  body.fusion-mode .kpi-m .u { color: #8088A8 !important; }
 
   /* Topbar / search */
-  body.fusion-mode .topbar { background: rgba(20,8,31,0.85) !important; border-bottom-color: rgba(255,143,200,0.08) !important; }
+  body.fusion-mode .topbar { background: rgba(6,10,28,0.85) !important; border-bottom-color: rgba(91,213,255,0.08) !important; }
   body.fusion-mode .search-big {
     background: rgba(255,255,255,0.04) !important;
-    border-color: rgba(255,143,200,0.10) !important;
+    border-color: rgba(91,213,255,0.10) !important;
     color: var(--ink) !important;
   }
   body.fusion-mode .search-big .k span {
     background: rgba(255,255,255,0.06) !important;
-    color: #a18098 !important;
-    border-color: rgba(255,143,200,0.10) !important;
+    color: #8088A8 !important;
+    border-color: rgba(91,213,255,0.10) !important;
   }
   body.fusion-mode .breadcrumb,
   body.fusion-mode .breadcrumb b { color: var(--ink) !important; }
-  body.fusion-mode .breadcrumb .sep { color: #6F5F76 !important; }
+  body.fusion-mode .breadcrumb .sep { color: #5C6280 !important; }
 
   /* Block headings + section meta */
   body.fusion-mode .block-head .t,
   body.fusion-mode .block-head .t * { color: var(--ink) !important; }
   body.fusion-mode .block-head .s,
-  body.fusion-mode .block-head .s * { color: #a18098 !important; }
-  body.fusion-mode .block-head .t .pulse-dot { background: #FF8FC8 !important; }
+  body.fusion-mode .block-head .s * { color: #8088A8 !important; }
+  body.fusion-mode .block-head .t .pulse-dot { background: #5BD5FF !important; }
 
   /* Range pills */
   body.fusion-mode .dr-pills {
     background: rgba(255,255,255,0.04) !important;
-    border-color: rgba(255,143,200,0.10) !important;
+    border-color: rgba(91,213,255,0.10) !important;
   }
-  body.fusion-mode .dr-pill { color: #a18098 !important; }
+  body.fusion-mode .dr-pill { color: #8088A8 !important; }
   body.fusion-mode .dr-pill.on {
-    background: linear-gradient(135deg, #C1487E 0%, #5C1F4E 100%) !important;
+    background: linear-gradient(135deg, #3955D6 0%, #1E2F7C 100%) !important;
     color: #fff !important;
-    box-shadow: 0 4px 14px -4px rgba(193,72,126,0.55) !important;
+    box-shadow: 0 4px 14px -4px rgba(57,85,214,0.55) !important;
   }
 
   /* Range mini-buttons */
-  body.fusion-mode .range { color: #a18098 !important; }
-  body.fusion-mode .range span { color: #a18098 !important; }
-  body.fusion-mode .range span.on { background: rgba(255,143,200,0.14) !important; color: #FF8FC8 !important; }
+  body.fusion-mode .range { color: #8088A8 !important; }
+  body.fusion-mode .range span { color: #8088A8 !important; }
+  body.fusion-mode .range span.on { background: rgba(91,213,255,0.14) !important; color: #5BD5FF !important; }
   body.fusion-mode .range span:hover:not(.on) { color: var(--ink) !important; }
 
-  /* Heatmap "Heures de pointe" — green ramp → Bougainvillée ramp */
-  body.fusion-mode .hh-cell.i0 { background: #2A1340 !important; }
-  body.fusion-mode .hh-cell.i1 { background: #4A1F5C !important; }
-  body.fusion-mode .hh-cell.i2 { background: #7A2F7E !important; }
-  body.fusion-mode .hh-cell.i3 { background: #B85090 !important; }
-  body.fusion-mode .hh-cell.i4 { background: #FF8FC8 !important; }
-  body.fusion-mode .hh-cell.now { box-shadow: 0 0 0 2px #FF8FC8, 0 0 16px -2px rgba(255,143,200,0.6) !important; }
+  /* Heatmap "Heures de pointe" — green ramp → Majorelle ramp */
+  body.fusion-mode .hh-cell.i0 { background: #14204A !important; }
+  body.fusion-mode .hh-cell.i1 { background: #1A2360 !important; }
+  body.fusion-mode .hh-cell.i2 { background: #2541A6 !important; }
+  body.fusion-mode .hh-cell.i3 { background: #324DC2 !important; }
+  body.fusion-mode .hh-cell.i4 { background: #5BD5FF !important; }
+  body.fusion-mode .hh-cell.now { box-shadow: 0 0 0 2px #5BD5FF, 0 0 16px -2px rgba(91,213,255,0.6) !important; }
   body.fusion-mode .hh-col .lbl,
-  body.fusion-mode .hh-foot { color: #a18098 !important; }
+  body.fusion-mode .hh-foot { color: #8088A8 !important; }
 
   /* Revenue line chart — every green stroke/fill → Vif/Fleur */
   body.fusion-mode .rev-line-halo,
-  body.fusion-mode .rev-line { stroke: #FF8FC8 !important; }
-  body.fusion-mode .rev-area { fill: rgba(255,143,200,0.18) !important; }
-  body.fusion-mode .rev-live-dot { fill: #FF8FC8 !important; stroke: #1F0D2E !important; }
+  body.fusion-mode .rev-line { stroke: #5BD5FF !important; }
+  body.fusion-mode .rev-area { fill: rgba(91,213,255,0.18) !important; }
+  body.fusion-mode .rev-live-dot { fill: #5BD5FF !important; stroke: #0E1638 !important; }
   body.fusion-mode .rev-grid line { stroke: rgba(255,255,255,0.06) !important; }
   body.fusion-mode .rev-axis text,
   body.fusion-mode .rev-axis-x text,
-  body.fusion-mode .rev-axis-y text { fill: #a18098 !important; }
+  body.fusion-mode .rev-axis-y text { fill: #8088A8 !important; }
 
   /* Mix donut — replace green slices via inline CSS overrides */
-  body.fusion-mode .mix-legend .dot.card { background: #FF8FC8 !important; }
-  body.fusion-mode .mix-legend .dot.cash { background: #C1487E !important; }
-  body.fusion-mode .mix-legend .dot.transfer { background: #5C1F4E !important; }
+  body.fusion-mode .mix-legend .dot.card { background: #5BD5FF !important; }
+  body.fusion-mode .mix-legend .dot.cash { background: #3955D6 !important; }
+  body.fusion-mode .mix-legend .dot.transfer { background: #1E2F7C !important; }
 
   /* Feed rows */
   body.fusion-mode .feed-row { border-color: rgba(255,255,255,0.06) !important; }
   body.fusion-mode .feed-row .method .ci.cash {
     background: rgba(255,255,255,0.05) !important;
-    color: #c4a7b9 !important;
-    border-color: rgba(255,143,200,0.12) !important;
+    color: #A8B0C8 !important;
+    border-color: rgba(91,213,255,0.12) !important;
   }
   body.fusion-mode .feed-row .amt { color: var(--ink) !important; }
   body.fusion-mode .feed-row .meta,
-  body.fusion-mode .feed-row .time { color: #a18098 !important; }
+  body.fusion-mode .feed-row .time { color: #8088A8 !important; }
 
   /* Chips */
-  body.fusion-mode .chip.ok { background: rgba(255,143,200,0.14) !important; color: #FF8FC8 !important; }
-  body.fusion-mode .chip { color: #c4a7b9 !important; }
+  body.fusion-mode .chip.ok { background: rgba(91,213,255,0.14) !important; color: #5BD5FF !important; }
+  body.fusion-mode .chip { color: #A8B0C8 !important; }
 
   /* Settlement card */
   body.fusion-mode .settle {
-    background: linear-gradient(135deg, #5C1F4E 0%, #1B0E2E 120%) !important;
+    background: linear-gradient(135deg, #1E2F7C 0%, #0A1230 120%) !important;
   }
 
   /* Timeline */
   body.fusion-mode .timeline-day {
-    background: #2A1340 !important;
-    border-color: rgba(255,143,200,0.10) !important;
+    background: #14204A !important;
+    border-color: rgba(91,213,255,0.10) !important;
     color: var(--ink) !important;
   }
   body.fusion-mode .timeline-day.today {
-    background: #14081F !important;
-    border-color: #14081F !important;
+    background: #060A1C !important;
+    border-color: #060A1C !important;
   }
   body.fusion-mode .timeline-day.tomorrow {
-    background: #C1487E !important;
-    border-color: #C1487E !important;
+    background: #3955D6 !important;
+    border-color: #3955D6 !important;
   }
 
   /* Staff avatars (atlas bg → Vif) */
-  body.fusion-mode .staff-row .av { background: #C1487E !important; color: #fff !important; }
+  body.fusion-mode .staff-row .av { background: #3955D6 !important; color: #fff !important; }
   body.fusion-mode .staff-row .name { color: var(--ink) !important; }
-  body.fusion-mode .staff-row .role { color: #a18098 !important; }
+  body.fusion-mode .staff-row .role { color: #8088A8 !important; }
 
   /* Buttons */
   body.fusion-mode .btn-slim {
     background: rgba(255,255,255,0.04) !important;
-    color: #c4a7b9 !important;
-    border-color: rgba(255,143,200,0.10) !important;
+    color: #A8B0C8 !important;
+    border-color: rgba(91,213,255,0.10) !important;
   }
   body.fusion-mode .btn-slim.primary {
-    background: #FF8FC8 !important;
-    color: #1B0E2E !important;
-    border-color: #FF8FC8 !important;
+    background: #5BD5FF !important;
+    color: #0A1230 !important;
+    border-color: #5BD5FF !important;
   }
   body.fusion-mode .icon-btn {
     background: rgba(255,255,255,0.04) !important;
-    color: #c4a7b9 !important;
+    color: #A8B0C8 !important;
   }
 
   /* Hero AI card inputs */
   body.fusion-mode .hai-input {
     background: rgba(0,0,0,0.32) !important;
-    border-color: rgba(255,143,200,0.18) !important;
+    border-color: rgba(91,213,255,0.18) !important;
   }
   body.fusion-mode .hai-send {
-    background: rgba(255,143,200,0.12) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.12) !important;
+    color: #5BD5FF !important;
   }
-  body.fusion-mode .hai-send:hover { background: rgba(255,143,200,0.22) !important; }
-  body.fusion-mode .hai-rec::before { background: #FF8FC8 !important; }
-  body.fusion-mode .hai-rec-act { color: #FF8FC8 !important; }
+  body.fusion-mode .hai-send:hover { background: rgba(91,213,255,0.22) !important; }
+  body.fusion-mode .hai-rec::before { background: #5BD5FF !important; }
+  body.fusion-mode .hai-rec-act { color: #5BD5FF !important; }
 
   /* Hero goal bar */
   body.fusion-mode .hero-goal .g-fill {
-    background: linear-gradient(90deg, #FF8FC8, #C1487E) !important;
+    background: linear-gradient(90deg, #5BD5FF, #3955D6) !important;
   }
 
   /* Sparklines — keep stroke Vif */
-  body.fusion-mode .kpi-m .sp path { stroke: #FF8FC8 !important; }
+  body.fusion-mode .kpi-m .sp path { stroke: #5BD5FF !important; }
 
   /* Sidebar tweaks */
   body.fusion-mode .sidebar {
-    background: #0F081B !important;
-    color: #c4a7b9;
+    background: #050818 !important;
+    color: #A8B0C8;
   }
   /* "kiwi" wordmark — anchored to light bone (var(--paper) flips dark in fusion) */
-  body.fusion-mode .sidebar .brand { color: #F4ECF2 !important; }
-  body.fusion-mode .sidebar .brand i { background: #FF8FC8 !important; box-shadow: 0 0 8px rgba(255,143,200,0.6); }
+  body.fusion-mode .sidebar .brand { color: #EEF1FA !important; }
+  body.fusion-mode .sidebar .brand i { background: #5BD5FF !important; box-shadow: 0 0 8px rgba(91,213,255,0.6); }
   body.fusion-mode .sidebar .merchant { border-color: rgba(255,255,255,0.06) !important; }
   body.fusion-mode .sidebar nav a .tag {
-    background: rgba(255,143,200,0.12) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.12) !important;
+    color: #5BD5FF !important;
   }
   body.fusion-mode .sidebar nav a .count {
     background: rgba(255,255,255,0.06) !important;
-    color: #c4a7b9 !important;
+    color: #A8B0C8 !important;
   }
-  body.fusion-mode .sidebar nav a:hover { background: rgba(255,143,200,0.06) !important; color: var(--ink) !important; }
-  body.fusion-mode .sidebar nav a.active::before { background: #FF8FC8 !important; }
-  body.fusion-mode .sidebar .sect { color: #6F5F76 !important; }
+  body.fusion-mode .sidebar nav a:hover { background: rgba(91,213,255,0.06) !important; color: var(--ink) !important; }
+  body.fusion-mode .sidebar nav a.active::before { background: #5BD5FF !important; }
+  body.fusion-mode .sidebar .sect { color: #5C6280 !important; }
   body.fusion-mode .sidebar .upsell {
-    background: linear-gradient(145deg, rgba(255,143,200,0.10), rgba(193,72,126,0.16)) !important;
-    border-color: rgba(255,143,200,0.18) !important;
+    background: linear-gradient(145deg, rgba(91,213,255,0.10), rgba(57,85,214,0.16)) !important;
+    border-color: rgba(91,213,255,0.18) !important;
   }
   body.fusion-mode .sidebar .upsell button {
-    background: #FF8FC8 !important;
-    color: #1B0E2E !important;
+    background: #5BD5FF !important;
+    color: #0A1230 !important;
   }
   body.fusion-mode .sidebar .avatar {
-    background: linear-gradient(135deg, #FF8FC8, #C1487E) !important;
-    color: #1B0E2E !important;
+    background: linear-gradient(135deg, #5BD5FF, #3955D6) !important;
+    color: #0A1230 !important;
   }
 
   /* Demo bar */
   body.fusion-mode .demo-bar {
-    background: #0F081B !important;
-    border-bottom-color: rgba(255,143,200,0.10) !important;
+    background: #050818 !important;
+    border-bottom-color: rgba(91,213,255,0.10) !important;
   }
-  body.fusion-mode .demo-bar a { color: #FF8FC8 !important; }
+  body.fusion-mode .demo-bar a { color: #5BD5FF !important; }
 
   /* Venue dropdown when open in fusion mode — keep its surface readable */
   body.fusion-mode .venue-dropdown {
-    background: #1F0D2E !important;
-    border-color: rgba(255,143,200,0.18) !important;
+    background: #0E1638 !important;
+    border-color: rgba(91,213,255,0.18) !important;
     box-shadow: 0 18px 40px -10px rgba(0,0,0,0.6) !important;
   }
   body.fusion-mode .venue-row { color: var(--ink) !important; }
-  body.fusion-mode .venue-row:hover:not(.active) { background: rgba(255,143,200,0.06) !important; }
-  body.fusion-mode .venue-row.active { background: rgba(255,143,200,0.10) !important; }
+  body.fusion-mode .venue-row:hover:not(.active) { background: rgba(91,213,255,0.06) !important; }
+  body.fusion-mode .venue-row.active { background: rgba(91,213,255,0.10) !important; }
   body.fusion-mode .venue-row-name { color: var(--ink) !important; }
-  body.fusion-mode .venue-row-type { color: #a18098 !important; }
+  body.fusion-mode .venue-row-type { color: #8088A8 !important; }
   body.fusion-mode .venue-action.return-cta {
-    background: rgba(255,143,200,0.10) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.10) !important;
+    color: #5BD5FF !important;
   }
   body.fusion-mode .venue-action.return-cta .va-icon {
-    background: rgba(255,143,200,0.18) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.18) !important;
+    color: #5BD5FF !important;
   }
   body.fusion-mode .venue-action.return-cta .va-title { color: var(--ink) !important; }
 
   /* Hero "Net après Kiwi" + breakdown text */
   body.fusion-mode .hero-breakdown .b .v,
   body.fusion-mode .hero-breakdown .b .v .d { color: #fff !important; }
-  body.fusion-mode .hero-breakdown .b .v .d { color: #FF8FC8 !important; }
+  body.fusion-mode .hero-breakdown .b .v .d { color: #5BD5FF !important; }
 
   /* Loc-switch tile when in fusion */
   body.fusion-mode .loc-switch {
-    background: rgba(255,143,200,0.06) !important;
-    border-color: rgba(255,143,200,0.18) !important;
+    background: rgba(91,213,255,0.06) !important;
+    border-color: rgba(91,213,255,0.18) !important;
   }
   body.fusion-mode .loc-switch .name { color: var(--ink) !important; }
-  body.fusion-mode .loc-switch .meta { color: #a18098 !important; }
+  body.fusion-mode .loc-switch .meta { color: #8088A8 !important; }
 
   /* Upgrade-tip pastel mint-soft → dark velvet */
   body.fusion-mode .upgrade-tip {
-    background: rgba(255,143,200,0.08) !important;
+    background: rgba(91,213,255,0.08) !important;
     color: var(--ink) !important;
   }
 
@@ -1298,23 +1298,23 @@
    * and the Aperçu bulletin / Pourboires donut. */
   body.fusion-mode svg rect[fill="#7DF2B0"],
   body.fusion-mode svg path[fill="#7DF2B0"],
-  body.fusion-mode svg circle[fill="#7DF2B0"] { fill: #FF8FC8 !important; }
+  body.fusion-mode svg circle[fill="#7DF2B0"] { fill: #5BD5FF !important; }
   body.fusion-mode svg rect[fill="#0B6E4F"],
   body.fusion-mode svg path[fill="#0B6E4F"],
-  body.fusion-mode svg circle[fill="#0B6E4F"] { fill: #C1487E !important; }
+  body.fusion-mode svg circle[fill="#0B6E4F"] { fill: #3955D6 !important; }
   body.fusion-mode svg rect[fill="#13855F"],
-  body.fusion-mode svg path[fill="#13855F"] { fill: #C1487E !important; }
-  body.fusion-mode svg rect[fill="#E8F5EC"] { fill: #2A1340 !important; }
-  body.fusion-mode svg rect[fill="#B9E5CC"] { fill: #4A1F5C !important; }
-  body.fusion-mode svg rect[fill="#7FD4A4"] { fill: #7A2F7E !important; }
-  body.fusion-mode svg rect[fill="#3FB57A"] { fill: #B85090 !important; }
+  body.fusion-mode svg path[fill="#13855F"] { fill: #3955D6 !important; }
+  body.fusion-mode svg rect[fill="#E8F5EC"] { fill: #14204A !important; }
+  body.fusion-mode svg rect[fill="#B9E5CC"] { fill: #1A2360 !important; }
+  body.fusion-mode svg rect[fill="#7FD4A4"] { fill: #2541A6 !important; }
+  body.fusion-mode svg rect[fill="#3FB57A"] { fill: #324DC2 !important; }
   body.fusion-mode svg rect[fill="#E8E6E0"] { fill: rgba(255,255,255,0.06) !important; }
   /* Tick labels / axis text on the dashboard's SVG */
   body.fusion-mode svg text[fill="#6F6C65"],
-  body.fusion-mode svg text[fill="#A8A49A"] { fill: #a18098 !important; }
+  body.fusion-mode svg text[fill="#A8A49A"] { fill: #8088A8 !important; }
   body.fusion-mode svg text[fill="#0A0F0D"],
-  body.fusion-mode svg text[fill="#0B6E4F"] { fill: #F4ECF2 !important; }
-  body.fusion-mode svg line[stroke="#A8A49A"] { stroke: rgba(255,143,200,0.30) !important; }
+  body.fusion-mode svg text[fill="#0B6E4F"] { fill: #EEF1FA !important; }
+  body.fusion-mode svg line[stroke="#A8A49A"] { stroke: rgba(91,213,255,0.30) !important; }
 
   /* Inline style="background:#fff" — used throughout the drawers for
    * payslip tables, payment-link cards, agent-action rows, toggle thumbs.
@@ -1324,14 +1324,14 @@
   body.fusion-mode [style*="background: #fff"]:not(.kiwi-toast),
   body.fusion-mode [style*="background:#FFF"]:not(.kiwi-toast),
   body.fusion-mode [style*="background: #FFF"]:not(.kiwi-toast) {
-    background: #1F0D2E !important;
-    border-color: rgba(255,143,200,0.12) !important;
+    background: #0E1638 !important;
+    border-color: rgba(91,213,255,0.12) !important;
   }
   body.fusion-mode [style*="background:#FAFAF8"],
   body.fusion-mode [style*="background:#F7F5F0"],
   body.fusion-mode [style*="background:var(--paper)"],
   body.fusion-mode [style*="background:var(--paper-soft)"] {
-    background: #1F0D2E !important;
+    background: #0E1638 !important;
   }
 
   /* Inline style="color:var(--ink)" → var(--ink) is light in fusion, ok.
@@ -1340,10 +1340,10 @@
    *
    * Hardcoded #0A0F0D (ink) / #0B6E4F (atlas) inline though stay dark. */
   body.fusion-mode [style*="color:#0A0F0D"],
-  body.fusion-mode [style*="color: #0A0F0D"] { color: #F4ECF2 !important; }
+  body.fusion-mode [style*="color: #0A0F0D"] { color: #EEF1FA !important; }
   body.fusion-mode [style*="color:#0B6E4F"],
-  body.fusion-mode [style*="color: #0B6E4F"] { color: #FF8FC8 !important; }
-  body.fusion-mode [style*="color:#13855F"] { color: #FF8FC8 !important; }
+  body.fusion-mode [style*="color: #0B6E4F"] { color: #5BD5FF !important; }
+  body.fusion-mode [style*="color:#13855F"] { color: #5BD5FF !important; }
 
   /* Buttons rendered via the .kb (interactive.js) family — keep them
    * legible. Default .kb.ghost has #fff bg + ink text; in fusion it
@@ -1351,21 +1351,21 @@
   body.fusion-mode .kb.ghost {
     background: rgba(255,255,255,0.04) !important;
     color: var(--ink) !important;
-    border-color: rgba(255,143,200,0.14) !important;
+    border-color: rgba(91,213,255,0.14) !important;
   }
   body.fusion-mode .kb.ghost:hover {
-    background: rgba(255,143,200,0.08) !important;
-    border-color: rgba(255,143,200,0.28) !important;
+    background: rgba(91,213,255,0.08) !important;
+    border-color: rgba(91,213,255,0.28) !important;
   }
   body.fusion-mode .kb.atlas {
-    background: #C1487E !important;
+    background: #3955D6 !important;
     color: #fff !important;
   }
-  body.fusion-mode .kb.atlas:hover { background: #D45F95 !important; }
+  body.fusion-mode .kb.atlas:hover { background: #5670E5 !important; }
 
   /* Chips used in modals (chip.ok / chip.warn / chip.live etc) */
   body.fusion-mode .chip.warn { background: rgba(217,154,43,0.18) !important; color: #E5B85F !important; }
-  body.fusion-mode .chip.live { background: rgba(255,143,200,0.18) !important; color: #FF8FC8 !important; }
+  body.fusion-mode .chip.live { background: rgba(91,213,255,0.18) !important; color: #5BD5FF !important; }
   body.fusion-mode .chip.danger { background: rgba(201,74,58,0.20) !important; color: #E07A6B !important; }
 
   /* The drawer's "sh-section" cards in payroll/team/etc */
@@ -1376,16 +1376,16 @@
     color: var(--ink);
   }
   body.fusion-mode .sh-section-head h4 { color: var(--ink) !important; }
-  body.fusion-mode .sh-section-head .sub { color: #a18098 !important; }
+  body.fusion-mode .sh-section-head .sub { color: #8088A8 !important; }
   body.fusion-mode .sh-lvs-num { color: var(--ink) !important; }
 
   /* Pricing comparison modal (Kiwi Pro vs Ultra) — checkmarks were green */
-  body.fusion-mode .kiwi-modal [style*="color:var(--atlas)"] { color: #FF8FC8 !important; }
-  body.fusion-mode .upgrade-pro-eyebrow { color: #FF8FC8 !important; }
+  body.fusion-mode .kiwi-modal [style*="color:var(--atlas)"] { color: #5BD5FF !important; }
+  body.fusion-mode .upgrade-pro-eyebrow { color: #5BD5FF !important; }
   body.fusion-mode .upgrade-pro-price { color: var(--ink) !important; }
   body.fusion-mode .upgrade-pro-tag {
-    background: rgba(255,143,200,0.14) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.14) !important;
+    color: #5BD5FF !important;
   }
 
   /* Reservation drawer: pink/violet header gradient with dark "38 couverts"
@@ -1409,34 +1409,34 @@
   /* Staff progress bar (the green/orange thick line under each row) — these
    * use a hardcoded gradient or hex. We can't catch every variant but a
    * filter shift gets us in the right family. */
-  body.fusion-mode .av { background: linear-gradient(135deg, #FF8FC8, #C1487E) !important; color: #1B0E2E !important; }
+  body.fusion-mode .av { background: linear-gradient(135deg, #5BD5FF, #3955D6) !important; color: #0A1230 !important; }
 
   /* Sidebar "kiwi" upsell — was already dark in light mode (Nuit bg).
    * In fusion the inner heading h4 / p was using --paper which now flips dark. */
-  body.fusion-mode .sidebar .upsell h4 { color: #F4ECF2 !important; }
-  body.fusion-mode .sidebar .upsell p { color: #c4a7b9 !important; }
-  body.fusion-mode .sidebar .merchant .n { color: #F4ECF2 !important; }
-  body.fusion-mode .sidebar .merchant .r { color: #a18098 !important; }
+  body.fusion-mode .sidebar .upsell h4 { color: #EEF1FA !important; }
+  body.fusion-mode .sidebar .upsell p { color: #A8B0C8 !important; }
+  body.fusion-mode .sidebar .merchant .n { color: #EEF1FA !important; }
+  body.fusion-mode .sidebar .merchant .r { color: #8088A8 !important; }
 
   /* Équipe drawer member rows — .kw-eq-row.active is hardcoded background:#fff
    * in pages-pro.js (a class selector, not inline style, so my generic
    * [style*="background:#fff"] override doesn't catch it). */
   body.fusion-mode .kw-eq-row.active {
-    background: #1F0D2E !important;
-    border-color: rgba(255,143,200,0.12) !important;
+    background: #0E1638 !important;
+    border-color: rgba(91,213,255,0.12) !important;
   }
   body.fusion-mode .kw-eq-row.inactive {
     background: rgba(255,255,255,0.03) !important;
-    border-color: rgba(255,143,200,0.10) !important;
+    border-color: rgba(91,213,255,0.10) !important;
   }
   body.fusion-mode .kw-eq-row.active:hover {
-    box-shadow: 0 1px 0 rgba(255,143,200,0.04), 0 12px 24px -14px rgba(255,143,200,0.18) !important;
+    box-shadow: 0 1px 0 rgba(91,213,255,0.04), 0 12px 24px -14px rgba(91,213,255,0.18) !important;
   }
   body.fusion-mode .kw-eq-iconbtn,
   body.fusion-mode .kw-eq-detailbtn {
     background: rgba(255,255,255,0.04) !important;
-    color: #c4a7b9 !important;
-    border-color: rgba(255,143,200,0.12) !important;
+    color: #A8B0C8 !important;
+    border-color: rgba(91,213,255,0.12) !important;
   }
   /* Timeline rail — the inline gradient bakes #ECEAE4 as the centre stop */
   body.fusion-mode [style*="#ECEAE4"] {
@@ -1446,7 +1446,7 @@
    * over the gradient. Keep white centre but tighten border to Fleur for the
    * cleanest read. (Selector deliberately narrow to not catch other dots.) */
   body.fusion-mode .kw-eq-row [style*="border-radius: 50%"][style*="background: #fff"] {
-    background: #FFCFE2 !important;
+    background: #C7E3FF !important;
   }
 
   /* Kiwi AI · pointages block — uses var(--ink) gradient + var(--paper)
@@ -1455,27 +1455,27 @@
    * gradient and bone-coloured title; recolour the mint-rgba chip + button
    * surfaces; swap the hardcoded green sub-text colour for Fleur-tinted bone. */
   body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] {
-    background: linear-gradient(135deg, #1F0D2E 0%, #14081F 100%) !important;
-    color: #F4ECF2 !important;
-    border: 1px solid rgba(255,143,200,0.14) !important;
+    background: linear-gradient(135deg, #0E1638 0%, #060A1C 100%) !important;
+    color: #EEF1FA !important;
+    border: 1px solid rgba(91,213,255,0.14) !important;
   }
   body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] [style*="color:var(--paper)"],
   body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] [style*="color: var(--paper)"] {
-    color: #F4ECF2 !important;
+    color: #EEF1FA !important;
   }
-  body.fusion-mode [style*="color:#a7d5b9"],
-  body.fusion-mode [style*="color: #a7d5b9"] { color: #c4a7b9 !important; }
+  body.fusion-mode [style*="color:#A8B0C8"],
+  body.fusion-mode [style*="color: #A8B0C8"] { color: #A8B0C8 !important; }
 
   /* Mint-rgba inline backgrounds anywhere on the page → Fleur-rgba */
   body.fusion-mode [style*="background:rgba(125,242,176"],
   body.fusion-mode [style*="background: rgba(125,242,176"] {
-    background: rgba(255,143,200,0.16) !important;
-    color: #FF8FC8 !important;
+    background: rgba(91,213,255,0.16) !important;
+    color: #5BD5FF !important;
   }
   body.fusion-mode [style*="color:var(--mint)"],
-  body.fusion-mode [style*="color: var(--mint)"] { color: #FF8FC8 !important; }
+  body.fusion-mode [style*="color: var(--mint)"] { color: #5BD5FF !important; }
   /* SVG strokes that reference --mint directly */
-  body.fusion-mode [stroke="var(--mint)"] { stroke: #FF8FC8 !important; }
+  body.fusion-mode [stroke="var(--mint)"] { stroke: #5BD5FF !important; }
 
   /* Sidebar "first 7 only" — vertical-section is hidden, replaced by a
    * compact aggregated-KPI card. Animated with the same fade pattern as
@@ -1487,21 +1487,21 @@
     margin: 14px 4px 6px;
     border-radius: 12px;
     padding: 12px 14px;
-    background: linear-gradient(135deg, rgba(255,143,200,0.08) 0%, rgba(193,72,126,0.10) 100%);
-    border: 1px solid rgba(255,143,200,0.18);
+    background: linear-gradient(135deg, rgba(91,213,255,0.08) 0%, rgba(57,85,214,0.10) 100%);
+    border: 1px solid rgba(91,213,255,0.18);
   }
   .fusion-kpis .fk-head {
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #FF8FC8;
+    color: #5BD5FF;
     margin-bottom: 8px;
     display: flex; align-items: center; gap: 6px;
   }
   .fusion-kpis .fk-head i {
     width: 5px; height: 5px; border-radius: 50%;
-    background: #FF8FC8; box-shadow: 0 0 8px #FF8FC8;
+    background: #5BD5FF; box-shadow: 0 0 8px #5BD5FF;
     animation: fk-pulse 1.6s infinite;
   }
   @keyframes fk-pulse {
@@ -1511,13 +1511,13 @@
   .fusion-kpis .fk-row {
     display: flex; justify-content: space-between; align-items: baseline;
     padding: 6px 0;
-    border-top: 1px solid rgba(255,143,200,0.10);
+    border-top: 1px solid rgba(91,213,255,0.10);
   }
   .fusion-kpis .fk-row:first-of-type { border-top: 0; }
-  .fusion-kpis .fk-l { font-size: 11.5px; color: #a18098; letter-spacing: 0.01em; }
+  .fusion-kpis .fk-l { font-size: 11.5px; color: #8088A8; letter-spacing: 0.01em; }
   /* fk-v: always rendered on the dark fusion sidebar, so colour is anchored
    * to a light bone (not var(--paper) — that token is dark in fusion-mode). */
-  .fusion-kpis .fk-v { font-size: 14px; color: #F4ECF2; font-weight: 500; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
+  .fusion-kpis .fk-v { font-size: 14px; color: #EEF1FA; font-weight: 500; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
 
   /* "Revenir à la vue simple" CTA inside the venue dropdown */
   .venue-action {
@@ -1532,7 +1532,7 @@
   }
   .venue-action:hover { background: #F7F7F5; }
   .venue-action.fusion-cta {
-    background: linear-gradient(135deg, #1B0E2E 0%, #5C1F4E 100%);
+    background: linear-gradient(135deg, #0A1230 0%, #1E2F7C 100%);
     color: #fff;
     margin: 6px 4px 0;
     padding: 12px 14px;
@@ -1542,7 +1542,7 @@
   }
   .venue-action.fusion-cta::after {
     content: ''; position: absolute; inset: 0;
-    background: linear-gradient(105deg, transparent 30%, rgba(255,143,200,0.22) 50%, transparent 70%);
+    background: linear-gradient(105deg, transparent 30%, rgba(91,213,255,0.22) 50%, transparent 70%);
     transform: translateX(-100%);
     animation: fusion-cta-shimmer 3s ease-in-out infinite;
     pointer-events: none;
@@ -1550,11 +1550,11 @@
   @keyframes fusion-cta-shimmer { 50% { transform: translateX(100%); } 100% { transform: translateX(100%); } }
   .venue-action.fusion-cta .va-icon {
     width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(255,143,200,0.18); border: 1px solid rgba(255,143,200,0.3);
-    display: grid; place-items: center; color: #FF8FC8; flex-shrink: 0;
+    background: rgba(91,213,255,0.18); border: 1px solid rgba(91,213,255,0.3);
+    display: grid; place-items: center; color: #5BD5FF; flex-shrink: 0;
   }
   .venue-action.fusion-cta .va-title { font-size: 13.5px; font-weight: 600; letter-spacing: -0.01em; color: #fff; }
-  .venue-action.fusion-cta .va-sub { font-size: 11px; color: #f4c7dd; margin-top: 1px; letter-spacing: 0.01em; }
+  .venue-action.fusion-cta .va-sub { font-size: 11px; color: #C7D6FF; margin-top: 1px; letter-spacing: 0.01em; }
   .venue-action.fusion-cta .va-body { min-width: 0; flex: 1; }
 
   .venue-action.return-cta {
@@ -1584,7 +1584,7 @@
     opacity: 0;
     visibility: hidden;
     background:
-      radial-gradient(ellipse at center, rgba(27,14,46,0.0) 0%, rgba(27,14,46,0.85) 35%, rgba(15,8,27,0.98) 75%, #0F081B 100%);
+      radial-gradient(ellipse at center, rgba(10,18,48,0.0) 0%, rgba(10,18,48,0.85) 35%, rgba(5,8,24,0.98) 75%, #050818 100%);
     transition: opacity 320ms ease, visibility 0s 320ms;
     overflow: hidden;
   }
@@ -1600,13 +1600,13 @@
     position: absolute; inset: 0;
     background-image:
       radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.45), transparent),
-      radial-gradient(1px 1px at 70% 70%, rgba(255,143,200,0.5), transparent),
+      radial-gradient(1px 1px at 70% 70%, rgba(91,213,255,0.5), transparent),
       radial-gradient(1.5px 1.5px at 45% 20%, rgba(255,255,255,0.35), transparent),
-      radial-gradient(1px 1px at 85% 40%, rgba(255,143,200,0.4), transparent),
+      radial-gradient(1px 1px at 85% 40%, rgba(91,213,255,0.4), transparent),
       radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.4), transparent),
-      radial-gradient(1.5px 1.5px at 60% 90%, rgba(255,143,200,0.45), transparent),
+      radial-gradient(1.5px 1.5px at 60% 90%, rgba(91,213,255,0.45), transparent),
       radial-gradient(1px 1px at 90% 15%, rgba(255,255,255,0.5), transparent),
-      radial-gradient(1px 1px at 35% 55%, rgba(193,72,126,0.4), transparent);
+      radial-gradient(1px 1px at 35% 55%, rgba(57,85,214,0.4), transparent);
     opacity: 0;
     animation: fo-stars-in 0.6s ease-out forwards 0.1s;
   }
@@ -1647,8 +1647,8 @@
   /* Orb 2 — Gold (Maison Mansour) · from top-right */
   .fo-orb.o2 { --orb-color: #E5B85F; --orb-color-deep: #D99A2B; top: -8%; right: -8%; left: auto; animation: fo-fly-2 1.25s cubic-bezier(0.55,0.05,0.35,1) forwards 0.35s; }
   .fo-orb.o2 .fo-orb-trail { transform: rotate(135deg); transform-origin: 100% 50%; left: auto; right: 50%; animation: fo-trail 1.25s ease-out forwards 0.35s; }
-  /* Orb 3 — Fleur Pink (Spa Bahia) · from bottom-center */
-  .fo-orb.o3 { --orb-color: #FF8FC8; --orb-color-deep: #C1487E; bottom: -10%; left: 50%; top: auto; animation: fo-fly-3 1.25s cubic-bezier(0.55,0.05,0.35,1) forwards 0.45s; }
+  /* Orb 3 — Majorelle Néon (Spa Bahia) · from bottom-center */
+  .fo-orb.o3 { --orb-color: #5BD5FF; --orb-color-deep: #3955D6; bottom: -10%; left: 50%; top: auto; animation: fo-fly-3 1.25s cubic-bezier(0.55,0.05,0.35,1) forwards 0.45s; }
   .fo-orb.o3 .fo-orb-trail { transform: rotate(-90deg); animation: fo-trail 1.25s ease-out forwards 0.45s; }
 
   @keyframes fo-fly-1 {
@@ -1681,7 +1681,7 @@
     width: 200px; height: 200px;
     margin: -100px 0 0 -100px;
     border-radius: 50%;
-    background: radial-gradient(circle, #fff 0%, #FF8FC8 28%, rgba(193,72,126,0.6) 55%, transparent 75%);
+    background: radial-gradient(circle, #fff 0%, #5BD5FF 28%, rgba(57,85,214,0.6) 55%, transparent 75%);
     transform: scale(0);
     opacity: 0;
     filter: blur(1px);
@@ -1706,10 +1706,10 @@
     position: absolute; left: 0; right: 0; top: 50%;
     height: 3px; margin-top: -1.5px;
     background: linear-gradient(90deg,
-      transparent 0%, rgba(255,143,200,0.55) 12%,
-      #fff 40%, #FF8FC8 50%, #fff 60%,
-      rgba(255,143,200,0.55) 88%, transparent 100%);
-    box-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 38px rgba(255,143,200,0.85);
+      transparent 0%, rgba(91,213,255,0.55) 12%,
+      #fff 40%, #5BD5FF 50%, #fff 60%,
+      rgba(91,213,255,0.55) 88%, transparent 100%);
+    box-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 38px rgba(91,213,255,0.85);
     transform: scaleX(0);
     transform-origin: 50% 50%;
     opacity: 0;
@@ -1728,13 +1728,13 @@
     height: 6px;
     background: linear-gradient(180deg,
       transparent 0%,
-      rgba(255,143,200,0.0) 20%,
-      rgba(255,143,200,0.55) 45%,
+      rgba(91,213,255,0.0) 20%,
+      rgba(91,213,255,0.55) 45%,
       #fff 50%,
-      rgba(255,143,200,0.55) 55%,
-      rgba(255,143,200,0.0) 80%,
+      rgba(91,213,255,0.55) 55%,
+      rgba(91,213,255,0.0) 80%,
       transparent 100%);
-    box-shadow: 0 0 22px rgba(255,255,255,0.85), 0 0 60px rgba(255,143,200,0.7);
+    box-shadow: 0 0 22px rgba(255,255,255,0.85), 0 0 60px rgba(91,213,255,0.7);
     opacity: 0;
     will-change: transform, opacity;
   }
@@ -1817,11 +1817,11 @@
   }
   .fo-sigil svg {
     width: 100%; height: 100%;
-    filter: drop-shadow(0 0 24px rgba(255,143,200,0.8)) drop-shadow(0 0 48px rgba(193,72,126,0.4));
+    filter: drop-shadow(0 0 24px rgba(91,213,255,0.8)) drop-shadow(0 0 48px rgba(57,85,214,0.4));
   }
   .fo-sigil-glow {
     position: absolute; inset: -40%;
-    background: radial-gradient(circle, rgba(255,143,200,0.25), transparent 60%);
+    background: radial-gradient(circle, rgba(91,213,255,0.25), transparent 60%);
     border-radius: 50%;
     animation: fo-sigil-glow 2.2s ease-in-out infinite alternate;
   }
@@ -1832,17 +1832,17 @@
     position: absolute; left: 50%; top: calc(50% + 145px);
     transform: translateX(-50%);
     font-family: var(--mono); font-size: 12px; letter-spacing: 0.36em;
-    color: #FF8FC8;
+    color: #5BD5FF;
     text-transform: uppercase;
     opacity: 0;
     animation: fo-label 0.55s ease-out forwards 1.6s;
-    text-shadow: 0 0 12px rgba(255,143,200,0.7);
+    text-shadow: 0 0 12px rgba(91,213,255,0.7);
     white-space: nowrap;
   }
   .fo-label .fo-label-sub {
     display: block;
     font-size: 10px; letter-spacing: 0.24em;
-    color: #f4c7dd; opacity: 0.7;
+    color: #C7D6FF; opacity: 0.7;
     margin-top: 6px;
   }
   @keyframes fo-label {
@@ -1850,16 +1850,16 @@
     to   { opacity: 1; transform: translateX(-50%) translateY(0); }
   }
 
-  /* Diagonal Bougainvillée sweep — paints the new theme across the screen
+  /* Diagonal Majorelle sweep — paints the new theme across the screen
    * the moment the dashboard re-renders underneath. */
   .fo-sweep {
     position: absolute; inset: 0;
     background: linear-gradient(115deg,
       transparent 0%, transparent 32%,
-      rgba(193,72,126,0.55) 44%,
-      rgba(92,31,78,0.85)   52%,
-      rgba(27,14,46,0.85)   58%,
-      rgba(255,143,200,0.45) 66%,
+      rgba(57,85,214,0.55) 44%,
+      rgba(30,47,124,0.85)   52%,
+      rgba(10,18,48,0.85)   58%,
+      rgba(91,213,255,0.45) 66%,
       transparent 80%);
     transform: translateX(-110%);
     animation: fo-sweep 0.9s cubic-bezier(0.55,0.05,0.35,1) forwards 1.8s;
@@ -1872,8 +1872,8 @@
   .fo-particle {
     position: absolute; left: 50%; top: 50%;
     width: 6px; height: 6px; border-radius: 50%;
-    background: #FF8FC8;
-    box-shadow: 0 0 12px #FF8FC8;
+    background: #5BD5FF;
+    box-shadow: 0 0 12px #5BD5FF;
     transform: translate(-50%,-50%);
     opacity: 0;
     animation: fo-particle 1.2s cubic-bezier(0.22,0.72,0,1) forwards 1.3s;
@@ -2070,7 +2070,7 @@
               <span class="live-badge"><span class="dot"></span>LIVE · 14:37 GMT+1</span>
               <span class="meta">24 heures · session continue depuis 08:12</span>
             </div>
-            <div style="font-size: 13px; color: #a7d5b9; font-family: var(--mono); letter-spacing: 0.06em;" data-hero-label>ENCAISSÉ AUJOURD'HUI</div>
+            <div style="font-size: 13px; color: #A8B0C8; font-family: var(--mono); letter-spacing: 0.06em;" data-hero-label>ENCAISSÉ AUJOURD'HUI</div>
             <div class="hero-amount" data-hero-amount>27 512<span class="cents">,50</span><span class="currency">MAD</span></div>
             <div class="hero-breakdown">
               <div class="b" data-hero-delta="hier">
@@ -2251,7 +2251,7 @@
                 <span style="font-family: var(--mono); color: var(--mint); font-weight: 600;">19h30</span>
                 <div>
                   <div style="font-weight: 500;">Khalid Berrada · T7</div>
-                  <div style="font-size: 11.5px; color: #a7d5b9; margin-top: 1px;">4 couverts · habitué</div>
+                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;">4 couverts · habitué</div>
                 </div>
                 <span style="font-size: 10.5px; background: rgba(125,242,176,0.18); color: var(--mint); padding: 3px 8px; border-radius: 999px; font-family: var(--mono); letter-spacing: 0.05em;">VIP</span>
               </div>
@@ -2259,7 +2259,7 @@
                 <span style="font-family: var(--mono); color: var(--mint); font-weight: 600;">20h00</span>
                 <div>
                   <div style="font-weight: 500;">Sara M. · T12</div>
-                  <div style="font-size: 11.5px; color: #a7d5b9; margin-top: 1px;">6 couverts · anniversaire (gâteau prévu)</div>
+                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;">6 couverts · anniversaire (gâteau prévu)</div>
                 </div>
                 <span style="font-size: 14px;">🎂</span>
               </div>
@@ -2267,7 +2267,7 @@
                 <span style="font-family: var(--mono); color: var(--mint); font-weight: 600;">20h30</span>
                 <div>
                   <div style="font-weight: 500;">M. Tazi · T3</div>
-                  <div style="font-size: 11.5px; color: #a7d5b9; margin-top: 1px;">2 couverts · 1ʳᵉ visite</div>
+                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;">2 couverts · 1ʳᵉ visite</div>
                 </div>
                 <span style="font-size: 10.5px; background: rgba(255,255,255,0.10); color: #c6ead4; padding: 3px 8px; border-radius: 999px; font-family: var(--mono); letter-spacing: 0.05em;">NEW</span>
               </div>
