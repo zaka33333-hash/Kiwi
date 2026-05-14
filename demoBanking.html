@@ -1,0 +1,1599 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#02100C" />
+<title>Kiwi · Démo banking</title>
+<meta name="description" content="Démo interactive de l'application bancaire Kiwi — comme dans votre poche." />
+<link rel="icon" href="assets/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --atlas: #0B6E4F;
+    --atlas-700: #08573E;
+    --riad: #053B2C;
+    --riad-deep: #02201A;
+    --mint: #7DF2B0;
+    --mint-soft: #C9F6DC;
+    --paper: #F7F5F0;
+    --paper-soft: #EFECE3;
+    --ink: #0A0F0D;
+    --n-100: #F2F1EC;
+    --n-200: #E5E3DC;
+    --n-300: #CFCEC4;
+    --n-500: #6F7A74;
+    --n-600: #50625A;
+    --n-700: #32413A;
+    --success: #1FA864;
+    --danger: #E84A5F;
+    --warn: #F5A623;
+    --bg: #02100C;
+    --bg-2: #0E1B17;
+    --surface: rgba(255,255,255,0.05);
+    --surface-2: rgba(255,255,255,0.08);
+    --line: rgba(255,255,255,0.07);
+    --text: #F0F4F2;
+    --text-soft: #8FA59C;
+    --text-mute: #5A6F66;
+    --sans: 'Inter Tight', system-ui, sans-serif;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+  body {
+    font-family: var(--sans);
+    background: #0a0a0a;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+    letter-spacing: -0.005em;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+  .num { font-feature-settings: "tnum" 1, "ss01" 1; letter-spacing: -0.02em; }
+  .mono { font-family: var(--mono); font-feature-settings: "tnum" 1; }
+  .serif { font-family: var(--serif); font-style: italic; font-weight: 400; }
+
+  /* ============ PHONE FRAME ============ */
+  .app {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
+    overflow: hidden;
+  }
+  @media (min-width: 600px) {
+    body { background: radial-gradient(ellipse at 50% 50%, #1a201d 0%, #050907 70%); display: flex; align-items: center; justify-content: center; }
+    .app {
+      position: relative; inset: auto;
+      width: 390px; height: 844px;
+      max-height: 95vh;
+      border-radius: 48px;
+      box-shadow: 0 60px 120px -30px rgba(0,0,0,0.7), 0 0 0 12px #1a1f1c, 0 0 0 13px rgba(255,255,255,0.06);
+    }
+    .app::before {
+      content: ""; position: absolute; top: 14px; left: 50%; translate: -50%;
+      width: 110px; height: 30px; background: #000; border-radius: 18px; z-index: 100; pointer-events: none;
+    }
+    .desktop-hint { position: fixed; bottom: 24px; left: 50%; translate: -50%; color: #6F7A74; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+  }
+  @media (max-width: 599px) { .desktop-hint { display: none; } }
+
+  /* ============ STATUS BAR ============ */
+  .statusbar {
+    height: 44px; padding: 0 28px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding-bottom: 8px;
+    color: var(--text); font-size: 14px; font-weight: 600;
+    flex-shrink: 0;
+    position: relative; z-index: 10;
+  }
+  .sb-icons { display: flex; gap: 6px; align-items: center; }
+
+  /* ============ SCREEN STAGE ============ */
+  .stage {
+    flex: 1; min-height: 0;
+    position: relative; overflow: hidden;
+  }
+  .screen {
+    position: absolute; inset: 0;
+    overflow-y: auto; overflow-x: hidden;
+    padding: 0 22px 100px;
+    opacity: 0; pointer-events: none;
+    transform: translateX(20px);
+    transition: opacity .28s ease, transform .28s ease;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screen.on { opacity: 1; pointer-events: auto; transform: translateX(0); }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* ============ TAB BAR ============ */
+  .tabbar {
+    position: absolute; left: 14px; right: 14px; bottom: 14px;
+    height: 64px;
+    background: rgba(2,16,12,0.88);
+    backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 26px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    align-items: center; justify-items: center;
+    z-index: 20;
+  }
+  .tab {
+    background: transparent; border: 0;
+    color: var(--text-mute);
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 4px; font-size: 10px; letter-spacing: 0.02em; font-weight: 500;
+    transition: color .2s;
+    width: 100%;
+  }
+  .tab svg { transition: stroke .2s, fill .2s; }
+  .tab.on { color: var(--mint); }
+
+  /* ============ HOME SCREEN ============ */
+  .home-top { display: flex; align-items: center; gap: 10px; padding: 12px 0 16px; }
+  .av {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--atlas), var(--mint));
+    color: var(--riad-deep); font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    border: 0; padding: 0;
+  }
+  .search-pill {
+    flex: 1; height: 38px; background: var(--surface); border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 8px; padding: 0 14px;
+    font-size: 13px; color: var(--text-soft); border: 0;
+  }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text); border: 0; flex-shrink: 0; position: relative;
+  }
+  .icon-btn .dot {
+    position: absolute; top: 9px; right: 9px;
+    width: 7px; height: 7px; background: var(--mint); border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+
+  .chips { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    font-size: 12px; padding: 7px 13px;
+    background: var(--surface); border-radius: 999px;
+    color: #c6ead4; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 0;
+  }
+  .chip.on { background: var(--mint); color: var(--riad-deep); font-weight: 600; }
+
+  .bal-block { padding: 4px 0 16px; }
+  .bal-label { font-size: 11px; color: var(--text-mute); letter-spacing: 0.06em; text-transform: uppercase; }
+  .bal { font-size: 48px; font-weight: 600; letter-spacing: -0.045em; line-height: 1; margin-top: 6px; }
+  .bal .u { font-size: 22px; color: var(--text-mute); font-weight: 500; }
+  .bal-sub { font-size: 12px; color: var(--text-mute); margin-top: 8px; font-family: var(--mono); }
+  .bal-delta { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; color: var(--mint); font-family: var(--mono); }
+  .bal-delta .pill { background: rgba(125,242,176,0.14); padding: 2px 7px; border-radius: 6px; font-size: 11px; }
+
+  .spark { height: 54px; margin-top: 10px; }
+  .spark svg { width: 100%; height: 100%; overflow: visible; }
+
+  .acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 18px 0 16px; }
+  .act { display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 11px; color: #c6ead4; background: transparent; border: 0; padding: 4px 0; }
+  .act i {
+    width: 48px; height: 48px; background: var(--surface); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: var(--mint);
+    transition: background .15s, transform .12s;
+  }
+  .act:active i { transform: scale(0.94); background: rgba(125,242,176,0.18); }
+
+  .pulse {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px 16px; margin-bottom: 14px;
+  }
+  .pulse-h { display: flex; justify-content: space-between; align-items: baseline; }
+  .pulse-l { font-size: 11px; color: var(--text-mute); }
+  .pulse-v { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; }
+  .pulse-v small { font-size: 11px; color: var(--text-mute); font-weight: 500; }
+  .bars { display: flex; gap: 5px; align-items: flex-end; height: 44px; margin: 12px 0 10px; }
+  .bars > div { flex: 1; background: rgba(125,242,176,0.42); border-radius: 3px; min-height: 4px; }
+  .bars > div.live { background: var(--mint); }
+  .cats { display: flex; flex-wrap: wrap; gap: 10px; font-size: 10.5px; color: #c6ead4; }
+  .cat { display: inline-flex; align-items: center; gap: 5px; }
+  .cat i { width: 7px; height: 7px; border-radius: 50%; }
+
+  .section-h {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 6px 0 10px; font-size: 13px;
+  }
+  .section-h .t { font-weight: 600; }
+  .section-h .a { color: var(--mint); font-size: 12px; background: transparent; border: 0; padding: 4px; }
+
+  .tx-list { display: flex; flex-direction: column; }
+  .tx {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 4px; border-radius: 12px;
+    background: transparent; border: 0; width: 100%; text-align: left; color: inherit;
+  }
+  .tx:active { background: var(--surface); }
+  .tx-av {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-n { font-size: 13.5px; font-weight: 500; color: var(--text); }
+  .tx-r { font-size: 11px; color: var(--text-mute); margin-top: 2px; }
+  .tx-v { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .tx-v.up { color: var(--mint); }
+
+  /* ============ CARDS SCREEN ============ */
+  .screen-h {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0 18px; position: sticky; top: 0;
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-2) 80%, transparent);
+    z-index: 5;
+  }
+  .screen-h h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; margin: 0; }
+
+  .cards-stack { display: flex; flex-direction: column; gap: 14px; padding-top: 6px; }
+  .credit-card {
+    aspect-ratio: 1.585;
+    border-radius: 22px; padding: 22px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+    color: var(--paper); font-family: var(--sans);
+    border: 0; width: 100%; text-align: left;
+  }
+  .cc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .cc-brand { font-size: 22px; font-weight: 700; letter-spacing: -0.05em; display: inline-flex; align-items: baseline; gap: 3px; }
+  .cc-brand .d { width: 6px; height: 6px; background: var(--mint); border-radius: 50%; }
+  .cc-tag { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
+  .cc-bot { display: flex; justify-content: space-between; align-items: flex-end; }
+  .cc-num { font-family: var(--mono); font-size: 14px; letter-spacing: 0.08em; opacity: 0.88; }
+  .cc-name { font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 4px; }
+  .cc-visa { width: 38px; height: 24px; }
+
+  .cc-standard { background: linear-gradient(135deg, #F5F2EA 0%, #E6E1D2 100%); color: var(--ink); }
+  .cc-standard .cc-brand .d { background: var(--atlas); }
+  .cc-pro { background: linear-gradient(135deg, var(--atlas) 0%, var(--atlas-700) 60%, var(--riad) 100%); }
+  .cc-pro::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 80% 10%, rgba(125,242,176,0.32), transparent 65%); pointer-events: none; }
+  .cc-pro > * { position: relative; }
+  .cc-atlas { background: linear-gradient(135deg, #1A201D 0%, #050907 50%, #2E2D29 100%); color: #E6E1D2; }
+  .cc-atlas::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 9px); pointer-events: none; }
+  .cc-atlas > * { position: relative; }
+  .cc-atlas .cc-brand .d { background: #B89B5E; }
+  .cc-atlas .accent { color: #B89B5E; }
+  .credit-card.frozen { filter: grayscale(0.7) brightness(0.85); }
+  .credit-card.frozen::after {
+    content: "GELÉE"; position: absolute; top: 50%; left: 50%; translate: -50% -50%;
+    background: rgba(0,0,0,0.6); color: #fff; padding: 8px 20px;
+    border-radius: 999px; font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+    backdrop-filter: blur(6px);
+  }
+
+  .card-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-soft); padding: 2px 6px 12px; }
+  .card-quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; margin-bottom: 26px; }
+  .qbtn {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 12px 8px; color: var(--text); font-size: 12px; font-weight: 500;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    transition: background .15s, transform .12s;
+  }
+  .qbtn:active { transform: scale(0.96); background: var(--surface-2); }
+  .qbtn svg { color: var(--mint); }
+  .qbtn.danger svg { color: var(--danger); }
+
+  /* ============ INVEST SCREEN ============ */
+  .inv-top {
+    background: linear-gradient(180deg, rgba(125,242,176,0.06), transparent);
+    border: 1px solid var(--line); border-radius: 20px;
+    padding: 18px 16px; margin: 4px 0 16px;
+  }
+  .inv-bal { font-size: 36px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; margin-top: 4px; }
+  .inv-bal .u { font-size: 16px; color: var(--text-mute); font-weight: 500; }
+  .inv-spark { height: 90px; margin-top: 12px; }
+  .inv-spark svg { width: 100%; height: 100%; overflow: visible; }
+  .range { display: flex; gap: 4px; justify-content: space-between; font-size: 10.5px; color: var(--text-mute); margin-top: 6px; font-family: var(--mono); }
+  .range button { background: transparent; border: 0; color: inherit; padding: 5px 10px; border-radius: 6px; font: inherit; }
+  .range button.on { background: rgba(125,242,176,0.14); color: var(--mint); }
+
+  .inv-segs { display: flex; gap: 6px; background: var(--surface); padding: 4px; border-radius: 12px; margin-bottom: 14px; }
+  .inv-seg { flex: 1; background: transparent; border: 0; color: var(--text-soft); padding: 9px; font-size: 12.5px; font-weight: 500; border-radius: 8px; font-family: inherit; transition: background .2s, color .2s; }
+  .inv-seg.on { background: var(--mint); color: var(--riad-deep); font-weight: 600; }
+
+  .holdings { display: flex; flex-direction: column; }
+  .hold {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 6px; border-bottom: 1px solid var(--line);
+    background: transparent; border-left: 0; border-right: 0; border-top: 0;
+    width: 100%; text-align: left; color: inherit;
+  }
+  .hold:last-child { border-bottom: 0; }
+  .hold-av {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 13px;
+  }
+  .hold-info { flex: 1; min-width: 0; }
+  .hold-n { font-size: 13.5px; font-weight: 500; }
+  .hold-r { font-size: 11px; color: var(--text-mute); font-family: var(--mono); margin-top: 2px; }
+  .hold-spark { width: 50px; height: 22px; opacity: 0.7; flex-shrink: 0; }
+  .hold-v { text-align: right; flex-shrink: 0; }
+  .hold-v .a { font-size: 13px; font-family: var(--mono); }
+  .hold-v .d { font-size: 11px; font-family: var(--mono); color: var(--mint); margin-top: 1px; }
+  .hold-v .d.dn { color: #F29B8F; }
+
+  .vault {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px; margin-bottom: 10px;
+    width: 100%; text-align: left; color: inherit;
+  }
+  .vault-h { display: flex; justify-content: space-between; align-items: center; }
+  .vault-n { font-size: 13.5px; font-weight: 500; }
+  .apy { background: var(--mint); color: var(--riad-deep); padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; font-family: var(--mono); }
+  .vault-v { font-size: 22px; font-weight: 600; letter-spacing: -0.025em; margin-top: 8px; }
+  .vault-v small { font-size: 13px; color: var(--text-mute); font-weight: 500; }
+  .vault-bar { height: 5px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+  .vault-bar > div { height: 100%; background: linear-gradient(90deg, var(--atlas), var(--mint)); border-radius: 999px; }
+  .vault-foot { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-mute); margin-top: 8px; font-family: var(--mono); }
+
+  /* ============ PROFILE SCREEN ============ */
+  .prof-head { text-align: center; padding: 30px 0 20px; }
+  .prof-av-big {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--atlas), var(--mint));
+    color: var(--riad-deep); font-weight: 700; font-size: 30px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto;
+  }
+  .prof-name { font-size: 22px; font-weight: 600; letter-spacing: -0.025em; margin: 14px 0 4px; }
+  .prof-tier { font-size: 12px; color: var(--mint); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+  .prof-iban { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin: 18px 0 22px; display: flex; justify-content: space-between; align-items: center; }
+  .prof-iban .l { font-size: 11px; color: var(--text-mute); }
+  .prof-iban .v { font-family: var(--mono); font-size: 13px; }
+  .prof-iban .cp { background: var(--surface); border: 0; color: var(--mint); font-size: 11px; padding: 6px 10px; border-radius: 8px; font-weight: 600; }
+
+  .menu-group { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 14px; }
+  .menu-item {
+    display: flex; align-items: center; gap: 14px; width: 100%;
+    background: transparent; border: 0; color: inherit;
+    padding: 14px 16px; text-align: left;
+    border-bottom: 1px solid var(--line); font-family: inherit;
+  }
+  .menu-item:last-child { border-bottom: 0; }
+  .menu-item:active { background: var(--surface-2); }
+  .menu-item .ic {
+    width: 32px; height: 32px; border-radius: 9px; background: rgba(125,242,176,0.1);
+    color: var(--mint); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .menu-item .lbl { flex: 1; font-size: 14px; font-weight: 500; }
+  .menu-item .v { font-size: 12px; color: var(--text-mute); margin-right: 4px; }
+  .menu-item .ch { color: var(--text-mute); }
+
+  .toggle { width: 38px; height: 22px; background: var(--surface-2); border-radius: 999px; position: relative; transition: background .2s; border: 0; padding: 0; flex-shrink: 0; }
+  .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--text); border-radius: 50%; transition: transform .22s; }
+  .toggle.on { background: var(--mint); }
+  .toggle.on::after { transform: translateX(16px); background: var(--riad-deep); }
+
+  /* ============ SHEETS ============ */
+  .scrim {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none; transition: opacity .25s;
+    z-index: 50;
+  }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    max-height: 92%; background: var(--bg-2);
+    border-radius: 28px 28px 0 0;
+    transform: translateY(110%); transition: transform .32s cubic-bezier(0.32,0.72,0,1);
+    z-index: 60; display: flex; flex-direction: column;
+    box-shadow: 0 -30px 60px -20px rgba(0,0,0,0.6);
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+  .sheet.on { transform: translateY(0); }
+  .sheet-grip { width: 38px; height: 4px; background: rgba(255,255,255,0.18); border-radius: 999px; margin: 10px auto 0; flex-shrink: 0; }
+  .sheet-head { padding: 14px 22px 8px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .sheet-head h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+  .sheet-close {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--surface);
+    border: 0; color: var(--text); display: flex; align-items: center; justify-content: center;
+  }
+  .sheet-body { flex: 1; overflow-y: auto; padding: 12px 22px 24px; -webkit-overflow-scrolling: touch; }
+  .sheet-body::-webkit-scrollbar { display: none; }
+
+  .input-tile {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 16px 18px;
+  }
+  .input-tile + .input-tile { margin-top: 10px; }
+  .input-tile .l { font-size: 11px; color: var(--text-mute); letter-spacing: 0.06em; text-transform: uppercase; }
+  .input-tile .rr { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 12px; }
+  .amt-input {
+    flex: 1; min-width: 0;
+    font-size: 36px; font-weight: 600; letter-spacing: -0.035em;
+    background: transparent; border: 0; outline: 0; color: var(--text);
+    font-family: var(--sans); padding: 0;
+    font-feature-settings: "tnum" 1;
+  }
+  .cur-pick {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface-2); padding: 7px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 500; border: 0; color: var(--text);
+  }
+  .cur-flag { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .swap-row { display: flex; align-items: center; gap: 14px; padding: 8px 6px; }
+  .swap-row .line { flex: 1; border-top: 1px dashed rgba(255,255,255,0.1); }
+  .swap-btn {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--surface);
+    color: var(--mint); border: 0; display: flex; align-items: center; justify-content: center;
+  }
+  .breakdown {
+    margin-top: 14px; padding: 14px 16px; background: var(--surface);
+    border: 1px solid rgba(125,242,176,0.15); border-radius: 14px;
+    font-size: 12.5px; color: var(--text-soft);
+  }
+  .breakdown .r { display: flex; justify-content: space-between; padding: 4px 0; }
+  .breakdown .r .v { font-family: var(--mono); color: var(--text); }
+  .breakdown .r .v.mint { color: var(--mint); font-weight: 500; }
+
+  .btn-primary {
+    width: 100%; background: var(--mint); color: var(--riad-deep);
+    padding: 16px; border-radius: 16px; font-weight: 600; font-size: 15px;
+    border: 0; margin-top: 14px; font-family: inherit;
+    transition: filter .15s, transform .1s;
+  }
+  .btn-primary:active { transform: scale(0.985); filter: brightness(1.05); }
+  .btn-primary:disabled { opacity: 0.45; }
+  .btn-secondary {
+    width: 100%; background: var(--surface); color: var(--text);
+    padding: 14px; border-radius: 14px; font-weight: 500; font-size: 14px;
+    border: 1px solid var(--line); margin-top: 10px; font-family: inherit;
+  }
+
+  /* Recipient picker */
+  .contact-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 4px;
+    background: transparent; border: 0; width: 100%; text-align: left; color: inherit;
+    border-radius: 12px;
+  }
+  .contact-row:active { background: var(--surface); }
+  .contact-av {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 13px;
+  }
+  .contact-info { flex: 1; min-width: 0; }
+  .contact-n { font-size: 14px; font-weight: 500; }
+  .contact-r { font-size: 11px; color: var(--text-mute); font-family: var(--mono); margin-top: 2px; }
+
+  /* Cur picker grid */
+  .cur-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .cur-tile {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 10px; color: var(--text);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: inherit;
+  }
+  .cur-tile.on { border-color: var(--mint); background: rgba(125,242,176,0.06); }
+  .cur-tile .c { font-size: 13px; font-weight: 600; }
+  .cur-tile .nm { font-size: 11px; color: var(--text-mute); }
+
+  /* Keypad */
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; }
+  .key {
+    background: var(--surface); color: var(--text);
+    border: 0; padding: 16px; border-radius: 14px;
+    font-size: 21px; font-weight: 500; font-family: inherit;
+    transition: background .12s, transform .1s;
+  }
+  .key:active { background: var(--surface-2); transform: scale(0.96); }
+
+  /* ============ TOASTS ============ */
+  .toast-stack { position: absolute; top: 56px; left: 16px; right: 16px; z-index: 200; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast {
+    background: rgba(247,245,240,0.97); color: var(--ink);
+    border-radius: 14px; padding: 12px 14px;
+    display: flex; gap: 10px; align-items: flex-start;
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.55);
+    opacity: 0; transform: translateY(-12px); transition: opacity .25s, transform .25s;
+    pointer-events: auto;
+  }
+  .toast.in { opacity: 1; transform: translateY(0); }
+  .toast .ti { width: 26px; height: 26px; border-radius: 8px; background: var(--mint-soft); color: var(--atlas-700); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .toast.info .ti { background: #E3F0F7; color: #1A4D80; }
+  .toast.warn .ti { background: #FFF4DD; color: #8A6210; }
+  .toast.danger .ti { background: #FDE8E4; color: #9B2F22; }
+  .toast .tb { flex: 1; min-width: 0; }
+  .toast .tm { font-size: 13px; font-weight: 600; line-height: 1.3; letter-spacing: -0.005em; }
+  .toast .ts { font-size: 11.5px; color: var(--n-500); margin-top: 2px; line-height: 1.4; }
+
+  /* ============ SUCCESS SPLASH ============ */
+  .splash {
+    position: absolute; inset: 0; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 300; gap: 16px; padding: 0 40px; text-align: center;
+    opacity: 0; pointer-events: none; transition: opacity .25s;
+  }
+  .splash.on { opacity: 1; pointer-events: auto; }
+  .splash .checkring {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: rgba(125,242,176,0.12); border: 2px solid var(--mint);
+    display: flex; align-items: center; justify-content: center; color: var(--mint);
+    animation: pop .5s cubic-bezier(0.32,1.6,0.32,1);
+  }
+  @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+  .splash h3 { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; margin: 6px 0 0; }
+  .splash p { color: var(--text-soft); font-size: 14px; line-height: 1.5; max-width: 280px; margin: 0; }
+
+  .empty { text-align: center; padding: 40px 20px; color: var(--text-mute); font-size: 13px; }
+
+  /* notifications list */
+  .notif {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: 12px 14px; margin-bottom: 8px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .notif .ic { width: 32px; height: 32px; border-radius: 50%; background: rgba(125,242,176,0.12); color: var(--mint); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .notif .ic.warn { background: rgba(245,166,35,0.14); color: var(--warn); }
+  .notif .ic.info { background: rgba(155,196,255,0.14); color: #9BC4FF; }
+  .notif-b { flex: 1; }
+  .notif-t { font-size: 13px; font-weight: 500; }
+  .notif-d { font-size: 11.5px; color: var(--text-mute); margin-top: 2px; line-height: 1.4; }
+  .notif-tm { font-size: 10.5px; color: var(--text-mute); font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============ STATUS BAR ============ -->
+  <div class="statusbar">
+    <span class="num">9:41</span>
+    <span class="sb-icons">
+      <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><rect x="0" y="7" width="2" height="4" rx="0.5"/><rect x="4" y="5" width="2" height="6" rx="0.5"/><rect x="8" y="2" width="2" height="9" rx="0.5"/><rect x="12" y="0" width="2" height="11" rx="0.5" opacity="0.4"/></svg>
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 5.5L7 1l6 4.5"/></svg>
+      <svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x="1" y="1" width="17" height="9" rx="2.4" stroke="currentColor" stroke-width="1" opacity="0.4"/><rect x="3" y="3" width="13" height="5" rx="1" fill="currentColor"/><rect x="19" y="3.5" width="2" height="4" rx="0.6" fill="currentColor" opacity="0.4"/></svg>
+    </span>
+  </div>
+
+  <!-- ============ STAGE ============ -->
+  <main class="stage" id="stage">
+
+    <!-- HOME -->
+    <section class="screen on" data-screen="home">
+      <div class="home-top">
+        <button class="av" data-go="profile">IM</button>
+        <button class="search-pill" data-open="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Rechercher</button>
+        <button class="icon-btn" data-open="notif" aria-label="Notifications">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21a2 2 0 004 0"/></svg>
+          <span class="dot"></span>
+        </button>
+      </div>
+
+      <div class="chips" id="curChips">
+        <button class="chip on" data-cur="MAD">🇲🇦 MAD</button>
+        <button class="chip" data-cur="EUR">🇪🇺 EUR</button>
+        <button class="chip" data-cur="USD">🇺🇸 USD</button>
+        <button class="chip" data-cur="GBP">🇬🇧 GBP</button>
+        <button class="chip" data-open="addCur">＋</button>
+      </div>
+
+      <div class="bal-block">
+        <div class="bal-label">Solde principal</div>
+        <div class="bal num" id="balMain">28 412<span class="u">,50</span></div>
+        <div class="bal-sub" id="balSub">≈ 2 597 EUR · 2 887 USD</div>
+        <div class="bal-delta">▲ +148,30 MAD <span class="pill">+0,52 % aujourd'hui</span></div>
+        <div class="spark">
+          <svg viewBox="0 0 320 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="spgD" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#7DF2B0" stop-opacity="0.45"/>
+                <stop offset="1" stop-color="#7DF2B0" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,48 C30,44 50,40 80,42 C110,44 130,30 165,28 C200,26 220,18 280,12 L320,8 L320,60 L0,60 Z" fill="url(#spgD)"/>
+            <path d="M0,48 C30,44 50,40 80,42 C110,44 130,30 165,28 C200,26 220,18 280,12 L320,8" fill="none" stroke="#7DF2B0" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="acts">
+        <button class="act" data-open="add"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></i><span>Ajouter</span></button>
+        <button class="act" data-open="send"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17L17 7M17 7H9M17 7v8"/></svg></i><span>Envoyer</span></button>
+        <button class="act" data-open="exchange"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 7h11M7 7l3-3M7 7l3 3M17 17H6M17 17l-3-3M17 17l-3 3"/></svg></i><span>Échange</span></button>
+        <button class="act" data-open="more"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></i><span>Plus</span></button>
+      </div>
+
+      <div class="pulse">
+        <div class="pulse-h">
+          <span class="pulse-l">Dépenses · 7 derniers jours</span>
+          <span class="pulse-v num">3 218 <small>MAD</small></span>
+        </div>
+        <div class="bars">
+          <div style="height:32%"></div><div style="height:54%"></div><div style="height:42%"></div>
+          <div style="height:68%"></div><div style="height:48%"></div><div style="height:78%"></div>
+          <div style="height:34%" class="live"></div>
+        </div>
+        <div class="cats">
+          <span class="cat"><i style="background:#7DF2B0"></i>Resto 1 240</span>
+          <span class="cat"><i style="background:#F5C679"></i>Courses 820</span>
+          <span class="cat"><i style="background:#9BC4FF"></i>Transport 480</span>
+          <span class="cat"><i style="background:#E8A0E8"></i>Loisirs 318</span>
+        </div>
+      </div>
+
+      <div class="section-h">
+        <span class="t">Transactions</span>
+        <button class="a" data-open="txAll">Voir tout →</button>
+      </div>
+      <div class="tx-list" id="txList"></div>
+    </section>
+
+    <!-- CARDS -->
+    <section class="screen" data-screen="cards">
+      <div class="screen-h"><h1>Cartes</h1>
+        <button class="icon-btn" data-open="newCard" aria-label="Nouvelle carte"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <div class="cards-stack" id="cardsStack"></div>
+    </section>
+
+    <!-- INVEST -->
+    <section class="screen" data-screen="invest">
+      <div class="screen-h"><h1>Investir</h1>
+        <button class="icon-btn" aria-label="Recherche"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+      </div>
+      <div class="inv-top">
+        <div class="bal-label">Portefeuille total</div>
+        <div class="inv-bal num">42 184<span class="u">,30 MAD</span></div>
+        <div class="bal-delta">▲ +1 248,40 MAD <span class="pill">+3,05 % 1 mois</span></div>
+        <div class="inv-spark">
+          <svg viewBox="0 0 320 90" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="ivg1" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#7DF2B0" stop-opacity="0.35"/>
+                <stop offset="1" stop-color="#7DF2B0" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,70 C30,65 60,72 90,60 C120,50 150,55 180,42 C210,30 240,35 270,22 C290,14 310,18 320,12 L320,90 L0,90 Z" fill="url(#ivg1)"/>
+            <path d="M0,70 C30,65 60,72 90,60 C120,50 150,55 180,42 C210,30 240,35 270,22 C290,14 310,18 320,12" fill="none" stroke="#7DF2B0" stroke-width="2"/>
+            <circle cx="320" cy="12" r="4" fill="#7DF2B0"/>
+          </svg>
+        </div>
+        <div class="range" data-range>
+          <button>1J</button><button>1S</button><button class="on">1M</button><button>1A</button><button>5A</button><button>Max</button>
+        </div>
+      </div>
+
+      <div class="inv-segs" id="invSegs">
+        <button class="inv-seg on" data-seg="stocks">Actions</button>
+        <button class="inv-seg" data-seg="crypto">Crypto</button>
+        <button class="inv-seg" data-seg="vaults">Coffres</button>
+      </div>
+
+      <div data-seg-panel="stocks"><div class="holdings" id="stocksList"></div></div>
+      <div data-seg-panel="crypto" hidden><div class="holdings" id="cryptoList"></div></div>
+      <div data-seg-panel="vaults" hidden>
+        <div id="vaultsList"></div>
+        <button class="btn-secondary" data-open="newVault" style="margin-top:14px;">＋ Nouveau coffre</button>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="screen" data-screen="profile">
+      <div class="prof-head">
+        <div class="prof-av-big">IM</div>
+        <div class="prof-name">Imane Mouline</div>
+        <div class="prof-tier">Kiwi Pro · membre depuis 2026</div>
+      </div>
+
+      <div class="prof-iban">
+        <div><div class="l">IBAN MA</div><div class="v" id="ibanV">MA64 0000 1234 5678 8124</div></div>
+        <button class="cp" id="copyIban">Copier</button>
+      </div>
+
+      <div class="menu-group">
+        <button class="menu-item" data-open="settings"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 008 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 8a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span><span class="lbl">Paramètres</span><span class="ch">›</span></button>
+        <button class="menu-item" data-open="security"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span><span class="lbl">Sécurité</span><span class="v">Face ID</span><span class="ch">›</span></button>
+        <button class="menu-item" data-open="lang"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg></span><span class="lbl">Langue</span><span class="v" id="langV">Français</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toggle="theme"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></span><span class="lbl">Thème sombre</span><span class="toggle on" data-tog></span></button>
+      </div>
+
+      <div class="menu-group">
+        <button class="menu-item" data-toast='{"title":"Niveau Kiwi Pro","desc":"49 MAD/mois · cashback 1 % · FX 0 %"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></span><span class="lbl">Niveau Kiwi Pro</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Parrainage","desc":"Invitez un·e ami·e · 200 MAD pour vous deux"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span><span class="lbl">Parrainer un·e ami·e</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Support 24/7","desc":"Chat in-app · darija, français, arabe"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></span><span class="lbl">Aide & support</span><span class="ch">›</span></button>
+      </div>
+
+      <button class="menu-item" data-confirm="logout" style="background:transparent; color:#F29B8F; padding-left:0;"><span class="ic" style="background:rgba(232,74,95,0.12);color:#F29B8F;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span class="lbl">Se déconnecter</span></button>
+      <div style="text-align:center; font-size:10.5px; color:var(--text-mute); padding:18px 0 100px; font-family:var(--mono);">Kiwi v2.4.1 · build 2026.05</div>
+    </section>
+
+  </main>
+
+  <!-- ============ TAB BAR ============ -->
+  <nav class="tabbar" id="tabbar">
+    <button class="tab on" data-go="home">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-6h-6v6H5a2 2 0 01-2-2z"/></svg>
+      <span>Accueil</span>
+    </button>
+    <button class="tab" data-go="cards">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>
+      <span>Cartes</span>
+    </button>
+    <button class="tab" data-go="invest">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M21 7v6M21 7h-6"/></svg>
+      <span>Investir</span>
+    </button>
+    <button class="tab" data-go="profile">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>
+      <span>Profil</span>
+    </button>
+  </nav>
+
+  <!-- ============ SCRIM + SHEETS ============ -->
+  <div class="scrim" id="scrim"></div>
+
+  <!-- SEND SHEET -->
+  <div class="sheet" data-sheet="send">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Envoyer</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <button class="contact-row" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;" data-open="contacts" id="sendContact">
+        <span class="contact-av" style="background:linear-gradient(135deg,#FF8FC8,#C1487E);">FB</span>
+        <span class="contact-info"><span class="contact-n">Fatima Bakkali · Maman</span><span class="contact-r">RIB •••• 4218 · Tanger</span></span>
+        <span class="ch" style="color:var(--text-mute);">›</span>
+      </button>
+      <div class="input-tile">
+        <div class="l">Vous envoyez</div>
+        <div class="rr">
+          <input class="amt-input num" type="text" inputmode="decimal" value="1 000,00" id="sendFrom" />
+          <button class="cur-pick" data-pick="sendFromCur"><span class="cur-flag" style="background:#003399;color:#FFCC00;">€</span><span id="sendFromCurL">EUR</span> ▾</button>
+        </div>
+      </div>
+      <div class="swap-row"><span class="line"></span><button class="swap-btn" id="sendSwap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4m0 0l4-4m-4 4h18M17 8l4 4m0 0l-4 4"/></svg></button><span class="line"></span></div>
+      <div class="input-tile">
+        <div class="l">Fatima reçoit</div>
+        <div class="rr">
+          <input class="amt-input num" type="text" inputmode="decimal" value="10 944,40" id="sendTo" readonly />
+          <button class="cur-pick" data-pick="sendToCur"><span class="cur-flag" style="background:#C1272D;color:#006233;font-size:11px;">★</span><span id="sendToCurL">MAD</span> ▾</button>
+        </div>
+      </div>
+      <div class="breakdown">
+        <div class="r"><span>Frais Kiwi</span><span class="v mint">0,00 EUR</span></div>
+        <div class="r"><span>Marge FX</span><span class="v mint">0,00 EUR</span></div>
+        <div class="r"><span>Taux</span><span class="v" id="sendRate">EUR / MAD · 10,9444</span></div>
+        <div class="r"><span>Arrive</span><span class="v mint">~10 secondes</span></div>
+      </div>
+      <button class="btn-primary" id="sendConfirm">Confirmer le transfert</button>
+      <button class="btn-secondary" data-close>Annuler</button>
+    </div>
+  </div>
+
+  <!-- EXCHANGE SHEET -->
+  <div class="sheet" data-sheet="exchange">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Échange</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="input-tile">
+        <div class="l">De</div>
+        <div class="rr">
+          <input class="amt-input num" type="text" inputmode="decimal" value="1 000,00" id="exFrom" />
+          <button class="cur-pick" data-pick="exFromCur"><span class="cur-flag" style="background:#C1272D;color:#006233;font-size:11px;">★</span><span id="exFromCurL">MAD</span> ▾</button>
+        </div>
+        <div style="font-size:11px; color:var(--text-mute); margin-top:6px;">Disponible · <span id="exFromAvail">28 412,50 MAD</span></div>
+      </div>
+      <div class="swap-row"><span class="line"></span><button class="swap-btn" id="exSwap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16l-4-4m0 0l4-4m-4 4h18M17 8l4 4m0 0l-4 4"/></svg></button><span class="line"></span></div>
+      <div class="input-tile">
+        <div class="l">Vers</div>
+        <div class="rr">
+          <input class="amt-input num" type="text" inputmode="decimal" value="91,37" id="exTo" readonly />
+          <button class="cur-pick" data-pick="exToCur"><span class="cur-flag" style="background:#003399;color:#FFCC00;">€</span><span id="exToCurL">EUR</span> ▾</button>
+        </div>
+      </div>
+      <div class="breakdown">
+        <div class="r"><span>Marge FX</span><span class="v mint">0,00</span></div>
+        <div class="r"><span>Taux interbancaire</span><span class="v" id="exRate">MAD / EUR · 0,09137</span></div>
+        <div class="r"><span>Exécution</span><span class="v mint">Instantanée</span></div>
+      </div>
+      <button class="btn-primary" id="exConfirm">Échanger maintenant</button>
+    </div>
+  </div>
+
+  <!-- ADD MONEY -->
+  <div class="sheet" data-sheet="add">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Ajouter de l'argent</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="input-tile">
+        <div class="l">Montant</div>
+        <div class="rr">
+          <div class="amt-input num" id="addAmt" contenteditable="true" inputmode="decimal">500,00</div>
+          <button class="cur-pick"><span class="cur-flag" style="background:#C1272D;color:#006233;font-size:11px;">★</span>MAD</button>
+        </div>
+      </div>
+      <div style="margin-top:18px; font-size:11px; color:var(--text-mute); letter-spacing:0.06em; text-transform:uppercase;">Source de fonds</div>
+      <div class="menu-group" style="margin-top:8px;">
+        <button class="menu-item" data-add-src="virement"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v10H3z"/><path d="M3 12h18"/></svg></span><span class="lbl">Virement bancaire</span><span class="v">Gratuit</span><span class="ch">›</span></button>
+        <button class="menu-item" data-add-src="carte"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></span><span class="lbl">Carte Visa / Mastercard</span><span class="v">Gratuit</span><span class="ch">›</span></button>
+        <button class="menu-item" data-add-src="cash"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M9 9h6M9 15h6"/></svg></span><span class="lbl">Cash · 4 000 points Maroc</span><span class="v">Gratuit</span><span class="ch">›</span></button>
+        <button class="menu-item" data-add-src="apple"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 12.04c-.03-3.06 2.5-4.53 2.61-4.6-1.42-2.08-3.64-2.36-4.43-2.39-1.88-.19-3.68 1.11-4.63 1.11-.97 0-2.43-1.09-4-1.06-2.05.03-3.94 1.19-5 3.03C-.59 11.9.94 17.6 3.04 20.72c1.04 1.52 2.27 3.23 3.88 3.17 1.57-.06 2.16-1.01 4.06-1.01 1.88 0 2.42 1.01 4.07.98 1.68-.03 2.74-1.55 3.77-3.07 1.19-1.76 1.68-3.47 1.71-3.56-.04-.02-3.29-1.26-3.32-5z"/></svg></span><span class="lbl">Apple Pay</span><span class="v">Gratuit</span><span class="ch">›</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACTS PICKER -->
+  <div class="sheet" data-sheet="contacts">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Bénéficiaire</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body" id="contactsList"></div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="sheet" data-sheet="notif">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Notifications</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="notif"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l5 5L20 7"/></svg></span><div class="notif-b"><div class="notif-t">Paiement reçu · +1 200,00 MAD</div><div class="notif-d">Youssef Amrani · split addition Café Atlas</div></div><div class="notif-tm">2 min</div></div>
+      <div class="notif"><span class="ic info"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg></span><div class="notif-b"><div class="notif-t">Votre carte physique est expédiée</div><div class="notif-d">Livraison estimée jeudi 16/05 · Amana suivi #KW8124</div></div><div class="notif-tm">3h</div></div>
+      <div class="notif"><span class="ic warn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></span><div class="notif-b"><div class="notif-t">Budget Loisirs · 80 % utilisé</div><div class="notif-d">318 / 400 MAD ce mois — pensez à ajuster</div></div><div class="notif-tm">Hier</div></div>
+      <div class="notif"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg></span><div class="notif-b"><div class="notif-t">ATW · +1,82 % aujourd'hui</div><div class="notif-d">Votre position Attijariwafa Bank a gagné 9,42 MAD</div></div><div class="notif-tm">Hier</div></div>
+      <div class="notif"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></span><div class="notif-b"><div class="notif-t">Intérêts coffre Tokyo · +12,40 MAD</div><div class="notif-d">Versés sur votre coffre · 4,2 % APY</div></div><div class="notif-tm">2j</div></div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS ALL -->
+  <div class="sheet" data-sheet="txAll">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Transactions · mai 2026</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body" id="txAllList"></div>
+  </div>
+
+  <!-- TX DETAIL -->
+  <div class="sheet" data-sheet="txDetail">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Détail transaction</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body" id="txDetailBody"></div>
+  </div>
+
+  <!-- CARD DETAIL -->
+  <div class="sheet" data-sheet="cardDetail">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2 id="cardDetailTitle">Carte</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body" id="cardDetailBody"></div>
+  </div>
+
+  <!-- STOCK / CRYPTO DETAIL -->
+  <div class="sheet" data-sheet="holdDetail">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2 id="holdDetailTitle">Détail</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body" id="holdDetailBody"></div>
+  </div>
+
+  <!-- VAULT DETAIL -->
+  <div class="sheet" data-sheet="vaultDetail">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2 id="vaultDetailTitle">Coffre</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body" id="vaultDetailBody"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="sheet" data-sheet="settings">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Paramètres</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="menu-group">
+        <button class="menu-item" data-toggle="notif-tog"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21a2 2 0 004 0"/></svg></span><span class="lbl">Notifications push</span><span class="toggle on" data-tog></span></button>
+        <button class="menu-item" data-toggle="biom"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 016 0M9 17c1 .5 1.5 1 3 1s2-.5 3-1"/></svg></span><span class="lbl">Face ID au login</span><span class="toggle on" data-tog></span></button>
+        <button class="menu-item" data-toggle="round"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><span class="lbl">Arrondi malin → coffre</span><span class="toggle" data-tog></span></button>
+        <button class="menu-item" data-toggle="invest-auto"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg></span><span class="lbl">Invest auto · 200 MAD/sem</span><span class="toggle" data-tog></span></button>
+      </div>
+      <div class="menu-group">
+        <button class="menu-item" data-toast='{"title":"Cartes virtuelles","desc":"Créez une carte virtuelle pour vos abonnements"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg></span><span class="lbl">Cartes virtuelles</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Bénéficiaires","desc":"12 contacts enregistrés"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></span><span class="lbl">Bénéficiaires</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Limites & plafonds","desc":"Personnalisez vos limites quotidiennes"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4v16"/></svg></span><span class="lbl">Limites & plafonds</span><span class="ch">›</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANG -->
+  <div class="sheet" data-sheet="lang">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Langue</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="menu-group">
+        <button class="menu-item" data-lang="Français"><span class="lbl">Français</span><span class="ch">✓</span></button>
+        <button class="menu-item" data-lang="العربية"><span class="lbl">العربية</span><span class="ch"></span></button>
+        <button class="menu-item" data-lang="Darija"><span class="lbl">Darija</span><span class="ch"></span></button>
+        <button class="menu-item" data-lang="English"><span class="lbl">English</span><span class="ch"></span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECURITY -->
+  <div class="sheet" data-sheet="security">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Sécurité</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="menu-group">
+        <button class="menu-item" data-toast='{"title":"Code PIN modifié","desc":"Nouveau code actif dès maintenant","type":"success"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span><span class="lbl">Changer mon code PIN</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toggle="3ds"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 4.5v6C21 18 17 21.5 12 22 7 21.5 3 18 3 12.5v-6L12 2z"/></svg></span><span class="lbl">3-D Secure 2</span><span class="toggle on" data-tog></span></button>
+        <button class="menu-item" data-toggle="tokenize"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="lbl">Tokenisation paiements</span><span class="toggle on" data-tog></span></button>
+      </div>
+      <div class="menu-group">
+        <button class="menu-item" data-toast='{"title":"Sessions actives","desc":"iPhone 15 (cette session) · MacBook (il y a 2h)"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/></svg></span><span class="lbl">Sessions actives</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Toutes vos sessions ont été fermées","type":"success"}' style="color:#F29B8F;"><span class="ic" style="background:rgba(232,74,95,0.12);color:#F29B8F;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5"/></svg></span><span class="lbl">Déconnecter tous les appareils</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- "MORE" QUICK ACTIONS -->
+  <div class="sheet" data-sheet="more">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Plus d'actions</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="menu-group">
+        <button class="menu-item" data-toast='{"title":"QR scanné · BIM","desc":"Paiement 87,30 MAD prêt","type":"success"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h7M14 18h4M18 18v3"/></svg></span><span class="lbl">Scanner un QR</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Facture IAM payée","desc":"−248,00 MAD · reçu envoyé","type":"success"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v14H3z"/><path d="M7 11h10M7 15h6"/></svg></span><span class="lbl">Payer une facture</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Recharge mobile · +50 MAD","desc":"Inwi · 0612 34 56 78","type":"success"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span><span class="lbl">Recharge mobile</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Split addition partagé","desc":"Lien envoyé à 3 contacts WhatsApp"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 17l4-4-4-4M20 13H8M4 21V3"/></svg></span><span class="lbl">Split addition</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Lien de paiement créé","desc":"k.iwi/p/x8f4q · copié dans le presse-papier","type":"success"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1.5 1.5M14 11a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1.5-1.5"/></svg></span><span class="lbl">Demander un paiement</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Don Sadaqa","desc":"Choisissez une cause · automatisez Zakat"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></span><span class="lbl">Don · Sadaqa</span><span class="ch">›</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD CUR -->
+  <div class="sheet" data-sheet="addCur">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Ajouter une devise</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="cur-grid" id="addCurGrid"></div>
+    </div>
+  </div>
+
+  <!-- NEW VAULT -->
+  <div class="sheet" data-sheet="newVault">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Nouveau coffre</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="input-tile"><div class="l">Nom de l'objectif</div><div class="rr"><input class="amt-input" style="font-size:20px;" id="newVaultName" placeholder="Voyage Tokyo, voiture, etc." /></div></div>
+      <div class="input-tile"><div class="l">Montant cible (MAD)</div><div class="rr"><input class="amt-input num" type="text" inputmode="decimal" id="newVaultTarget" placeholder="25 000" /></div></div>
+      <div style="margin:14px 0 8px; font-size:12px; color:var(--text-soft);">Rendement : <b style="color:var(--mint);">4,2 % par an</b> · intérêts versés quotidiennement</div>
+      <button class="btn-primary" id="newVaultConfirm">Créer le coffre</button>
+    </div>
+  </div>
+
+  <!-- NEW CARD -->
+  <div class="sheet" data-sheet="newCard">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Nouvelle carte virtuelle</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="input-tile"><div class="l">Nom</div><div class="rr"><input class="amt-input" style="font-size:18px;" id="newCardName" placeholder="Abonnements Netflix" /></div></div>
+      <div class="input-tile"><div class="l">Limite mensuelle</div><div class="rr"><input class="amt-input num" type="text" inputmode="decimal" id="newCardLimit" placeholder="500" /><span class="cur-pick">MAD</span></div></div>
+      <div style="font-size:11px; color:var(--text-mute); margin-top:14px;">Carte virtuelle Visa émise en 30 secondes · numéro à usage unique disponible.</div>
+      <button class="btn-primary" id="newCardConfirm">Créer la carte</button>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="sheet" data-sheet="search">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Rechercher</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <input class="search-pill" style="width:100%; height:44px; padding:0 16px;" id="searchInput" placeholder="Transaction, contact, action…" />
+      <div style="margin-top:16px; font-size:11px; color:var(--text-mute); letter-spacing:0.06em; text-transform:uppercase;">Récents</div>
+      <div class="menu-group" style="margin-top:8px;">
+        <button class="menu-item" data-go="invest"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg></span><span class="lbl">ATW · Attijariwafa</span><span class="ch">›</span></button>
+        <button class="menu-item" data-open="send"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7"/></svg></span><span class="lbl">Envoyer à Fatima</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"BIM Maarif","desc":"87,30 MAD · jeudi 9 mai"}'><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/></svg></span><span class="lbl">BIM Maarif</span><span class="ch">›</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TOASTS ============ -->
+  <div class="toast-stack" id="toasts"></div>
+
+  <!-- ============ SUCCESS SPLASH ============ -->
+  <div class="splash" id="splash">
+    <div class="checkring"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12l5 5L20 7"/></svg></div>
+    <h3 id="splashTitle">Envoyé · ~10 sec.</h3>
+    <p id="splashSub">Fatima reçoit 10 944,40 MAD sur son compte Kiwi.</p>
+  </div>
+
+</div>
+
+<div class="desktop-hint">Démo interactive · cliquez partout</div>
+
+<script>
+(function(){
+  // ============ STATE ============
+  const FX = { MAD:1, EUR:10.9444, USD:9.8412, GBP:12.7180, AED:2.6802, CAD:7.2104, CHF:11.0512 };
+  const CUR_META = {
+    MAD: { flag:'★', bg:'#C1272D', fg:'#006233', name:'Dirham marocain' },
+    EUR: { flag:'€', bg:'#003399', fg:'#FFCC00', name:'Euro' },
+    USD: { flag:'$', bg:'linear-gradient(180deg,#fff 50%,#BF0A30 50%)', fg:'#002868', name:'Dollar US' },
+    GBP: { flag:'£', bg:'#012169', fg:'#fff', name:'Livre sterling' },
+    AED: { flag:'د', bg:'#00732F', fg:'#fff', name:'Dirham émirati' },
+    CAD: { flag:'C', bg:'#FF0000', fg:'#fff', name:'Dollar canadien' },
+    CHF: { flag:'+', bg:'#FF0000', fg:'#fff', name:'Franc suisse' }
+  };
+  const state = {
+    balanceMAD: 28412.50,
+    activeCur: 'MAD',
+    cards: [
+      { id:'pro', tier:'Pro', name:'Visa Platinum', num:'•••• 8124', frozen:false, theme:'cc-pro', monthSpend:3218, limit:50000 },
+      { id:'std', tier:'Standard', name:'Visa Debit', num:'•••• 3082', frozen:false, theme:'cc-standard', monthSpend:412, limit:20000 },
+      { id:'atlas', tier:'Atlas Metal', name:'Visa Infinite', num:'•••• 9712', frozen:true, theme:'cc-atlas', monthSpend:0, limit:200000 }
+    ],
+    transactions: [
+      { id:1, n:'Café Atlas',      cat:'Resto',     when:'Aujourd\'hui · 14:32', v:-42.40,  c:'#0B6E4F', i:'CA' },
+      { id:2, n:'Spotify',         cat:'Abonnement',when:'Hier · auto',          v:-59.00,  c:'#E84A5F', i:'SP' },
+      { id:3, n:'Youssef Amrani',  cat:'Transfert', when:'Hier · split addition',v:+86.00,  c:'#7DF2B0', i:'YA', fg:'#053B2C' },
+      { id:4, n:'BIM Maarif',      cat:'Courses',   when:'Hier · 19:08',         v:-87.30,  c:'#F5A623', i:'BI' },
+      { id:5, n:'Salaire mai',     cat:'Revenu',    when:'1 mai · ACOMA SARL',   v:+18400.00,c:'#0B6E4F',i:'SA', up:true },
+      { id:6, n:'Carrefour',       cat:'Courses',   when:'2 mai',                v:-218.15, c:'#F5A623', i:'CA' },
+      { id:7, n:'IAM facture',     cat:'Factures',  when:'3 mai',                v:-248.00, c:'#1A4D80', i:'IA' },
+      { id:8, n:'Uber Casablanca', cat:'Transport', when:'4 mai',                v:-38.50,  c:'#1F1F1F', i:'UB' },
+      { id:9, n:'Pharmacie Al Andalus',cat:'Santé', when:'5 mai',                v:-72.00,  c:'#26A269', i:'PH' },
+      { id:10,n:'Coffre Tokyo',    cat:'Épargne',   when:'5 mai',                v:-500.00, c:'#7DF2B0', i:'TK', fg:'#053B2C' },
+      { id:11,n:'Achat ATW · 1 frac.',cat:'Invest', when:'6 mai',                v:-528.40, c:'#0B6E4F', i:'AT' },
+      { id:12,n:'Intérêts coffre', cat:'Revenu',    when:'7 mai',                v:+12.40,  c:'#7DF2B0', i:'IN', fg:'#053B2C' },
+    ],
+    contacts: [
+      { i:'FB', n:'Fatima Bakkali · Maman',     r:'RIB •••• 4218 · Tanger',     bg:'linear-gradient(135deg,#FF8FC8,#C1487E)' },
+      { i:'YA', n:'Youssef Amrani',             r:'+212 661 23 45 67',           bg:'#7DF2B0', fg:'#053B2C' },
+      { i:'SA', n:'Sara El Idrissi',            r:'sara@kiwi.ma',                bg:'#9BC4FF', fg:'#0a2540' },
+      { i:'MK', n:'Mehdi Kabbaj',               r:'IBAN FR76 •••• 8821',         bg:'#F5A623' },
+      { i:'AL', n:'Amine Loubaris',             r:'+212 612 78 90 12',           bg:'#26A269' },
+      { i:'RJ', n:'Rachida Jelloun · soeur',    r:'RIB •••• 0042 · Rabat',       bg:'#E84A5F' },
+      { i:'ZA', n:'Zakariae Attahiri',          r:'zak@kiwi.ma',                 bg:'linear-gradient(135deg,#0B6E4F,#7DF2B0)', fg:'#053B2C' },
+      { i:'IM', n:'IBAN externe — nouveau',     r:'Ajouter un bénéficiaire',     bg:'transparent', fg:'#7DF2B0', border:true },
+    ],
+    stocks: [
+      { i:'ATW', n:'Attijariwafa Bank', r:'CSE · 0,5 frac',  v:264.20,   d:'+1,82 %', c:'linear-gradient(135deg,#0B6E4F,#053B2C)', fg:'#7DF2B0', spark:'M0,16 L8,15 L16,12 L24,10 L32,8 L40,5 L50,2' },
+      { i:'IAM', n:'Maroc Telecom',     r:'CSE · 2 frac',    v:188.24,   d:'-0,42 %', dn:true, c:'#1A4D80', spark:'M0,8 L8,10 L16,9 L24,12 L32,11 L40,14 L50,15' },
+      { i:'OCP', n:'OCP',               r:'CSE · 0,2 frac',  v:249.60,   d:'+0,42 %', c:'#26A269', spark:'M0,14 L8,13 L16,11 L24,10 L32,8 L40,7 L50,5' },
+      { i:'BCP', n:'BCP',               r:'CSE · 1 frac',    v:286.50,   d:'+0,65 %', c:'#053B2C', fg:'#7DF2B0', spark:'M0,12 L8,11 L16,12 L24,10 L32,9 L40,7 L50,6' },
+      { i:'AAPL',n:'Apple',             r:'NASDAQ · 0,1 frac',v:184.20, d:'+0,82 %', c:'#1F1F1F', spark:'M0,12 L8,10 L16,11 L24,8 L32,9 L40,5 L50,3' },
+      { i:'TSL',n:'Tesla',              r:'NASDAQ · 0,05 frac',v:121.40,d:'-1,18 %', dn:true, c:'#E84A5F', spark:'M0,4 L8,6 L16,8 L24,7 L32,10 L40,12 L50,14' },
+    ],
+    crypto: [
+      { i:'₿', n:'Bitcoin',  r:'0,062 BTC',    v:6248,   d:'+3,12 %',  c:'#F7931A', spark:'M0,16 L8,14 L16,17 L24,10 L32,12 L40,5 L50,2' },
+      { i:'Ξ', n:'Ethereum', r:'1,42 ETH',     v:4218,   d:'+2,18 %',  c:'#627EEA', spark:'M0,12 L8,10 L16,14 L24,8 L32,11 L40,6 L50,4' },
+      { i:'◎', n:'Solana',   r:'8,24 SOL',     v:1412,   d:'-1,42 %', dn:true, c:'linear-gradient(135deg,#00FFA3,#DC1FFF)', spark:'M0,8 L8,10 L16,6 L24,12 L32,9 L40,14 L50,16' },
+      { i:'$', n:'USDC',     r:'540 USDC',     v:540,    d:'±0 %',     c:'#2775CA', spark:'M0,11 L8,11 L16,12 L24,11 L32,11 L40,12 L50,11' },
+    ],
+    vaults: [
+      { id:'tok', emoji:'✈️', n:'Tokyo 2027',       v:12400, t:25000, apy:4.2,  due:'14 mois' },
+      { id:'voi', emoji:'🚗', n:'Acompte voiture',  v:6340,  t:12000, apy:3.5,  due:'9 mois' },
+      { id:'rno', emoji:'🏠', n:'Rénovation maison',v:18200, t:40000, apy:3.5,  due:'18 mois' },
+    ],
+  };
+
+  // ============ HELPERS ============
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  const app = $('#app');
+  const fmt = (v, d=2) => {
+    const n = parseFloat(v) || 0;
+    return n.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  };
+  const parseAmt = (s) => parseFloat(String(s).replace(/[^\d.,-]/g,'').replace(/\s/g,'').replace(',', '.')) || 0;
+
+  // ============ TOASTS ============
+  function toast(title, opts={}) {
+    const t = document.createElement('div');
+    t.className = `toast ${opts.type||'info'}`;
+    const ico = { success:'✓', info:'i', warn:'!', danger:'⚠' }[opts.type||'info'] || 'i';
+    t.innerHTML = `<div class="ti">${ico}</div><div class="tb"><div class="tm">${title}</div>${opts.desc?`<div class="ts">${opts.desc}</div>`:''}</div>`;
+    $('#toasts').appendChild(t);
+    requestAnimationFrame(() => t.classList.add('in'));
+    setTimeout(() => { t.classList.remove('in'); setTimeout(() => t.remove(), 300); }, opts.duration || 2800);
+  }
+  window.kw_toast = toast;
+
+  // ============ SCREEN NAV ============
+  function goScreen(name) {
+    $$('.screen').forEach(s => s.classList.toggle('on', s.dataset.screen === name));
+    $$('#tabbar .tab').forEach(t => t.classList.toggle('on', t.dataset.go === name));
+    $('.stage').scrollTop = 0;
+    const sc = $(`.screen[data-screen="${name}"]`);
+    if (sc) sc.scrollTop = 0;
+  }
+
+  // ============ SHEETS ============
+  const scrim = $('#scrim');
+  const sheets = $$('.sheet');
+  let openSheet = null;
+  function openS(name) {
+    const sh = $(`.sheet[data-sheet="${name}"]`);
+    if (!sh) return;
+    if (openSheet && openSheet !== sh) openSheet.classList.remove('on');
+    sh.classList.add('on');
+    scrim.classList.add('on');
+    openSheet = sh;
+  }
+  function closeS() {
+    if (openSheet) openSheet.classList.remove('on');
+    openSheet = null;
+    scrim.classList.remove('on');
+  }
+  scrim.addEventListener('click', closeS);
+
+  // swipe-down to close (touch)
+  sheets.forEach(sh => {
+    let startY = null;
+    sh.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive:true });
+    sh.addEventListener('touchmove', e => {
+      if (startY == null) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy > 0 && sh.querySelector('.sheet-body').scrollTop === 0) {
+        sh.style.transform = `translateY(${dy}px)`;
+      }
+    }, { passive:true });
+    sh.addEventListener('touchend', e => {
+      const dy = (e.changedTouches[0].clientY - startY);
+      sh.style.transform = '';
+      if (dy > 100) closeS();
+      startY = null;
+    });
+  });
+
+  // ============ SPLASH ============
+  function splash(title, sub) {
+    $('#splashTitle').textContent = title;
+    $('#splashSub').textContent = sub;
+    $('#splash').classList.add('on');
+    setTimeout(() => $('#splash').classList.remove('on'), 1800);
+  }
+
+  // ============ EVENT DELEGATION ============
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-go],[data-open],[data-close],[data-toast],[data-toggle],[data-lang],[data-add-src],[data-confirm],[data-pick]');
+    if (!t) return;
+
+    if (t.dataset.go) { goScreen(t.dataset.go); closeS(); return; }
+    if (t.dataset.open) { openS(t.dataset.open); return; }
+    if (t.dataset.close !== undefined) { closeS(); return; }
+    if (t.dataset.toast) {
+      try { const o = JSON.parse(t.dataset.toast); toast(o.title, o); } catch (_) { toast(t.dataset.toast); }
+      return;
+    }
+    if (t.dataset.toggle) {
+      const tg = t.querySelector('[data-tog]');
+      if (tg) tg.classList.toggle('on');
+      return;
+    }
+    if (t.dataset.lang) {
+      $$('[data-lang] .ch').forEach(c => c.textContent = '');
+      t.querySelector('.ch').textContent = '✓';
+      $('#langV').textContent = t.dataset.lang;
+      setTimeout(closeS, 250);
+      toast('Langue mise à jour', { type:'success', desc: t.dataset.lang });
+      return;
+    }
+    if (t.dataset.addSrc) {
+      const src = t.dataset.addSrc;
+      const amt = parseAmt($('#addAmt').textContent);
+      state.balanceMAD += amt;
+      renderBalance();
+      renderTx();
+      state.transactions.unshift({ id: Date.now(), n: `Recharge · ${src}`, cat:'Recharge', when:'À l\'instant', v:+amt, c:'#7DF2B0', i:'+€', fg:'#053B2C', up:true });
+      renderTx(); renderAllTx();
+      closeS();
+      splash(`+${fmt(amt)} MAD ajoutés`, `Source : ${src} · disponibles immédiatement`);
+      return;
+    }
+    if (t.dataset.confirm === 'logout') {
+      closeS();
+      splash('À bientôt !', 'Vous êtes déconnecté·e de la démo.');
+      setTimeout(() => goScreen('home'), 1900);
+      return;
+    }
+    if (t.dataset.pick) { pickCurrency(t.dataset.pick); return; }
+  });
+
+  // ============ CURRENCY PICKER (inline simple) ============
+  function pickCurrency(target) {
+    // Build a small inline popover via the addCur sheet
+    const grid = $('#addCurGrid');
+    grid.dataset.target = target;
+    grid.innerHTML = Object.keys(CUR_META).map(c => `
+      <button class="cur-tile" data-cur-pick="${c}">
+        <span class="cur-flag" style="background:${CUR_META[c].bg};color:${CUR_META[c].fg};">${CUR_META[c].flag}</span>
+        <span class="c">${c}</span>
+        <span class="nm">${CUR_META[c].name}</span>
+      </button>`).join('');
+    openS('addCur');
+  }
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-cur-pick]');
+    if (!t) return;
+    const grid = $('#addCurGrid');
+    const cur = t.dataset.curPick;
+    const target = grid.dataset.target;
+    if (target === 'sendFromCur') { $('#sendFromCurL').textContent = cur; recalcSend(); }
+    else if (target === 'sendToCur') { $('#sendToCurL').textContent = cur; recalcSend(); }
+    else if (target === 'exFromCur') { $('#exFromCurL').textContent = cur; recalcExchange(); }
+    else if (target === 'exToCur')   { $('#exToCurL').textContent = cur; recalcExchange(); }
+    else {
+      // generic add-cur (from chips +)
+      toast(`${cur} ajouté`, { type:'success', desc:`Solde initial 0 ${cur} · convertissez quand vous voulez` });
+    }
+    closeS();
+  });
+
+  // ============ HOME CHIPS ============
+  $$('#curChips .chip[data-cur]').forEach(c => c.addEventListener('click', () => {
+    $$('#curChips .chip').forEach(o => o.classList.remove('on'));
+    c.classList.add('on');
+    state.activeCur = c.dataset.cur;
+    renderBalance();
+  }));
+
+  function renderBalance() {
+    const cur = state.activeCur;
+    const v = state.balanceMAD / FX[cur];
+    const [w, d] = v.toFixed(2).split('.');
+    const ws = w.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    $('#balMain').innerHTML = `${ws}<span class="u">,${d}</span>`;
+    const eurEq = (state.balanceMAD / FX.EUR);
+    const usdEq = (state.balanceMAD / FX.USD);
+    $('#balSub').textContent = `Solde ${cur} · ≈ ${fmt(eurEq,0)} EUR · ${fmt(usdEq,0)} USD`;
+  }
+  renderBalance();
+
+  // ============ TRANSACTIONS LIST ============
+  function txTpl(t) {
+    const v = t.v;
+    const sign = v >= 0 ? '+' : '−';
+    const cls = v >= 0 ? 'up' : '';
+    return `
+      <button class="tx" data-tx-id="${t.id}">
+        <span class="tx-av" style="background:${t.c};${t.fg?`color:${t.fg};`:''}">${t.i}</span>
+        <span class="tx-info"><span class="tx-n">${t.n}</span><span class="tx-r">${t.when}</span></span>
+        <span class="tx-v ${cls}">${sign}${fmt(Math.abs(v))}</span>
+      </button>`;
+  }
+  function renderTx() {
+    $('#txList').innerHTML = state.transactions.slice(0, 5).map(txTpl).join('');
+  }
+  function renderAllTx() {
+    $('#txAllList').innerHTML = state.transactions.map(txTpl).join('');
+  }
+  renderTx(); renderAllTx();
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-tx-id]');
+    if (!t) return;
+    const tx = state.transactions.find(x => x.id == t.dataset.txId);
+    if (!tx) return;
+    const v = tx.v;
+    const sign = v >= 0 ? '+' : '−';
+    $('#txDetailBody').innerHTML = `
+      <div style="text-align:center; padding:10px 0 20px;">
+        <div class="tx-av" style="width:64px;height:64px;font-size:18px;margin:0 auto;background:${tx.c};${tx.fg?`color:${tx.fg};`:''}">${tx.i}</div>
+        <div style="font-size:20px;font-weight:600;margin-top:14px;">${tx.n}</div>
+        <div style="font-size:32px;font-weight:600;margin-top:6px;letter-spacing:-0.03em;color:${v>=0?'var(--mint)':'var(--text)'};">${sign}${fmt(Math.abs(v))} MAD</div>
+        <div style="font-size:12px;color:var(--text-mute);margin-top:4px;">${tx.when}</div>
+      </div>
+      <div class="menu-group">
+        <button class="menu-item"><span class="lbl">Catégorie</span><span class="v">${tx.cat}</span></button>
+        <button class="menu-item"><span class="lbl">Carte utilisée</span><span class="v">Visa •••• 8124</span></button>
+        <button class="menu-item"><span class="lbl">Reçu</span><span class="v">PDF disponible</span><span class="ch">›</span></button>
+      </div>
+      <button class="btn-secondary" data-toast='{"title":"Reçu téléchargé","type":"success"}'>Télécharger le reçu</button>
+      <button class="btn-secondary" data-toast='{"title":"Transaction signalée","desc":"Notre équipe ouvre une enquête sous 24h","type":"info"}'>Signaler un problème</button>
+      ${tx.cat==='Resto'||tx.cat==='Courses' ? `<button class="btn-secondary" data-toast='{"title":"Split addition créé","desc":"Lien envoyé à 2 contacts"}'>Split avec amis</button>`:''}`;
+    openS('txDetail');
+  });
+
+  // ============ CARDS ============
+  function renderCards() {
+    $('#cardsStack').innerHTML = state.cards.map(c => `
+      <button class="credit-card ${c.theme} ${c.frozen?'frozen':''}" data-card-id="${c.id}">
+        <div class="cc-top">
+          <div class="cc-brand">kiwi<i class="d"></i></div>
+          <div class="cc-tag ${c.theme==='cc-atlas'?'accent':''}">${c.name}</div>
+        </div>
+        <div class="cc-bot">
+          <div>
+            <div class="cc-num">${c.num}</div>
+            <div class="cc-name">I. MOULINE</div>
+          </div>
+          <svg class="cc-visa" viewBox="0 0 40 24"><circle cx="14" cy="12" r="9" fill="${c.theme==='cc-atlas'?'#B89B5E':(c.theme==='cc-pro'?'#fff':'#1A1F71')}" opacity="0.9"/><path d="M22 6h6v12h-6z" fill="${c.theme==='cc-atlas'?'#E6D9B5':(c.theme==='cc-pro'?'#7DF2B0':'#F7B600')}" opacity="0.9"/></svg>
+        </div>
+      </button>`).join('') + `
+      <div class="card-meta"><span>Glissez vers le bas pour fermer · tapez pour gérer</span></div>`;
+  }
+  renderCards();
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-card-id]');
+    if (!t) return;
+    const c = state.cards.find(x => x.id === t.dataset.cardId);
+    openCardDetail(c);
+  });
+
+  function openCardDetail(c) {
+    $('#cardDetailTitle').textContent = `Kiwi ${c.tier}`;
+    const pct = Math.min(100, (c.monthSpend / c.limit) * 100);
+    $('#cardDetailBody').innerHTML = `
+      <div class="credit-card ${c.theme} ${c.frozen?'frozen':''}" style="margin-bottom:18px;">
+        <div class="cc-top"><div class="cc-brand">kiwi<i class="d"></i></div><div class="cc-tag ${c.theme==='cc-atlas'?'accent':''}">${c.name}</div></div>
+        <div class="cc-bot"><div><div class="cc-num">${c.num}</div><div class="cc-name">I. MOULINE</div></div></div>
+      </div>
+      <div class="card-quick">
+        <button class="qbtn" data-card-action="freeze" data-card-id="${c.id}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></svg>
+          <span>${c.frozen?'Dégeler':'Geler'}</span>
+        </button>
+        <button class="qbtn" data-card-action="reveal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Voir CVV</span>
+        </button>
+        <button class="qbtn" data-card-action="settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+          <span>Réglages</span>
+        </button>
+      </div>
+      <div class="input-tile">
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-soft);"><span>Dépenses ce mois</span><span class="num">${fmt(c.monthSpend)} / ${fmt(c.limit,0)} MAD</span></div>
+        <div class="vault-bar" style="margin-top:10px;"><div style="width:${pct}%"></div></div>
+      </div>
+      <div class="menu-group" style="margin-top:14px;">
+        <button class="menu-item" data-toggle="online"><span class="lbl">Paiements en ligne</span><span class="toggle on" data-tog></span></button>
+        <button class="menu-item" data-toggle="abroad"><span class="lbl">Paiements à l'étranger</span><span class="toggle on" data-tog></span></button>
+        <button class="menu-item" data-toggle="contactless"><span class="lbl">Paiement sans contact</span><span class="toggle on" data-tog></span></button>
+        <button class="menu-item" data-toggle="atm"><span class="lbl">Retraits GAB</span><span class="toggle on" data-tog></span></button>
+      </div>
+      <button class="btn-secondary" data-toast='{"title":"Carte ajoutée à Apple Pay","type":"success"}'>Ajouter à Apple Pay</button>
+      <button class="btn-secondary" data-toast='{"title":"Nouveau code PIN demandé","desc":"Reçu par SMS dans quelques secondes"}'>Changer le code PIN</button>
+      <button class="btn-secondary" data-toast='{"title":"Carte commandée","desc":"Remplacement envoyé sous 48h","type":"success"}'>Commander un remplacement</button>`;
+    openS('cardDetail');
+  }
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-card-action]');
+    if (!t) return;
+    const action = t.dataset.cardAction;
+    if (action === 'freeze') {
+      const c = state.cards.find(x => x.id === t.dataset.cardId);
+      c.frozen = !c.frozen;
+      renderCards();
+      openCardDetail(c);
+      toast(c.frozen ? 'Carte gelée' : 'Carte réactivée', { type: c.frozen ? 'warn' : 'success', desc: c.frozen ? 'Aucun paiement ne passera' : 'Vous pouvez payer à nouveau' });
+    } else if (action === 'reveal') {
+      toast('Numéro · 4218 8124 7720 3091', { type:'info', desc:'Exp 09/29 · CVV 824 · masqué dans 10 s' });
+    } else if (action === 'settings') {
+      toast('Réglages avancés', { type:'info', desc:'Limites · pays autorisés · notifications' });
+    }
+  });
+
+  // ============ INVEST SEGS ============
+  $$('#invSegs .inv-seg').forEach(s => s.addEventListener('click', () => {
+    $$('#invSegs .inv-seg').forEach(o => o.classList.remove('on'));
+    s.classList.add('on');
+    $$('[data-seg-panel]').forEach(p => { p.hidden = p.dataset.segPanel !== s.dataset.seg; });
+  }));
+
+  function holdTpl(h, kind) {
+    return `
+      <button class="hold" data-hold-kind="${kind}" data-hold-i="${h.i}">
+        <span class="hold-av" style="background:${h.c};${h.fg?`color:${h.fg};`:''}">${h.i}</span>
+        <span class="hold-info"><span class="hold-n">${h.n}</span><span class="hold-r">${h.r}</span></span>
+        <span class="hold-spark"><svg viewBox="0 0 50 22" preserveAspectRatio="none"><path d="${h.spark}" fill="none" stroke="${h.dn?'#F29B8F':'#7DF2B0'}" stroke-width="1.5"/></svg></span>
+        <span class="hold-v"><span class="a num">${fmt(h.v,0)}</span><span class="d ${h.dn?'dn':''}">${h.d}</span></span>
+      </button>`;
+  }
+  $('#stocksList').innerHTML = state.stocks.map(h => holdTpl(h, 'stock')).join('');
+  $('#cryptoList').innerHTML = state.crypto.map(h => holdTpl(h, 'crypto')).join('');
+
+  function renderVaults() {
+    $('#vaultsList').innerHTML = state.vaults.map(v => `
+      <button class="vault" data-vault-id="${v.id}">
+        <div class="vault-h"><span class="vault-n">${v.emoji} ${v.n}</span><span class="apy">+${v.apy} %</span></div>
+        <div class="vault-v num">${fmt(v.v,0)}<small> / ${fmt(v.t,0)} MAD</small></div>
+        <div class="vault-bar"><div style="width:${(v.v/v.t*100).toFixed(0)}%"></div></div>
+        <div class="vault-foot"><span>${(v.v/v.t*100).toFixed(1)} %</span><span>${v.due}</span></div>
+      </button>`).join('');
+  }
+  renderVaults();
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-hold-i]');
+    if (!t) return;
+    const kind = t.dataset.holdKind;
+    const list = kind === 'stock' ? state.stocks : state.crypto;
+    const h = list.find(x => x.i === t.dataset.holdI);
+    if (!h) return;
+    $('#holdDetailTitle').textContent = h.n;
+    $('#holdDetailBody').innerHTML = `
+      <div style="text-align:center; padding:6px 0 18px;">
+        <div class="hold-av" style="width:64px;height:64px;font-size:24px;margin:0 auto;background:${h.c};${h.fg?`color:${h.fg};`:''}">${h.i}</div>
+        <div style="font-size:36px;font-weight:600;letter-spacing:-0.04em;margin-top:12px;" class="num">${fmt(h.v,2)} MAD</div>
+        <div style="font-family:var(--mono);font-size:13px;color:${h.dn?'#F29B8F':'var(--mint)'};margin-top:4px;">${h.d} aujourd'hui</div>
+        <div style="font-size:11px;color:var(--text-mute);margin-top:4px;">${h.r}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="btn-primary" style="margin:0;" data-trade="buy" data-hold-n="${h.n}">Acheter</button>
+        <button class="btn-secondary" style="margin:0;" data-trade="sell" data-hold-n="${h.n}">Vendre</button>
+      </div>
+      <div style="margin-top:18px;font-size:11px;color:var(--text-mute);text-align:center;font-family:var(--mono);">${kind==='stock'?'Fractions dès 50 MAD · 0 commission':'Garde MiCA · 0,99 % spread fixe'}</div>
+      <div class="menu-group" style="margin-top:18px;">
+        <button class="menu-item" data-toast='{"title":"Ordre programmé","desc":"Achat auto 200 MAD/sem"}'><span class="lbl">Achat récurrent</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Alerte créée","desc":"Vous serez notifié·e à +5 %"}'><span class="lbl">Définir une alerte</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Informations","desc":"Cours · graphique · actualités · KID"}'><span class="lbl">Détails & documents</span><span class="ch">›</span></button>
+      </div>`;
+    openS('holdDetail');
+  });
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-trade]');
+    if (!t) return;
+    const buy = t.dataset.trade === 'buy';
+    closeS();
+    splash(buy ? 'Ordre d\'achat exécuté' : 'Ordre de vente exécuté', `${t.dataset.holdN} · 0 commission`);
+  });
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-vault-id]');
+    if (!t) return;
+    const v = state.vaults.find(x => x.id === t.dataset.vaultId);
+    if (!v) return;
+    $('#vaultDetailTitle').textContent = `${v.emoji} ${v.n}`;
+    const pct = (v.v / v.t * 100).toFixed(1);
+    $('#vaultDetailBody').innerHTML = `
+      <div style="text-align:center; padding:6px 0 18px;">
+        <div style="font-size:42px;">${v.emoji}</div>
+        <div style="font-size:36px;font-weight:600;letter-spacing:-0.04em;margin-top:8px;" class="num">${fmt(v.v,0)}<span style="font-size:18px;color:var(--text-mute);font-weight:500;"> / ${fmt(v.t,0)} MAD</span></div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--mint);margin-top:4px;">+${v.apy} % APY · intérêts quotidiens</div>
+      </div>
+      <div class="vault-bar"><div style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-mute);margin-top:8px;font-family:var(--mono);"><span>${pct} % atteint</span><span>${v.due} restants</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px;">
+        <button class="btn-primary" style="margin:0;" data-vault-action="deposit" data-vault-id="${v.id}">Déposer</button>
+        <button class="btn-secondary" style="margin:0;" data-vault-action="withdraw" data-vault-id="${v.id}">Retirer</button>
+      </div>
+      <div class="menu-group" style="margin-top:16px;">
+        <button class="menu-item" data-toggle="auto-vault"><span class="lbl">Versement auto · 500 MAD/mois</span><span class="toggle on" data-tog></span></button>
+        <button class="menu-item" data-toggle="round-vault"><span class="lbl">Arrondi → ce coffre</span><span class="toggle" data-tog></span></button>
+        <button class="menu-item" data-toast='{"title":"Coffre fermé","desc":"Solde rapatrié sur votre compte principal","type":"warn"}' style="color:#F29B8F;"><span class="lbl">Fermer le coffre</span></button>
+      </div>`;
+    openS('vaultDetail');
+  });
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-vault-action]');
+    if (!t) return;
+    const v = state.vaults.find(x => x.id === t.dataset.vaultId);
+    const deposit = t.dataset.vaultAction === 'deposit';
+    const amt = 500;
+    if (deposit) { v.v += amt; state.balanceMAD -= amt; }
+    else         { v.v = Math.max(0, v.v - amt); state.balanceMAD += amt; }
+    renderVaults(); renderBalance();
+    closeS();
+    splash(deposit ? `+${amt} MAD au coffre` : `−${amt} MAD du coffre`, `${v.emoji} ${v.n} · solde ${fmt(v.v,0)} MAD`);
+  });
+
+  // ============ CONTACTS ============
+  $('#contactsList').innerHTML = `
+    <input class="search-pill" style="width:100%;height:42px;padding:0 16px;margin-bottom:14px;" placeholder="Nom, IBAN, téléphone…" />
+    ${state.contacts.map(c => `
+      <button class="contact-row" data-contact-i="${c.i}">
+        <span class="contact-av" style="background:${c.bg};${c.fg?`color:${c.fg};`:''}${c.border?'border:1.5px dashed var(--mint);':''}">${c.i}</span>
+        <span class="contact-info"><span class="contact-n">${c.n}</span><span class="contact-r">${c.r}</span></span>
+      </button>`).join('')}`;
+
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-contact-i]');
+    if (!t) return;
+    const c = state.contacts.find(x => x.i === t.dataset.contactI);
+    $('#sendContact').innerHTML = `
+      <span class="contact-av" style="background:${c.bg};${c.fg?`color:${c.fg};`:''}">${c.i}</span>
+      <span class="contact-info"><span class="contact-n">${c.n}</span><span class="contact-r">${c.r}</span></span>
+      <span class="ch" style="color:var(--text-mute);">›</span>`;
+    closeS();
+    openS('send');
+  });
+
+  // ============ SEND CALCULATIONS ============
+  function recalcSend() {
+    const from = $('#sendFromCurL').textContent;
+    const to = $('#sendToCurL').textContent;
+    const amt = parseAmt($('#sendFrom').value);
+    // convert via MAD
+    const inMad = amt * FX[from];
+    const out = inMad / FX[to];
+    $('#sendTo').value = fmt(out);
+    $('#sendRate').textContent = `${from} / ${to} · ${(FX[from]/FX[to]).toFixed(4)}`;
+  }
+  $('#sendFrom').addEventListener('input', recalcSend);
+  $('#sendSwap').addEventListener('click', () => {
+    const a = $('#sendFromCurL').textContent;
+    $('#sendFromCurL').textContent = $('#sendToCurL').textContent;
+    $('#sendToCurL').textContent = a;
+    recalcSend();
+  });
+  $('#sendConfirm').addEventListener('click', () => {
+    const amt = parseAmt($('#sendFrom').value);
+    const cur = $('#sendFromCurL').textContent;
+    const mad = amt * FX[cur];
+    state.balanceMAD -= mad;
+    state.transactions.unshift({ id: Date.now(), n:'Transfert · Fatima Bakkali', cat:'Transfert', when:'À l\'instant', v:-mad, c:'linear-gradient(135deg,#FF8FC8,#C1487E)', i:'FB' });
+    renderBalance(); renderTx(); renderAllTx();
+    closeS();
+    splash('Transfert envoyé · ~10 sec.', `${fmt(amt)} ${cur} → ${$('#sendTo').value} ${$('#sendToCurL').textContent}`);
+  });
+
+  // ============ EXCHANGE ============
+  function recalcExchange() {
+    const from = $('#exFromCurL').textContent;
+    const to = $('#exToCurL').textContent;
+    const amt = parseAmt($('#exFrom').value);
+    const inMad = amt * FX[from];
+    const out = inMad / FX[to];
+    $('#exTo').value = fmt(out);
+    $('#exRate').textContent = `${from} / ${to} · ${(FX[from]/FX[to]).toFixed(4)}`;
+  }
+  $('#exFrom').addEventListener('input', recalcExchange);
+  $('#exSwap').addEventListener('click', () => {
+    const a = $('#exFromCurL').textContent;
+    $('#exFromCurL').textContent = $('#exToCurL').textContent;
+    $('#exToCurL').textContent = a;
+    recalcExchange();
+  });
+  $('#exConfirm').addEventListener('click', () => {
+    const from = $('#exFromCurL').textContent, to = $('#exToCurL').textContent;
+    closeS();
+    splash('Échange exécuté', `${$('#exFrom').value} ${from} → ${$('#exTo').value} ${to} · 0 % marge`);
+  });
+
+  // ============ ADD AMOUNT EDITABLE ============
+  // (handled inline via contenteditable; src buttons trigger the recharge)
+
+  // ============ NEW VAULT ============
+  $('#newVaultConfirm').addEventListener('click', () => {
+    const name = $('#newVaultName').value.trim() || 'Nouvel objectif';
+    const target = parseAmt($('#newVaultTarget').value) || 10000;
+    state.vaults.push({ id: 'v'+Date.now(), emoji:'🎯', n:name, v:0, t:target, apy:4.2, due:'—' });
+    renderVaults();
+    closeS();
+    splash('Coffre créé', `${name} · objectif ${fmt(target,0)} MAD`);
+  });
+
+  // ============ NEW CARD ============
+  $('#newCardConfirm').addEventListener('click', () => {
+    const name = $('#newCardName').value.trim() || 'Carte virtuelle';
+    const limit = parseAmt($('#newCardLimit').value) || 500;
+    const num = '•••• ' + Math.floor(1000 + Math.random()*9000);
+    state.cards.push({ id:'v'+Date.now(), tier:name, name:'Visa virtuelle', num, frozen:false, theme:'cc-pro', monthSpend:0, limit });
+    renderCards();
+    closeS();
+    splash('Carte virtuelle créée', `${name} · ${num} · limite ${fmt(limit,0)} MAD`);
+  });
+
+  // ============ COPY IBAN ============
+  $('#copyIban').addEventListener('click', () => {
+    const v = $('#ibanV').textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(v).catch(()=>{});
+    toast('IBAN copié', { type:'success', desc: v });
+  });
+
+  // ============ RANGE PILLS (chart) ============
+  $$('[data-range] button').forEach(b => b.addEventListener('click', () => {
+    b.parentElement.querySelectorAll('button').forEach(o => o.classList.remove('on'));
+    b.classList.add('on');
+  }));
+
+  // initial recalcs
+  recalcSend(); recalcExchange();
+})();
+</script>
+</body>
+</html>
