@@ -6861,52 +6861,244 @@ handlers['bout-cat-publish'] = () => {
   /* ═══════════════════════════════════════════════════════════════════════
    *   handlers['nav-menu']  ·  Menu & stations
    * ═════════════════════════════════════════════════════════════════════════ */
+  /* ─── Options data · sample modifier groups (Glovo-style) ─────────────── */
+  const OPTION_GROUPS = [
+    { id: 'opt-cuisson',  name: 'Cuisson',            kind: 'radio',  applies: 6,  vals: [
+      { n: 'Bleu' }, { n: 'Saignant' }, { n: 'À point' }, { n: 'Bien cuit' }
+    ]},
+    { id: 'opt-supp',     name: 'Suppléments fromage', kind: 'multi', applies: 12, vals: [
+      { n: 'Cheddar', p: 8 }, { n: 'Comté', p: 12 }, { n: 'Bleu', p: 10 }, { n: 'Mozzarella', p: 8 }
+    ]},
+    { id: 'opt-sauces',   name: 'Sauces',              kind: 'multi', applies: 18, vals: [
+      { n: 'BBQ' }, { n: 'Mayo' }, { n: 'Andalouse' }, { n: 'Algérienne' }, { n: 'Samouraï' }, { n: 'Harissa' }
+    ]},
+    { id: 'opt-pain',     name: 'Pain à part',         kind: 'toggle', applies: 8, vals: [ { n: 'Oui' } ]},
+    { id: 'opt-cor',      name: 'Sans coriandre',      kind: 'toggle', applies: 22, vals: [ { n: 'Oui' } ]},
+    { id: 'opt-piment',   name: 'Sans piment',         kind: 'toggle', applies: 14, vals: [ { n: 'Oui' } ]},
+    { id: 'opt-boisson',  name: 'Boisson menu',        kind: 'radio',  applies: 5,  vals: [
+      { n: 'Coca' }, { n: 'Coca Zero' }, { n: 'Sprite' }, { n: 'Thé menthe' }, { n: 'Eau' }
+    ]},
+    { id: 'opt-acc',      name: 'Accompagnement',      kind: 'radio',  applies: 9,  vals: [
+      { n: 'Frites maison' }, { n: 'Salade verte' }, { n: 'Riz safrané' }, { n: 'Légumes vapeur' }
+    ]},
+  ];
+  const optionKindLabel = (k) => k === 'radio' ? 'CHOIX UNIQUE' : k === 'multi' ? 'CHOIX MULTIPLE' : 'INTERRUPTEUR';
+
+  /* ─── thumbnail glyph picker ───────────────────────────────────────────── */
+  const itemGlyph = (n) =>
+    /tajine/i.test(n)   ? '◉' :
+    /couscous/i.test(n) ? '◓' :
+    /pastilla/i.test(n) ? '✦' :
+    /salade/i.test(n)   ? '◴' :
+    /briouate|harira/i.test(n) ? '◔' :
+    /msemen|crêpe|cornes|sellou/i.test(n) ? '✺' :
+    /thé|café|coffee/i.test(n) ? '☕' :
+    /orange|limonade|cocktail|jus/i.test(n) ? '◍' :
+    /méchoui|bbq/i.test(n) ? '◈' :
+    /zaalouk|aubergine|caviar/i.test(n) ? '◐' :
+                          '●';
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *   handlers['nav-menu']  ·  Menu (Glovo-inspired) — Produits | Options | Stations
+   *   Two-column layout (category rail + items pane) with three top-level tabs.
+   * ═════════════════════════════════════════════════════════════════════════ */
   handlers['nav-menu'] = () => {
+    let activeTab = 'products';       // products | options | stations
     let activeCat = 'tajines';
+    let searchTerm = '';
     const menu86 = new Set(['taj-2']);
 
     const stockChip = (st) =>
-      st === 'ok'  ? '<span class="chip ok">en stock</span>' :
-      st === 'low' ? '<span class="chip pend">stock bas</span>' :
-                     '<span class="chip ref">RUPTURE</span>';
+      st === 'ok'  ? '' :
+      st === 'low' ? '<span class="chip pend" style="font-size:9.5px;">stock bas</span>' :
+                     '<span class="chip ref" style="font-size:9.5px;">RUPTURE</span>';
 
-    const renderRow = (it, idx, total) => {
+    /* ── helpers ─────────────────────────────────────────────────────────── */
+    const catItems = (key) => MENU[key] || [];
+    const catAlerts = (key) => catItems(key).filter((it) => menu86.has(it.id) || it.st === 'out').length;
+    const catActive = (key) => catItems(key).filter((it) => !menu86.has(it.id)).length;
+
+    const matchSearch = (it) => {
+      if (!searchTerm) return true;
+      const q = searchTerm.toLowerCase();
+      return it.n.toLowerCase().includes(q)
+        || it.d.toLowerCase().includes(q)
+        || it.stations.some((sid) => (findStation(sid)?.name || '').toLowerCase().includes(q));
+    };
+
+    /* ── rail · category cards ───────────────────────────────────────────── */
+    const renderRail = () => `
+      <button class="kw-cat-add" data-action="menu-cat-add">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+        Ajouter une catégorie
+      </button>
+      ${CATS.map((c) => {
+        const alerts = catAlerts(c.key);
+        const total = catItems(c.key).length;
+        return `
+          <button class="kw-cat-card ${c.key === activeCat ? 'on' : ''}" data-cat="${c.key}">
+            <div class="body">
+              <div class="nm">${c.label}</div>
+              <div class="ct">${total} produit${total > 1 ? 's' : ''}</div>
+            </div>
+            <div class="meta">
+              ${alerts > 0 ? `<span class="badge alert" title="${alerts} en rupture / 86'd">${alerts}</span>` : ''}
+              <span class="chev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></span>
+            </div>
+          </button>`;
+      }).join('')}
+    `;
+
+    /* ── items pane · single category ───────────────────────────────────── */
+    const renderItem = (it) => {
       const is86 = menu86.has(it.id);
+      const stationChips = it.stations.map(stationChip).join('');
       return `
-        <div class="menu-row ${is86 ? 'is-86' : ''}" data-row="${it.id}">
-          <div class="photo">${it.n.includes('Tajine') ? '◉' : it.n.includes('Couscous') ? '◓' : it.n.includes('Café') || it.n.includes('Thé') ? '☕' : it.n.includes('Pastilla') ? '✦' : it.n.includes('Salade') ? '◴' : '●'}</div>
-          <div class="nm">
-            ${it.n}
+        <div class="kw-item ${is86 ? 'is-86' : ''}" data-row="${it.id}">
+          <div class="thumb">${itemGlyph(it.n)}</div>
+          <div class="body">
+            <div class="nm">${it.n} ${stockChip(is86 ? 'out' : it.st)}</div>
             <div class="desc">${it.d}</div>
-            <div class="tags">${stockChip(is86 ? 'out' : it.st)}</div>
-            <div class="kiwi-st-chips" data-st-row="${it.id}">${it.stations.map(stationChip).join('')}</div>
+            <button class="view-opt" data-row-act="edit" data-id="${it.id}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M12 8v4l3 2"/></svg>
+              Voir les options
+            </button>
+            <div class="st-chips" data-st-row="${it.id}">${stationChips}</div>
           </div>
-          <div class="pr">${it.p.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('.', ',')} MAD</div>
-          <div class="rk"><b>#${it.rank}</b><div style="font-size:10px; color:var(--n-500);">${it.sold} vendus</div></div>
-          <div class="menu-cat-actions" style="justify-content:flex-end;">
-            <button class="ord-arrow" data-row-act="up" data-id="${it.id}" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''} aria-label="Monter">▲</button>
-            <button class="ord-arrow" data-row-act="dn" data-id="${it.id}" ${idx === total - 1 ? 'disabled style="opacity:0.3;"' : ''} aria-label="Descendre">▼</button>
-            <span class="toggle-86 ${is86 ? 'on' : ''}" data-row-act="86" data-id="${it.id}" title="${is86 ? 'Réactiver' : '86 it (rupture)'}"></span>
-          </div>
-          <div class="more" data-row-act="edit" data-id="${it.id}">⋯</div>
+          <div class="price">${it.p.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('.', ',')} MAD<span class="rk">#${it.rank} · ${it.sold} vendus</span></div>
+          <span class="sw ${is86 ? '' : 'on'}" data-row-act="86" data-id="${it.id}" title="${is86 ? '86 (rupture)' : 'En stock — cliquer pour 86'}" role="switch" aria-checked="${!is86}"></span>
         </div>`;
     };
 
-    const renderItems = (catKey) => {
-      const list = MENU[catKey] || [];
-      return list.map((it, i) => renderRow(it, i, list.length)).join('');
+    const renderItemsPane = () => {
+      const cat = CATS.find((c) => c.key === activeCat);
+      const list = catItems(activeCat).filter(matchSearch);
+      const body = list.length
+        ? list.map(renderItem).join('')
+        : `<div class="kw-items-empty">Aucun produit ne correspond${searchTerm ? ` à « ${searchTerm} »` : ''}.</div>`;
+      return `
+        <div class="kw-items-pane">
+          <div class="kw-items-head">
+            <h3>
+              ${cat ? cat.label.toUpperCase() : '—'}
+              <span class="edit-cat" data-action="menu-cat-edit" title="Renommer · supprimer">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z"/></svg>
+              </span>
+            </h3>
+            <button class="add-prod" data-action="menu-add">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+              Ajouter un produit
+            </button>
+          </div>
+          ${body}
+        </div>`;
     };
 
+    const renderProductsTab = () => `
+      <div class="kw-menu-grid">
+        <div class="kw-cat-rail" id="kw-cat-rail">${renderRail()}</div>
+        <div id="kw-items-pane">${renderItemsPane()}</div>
+      </div>
+    `;
+
+    /* ── Options tab pane ───────────────────────────────────────────────── */
+    const kindPill = (k) => `<span class="kind-pill">${optionKindLabel(k)}</span>`;
+    const renderOptionGroup = (g) => `
+      <div class="kw-opt-group" data-opt="${g.id}">
+        <div class="h">
+          <div>
+            <div class="nm">${g.name} ${kindPill(g.kind)}</div>
+            <div class="meta">Appliqué à ${g.applies} produit${g.applies > 1 ? 's' : ''} · ${g.vals.length} option${g.vals.length > 1 ? 's' : ''}</div>
+          </div>
+          <button class="kw-menu-action icon" title="Éditer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z"/></svg>
+          </button>
+        </div>
+        <div class="vals">
+          ${g.vals.map((v) => `<span class="v ${v.p ? 'priced' : ''}">${v.n}${v.p ? `<span class="pr">+${v.p} MAD</span>` : ''}</span>`).join('')}
+        </div>
+      </div>
+    `;
+    const renderOptionsTab = () => `
+      <div class="kw-opt-pane">
+        <div class="head">
+          <div>
+            <h3>Groupes d'options</h3>
+            <div class="sub">${OPTION_GROUPS.length} groupes · attachez-les à un produit depuis l'éditeur d'item.</div>
+          </div>
+          <button class="kw-menu-action" data-action="menu-opt-add" style="background:var(--ink); color:var(--paper); border-color:var(--ink);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+            Créer un groupe
+          </button>
+        </div>
+        ${OPTION_GROUPS.map(renderOptionGroup).join('')}
+      </div>
+    `;
+
+    /* ── Stations tab pane ──────────────────────────────────────────────── */
+    const renderStationCard = (s) => {
+      const stats = stationStats(s.id);
+      return `
+        <div class="kw-st-card" data-st="${s.id}">
+          <span class="sw" style="background:${s.raw};"></span>
+          <div class="body">
+            <div class="nm">${s.name}</div>
+            <div class="kind">${stationKindLabel(s.kind)}${s.custom ? ' · personnalisée' : ''}</div>
+            <div class="stats">
+              <div><b>${stats.items}</b>item${stats.items > 1 ? 's' : ''} routé${stats.items > 1 ? 's' : ''}</div>
+              <div><b>${stats.sold.toLocaleString('fr-FR')}</b>vendus / 30 j</div>
+            </div>
+            <div class="row-actions">
+              ${s.custom
+                ? `<button class="kw-menu-action" data-st-delete-id="${s.id}" style="padding:6px 12px; font-size:11.5px;">Supprimer</button>`
+                : `<span class="badge-sys">SYSTÈME</span>`}
+              ${s.custom ? `<span class="badge-cust">CUSTOM</span>` : ''}
+            </div>
+          </div>
+        </div>`;
+    };
+    const renderStationsTab = () => `
+      <div class="kw-st-pane">
+        <div class="head">
+          <div>
+            <h3>Stations de préparation</h3>
+            <div class="sub">${STATIONS.length} stations actives · chaque produit est routé vers 1+ station${STATIONS.length > 1 ? 's' : ''}. Les tickets KDS apparaissent simultanément.</div>
+          </div>
+          <button class="kw-menu-action" data-action="menu-station-create" style="background:var(--atlas); color:var(--paper); border-color:var(--atlas);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+            Créer une station
+          </button>
+        </div>
+        <div class="kw-st-grid">${STATIONS.map(renderStationCard).join('')}</div>
+        <div style="margin-top:14px; padding:14px 16px; background:var(--paper-soft); border-radius:10px; font-size:12.5px; color:var(--n-600); line-height:1.5; display:flex; gap:10px; align-items:flex-start;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--atlas); flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h0"/></svg>
+          <div><b>Astuce :</b> ajoutez une station "Pizza four" ou "Bar à jus" si votre établissement a une zone dédiée. Le KDS basculera automatiquement vers la nouvelle station dans les 5 secondes.</div>
+        </div>
+      </div>
+    `;
+
+    /* ── full body ──────────────────────────────────────────────────────── */
+    const tabCounts = {
+      products: allItems().length,
+      options:  OPTION_GROUPS.length,
+      stations: STATIONS.length,
+    };
+
+    const renderTabBody = () =>
+      activeTab === 'products' ? renderProductsTab() :
+      activeTab === 'options'  ? renderOptionsTab()  :
+                                 renderStationsTab();
+
     const menuDr = fullpage({
-      title: 'Menu & stations · Café Atlas',
-      subtitle: `${allItems().length} items actifs · ${CATS.length} catégories · ${STATIONS.length} stations de prép. · ${menu86.size} produits 86\'d`,
-      width: 980,
+      title: 'Menu · Café Atlas',
+      subtitle: `${allItems().length} produits · ${CATS.length} catégories · ${STATIONS.length} stations · ${menu86.size} en rupture`,
+      width: 1080,
       body: `
         <div class="p-kpis">
-          <div class="p-kpi"><div class="l">CARTE ACTIVE</div><div class="v">${allItems().length}<span class="u">items</span></div><div class="d up">+ 3 ce mois</div></div>
+          <div class="p-kpi"><div class="l">CARTE ACTIVE</div><div class="v">${allItems().length}<span class="u"> produits</span></div><div class="d up">+ 3 ce mois</div></div>
           <div class="p-kpi"><div class="l">PANIER MOYEN</div><div class="v">158<span class="u"> MAD</span></div><div class="d up">+ 4,2 % vs sem. dernière</div></div>
-          <div class="p-kpi"><div class="l">STATIONS DE PRÉP.</div><div class="v">${STATIONS.length}</div><div class="d">${STATIONS.filter((s) => s.kind === 'kitchen').length} cuisine · ${STATIONS.filter((s) => s.kind === 'bar').length} bar</div></div>
-          <div class="p-kpi" style="background:rgba(201,74,58,0.06); border-color:rgba(201,74,58,0.25);"><div class="l">86'D</div><div class="v" style="color:var(--danger);">${menu86.size}</div><div class="d">tajine agneau · etc.</div></div>
+          <div class="p-kpi"><div class="l">STATIONS</div><div class="v">${STATIONS.length}</div><div class="d">${STATIONS.filter((s) => s.kind === 'kitchen').length} cuisine · ${STATIONS.filter((s) => s.kind === 'bar').length} bar</div></div>
+          <div class="p-kpi" style="background:rgba(201,74,58,0.06); border-color:rgba(201,74,58,0.25);"><div class="l">EN RUPTURE</div><div class="v" style="color:var(--danger);">${menu86.size}</div><div class="d">tajine agneau · etc.</div></div>
         </div>
 
         <div class="menu-ai">
@@ -6921,31 +7113,33 @@ handlers['bout-cat-publish'] = () => {
           <button class="kb" style="background:var(--mint); color:var(--riad);" data-action="menu-promote">Voir suggestions</button>
         </div>
 
-        <div class="p-toolbar">
-          <div class="p-search">
+        <div class="kw-menu-tabs" id="kw-menu-tabs">
+          <button class="kw-menu-tab ${activeTab === 'products' ? 'on' : ''}" data-tab="products">
+            Produits <span class="ct">${tabCounts.products}</span>
+          </button>
+          <button class="kw-menu-tab ${activeTab === 'options' ? 'on' : ''}" data-tab="options">
+            Options <span class="ct">${tabCounts.options}</span>
+          </button>
+          <button class="kw-menu-tab ${activeTab === 'stations' ? 'on' : ''}" data-tab="stations">
+            Stations <span class="ct">${tabCounts.stations}</span>
+          </button>
+        </div>
+
+        <div class="kw-menu-toolbar">
+          <label class="kw-menu-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-            Rechercher un item, une station, un allergène…
-          </div>
-          <button class="kb ghost" data-action="menu-stations-manage">Gérer les stations</button>
-          <button class="kb ghost" data-action="menu-schedule">Plages horaires</button>
-          <button class="kb atlas" data-action="menu-add">+ Ajouter un item</button>
+            <input id="kw-menu-search-input" type="text" placeholder="Rechercher un produit, une station, un allergène…" />
+          </label>
+          <button class="kw-menu-action" data-action="menu-schedule" title="Plages horaires">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+            Filtres
+          </button>
+          <button class="kw-menu-action icon" title="Plus" data-action="menu-publish">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+          </button>
         </div>
 
-        <div class="menu-pill-cats" id="menu-cats">
-          ${CATS.map((c) => `<button class="menu-pill-cat ${c.key === activeCat ? 'on' : ''}" data-cat="${c.key}">${c.label}<span class="ct">${c.count}</span></button>`).join('')}
-        </div>
-
-        <div class="p-pane" id="menu-pane">
-          ${renderItems(activeCat)}
-        </div>
-
-        <div class="p-card" style="margin-top:18px;">
-          <div class="head">
-            <h4>Stations actives</h4>
-            <span class="meta">${STATIONS.length} STATIONS · ROUTAGE TICKETS LIVE</span>
-          </div>
-          <div id="menu-stations-summary" style="display:grid; grid-template-columns:repeat(2,1fr); gap:8px; font-size:12.5px;">${stationSummaryHtml()}</div>
-        </div>
+        <div id="kw-menu-tab-body">${renderTabBody()}</div>
       `,
       foot: `
         <div style="display:flex; gap:8px; justify-content:space-between; width:100%; align-items:center;">
@@ -6959,86 +7153,158 @@ handlers['bout-cat-publish'] = () => {
     });
     wireDismiss(menuDr);
 
-    /* ─── wire: tabs + 86 + reorder + edit + station chip refresh ─── */
+    /* ── wire: tabs + rail + items ─────────────────────────────────────── */
     setTimeout(() => {
       const root = menuDr.el;
       if (!root) return;
-      const pane = root.querySelector('#menu-pane');
 
-      const refreshSummary = () => {
-        const sum = root.querySelector('#menu-stations-summary');
-        if (sum) sum.innerHTML = stationSummaryHtml();
+      const body = root.querySelector('#kw-menu-tab-body');
+      const tabs = root.querySelector('#kw-menu-tabs');
+      const searchInput = root.querySelector('#kw-menu-search-input');
+
+      const refreshTabBody = () => {
+        body.innerHTML = renderTabBody();
+        wireBody();
       };
 
-      const refreshRowChips = (id) => {
-        const it = allItems().find((x) => x.id === id);
-        const wrap = root.querySelector(`[data-st-row="${id}"]`);
-        if (it && wrap) wrap.innerHTML = it.stations.map(stationChip).join('');
+      const refreshRail = () => {
+        const rail = root.querySelector('#kw-cat-rail');
+        if (rail) rail.innerHTML = renderRail();
+        wireRail();
       };
 
-      const refreshAllRowChips = () => {
-        root.querySelectorAll('[data-st-row]').forEach((w) => {
-          const id = w.getAttribute('data-st-row');
-          const it = allItems().find((x) => x.id === id);
-          if (it) w.innerHTML = it.stations.map(stationChip).join('');
+      const refreshItems = () => {
+        const pane = root.querySelector('#kw-items-pane');
+        if (pane) pane.innerHTML = renderItemsPane();
+        wireItems();
+      };
+
+      const refreshSubtitle = () => {
+        const sub = root.querySelector('.kiwi-drawer-head p');
+        if (sub) sub.textContent = `${allItems().length} produits · ${CATS.length} catégories · ${STATIONS.length} stations · ${menu86.size} en rupture`;
+      };
+
+      const wireRail = () => {
+        body.querySelectorAll('.kw-cat-card').forEach((btn) => {
+          btn.onclick = () => {
+            const key = btn.getAttribute('data-cat');
+            if (key === activeCat) return;
+            activeCat = key;
+            refreshRail();
+            refreshItems();
+          };
         });
       };
 
-      // expose for handlers fired outside the drawer scope
-      root.__kiwiMenu = { refreshAllRowChips, refreshSummary };
-
-      const wireRows = () => {
+      const wireItems = () => {
+        const pane = body.querySelector('#kw-items-pane');
+        if (!pane) return;
         pane.querySelectorAll('[data-row-act]').forEach((b) => {
           b.onclick = (e) => {
             e.stopPropagation();
             const a = b.getAttribute('data-row-act');
             const id = b.getAttribute('data-id');
-            const list = MENU[activeCat];
-            const idx = list.findIndex((x) => x.id === id);
-            if (idx < 0) return;
-            const it = list[idx];
+            const it = allItems().find((x) => x.id === id);
+            if (!it) return;
             if (a === '86') {
               if (menu86.has(id)) menu86.delete(id);
               else menu86.add(id);
-              toast(menu86.has(id) ? `${it.n} marqué 86 (rupture)` : `${it.n} de retour à la carte`, {
+              toast(menu86.has(id) ? `${it.n} marqué en rupture` : `${it.n} de retour à la carte`, {
                 type: menu86.has(id) ? 'warn' : 'success',
-                desc: menu86.has(id) ? 'Retiré du POS et de Glovo · Jumia notifié.' : 'Item disponible sur tous les canaux.',
+                desc: menu86.has(id) ? 'Retiré du POS et de Glovo · Jumia notifié.' : 'Produit disponible sur tous les canaux.',
               });
-              pane.innerHTML = renderItems(activeCat); wireRows();
+              refreshItems();
+              refreshRail();
+              refreshSubtitle();
             }
-            if (a === 'up' && idx > 0) {
-              [list[idx - 1], list[idx]] = [list[idx], list[idx - 1]];
-              pane.innerHTML = renderItems(activeCat); wireRows();
-              toast(`${it.n} repositionné`, { type: 'info' });
-            }
-            if (a === 'dn' && idx < list.length - 1) {
-              [list[idx], list[idx + 1]] = [list[idx + 1], list[idx]];
-              pane.innerHTML = renderItems(activeCat); wireRows();
-              toast(`${it.n} repositionné`, { type: 'info' });
-            }
-            if (a === 'edit') openItemEdit(it, () => { refreshRowChips(it.id); refreshSummary(); });
+            if (a === 'edit') openItemEdit(it, () => { refreshItems(); refreshRail(); });
           };
         });
-        pane.querySelectorAll('.menu-row').forEach((r) => {
+        pane.querySelectorAll('.kw-item').forEach((r) => {
           r.addEventListener('click', (e) => {
             if (e.target.closest('[data-row-act]')) return;
             const id = r.getAttribute('data-row');
-            const it = MENU[activeCat].find((x) => x.id === id);
-            if (it) openItemEdit(it, () => { refreshRowChips(it.id); refreshSummary(); });
+            const it = allItems().find((x) => x.id === id);
+            if (it) openItemEdit(it, () => { refreshItems(); refreshRail(); });
           });
         });
       };
 
-      root.querySelectorAll('#menu-cats .menu-pill-cat').forEach((btn) => {
+      const wireStations = () => {
+        body.querySelectorAll('.kw-st-card').forEach((card) => {
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('[data-st-delete-id]')) return;
+            const sid = card.getAttribute('data-st');
+            const s = findStation(sid);
+            if (s) toast(`Station "${s.name}"`, { type: 'info', desc: `${stationStats(sid).items} produits routés · ${stationKindLabel(s.kind)}.` });
+          });
+        });
+        body.querySelectorAll('[data-st-delete-id]').forEach((btn) => {
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            const sid = btn.getAttribute('data-st-delete-id');
+            const s = findStation(sid);
+            if (!s) return;
+            const stats = stationStats(sid);
+            if (stats.items > 0) {
+              toast(`Impossible · ${stats.items} produit${stats.items > 1 ? 's' : ''} routé${stats.items > 1 ? 's' : ''}`, {
+                type: 'warn',
+                desc: `Réaffectez les produits de la station "${s.name}" avant de la supprimer.`,
+              });
+              return;
+            }
+            const idx = STATIONS.findIndex((x) => x.id === sid);
+            if (idx >= 0) STATIONS.splice(idx, 1);
+            refreshTabBody();
+            refreshSubtitle();
+            toast(`Station "${s.name}" supprimée`, { type: 'success' });
+          };
+        });
+      };
+
+      const wireOptions = () => {
+        body.querySelectorAll('.kw-opt-group').forEach((g) => {
+          g.addEventListener('click', () => {
+            const id = g.getAttribute('data-opt');
+            const grp = OPTION_GROUPS.find((x) => x.id === id);
+            if (grp) toast(`Groupe "${grp.name}"`, { type: 'info', desc: `${optionKindLabel(grp.kind)} · ${grp.vals.length} options · attaché à ${grp.applies} produits.` });
+          });
+        });
+      };
+
+      const wireBody = () => {
+        if (activeTab === 'products') { wireRail(); wireItems(); }
+        if (activeTab === 'options')  { wireOptions(); }
+        if (activeTab === 'stations') { wireStations(); }
+      };
+
+      // Tabs
+      tabs.querySelectorAll('.kw-menu-tab').forEach((btn) => {
         btn.addEventListener('click', () => {
-          const key = btn.getAttribute('data-cat');
-          if (key === activeCat) return;
-          activeCat = key;
-          root.querySelectorAll('#menu-cats .menu-pill-cat').forEach((b) => b.classList.toggle('on', b === btn));
-          pane.innerHTML = renderItems(activeCat); wireRows();
+          const t = btn.getAttribute('data-tab');
+          if (t === activeTab) return;
+          activeTab = t;
+          tabs.querySelectorAll('.kw-menu-tab').forEach((b) => b.classList.toggle('on', b === btn));
+          refreshTabBody();
         });
       });
-      wireRows();
+
+      // Search
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          searchTerm = searchInput.value.trim();
+          if (activeTab === 'products') refreshItems();
+        });
+      }
+
+      // Expose hooks for external handlers (station create modal etc.)
+      root.__kiwiMenu = {
+        refreshAllRowChips: refreshItems,
+        refreshSummary: refreshTabBody,
+        refreshTabBody,
+      };
+
+      wireBody();
     }, 0);
   };
 
@@ -7302,6 +7568,26 @@ handlers['bout-cat-publish'] = () => {
   };
 
   handlers['menu-station-create'] = () => openStationCreate(() => {});
+
+  /* ─── new Glovo-redesign actions (category + option group create/edit) ─── */
+  handlers['menu-cat-add'] = () => {
+    toast('Nouvelle catégorie', {
+      type: 'info',
+      desc: 'Saisissez le nom, l\'icône et les plages horaires de visibilité. Mock.',
+    });
+  };
+  handlers['menu-cat-edit'] = () => {
+    toast('Catégorie · édition', {
+      type: 'info',
+      desc: 'Renommer · réordonner · supprimer · plages horaires. Mock.',
+    });
+  };
+  handlers['menu-opt-add'] = () => {
+    toast('Nouveau groupe d\'options', {
+      type: 'info',
+      desc: 'Choix unique · multiple · interrupteur · avec ou sans surcoût. Mock.',
+    });
+  };
 
   handlers['menu-promote'] = () => {
     const m = modal({
