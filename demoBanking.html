@@ -194,6 +194,68 @@
     background: var(--surface); border: 1px solid var(--line);
     border-radius: 16px; padding: 14px 16px; margin-bottom: 14px;
   }
+
+  /* Cashback tile */
+  .cashback-tile {
+    width: 100%; text-align: left;
+    background: linear-gradient(135deg, rgba(125,242,176,0.14) 0%, rgba(11,110,79,0.18) 100%);
+    border: 1px solid rgba(125,242,176,0.25);
+    border-radius: 18px; padding: 14px 16px; margin-bottom: 14px;
+    color: inherit; font-family: inherit;
+    display: flex; align-items: center; gap: 14px;
+    position: relative; overflow: hidden;
+    transition: transform .1s;
+  }
+  .cashback-tile:active { transform: scale(0.985); }
+  .cashback-tile::after {
+    content: ""; position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(125,242,176,0.18), transparent 70%);
+    pointer-events: none;
+  }
+  .cb-coin {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--mint), #2EBD7C);
+    color: var(--riad-deep); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-weight: 700; box-shadow: 0 8px 18px -6px rgba(125,242,176,0.5);
+    position: relative; z-index: 1;
+  }
+  .cb-body { flex: 1; min-width: 0; position: relative; z-index: 1; }
+  .cb-l { font-size: 11px; color: var(--text-soft); letter-spacing: 0.04em; }
+  .cb-v { font-size: 24px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.1; margin-top: 2px; }
+  .cb-v .u { font-size: 13px; color: var(--text-mute); margin-left: 4px; font-weight: 500; }
+  .cb-sub { font-size: 11px; color: var(--mint); margin-top: 3px; font-family: var(--mono); }
+  .cb-arrow { color: var(--mint); position: relative; z-index: 1; flex-shrink: 0; }
+
+  /* Cashback sheet breakdown rows */
+  .cb-row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cb-row:last-child { border-bottom: 0; }
+  .cb-cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .cb-cat-n { flex: 1; font-size: 13.5px; font-weight: 500; }
+  .cb-cat-spent { font-size: 11px; color: var(--text-mute); font-family: var(--mono); margin-top: 2px; }
+  .cb-cat-v { font-family: var(--mono); font-size: 13px; color: var(--mint); font-weight: 500; }
+  .cb-header-card {
+    background: linear-gradient(135deg, var(--atlas) 0%, var(--riad) 100%);
+    border-radius: 20px; padding: 22px;
+    color: var(--paper); position: relative; overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .cb-header-card::before {
+    content: ""; position: absolute; top: -40px; right: -40px;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(125,242,176,0.35), transparent 70%);
+  }
+  .cb-header-card > * { position: relative; }
+  .cb-big { font-size: 44px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; margin-top: 8px; }
+  .cb-big .u { font-size: 18px; color: rgba(255,255,255,0.55); margin-left: 6px; font-weight: 500; }
+  .cb-rate-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--mint); color: var(--riad-deep); padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 700; font-family: var(--mono); margin-top: 12px; }
+  .cb-progress { margin-top: 16px; }
+  .cb-progress-l { display: flex; justify-content: space-between; font-size: 11.5px; color: rgba(255,255,255,0.7); margin-bottom: 6px; font-family: var(--mono); }
+  .cb-progress-bar { height: 5px; background: rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; }
+  .cb-progress-bar > div { height: 100%; background: var(--mint); border-radius: 999px; }
   .pulse-h { display: flex; justify-content: space-between; align-items: baseline; }
   .pulse-l { font-size: 11px; color: var(--text-mute); }
   .pulse-v { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; }
@@ -609,6 +671,18 @@
         <button class="act" data-open="more"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></i><span>Plus</span></button>
       </div>
 
+      <button class="cashback-tile" data-open="cashback">
+        <span class="cb-coin">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M15 9.5a3 3 0 00-3-1.5c-1.66 0-3 1-3 2.5s1.34 2 3 2.5 3 1 3 2.5-1.34 2.5-3 2.5a3 3 0 01-3-1.5M12 6v1.5M12 16.5V18"/></svg>
+        </span>
+        <span class="cb-body">
+          <span class="cb-l">Cashback · ce mois</span>
+          <span class="cb-v num" id="cbValue">0,00<span class="u">MAD</span></span>
+          <span class="cb-sub" id="cbSub">+0,00 MAD aujourd'hui · 1 % sur tout</span>
+        </span>
+        <span class="cb-arrow">›</span>
+      </button>
+
       <div class="pulse">
         <div class="pulse-h">
           <span class="pulse-l">Dépenses · 7 derniers jours</span>
@@ -879,6 +953,46 @@
     <div class="sheet-grip"></div>
     <div class="sheet-head"><h2 id="vaultDetailTitle">Coffre</h2><button class="sheet-close" data-close>✕</button></div>
     <div class="sheet-body" id="vaultDetailBody"></div>
+  </div>
+
+  <!-- CASHBACK -->
+  <div class="sheet" data-sheet="cashback">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head"><h2>Cashback</h2><button class="sheet-close" data-close>✕</button></div>
+    <div class="sheet-body">
+      <div class="cb-header-card">
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:0.06em;text-transform:uppercase;">Gagné · mai 2026</div>
+        <div class="cb-big num" id="cbBig">0,00<span class="u">MAD</span></div>
+        <div class="cb-rate-pill">✦ 1 % sur tout · Kiwi Pro</div>
+        <div class="cb-progress">
+          <div class="cb-progress-l"><span id="cbProgL">0 MAD vers 500 MAD</span><span id="cbProgR">0 %</span></div>
+          <div class="cb-progress-bar"><div id="cbProgBar" style="width:0%"></div></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:8px;">Atteignez 500 MAD de cashback annuel et débloquez le palier <b style="color:var(--mint);">1,5 %</b>.</div>
+        </div>
+      </div>
+
+      <div style="font-size:11px; color:var(--text-mute); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px;">Par catégorie</div>
+      <div id="cbBreakdown"></div>
+
+      <div style="margin:18px 0 8px; font-size:11px; color:var(--text-mute); letter-spacing:0.06em; text-transform:uppercase;">Options</div>
+      <div class="menu-group">
+        <button class="menu-item" data-cb-redeem="balance"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v10H3z"/><path d="M3 12h18"/></svg></span><span class="lbl">Verser sur mon compte</span><span class="ch">›</span></button>
+        <button class="menu-item" data-cb-redeem="vault"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span><span class="lbl">Placer dans un coffre · 4,2 %</span><span class="ch">›</span></button>
+        <button class="menu-item" data-cb-redeem="invest"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg></span><span class="lbl">Investir en fraction ATW</span><span class="ch">›</span></button>
+        <button class="menu-item" data-cb-redeem="donate"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg></span><span class="lbl">Don · Sadaqa</span><span class="ch">›</span></button>
+      </div>
+
+      <div style="margin:18px 0 8px; font-size:11px; color:var(--text-mute); letter-spacing:0.06em; text-transform:uppercase;">Boosters</div>
+      <div class="menu-group">
+        <button class="menu-item" data-toast='{"title":"Booster activé · BIM 3 %","desc":"Valide jusqu'au 31 mai","type":"success"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-2 8 10-12h-7l2-8z"/></svg></span><span class="lbl">3 % chez BIM · 7 jours</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Booster activé · Spotify 5 %","desc":"Valide ce mois","type":"success"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span><span class="lbl">5 % sur Spotify</span><span class="ch">›</span></button>
+        <button class="menu-item" data-toast='{"title":"Booster activé · Uber 2 %","desc":"Valide ce mois","type":"success"}'><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="6" rx="2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></span><span class="lbl">2 % sur Uber</span><span class="ch">›</span></button>
+      </div>
+
+      <div style="font-size:11px;color:var(--text-mute);margin-top:14px;text-align:center;line-height:1.5;">
+        Cashback versé en temps réel sur les paiements éligibles. Exclus : transferts, épargne, investissement, retraits cash.
+      </div>
+    </div>
   </div>
 
   <!-- SETTINGS -->
@@ -1262,11 +1376,104 @@
   }
   function renderTx() {
     $('#txList').innerHTML = state.transactions.slice(0, 5).map(txTpl).join('');
+    renderCashback();
   }
   function renderAllTx() {
     $('#txAllList').innerHTML = state.transactions.map(txTpl).join('');
   }
+
+  // ============ CASHBACK ============
+  const CB_RATE = 0.01; // 1% Kiwi Pro
+  const CB_ELIGIBLE = new Set(['Resto','Courses','Transport','Loisirs','Santé','Factures','Abonnement']);
+  const CB_CAT_COLOR = {
+    Resto:       '#7DF2B0',
+    Courses:     '#F5C679',
+    Transport:   '#9BC4FF',
+    Loisirs:     '#E8A0E8',
+    Santé:       '#26A269',
+    Factures:    '#FF9F7D',
+    Abonnement:  '#C5A6FF',
+  };
+  // Carry-over baseline so the demo opens with a believable monthly total
+  const CB_CARRY = 39.55;
+
+  function computeCashback() {
+    const byCat = {};
+    let todayBonus = 0;
+    state.transactions.forEach(t => {
+      if (t.v >= 0) return;
+      if (!CB_ELIGIBLE.has(t.cat)) return;
+      const spent = Math.abs(t.v);
+      const earned = spent * CB_RATE;
+      byCat[t.cat] = byCat[t.cat] || { spent:0, earned:0 };
+      byCat[t.cat].spent += spent;
+      byCat[t.cat].earned += earned;
+      if (t.when && /aujourd'hui|à l'instant/i.test(t.when)) todayBonus += earned;
+    });
+    const earnedThisMonth = Object.values(byCat).reduce((a, b) => a + b.earned, 0);
+    return { total: earnedThisMonth + CB_CARRY, byCat, todayBonus };
+  }
+
+  function renderCashback() {
+    const cb = computeCashback();
+    // Home tile
+    const [w, d] = cb.total.toFixed(2).split('.');
+    $('#cbValue').innerHTML = `${w.replace(/\B(?=(\d{3})+(?!\d))/g,' ')},${d}<span class="u"> MAD</span>`;
+    $('#cbSub').textContent = `+${fmt(cb.todayBonus)} MAD aujourd'hui · 1 % sur tout`;
+    // Sheet header
+    $('#cbBig').innerHTML = `${w.replace(/\B(?=(\d{3})+(?!\d))/g,' ')},${d}<span class="u"> MAD</span>`;
+    // Progress toward 1.5% tier (500 MAD annual goal)
+    const goal = 500;
+    const pct = Math.min(100, (cb.total / goal) * 100);
+    $('#cbProgL').textContent = `${fmt(cb.total,0)} MAD vers ${goal} MAD`;
+    $('#cbProgR').textContent = `${pct.toFixed(0)} %`;
+    $('#cbProgBar').style.width = `${pct}%`;
+    // Breakdown
+    const cats = Object.entries(cb.byCat).sort((a,b) => b[1].earned - a[1].earned);
+    if (!cats.length) {
+      $('#cbBreakdown').innerHTML = `<div class="empty">Pas encore de cashback ce mois</div>`;
+    } else {
+      $('#cbBreakdown').innerHTML = cats.map(([cat, v]) => `
+        <div class="cb-row">
+          <span class="cb-cat-dot" style="background:${CB_CAT_COLOR[cat]||'#7DF2B0'};"></span>
+          <span style="flex:1;">
+            <div class="cb-cat-n">${cat}</div>
+            <div class="cb-cat-spent">${fmt(v.spent)} MAD dépensés</div>
+          </span>
+          <span class="cb-cat-v">+${fmt(v.earned)}</span>
+        </div>`).join('');
+    }
+  }
+
   renderTx(); renderAllTx();
+  renderCashback();
+
+  // Cashback redeem actions
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-cb-redeem]');
+    if (!t) return;
+    const cb = computeCashback();
+    const amt = cb.total;
+    if (amt < 0.01) { toast('Pas encore de cashback à utiliser', { type:'warn' }); return; }
+    const kind = t.dataset.cbRedeem;
+    closeS();
+    if (kind === 'balance') {
+      state.balanceMAD += amt;
+      state.transactions.unshift({ id: Date.now(), n:'Cashback versé', cat:'Revenu', when:'À l\'instant', v:+amt, c:'#7DF2B0', i:'✦', fg:'#053B2C', up:true });
+      // wipe the carry by zeroing eligible spend isn't trivial — for demo, just refresh
+      renderBalance(); renderTx(); renderAllTx();
+      splash(`+${fmt(amt)} MAD versés`, 'Votre cashback est désormais sur votre compte.');
+    } else if (kind === 'vault') {
+      const v = state.vaults[0];
+      v.v += amt;
+      renderVaults();
+      splash(`+${fmt(amt)} MAD au coffre`, `${v.emoji} ${v.n} · à 4,2 % APY`);
+    } else if (kind === 'invest') {
+      splash('Cashback investi', `${fmt(amt)} MAD en fraction ATW · 0 commission`);
+    } else if (kind === 'donate') {
+      splash('Sadaqa envoyée', `${fmt(amt)} MAD · merci pour votre don.`);
+    }
+  });
 
   document.addEventListener('click', e => {
     const t = e.target.closest('[data-tx-id]');
