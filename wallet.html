@@ -36,7 +36,60 @@
   .btn-ghost-light:hover { background: rgba(255,255,255,0.06); border-color: var(--mint); }
   .btn-mint { background: var(--mint); color: var(--riad-deep); font-weight: 600; padding: 10px 18px; border-radius: 999px; font-size: 13.5px; transition: transform .2s, background .2s; display: inline-flex; align-items: center; gap: 8px; }
   .btn-mint:hover { background: #a2f7c5; transform: translateY(-1px); }
-  @media (max-width: 840px) { .nav-links { display: none; } }
+  @media (max-width: 840px) { .nav-links { display: none; } .hide-mob { display: none !important; } }
+
+  /* Hamburger */
+  .nav-burger { display: none; width: 38px; height: 38px; background: transparent; border: 0; cursor: pointer; flex-direction: column; justify-content: center; align-items: center; gap: 4px; padding: 0; margin-left: 4px; }
+  .nav-burger span { width: 20px; height: 1.8px; background: var(--paper); border-radius: 2px; transition: transform .25s, opacity .2s; }
+  .nav-burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  .nav-mob { position: absolute; top: 64px; left: 0; right: 0; background: rgba(2,32,26,0.96); backdrop-filter: blur(22px); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 14px 28px 22px; display: none; flex-direction: column; gap: 6px; }
+  .nav-mob a { color: #c6ead4; font-size: 16px; padding: 12px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .nav-mob a:last-child { border-bottom: 0; }
+  .nav-mob.open { display: flex; }
+  @media (max-width: 840px) { .nav-burger { display: inline-flex; } }
+
+  /* Interactive cursor hints */
+  .rv-chip, .rv-act, .rv-tab, .rv-tx, .iv-c-row, .iv-vault-card, .iv-action-row .b,
+  .pf-tab, .pf-row, .hold, .card-tile, .bento-card, .road-card, .sec-card,
+  .iv-range span, .pf-range span, .ip-range span,
+  .rv-tx-h .m, .xs-cta { cursor: pointer; user-select: none; transition: transform .15s, background .2s, border-color .2s; }
+  .rv-chip:active, .rv-act:active, .rv-tab:active, .iv-action-row .b:active, .xs-cta:active { transform: scale(0.96); }
+  .rv-act:hover i { background: rgba(125,242,176,0.18); }
+  .iv-action-row .b:hover { filter: brightness(1.08); }
+  .card-tile.is-selected { box-shadow: 0 0 0 2px var(--atlas), 0 30px 60px -20px rgba(11,110,79,0.25); }
+  .demo-pin { position: absolute; top: -12px; left: 50%; translate: -50% 0; background: var(--mint); color: var(--riad-deep); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 5px 12px; border-radius: 999px; z-index: 10; text-transform: uppercase; box-shadow: 0 8px 20px -5px rgba(125,242,176,0.5); animation: bobble 2.6s ease-in-out infinite; }
+  @keyframes bobble { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+  /* Mobile-specific tightening */
+  @media (max-width: 540px) {
+    .wrap { padding: 0 20px; }
+    .hero { padding: 60px 0 0; }
+    .hero h1 { font-size: clamp(40px, 12vw, 64px); line-height: 0.95; }
+    .hero p.lead { font-size: 16px; }
+    .hero-form { flex-direction: column; padding: 8px; border-radius: 22px; max-width: 100%; }
+    .hero-form input { width: 100%; padding: 12px 16px; text-align: left; }
+    .hero-form button { width: 100%; padding: 14px; }
+    .hero-grid { gap: 30px; min-height: auto; padding-bottom: 40px; }
+    .phone { width: 280px; }
+    .phone-screen { height: 580px; }
+    .pf-bal, .rv-bal { font-size: 36px; }
+    .sec-head { margin-bottom: 40px; }
+    section { padding: 70px 0; }
+    .xfer-mega { gap: 30px; }
+    .xfer-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .xfer-stat { padding: 14px; }
+    .xfer-stat .v { font-size: 22px; }
+    .phone.s-mini { width: 260px; }
+    .phone.s-mini .phone-screen { height: 520px; }
+    .vs-row { font-size: 14px; }
+    .final { padding: 90px 0 110px; border-radius: 28px 28px 0 0; }
+    .road { grid-template-columns: 1fr; }
+    .card-tile { padding: 28px 24px 26px; }
+    .card-tile h3 { font-size: 26px; }
+    .foot-top { grid-template-columns: 1fr 1fr; gap: 30px; }
+  }
 
   /* ============ HERO ============ */
   .hero { background: var(--hero-bg); color: var(--paper); position: relative; overflow: hidden; padding: 100px 0 0; }
@@ -577,11 +630,22 @@
       <a href="#securite">Sécurité</a>
     </div>
     <div class="nav-cta">
-      <a href="index.html#produits" class="btn-ghost-light">Pour commerçants</a>
+      <a href="index.html#produits" class="btn-ghost-light hide-mob">Pour commerçants</a>
       <a href="#waitlist" class="btn-mint">Liste d'attente
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
       </a>
+      <button class="nav-burger" id="navBurger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+  </div>
+  <div class="nav-mob" id="navMob" aria-hidden="true">
+    <a href="#compte">Compte</a>
+    <a href="#carte">Carte Visa</a>
+    <a href="#invest">Investir</a>
+    <a href="#diaspora">Diaspora</a>
+    <a href="#securite">Sécurité</a>
+    <a href="index.html#produits">Pour commerçants</a>
   </div>
 </nav>
 
@@ -605,6 +669,7 @@
 
     <div class="phone-stage">
       <div class="phone phone-home">
+        <div class="demo-pin">Démo · touchez</div>
         <div class="phone-screen rv-home-screen">
           <div class="statusbar">
             <span>9:41</span>
@@ -929,8 +994,9 @@
         </div>
       </div>
 
-      <div style="display:flex; justify-content:center;">
-        <div class="phone s-xfer">
+      <div style="display:flex; justify-content:center; position:relative;">
+        <div class="phone s-xfer" style="position:relative;">
+          <div class="demo-pin" style="background:#FF8FC8;color:#3D1A4F;">Modifiez le montant</div>
           <div class="phone-screen">
             <div class="statusbar">
               <span>9:41</span>
@@ -1460,6 +1526,224 @@
   document.querySelectorAll('.sec-head, .card-tile, .bento-card, .road-card, .sec-card, .hold, .stat-tile').forEach(el => {
     el.classList.add('reveal'); io.observe(el);
   });
+
+  // ============ INTERACTIVE DEMO ============
+  (function() {
+    const $  = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+    const fmt = (v, d=2) => v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+    const toast = (title, opts={}) => {
+      if (window.Kiwi && window.Kiwi.toast) return window.Kiwi.toast(title, opts);
+      // tiny fallback
+      const c = document.createElement('div');
+      c.style.cssText = 'position:fixed;top:20px;right:20px;background:#0A0F0D;color:#F7F5F0;padding:14px 18px;border-radius:14px;font-size:14px;z-index:9999;box-shadow:0 20px 40px -10px rgba(0,0,0,0.4);max-width:320px;';
+      c.innerHTML = `<div style="font-weight:600;">${title}</div>${opts.desc ? `<div style="font-size:12px;color:#9aaaa3;margin-top:4px;">${opts.desc}</div>` : ''}`;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), opts.duration || 2800);
+    };
+
+    // -------- Mobile nav burger --------
+    const burger = $('#navBurger'), navMob = $('#navMob');
+    burger?.addEventListener('click', () => {
+      const open = navMob.classList.toggle('open');
+      burger.setAttribute('aria-expanded', open);
+      navMob.setAttribute('aria-hidden', !open);
+    });
+    navMob?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      navMob.classList.remove('open'); burger.setAttribute('aria-expanded', 'false');
+    }));
+
+    // -------- Hero phone: currency chips --------
+    const FX = { MAD: 1, EUR: 10.9444, USD: 9.8412 };
+    const balMAD = 28412.50;
+    const rvBal = $('.rv-bal'), rvSub = $('.rv-bal-sub');
+    const rvChips = $$('.rv-chip');
+    function setCur(cur) {
+      rvChips.forEach(c => c.classList.toggle('on', c.dataset.cur === cur));
+      const v = balMAD / FX[cur];
+      const [w, d] = v.toFixed(2).split('.');
+      const ws = w.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      rvBal.innerHTML = `${ws}<span class="u">,${d}</span>`;
+      const eurEq = (balMAD / FX.EUR).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      rvSub.textContent = `Solde ${cur} · ≈ ${eurEq} EUR`;
+    }
+    rvChips.forEach(c => {
+      const t = c.textContent.trim();
+      if (t.includes('MAD')) c.dataset.cur = 'MAD';
+      else if (t.includes('EUR')) c.dataset.cur = 'EUR';
+      else if (t.includes('USD')) c.dataset.cur = 'USD';
+      c.addEventListener('click', () => {
+        if (!c.dataset.cur) { toast('Ajouter une devise', { type:'info', desc:'30+ devises · 0 % FX' }); return; }
+        setCur(c.dataset.cur);
+      });
+    });
+
+    // -------- Hero phone: action buttons --------
+    const actMap = {
+      'Ajouter': () => toast('Recharger compte', { type:'info', desc:'Carte · virement · cash · 0 frais' }),
+      'Envoyer': () => { $('#diaspora')?.scrollIntoView({ behavior:'smooth' }); },
+      'Échange': () => toast('Échange FX au taux interbancaire', { type:'success', desc:'EUR/MAD 10,9444 · 0 % marge' }),
+      'Plus':    () => toast('Autres actions', { type:'info', desc:'Factures · QR · IBAN · Coffres · Crypto' })
+    };
+    $$('.rv-act').forEach(a => a.addEventListener('click', () => actMap[a.querySelector('span').textContent]?.()));
+
+    // -------- Hero phone: bottom tabs --------
+    const tabLabels = ['Accueil', 'Cartes', 'Investir', 'Profil'];
+    const tabDescs = ['Solde + transactions', '3 cartes actives · gestion en 1 tap', 'Portefeuille · ATW · Bitcoin · Coffres', 'Identité · Sécurité · Préférences'];
+    $$('.rv-tab').forEach((t, i) => t.addEventListener('click', () => {
+      $$('.rv-tab').forEach(o => o.classList.remove('on'));
+      t.classList.add('on');
+      if (i === 1) document.querySelector('#carte')?.scrollIntoView({ behavior:'smooth' });
+      else if (i === 2) document.querySelector('#invest')?.scrollIntoView({ behavior:'smooth' });
+      else toast(tabLabels[i], { type:'info', desc: tabDescs[i], duration:1800 });
+    }));
+
+    // -------- Hero phone: transactions --------
+    $$('.rv-tx').forEach(tx => tx.addEventListener('click', () => {
+      const name = tx.querySelector('.n').textContent;
+      const amt  = tx.querySelector('.rv-tx-v').textContent;
+      toast(name, { type:'info', desc:`${amt} MAD · catégorie auto · reçu disponible` });
+    }));
+    $('.rv-tx-h .m')?.addEventListener('click', () => toast('14 transactions ce mois', { type:'info', desc:'−3 218 MAD dépenses · +5 740 MAD entrées' }));
+
+    // -------- Transfer phone: editable amount + confirm --------
+    const xferAmt  = $('.phone.s-xfer .xs-row:nth-of-type(1) .amt');
+    const xferRecv = $('.phone.s-xfer .xs-row:nth-of-type(2) .amt');
+    const xferCta  = $('.phone.s-xfer .xs-cta');
+    if (xferAmt) {
+      xferAmt.setAttribute('contenteditable', 'true');
+      xferAmt.setAttribute('inputmode', 'decimal');
+      xferAmt.style.outline = 'none';
+      xferAmt.style.borderBottom = '1.5px dashed rgba(255,143,200,0.4)';
+      const recompute = () => {
+        const raw = xferAmt.textContent.replace(/[^\d.,]/g, '').replace(/\s/g, '').replace(',', '.');
+        const v = parseFloat(raw) || 0;
+        xferRecv.textContent = fmt(v * 10.9444);
+      };
+      xferAmt.addEventListener('input', recompute);
+      xferAmt.addEventListener('focus', () => { if (xferAmt.textContent.trim() === '1 000,00') xferAmt.textContent = ''; });
+      xferAmt.addEventListener('blur', () => {
+        const raw = xferAmt.textContent.replace(/[^\d.,]/g, '').replace(/\s/g, '').replace(',', '.');
+        const v = parseFloat(raw);
+        if (!v || v <= 0) { xferAmt.textContent = '1 000,00'; recompute(); }
+        else xferAmt.textContent = fmt(v);
+      });
+    }
+    xferCta?.addEventListener('click', () => {
+      const eur = xferAmt?.textContent || '1 000,00';
+      const mad = xferRecv?.textContent || '10 944,40';
+      const orig = xferCta.textContent;
+      const origBg = xferCta.style.background;
+      xferCta.innerHTML = '✓ Envoyé · ~10 sec.';
+      xferCta.style.background = '#7DF2B0';
+      toast('Transfert envoyé', { type:'success', desc:`${eur} EUR → ${mad} MAD · Fatima Bakkali · 0 frais` });
+      setTimeout(() => { xferCta.textContent = orig; xferCta.style.background = origBg; }, 3200);
+    });
+    $('.phone.s-xfer .xs-recipient')?.addEventListener('click', () => toast('Changer bénéficiaire', { type:'info', desc:'12 contacts récents · scan QR · nouveau' }));
+
+    // -------- Stocks phone: buy/sell + range --------
+    $$('.iv-action-row .b').forEach(b => b.addEventListener('click', () => {
+      const buy = b.classList.contains('buy');
+      const orig = b.textContent;
+      b.textContent = buy ? '✓ Acheté' : '✓ Vendu';
+      toast(buy ? 'Ordre d\'achat exécuté · ATW' : 'Ordre de vente · ATW', { type: buy ? 'success' : 'info', desc:'1 fraction · 528,40 MAD · 0 commission' });
+      setTimeout(() => { b.textContent = orig; }, 2200);
+    }));
+
+    // -------- Range pills (charts) --------
+    $$('.iv-range, .pf-range, .ip-range').forEach(group => {
+      group.querySelectorAll('span').forEach(s => s.addEventListener('click', () => {
+        group.querySelectorAll('span').forEach(o => o.classList.remove('on'));
+        s.classList.add('on');
+      }));
+    });
+
+    // -------- Crypto rows --------
+    $$('.iv-c-row').forEach(r => r.addEventListener('click', () => {
+      const n = r.querySelector('.info .n').textContent;
+      const a = r.querySelector('.info .r').textContent;
+      toast(`${n} · détails`, { type:'info', desc:`Solde ${a} · acheter · vendre · envoyer` });
+    }));
+
+    // -------- Vault cards (mini phone) --------
+    $$('.iv-vault-card').forEach(v => v.addEventListener('click', () => {
+      const n = v.querySelector('.n').textContent;
+      toast(n, { type:'info', desc:'Déposer · Retirer · Intérêts versés quotidiennement' });
+    }));
+
+    // -------- Bento cards (clickable) --------
+    $$('.bento-card').forEach(b => {
+      b.addEventListener('click', () => {
+        const h = b.querySelector('h3')?.textContent || '';
+        if (/Bourse|Casablanca/i.test(h)) $('#invest')?.scrollIntoView({ behavior:'smooth' });
+        else if (/devises/i.test(h)) toast('Multi-devises · 0 % FX', { type:'info', desc:'EUR, USD, GBP, AED, CAD, CHF + 24 autres' });
+        else if (/Objectifs/i.test(h)) toast('Coffres rémunérés', { type:'info', desc:'Jusqu\'à 4,2 % · intérêts quotidiens · retrait à tout moment' });
+        else if (/IAM|Inwi|Orange/i.test(h)) toast('Factures', { type:'info', desc:'IAM · Inwi · Orange · Redal · ONEE · Lydec · 1 tap' });
+        else if (/Économisez|Arrondi/i.test(h)) toast('Arrondi malin', { type:'info', desc:'Chaque paiement arrondi · différence en coffre · sans y penser' });
+        else if (/Insights|Sachez/i.test(h)) toast('Insights IA', { type:'info', desc:'Catégorisation auto · alertes · prévisions de fin de mois' });
+      });
+    });
+
+    // -------- Card tiles selection --------
+    $$('.card-tile').forEach(t => {
+      t.addEventListener('click', () => {
+        $$('.card-tile').forEach(o => o.classList.remove('is-selected'));
+        t.classList.add('is-selected');
+        const tier  = t.querySelector('h3')?.textContent.trim();
+        const price = t.querySelector('.price .v')?.textContent.trim();
+        const desc  = price === '0' ? 'Gratuit · sans condition · RIB en 3 min.' : `${price} MAD/mois · résiliable à tout moment`;
+        toast(`${tier} sélectionné`, {
+          type:'success', desc,
+          action: { label: 'Réserver', onClick: () => $('#waitlist')?.scrollIntoView({ behavior:'smooth' }) }
+        });
+      });
+    });
+
+    // -------- Sec & Roadmap cards --------
+    $$('.sec-card').forEach(c => c.addEventListener('click', () => {
+      const h = c.querySelector('h4')?.textContent;
+      const p = c.querySelector('p')?.textContent;
+      toast(h, { type:'info', desc: p });
+    }));
+    $$('.road-card').forEach(c => c.addEventListener('click', () => {
+      const h = c.querySelector('h4')?.textContent;
+      const ph = c.querySelector('.ph')?.textContent;
+      toast(h, { type:'info', desc: ph });
+    }));
+
+    // -------- Forms (extra success toast) --------
+    $$('form.hero-form').forEach(f => f.addEventListener('submit', e => {
+      e.preventDefault();
+      const input = f.querySelector('input');
+      const email = input?.value.trim();
+      if (!email) { toast('Saisissez votre email', { type:'warn' }); return; }
+      input.value = '';
+      toast('Place réservée 🎉', { type:'success', desc: `${email} · vous serez parmi les premiers · 1 an Kiwi Pro offert` });
+      if (window.Kiwi?.confetti) window.Kiwi.confetti();
+    }));
+
+    // -------- Smooth scroll for nav links --------
+    $$('a[href^="#"]').forEach(a => {
+      const id = a.getAttribute('href');
+      if (id.length < 2) return;
+      const t = document.querySelector(id);
+      if (!t) return;
+      a.addEventListener('click', e => { e.preventDefault(); t.scrollIntoView({ behavior:'smooth' }); });
+    });
+
+    // -------- FX widget in bento (interactive) --------
+    const fxEur = $('.bento-card .fx .fx-row:first-child .fx-amt');
+    const fxMad = $('.bento-card .fx .fx-row:last-child .fx-amt');
+    if (fxEur && fxMad) {
+      fxEur.setAttribute('contenteditable', 'true');
+      fxEur.style.outline = 'none';
+      fxEur.addEventListener('input', () => {
+        const raw = fxEur.textContent.replace(/[^\d.,]/g, '').replace(/\s/g, '').replace(',', '.');
+        const v = parseFloat(raw) || 0;
+        fxMad.textContent = fmt(v * 10.9444);
+      });
+    }
+  })();
 </script>
 <script src="assets/i18n.js" defer></script>
 <script src="assets/interactive.js" defer></script>
