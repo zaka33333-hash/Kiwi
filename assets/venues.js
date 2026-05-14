@@ -1125,8 +1125,8 @@
             <path d="${pathMansour}" fill="var(--atlas-600)" opacity="0.50"/>
             <path d="${pathAtlas}"   fill="var(--atlas)"     opacity="0.60"/>
           </svg>
-          <div class="fs-chart-x-axis">${xHtml}</div>
         </div>
+        <div class="fs-chart-x-axis">${xHtml}</div>
       </div>`;
   }
 
