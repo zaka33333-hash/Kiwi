@@ -1575,6 +1575,97 @@
    * exception to the palette flip — re-anchors the "return home" affordance). */
 
   /* ═════════════════════════════════════════════════════════════════════════
+   * FUSION-MODE · SIDEBAR-DRAWER CONTRAST FIXES — added 2026-05-14
+   *
+   * pages.js / pages-pro.js declare many drawer classes with
+   *   `color: var(--paper)` on `background: var(--atlas)` / gradients.
+   * In fusion mode the Majorelle palette flips --paper to dark Nuit (#060A1C),
+   * which makes that text disappear into the now-blue surface. Force all such
+   * colored-surface elements to var(--ink) (light in fusion) so they stay
+   * readable. Also patch hardcoded warning/danger/success pills and the
+   * .kiwi-drawer-close affordance.
+   * ═════════════════════════════════════════════════════════════════════════ */
+  body.fusion-mode .p-hero,
+  body.fusion-mode .p-hero .l,
+  body.fusion-mode .p-hero .big,
+  body.fusion-mode .p-hero .sub,
+  body.fusion-mode .team-mem .av,
+  body.fusion-mode .comp-score,
+  body.fusion-mode .comp-score .v,
+  body.fusion-mode .comp-score .d,
+  body.fusion-mode .resv-engine,
+  body.fusion-mode .resv-engine h4,
+  body.fusion-mode .resv-engine .re-sub,
+  body.fusion-mode .re-tile h5,
+  body.fusion-mode .re-tile p,
+  body.fusion-mode .sh-clock-row .av,
+  body.fusion-mode .sh-tip-pool .av,
+  body.fusion-mode .pr-blob,
+  body.fusion-mode .pr-calc-out,
+  body.fusion-mode .pr-calc-out .br b,
+  body.fusion-mode .pr-calc-out .br span,
+  body.fusion-mode .sc-prof-av,
+  body.fusion-mode .sc-gift,
+  body.fusion-mode .sc-gift .s,
+  body.fusion-mode .rcal-block {
+    color: var(--ink) !important;
+  }
+
+  /* Hardcoded warning pills (#FFF4DD bg, #8A6210 text) — no dark theme override
+   * in pages-pro.js. Catch via class + inline-style selectors. */
+  body.fusion-mode .pr-cert-stat.warn,
+  body.fusion-mode .pr-badge.cf,
+  body.fusion-mode .sc-tier.bronze,
+  body.fusion-mode .sc-bday,
+  body.fusion-mode [style*="background:#FFF4DD"],
+  body.fusion-mode [style*="background: #FFF4DD"],
+  body.fusion-mode [style*="background:rgba(217,154,43"] {
+    background: rgba(217,154,43,0.20) !important;
+    color: #F5C679 !important;
+  }
+
+  /* Hardcoded danger pills (#FDE8E4 bg, #9B2F22 text) */
+  body.fusion-mode .pr-cert-stat.exp,
+  body.fusion-mode .sc-allergy .ic,
+  body.fusion-mode [style*="background:#FDE8E4"],
+  body.fusion-mode [style*="background: #FDE8E4"],
+  body.fusion-mode [style*="background:rgba(195,49,33"] {
+    background: rgba(201,74,58,0.22) !important;
+    color: #F29B8F !important;
+  }
+
+  /* Hardcoded success pills (#E3F7EC bg) → Majorelle mint */
+  body.fusion-mode .pr-cert-stat.ok,
+  body.fusion-mode [style*="background:#E3F7EC"],
+  body.fusion-mode [style*="background: #E3F7EC"] {
+    background: rgba(91,213,255,0.16) !important;
+    color: var(--mint) !important;
+  }
+
+  /* Drawer close button — pages.js / interactive.js have `background:#fff`
+   * hardcoded without a dark-theme override. Renders as a near-white blob
+   * on the dark Majorelle drawer. Repaint it on-brand. */
+  body.fusion-mode .kiwi-drawer-close {
+    background: var(--paper-muted) !important;
+    border-color: rgba(91,213,255,0.18) !important;
+    color: var(--mint) !important;
+  }
+  body.fusion-mode .kiwi-drawer-close:hover {
+    border-color: var(--mint) !important;
+    color: var(--mint) !important;
+  }
+
+  /* Active tab pills (.resv-tab.on, .sc-pill.on) — dark-theme rule
+   * resolves to a near-bone pill which doesn't pop on the Nuit drawer.
+   * Force Majorelle mint highlight so the active tab reads as on-brand. */
+  body.fusion-mode .resv-tab.on,
+  body.fusion-mode .sc-pill.on {
+    background: var(--mint) !important;
+    color: var(--riad) !important;
+    box-shadow: 0 0 0 1px rgba(91,213,255,0.32) !important;
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
    * FUSION CONTENT VISIBILITY GATE + DEDICATED LAYOUT — added 2026-05-14
    *
    * Hides the standard dashboard markup and reveals the dedicated fusion
