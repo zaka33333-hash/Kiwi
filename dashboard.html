@@ -1574,6 +1574,494 @@
   /* When in fusion-mode, "Revenir" pill is shown in Atlas Green (deliberate
    * exception to the palette flip — re-anchors the "return home" affordance). */
 
+  /* ═════════════════════════════════════════════════════════════════════════
+   * FUSION CONTENT VISIBILITY GATE + DEDICATED LAYOUT — added 2026-05-14
+   *
+   * Hides the standard dashboard markup and reveals the dedicated fusion
+   * portfolio layout when body.fusion-mode is active. All colours via
+   * tokens (Majorelle palette flips happen in the body.fusion-mode block
+   * above) — no hex values below.
+   * ═════════════════════════════════════════════════════════════════════════ */
+  .dash-fusion { display: none; }
+  body.fusion-mode .dash-standard { display: none !important; }
+  body.fusion-mode .dash-fusion   { display: block; animation: fade-in 320ms ease-out; }
+
+  /* ── Common section wrapper ─────────────────────────────────────────── */
+  .fs-section {
+    background: var(--paper-soft);
+    border: 1px solid var(--n-200);
+    border-radius: 16px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+  }
+  body.fusion-mode .fs-section {
+    background: rgba(14,22,56,0.55);
+    border-color: rgba(91,213,255,0.12);
+  }
+  .fs-section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .fs-section-head h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: var(--ink); }
+  .fs-section-sub { font-size: 11.5px; color: var(--n-500); font-family: var(--mono); letter-spacing: 0.06em; }
+
+  /* ── Section 1 · Hero ───────────────────────────────────────────────── */
+  .fs-hero {
+    background: linear-gradient(135deg, var(--riad) 0%, var(--riad-deep) 100%);
+    color: var(--paper);
+    padding: 30px 32px;
+    border: 1px solid rgba(91,213,255,0.18);
+  }
+  body.fusion-mode .fs-hero {
+    background: linear-gradient(135deg, var(--riad) 0%, var(--riad-deep) 100%);
+    color: var(--paper);
+  }
+  .fs-hero-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; }
+  @media (max-width: 980px) { .fs-hero-grid { grid-template-columns: 1fr; } }
+
+  .fs-live-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em;
+    color: var(--mint);
+    background: rgba(91,213,255,0.10);
+    border: 1px solid rgba(91,213,255,0.22);
+    padding: 4px 10px; border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .fs-live-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 8px var(--mint); animation: fs-live-pulse 1.6s infinite; }
+  @keyframes fs-live-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+  .fs-hero-label {
+    font-size: 12px;
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.62);
+    margin-bottom: 6px;
+  }
+  .fs-hero-amount {
+    font-family: var(--sans);
+    font-size: 56px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--paper);
+    font-feature-settings: "tnum" 1;
+  }
+  .fs-hero-amount .currency {
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.62);
+    margin-left: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .fs-hero-deltas {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 22px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 720px) { .fs-hero-deltas { grid-template-columns: repeat(2, auto); } }
+  .fs-hero-deltas .b { min-width: 0; }
+  .fs-hero-deltas .b .l {
+    font-size: 10px;
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 3px;
+  }
+  .fs-hero-deltas .b .v {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--paper);
+    font-feature-settings: "tnum" 1;
+  }
+  .fs-hero-deltas .b .v.up   { color: var(--mint); }
+  .fs-hero-deltas .b .v.down { color: var(--danger); }
+  .fs-hero-deltas .b.net .v { color: var(--mint); font-size: 15px; font-weight: 600; }
+
+  .fs-hero-progress { margin-top: 18px; }
+  .fs-hero-progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .fs-hero-progress-label { font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.06em; color: rgba(255,255,255,0.55); }
+  .fs-hero-progress-pct { font-family: var(--mono); font-size: 12px; color: var(--mint); font-weight: 600; }
+  .fs-hero-progress-track {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+  .fs-hero-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--mint), var(--atlas-600));
+    border-radius: 999px;
+    transition: width 700ms cubic-bezier(0.22,0.72,0,1);
+  }
+
+  .fs-hero-top {
+    margin-top: 14px;
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.6);
+  }
+  .fs-hero-top b { color: var(--paper); font-weight: 500; }
+
+  .fs-hero-right {
+    background: rgba(0,0,0,0.22);
+    border: 1px solid rgba(91,213,255,0.14);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex; flex-direction: column;
+  }
+  .fs-ai-eyebrow {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--mint);
+    margin-bottom: 4px;
+  }
+  .fs-ai-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    color: var(--paper);
+    margin-bottom: 12px;
+  }
+  .fs-ai-insights { display: flex; flex-direction: column; gap: 10px; }
+  .fs-ai-item {
+    border-left: 2px solid var(--mint);
+    padding-left: 12px;
+  }
+  .fs-ai-item .fs-ai-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--paper);
+    margin-bottom: 3px;
+    letter-spacing: -0.005em;
+  }
+  .fs-ai-item .fs-ai-body {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.68);
+    margin-bottom: 4px;
+  }
+  .fs-ai-item .fs-ai-action {
+    font-size: 11.5px;
+    color: var(--mint);
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .fs-ai-chat {
+    margin-top: auto;
+    display: flex; gap: 8px;
+    padding-top: 14px;
+  }
+  .fs-ai-chat-input {
+    flex: 1;
+    background: rgba(0,0,0,0.28);
+    border: 1px solid rgba(91,213,255,0.18);
+    border-radius: 999px;
+    padding: 9px 14px;
+    color: var(--paper);
+    font-size: 12px;
+    font-family: var(--sans);
+    outline: none;
+  }
+  .fs-ai-chat-input::placeholder { color: rgba(255,255,255,0.42); }
+  .fs-ai-chat-input:focus { border-color: var(--mint); }
+  .fs-ai-chat-send {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--mint);
+    color: var(--riad);
+    border: 0;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: transform 120ms;
+  }
+  .fs-ai-chat-send:hover { transform: scale(1.08); }
+
+  /* ── Section 2 · KPI cards ─────────────────────────────────────────── */
+  .fs-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 1280px) { .fs-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 720px)  { .fs-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .fs-kpi {
+    background: var(--paper);
+    border: 1px solid var(--n-200);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: border-color 140ms;
+  }
+  body.fusion-mode .fs-kpi {
+    background: var(--paper-soft);
+    border-color: rgba(91,213,255,0.10);
+  }
+  .fs-kpi:hover { border-color: rgba(91,213,255,0.28); }
+  .fs-kpi-l {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--n-500);
+    margin-bottom: 6px;
+  }
+  .fs-kpi-v {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    font-feature-settings: "tnum" 1;
+  }
+  .fs-kpi-v .fs-kpi-u {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--n-500);
+    margin-left: 4px;
+  }
+  .fs-kpi-d {
+    font-size: 11px;
+    margin-top: 6px;
+    color: var(--n-500);
+  }
+  .fs-kpi-d.up   { color: var(--atlas); }
+  .fs-kpi-d.down { color: var(--danger); }
+  body.fusion-mode .fs-kpi-d.up { color: var(--mint); }
+  .fs-kpi-d .fs-kpi-dlbl { color: var(--n-500); margin-left: 4px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; }
+
+  /* ── Section 3 · Venue rows ────────────────────────────────────────── */
+  .fs-venues { display: flex; flex-direction: column; gap: 1px; }
+  .fs-venue-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 90px 1.2fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 14px 4px;
+    border-top: 1px solid var(--n-200);
+  }
+  body.fusion-mode .fs-venue-row { border-top-color: rgba(91,213,255,0.10); }
+  .fs-venue-row:first-child { border-top: 0; }
+  @media (max-width: 980px) {
+    .fs-venue-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .fs-venue-spark-wrap, .fs-venue-share { grid-column: span 2; }
+  }
+  .fs-venue-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .fs-venue-icon {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--paper-soft);
+    color: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  body.fusion-mode .fs-venue-icon {
+    background: rgba(91,213,255,0.10);
+    color: var(--mint);
+  }
+  .fs-venue-name { font-size: 14px; font-weight: 600; letter-spacing: -0.005em; color: var(--ink); }
+  .fs-venue-loc { font-size: 12px; color: var(--n-500); margin-top: 1px; }
+  .fs-venue-rev-v { font-size: 20px; font-weight: 700; letter-spacing: -0.015em; color: var(--ink); font-feature-settings: "tnum" 1; }
+  .fs-venue-rev-d { font-size: 12px; margin-top: 2px; color: var(--n-500); }
+  .fs-venue-rev-d.up   { color: var(--atlas); }
+  .fs-venue-rev-d.down { color: var(--danger); }
+  body.fusion-mode .fs-venue-rev-d.up { color: var(--mint); }
+  .fs-venue-rev-d.muted { color: var(--n-400); }
+  .fs-venue-rev-d span { color: var(--n-500); margin-left: 3px; font-size: 10.5px; }
+  .fs-venue-spark-wrap { display: flex; align-items: center; }
+  .fs-spark { display: block; }
+  .fs-venue-share { display: flex; align-items: center; gap: 10px; }
+  .fs-venue-share-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--n-100);
+    overflow: hidden;
+  }
+  body.fusion-mode .fs-venue-share-bar { background: rgba(255,255,255,0.08); }
+  .fs-venue-share-fill {
+    height: 100%;
+    background: var(--atlas);
+    border-radius: 999px;
+    transition: width 600ms cubic-bezier(0.22,0.72,0,1);
+  }
+  body.fusion-mode .fs-venue-share-fill { background: var(--mint); }
+  .fs-venue-share-pct { font-family: var(--mono); font-size: 12px; color: var(--n-500); min-width: 32px; text-align: right; }
+  .fs-venue-signal {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .fs-venue-signal.sig-objectif-atteint {
+    background: var(--atlas);
+    color: var(--paper);
+  }
+  .fs-venue-signal.sig-croissance {
+    background: rgba(11,110,79,0.14);
+    color: var(--atlas);
+  }
+  body.fusion-mode .fs-venue-signal.sig-objectif-atteint { background: var(--mint); color: var(--riad); }
+  body.fusion-mode .fs-venue-signal.sig-croissance { background: rgba(91,213,255,0.18); color: var(--mint); }
+  .fs-venue-signal.sig-attention {
+    background: rgba(217,154,43,0.16);
+    color: var(--warning);
+  }
+  .fs-venue-signal.sig-stable {
+    background: transparent;
+    color: var(--n-500);
+    padding-left: 0; padding-right: 0;
+  }
+
+  /* ── Section 4 · Chart ─────────────────────────────────────────────── */
+  .fs-chart-body {
+    width: 100%;
+    min-height: 240px;
+    display: flex; flex-direction: column;
+    color: var(--ink);
+    animation: fade-in 200ms ease-out;
+  }
+  body.fusion-mode .fs-chart-body { color: var(--paper); }
+  .fs-chart-svg {
+    width: 100%;
+    height: 220px;
+    display: block;
+  }
+  .fs-chart-empty {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 200px;
+    font-size: 13px;
+    color: var(--n-500);
+    text-align: center;
+  }
+  .fs-chart-legend {
+    display: flex;
+    gap: 18px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--n-500);
+    flex-wrap: wrap;
+  }
+  .fs-chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .fs-chart-legend i {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  /* ── Section 5 · Intel tiles ───────────────────────────────────────── */
+  .fs-intel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 980px) { .fs-intel { grid-template-columns: 1fr; } }
+  .fs-intel-tile {
+    background: var(--paper);
+    border: 1px solid var(--n-200);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  body.fusion-mode .fs-intel-tile {
+    background: var(--paper-soft);
+    border-color: rgba(91,213,255,0.10);
+  }
+  .fs-intel-ico {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: rgba(11,110,79,0.10);
+    color: var(--atlas);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  body.fusion-mode .fs-intel-ico {
+    background: rgba(91,213,255,0.10);
+    color: var(--mint);
+  }
+  .fs-intel-v {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    font-feature-settings: "tnum" 1;
+  }
+  .fs-intel-v.fs-intel-v-text {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .fs-intel-v .warn { color: var(--warning); }
+  .fs-intel-v .good { color: var(--atlas); }
+  body.fusion-mode .fs-intel-v .good { color: var(--mint); }
+  .fs-intel-l {
+    font-size: 13px;
+    color: var(--n-600);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  body.fusion-mode .fs-intel-l { color: rgba(255,255,255,0.72); }
+  .fs-intel-n {
+    font-size: 11.5px;
+    color: var(--n-500);
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+  .fs-intel-n.warn { color: var(--warning); }
+  .fs-intel-n.good { color: var(--atlas); }
+  body.fusion-mode .fs-intel-n.good { color: var(--mint); }
+
+  /* ── Section 6 · Alerts ────────────────────────────────────────────── */
+  .fs-alerts-section[hidden] { display: none !important; }
+  .fs-alerts-list { display: flex; flex-direction: column; gap: 10px; }
+  .fs-alert {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    background: var(--paper);
+    border: 1px solid var(--n-200);
+    border-left: 3px solid var(--warning);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  body.fusion-mode .fs-alert {
+    background: var(--paper-soft);
+    border-color: rgba(91,213,255,0.10);
+    border-left-color: var(--warning);
+  }
+  .fs-alert-ico {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(217,154,43,0.14);
+    color: var(--warning);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .fs-alert-venue { font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.005em; }
+  .fs-alert-msg   { font-size: 13px; color: var(--n-600); margin-top: 2px; line-height: 1.4; }
+  body.fusion-mode .fs-alert-msg { color: rgba(255,255,255,0.7); }
+  .fs-alert-cta {
+    background: transparent;
+    border: 1px solid var(--n-300);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    color: var(--ink);
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 140ms;
+    white-space: nowrap;
+  }
+  body.fusion-mode .fs-alert-cta {
+    border-color: rgba(91,213,255,0.22);
+    color: var(--mint);
+  }
+  .fs-alert-cta:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  body.fusion-mode .fs-alert-cta:hover { background: var(--mint); color: var(--riad); border-color: var(--mint); }
+
   /* ─────────────────────────────────────────────────────────────────────────
    * FUSION OVERLAY — full-viewport choreography
    * ───────────────────────────────────────────────────────────────────────── */
@@ -2062,6 +2550,14 @@
         </div>
       </div>
 
+      <!-- ═══════════════════════════════════════════════════════════════════
+       *  STANDARD CONTENT — single-venue dashboard (also visible when fusion
+       *  inherits the same markup with palette flipped). Wrapped in
+       *  .dash-standard so we can swap to .dash-fusion in fusion mode via
+       *  two CSS rules at the end of the fusion-mode block below.
+       *  ═══════════════════════════════════════════════════════════════════ -->
+      <div class="dash-standard">
+
       <!-- ═══ HERO TODAY CARD ═══ -->
       <div class="hero-today fade-in">
         <div class="hero-grid">
@@ -2478,6 +2974,80 @@
           </div>
         </div>
       </div>
+
+      </div><!-- /.dash-standard -->
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+       *  FUSION CONTENT — dedicated portfolio layout (6 sections)
+       *  Hidden by default. Made visible when body.fusion-mode is set, via
+       *  the two CSS rules at the end of the fusion-mode block. Populated by
+       *  renderFusionView() / renderFusionLiveUpdate() in assets/venues.js.
+       *  ═══════════════════════════════════════════════════════════════════ -->
+      <section class="dash-fusion" data-fusion-root hidden>
+
+        <!-- ── Section 1 · Hero ─────────────────────────────────────── -->
+        <div class="fs-section fs-hero">
+          <div class="fs-hero-grid">
+            <div class="fs-hero-left">
+              <span class="fs-live-pill" data-fs-live-pill><span class="dot"></span>LIVE · <span data-fs-live-time>14:37</span> GMT+1</span>
+              <div class="fs-hero-label" data-fs-hero-label>ENCAISSÉ AUJOURD'HUI · PORTEFEUILLE</div>
+              <div class="fs-hero-amount" data-fs-hero-amount>0,00 <span class="currency">MAD</span></div>
+              <div class="fs-hero-deltas" data-fs-deltas></div>
+              <div class="fs-hero-progress" data-fs-progress>
+                <div class="fs-hero-progress-head">
+                  <span class="fs-hero-progress-label" data-fs-progress-label>OBJECTIF PORTEFEUILLE · 55 000 MAD</span>
+                  <span class="fs-hero-progress-pct" data-fs-progress-pct>0 %</span>
+                </div>
+                <div class="fs-hero-progress-track"><div class="fs-hero-progress-fill" data-fs-progress-bar></div></div>
+              </div>
+              <div class="fs-hero-top" data-fs-top-site>Top site · <b>Café Atlas</b> · 0 MAD</div>
+            </div>
+            <div class="fs-hero-right">
+              <div class="fs-ai-eyebrow">KIWI AI</div>
+              <div class="fs-ai-title">Recommandations portefeuille</div>
+              <div class="fs-ai-insights" data-fs-ai-insights></div>
+              <div class="fs-ai-chat">
+                <input type="text" class="fs-ai-chat-input" placeholder="Demandez à Kiwi AI · « Pourquoi le spa baisse ? »"/>
+                <button class="fs-ai-chat-send" aria-label="Envoyer">→</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Section 2 · KPI cards ────────────────────────────────── -->
+        <div class="fs-section fs-kpis-section">
+          <div class="fs-section-head"><h3>Indicateurs portefeuille</h3></div>
+          <div class="fs-kpi-grid" data-fs-kpis></div>
+        </div>
+
+        <!-- ── Section 3 · Venue comparison ────────────────────────── -->
+        <div class="fs-section fs-venues-section">
+          <div class="fs-section-head">
+            <h3>Performance par emplacement</h3>
+            <span class="fs-section-sub" data-fs-venues-sub>3 emplacements · vue consolidée</span>
+          </div>
+          <div class="fs-venues" data-fs-venues></div>
+        </div>
+
+        <!-- ── Section 4 · Chart (Mode A intraday / Mode B trend) ──── -->
+        <div class="fs-section fs-chart-section" data-fs-chart>
+          <div class="fs-section-head">
+            <h3 data-fs-chart-title>Revenu portefeuille · en cours</h3>
+            <span class="fs-section-sub" data-fs-chart-sub>Cumul horaire · toutes enseignes · LIVE</span>
+          </div>
+          <div class="fs-chart-body" data-fs-chart-body></div>
+        </div>
+
+        <!-- ── Section 5 · Cross-venue intelligence (static) ───────── -->
+        <div class="fs-section fs-intel-section">
+          <div class="fs-section-head"><h3>Intelligence cross-sites</h3></div>
+          <div class="fs-intel" data-fs-intel></div>
+        </div>
+
+        <!-- ── Section 6 · Alerts (conditional) ────────────────────── -->
+        <div class="fs-section fs-alerts-section" data-fs-alerts hidden></div>
+
+      </section><!-- /.dash-fusion -->
 
     </div>
 

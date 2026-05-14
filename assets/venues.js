@@ -71,6 +71,9 @@
     },
     // Synthetic "fusion" venue — represents the merchant's full portfolio.
     // Numeric fields are sums; dateRange.js fans this out for every table.
+    // The snapshot/venueBreakdown/kpis/intelligence/portfolioTrend/alerts
+    // sub-objects below are consumed by renderFusionView() (defined later in
+    // this file) to paint the dedicated <section class="dash-fusion"> layout.
     fusion: {
       id: 'fusion',
       name: 'Vue fusionnée',
@@ -83,6 +86,169 @@
       ice: 'multi-ICE',
       txCount: 244,           // 182 + 42 + 20
       staffCount: 14,         // 8 + 3 + 3
+
+      // ── END-OF-DAY TARGETS (clock fallback for Aujourd'hui) ────────
+      // Aujourd'hui values match the sum of individual venue TARGETS in
+      // demoClock.js (cafeAtlas 31500 + maisonMansour 14000 + spaBahia
+      // 10500 = 56000 raw → adjusted to 48282.78 to reflect realised
+      // shrinkage by 02h close). Live view always reads the clock — these
+      // values are only used as fallback if the clock is inactive.
+      snapshot: {
+        aujourdhui: {
+          totalRevenue: 48282.78,
+          netAfterKiwi: 40557.13,
+          totalTransactions: 273,
+          topVenueToday: 'Café Atlas',
+          topVenueRevenue: 27512.50,
+          deltaHier: 2.5,
+          deltaSemaine: 17,
+          deltaMois: 10,
+          objectifJour: 55000,
+        },
+        hier: {
+          totalRevenue: 45310.00,
+          netAfterKiwi: 38060.00,
+          totalTransactions: 251,
+          topVenueToday: 'Café Atlas',
+          topVenueRevenue: 25890.00,
+          deltaHier: -1.2,
+          deltaSemaine: 12,
+          deltaMois: 8,
+          objectifJour: 55000,
+        },
+        septJours: {
+          totalRevenue: 334100.00,
+          netAfterKiwi: 280500.00,
+          totalTransactions: 1820,
+          topVenueToday: 'Café Atlas',
+          topVenueRevenue: 198400.00,
+          deltaHier: null,
+          deltaSemaine: 19,
+          deltaMois: 11,
+          objectifJour: null,
+        },
+        trenteJours: {
+          totalRevenue: 1470200.00,
+          netAfterKiwi: 1234900.00,
+          totalTransactions: 7820,
+          topVenueToday: 'Café Atlas',
+          topVenueRevenue: 842300.00,
+          deltaHier: null,
+          deltaSemaine: null,
+          deltaMois: 14,
+          objectifJour: null,
+        },
+      },
+
+      // ── PER-VENUE BREAKDOWN ────────────────────────────────────────
+      // Aujourd'hui rows hold END-OF-DAY targets — live render overrides
+      // revenue/share/spark-last-point from the clock per-tick.
+      venueBreakdown: {
+        aujourdhui: [
+          { id: 'cafeAtlas',     name: 'Café Atlas',     location: 'Maarif',    type: 'restaurant', revenue: 27512.50, portfolioShare: 57.0, deltaVsHier: 3.2,  trend: [22100,23400,25100,24800,26200,25900,27512], status: 'en-service', signal: 'objectif-atteint', signalLabel: 'Objectif dépassé · +8 %' },
+          { id: 'maisonMansour', name: 'Maison Mansour', location: 'Guéliz',    type: 'boutique',   revenue: 11820.00, portfolioShare: 24.5, deltaVsHier: -2.4, trend: [10200,11100,12400,11800,12100,12300,11820], status: 'en-service', signal: 'attention',        signalLabel: '−2,4 % vs hier' },
+          { id: 'spaBahia',      name: 'Spa Bahia',      location: 'Hivernage', type: 'spa',        revenue: 8950.28,  portfolioShare: 18.5, deltaVsHier: 6.8,  trend: [7200,7800,8100,8400,8200,8600,8950],       status: 'en-service', signal: 'croissance',       signalLabel: 'Meilleure journée du mois ↑' },
+        ],
+        hier: [
+          { id: 'cafeAtlas',     name: 'Café Atlas',     location: 'Maarif',    type: 'restaurant', revenue: 25890.00, portfolioShare: 57.1, deltaVsHier: -1.1, trend: [22100,23400,25100,24800,26200,25900,25890], status: 'en-service', signal: 'stable',     signalLabel: 'Stable · ±1 %' },
+          { id: 'maisonMansour', name: 'Maison Mansour', location: 'Guéliz',    type: 'boutique',   revenue: 12110.00, portfolioShare: 26.7, deltaVsHier: 1.8,  trend: [10200,11100,12400,11800,12100,12300,12110], status: 'en-service', signal: 'croissance', signalLabel: '+1,8 % vs avant-hier' },
+          { id: 'spaBahia',      name: 'Spa Bahia',      location: 'Hivernage', type: 'spa',        revenue: 8380.00,  portfolioShare: 18.5, deltaVsHier: -3.1, trend: [7200,7800,8100,8400,8200,8600,8380],       status: 'en-service', signal: 'attention',  signalLabel: '−3,1 % vs avant-hier' },
+        ],
+        septJours: [
+          { id: 'cafeAtlas',     name: 'Café Atlas',     location: 'Maarif',    type: 'restaurant', revenue: 198400.00, portfolioShare: 59.4, deltaVsHier: null, trend: [168000,172000,181000,188000,192000,196000,198400], status: 'en-service', signal: 'objectif-atteint', signalLabel: 'Top performer' },
+          { id: 'maisonMansour', name: 'Maison Mansour', location: 'Guéliz',    type: 'boutique',   revenue: 84800.00,  portfolioShare: 25.4, deltaVsHier: null, trend: [72000,75000,78000,80000,82000,83000,84800],         status: 'en-service', signal: 'stable',           signalLabel: 'Croissance régulière' },
+          { id: 'spaBahia',      name: 'Spa Bahia',      location: 'Hivernage', type: 'spa',        revenue: 51200.00,  portfolioShare: 15.3, deltaVsHier: null, trend: [42000,44000,46000,47000,48000,50000,51200],         status: 'en-service', signal: 'croissance',       signalLabel: '+22 % vs semaine précédente' },
+        ],
+        trenteJours: [
+          { id: 'cafeAtlas',     name: 'Café Atlas',     location: 'Maarif',    type: 'restaurant', revenue: 842300.00, portfolioShare: 57.3, deltaVsHier: null, trend: [700000,720000,750000,780000,800000,820000,842300], status: 'en-service', signal: 'stable',     signalLabel: '57 % du portefeuille' },
+          { id: 'maisonMansour', name: 'Maison Mansour', location: 'Guéliz',    type: 'boutique',   revenue: 358200.00, portfolioShare: 24.4, deltaVsHier: null, trend: [290000,305000,318000,330000,340000,350000,358200], status: 'en-service', signal: 'croissance', signalLabel: '+12 % vs mois précédent' },
+          { id: 'spaBahia',      name: 'Spa Bahia',      location: 'Hivernage', type: 'spa',        revenue: 269400.00, portfolioShare: 18.3, deltaVsHier: null, trend: [210000,222000,235000,245000,255000,263000,269400], status: 'en-service', signal: 'croissance', signalLabel: 'Croissance la plus rapide · +16 %' },
+        ],
+      },
+
+      // ── PORTFOLIO KPI CARDS ────────────────────────────────────────
+      kpis: {
+        aujourdhui: {
+          transactionsTotales: { value: 273,  delta: 13.7, label: 'Transactions totales' },
+          panierMoyenPondere:  { value: 132,  unit: 'MAD', delta: 4.2,  label: 'Panier moyen pondéré' },
+          pourboiresCumules:   { value: 852,  unit: 'MAD', delta: 30,   label: 'Pourboires cumulés' },
+          tauxSuccesMoyen:     { value: 97.15, unit: '%',  delta: 1.2,  label: 'Taux succès moyen' },
+          ratioCardCash:       { value: '68 / 32', unit: '%', delta: 3, label: 'Ratio card / cash' },
+          clientsFideles:      { value: 23,   subValue: 90, delta: 18.7, label: 'Clients fidèles' },
+        },
+        hier: {
+          transactionsTotales: { value: 251,  delta: -2.3, label: 'Transactions totales' },
+          panierMoyenPondere:  { value: 128,  unit: 'MAD', delta: 1.8,  label: 'Panier moyen pondéré' },
+          pourboiresCumules:   { value: 780,  unit: 'MAD', delta: 12,   label: 'Pourboires cumulés' },
+          tauxSuccesMoyen:     { value: 96.80, unit: '%',  delta: 0.8,  label: 'Taux succès moyen' },
+          ratioCardCash:       { value: '67 / 33', unit: '%', delta: 2, label: 'Ratio card / cash' },
+          clientsFideles:      { value: 19,   subValue: 90, delta: 8.2,  label: 'Clients fidèles' },
+        },
+        septJours: {
+          transactionsTotales: { value: 1820, delta: 18.4, label: 'Transactions totales' },
+          panierMoyenPondere:  { value: 135,  unit: 'MAD', delta: 6.1,  label: 'Panier moyen pondéré' },
+          pourboiresCumules:   { value: 5940, unit: 'MAD', delta: 28,   label: 'Pourboires cumulés' },
+          tauxSuccesMoyen:     { value: 97.42, unit: '%',  delta: 1.5,  label: 'Taux succès moyen' },
+          ratioCardCash:       { value: '69 / 31', unit: '%', delta: 4, label: 'Ratio card / cash' },
+          clientsFideles:      { value: 142,  subValue: 312, delta: 22.4, label: 'Clients fidèles' },
+        },
+        trenteJours: {
+          transactionsTotales: { value: 7820, delta: 21.2, label: 'Transactions totales' },
+          panierMoyenPondere:  { value: 138,  unit: 'MAD', delta: 8.4,  label: 'Panier moyen pondéré' },
+          pourboiresCumules:   { value: 24800, unit: 'MAD', delta: 32,  label: 'Pourboires cumulés' },
+          tauxSuccesMoyen:     { value: 97.80, unit: '%',  delta: 2.1,  label: 'Taux succès moyen' },
+          ratioCardCash:       { value: '70 / 30', unit: '%', delta: 5, label: 'Ratio card / cash' },
+          clientsFideles:      { value: 312,  subValue: 312, delta: 28.6, label: 'Clients fidèles' },
+        },
+      },
+
+      // ── CROSS-VENUE INTELLIGENCE ───────────────────────────────────
+      intelligence: {
+        crossVenueCustomers: 312,
+        crossVenueRevenueShare: 28.4,
+        topCrossVenuePair: 'Café Atlas × Spa Bahia',
+        concentrationIndex: 57.3,
+        concentrationRisk: 'modéré',
+        aiInsights: [
+          {
+            title: 'Café Atlas génère 58 % du CA · concentration à diversifier',
+            body: 'Sur les 30 derniers jours, Café Atlas (58 %) tire le portefeuille, devant Maison Mansour (24 %) et Spa Bahia (18 %). Les 3 sites partagent 312 clients communs — déjà fidèles à l\'écosystème — qu\'on peut activer en cross-sell.',
+            action: 'Lancer une carte fidélité unifiée Kiwi pour les 312 clients cross-site pourrait lifter le CA global de 4–7 %.',
+            type: 'warning',
+          },
+          {
+            title: '312 clients fréquentent plusieurs emplacements',
+            body: 'Ces clients cross-site dépensent en moyenne 2,4× plus que les clients mono-site. Le duo Café Atlas × Spa Bahia est la paire la plus fréquentée — 184 clients communs.',
+            action: 'Un forfait "Déjeuner + Soin" couplant Café Atlas et Spa Bahia pourrait convertir 60+ clients mono-site en clients cross-site.',
+            type: 'opportunity',
+          },
+          {
+            title: 'Pic simultané 12h–14h sur 2 emplacements',
+            body: 'Café Atlas et Spa Bahia atteignent leur pic de fréquentation en même temps. Votre attention managériale est divisée exactement au moment critique.',
+            action: 'Décaler les ouvertures du spa de 30 min ou former un manager adjoint pour Café Atlas libérerait votre présence au pic.',
+            type: 'operational',
+          },
+        ],
+      },
+
+      // ── PORTFOLIO TREND (30-day, static; consumed by Section 4 Mode B) ──
+      portfolioTrend: {
+        labels: ['25/03','27/03','29/03','31/03','02/04','04/04','06/04','08/04','10/04','12/04','14/04','16/04','18/04','20/04','22/04','24/04','26/04','28/04','30/04','02/05','04/05','06/05','08/05','10/05','12/05','14/05'],
+        cafeAtlas:     [24100,25200,23800,26100,25400,27200,26800,28100,27400,29200,28600,30100,29400,31200,30600,32100,31400,33200,32600,34100,33400,35200,34600,36100,35400,27512],
+        maisonMansour: [9800,10200,9600,10800,10400,11200,10800,11600,11200,12000,11600,12400,11800,12600,12200,13000,12600,13400,12800,13600,13200,14000,13400,14200,13800,11820],
+        spaBahia:      [6200,6600,6400,7000,6800,7400,7200,7800,7600,8200,8000,8600,8400,9000,8800,9400,9200,9800,9400,10000,9600,10200,9800,10400,10000,8950],
+      },
+
+      // ── OPERATIONAL ALERTS (Section 6, conditional) ────────────────
+      alerts: [
+        {
+          venueId: 'maisonMansour',
+          venueName: 'Maison Mansour',
+          type: 'underperforming',
+          message: 'CA aujourd\'hui −2,4 % vs hier · en dessous de la moyenne 7 j de 12 400 MAD',
+          severity: 'medium',
+        },
+      ],
     },
   };
 
@@ -713,6 +879,670 @@
     api.__venueWrapped = true;
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+   * FUSION VIEW — dedicated portfolio layout
+   * ─────────────────────────────────────────────────────────────────────
+   * Paints <section class="dash-fusion"> in dashboard.html with 6 sections
+   * (hero, KPI cards, venue rows, chart, intel, alerts). Reads from the
+   * enriched VENUES.fusion data above. On Aujourd'hui, ticks per-venue
+   * values from window.KiwiDemoClock every 3 seconds.
+   *
+   * Render entrypoints:
+   *   renderFusionView()             — full re-paint (range change, init)
+   *   renderFusionLiveUpdate(state)  — per-tick update (clock subscriber)
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  // ── MIRROR of demoClock.js · TARGETS + HOUR_WEIGHTS ─────────────────
+  // demoClock.js holds these as private IIFE constants and only exposes
+  // single-venue state. To render per-venue live values for fusion (3
+  // venue rows ticking independently) we mirror them here and recompute
+  // each venue's cumulatives from state.fraction.
+  // ⚠ KEEP IN SYNC if you change demoClock.js TARGETS / HOUR_WEIGHTS.
+  const FUSION_PER_VENUE_TARGETS = {
+    cafeAtlas:     { revenue: 31500, tx: 215, tips: 2400 },
+    maisonMansour: { revenue: 14000, tx: 48,  tips: 0    },
+    spaBahia:      { revenue: 10500, tx: 22,  tips: 1500 },
+  };
+  const FUSION_PER_VENUE_WEIGHTS = {
+    cafeAtlas: {
+      rev:  [0.018, 0.075, 0.110, 0.090, 0.040, 0.028, 0.040, 0.062, 0.100, 0.135, 0.130, 0.090, 0.052, 0.018, 0.008, 0.004],
+      tx:   [0.020, 0.085, 0.130, 0.105, 0.040, 0.025, 0.035, 0.055, 0.095, 0.120, 0.110, 0.080, 0.050, 0.025, 0.018, 0.007],
+      tips: [0.012, 0.065, 0.115, 0.100, 0.030, 0.020, 0.030, 0.060, 0.110, 0.150, 0.140, 0.090, 0.050, 0.020, 0.005, 0.003],
+    },
+    maisonMansour: {
+      rev:  [0.080, 0.130, 0.105, 0.050, 0.038, 0.052, 0.110, 0.135, 0.150, 0.130, 0.018, 0.002, 0.000, 0.000, 0.000, 0.000],
+      tx:   [0.082, 0.135, 0.108, 0.050, 0.040, 0.054, 0.108, 0.130, 0.145, 0.125, 0.015, 0.005, 0.003, 0.000, 0.000, 0.000],
+      tips: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    },
+    spaBahia: {
+      rev:  [0.050, 0.115, 0.140, 0.085, 0.105, 0.140, 0.115, 0.085, 0.055, 0.035, 0.020, 0.005, 0.000, 0.000, 0.000, 0.000],
+      tx:   [0.045, 0.110, 0.135, 0.085, 0.100, 0.140, 0.115, 0.090, 0.060, 0.045, 0.045, 0.018, 0.007, 0.005, 0.000, 0.000],
+      tips: [0.040, 0.110, 0.140, 0.090, 0.110, 0.150, 0.110, 0.080, 0.060, 0.045, 0.035, 0.020, 0.008, 0.002, 0.000, 0.000],
+    },
+  };
+  const FUSION_HOUR_LABELS = ['11h','12h','13h','14h','15h','16h','17h','18h','19h','20h','21h','22h','23h','00h','01h','02h'];
+  const FUSION_N = FUSION_HOUR_LABELS.length;
+  const KIWI_NET_RATIO = 0.839;                // matches dateRange.js fee constant
+  const FUSION_PORTFOLIO_GOAL = 55000;         // daily target — referenced by spec
+  const FUSION_VENUE_IDS = ['cafeAtlas', 'maisonMansour', 'spaBahia'];
+
+  function fusionCumulativeAt(weights, fraction) {
+    if (!weights || !weights.length) return 0;
+    const pos = fraction * FUSION_N;
+    const idx = Math.min(FUSION_N - 1, Math.floor(pos));
+    const within = Math.min(1, Math.max(0, pos - idx));
+    let cum = 0;
+    for (let i = 0; i < idx; i++) cum += weights[i];
+    cum += (weights[idx] || 0) * within;
+    return cum;
+  }
+
+  /* Compute per-venue cumulatives at this tick.
+   * Returns { cafeAtlas: {revenue, tx, tips}, maisonMansour: …, spaBahia: …,
+   *           portfolio: {revenue, tx, tips, panierMoyen, top, topRevenue} } */
+  function computePerVenueLive(state) {
+    const f = state?.fraction ?? 0;
+    const out = { portfolio: { revenue: 0, tx: 0, tips: 0 } };
+    let top = null, topRev = -1;
+    FUSION_VENUE_IDS.forEach(id => {
+      const t = FUSION_PER_VENUE_TARGETS[id];
+      const w = FUSION_PER_VENUE_WEIGHTS[id];
+      const cumRev  = fusionCumulativeAt(w.rev,  f) * t.revenue;
+      const cumTx   = Math.round(fusionCumulativeAt(w.tx,   f) * t.tx);
+      const cumTips = fusionCumulativeAt(w.tips, f) * t.tips;
+      out[id] = { revenue: cumRev, tx: cumTx, tips: cumTips };
+      out.portfolio.revenue += cumRev;
+      out.portfolio.tx      += cumTx;
+      out.portfolio.tips    += cumTips;
+      if (cumRev > topRev) { topRev = cumRev; top = VENUES[id]?.name || id; }
+    });
+    out.portfolio.panierMoyen = out.portfolio.tx > 0 ? Math.round(out.portfolio.revenue / out.portfolio.tx) : 0;
+    out.portfolio.top = top;
+    out.portfolio.topRevenue = topRev;
+    out.simIdx = state?.simIdx ?? 0;
+    out.simHourLabel = state?.simHourLabel || FUSION_HOUR_LABELS[0];
+    out.simMinute = state?.simMinute ?? 0;
+    return out;
+  }
+
+  // ── Local twin of dateRange.animateNumber — identical easing/duration ──
+  function fusionAnimateNumber(el, from, to, opts = {}) {
+    if (!el) return;
+    const duration = opts.duration ?? 800;
+    const format = opts.format || (v => String(Math.round(v)));
+    const start = performance.now();
+    const ease = t => 1 - Math.pow(1 - t, 3);
+    function tick(now) {
+      const p = Math.min(1, (now - start) / duration);
+      const v = from + (to - from) * ease(p);
+      el.innerHTML = format(v);
+      if (p < 1) requestAnimationFrame(tick);
+      else el.innerHTML = format(to);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ── French number formatters (mirror dateRange.js style) ──
+  const fusionFrInt = n => Math.floor(n).toLocaleString('fr-FR').replace(/,/g, ' ').replace(/ /g, ' ');
+  const fusionFmtMad = v => `${fusionFrInt(v)} MAD`;
+  const fusionFmtMadCents = v => {
+    const int = Math.floor(v);
+    const cents = Math.round((v - int) * 100);
+    return `${fusionFrInt(int)},${String(cents).padStart(2,'0')} <span class="currency">MAD</span>`;
+  };
+  const fusionFmtPct = v => {
+    const sign = v > 0 ? '+' : v < 0 ? '−' : '';
+    const abs = Math.abs(v);
+    const formatted = (Math.abs(abs - Math.round(abs)) < 0.001) ? String(Math.round(abs)) : abs.toFixed(1).replace('.', ',');
+    return `${sign}${formatted} %`;
+  };
+
+  function fusionParseAmount(el) {
+    if (!el) return 0;
+    const m = el.textContent.replace('−', '-').match(/-?\d+(?:[\s ]\d{3})*(?:[.,]\d+)?/);
+    if (!m) return 0;
+    return parseFloat(m[0].replace(/[\s ]/g, '').replace(',', '.')) || 0;
+  }
+
+  // ── Delta label per range (matches single-venue convention) ──
+  const FUSION_DELTA_LABELS = {
+    aujourdhui:  'vs hier',
+    hier:        'vs avant-hier',
+    septJours:   'vs 7 jours précédents',
+    trenteJours: 'vs 30 jours précédents',
+  };
+  const FUSION_HERO_LABELS = {
+    aujourdhui:  "ENCAISSÉ AUJOURD'HUI · PORTEFEUILLE",
+    hier:        'ENCAISSÉ HIER · PORTEFEUILLE',
+    septJours:   'ENCAISSÉ 7 JOURS · PORTEFEUILLE',
+    trenteJours: 'ENCAISSÉ 30 JOURS · PORTEFEUILLE',
+  };
+
+  // ── Effective range with personnalise→aujourdhui fallback ──
+  function fusionEffectiveRange() {
+    const r = window.KiwiDateRange?.get?.() ?? 'aujourdhui';
+    return r === 'personnalise' ? 'aujourdhui' : r;
+  }
+
+  // ── Type-icon SVG inline (24×24, stroke 2 — matches existing style) ──
+  const FUSION_TYPE_ICONS = {
+    restaurant: '<path d="M3 2v7c0 1.1.9 2 2 2h0a2 2 0 002-2V2"/><path d="M5 2v20"/><path d="M19 2v20"/><path d="M16 2v6c0 1.66 1.34 3 3 3"/>', // UtensilsCrossed-esque
+    boutique:   '<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/>', // ShoppingBag
+    spa:        '<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>', // Sparkles-ish
+    fusion:     '<circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3.5 7M16 8l-3.5 7"/>',
+  };
+  const FUSION_INTEL_ICONS = {
+    users:     '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',
+    pie:       '<path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/>',
+    link:      '<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>',
+    alert:     '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
+  };
+  const fusionIcon = (key) => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${FUSION_INTEL_ICONS[key] || ''}</svg>`;
+  const fusionTypeIcon = (type) => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${FUSION_TYPE_ICONS[type] || FUSION_TYPE_ICONS.fusion}</svg>`;
+
+  // ── SVG sparkline (80×32) — line stroke only, no axes ──
+  function fusionSparkPath(values) {
+    if (!values || values.length < 2) return '';
+    const W = 80, H = 32, PAD = 2;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    return values.map((v, i) => {
+      const x = PAD + (i / (values.length - 1)) * (W - PAD * 2);
+      const y = H - PAD - ((v - min) / range) * (H - PAD * 2);
+      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  }
+  function fusionSparkSvg(values, positive) {
+    const path = fusionSparkPath(values);
+    const stroke = positive ? 'var(--atlas)' : 'var(--warning)';
+    return `<svg class="fs-spark" width="80" height="32" viewBox="0 0 80 32" aria-hidden="true">
+      <path d="${path}" fill="none" stroke="${stroke}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  // ── Stacked-area chart (Mode A intraday OR Mode B 30-day) ──
+  // points: [{label, cafeAtlas, maisonMansour, spaBahia}, …]
+  // showXEvery: 5 for 30-day, 1 for intraday
+  function fusionStackedAreaSvg(points, opts = {}) {
+    const W = opts.width || 700;
+    const H = opts.height || 220;
+    const PAD_L = 44, PAD_R = 12, PAD_T = 12, PAD_B = 26;
+    const innerW = W - PAD_L - PAD_R;
+    const innerH = H - PAD_T - PAD_B;
+    if (!points || points.length === 0) {
+      return `<div class="fs-chart-empty">Données en cours d'arrivée…</div>`;
+    }
+    const totals = points.map(p => (p.cafeAtlas || 0) + (p.maisonMansour || 0) + (p.spaBahia || 0));
+    const maxY = Math.max(opts.minMax || 0, Math.max(...totals)) * 1.05 || 1;
+    const xOf = i => points.length <= 1
+      ? PAD_L + innerW / 2
+      : PAD_L + (i / (points.length - 1)) * innerW;
+    const yOf = v => PAD_T + innerH - (v / maxY) * innerH;
+
+    // Build stacked paths bottom-to-top: spaBahia base, then mansour, then atlas on top.
+    const stack = (key, baseKeys) => {
+      const pts = points.map((p, i) => {
+        const base = baseKeys.reduce((acc, k) => acc + (p[k] || 0), 0);
+        return { x: xOf(i), top: yOf(base + (p[key] || 0)), bot: yOf(base) };
+      });
+      const upper = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.top.toFixed(1)}`).join(' ');
+      const lower = pts.slice().reverse().map(p => `L${p.x.toFixed(1)},${p.bot.toFixed(1)}`).join(' ');
+      return `${upper} ${lower} Z`;
+    };
+    const pathSpa     = stack('spaBahia', []);
+    const pathMansour = stack('maisonMansour', ['spaBahia']);
+    const pathAtlas   = stack('cafeAtlas', ['spaBahia', 'maisonMansour']);
+
+    // Y-axis: 4 ticks
+    const ticks = [0, 0.25, 0.5, 0.75, 1].map(t => {
+      const v = maxY * t;
+      const y = yOf(v);
+      const label = v >= 1000 ? `${Math.round(v / 1000)}k` : `${Math.round(v)}`;
+      return `<line x1="${PAD_L}" x2="${W - PAD_R}" y1="${y}" y2="${y}" stroke="currentColor" stroke-opacity="0.10"/>
+              <text x="${PAD_L - 6}" y="${y + 4}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.55" font-family="var(--mono)">${label}</text>`;
+    }).join('');
+
+    // X-axis labels
+    const every = opts.showXEvery || 1;
+    const xLabels = points.map((p, i) => {
+      if (i % every !== 0 && i !== points.length - 1) return '';
+      return `<text x="${xOf(i).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.55" font-family="var(--mono)">${p.label}</text>`;
+    }).join('');
+
+    return `
+      <svg class="fs-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+        ${ticks}
+        <path d="${pathSpa}"     fill="var(--mint)"  opacity="0.40"/>
+        <path d="${pathMansour}" fill="var(--atlas-600)" opacity="0.50"/>
+        <path d="${pathAtlas}"   fill="var(--atlas)" opacity="0.60"/>
+        ${xLabels}
+      </svg>`;
+  }
+
+  // ── Intraday data buffer (Mode A) ──
+  // Built incrementally on each tick: one point per simIdx visited.
+  let fusionIntradayBuffer = [];
+  function fusionResetIntradayBuffer() { fusionIntradayBuffer = []; }
+  function fusionAppendIntradayPoint(live) {
+    const lastIdx = fusionIntradayBuffer.length > 0
+      ? fusionIntradayBuffer[fusionIntradayBuffer.length - 1].simIdx
+      : -1;
+    // Only append when we cross into a new hour OR when buffer is empty.
+    // Within the same hour we update the last point in place so the chart
+    // grows smoothly without spiking at hour boundaries.
+    if (live.simIdx > lastIdx) {
+      fusionIntradayBuffer.push({
+        simIdx: live.simIdx,
+        label: FUSION_HOUR_LABELS[live.simIdx] || '',
+        cafeAtlas:     live.cafeAtlas?.revenue || 0,
+        maisonMansour: live.maisonMansour?.revenue || 0,
+        spaBahia:      live.spaBahia?.revenue || 0,
+      });
+    } else if (fusionIntradayBuffer.length > 0) {
+      const last = fusionIntradayBuffer[fusionIntradayBuffer.length - 1];
+      last.cafeAtlas     = live.cafeAtlas?.revenue || 0;
+      last.maisonMansour = live.maisonMansour?.revenue || 0;
+      last.spaBahia      = live.spaBahia?.revenue || 0;
+    }
+  }
+
+  /* ═════════════════ MAIN RENDER: full re-paint ═════════════════
+   * Called on:  fusion mode activation, range change, manual refresh.
+   * Reads:      VENUES.fusion.{snapshot,venueBreakdown,kpis,intelligence,
+   *             portfolioTrend,alerts} + clock state if range=aujourdhui. */
+  function renderFusionView() {
+    const root = document.querySelector('[data-fusion-root]');
+    if (!root) return;
+    if (currentVenue !== 'fusion') {
+      // Defensive — should never happen; root is hidden by CSS anyway.
+      return;
+    }
+    root.removeAttribute('hidden');
+
+    const range = fusionEffectiveRange();
+    const isToday = range === 'aujourdhui';
+    const f = VENUES.fusion;
+    const snap = f.snapshot[range] || f.snapshot.aujourdhui;
+    const breakdown = f.venueBreakdown[range] || f.venueBreakdown.aujourdhui;
+    const kpis = f.kpis[range] || f.kpis.aujourdhui;
+
+    // For Aujourd'hui, prefer live clock state as the initial paint values
+    // so the view isn't blank waiting for the next tick.
+    const liveState = isToday && window.KiwiDemoClock?.getSimState ? window.KiwiDemoClock.getSimState() : null;
+    const live = liveState ? computePerVenueLive(liveState) : null;
+
+    // ── Section 1 · Hero ──
+    const heroLabel = root.querySelector('[data-fs-hero-label]');
+    if (heroLabel) heroLabel.textContent = FUSION_HERO_LABELS[range] || FUSION_HERO_LABELS.aujourdhui;
+    const livePill = root.querySelector('[data-fs-live-pill]');
+    if (livePill) livePill.style.display = isToday ? '' : 'none';
+    if (isToday && livePill) {
+      const t = new Date();
+      const hh = String(t.getHours()).padStart(2, '0');
+      const mm = String(t.getMinutes()).padStart(2, '0');
+      livePill.querySelector('[data-fs-live-time]').textContent = `${hh}:${mm}`;
+    }
+
+    const heroAmt = root.querySelector('[data-fs-hero-amount]');
+    const heroTarget = isToday && live ? live.portfolio.revenue : snap.totalRevenue;
+    if (heroAmt) {
+      fusionAnimateNumber(heroAmt, fusionParseAmount(heroAmt), heroTarget, { format: fusionFmtMadCents });
+    }
+
+    // Deltas — hide null values
+    const deltaWrap = root.querySelector('[data-fs-deltas]');
+    if (deltaWrap) {
+      const lbl = FUSION_DELTA_LABELS[range];
+      const items = [];
+      if (snap.deltaHier    != null) items.push({ k: 'hier',    label: lbl, value: snap.deltaHier });
+      if (snap.deltaSemaine != null) items.push({ k: 'semaine', label: 'vs semaine dernière', value: snap.deltaSemaine });
+      if (snap.deltaMois    != null) items.push({ k: 'mois',    label: 'vs mois dernier',    value: snap.deltaMois });
+      const netVal = isToday && live ? Math.round(live.portfolio.revenue * KIWI_NET_RATIO) : snap.netAfterKiwi;
+      deltaWrap.innerHTML = items.map(it => `
+        <div class="b">
+          <div class="l">${it.label.toUpperCase()}</div>
+          <div class="v ${it.value >= 0 ? 'up' : 'down'}">${fusionFmtPct(it.value)}</div>
+        </div>`).join('') + `
+        <div class="b net">
+          <div class="l">NET APRÈS KIWI</div>
+          <div class="v" data-fs-net-val>${fusionFmtMad(netVal)}</div>
+        </div>`;
+    }
+
+    // Progress bar — only when objectifJour not null
+    const progressWrap = root.querySelector('[data-fs-progress]');
+    if (progressWrap) {
+      if (snap.objectifJour) {
+        progressWrap.style.display = '';
+        const pct = Math.min(100, (heroTarget / snap.objectifJour) * 100);
+        const fill = progressWrap.querySelector('[data-fs-progress-bar]');
+        const pctEl = progressWrap.querySelector('[data-fs-progress-pct]');
+        if (fill) fill.style.width = `${pct.toFixed(1)}%`;
+        if (pctEl) pctEl.textContent = `${Math.round(pct)} %`;
+        const lblEl = progressWrap.querySelector('[data-fs-progress-label]');
+        if (lblEl) lblEl.textContent = `OBJECTIF PORTEFEUILLE · ${fusionFrInt(snap.objectifJour)} MAD`;
+      } else {
+        progressWrap.style.display = 'none';
+      }
+    }
+
+    // Top site line
+    const topEl = root.querySelector('[data-fs-top-site]');
+    if (topEl) {
+      const topName = isToday && live ? live.portfolio.top : snap.topVenueToday;
+      const topRev  = isToday && live ? live.portfolio.topRevenue : snap.topVenueRevenue;
+      topEl.innerHTML = `Top site · <b>${topName}</b> · ${fusionFmtMad(topRev)}`;
+    }
+
+    // AI insights panel (right column, static across ranges)
+    const aiWrap = root.querySelector('[data-fs-ai-insights]');
+    if (aiWrap) {
+      aiWrap.innerHTML = f.intelligence.aiInsights.slice(0, 2).map(ins => `
+        <div class="fs-ai-item">
+          <div class="fs-ai-title">${ins.title}</div>
+          <div class="fs-ai-body">${ins.body}</div>
+          <div class="fs-ai-action">→ ${ins.action}</div>
+        </div>`).join('');
+    }
+
+    // ── Section 2 · KPI Cards ──
+    const kpiWrap = root.querySelector('[data-fs-kpis]');
+    if (kpiWrap) {
+      const lbl = FUSION_DELTA_LABELS[range];
+      const txVal     = isToday && live ? live.portfolio.tx          : kpis.transactionsTotales.value;
+      const panierVal = isToday && live ? live.portfolio.panierMoyen : kpis.panierMoyenPondere.value;
+      const tipsVal   = isToday && live ? Math.round(live.portfolio.tips) : kpis.pourboiresCumules.value;
+      const cards = [
+        { key: 'tx',      label: kpis.transactionsTotales.label, value: txVal,                                  unit: '',                                        delta: kpis.transactionsTotales.delta },
+        { key: 'panier',  label: kpis.panierMoyenPondere.label,  value: panierVal,                              unit: kpis.panierMoyenPondere.unit || 'MAD',     delta: kpis.panierMoyenPondere.delta },
+        { key: 'tips',    label: kpis.pourboiresCumules.label,   value: tipsVal,                                unit: kpis.pourboiresCumules.unit || 'MAD',      delta: kpis.pourboiresCumules.delta },
+        { key: 'success', label: kpis.tauxSuccesMoyen.label,     value: kpis.tauxSuccesMoyen.value,             unit: kpis.tauxSuccesMoyen.unit || '%',          delta: kpis.tauxSuccesMoyen.delta, isPct: true },
+        { key: 'ratio',   label: kpis.ratioCardCash.label,       value: kpis.ratioCardCash.value, isString: true, unit: kpis.ratioCardCash.unit || '%',          delta: kpis.ratioCardCash.delta },
+        { key: 'loyal',   label: kpis.clientsFideles.label,      value: kpis.clientsFideles.value,              unit: kpis.clientsFideles.subValue ? `/ ${kpis.clientsFideles.subValue}` : '', delta: kpis.clientsFideles.delta },
+      ];
+      kpiWrap.innerHTML = cards.map(c => `
+        <div class="fs-kpi" data-fs-kpi="${c.key}">
+          <div class="fs-kpi-l">${c.label.toUpperCase()}</div>
+          <div class="fs-kpi-v">
+            <span data-fs-kpi-val>${c.isString ? c.value : (c.isPct ? c.value.toFixed(2).replace('.', ',') : fusionFrInt(c.value))}</span>
+            ${c.unit ? `<span class="fs-kpi-u">${c.unit}</span>` : ''}
+          </div>
+          <div class="fs-kpi-d ${c.delta >= 0 ? 'up' : 'down'}">${fusionFmtPct(c.delta)} <span class="fs-kpi-dlbl">${lbl}</span></div>
+        </div>`).join('');
+    }
+
+    // ── Section 3 · Venue rows ──
+    const venuesWrap = root.querySelector('[data-fs-venues]');
+    if (venuesWrap) {
+      const portfolioTotal = isToday && live ? live.portfolio.revenue : breakdown.reduce((a, v) => a + v.revenue, 0);
+      venuesWrap.innerHTML = breakdown.map(v => {
+        const liveRev = isToday && live ? (live[v.id]?.revenue || 0) : v.revenue;
+        const share = portfolioTotal > 0 ? (liveRev / portfolioTotal) * 100 : 0;
+        const sparkTrend = isToday && live
+          ? [...v.trend.slice(0, -1), liveRev]
+          : v.trend;
+        const isPositive = (v.deltaVsHier ?? 0) >= 0;
+        return `
+          <div class="fs-venue-row" data-fs-venue-row="${v.id}">
+            <div class="fs-venue-left">
+              <div class="fs-venue-icon">${fusionTypeIcon(v.type)}</div>
+              <div>
+                <div class="fs-venue-name">${v.name}</div>
+                <div class="fs-venue-loc">${v.location}</div>
+              </div>
+            </div>
+            <div class="fs-venue-rev">
+              <div class="fs-venue-rev-v" data-fs-venue-revenue>${fusionFmtMad(liveRev)}</div>
+              ${v.deltaVsHier != null
+                ? `<div class="fs-venue-rev-d ${isPositive ? 'up' : 'down'}">${fusionFmtPct(v.deltaVsHier)} <span>vs hier</span></div>`
+                : '<div class="fs-venue-rev-d muted">—</div>'}
+            </div>
+            <div class="fs-venue-spark-wrap" data-fs-venue-spark>${fusionSparkSvg(sparkTrend, isPositive)}</div>
+            <div class="fs-venue-share">
+              <div class="fs-venue-share-bar"><div class="fs-venue-share-fill" data-fs-venue-share-fill style="width:${share.toFixed(1)}%"></div></div>
+              <div class="fs-venue-share-pct" data-fs-venue-share-pct>${Math.round(share)} %</div>
+            </div>
+            <div class="fs-venue-signal sig-${v.signal}">${v.signal === 'objectif-atteint' ? '✓ ' : v.signal === 'croissance' ? '↑ ' : ''}${v.signalLabel}</div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Section 4 · Chart (Mode A intraday OR Mode B 30-day) ──
+    const chartWrap = root.querySelector('[data-fs-chart]');
+    if (chartWrap) {
+      const titleEl = chartWrap.querySelector('[data-fs-chart-title]');
+      const subEl   = chartWrap.querySelector('[data-fs-chart-sub]');
+      const bodyEl  = chartWrap.querySelector('[data-fs-chart-body]');
+      if (isToday) {
+        if (titleEl) titleEl.textContent = 'Revenu portefeuille · en cours';
+        if (subEl)   subEl.textContent   = 'Cumul horaire · toutes enseignes · LIVE';
+        // First paint: seed buffer from current state.
+        if (live) fusionAppendIntradayPoint(live);
+        if (bodyEl) {
+          bodyEl.innerHTML = fusionIntradayBuffer.length > 0
+            ? fusionStackedAreaSvg(fusionIntradayBuffer, { showXEvery: 1, minMax: FUSION_PORTFOLIO_GOAL * 0.4 })
+              + `<div class="fs-chart-legend">
+                  <span><i style="background:var(--atlas)"></i> Café Atlas</span>
+                  <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
+                  <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+                </div>`
+            : `<div class="fs-chart-empty">En attente du premier tick du démo-clock…</div>`;
+        }
+      } else if (range === 'hier') {
+        if (titleEl) titleEl.textContent = 'Évolution du portefeuille';
+        if (subEl)   subEl.textContent   = 'Sélectionnez 7 jours ou 30 jours pour voir le graphique';
+        if (bodyEl)  bodyEl.innerHTML    = `<div class="fs-chart-empty">Sélectionnez 7 jours ou 30 jours pour voir l'évolution du portefeuille.</div>`;
+      } else {
+        const trend = f.portfolioTrend;
+        const sliceN = range === 'septJours' ? 7 : trend.labels.length;
+        const points = trend.labels.slice(-sliceN).map((label, i) => ({
+          label,
+          cafeAtlas:     trend.cafeAtlas[trend.labels.length - sliceN + i],
+          maisonMansour: trend.maisonMansour[trend.labels.length - sliceN + i],
+          spaBahia:      trend.spaBahia[trend.labels.length - sliceN + i],
+        }));
+        if (titleEl) titleEl.textContent = range === 'septJours' ? 'Évolution du portefeuille · 7 jours' : 'Évolution du portefeuille · 30 jours';
+        if (subEl)   subEl.textContent   = '3 enseignes empilées · CA quotidien';
+        if (bodyEl)  bodyEl.innerHTML    = fusionStackedAreaSvg(points, { showXEvery: range === 'septJours' ? 1 : 5 })
+          + `<div class="fs-chart-legend">
+              <span><i style="background:var(--atlas)"></i> Café Atlas</span>
+              <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
+              <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+            </div>`;
+      }
+    }
+
+    // ── Section 5 · Cross-venue intelligence tiles (static) ──
+    const intelWrap = root.querySelector('[data-fs-intel]');
+    if (intelWrap) {
+      const I = f.intelligence;
+      const conc = I.concentrationIndex;
+      const concClass = conc > 55 ? 'warn' : conc < 40 ? 'good' : 'neutral';
+      intelWrap.innerHTML = `
+        <div class="fs-intel-tile">
+          <div class="fs-intel-ico">${fusionIcon('users')}</div>
+          <div class="fs-intel-v">${fusionFrInt(I.crossVenueCustomers)}</div>
+          <div class="fs-intel-l">fréquentent plusieurs emplacements</div>
+          <div class="fs-intel-n">Dépensent en moyenne 2,4× plus que les clients mono-site</div>
+        </div>
+        <div class="fs-intel-tile">
+          <div class="fs-intel-ico">${fusionIcon('pie')}</div>
+          <div class="fs-intel-v"><span class="${concClass}">${conc.toFixed(1).replace('.', ',')} %</span></div>
+          <div class="fs-intel-l">du CA généré par Café Atlas</div>
+          <div class="fs-intel-n ${concClass}">${conc > 55 ? '⚠ Concentration à diversifier' : conc < 40 ? '✓ Portefeuille équilibré' : 'Équilibre modéré'}</div>
+        </div>
+        <div class="fs-intel-tile">
+          <div class="fs-intel-ico">${fusionIcon('link')}</div>
+          <div class="fs-intel-v fs-intel-v-text">${I.topCrossVenuePair}</div>
+          <div class="fs-intel-l">184 clients en commun</div>
+          <div class="fs-intel-n">Duo le plus rentable du portefeuille</div>
+        </div>`;
+    }
+
+    // ── Section 6 · Alerts (conditional, hidden when empty) ──
+    const alertsWrap = root.querySelector('[data-fs-alerts]');
+    if (alertsWrap) {
+      if (!f.alerts || f.alerts.length === 0) {
+        alertsWrap.setAttribute('hidden', '');
+        alertsWrap.innerHTML = '';
+      } else {
+        alertsWrap.removeAttribute('hidden');
+        alertsWrap.innerHTML = `
+          <div class="fs-section-head"><h3>Signaux à surveiller</h3></div>
+          <div class="fs-alerts-list">${f.alerts.map(a => `
+            <div class="fs-alert">
+              <div class="fs-alert-ico">${fusionIcon('alert')}</div>
+              <div class="fs-alert-body">
+                <div class="fs-alert-venue">${a.venueName}</div>
+                <div class="fs-alert-msg">${a.message}</div>
+              </div>
+              <button class="fs-alert-cta" data-action="venue-pick" data-venue="${a.venueId}">Voir l'emplacement →</button>
+            </div>`).join('')}
+          </div>`;
+      }
+    }
+  }
+
+  /* ═════════════════ LIVE TICK: clock subscriber ═════════════════
+   * Called every 3s by KiwiDemoClock when range === 'aujourdhui'.
+   * Updates hero amount, NET, progress, top site, KPI cards, venue
+   * rows, spark-lines, share bars, and intraday chart in place. */
+  function renderFusionLiveUpdate(state, isReset) {
+    const root = document.querySelector('[data-fusion-root]');
+    if (!root) return;
+    if (currentVenue !== 'fusion') return;
+    if (fusionEffectiveRange() !== 'aujourdhui') return;
+
+    if (isReset) {
+      // Snap all live values to 0, clear intraday buffer, return early —
+      // next tick (~3s away) animates from 0 naturally.
+      fusionResetIntradayBuffer();
+      const heroAmt = root.querySelector('[data-fs-hero-amount]');
+      if (heroAmt) heroAmt.innerHTML = fusionFmtMadCents(0);
+      const netEl = root.querySelector('[data-fs-net-val]');
+      if (netEl) netEl.textContent = fusionFmtMad(0);
+      const fill = root.querySelector('[data-fs-progress-bar]');
+      if (fill) fill.style.width = '0%';
+      const pctEl = root.querySelector('[data-fs-progress-pct]');
+      if (pctEl) pctEl.textContent = '0 %';
+      root.querySelectorAll('[data-fs-kpi-val]').forEach(el => { el.textContent = '0'; });
+      root.querySelectorAll('[data-fs-venue-revenue]').forEach(el => { el.textContent = fusionFmtMad(0); });
+      root.querySelectorAll('[data-fs-venue-share-fill]').forEach(el => { el.style.width = '0%'; });
+      root.querySelectorAll('[data-fs-venue-share-pct]').forEach(el => { el.textContent = '0 %'; });
+      const chartBody = root.querySelector('[data-fs-chart-body]');
+      if (chartBody) chartBody.innerHTML = `<div class="fs-chart-empty">Reset · le portefeuille redémarre à zéro…</div>`;
+      return;
+    }
+
+    const live = computePerVenueLive(state);
+    fusionAppendIntradayPoint(live);
+
+    // ── Hero amount + LIVE time pill ──
+    const heroAmt = root.querySelector('[data-fs-hero-amount]');
+    if (heroAmt) fusionAnimateNumber(heroAmt, fusionParseAmount(heroAmt), live.portfolio.revenue, { duration: 600, format: fusionFmtMadCents });
+
+    const liveTime = root.querySelector('[data-fs-live-time]');
+    if (liveTime) {
+      const t = new Date();
+      liveTime.textContent = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`;
+    }
+
+    // ── NET APRÈS KIWI ──
+    const netEl = root.querySelector('[data-fs-net-val]');
+    if (netEl) {
+      const netTarget = Math.round(live.portfolio.revenue * KIWI_NET_RATIO);
+      fusionAnimateNumber(netEl, fusionParseAmount(netEl), netTarget, { duration: 600, format: fusionFmtMad });
+    }
+
+    // ── Progress bar ──
+    const fill = root.querySelector('[data-fs-progress-bar]');
+    const pctEl = root.querySelector('[data-fs-progress-pct]');
+    const pct = Math.min(100, (live.portfolio.revenue / FUSION_PORTFOLIO_GOAL) * 100);
+    if (fill) fill.style.width = `${pct.toFixed(1)}%`;
+    if (pctEl) pctEl.textContent = `${Math.round(pct)} %`;
+
+    // ── Top site ──
+    const topEl = root.querySelector('[data-fs-top-site]');
+    if (topEl) topEl.innerHTML = `Top site · <b>${live.portfolio.top}</b> · ${fusionFmtMad(live.portfolio.topRevenue)}`;
+
+    // ── KPI cards (tx, panier, tips) ──
+    const txCard     = root.querySelector('[data-fs-kpi="tx"] [data-fs-kpi-val]');
+    const panierCard = root.querySelector('[data-fs-kpi="panier"] [data-fs-kpi-val]');
+    const tipsCard   = root.querySelector('[data-fs-kpi="tips"] [data-fs-kpi-val]');
+    if (txCard)     fusionAnimateNumber(txCard,     fusionParseAmount(txCard),     live.portfolio.tx,                       { duration: 600, format: v => fusionFrInt(v) });
+    if (panierCard) fusionAnimateNumber(panierCard, fusionParseAmount(panierCard), live.portfolio.panierMoyen,              { duration: 600, format: v => fusionFrInt(v) });
+    if (tipsCard)   fusionAnimateNumber(tipsCard,   fusionParseAmount(tipsCard),   Math.round(live.portfolio.tips),         { duration: 600, format: v => fusionFrInt(v) });
+
+    // ── Venue rows: revenue + share bar + last spark point ──
+    const breakdown = VENUES.fusion.venueBreakdown.aujourdhui;
+    breakdown.forEach(v => {
+      const row = root.querySelector(`[data-fs-venue-row="${v.id}"]`);
+      if (!row) return;
+      const liveRev = live[v.id]?.revenue || 0;
+      const share = live.portfolio.revenue > 0 ? (liveRev / live.portfolio.revenue) * 100 : 0;
+
+      const revEl = row.querySelector('[data-fs-venue-revenue]');
+      if (revEl) fusionAnimateNumber(revEl, fusionParseAmount(revEl), liveRev, { duration: 600, format: fusionFmtMad });
+
+      const fillEl = row.querySelector('[data-fs-venue-share-fill]');
+      if (fillEl) fillEl.style.width = `${share.toFixed(1)}%`;
+      const sharePct = row.querySelector('[data-fs-venue-share-pct]');
+      if (sharePct) sharePct.textContent = `${Math.round(share)} %`;
+
+      const sparkWrap = row.querySelector('[data-fs-venue-spark]');
+      if (sparkWrap) {
+        const trend = [...v.trend.slice(0, -1), liveRev];
+        sparkWrap.innerHTML = fusionSparkSvg(trend, (v.deltaVsHier ?? 0) >= 0);
+      }
+    });
+
+    // ── Intraday chart re-render ──
+    const chartBody = root.querySelector('[data-fs-chart-body]');
+    if (chartBody && fusionIntradayBuffer.length > 0) {
+      chartBody.innerHTML = fusionStackedAreaSvg(fusionIntradayBuffer, { showXEvery: 1, minMax: FUSION_PORTFOLIO_GOAL * 0.4 })
+        + `<div class="fs-chart-legend">
+            <span><i style="background:var(--atlas)"></i> Café Atlas</span>
+            <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
+            <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+          </div>`;
+    }
+  }
+
+  // ── Subscribe to clock for live ticks (fusion + aujourdhui only) ──
+  if (window.KiwiDemoClock?.subscribe) {
+    window.KiwiDemoClock.subscribe((state, isReset) => {
+      if (currentVenue !== 'fusion') return;
+      if (fusionEffectiveRange() !== 'aujourdhui') return;
+      renderFusionLiveUpdate(state, isReset);
+    });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.KiwiDemoClock?.subscribe?.((state, isReset) => {
+        if (currentVenue !== 'fusion') return;
+        if (fusionEffectiveRange() !== 'aujourdhui') return;
+        renderFusionLiveUpdate(state, isReset);
+      });
+    });
+  }
+
+  // ── Subscribe to date-range changes for full re-paint ──
+  if (window.KiwiDateRange?.subscribe) {
+    window.KiwiDateRange.subscribe(() => {
+      if (currentVenue !== 'fusion') return;
+      fusionResetIntradayBuffer();
+      renderFusionView();
+    });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.KiwiDateRange?.subscribe?.(() => {
+        if (currentVenue !== 'fusion') return;
+        fusionResetIntradayBuffer();
+        renderFusionView();
+      });
+    });
+  }
+
   /* ═══════════════ AGGREGATE RENDER ═══════════════ */
 
   function renderAll(opts = {}) {
@@ -723,6 +1553,10 @@
     renderDemoBar();
     renderFooter();
     renderSidebarCounts();
+    if (currentVenue === 'fusion') {
+      fusionResetIntradayBuffer();
+      renderFusionView();
+    }
   }
 
   /* ═══════════════ INIT ═══════════════ */
