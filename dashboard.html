@@ -2637,14 +2637,11 @@
            Analytiques). Phase 1 is POS-only. See KIWI_2.0_ROADMAP.md. -->
     </nav>
 
-    <!-- Demo account is already on Kiwi Ultra (currentPlan === 'ultra' in
-         venues.js) — surface plan status instead of selling. Reuses the
-         .upsell container so the sidebar layout doesn't shift. -->
-    <div class="upsell upsell-status">
-      <div class="t">✦ KIWI ULTRA</div>
-      <div class="us-line">Actif · renouvellement 14.06.2026</div>
-      <a href="#" class="us-manage" data-action="manage-billing">Gérer mon abonnement →</a>
-    </div>
+    <!-- Upsell card · content is rendered by renderUpsell() in venues.js.
+         In fusion mode (and currentPlan === 'ultra') we surface plan status
+         instead of selling — single-venue view keeps the existing
+         "Passer à Ultra" upsell copy for demo / pitch purposes. -->
+    <div class="upsell" data-upsell></div>
 
     <div class="merchant">
       <div class="avatar">RB</div>

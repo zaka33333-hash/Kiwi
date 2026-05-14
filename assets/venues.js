@@ -465,6 +465,32 @@
     // Chevron rotation tied to dropdownOpen handled in toggleDropdown()
   }
 
+  /* ═══════════════ RENDER: SIDEBAR UPSELL / PLAN STATUS ═══════════════
+   * Single-venue view keeps the original "Passer à Ultra" upsell — kept
+   * for demo / pitch surfaces. Fusion view (where the merchant has
+   * already paid for Ultra) surfaces plan status instead of selling. */
+  function renderUpsell() {
+    const wrap = document.querySelector('[data-upsell]');
+    if (!wrap) return;
+    const showStatus = currentVenue === 'fusion' && currentPlan === 'ultra';
+    if (showStatus) {
+      wrap.classList.add('upsell-status');
+      wrap.innerHTML = `
+        <div class="t">✦ KIWI ULTRA</div>
+        <div class="us-line">Actif · renouvellement 14.06.2026</div>
+        <a href="#" class="us-manage" data-action="manage-billing">Gérer mon abonnement →</a>
+      `;
+    } else {
+      wrap.classList.remove('upsell-status');
+      wrap.innerHTML = `
+        <div class="t">KIWI ULTRA</div>
+        <h4>1 499 MAD/mois</h4>
+        <p>Multi-pays, API enterprise, account manager dédié. Upgrade depuis Pro 399 sans engagement.</p>
+        <button data-action="upgrade-pro">Passer à Ultra →</button>
+      `;
+    }
+  }
+
   /* ═══════════════ RENDER: SIDEBAR DROPDOWN ═══════════════ */
 
   // Type-icon SVG used inside each dropdown row
@@ -1576,6 +1602,7 @@
     renderDemoBar();
     renderFooter();
     renderSidebarCounts();
+    renderUpsell();
     if (currentVenue === 'fusion') {
       fusionResetIntradayBuffer();
       renderFusionView();
