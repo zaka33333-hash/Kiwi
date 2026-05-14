@@ -1020,7 +1020,7 @@
 
   // ── Effective range with personnalise→aujourdhui fallback ──
   function fusionEffectiveRange() {
-    const r = window.KiwiDateRange?.get?.() ?? 'aujourdhui';
+    const r = window.KiwiDateRange?.getDateRange?.() ?? 'aujourdhui';
     return r === 'personnalise' ? 'aujourdhui' : r;
   }
 
