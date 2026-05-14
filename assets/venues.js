@@ -1238,7 +1238,7 @@
     // AI insights panel (right column, static across ranges)
     const aiWrap = root.querySelector('[data-fs-ai-insights]');
     if (aiWrap) {
-      aiWrap.innerHTML = f.intelligence.aiInsights.slice(0, 2).map(ins => `
+      aiWrap.innerHTML = f.intelligence.aiInsights.slice(0, 1).map(ins => `
         <div class="fs-ai-item">
           <div class="fs-ai-title">${ins.title}</div>
           <div class="fs-ai-body">${ins.body}</div>
