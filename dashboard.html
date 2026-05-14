@@ -1676,6 +1676,12 @@
   .dash-fusion { display: none; }
   body.fusion-mode .dash-standard { display: none !important; }
   body.fusion-mode .dash-fusion   { display: block; animation: fade-in 320ms ease-out; }
+  /* Tighten gap between the date-range row and the fusion hero — the
+   * single-venue dashboard's hero-today eats the 26 px bottom margin
+   * with its own padding, but the fusion hero card sits visually
+   * separate from the page-head and the default spacing reads as a void. */
+  body.fusion-mode .dash-date-range { margin-bottom: 8px; }
+  body.fusion-mode .dash-fusion .fs-hero { padding-top: 28px; }
 
   /* ── Common section wrapper ─────────────────────────────────────────── */
   .fs-section {
