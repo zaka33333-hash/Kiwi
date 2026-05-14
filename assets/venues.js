@@ -26,6 +26,10 @@
   // "Revenir" affordance returns the merchant where they were.
   let preFusionVenue = DEFAULT_VENUE;
   let fusionAnimating = false;
+  // Subscription plan — currently always 'ultra' for the demo account.
+  // Drives the sidebar status card + Ultra identity markers (see
+  // renderLocSwitch + fusionSidebarHtml below).
+  const currentPlan = 'ultra';
 
   /* ═══════════════ VENUES REGISTRY ═══════════════ */
 
@@ -452,6 +456,12 @@
     const metaEl = document.querySelector('[data-loc-meta]');
     if (nameEl) nameEl.textContent = v.fullDisplay;
     if (metaEl) metaEl.textContent = v.siblings;
+    // ✦ Kiwi Ultra · only visible when fusion + ultra plan
+    const ultraEl = document.querySelector('[data-loc-ultra]');
+    if (ultraEl) {
+      if (currentVenue === 'fusion' && currentPlan === 'ultra') ultraEl.removeAttribute('hidden');
+      else ultraEl.setAttribute('hidden', '');
+    }
     // Chevron rotation tied to dropdownOpen handled in toggleDropdown()
   }
 
@@ -542,9 +552,12 @@
   /* Sidebar block shown in fusion mode in place of the per-vertical section.
    * 4 cross-store KPIs that only make sense at the portfolio level. */
   function fusionSidebarHtml() {
+    const ultraPill = currentPlan === 'ultra'
+      ? '<span class="fk-ultra">✦ ULTRA</span>'
+      : '';
     return `
       <div class="fusion-kpis">
-        <div class="fk-head"><i></i>VUE PORTFOLIO</div>
+        <div class="fk-head"><i></i><span>VUE PORTFOLIO</span>${ultraPill}</div>
         <div class="fk-row"><span class="fk-l">Emplacements actifs</span><span class="fk-v">3 / 3</span></div>
         <div class="fk-row"><span class="fk-l">CA cumulé · 30j</span><span class="fk-v">1,47 M MAD</span></div>
         <div class="fk-row"><span class="fk-l">Top site</span><span class="fk-v">Café Atlas</span></div>
@@ -1600,6 +1613,7 @@
   window.KiwiVenue = {
     getVenue,
     setVenue,
+    getPlan: () => currentPlan,
     subscribe,
     getVenueData,
     getCurrentVenueData,
