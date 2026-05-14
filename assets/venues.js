@@ -1062,23 +1062,21 @@
   }
 
   // ── Stacked-area chart (Mode A intraday OR Mode B 30-day) ──
-  // points: [{label, cafeAtlas, maisonMansour, spaBahia}, …]
-  // showXEvery: 5 for 30-day, 1 for intraday
+  // Axes rendered as HTML overlays (not <text> inside the SVG) so text
+  // doesn't distort when the SVG stretches non-uniformly to fill its
+  // container width via preserveAspectRatio="none".
   function fusionStackedAreaSvg(points, opts = {}) {
     const W = opts.width || 700;
     const H = opts.height || 220;
-    const PAD_L = 44, PAD_R = 12, PAD_T = 12, PAD_B = 26;
-    const innerW = W - PAD_L - PAD_R;
-    const innerH = H - PAD_T - PAD_B;
     if (!points || points.length === 0) {
       return `<div class="fs-chart-empty">Données en cours d'arrivée…</div>`;
     }
     const totals = points.map(p => (p.cafeAtlas || 0) + (p.maisonMansour || 0) + (p.spaBahia || 0));
     const maxY = Math.max(opts.minMax || 0, Math.max(...totals)) * 1.05 || 1;
-    const xOf = i => points.length <= 1
-      ? PAD_L + innerW / 2
-      : PAD_L + (i / (points.length - 1)) * innerW;
-    const yOf = v => PAD_T + innerH - (v / maxY) * innerH;
+    // Use the full SVG viewport for the plot area — y axis lives outside
+    // (HTML overlay) so we don't reserve PAD_L inside the SVG anymore.
+    const xOf = i => points.length <= 1 ? W / 2 : (i / (points.length - 1)) * W;
+    const yOf = v => H - (v / maxY) * H;
 
     // Build stacked paths bottom-to-top: spaBahia base, then mansour, then atlas on top.
     const stack = (key, baseKeys) => {
@@ -1094,30 +1092,42 @@
     const pathMansour = stack('maisonMansour', ['spaBahia']);
     const pathAtlas   = stack('cafeAtlas', ['spaBahia', 'maisonMansour']);
 
-    // Y-axis: 4 ticks
-    const ticks = [0, 0.25, 0.5, 0.75, 1].map(t => {
+    // Y axis · HTML overlay (no distortion)
+    const yTicks = [0, 0.25, 0.5, 0.75, 1].map(t => {
       const v = maxY * t;
-      const y = yOf(v);
       const label = v >= 1000 ? `${Math.round(v / 1000)}k` : `${Math.round(v)}`;
-      return `<line x1="${PAD_L}" x2="${W - PAD_R}" y1="${y}" y2="${y}" stroke="currentColor" stroke-opacity="0.10"/>
-              <text x="${PAD_L - 6}" y="${y + 4}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.55" font-family="var(--mono)">${label}</text>`;
+      return { pct: (1 - t) * 100, label };
+    });
+    const yHtml = yTicks.map(t => `<span style="top:${t.pct.toFixed(1)}%">${t.label}</span>`).join('');
+
+    // Grid lines · still inside SVG so they stretch with the plot
+    const gridSvg = yTicks.map(t => {
+      const y = (t.pct / 100) * H;
+      return `<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="currentColor" stroke-opacity="0.10"/>`;
     }).join('');
 
-    // X-axis labels
+    // X axis · HTML overlay, % positioning
     const every = opts.showXEvery || 1;
-    const xLabels = points.map((p, i) => {
-      if (i % every !== 0 && i !== points.length - 1) return '';
-      return `<text x="${xOf(i).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.55" font-family="var(--mono)">${p.label}</text>`;
-    }).join('');
+    const xLabels = points
+      .map((p, i) => (i % every === 0 || i === points.length - 1)
+        ? { pct: points.length <= 1 ? 50 : (i / (points.length - 1)) * 100, label: p.label }
+        : null)
+      .filter(Boolean);
+    const xHtml = xLabels.map(l => `<span style="left:${l.pct.toFixed(1)}%">${l.label}</span>`).join('');
 
     return `
-      <svg class="fs-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
-        ${ticks}
-        <path d="${pathSpa}"     fill="var(--mint)"  opacity="0.40"/>
-        <path d="${pathMansour}" fill="var(--atlas-600)" opacity="0.50"/>
-        <path d="${pathAtlas}"   fill="var(--atlas)" opacity="0.60"/>
-        ${xLabels}
-      </svg>`;
+      <div class="fs-chart-frame">
+        <div class="fs-chart-y-axis">${yHtml}</div>
+        <div class="fs-chart-plot">
+          <svg class="fs-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+            ${gridSvg}
+            <path d="${pathSpa}"     fill="var(--mint)"      opacity="0.40"/>
+            <path d="${pathMansour}" fill="var(--atlas-600)" opacity="0.50"/>
+            <path d="${pathAtlas}"   fill="var(--atlas)"     opacity="0.60"/>
+          </svg>
+          <div class="fs-chart-x-axis">${xHtml}</div>
+        </div>
+      </div>`;
   }
 
   // ── Intraday data buffer (Mode A) ──

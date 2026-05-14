@@ -1697,7 +1697,7 @@
   .fs-hero {
     background: linear-gradient(135deg, var(--riad) 0%, var(--riad-deep) 100%);
     color: var(--paper);
-    padding: 30px 32px;
+    padding: 38px 40px;
     border: 1px solid rgba(91,213,255,0.18);
   }
   body.fusion-mode .fs-hero {
@@ -1728,53 +1728,58 @@
   }
   .fs-hero-amount {
     font-family: var(--sans);
-    font-size: 56px;
+    font-size: 76px;
     font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
+    letter-spacing: -0.03em;
+    line-height: 1;
     color: var(--ink);
     font-feature-settings: "tnum" 1;
+    margin-top: 4px;
   }
   .fs-hero-amount .currency {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 500;
-    color: rgba(255,255,255,0.62);
-    margin-left: 8px;
+    color: rgba(255,255,255,0.55);
+    margin-left: 12px;
     letter-spacing: 0.04em;
+    vertical-align: 14px;
   }
+  @media (max-width: 1280px) { .fs-hero-amount { font-size: 62px; } }
+  @media (max-width: 980px)  { .fs-hero-amount { font-size: 52px; } .fs-hero-amount .currency { vertical-align: 10px; font-size: 18px; } }
 
   .fs-hero-deltas {
     display: grid;
     grid-template-columns: repeat(4, auto);
-    gap: 22px;
-    margin-top: 14px;
+    gap: 32px;
+    margin-top: 22px;
     flex-wrap: wrap;
   }
-  @media (max-width: 720px) { .fs-hero-deltas { grid-template-columns: repeat(2, auto); } }
+  @media (max-width: 720px) { .fs-hero-deltas { grid-template-columns: repeat(2, auto); gap: 18px; } }
   .fs-hero-deltas .b { min-width: 0; }
   .fs-hero-deltas .b .l {
-    font-size: 10px;
+    font-size: 10.5px;
     font-family: var(--mono);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     color: rgba(255,255,255,0.5);
-    margin-bottom: 3px;
+    margin-bottom: 5px;
   }
   .fs-hero-deltas .b .v {
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 500;
+    letter-spacing: -0.005em;
     color: var(--ink);
     font-feature-settings: "tnum" 1;
   }
   .fs-hero-deltas .b .v.up   { color: var(--mint); }
   .fs-hero-deltas .b .v.down { color: var(--danger); }
-  .fs-hero-deltas .b.net .v { color: var(--mint); font-size: 15px; font-weight: 600; }
+  .fs-hero-deltas .b.net .v { color: var(--mint); font-size: 20px; font-weight: 600; }
 
-  .fs-hero-progress { margin-top: 18px; }
-  .fs-hero-progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-  .fs-hero-progress-label { font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.06em; color: rgba(255,255,255,0.55); }
-  .fs-hero-progress-pct { font-family: var(--mono); font-size: 12px; color: var(--mint); font-weight: 600; }
+  .fs-hero-progress { margin-top: 28px; }
+  .fs-hero-progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .fs-hero-progress-label { font-size: 11px; font-family: var(--mono); letter-spacing: 0.08em; color: rgba(255,255,255,0.55); }
+  .fs-hero-progress-pct { font-family: var(--mono); font-size: 14px; color: var(--mint); font-weight: 600; letter-spacing: -0.005em; }
   .fs-hero-progress-track {
-    height: 6px;
+    height: 8px;
     border-radius: 999px;
     background: rgba(255,255,255,0.08);
     overflow: hidden;
@@ -1788,13 +1793,13 @@
   }
 
   .fs-hero-top {
-    margin-top: 14px;
-    font-size: 11px;
+    margin-top: 22px;
+    font-size: 12.5px;
     font-family: var(--mono);
     letter-spacing: 0.04em;
     color: rgba(255,255,255,0.6);
   }
-  .fs-hero-top b { color: var(--ink); font-weight: 600; }
+  .fs-hero-top b { color: var(--ink); font-weight: 600; letter-spacing: -0.005em; }
 
   .fs-hero-right {
     background: rgba(0,0,0,0.22);
@@ -2017,10 +2022,49 @@
     animation: fade-in 200ms ease-out;
   }
   body.fusion-mode .fs-chart-body { color: var(--ink); }
+  /* Chart frame: HTML axes overlay the SVG plot so text never distorts
+   * when the SVG stretches non-uniformly via preserveAspectRatio="none". */
+  .fs-chart-frame {
+    position: relative;
+    padding-left: 44px;
+  }
+  .fs-chart-y-axis {
+    position: absolute;
+    left: 0; top: 0;
+    width: 38px; height: 220px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--n-500);
+    pointer-events: none;
+  }
+  .fs-chart-y-axis span {
+    position: absolute;
+    right: 6px;
+    transform: translateY(-50%);
+    white-space: nowrap;
+  }
+  .fs-chart-plot {
+    position: relative;
+    height: 220px;
+  }
   .fs-chart-svg {
     width: 100%;
-    height: 220px;
+    height: 100%;
     display: block;
+  }
+  .fs-chart-x-axis {
+    position: relative;
+    height: 18px;
+    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--n-500);
+  }
+  .fs-chart-x-axis span {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    white-space: nowrap;
   }
   .fs-chart-empty {
     display: flex; align-items: center; justify-content: center;
