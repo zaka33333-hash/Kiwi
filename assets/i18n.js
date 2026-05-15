@@ -287,6 +287,7 @@
       'dash.stock.item3.note': '0.5 L · ~1 day · Maison Lait',
       'dash.stock.total': 'Suggested order total',
       'dash.stock.orderAll': 'Order from all suppliers in 1 click',
+      'dash.stock.suppliers': 'Suppliers &amp; order history →',
       'dash.health.successRate': 'Order success rate',
       'dash.health.teamOnboarding': 'Team onboarding complete',
       'dash.health.kycCurrent': 'KYC up to date',
@@ -299,6 +300,7 @@
       'dash.bench.summary': 'You outperform <b>4 cafés out of 5</b> in Casablanca. The only weak lever: <b>tips</b>.',
       'dash.bench.autoPrompt': 'Enable auto prompt →',
       'dash.products.manageMenu': 'Manage menu →',
+      'dash.products.margins': 'Margins →',
       'dash.staff.settings': 'Team settings →',
       'dash.integ.add': '+ Add an integration',
       'dash.integ.glovo.status': 'Payout reconciled · 1,420 MAD',
@@ -640,6 +642,7 @@
       'dash.stock.item3.note': '0.5 لتر · نحو يوم واحد · Maison Lait', /* AR: needs native review */
       'dash.stock.total': 'إجمالي الطلب المقترح', /* AR: needs native review */
       'dash.stock.orderAll': 'اطلب من جميع الموردين بنقرة واحدة', /* AR: needs native review */
+      'dash.stock.suppliers': 'الموردون وسجل الطلبات →', /* AR: needs native review */
       'dash.health.successRate': 'معدل نجاح الطلبات', /* AR: needs native review */
       'dash.health.teamOnboarding': 'اكتمال إعداد الفريق', /* AR: needs native review */
       'dash.health.kycCurrent': 'KYC محدّث', /* AR: needs native review */
@@ -652,6 +655,7 @@
       'dash.bench.summary': 'تتفوقون على <b>4 مقاهٍ من أصل 5</b> في الدار البيضاء. نقطة الضعف الوحيدة: <b>الإكرامية</b>.', /* AR: needs native review */
       'dash.bench.autoPrompt': 'تفعيل التنبيه التلقائي →', /* AR: needs native review */
       'dash.products.manageMenu': 'إدارة القائمة →', /* AR: needs native review */
+      'dash.products.margins': 'الهوامش →', /* AR: needs native review */
       'dash.staff.settings': 'إعدادات الفريق →', /* AR: needs native review */
       'dash.integ.add': '+ إضافة تكامل', /* AR: needs native review */
       'dash.integ.glovo.status': 'تمت تسوية الدفعة · 1,420 درهم', /* AR: needs native review */
