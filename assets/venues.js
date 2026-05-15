@@ -685,7 +685,9 @@
       txCountEl.textContent = String(live != null ? live : VENUES[currentVenue].txCount);
     }
     const staffCountEl = document.querySelector('a[data-nav="equipe"] .count');
-    if (staffCountEl) staffCountEl.textContent = String(VENUES[currentVenue].staffCount);
+    // Sidebar "Équipe" badge → number of staff currently clocked in (present),
+    // scoped to the active venue (all 3 venues in fusion). See STAFF below.
+    if (staffCountEl) staffCountEl.textContent = String(eqPresentCount());
   }
 
   /* Keep the sidebar count in sync with each demo-clock tick (every 3 s). */
@@ -1632,6 +1634,901 @@
     renderAll({ skipFade: true });
   }
 
+  /* init() is invoked at the very end of this IIFE — AFTER the Équipe block
+   * below — because renderAll() → renderSidebarCounts() reads the STAFF
+   * roster, and `const STAFF` must be initialised before init() can run. */
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * ÉQUIPE — Staff & HR page
+   * ─────────────────────────────────────────────────────────────────────
+   * A full dashboard view (replaces .container content) reachable from the
+   * sidebar "Équipe" item. Single-venue → that venue's staff; fusion → all
+   * three venues with a venue filter. Every interaction (clock-outs, new
+   * members, planner edits) lives in memory only and resets on page reload.
+   * Renders into <section class="dash-equipe"> via renderEquipe().
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  /* ── STAFF roster — single source of truth for the whole Équipe page ──── */
+  const STAFF = {
+    cafeAtlas: [
+      { id: 'ca01', name: 'Mohammed Karimi', role: 'Chef de cuisine', department: 'cuisine', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 45, contractHours: 44, avatar: 'MK', status: 'present', clockedInAt: '08:14', shiftsThisMonth: 22, hoursThisMonth: 96.5, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca02', name: 'Youssef Bennani', role: 'Cuisinier', department: 'cuisine', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 32, contractHours: 44, avatar: 'YB', status: 'present', clockedInAt: '08:30', shiftsThisMonth: 20, hoursThisMonth: 88.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca03', name: 'Fatima Zahra Idrissi', role: 'Cuisinière', department: 'cuisine', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 30, contractHours: 40, avatar: 'FZ', status: 'present', clockedInAt: '09:00', shiftsThisMonth: 19, hoursThisMonth: 76.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca04', name: 'Hassan Tazi', role: 'Plongeur / Préparation', department: 'cuisine', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 22, contractHours: 40, avatar: 'HT', status: 'present', clockedInAt: '09:15', shiftsThisMonth: 21, hoursThisMonth: 84.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca05', name: 'Rachid Alami', role: 'Pizzaïolo / Crêpes', department: 'cuisine', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 28, contractHours: 40, avatar: 'RA', status: 'off', clockedInAt: null, shiftsThisMonth: 18, hoursThisMonth: 72.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca06', name: 'Omar El Fassi', role: 'Aide de cuisine', department: 'cuisine', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 20, contractHours: 40, avatar: 'OE', status: 'present', clockedInAt: '10:00', shiftsThisMonth: 17, hoursThisMonth: 68.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca07', name: 'Youssef Amrani', role: 'Serveur senior', department: 'salle', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 28, contractHours: 44, avatar: 'YA', status: 'present', clockedInAt: '10:45', shiftsThisMonth: 22, hoursThisMonth: 96.0, tipsThisMonth: 2840, salesThisMonth: 38200, voids: 1, rating: 4.9 },
+      { id: 'ca08', name: 'Hamid Jelloul', role: 'Serveur', department: 'salle', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 24, contractHours: 44, avatar: 'HJ', status: 'present', clockedInAt: '11:00', shiftsThisMonth: 20, hoursThisMonth: 88.0, tipsThisMonth: 1920, salesThisMonth: 29400, voids: 4, rating: 4.2 },
+      { id: 'ca09', name: 'Sofia Belkadi', role: 'Serveuse', department: 'salle', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 24, contractHours: 44, avatar: 'SB', status: 'present', clockedInAt: '11:00', shiftsThisMonth: 21, hoursThisMonth: 92.0, tipsThisMonth: 2210, salesThisMonth: 34100, voids: 2, rating: 4.7 },
+      { id: 'ca10', name: 'Nadia Chraibi', role: 'Serveuse', department: 'salle', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 22, contractHours: 40, avatar: 'NC', status: 'late', clockedInAt: null, shiftsThisMonth: 18, hoursThisMonth: 72.0, tipsThisMonth: 1640, salesThisMonth: 24800, voids: 3, rating: 4.1 },
+      { id: 'ca11', name: 'Karim Mansouri', role: 'Serveur', department: 'salle', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 22, contractHours: 40, avatar: 'KM', status: 'present', clockedInAt: '11:05', shiftsThisMonth: 19, hoursThisMonth: 76.0, tipsThisMonth: 1780, salesThisMonth: 26900, voids: 2, rating: 4.4 },
+      { id: 'ca12', name: 'Leila Benkirane', role: 'Serveuse', department: 'salle', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 22, contractHours: 40, avatar: 'LB', status: 'present', clockedInAt: '11:10', shiftsThisMonth: 20, hoursThisMonth: 80.0, tipsThisMonth: 1920, salesThisMonth: 28400, voids: 1, rating: 4.6 },
+      { id: 'ca13', name: 'Rachid B.', role: 'Caissier principal', department: 'caisse', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 35, contractHours: 44, avatar: 'RB', status: 'present', clockedInAt: '08:00', shiftsThisMonth: 22, hoursThisMonth: 96.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca14', name: 'Amina Tazi', role: "Hôtesse d'accueil", department: 'caisse', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 25, contractHours: 40, avatar: 'AT', status: 'present', clockedInAt: '10:30', shiftsThisMonth: 20, hoursThisMonth: 80.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca15', name: 'Mehdi Alaoui', role: 'Agent de propreté', department: 'support', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 18, contractHours: 40, avatar: 'MA', status: 'present', clockedInAt: '07:30', shiftsThisMonth: 22, hoursThisMonth: 88.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca16', name: 'Saida Benmoussa', role: 'Agente de propreté', department: 'support', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 18, contractHours: 40, avatar: 'SB2', status: 'off', clockedInAt: null, shiftsThisMonth: 20, hoursThisMonth: 80.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca17', name: 'Brahim Kettani', role: 'Livreur', department: 'support', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 20, contractHours: 40, avatar: 'BK', status: 'present', clockedInAt: '10:00', shiftsThisMonth: 21, hoursThisMonth: 84.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'ca18', name: 'Khadija Filali', role: 'Agente polyvalente', department: 'support', venue: 'cafeAtlas', venueName: 'Café Atlas', hourlyRate: 20, contractHours: 40, avatar: 'KF', status: 'present', clockedInAt: '09:45', shiftsThisMonth: 19, hoursThisMonth: 76.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+    ],
+    spaBahia: [
+      { id: 'sp01', name: 'Karima Idrissi', role: 'Manager spa', department: 'management', venue: 'spaBahia', venueName: 'Spa Bahia', hourlyRate: 55, contractHours: 44, avatar: 'KI', status: 'present', clockedInAt: '09:00', shiftsThisMonth: 22, hoursThisMonth: 96.0, tipsThisMonth: 1200, salesThisMonth: 18400, voids: 0, rating: 5.0 },
+      { id: 'sp02', name: 'Nour El Hassan', role: 'Praticienne senior', department: 'soin', venue: 'spaBahia', venueName: 'Spa Bahia', hourlyRate: 40, contractHours: 40, avatar: 'NH', status: 'present', clockedInAt: '09:30', shiftsThisMonth: 20, hoursThisMonth: 80.0, tipsThisMonth: 2100, salesThisMonth: 24800, voids: 0, rating: 4.9 },
+      { id: 'sp03', name: 'Salma Benkirane', role: 'Praticienne', department: 'soin', venue: 'spaBahia', venueName: 'Spa Bahia', hourlyRate: 35, contractHours: 40, avatar: 'SBK', status: 'present', clockedInAt: '10:00', shiftsThisMonth: 19, hoursThisMonth: 76.0, tipsThisMonth: 1840, salesThisMonth: 21200, voids: 0, rating: 4.8 },
+      { id: 'sp04', name: 'Yasmine Bouchikhi', role: 'Praticienne', department: 'soin', venue: 'spaBahia', venueName: 'Spa Bahia', hourlyRate: 35, contractHours: 40, avatar: 'YBC', status: 'off', clockedInAt: null, shiftsThisMonth: 18, hoursThisMonth: 72.0, tipsThisMonth: 1620, salesThisMonth: 19400, voids: 0, rating: 4.7 },
+      { id: 'sp05', name: 'Houda Chraibi', role: 'Praticienne', department: 'soin', venue: 'spaBahia', venueName: 'Spa Bahia', hourlyRate: 32, contractHours: 40, avatar: 'HC', status: 'present', clockedInAt: '10:30', shiftsThisMonth: 17, hoursThisMonth: 68.0, tipsThisMonth: 1480, salesThisMonth: 17800, voids: 0, rating: 4.6 },
+      { id: 'sp06', name: 'Zineb Alami', role: 'Réceptionniste', department: 'accueil', venue: 'spaBahia', venueName: 'Spa Bahia', hourlyRate: 25, contractHours: 40, avatar: 'ZA', status: 'present', clockedInAt: '09:00', shiftsThisMonth: 21, hoursThisMonth: 84.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+      { id: 'sp07', name: 'Amine Tazi', role: "Agent d'entretien", department: 'support', venue: 'spaBahia', venueName: 'Spa Bahia', hourlyRate: 18, contractHours: 40, avatar: 'ATA', status: 'present', clockedInAt: '08:00', shiftsThisMonth: 22, hoursThisMonth: 88.0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null },
+    ],
+    maisonMansour: [
+      { id: 'mm01', name: 'Aicha Benali', role: 'Conseillère senior', department: 'vente', venue: 'maisonMansour', venueName: 'Maison Mansour', hourlyRate: 30, contractHours: 44, avatar: 'AB', status: 'present', clockedInAt: '10:00', shiftsThisMonth: 22, hoursThisMonth: 96.0, tipsThisMonth: 0, salesThisMonth: 42800, voids: 1, rating: 4.8 },
+      { id: 'mm02', name: 'Rania Tazi', role: 'Conseillère de vente', department: 'vente', venue: 'maisonMansour', venueName: 'Maison Mansour', hourlyRate: 24, contractHours: 40, avatar: 'RT', status: 'present', clockedInAt: '10:15', shiftsThisMonth: 20, hoursThisMonth: 80.0, tipsThisMonth: 0, salesThisMonth: 31200, voids: 2, rating: 4.5 },
+    ],
+  };
+
+  /* ── Department metadata. Colours use existing tokens only (the brand has
+   * no purple/pink/orange tokens — see CLAUDE.md §3 + the Bougainvillée
+   * memo). The spec's "purple/pink/orange" are mapped to brand tokens. ──── */
+  const EQ_DEPTS = {
+    cuisine:    { label: 'Cuisine',    color: 'var(--warning)'   },
+    salle:      { label: 'Salle',      color: 'var(--success)'   },
+    caisse:     { label: 'Caisse',     color: 'var(--info)'      },
+    accueil:    { label: 'Accueil',    color: 'var(--atlas-600)' },
+    support:    { label: 'Support',    color: 'var(--n-400)'     },
+    management: { label: 'Management', color: 'var(--ink)'       },
+    soin:       { label: 'Soin',       color: 'var(--atlas)'     },
+    vente:      { label: 'Vente',      color: 'var(--riad)'      },
+  };
+  const EQ_DEPT_ORDER = ['cuisine','salle','caisse','accueil','support','management','soin','vente'];
+  const EQ_REVENUE_DEPTS = ['salle','soin','vente'];   // tips + performance roles
+  const EQ_PORTFOLIO_REV_30D = 1470200;                // MAD — spec constant
+  const EQ_MONTH_WEEKS = 4.33;                         // weeks per month
+
+  /* ── Page + filter state (in-memory; resets on reload) ────────────────── */
+  let eqCurrentPage = 'dashboard';   // 'dashboard' | 'equipe'
+  let eqVenueFilter = 'all';         // fusion-only venue filter
+  let eqDeptFilter  = 'all';
+  let eqIdCounter   = 0;
+  let eqShiftData   = null;          // lazily-built planner shift grid
+  let eqPlannerWeek = 0;             // planner week offset (visual only)
+  let eqPlannerModal = null;         // open planner modal ref
+  const eqSessionOut = [];           // {id,name,type} clocked-out/absent this session
+
+  /* ── SVG icons (lucide-style, currentColor) ───────────────────────────── */
+  const EQ_IC = {
+    userCheck: '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11l2 2 4-4"/>',
+    clock:     '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+    coffee:    '<path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4z"/><path d="M6 1v3M10 1v3M14 1v3"/>',
+    timer:     '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6M12 2v2"/>',
+    eye:       '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+    edit:      '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',
+    more:      '<circle cx="12" cy="5" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.7" fill="currentColor" stroke="none"/>',
+    plus:      '<path d="M12 5v14M5 12h14"/>',
+    download:  '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+    calendar:  '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>',
+    logout:    '<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/>',
+    alert:     '<path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+    chevL:     '<path d="M15 18l-6-6 6-6"/>',
+    chevR:     '<path d="M9 18l6-6-6-6"/>',
+    file:      '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/>',
+    ban:       '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+  };
+  const eqSvg = (k, sz = 14) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${EQ_IC[k] || ''}</svg>`;
+
+  /* ── Helpers ──────────────────────────────────────────────────────────── */
+  function eqEsc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function eqFrInt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  function eqMad(n) { return eqFrInt(n) + ' MAD'; }
+  function eqHours(h) { return (Number.isInteger(h) ? String(h) : String(h).replace('.', ',')) + ' h'; }
+  function eqInitials(name) {
+    const w = String(name).trim().split(/\s+/);
+    return ((w[0] || '')[0] || '') + ((w.length > 1 ? w[w.length - 1] : '')[0] || '');
+  }
+  function eqHash(str) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return Math.abs(h); }
+  function eqDeptColor(d) { return (EQ_DEPTS[d] || EQ_DEPTS.support).color; }
+  function eqDeptLabel(d) { return (EQ_DEPTS[d] || { label: d }).label; }
+
+  function eqAllStaff() { return [...STAFF.cafeAtlas, ...STAFF.spaBahia, ...STAFF.maisonMansour]; }
+  function eqFindStaff(id) { return eqAllStaff().find(s => s.id === id) || null; }
+  /* Staff in the active venue scope — fusion shows all three venues. */
+  function eqScopedStaff() {
+    return currentVenue === 'fusion' ? eqAllStaff() : (STAFF[currentVenue] || []).slice();
+  }
+  /* Scoped staff after the venue + department filters. */
+  function eqVisibleStaff() {
+    let list = eqScopedStaff();
+    if (currentVenue === 'fusion' && eqVenueFilter !== 'all') list = list.filter(s => s.venue === eqVenueFilter);
+    if (eqDeptFilter !== 'all') list = list.filter(s => s.department === eqDeptFilter);
+    return list;
+  }
+  function eqPresentCount() { return eqScopedStaff().filter(s => s.status === 'present').length; }
+  function eqSalary(s) { return s.hoursThisMonth * s.hourlyRate; }
+  function eqPayroll(list) { return list.reduce((a, s) => a + eqSalary(s), 0); }
+  function eqTipsTotal(list) { return list.reduce((a, s) => a + s.tipsThisMonth, 0); }
+  function eqHoursTotal(list) { return list.reduce((a, s) => a + s.hoursThisMonth, 0); }
+
+  /* ═══════════ NAVIGATION ═══════════ */
+
+  function eqShowPage() {
+    eqCurrentPage = 'equipe';
+    document.body.classList.add('page-equipe');
+    const bc = document.querySelector('.breadcrumb');
+    if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Équipe</b>';
+    document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+    document.querySelector('.sidebar nav a[data-nav="equipe"]')?.classList.add('active');
+    window.scrollTo({ top: 0 });
+    renderEquipe();
+  }
+  function eqShowDashboard() {
+    if (eqCurrentPage !== 'equipe') return;
+    eqCurrentPage = 'dashboard';
+    document.body.classList.remove('page-equipe');
+    const bc = document.querySelector('.breadcrumb');
+    if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+  }
+
+  /* Wire the Équipe handlers onto Kiwi.handlers. venues.js loads after
+   * pages.js / pages-pro.js, so assigning here overrides their drawer-based
+   * nav-equipe. nav-accueil is wrapped so its existing behaviour is kept. */
+  function eqWireHandlers() {
+    const H = window.Kiwi && window.Kiwi.handlers;
+    if (!H) { setTimeout(eqWireHandlers, 30); return; }
+
+    H['nav-equipe'] = () => eqShowPage();
+    const origAccueil = H['nav-accueil'];
+    H['nav-accueil'] = function () {
+      try { if (origAccueil) origAccueil.apply(this, arguments); } catch (_) {}
+      eqShowDashboard();
+    };
+
+    H['eq-add-member']     = () => eqOpenStaffModal(null);
+    H['eq-edit-member']    = (_el, id) => eqOpenStaffModal(eqFindStaff(id));
+    H['eq-view-profile']   = (_el, id) => eqOpenProfileModal(eqFindStaff(id));
+    H['eq-plan-shifts']    = () => eqOpenPlannerModal();
+    H['eq-export-payroll'] = () => Kiwi.toast('Export paie généré', { type: 'success', desc: 'PDF envoyé au gérant' });
+    H['eq-venue-filter']   = (el) => {
+      eqVenueFilter = el.dataset.venue || 'all';
+      const scope = eqVenueFilter === 'all' ? eqScopedStaff() : eqScopedStaff().filter(s => s.venue === eqVenueFilter);
+      if (eqDeptFilter !== 'all' && !scope.some(s => s.department === eqDeptFilter)) eqDeptFilter = 'all';
+      renderEquipe();
+    };
+    H['eq-dept-filter']    = (el) => { eqDeptFilter = el.dataset.dept || 'all'; renderEquipe(); };
+    H['eq-clock-out']      = (el, id) => eqClockOut(id, el);
+    H['eq-report-absence'] = (el, id) => eqReportAbsence(id, el);
+    H['eq-generate-payslips'] = (el) => eqGeneratePayslips(el);
+    H['eq-row-menu']       = (el, id) => eqOpenRowMenu(el, id);
+    H['eq-shift-add']      = (_el, arg) => eqShiftSet(arg, true);
+    H['eq-shift-edit']     = (el, arg) => eqShiftMenu(el, arg);
+    H['eq-week-prev']      = () => { eqPlannerWeek--; eqRefreshPlanner(); };
+    H['eq-week-next']      = () => { eqPlannerWeek++; eqRefreshPlanner(); };
+    H['eq-publish-plan']   = () => Kiwi.toast('Planning publié', { type: 'success', desc: 'Notifications envoyées à 27 membres par WhatsApp' });
+    H['eq-gap-whatsapp']   = (el) => { Kiwi.toast('Messages envoyés aux membres disponibles', { type: 'success' }); const a = el && el.closest('.eq-alert'); if (a) { a.style.transition = 'opacity 200ms'; a.style.opacity = '0'; setTimeout(() => a.remove(), 220); } };
+    H['eq-gap-ignore']     = (el) => { const a = el && el.closest('.eq-alert'); if (a) { a.style.transition = 'opacity 200ms'; a.style.opacity = '0'; setTimeout(() => a.remove(), 220); } };
+  }
+
+  /* ═══════════ RENDER · ÉQUIPE PAGE ═══════════ */
+
+  function renderEquipe() {
+    const root = document.querySelector('[data-equipe-root]');
+    if (!root) return;
+    root.innerHTML =
+      eqHeaderHtml() +
+      eqFiltersHtml() +
+      eqShiftSectionHtml() +
+      eqTableSectionHtml() +
+      eqPayrollSectionHtml() +
+      eqRankingSectionHtml();
+    eqAnimateBars(root);
+  }
+
+  /* Animate every progress bar from 0 → its data-eqw target on (re)render. */
+  function eqAnimateBars(root) {
+    root.querySelectorAll('[data-eqw]').forEach(el => {
+      requestAnimationFrame(() => requestAnimationFrame(() => { el.style.width = el.dataset.eqw + '%'; }));
+    });
+  }
+
+  function eqHeaderHtml() {
+    return `
+      <div class="eq-head">
+        <div>
+          <div class="eq-title">Équipe</div>
+          <div class="eq-date">Service du jeudi 15 mai 2026</div>
+        </div>
+        <div class="eq-head-acts">
+          <button class="btn-slim" data-action="eq-add-member">${eqSvg('plus', 13)}<span>Ajouter un membre</span></button>
+          <button class="btn-slim" data-action="eq-export-payroll">${eqSvg('download', 13)}<span>Exporter paie</span></button>
+          <button class="btn-slim primary" data-action="eq-plan-shifts">${eqSvg('calendar', 13)}<span>Planifier les shifts</span></button>
+        </div>
+      </div>`;
+  }
+
+  function eqFiltersHtml() {
+    let rows = '';
+    if (currentVenue === 'fusion') {
+      const venues = [['all', 'Tous'], ['cafeAtlas', 'Café Atlas'], ['spaBahia', 'Spa Bahia'], ['maisonMansour', 'Maison Mansour']];
+      rows += '<div class="eq-pill-row">' + venues.map(([id, lbl]) =>
+        `<button class="eq-pill${eqVenueFilter === id ? ' on' : ''}" data-action="eq-venue-filter" data-venue="${id}">${lbl}</button>`
+      ).join('') + '</div>';
+    }
+    let deptScope = eqScopedStaff();
+    if (currentVenue === 'fusion' && eqVenueFilter !== 'all') deptScope = deptScope.filter(s => s.venue === eqVenueFilter);
+    const present = EQ_DEPT_ORDER.filter(d => deptScope.some(s => s.department === d));
+    rows += '<div class="eq-pill-row">' +
+      `<button class="eq-pill${eqDeptFilter === 'all' ? ' on' : ''}" data-action="eq-dept-filter" data-dept="all">Tous</button>` +
+      present.map(d => `<button class="eq-pill${eqDeptFilter === d ? ' on' : ''}" data-action="eq-dept-filter" data-dept="${d}">${eqDeptLabel(d)}</button>`).join('') +
+      '</div>';
+    return `<div class="eq-filters">${rows}</div>`;
+  }
+
+  /* ── Section 1 · Service en cours ─────────────────────────────────────── */
+  function eqAvatar(s, size) {
+    return `<span class="eq-av ${size}" style="background:${eqDeptColor(s.department)}">${eqEsc(eqInitials(s.name))}</span>`;
+  }
+
+  function eqShiftSectionHtml() {
+    const list = eqVisibleStaff();
+    const present = list.filter(s => s.status === 'present').length;
+    const late = list.filter(s => s.status === 'late').length;
+    const off = list.filter(s => s.status === 'off').length;
+    const hours = eqHoursTotal(list);
+
+    const tile = (icon, label, value, vClass, sub, extra) => `
+      <div class="eq-stat">
+        <div class="eq-stat-l"><span>${label}</span><span class="eq-stat-ico">${eqSvg(icon, 14)}</span></div>
+        <div class="eq-stat-v ${vClass || ''}">${value}</div>
+        <div class="eq-stat-sub">${sub}</div>
+        ${extra || ''}
+      </div>`;
+
+    const tiles =
+      tile('userCheck', 'En service', present, '', 'membres pointés aujourd\'hui',
+        '<div class="eq-stat-d">+2 vs hier</div>') +
+      tile('clock', 'En retard', late, late > 0 ? 'warn' : 'ok', 'shift commencé sans pointage') +
+      tile('coffee', 'En congé / repos', off, '', 'jour de repos prévu') +
+      tile('timer', 'Heures cumulées', eqHours(hours), '', 'heures travaillées ce mois',
+        '<div class="eq-stat-live" data-eq-hours-live></div>');
+
+    /* Live clock-in cards — present + late staff. */
+    const liveStaff = list.filter(s => s.status === 'present' || s.status === 'late');
+    const cards = liveStaff.length ? liveStaff.map(s => {
+      const isLate = s.status === 'late';
+      return `
+        <div class="eq-clockcard${isLate ? ' late' : ''}" data-eq-card="${s.id}">
+          <div class="eq-clockcard-top">
+            ${eqAvatar(s, 'sm')}
+            <div class="eq-clockcard-id">
+              <div class="eq-clockcard-name">${eqEsc(s.name)}</div>
+              <div class="eq-clockcard-role">${eqEsc(s.role)}</div>
+            </div>
+          </div>
+          <div class="eq-clockcard-time${isLate ? ' late' : ''}">${isLate ? 'Shift prévu · 11:00' : 'Pointé à ' + s.clockedInAt}</div>
+          ${isLate
+            ? `<button class="eq-mini-btn warn" data-action="eq-report-absence" data-arg="${s.id}">${eqSvg('alert', 12)}Signaler l'absence</button>`
+            : `<button class="eq-mini-btn" data-action="eq-clock-out" data-arg="${s.id}">${eqSvg('logout', 12)}Pointer sortie</button>`}
+        </div>`;
+    }).join('') : '<div class="eq-clockempty">Aucun membre en service pour ce filtre.</div>';
+
+    const outChips = eqSessionOut.length ? `
+      <div class="eq-clockedout">
+        <div class="eq-clockedout-lbl">Sorties du jour · ${eqSessionOut.length}</div>
+        <div class="eq-clockedout-list">
+          ${eqSessionOut.map(o => `<span class="eq-clockedout-chip${o.type === 'absence' ? ' absent' : ''}">${eqAvatarMini(o)}${eqEsc(o.name)} · ${o.type === 'absence' ? 'absence signalée' : 'sortie pointée'}</span>`).join('')}
+        </div>
+      </div>` : '';
+
+    return `
+      <div class="eq-section">
+        <div class="eq-section-head">
+          <h3>Service en cours</h3>
+          <span class="eq-live"><span class="dot"></span>LIVE</span>
+        </div>
+        <div class="eq-stats">${tiles}</div>
+        <div class="eq-clockrow">${cards}</div>
+        ${outChips}
+      </div>`;
+  }
+  function eqAvatarMini(o) {
+    const s = eqFindStaff(o.id);
+    const c = s ? eqDeptColor(s.department) : 'var(--n-400)';
+    return `<span class="eq-av sm" style="width:22px;height:22px;font-size:9px;background:${c}">${eqEsc(eqInitials(o.name))}</span>`;
+  }
+
+  /* ── Section 2 · Staff table ──────────────────────────────────────────── */
+  function eqStatusCell(s) {
+    const map = {
+      present: ['s-present', 'En service · depuis ' + (s.clockedInAt || '—')],
+      off:     ['s-off', 'Repos'],
+      late:    ['s-late', 'En retard · shift à 11:00'],
+      absent:  ['s-absent', 'Absent signalé'],
+    };
+    const [cls, txt] = map[s.status] || map.off;
+    return `<span class="eq-status ${cls}"><span class="sd"></span>${txt}</span>`;
+  }
+  function eqHoursCell(s) {
+    const monthly = s.contractHours * EQ_MONTH_WEEKS;
+    const pace = monthly > 0 ? s.hoursThisMonth / monthly : 0;
+    const pct = Math.min(100, Math.round(pace * 100));
+    const cls = pace > 0.95 ? 'over' : pace < 0.42 ? 'warn' : 'ok';
+    return `<div class="eq-hours-v">${eqHours(s.hoursThisMonth)}</div>
+      <div class="eq-bar"><div class="eq-bar-fill ${cls}" data-eqw="${pct}"></div></div>`;
+  }
+  function eqSpark3(seed) {
+    const h = eqHash(seed);
+    const bars = [5 + h % 6, 7 + (h >> 3) % 6, 9 + (h >> 6) % 6];
+    return `<span class="eq-spark3">${bars.map(b => `<i style="height:${b}px"></i>`).join('')}</span>`;
+  }
+  function eqTableSectionHtml() {
+    const list = eqVisibleStaff();
+    const fusion = currentVenue === 'fusion';
+    const cols = ['Membre', fusion ? 'Emplacement' : null, 'Statut', 'Heures ce mois', 'Salaire estimé', 'Pourboires', 'Performance', 'Actions'].filter(Boolean);
+
+    const rows = list.map(s => {
+      const salary = eqSalary(s);
+      const tipsCell = s.tipsThisMonth > 0
+        ? `<div class="eq-tips-cell"><span class="eq-tips-v">${eqMad(s.tipsThisMonth)}</span>${eqSpark3(s.id)}</div>`
+        : '<div class="eq-cell-empty">—</div>';
+      const perfCell = s.rating != null
+        ? `<div class="eq-perf-stars"><span class="st">★</span> ${s.rating.toFixed(1)}</div>
+           <div class="eq-perf-sub">${eqMad(s.salesThisMonth)} CA</div>
+           <div class="eq-perf-voids${s.voids > 2 ? ' bad' : ''}">${s.voids} annulation${s.voids === 1 ? '' : 's'}</div>`
+        : '<div class="eq-cell-empty">—</div>';
+      return `
+        <tr class="eq-row-in">
+          <td>
+            <div class="eq-member">${eqAvatar(s, 'sm')}
+              <div><div class="eq-member-name">${eqEsc(s.name)}</div><div class="eq-member-role">${eqEsc(s.role)}</div></div>
+            </div>
+          </td>
+          ${fusion ? `<td><span class="eq-venue-badge">${eqEsc(s.venueName)}</span></td>` : ''}
+          <td>${eqStatusCell(s)}</td>
+          <td>${eqHoursCell(s)}</td>
+          <td>
+            <div class="eq-salary-v">${eqMad(salary)}</div>
+            ${s.tipsThisMonth > 0 ? `<div class="eq-salary-sub">+ ${eqMad(s.tipsThisMonth)} pourboires</div>` : ''}
+          </td>
+          <td>${tipsCell}</td>
+          <td>${perfCell}</td>
+          <td>
+            <div class="eq-actions">
+              <button class="eq-icon-btn" data-action="eq-view-profile" data-arg="${s.id}" aria-label="Voir le profil">${eqSvg('eye', 14)}</button>
+              <button class="eq-icon-btn" data-action="eq-edit-member" data-arg="${s.id}" aria-label="Modifier">${eqSvg('edit', 14)}</button>
+              <button class="eq-icon-btn" data-action="eq-row-menu" data-arg="${s.id}" aria-label="Plus d'actions">${eqSvg('more', 14)}</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    /* Footer summary — every value computed from STAFF. */
+    const all = eqScopedStaff();
+    const payroll = eqPayroll(all);
+    const ratio = payroll / EQ_PORTFOLIO_REV_30D * 100;
+    const ratioCls = ratio < 30 ? 'ok' : ratio <= 38 ? 'warn' : 'bad';
+    const ratioStr = ratio.toFixed(1).replace('.', ',');
+    const presentAll = all.filter(s => s.status === 'present').length;
+
+    return `
+      <div class="eq-section">
+        <div class="eq-section-head">
+          <h3>Tous les membres</h3>
+          <span class="eq-count-badge">${list.length} affiché${list.length === 1 ? '' : 's'}</span>
+        </div>
+        <div class="eq-table-wrap">
+          <table class="eq-table">
+            <thead><tr>${cols.map(c => `<th${c === 'Actions' ? ' class="eq-num"' : ''}>${c}</th>`).join('')}</tr></thead>
+            <tbody>${rows || `<tr><td colspan="${cols.length}" style="text-align:center;color:var(--n-500);padding:28px;">Aucun membre pour ce filtre.</td></tr>`}</tbody>
+          </table>
+        </div>
+        <div class="eq-table-foot">
+          <span><b>${all.length}</b> membres</span><span class="sep">·</span>
+          <span><b>${presentAll}</b> en service</span><span class="sep">·</span>
+          <span>Masse salariale estimée ce mois : <b>${eqMad(payroll)}</b></span><span class="sep">·</span>
+          <span>Ratio coût main d'œuvre :
+            <span class="eq-ratio ${ratioCls}">${ratioStr}&nbsp;%
+              <span class="eq-tip">Dans la restauration F&amp;B au Maroc, une fourchette de 28–35&nbsp;% est considérée comme saine. En dessous = marge confortable.</span>
+            </span>
+          </span>
+        </div>
+      </div>`;
+  }
+
+  /* ── Section 3 · Payroll summary ──────────────────────────────────────── */
+  function eqDonut(segs) {
+    const r = 52, C = 2 * Math.PI * r;
+    let off = 0;
+    const rings = segs.map(g => {
+      const len = g.pct / 100 * C;
+      const ring = `<circle cx="75" cy="75" r="${r}" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 75 75)"/>`;
+      off += len; return ring;
+    }).join('');
+    return `<svg viewBox="0 0 150 150" width="150" height="150">${rings}</svg>`;
+  }
+  function eqPayrollSectionHtml() {
+    const list = eqScopedStaff();   // payroll summary is always venue-scoped
+    const gross = eqPayroll(list);
+    const tips = eqTipsTotal(list);
+    const total = gross + tips;
+
+    const byDept = EQ_DEPT_ORDER.map(d => {
+      const dl = list.filter(s => s.department === d);
+      if (!dl.length) return null;
+      return { dept: d, members: dl.length, hours: eqHoursTotal(dl), salary: eqPayroll(dl) };
+    }).filter(Boolean);
+    byDept.sort((a, b) => b.salary - a.salary);
+
+    const segs = byDept.map(r => ({ pct: gross > 0 ? r.salary / gross * 100 : 0, color: eqDeptColor(r.dept) }));
+
+    const legend = byDept.map(r => `
+      <div class="eq-leg">
+        <span class="lk" style="background:${eqDeptColor(r.dept)}"></span>
+        <span class="ln">${eqDeptLabel(r.dept)}</span>
+        <span class="lv">${gross > 0 ? Math.round(r.salary / gross * 100) : 0} %</span>
+      </div>`).join('');
+
+    const deptRows = byDept.map(r => `
+      <tr>
+        <td><span class="eq-dept-name"><span class="eq-dept-dot" style="background:${eqDeptColor(r.dept)}"></span>${eqDeptLabel(r.dept)}</span></td>
+        <td class="r">${r.members}</td>
+        <td class="r">${eqHours(r.hours)}</td>
+        <td class="r">${eqMad(r.salary)}</td>
+        <td class="r">${gross > 0 ? (r.salary / gross * 100).toFixed(1).replace('.', ',') : '0'} %</td>
+      </tr>`).join('');
+
+    return `
+      <div class="eq-section">
+        <div class="eq-section-head"><h3>Récapitulatif paie · Mai 2026</h3></div>
+        <div class="eq-payroll-grid">
+          <div>
+            <div class="eq-payroll-stats">
+              <div class="eq-pstat"><div class="l">Masse salariale brute</div><div class="v">${eqMad(gross)}</div><div class="s">${list.length} membres</div></div>
+              <div class="eq-pstat"><div class="l">Pourboires distribués</div><div class="v">${eqMad(tips)}</div><div class="s">salle &amp; soin</div></div>
+              <div class="eq-pstat"><div class="l">Coût total équipe</div><div class="v">${eqMad(total)}</div><div class="s">salaires + pourboires</div></div>
+            </div>
+            <table class="eq-dept-table">
+              <thead><tr><th>Département</th><th class="r">Membres</th><th class="r">Heures totales</th><th class="r">Salaire total</th><th class="r">% de la masse</th></tr></thead>
+              <tbody>${deptRows}</tbody>
+            </table>
+          </div>
+          <div class="eq-donut-wrap">
+            <div class="eq-donut">
+              ${eqDonut(segs)}
+              <div class="eq-donut-center"><div class="dv">${eqMad(gross)}</div><div class="dl">Masse · mois</div></div>
+            </div>
+            <div class="eq-donut-legend">${legend}</div>
+          </div>
+        </div>
+        <div class="eq-payroll-cta">
+          <button class="eq-cta-gradient" data-action="eq-generate-payslips">${eqSvg('file', 15)}<span>Générer les fiches de paie</span></button>
+        </div>
+      </div>`;
+  }
+
+  /* ── Section 4 · Performance ranking ──────────────────────────────────── */
+  function eqRankingSectionHtml() {
+    const ranked = eqScopedStaff()
+      .filter(s => EQ_REVENUE_DEPTS.includes(s.department))
+      .slice()
+      .sort((a, b) => b.salesThisMonth - a.salesThisMonth);
+    const fusion = currentVenue === 'fusion';
+    const topSales = ranked.length ? ranked[0].salesThisMonth : 1;
+
+    const rows = ranked.map((s, i) => {
+      const rank = i + 1;
+      const medal = rank <= 3 ? `m${rank}` : 'neutral';
+      const numLabel = rank === 1 ? '★' : rank;
+      const pct = topSales > 0 ? Math.round(s.salesThisMonth / topSales * 100) : 0;
+      let badge;
+      if (rank === 1) badge = '<span class="eq-rank-badge gold">🏆 Top du mois</span>';
+      else if (rank <= 3) badge = '<span class="eq-rank-badge green">⭐ Excellent</span>';
+      else badge = `<span class="eq-rank-badge neutral">${s.voids === 0 ? '0 annulation' : '★ ' + s.rating.toFixed(1)}</span>`;
+      return `
+        <div class="eq-rank${rank === 1 ? ' r1' : ''}">
+          <div class="eq-rank-num ${medal}">${numLabel}</div>
+          ${eqAvatar(s, 'md')}
+          <div class="eq-rank-body">
+            <div class="eq-rank-name">${eqEsc(s.name)} <span class="rr">· ${eqEsc(s.role)}${fusion ? ' · ' + eqEsc(s.venueName) : ''}</span></div>
+            <div class="eq-rank-stats"><span class="st">★</span> ${s.rating.toFixed(1)} · ${eqMad(s.salesThisMonth)} CA · ${eqMad(s.tipsThisMonth)} pourboires</div>
+            <div class="eq-rank-bar"><div class="eq-rank-bar-fill" data-eqw="${pct}"></div></div>
+          </div>
+          ${badge}
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="eq-section">
+        <div class="eq-section-head"><h3>Classement performance · Salle &amp; Service</h3></div>
+        <div class="eq-rank-sub">Basé sur CA généré, pourboires, et évaluations clients ce mois</div>
+        <div class="eq-rank-list">${rows || '<div class="eq-clockempty">Aucun poste générateur de revenu pour ce filtre.</div>'}</div>
+        <div class="eq-ai">
+          <div class="eq-ai-eyebrow">Kiwi AI</div>
+          <div class="eq-ai-t">Écart de performance significatif entre serveurs</div>
+          <div class="eq-ai-b">Youssef Amrani génère 38 200 MAD de CA ce mois (+30 % vs moyenne équipe), tandis que Hamid Jelloul est à 29 400 MAD (−3 %). L'écart de pourboires est encore plus marqué : 2 840 MAD vs 1 920 MAD.</div>
+          <div class="eq-ai-a">→ Une session de formation sur l'upselling avec Hamid, en s'inspirant des pratiques de Youssef, pourrait augmenter son CA de 10–15 %.</div>
+        </div>
+      </div>`;
+  }
+
+  /* ═══════════ INTERACTIONS ═══════════ */
+
+  function eqClockOut(id, btnEl) {
+    const s = eqFindStaff(id);
+    if (!s || s.status === 'off' || s.status === 'absent') return;
+    if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="kiwi-spinner" style="width:12px;height:12px;"></span>'; }
+    const card = document.querySelector(`[data-eq-card="${id}"]`);
+    setTimeout(() => {
+      s.status = 'off'; s.clockedInAt = null;
+      if (!eqSessionOut.some(o => o.id === id)) eqSessionOut.push({ id, name: s.name, type: 'sortie' });
+      Kiwi.toast(`${s.name} · sortie pointée`, { type: 'success', desc: 'Heure de fin enregistrée. Récap WhatsApp envoyé.' });
+      if (card) card.classList.add('removing');
+      setTimeout(() => { if (eqCurrentPage === 'equipe') renderEquipe(); renderSidebarCounts(); }, 220);
+    }, 300);
+  }
+  function eqReportAbsence(id, btnEl) {
+    const s = eqFindStaff(id);
+    if (!s) return;
+    if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="kiwi-spinner" style="width:12px;height:12px;"></span>'; }
+    const card = document.querySelector(`[data-eq-card="${id}"]`);
+    setTimeout(() => {
+      s.status = 'absent'; s.clockedInAt = null;
+      if (!eqSessionOut.some(o => o.id === id)) eqSessionOut.push({ id, name: s.name, type: 'absence' });
+      Kiwi.toast(`${s.name} · absence signalée`, { type: 'warn', desc: 'Le gérant a été notifié. Remplacement à prévoir.' });
+      if (card) card.classList.add('removing');
+      setTimeout(() => { if (eqCurrentPage === 'equipe') renderEquipe(); renderSidebarCounts(); }, 220);
+    }, 300);
+  }
+  function eqGeneratePayslips(el) {
+    if (!el || el.disabled) return;
+    const orig = el.innerHTML;
+    el.disabled = true;
+    el.innerHTML = '<span class="kiwi-spinner" style="width:14px;height:14px;border-color:rgba(247,245,240,0.35);border-top-color:#fff;"></span><span>Génération en cours…</span>';
+    setTimeout(() => {
+      el.disabled = false; el.innerHTML = orig;
+      const n = eqScopedStaff().length;
+      Kiwi.toast(`${n} fiches de paie générées`, { type: 'success', desc: 'Envoyées par WhatsApp aux gérants' });
+    }, 1500);
+  }
+  function eqOpenRowMenu(el, id) {
+    const s = eqFindStaff(id);
+    if (!s) return;
+    Kiwi.menu(el, [
+      { label: 'Pointer la sortie', icon: eqSvg('logout', 16), onClick: () => eqClockOut(id, null) },
+      { label: 'Signaler une absence', icon: eqSvg('alert', 16), onClick: () => eqReportAbsence(id, null) },
+      { sep: true },
+      { label: 'Désactiver le compte', danger: true, icon: eqSvg('ban', 16), onClick: () => Kiwi.toast(`${s.name} · compte désactivé`, { type: 'info', desc: 'Accès PIN révoqué. Réactivable à tout moment.' }) },
+    ]);
+  }
+
+  /* ═══════════ MODAL · ADD / EDIT STAFF ═══════════ */
+  function eqOpenStaffModal(staff) {
+    const editing = !!staff;
+    const fusion = currentVenue === 'fusion';
+    const nameParts = editing ? staff.name.trim().split(/\s+/) : [];
+    const firstName = editing ? nameParts[0] : '';
+    const lastName = editing ? nameParts.slice(1).join(' ') : '';
+    const deptOpts = EQ_DEPT_ORDER.map(d => `<option value="${d}"${editing && staff.department === d ? ' selected' : ''}>${eqDeptLabel(d)}</option>`).join('');
+    const venueOpts = [['cafeAtlas', 'Café Atlas'], ['spaBahia', 'Spa Bahia'], ['maisonMansour', 'Maison Mansour']]
+      .map(([v, l]) => `<option value="${v}"${editing && staff.venue === v ? ' selected' : ''}>${l}</option>`).join('');
+
+    const m = Kiwi.modal({
+      tag: editing ? 'MODIFIER' : 'NOUVEAU MEMBRE',
+      title: editing ? 'Modifier le profil' : 'Nouveau membre',
+      desc: editing ? 'Mettez à jour les informations de ce membre.' : 'Ajoutez un membre à votre équipe.',
+      width: 560,
+      body: `
+        <div class="kf-row">
+          <div class="kf-group"><label class="kf-label">Prénom</label><input class="kf-input" data-eqf="firstName" value="${eqEsc(firstName)}" placeholder="Prénom"/></div>
+          <div class="kf-group"><label class="kf-label">Nom</label><input class="kf-input" data-eqf="lastName" value="${eqEsc(lastName)}" placeholder="Nom"/></div>
+        </div>
+        <div class="kf-group"><label class="kf-label">Rôle</label><input class="kf-input" data-eqf="role" value="${editing ? eqEsc(staff.role) : ''}" placeholder="Ex. Serveur senior"/></div>
+        <div class="kf-row">
+          <div class="kf-group"><label class="kf-label">Département</label><select class="kf-input" data-eqf="department">${deptOpts}</select></div>
+          ${fusion ? `<div class="kf-group"><label class="kf-label">Emplacement</label><select class="kf-input" data-eqf="venue">${venueOpts}</select></div>` : ''}
+        </div>
+        <div class="kf-row">
+          <div class="kf-group"><label class="kf-label">Taux horaire</label>
+            <div class="eq-m-suffix"><input class="kf-input" type="number" data-eqf="hourlyRate" value="${editing ? staff.hourlyRate : ''}" placeholder="0" style="padding-right:96px;"/><span class="sfx">MAD / heure</span></div>
+          </div>
+          <div class="kf-group"><label class="kf-label">Heures contractuelles</label>
+            <div class="eq-m-suffix"><input class="kf-input" type="number" data-eqf="contractHours" value="${editing ? staff.contractHours : '44'}" placeholder="44" style="padding-right:118px;"/><span class="sfx">heures / semaine</span></div>
+          </div>
+        </div>
+        <div class="kf-row">
+          <div class="kf-group"><label class="kf-label">Date de début</label><input class="kf-input" type="date" data-eqf="startDate" value="2026-05-15"/></div>
+          <div class="kf-group"><label class="kf-label">Téléphone</label><input class="kf-input" data-eqf="phone" placeholder="+212 6XX XXX XXX"/></div>
+        </div>
+      `,
+      foot: `
+        <button class="kb ghost" data-eq-cancel>Annuler</button>
+        <button class="eq-cta-gradient" data-eq-save>${editing ? 'Enregistrer les modifications' : 'Enregistrer le membre'}</button>
+      `,
+    });
+
+    const val = k => m.el.querySelector(`[data-eqf="${k}"]`);
+    m.el.querySelector('[data-eq-cancel]').onclick = m.close;
+    m.el.querySelector('[data-eq-save]').onclick = () => {
+      const required = ['firstName', 'lastName', 'role', 'department'];
+      let ok = true;
+      required.forEach(k => {
+        const el = val(k);
+        const empty = !el || !String(el.value).trim();
+        if (el) el.classList.toggle('eq-invalid', empty);
+        if (empty) ok = false;
+      });
+      if (!ok) { Kiwi.toast('Champs requis manquants', { type: 'warn', desc: 'Prénom, nom, rôle et département sont obligatoires.' }); return; }
+
+      const fn = val('firstName').value.trim();
+      const ln = val('lastName').value.trim();
+      const dept = val('department').value;
+      const venue = fusion && val('venue') ? val('venue').value : (currentVenue === 'fusion' ? 'cafeAtlas' : currentVenue);
+      const name = `${fn} ${ln}`;
+
+      if (editing) {
+        staff.name = name;
+        staff.role = val('role').value.trim();
+        staff.department = dept;
+        staff.hourlyRate = Number(val('hourlyRate').value) || staff.hourlyRate;
+        staff.contractHours = Number(val('contractHours').value) || staff.contractHours;
+        staff.avatar = eqInitials(name).toUpperCase();
+        m.close();
+        Kiwi.toast(`Profil mis à jour · ${name}`, { type: 'success' });
+      } else {
+        const member = {
+          id: 'eqx' + (++eqIdCounter), name, role: val('role').value.trim() || 'Membre',
+          department: dept, venue, venueName: (VENUES[venue] || {}).name || venue,
+          hourlyRate: Number(val('hourlyRate').value) || 0,
+          contractHours: Number(val('contractHours').value) || 44,
+          avatar: eqInitials(name).toUpperCase(), status: 'present',
+          clockedInAt: '09:00', shiftsThisMonth: 0, hoursThisMonth: 0,
+          tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null,
+        };
+        (STAFF[venue] || STAFF.cafeAtlas).push(member);
+        m.close();
+        Kiwi.toast(`Membre ajouté · ${name}`, { type: 'success', desc: member.role });
+      }
+      if (eqCurrentPage === 'equipe') renderEquipe();
+      renderSidebarCounts();
+    };
+    m.el.querySelectorAll('[data-eqf]').forEach(el => el.addEventListener('input', () => el.classList.remove('eq-invalid')));
+  }
+
+  /* ═══════════ MODAL · STAFF PROFILE ═══════════ */
+  function eqShiftLog(s) {
+    const h = eqHash(s.id);
+    const days = ['Lun 5', 'Mar 6', 'Mer 7', 'Jeu 8', 'Ven 9', 'Sam 10', 'Dim 11'];
+    const startBase = s.venue === 'spaBahia' ? 9 : s.venue === 'maisonMansour' ? 10 : 11;
+    return days.map((d, i) => {
+      const sh = (h >> i) % 6;
+      const inH = startBase + (sh % 2);
+      const inM = (h >> (i + 1)) % 60;
+      const dur = s.venue === 'spaBahia' ? 9 : s.venue === 'maisonMansour' ? 9 : 12;
+      const durM = (h >> (i + 2)) % 50;
+      let outH = inH + dur, outM = inM + durM;
+      if (outM >= 60) { outM -= 60; outH += 1; }
+      const p = n => String(n).padStart(2, '0');
+      return `<div class="eq-shiftlog-row"><span class="d">${d} mai</span><span class="h">${p(inH)}:${p(inM)} → ${p(outH % 24)}:${p(outM)}</span><span class="dur">${dur}h${p(durM)}</span></div>`;
+    }).join('');
+  }
+  function eqOpenProfileModal(s) {
+    if (!s) return;
+    const revenue = EQ_REVENUE_DEPTS.includes(s.department) || s.rating != null;
+    const statusTxt = { present: 'En service', off: 'Repos', late: 'En retard', absent: 'Absent' }[s.status] || 'Repos';
+    const tiles = [
+      ['Shifts travaillés', s.shiftsThisMonth],
+      ['Heures travaillées', eqHours(s.hoursThisMonth)],
+      ['Salaire estimé', eqMad(eqSalary(s))],
+      ['Pourboires', s.tipsThisMonth > 0 ? eqMad(s.tipsThisMonth) : '—'],
+    ];
+    if (revenue) {
+      tiles.push(['CA généré', eqMad(s.salesThisMonth)]);
+      tiles.push(['Note moyenne', s.rating != null ? '★ ' + s.rating.toFixed(1) : '—']);
+      tiles.push(['Annulations', s.voids]);
+    }
+    const m = Kiwi.modal({
+      tag: 'PROFIL ÉQUIPE',
+      title: 'Fiche membre',
+      width: 640,
+      body: `
+        <div class="eq-profile-head">
+          ${eqAvatar(s, 'lg')}
+          <div class="ph-id">
+            <div class="ph-name">${eqEsc(s.name)}</div>
+            <div class="ph-role">${eqEsc(s.role)}</div>
+            <div class="ph-tags">
+              <span class="eq-venue-badge">${eqEsc(s.venueName)}</span>
+              <span class="eq-status s-${s.status}"><span class="sd"></span>${statusTxt}</span>
+            </div>
+          </div>
+        </div>
+        <div class="eq-profile-grid">
+          <div>
+            <div class="eq-col-lbl">Ce mois</div>
+            <div class="eq-ptiles">
+              ${tiles.map(t => `<div class="eq-ptile"><div class="l">${t[0]}</div><div class="v">${t[1]}</div></div>`).join('')}
+            </div>
+          </div>
+          <div>
+            <div class="eq-col-lbl">Historique pointages (simulé)</div>
+            <div class="eq-shiftlog">${eqShiftLog(s)}</div>
+          </div>
+        </div>
+      `,
+      foot: `
+        <button class="kb ghost" data-eq-cancel>Fermer</button>
+        <button class="kb atlas" data-eq-edit>Modifier le profil</button>
+      `,
+    });
+    m.el.querySelector('[data-eq-cancel]').onclick = m.close;
+    m.el.querySelector('[data-eq-edit]').onclick = () => { m.close(); setTimeout(() => eqOpenStaffModal(s), 180); };
+  }
+
+  /* ═══════════ MODAL · SHIFT PLANNER ═══════════ */
+  const EQ_PLANNER_DAYS = ['Lun 19', 'Mar 20', 'Mer 21', 'Jeu 22', 'Ven 23', 'Sam 24', 'Dim 25'];
+  function eqBuildShifts() {
+    if (eqShiftData) return eqShiftData;
+    eqShiftData = {};
+    eqAllStaff().forEach((s) => {
+      const base = s.venue === 'spaBahia' ? '09h–20h'
+        : s.venue === 'maisonMansour' ? '10h–20h'
+        : (eqHash(s.id) % 2 ? '17h–23h' : '11h–23h');
+      const rest1 = eqHash(s.id) % 7;
+      const rest2 = (eqHash(s.id) + 3) % 7;
+      const week = [];
+      for (let d = 0; d < 7; d++) week.push((d === rest1 || d === rest2) ? null : base);
+      eqShiftData[s.id] = week;
+    });
+    /* Two deliberate unassigned gaps for the gap-detection alert. */
+    if (eqShiftData['ca08']) eqShiftData['ca08'][4] = null;   // Café Atlas · Vendredi
+    if (eqShiftData['sp03']) eqShiftData['sp03'][5] = null;   // Spa Bahia · Samedi
+    return eqShiftData;
+  }
+  function eqPlannerStaff() {
+    return currentVenue === 'fusion' ? eqAllStaff() : (STAFF[currentVenue] || []);
+  }
+  function eqPlannerBodyHtml() {
+    const data = eqBuildShifts();
+    const rows = eqPlannerStaff().map(s => {
+      const week = data[s.id] || [];
+      const cells = week.map((sh, d) => {
+        if (sh) return `<td><div class="eq-shift-pill" data-action="eq-shift-edit" data-arg="${s.id}:${d}">${sh}</div></td>`;
+        return `<td><div class="eq-shift-empty" data-action="eq-shift-add" data-arg="${s.id}:${d}">+</div></td>`;
+      }).join('');
+      return `<tr><td class="pn">${eqEsc(s.name)}<div class="sub">${eqEsc(s.role)}</div></td>${cells}</tr>`;
+    }).join('');
+    return `
+      <table class="eq-planner">
+        <thead><tr><th class="pn">Membre</th>${EQ_PLANNER_DAYS.map(d => `<th>${d}</th>`).join('')}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+  function eqPlannerWeekLabel() {
+    const weeks = ['12 au 18 mai 2026', '19 au 25 mai 2026', '26 mai au 1 juin 2026'];
+    return 'Semaine du ' + (weeks[((eqPlannerWeek % 3) + 3 + 1) % 3] || weeks[1]);
+  }
+  function eqOpenPlannerModal() {
+    eqPlannerWeek = 0;
+    eqBuildShifts();
+    const m = Kiwi.modal({
+      tag: 'PLANIFICATION',
+      title: 'Planification des shifts',
+      width: 720,
+      body: `
+        <div class="eq-planner-head">
+          <div style="font-size:13px;font-weight:600;color:var(--ink);" data-eq-week>${eqPlannerWeekLabel()}</div>
+          <div class="eq-planner-nav">
+            <button data-action="eq-week-prev" aria-label="Semaine précédente">${eqSvg('chevL', 14)}</button>
+            <button data-action="eq-week-next" aria-label="Semaine suivante">${eqSvg('chevR', 14)}</button>
+          </div>
+        </div>
+        <div class="eq-planner-wrap" data-eq-planner-body>${eqPlannerBodyHtml()}</div>
+        <div class="eq-alert">
+          <div class="eq-alert-ico">${eqSvg('alert', 16)}</div>
+          <div class="eq-alert-body">
+            <div class="eq-alert-t">2 shifts non assignés la semaine prochaine</div>
+            <div class="eq-alert-d">Vendredi soir à Café Atlas et Samedi à Spa Bahia. Voulez-vous envoyer un appel aux membres disponibles ?</div>
+            <div class="eq-alert-acts">
+              <button class="kb atlas" style="padding:7px 14px;font-size:12.5px;" data-action="eq-gap-whatsapp">Envoyer WhatsApp</button>
+              <button class="kb ghost" style="padding:7px 14px;font-size:12.5px;" data-action="eq-gap-ignore">Ignorer</button>
+            </div>
+          </div>
+        </div>
+      `,
+      foot: `
+        <button class="kb ghost" data-eq-cancel>Fermer</button>
+        <button class="eq-cta-gradient" data-action="eq-publish-plan">Publier le planning</button>
+      `,
+    });
+    eqPlannerModal = m;
+    m.el.querySelector('[data-eq-cancel]').onclick = m.close;
+    /* Drop the planner ref once the modal is dismissed (button or backdrop). */
+    m.el.addEventListener('click', e => {
+      if (e.target.closest('[data-eq-cancel]') || e.target.closest('.kiwi-modal-close') || e.target === m.el) eqPlannerModal = null;
+    });
+  }
+  function eqRefreshPlanner() {
+    if (!eqPlannerModal) return;
+    const body = eqPlannerModal.el.querySelector('[data-eq-planner-body]');
+    const wk = eqPlannerModal.el.querySelector('[data-eq-week]');
+    if (body) body.innerHTML = eqPlannerBodyHtml();
+    if (wk) wk.textContent = eqPlannerWeekLabel();
+  }
+  function eqShiftSet(arg, isNew) {
+    const [id, dStr] = String(arg).split(':');
+    const d = Number(dStr);
+    const data = eqBuildShifts();
+    if (!data[id]) return;
+    const s = eqFindStaff(id);
+    const def = s && s.venue === 'spaBahia' ? '09h–20h' : s && s.venue === 'maisonMansour' ? '10h–20h' : '11h–23h';
+    data[id][d] = def;
+    eqRefreshPlanner();
+    if (isNew) Kiwi.toast('Shift ajouté', { type: 'success', desc: `${s ? s.name : ''} · ${EQ_PLANNER_DAYS[d]} · ${def}` });
+  }
+  function eqShiftMenu(el, arg) {
+    const [id, dStr] = String(arg).split(':');
+    const d = Number(dStr);
+    const data = eqBuildShifts();
+    const opts = ['11h–23h', '17h–23h', '09h–20h', '10h–20h'];
+    Kiwi.menu(el, [
+      { head: 'Modifier le shift · ' + (EQ_PLANNER_DAYS[d] || '') },
+      ...opts.map(o => ({ label: o, active: data[id] && data[id][d] === o, onClick: () => { if (data[id]) { data[id][d] = o; eqRefreshPlanner(); } } })),
+      { sep: true },
+      { label: 'Retirer le shift', danger: true, onClick: () => { if (data[id]) { data[id][d] = null; eqRefreshPlanner(); Kiwi.toast('Shift retiré', { type: 'info' }); } } },
+    ]);
+  }
+
+  /* ═══════════ DEMO CLOCK · live hours tile ═══════════ */
+  function eqClockTick() {
+    if (eqCurrentPage !== 'equipe') return;
+    const el = document.querySelector('[data-eq-hours-live]');
+    if (!el) return;
+    const st = window.KiwiDemoClock && window.KiwiDemoClock.getSimState && window.KiwiDemoClock.getSimState();
+    const range = (window.KiwiDateRange && window.KiwiDateRange.getDateRange && window.KiwiDateRange.getDateRange()) || 'aujourdhui';
+    if (st && range === 'aujourdhui') {
+      /* Derived live figure: present staff × elapsed hours of the sim day. */
+      const present = eqVisibleStaff().filter(s => s.status === 'present').length;
+      const elapsed = (st.fraction || 0) * 16;
+      el.textContent = `● ${eqFrInt(present * elapsed)} h pointées aujourd'hui · LIVE`;
+    } else {
+      el.textContent = '';
+    }
+  }
+  if (window.KiwiDemoClock && window.KiwiDemoClock.subscribe) {
+    window.KiwiDemoClock.subscribe(() => eqClockTick());
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.KiwiDemoClock && window.KiwiDemoClock.subscribe && window.KiwiDemoClock.subscribe(() => eqClockTick());
+    });
+  }
+
+  /* Keep the Équipe page in sync when the venue / fusion state changes. */
+  subscribe(() => {
+    if (eqCurrentPage !== 'equipe') return;
+    eqVenueFilter = 'all';
+    eqDeptFilter = 'all';
+    renderEquipe();
+  });
+
+  eqWireHandlers();
+
+  /* ═══════════════ INIT (deferred to here so STAFF is defined) ═══════════════ */
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
