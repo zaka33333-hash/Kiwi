@@ -361,10 +361,24 @@
     const r = anchor.getBoundingClientRect();
     const m = document.createElement('div');
     m.className = 'kiwi-menu';
-    m.style.top = `${r.bottom + 6 + window.scrollY}px`;
     m.style.left = `${r.left + window.scrollX}px`;
     m.innerHTML = items.map(it => it.head ? `<div class="kiwi-menu-head">${escape(it.head)}</div>` : it.sep ? `<div class="kiwi-menu-sep"></div>` : `<div class="kiwi-menu-item ${it.danger?'danger':''} ${it.active?'active':''}" data-idx="${items.indexOf(it)}">${it.icon || ''}<span>${escape(it.label)}</span></div>`).join('');
     document.body.appendChild(m);
+    /* Vertical placement: open downward by default, but flip above the anchor
+     * when there isn't room below — e.g. the sidebar profile menu, anchored
+     * near the bottom of the viewport, would otherwise render off-screen. */
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    const mh = m.offsetHeight;
+    const flipUp = vh && (r.bottom + mh + 12 > vh) && (r.top - mh - 12 > 0);
+    m.style.top = flipUp
+      ? `${r.top + window.scrollY - mh - 6}px`
+      : `${r.bottom + 6 + window.scrollY}px`;
+    /* Horizontal: clamp so the menu never spills off the viewport edges. */
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    let mLeft = r.left + window.scrollX;
+    if (vw && mLeft + m.offsetWidth > vw - 8) mLeft = vw - 8 - m.offsetWidth;
+    if (mLeft < 8) mLeft = 8;
+    m.style.left = `${mLeft}px`;
     requestAnimationFrame(() => m.classList.add('in'));
     const close = () => { m.classList.remove('in'); setTimeout(() => m.remove(), 180); document.removeEventListener('click', outside, true); };
     const outside = (e) => { if (!m.contains(e.target) && e.target !== anchor) close(); };
