@@ -149,7 +149,7 @@
   .kf-help { font-size: 11.5px; color: var(--n-500); margin-top: 5px; line-height: 1.4; }
 
   /* Dropdown menu */
-  .kiwi-menu { position: absolute; background: #fff; border: 1px solid var(--n-200); border-radius: 12px; box-shadow: 0 20px 40px -16px rgba(10,15,13,0.24); padding: 6px; min-width: 220px; z-index: 9990; font-family: var(--sans); opacity: 0; transform: translateY(-6px); transition: opacity 160ms, transform 160ms; }
+  .kiwi-menu { position: fixed; background: #fff; border: 1px solid var(--n-200); border-radius: 12px; box-shadow: 0 20px 40px -16px rgba(10,15,13,0.24); padding: 6px; min-width: 220px; z-index: 9990; font-family: var(--sans); opacity: 0; transform: translateY(-6px); transition: opacity 160ms, transform 160ms; }
   .kiwi-menu.in { opacity: 1; transform: translateY(0); }
   .kiwi-menu-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 13.5px; color: var(--ink); border-radius: 8px; cursor: pointer; transition: background 100ms; }
   .kiwi-menu-item:hover { background: var(--paper-soft); }
@@ -361,21 +361,20 @@
     const r = anchor.getBoundingClientRect();
     const m = document.createElement('div');
     m.className = 'kiwi-menu';
-    m.style.left = `${r.left + window.scrollX}px`;
     m.innerHTML = items.map(it => it.head ? `<div class="kiwi-menu-head">${escape(it.head)}</div>` : it.sep ? `<div class="kiwi-menu-sep"></div>` : `<div class="kiwi-menu-item ${it.danger?'danger':''} ${it.active?'active':''}" data-idx="${items.indexOf(it)}">${it.icon || ''}<span>${escape(it.label)}</span></div>`).join('');
     document.body.appendChild(m);
-    /* Vertical placement: open downward by default, but flip above the anchor
-     * when there isn't room below — e.g. the sidebar profile menu, anchored
-     * near the bottom of the viewport, would otherwise render off-screen. */
+    /* The menu is position:fixed (see CSS) so it's placed in viewport
+     * coordinates straight from getBoundingClientRect — no scroll math.
+     * This keeps it anchored correctly even though the sidebar is sticky. */
     const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    const mh = m.offsetHeight;
-    const flipUp = vh && (r.bottom + mh + 12 > vh) && (r.top - mh - 12 > 0);
-    m.style.top = flipUp
-      ? `${r.top + window.scrollY - mh - 6}px`
-      : `${r.bottom + 6 + window.scrollY}px`;
-    /* Horizontal: clamp so the menu never spills off the viewport edges. */
     const vw = window.innerWidth || document.documentElement.clientWidth || 0;
-    let mLeft = r.left + window.scrollX;
+    const mh = m.offsetHeight;
+    /* Open downward by default, but flip above the anchor when there isn't
+     * room below — e.g. the sidebar profile menu, anchored near the bottom. */
+    const flipUp = vh && (r.bottom + mh + 12 > vh) && (r.top - mh - 12 > 0);
+    m.style.top = flipUp ? `${r.top - mh - 6}px` : `${r.bottom + 6}px`;
+    /* Horizontal: clamp so the menu never spills off the viewport edges. */
+    let mLeft = r.left;
     if (vw && mLeft + m.offsetWidth > vw - 8) mLeft = vw - 8 - m.offsetWidth;
     if (mLeft < 8) mLeft = 8;
     m.style.left = `${mLeft}px`;
