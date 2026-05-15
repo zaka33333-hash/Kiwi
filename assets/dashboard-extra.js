@@ -386,29 +386,28 @@
 
   function presetSubs() {
     const t = new Date();
-    const monday = new Date(t); monday.setDate(t.getDate() - ((t.getDay() + 6) % 7));
-    const lastMonthStart = new Date(t.getFullYear(), t.getMonth() - 1, 1);
-    const qStart = new Date(t.getFullYear(), Math.floor(t.getMonth() / 3) * 3, 1);
+    const yest = new Date(t); yest.setDate(t.getDate() - 1);
+    const sevenAgo = new Date(t); sevenAgo.setDate(t.getDate() - 6);
+    const thirtyAgo = new Date(t); thirtyAgo.setDate(t.getDate() - 29);
     return {
-      semaine:     `${dm(monday)} – ${dm(t)}`,
-      moisCi:      `1 ${MONTHS[t.getMonth()]} – ${dm(t)}`,
-      moisDernier: `${MONTHS[lastMonthStart.getMonth()]} ${lastMonthStart.getFullYear()}`,
-      trimestre:   `${dm(qStart)} – ${dm(t)}`,
-      annee:       `${t.getFullYear()}`,
+      hier: dmy(yest),
+      sept: `${dm(sevenAgo)} – ${dm(t)}`,
+      mois: `${dm(thirtyAgo)} – ${dm(t)}`,
     };
   }
 
-  /* preset id → underlying KiwiDateRange range used for the actual data */
+  /* preset id → underlying KiwiDateRange range. Each preset maps to a
+   * DISTINCT dataset the demo actually has, so every choice visibly changes
+   * the whole dashboard — no two options ever show identical numbers. */
   const PRESETS = [
-    { id: 'semaine',     n: 'Cette semaine', range: 'septJours' },
-    { id: 'moisCi',      n: 'Ce mois-ci',    range: 'trenteJours' },
-    { id: 'moisDernier', n: 'Mois dernier',  range: 'trenteJours' },
-    { id: 'trimestre',   n: 'Ce trimestre',  range: 'trenteJours' },
-    { id: 'annee',       n: 'Cette année',   range: 'trenteJours' },
+    { id: 'hier', n: 'Hier',              range: 'hier' },
+    { id: 'sept', n: '7 derniers jours',  range: 'septJours' },
+    { id: 'mois', n: '30 derniers jours', range: 'trenteJours' },
   ];
 
   let pop = null;          // open dropdown element
   let selectedId = null;   // currently-applied preset/custom id
+  let selfApply = false;   // true while WE drive setDateRange (vs. a native pill)
 
   function closePop() {
     if (!pop) return;
@@ -418,6 +417,7 @@
     document.removeEventListener('keydown', onKey, true);
     document.removeEventListener('click', onOutside, true);
     window.removeEventListener('resize', closePop);
+    window.removeEventListener('scroll', closePop);
   }
   const onKey = (e) => { if (e.key === 'Escape') closePop(); };
   const onOutside = (e) => {
@@ -428,7 +428,11 @@
   function applyRange(mapped, label, sub, id) {
     selectedId = id;
     const api = window.KiwiDateRange;
-    if (api && api.setDateRange) api.setDateRange(mapped);
+    if (api && api.setDateRange) {
+      selfApply = true;
+      api.setDateRange(mapped);
+      selfApply = false;
+    }
     // setDateRange highlights the mapped pill — re-pin the highlight to Personnalisé
     document.querySelectorAll('.dr-pill').forEach((p) =>
       p.classList.toggle('on', p.dataset.range === 'personnalise'));
@@ -478,7 +482,11 @@
       if (!from || !to) { if (toast) toast('Choisis une date de début et de fin', { type: 'warning' }); return; }
       const df = new Date(from), dt = new Date(to);
       if (df > dt) { if (toast) toast('La date de début doit précéder la date de fin', { type: 'warning' }); return; }
-      applyRange('trenteJours', 'Période personnalisée', `${dmy(df)} – ${dmy(dt)}`, 'custom');
+      // Map the chosen span onto the closest dataset the demo has, so the
+      // dashboard genuinely reflects a short vs. long custom range.
+      const spanDays = Math.round((dt - df) / 86400000) + 1;
+      const mapped = spanDays <= 2 ? 'hier' : spanDays <= 10 ? 'septJours' : 'trenteJours';
+      applyRange(mapped, 'Période personnalisée', `${dmy(df)} – ${dmy(dt)}`, 'custom');
     });
     wrap.appendChild(apply);
     return wrap;
@@ -508,7 +516,22 @@
     document.addEventListener('keydown', onKey, true);
     setTimeout(() => document.addEventListener('click', onOutside, true), 0);
     window.addEventListener('resize', closePop);
+    // The dropdown is position:fixed and anchored to the pill — once the page
+    // scrolls it would detach and "float", so close it on scroll.
+    window.addEventListener('scroll', closePop, { passive: true });
   }
+
+  /* Keep the checkmark honest: if the range changes through anything other
+   * than this dropdown (a native pill), drop the remembered selection so the
+   * dropdown never shows a tick for a period that isn't actually active. */
+  (function syncSelection() {
+    const api = window.KiwiDateRange;
+    if (api && api.subscribe) {
+      api.subscribe(() => { if (!selfApply) selectedId = null; });
+    } else {
+      setTimeout(syncSelection, 200);
+    }
+  })();
 
   /* Intercept the Personnalisé pill in the capture phase, before the default
    * date-range handler runs, so it opens the dropdown instead of selecting. */
