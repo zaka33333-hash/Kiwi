@@ -389,10 +389,16 @@
     const yest = new Date(t); yest.setDate(t.getDate() - 1);
     const sevenAgo = new Date(t); sevenAgo.setDate(t.getDate() - 6);
     const thirtyAgo = new Date(t); thirtyAgo.setDate(t.getDate() - 29);
+    const lastMonth = new Date(t.getFullYear(), t.getMonth() - 1, 1);
+    const quarterStart = new Date(t.getFullYear(), Math.floor(t.getMonth() / 3) * 3, 1);
+    const capMonth = (d) => MONTHS[d.getMonth()].replace(/^./, (c) => c.toUpperCase());
     return {
       hier: dmy(yest),
       sept: `${dm(sevenAgo)} – ${dm(t)}`,
       mois: `${dm(thirtyAgo)} – ${dm(t)}`,
+      moisDernier: `${capMonth(lastMonth)} ${lastMonth.getFullYear()}`,
+      trimestre: `${quarterStart.getDate()} ${capMonth(quarterStart).slice(0, 3)} – ${t.getDate()} ${capMonth(t).slice(0, 3)} ${t.getFullYear()}`,
+      annee: `${t.getFullYear()}`,
     };
   }
 
@@ -403,6 +409,9 @@
     { id: 'hier', n: 'Hier',              range: 'hier' },
     { id: 'sept', n: '7 derniers jours',  range: 'septJours' },
     { id: 'mois', n: '30 derniers jours', range: 'trenteJours' },
+    { id: 'moisDernier', n: 'Mois dernier', range: 'moisDernier' },
+    { id: 'trimestre',   n: 'Ce trimestre', range: 'trimestre' },
+    { id: 'annee',       n: 'Cette année',  range: 'annee' },
   ];
 
   let pop = null;          // open dropdown element
