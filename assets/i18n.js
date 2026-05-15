@@ -245,6 +245,77 @@
       'dash.integ.title': 'Active integrations',
       'dash.integ.sub': 'The tools Kiwi syncs for you',
 
+      /* Dashboard — added for full i18n coverage */
+      'dash.lock.welcome': 'Welcome, Rachid',
+      'dash.lock.help': 'Enter your <b>4-digit code</b> to open the dashboard',
+      'dash.demo.back': '← Back to site',
+      'dash.sidebar.inService': 'IN SERVICE',
+      'dash.sidebar.home': 'Home',
+      'dash.sidebar.orders': 'Orders',
+      'dash.sidebar.terminals': 'Terminals',
+      'dash.sidebar.compliance': 'Compliance',
+      'dash.sidebar.team': 'Team',
+      'dash.sidebar.payroll': 'Payroll & scheduling',
+      'dash.sidebar.new': 'NEW',
+      'dash.sidebar.reservations': 'Reservations & appointments',
+      'dash.sidebar.ownerAdmin': 'Owner · admin',
+      'dash.breadcrumb': 'Home <span class="sep">/</span> <b>Dashboard</b>',
+      'dash.search.placeholder': 'Search order, product, customer, team…',
+      'dash.agent': 'Kiwi AI · Agent',
+      'dash.paymentLink': 'Payment link',
+      'dash.mix.subscription': 'Kiwi Pro subscription',
+      'dash.mix.subscription.price': '399 MAD/month · all included',
+      'dash.feed.filter': 'Filter',
+      'dash.feed.viewAll': 'View all →',
+      'dash.evening.title': 'EVENING SERVICE · TONIGHT',
+      'dash.evening.covers': 'covers',
+      'dash.evening.summary': '8 confirmed reservations · ~12 walk-ins expected based on Friday history.',
+      'dash.evening.guest1.note': '4 covers · regular',
+      'dash.evening.guest2.note': '6 covers · birthday (cake planned)',
+      'dash.evening.guest3.note': '2 covers · first visit',
+      'dash.evening.vip': 'VIP',
+      'dash.evening.new': 'NEW',
+      'dash.evening.floorPlan': 'View floor plan',
+      'dash.evening.moreReservations': '+5 reservations',
+      'dash.stock.title': 'Stock to reorder',
+      'dash.stock.summary': '3 items below threshold · AI estimated quantities for the weekend',
+      'dash.stock.item1.name': 'Chicken pastilla',
+      'dash.stock.item1.note': '2 portions · imminent stockout · Central Kitchen',
+      'dash.stock.item2.name': 'Mint tea',
+      'dash.stock.item2.note': '12 portions · ~2 days of stock · Bidaoui',
+      'dash.stock.item3.name': 'Fresh cream',
+      'dash.stock.item3.note': '0.5 L · ~1 day · Maison Lait',
+      'dash.stock.total': 'Suggested order total',
+      'dash.stock.orderAll': 'Order from all suppliers in 1 click',
+      'dash.stock.suppliers': 'Suppliers &amp; order history →',
+      'dash.health.successRate': 'Order success rate',
+      'dash.health.teamOnboarding': 'Team onboarding complete',
+      'dash.health.kycCurrent': 'KYC up to date',
+      'dash.health.kycValid': 'Valid 2027 ✓',
+      'dash.health.customerRetention': 'Customer retention',
+      'dash.health.avgTip': 'Average tip',
+      'dash.health.tipTarget': '8.2% · target 10%',
+      'dash.health.paymentDiversification': 'Payment diversification',
+      'dash.health.paymentMethods': '4 methods ✓',
+      'dash.bench.summary': 'You outperform <b>4 cafés out of 5</b> in Casablanca. The only weak lever: <b>tips</b>.',
+      'dash.bench.autoPrompt': 'Enable auto prompt →',
+      'dash.products.manageMenu': 'Manage menu →',
+      'dash.products.margins': 'Margins →',
+      'dash.staff.settings': 'Team settings →',
+      'dash.integ.add': '+ Add an integration',
+      'dash.integ.glovo.status': 'Payout reconciled · 1,420 MAD',
+      'dash.integ.jumia.status': '24 orders today',
+      'dash.integ.accounting.name': 'Accounting',
+      'dash.integ.accounting.status': 'Daily OCP-compliant export',
+      'dash.integ.bank.name': 'BMCE · Bank',
+      'dash.integ.bank.status': 'IBAN verified · 3291',
+      'dash.fusion.ai.eyebrow': 'KIWI AI',
+      'dash.fusion.ai.title': 'Portfolio recommendations',
+      'dash.fusion.kpis.title': 'Portfolio indicators',
+      'dash.fusion.venues.title': 'Performance by location',
+      'dash.fusion.intel.title': 'Cross-site intelligence',
+      'dash.status.operational': 'Operational · no incidents · Kiwi Status: 99.99%',
+
       /* Wallet */
       'wal.pill': 'Kiwi Wallet · Available 2026 Q3',
       'wal.title.1': 'The Moroccan',
@@ -528,6 +599,77 @@
       'dash.staff.sub': 'الخدمة جارية · رموز PIN متّصلة',
       'dash.integ.title': 'التكاملات النشطة',
       'dash.integ.sub': 'الأدوات التي تزامنها كيوي لأجلكم',
+
+      /* Dashboard — added for full i18n coverage */
+      'dash.lock.welcome': 'مرحبًا، رشيد', /* AR: needs native review */
+      'dash.lock.help': 'أدخل <b>رمزك المكوّن من 4 أرقام</b> لفتح لوحة التحكم', /* AR: needs native review */
+      'dash.demo.back': '← العودة إلى الموقع', /* AR: needs native review */
+      'dash.sidebar.inService': 'قيد الخدمة', /* AR: needs native review */
+      'dash.sidebar.home': 'الرئيسية', /* AR: needs native review */
+      'dash.sidebar.orders': 'الطلبات', /* AR: needs native review */
+      'dash.sidebar.terminals': 'الأجهزة الطرفية', /* AR: needs native review */
+      'dash.sidebar.compliance': 'الامتثال', /* AR: needs native review */
+      'dash.sidebar.team': 'الفريق', /* AR: needs native review */
+      'dash.sidebar.payroll': 'الرواتب والتخطيط', /* AR: needs native review */
+      'dash.sidebar.new': 'جديد', /* AR: needs native review */
+      'dash.sidebar.reservations': 'الحجوزات والمواعيد', /* AR: needs native review */
+      'dash.sidebar.ownerAdmin': 'المالك · المدير', /* AR: needs native review */
+      'dash.breadcrumb': 'الرئيسية <span class="sep">/</span> <b>لوحة التحكم</b>', /* AR: needs native review */
+      'dash.search.placeholder': 'ابحث عن طلب أو منتج أو زبون أو فريق…', /* AR: needs native review */
+      'dash.agent': 'كيوي AI · الوكيل', /* AR: needs native review */
+      'dash.paymentLink': 'رابط الدفع', /* AR: needs native review */
+      'dash.mix.subscription': 'اشتراك Kiwi Pro', /* AR: needs native review */
+      'dash.mix.subscription.price': '399 درهم/الشهر · شامل كل شيء', /* AR: needs native review */
+      'dash.feed.filter': 'تصفية', /* AR: needs native review */
+      'dash.feed.viewAll': 'عرض الكل →', /* AR: needs native review */
+      'dash.evening.title': 'خدمة المساء · هذا المساء', /* AR: needs native review */
+      'dash.evening.covers': 'مقاعد', /* AR: needs native review */
+      'dash.evening.summary': '8 حجوزات مؤكدة · نحو 12 زائرًا بدون حجز متوقعين وفق سجل أيام الجمعة.', /* AR: needs native review */
+      'dash.evening.guest1.note': '4 مقاعد · زبون دائم', /* AR: needs native review */
+      'dash.evening.guest2.note': '6 مقاعد · عيد ميلاد (الكعكة مخطط لها)', /* AR: needs native review */
+      'dash.evening.guest3.note': 'مقعدان · الزيارة الأولى', /* AR: needs native review */
+      'dash.evening.vip': 'VIP', /* AR: needs native review */
+      'dash.evening.new': 'جديد', /* AR: needs native review */
+      'dash.evening.floorPlan': 'عرض مخطط القاعة', /* AR: needs native review */
+      'dash.evening.moreReservations': '+5 حجوزات', /* AR: needs native review */
+      'dash.stock.title': 'مخزون لإعادة الطلب', /* AR: needs native review */
+      'dash.stock.summary': '3 عناصر دون الحد الأدنى · قدّر الذكاء الاصطناعي الكميات لعطلة نهاية الأسبوع', /* AR: needs native review */
+      'dash.stock.item1.name': 'بسطيلة بالدجاج', /* AR: needs native review */
+      'dash.stock.item1.note': 'حصتان · نفاد وشيك · المطبخ المركزي', /* AR: needs native review */
+      'dash.stock.item2.name': 'شاي بالنعناع', /* AR: needs native review */
+      'dash.stock.item2.note': '12 حصة · نحو يومين من المخزون · Bidaoui', /* AR: needs native review */
+      'dash.stock.item3.name': 'قشدة طازجة', /* AR: needs native review */
+      'dash.stock.item3.note': '0.5 لتر · نحو يوم واحد · Maison Lait', /* AR: needs native review */
+      'dash.stock.total': 'إجمالي الطلب المقترح', /* AR: needs native review */
+      'dash.stock.orderAll': 'اطلب من جميع الموردين بنقرة واحدة', /* AR: needs native review */
+      'dash.stock.suppliers': 'الموردون وسجل الطلبات →', /* AR: needs native review */
+      'dash.health.successRate': 'معدل نجاح الطلبات', /* AR: needs native review */
+      'dash.health.teamOnboarding': 'اكتمال إعداد الفريق', /* AR: needs native review */
+      'dash.health.kycCurrent': 'KYC محدّث', /* AR: needs native review */
+      'dash.health.kycValid': 'صالح حتى 2027 ✓', /* AR: needs native review */
+      'dash.health.customerRetention': 'الاحتفاظ بالزبائن', /* AR: needs native review */
+      'dash.health.avgTip': 'متوسط الإكرامية', /* AR: needs native review */
+      'dash.health.tipTarget': '8.2% · الهدف 10%', /* AR: needs native review */
+      'dash.health.paymentDiversification': 'تنويع وسائل الدفع', /* AR: needs native review */
+      'dash.health.paymentMethods': '4 وسائل ✓', /* AR: needs native review */
+      'dash.bench.summary': 'تتفوقون على <b>4 مقاهٍ من أصل 5</b> في الدار البيضاء. نقطة الضعف الوحيدة: <b>الإكرامية</b>.', /* AR: needs native review */
+      'dash.bench.autoPrompt': 'تفعيل التنبيه التلقائي →', /* AR: needs native review */
+      'dash.products.manageMenu': 'إدارة القائمة →', /* AR: needs native review */
+      'dash.products.margins': 'الهوامش →', /* AR: needs native review */
+      'dash.staff.settings': 'إعدادات الفريق →', /* AR: needs native review */
+      'dash.integ.add': '+ إضافة تكامل', /* AR: needs native review */
+      'dash.integ.glovo.status': 'تمت تسوية الدفعة · 1,420 درهم', /* AR: needs native review */
+      'dash.integ.jumia.status': '24 طلبًا اليوم', /* AR: needs native review */
+      'dash.integ.accounting.name': 'المحاسبة', /* AR: needs native review */
+      'dash.integ.accounting.status': 'تصدير يومي متوافق مع OCP', /* AR: needs native review */
+      'dash.integ.bank.name': 'BMCE · بنك', /* AR: needs native review */
+      'dash.integ.bank.status': 'تم التحقق من IBAN · 3291', /* AR: needs native review */
+      'dash.fusion.ai.eyebrow': 'كيوي AI', /* AR: needs native review */
+      'dash.fusion.ai.title': 'توصيات المحفظة', /* AR: needs native review */
+      'dash.fusion.kpis.title': 'مؤشرات المحفظة', /* AR: needs native review */
+      'dash.fusion.venues.title': 'الأداء حسب الموقع', /* AR: needs native review */
+      'dash.fusion.intel.title': 'ذكاء المواقع المتعددة', /* AR: needs native review */
+      'dash.status.operational': 'تشغيلي · لا حوادث · حالة كيوي: 99.99%', /* AR: needs native review */
 
       /* Wallet */
       'wal.pill': 'كيوي Wallet · متاحة Q3 2026',

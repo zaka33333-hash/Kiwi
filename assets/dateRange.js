@@ -11,7 +11,7 @@
   const STORAGE_KEY = 'kiwiDateRange';
   const CMP_KEY = 'kiwiRevCompare';
   const DEFAULT_RANGE = 'aujourdhui';
-  const VALID = ['aujourdhui', 'hier', 'septJours', 'trenteJours', 'personnalise'];
+  const VALID = ['aujourdhui', 'hier', 'septJours', 'trenteJours', 'moisDernier', 'trimestre', 'annee', 'personnalise'];
   const subscribers = new Set();
   let currentRange = DEFAULT_RANGE;
   let showComparison = false;
@@ -74,7 +74,10 @@
   // Resolve a venue-keyed table for the active venue + range, with cafeAtlas fallback.
   function vData(table, range) {
     const v = getCurrentVenue();
-    const eff = range === 'personnalise' ? 'aujourdhui' : range;
+    const knownRanges = ['aujourdhui', 'hier', 'septJours', 'trenteJours', 'personnalise'];
+    const requested = range === 'personnalise' ? 'aujourdhui' : range;
+    const hasRequested = !!(table?.[v]?.[requested] ?? table?.cafeAtlas?.[requested]);
+    const eff = knownRanges.includes(range) || hasRequested ? requested : 'trenteJours';
     if (v === 'fusion') {
       const slices = [
         table?.cafeAtlas?.[eff],
@@ -83,9 +86,9 @@
       ];
       const merged = aggFusion(slices, '');
       // If every slice was null/undefined fallback gracefully.
-      return merged ?? table?.cafeAtlas?.[eff];
+      return merged ?? table?.cafeAtlas?.[eff] ?? table?.cafeAtlas?.trenteJours;
     }
-    return table?.[v]?.[eff] ?? table?.cafeAtlas?.[eff];
+    return table?.[v]?.[eff] ?? table?.cafeAtlas?.[eff] ?? table?.[v]?.trenteJours ?? table?.cafeAtlas?.trenteJours;
   }
   // True only on the live "today" range, with the demo clock active.
   function isLiveDemo() {
@@ -100,15 +103,15 @@
   /* ═══════════════ STRINGS ═══════════════ */
 
   const RANGE_STR = {
-    fr: { aujourdhui: "Aujourd'hui", hier: 'Hier', septJours: '7 derniers jours', trenteJours: '30 derniers jours', personnalise: 'Période personnalisée' },
-    en: { aujourdhui: 'Today',       hier: 'Yesterday', septJours: 'Last 7 days', trenteJours: 'Last 30 days', personnalise: 'Custom period' },
-    ar: { aujourdhui: 'اليوم',       hier: 'أمس',       septJours: 'آخر 7 أيام',  trenteJours: 'آخر 30 يوما', personnalise: 'فترة مخصصة' },
+    fr: { aujourdhui: "Aujourd'hui", hier: 'Hier', septJours: '7 derniers jours', trenteJours: '30 derniers jours', moisDernier: 'Mois dernier', trimestre: 'Ce trimestre', annee: 'Cette année', personnalise: 'Période personnalisée' },
+    en: { aujourdhui: 'Today', hier: 'Yesterday', septJours: 'Last 7 days', trenteJours: 'Last 30 days', moisDernier: 'Last month', trimestre: 'This quarter', annee: 'This year', personnalise: 'Custom period' },
+    ar: { aujourdhui: 'اليوم', hier: 'أمس', septJours: 'آخر 7 أيام', trenteJours: 'آخر 30 يوما', moisDernier: 'الشهر الماضي', trimestre: 'هذا الربع', annee: 'هذه السنة', personnalise: 'فترة مخصصة' },
   };
 
   const HERO_LABEL = {
-    fr: { aujourdhui: "ENCAISSÉ AUJOURD'HUI", hier: 'ENCAISSÉ HIER', septJours: 'ENCAISSÉ 7 JOURS', trenteJours: 'ENCAISSÉ 30 JOURS' },
-    en: { aujourdhui: 'CASHED TODAY',         hier: 'CASHED YESTERDAY', septJours: 'CASHED 7 DAYS', trenteJours: 'CASHED 30 DAYS' },
-    ar: { aujourdhui: 'المقبوض اليوم',        hier: 'المقبوض أمس',     septJours: 'المقبوض في 7 أيام', trenteJours: 'المقبوض في 30 يومًا' },
+    fr: { aujourdhui: "ENCAISSÉ AUJOURD'HUI", hier: 'ENCAISSÉ HIER', septJours: 'ENCAISSÉ 7 JOURS', trenteJours: 'ENCAISSÉ 30 JOURS', moisDernier: 'ENCAISSÉ — MOIS DERNIER', trimestre: 'ENCAISSÉ — TRIMESTRE', annee: 'ENCAISSÉ — ANNÉE' },
+    en: { aujourdhui: 'CASHED TODAY', hier: 'CASHED YESTERDAY', septJours: 'CASHED 7 DAYS', trenteJours: 'CASHED 30 DAYS', moisDernier: 'CASHED — LAST MONTH', trimestre: 'CASHED — QUARTER', annee: 'CASHED — YEAR' },
+    ar: { aujourdhui: 'المقبوض اليوم', hier: 'المقبوض أمس', septJours: 'المقبوض في 7 أيام', trenteJours: 'المقبوض في 30 يومًا', moisDernier: 'المقبوض — الشهر الماضي', trimestre: 'المقبوض — الربع', annee: 'المقبوض — السنة' },
   };
 
   const DELTA_LABELS = {
@@ -117,6 +120,9 @@
       hier:         { hier: 'VS AVANT-HIER', semaine: 'VS SEMAINE', mois: 'VS MOIS' },
       septJours:    { semaine: 'VS 7 JOURS PRÉCÉDENTS', mois: 'VS MOIS' },
       trenteJours:  { mois: 'VS 30 JOURS PRÉCÉDENTS' },
+      moisDernier:  { mois: 'VS MOIS PRÉC.' },
+      trimestre:    { mois: 'VS TRIMESTRE PRÉC.' },
+      annee:        { mois: 'VS ANNÉE PRÉC.' },
       personnalise: { hier: 'VS HIER', semaine: 'VS SEMAINE', mois: 'VS MOIS DERNIER' },
     },
     en: {
@@ -124,6 +130,9 @@
       hier:         { hier: 'VS DAY BEFORE', semaine: 'VS WEEK', mois: 'VS MONTH' },
       septJours:    { semaine: 'VS PREVIOUS 7 DAYS', mois: 'VS MONTH' },
       trenteJours:  { mois: 'VS PREVIOUS 30 DAYS' },
+      moisDernier:  { mois: 'VS PREV. MONTH' },
+      trimestre:    { mois: 'VS PREV. QUARTER' },
+      annee:        { mois: 'VS PREV. YEAR' },
       personnalise: { hier: 'VS YESTERDAY', semaine: 'VS WEEK', mois: 'VS LAST MONTH' },
     },
     ar: {
@@ -131,56 +140,59 @@
       hier:         { hier: 'مقابل أول أمس', semaine: 'مقابل الأسبوع', mois: 'مقابل الشهر' },
       septJours:    { semaine: 'مقابل 7 أيام السابقة', mois: 'مقابل الشهر' },
       trenteJours:  { mois: 'مقابل 30 يومًا السابقة' },
+      moisDernier:  { mois: 'مقابل الشهر السابق' },
+      trimestre:    { mois: 'مقابل الربع السابق' },
+      annee:        { mois: 'مقابل السنة السابقة' },
       personnalise: { hier: 'مقابل أمس', semaine: 'مقابل الأسبوع', mois: 'مقابل الشهر الماضي' },
     },
   };
   const NET_LABEL = { fr: 'NET APRÈS KIWI', en: 'NET AFTER KIWI', ar: 'الصافي بعد كيوي' };
 
   const KPI_DELTA_SUFFIX = {
-    fr: { aujourdhui: 'vs hier', hier: 'vs avant-hier', septJours: 'vs 7 jours préc.', trenteJours: 'vs 30 jours préc.', personnalise: 'vs hier' },
-    en: { aujourdhui: 'vs yesterday', hier: 'vs day before', septJours: 'vs prev. 7 days', trenteJours: 'vs prev. 30 days', personnalise: 'vs yesterday' },
-    ar: { aujourdhui: 'مقابل أمس', hier: 'مقابل أول أمس', septJours: 'مقابل 7 أيام السابقة', trenteJours: 'مقابل 30 يومًا السابقة', personnalise: 'مقابل أمس' },
+    fr: { aujourdhui: 'vs hier', hier: 'vs avant-hier', septJours: 'vs 7 jours préc.', trenteJours: 'vs 30 jours préc.', moisDernier: 'vs mois préc.', trimestre: 'vs trimestre préc.', annee: 'vs année préc.', personnalise: 'vs hier' },
+    en: { aujourdhui: 'vs yesterday', hier: 'vs day before', septJours: 'vs prev. 7 days', trenteJours: 'vs prev. 30 days', moisDernier: 'vs prev. month', trimestre: 'vs prev. quarter', annee: 'vs prev. year', personnalise: 'vs yesterday' },
+    ar: { aujourdhui: 'مقابل أمس', hier: 'مقابل أول أمس', septJours: 'مقابل 7 أيام السابقة', trenteJours: 'مقابل 30 يومًا السابقة', moisDernier: 'مقابل الشهر السابق', trimestre: 'مقابل الربع السابق', annee: 'مقابل السنة السابقة', personnalise: 'مقابل أمس' },
   };
 
   // Caption shown under the chart title when "Comparer" is on, by selected range.
   const COMPARE_CAPTION = {
-    fr: { aujourdhui: 'vs. Hier', hier: 'vs. Avant-hier', septJours: 'vs. 7 jours précédents', trenteJours: 'vs. 30 jours précédents', personnalise: 'vs. Période précédente' },
-    en: { aujourdhui: 'vs. Yesterday', hier: 'vs. Day before', septJours: 'vs. Previous 7 days', trenteJours: 'vs. Previous 30 days', personnalise: 'vs. Previous period' },
-    ar: { aujourdhui: 'مقابل أمس', hier: 'مقابل أول أمس', septJours: 'مقابل 7 أيام السابقة', trenteJours: 'مقابل 30 يومًا السابقة', personnalise: 'مقابل الفترة السابقة' },
+    fr: { aujourdhui: 'vs. Hier', hier: 'vs. Avant-hier', septJours: 'vs. 7 jours précédents', trenteJours: 'vs. 30 jours précédents', moisDernier: 'vs. Mois précédent', trimestre: 'vs. Trimestre précédent', annee: 'vs. Année précédente', personnalise: 'vs. Période précédente' },
+    en: { aujourdhui: 'vs. Yesterday', hier: 'vs. Day before', septJours: 'vs. Previous 7 days', trenteJours: 'vs. Previous 30 days', moisDernier: 'vs. Previous month', trimestre: 'vs. Previous quarter', annee: 'vs. Previous year', personnalise: 'vs. Previous period' },
+    ar: { aujourdhui: 'مقابل أمس', hier: 'مقابل أول أمس', septJours: 'مقابل 7 أيام السابقة', trenteJours: 'مقابل 30 يومًا السابقة', moisDernier: 'مقابل الشهر السابق', trimestre: 'مقابل الربع السابق', annee: 'مقابل السنة السابقة', personnalise: 'مقابل الفترة السابقة' },
   };
   // Short label used inside the on-chart tooltip — must fit in ~210px.
   const COMPARE_SHORT = {
-    fr: { aujourdhui: 'vs hier', hier: 'vs avant-hier', septJours: 'vs 7j préc.', trenteJours: 'vs 30j préc.', personnalise: 'vs préc.' },
-    en: { aujourdhui: 'vs yest.', hier: 'vs day before', septJours: 'vs prev. 7d', trenteJours: 'vs prev. 30d', personnalise: 'vs prev.' },
-    ar: { aujourdhui: 'مقابل أمس', hier: 'مقابل أول أمس', septJours: 'مقابل 7 أيام', trenteJours: 'مقابل 30 يومًا', personnalise: 'مقابل السابق' },
+    fr: { aujourdhui: 'vs hier', hier: 'vs avant-hier', septJours: 'vs 7j préc.', trenteJours: 'vs 30j préc.', moisDernier: 'vs mois préc.', trimestre: 'vs trim. préc.', annee: 'vs année préc.', personnalise: 'vs préc.' },
+    en: { aujourdhui: 'vs yest.', hier: 'vs day before', septJours: 'vs prev. 7d', trenteJours: 'vs prev. 30d', moisDernier: 'vs prev. mo.', trimestre: 'vs prev. qtr.', annee: 'vs prev. yr.', personnalise: 'vs prev.' },
+    ar: { aujourdhui: 'مقابل أمس', hier: 'مقابل أول أمس', septJours: 'مقابل 7 أيام', trenteJours: 'مقابل 30 يومًا', moisDernier: 'مقابل الشهر', trimestre: 'مقابل الربع', annee: 'مقابل السنة', personnalise: 'مقابل السابق' },
   };
 
   const HH_SUB = {
-    fr: { aujourdhui: "Intensité horaire aujourd'hui", hier: 'Intensité horaire hier', septJours: 'Intensité horaire moyenne — 7 derniers jours', trenteJours: 'Intensité horaire moyenne — 30 derniers jours', personnalise: 'Intensité horaire — période personnalisée' },
-    en: { aujourdhui: 'Hourly intensity today', hier: 'Hourly intensity yesterday', septJours: 'Average hourly intensity — last 7 days', trenteJours: 'Average hourly intensity — last 30 days', personnalise: 'Hourly intensity — custom period' },
-    ar: { aujourdhui: 'كثافة الساعات اليوم', hier: 'كثافة الساعات أمس', septJours: 'متوسط الكثافة الساعية — آخر 7 أيام', trenteJours: 'متوسط الكثافة الساعية — آخر 30 يومًا', personnalise: 'كثافة الساعات — فترة مخصصة' },
+    fr: { aujourdhui: "Intensité horaire aujourd'hui", hier: 'Intensité horaire hier', septJours: 'Intensité horaire moyenne — 7 derniers jours', trenteJours: 'Intensité horaire moyenne — 30 derniers jours', moisDernier: 'Intensité horaire moyenne — mois dernier', trimestre: 'Intensité horaire moyenne — trimestre', annee: 'Intensité horaire moyenne — année', personnalise: 'Intensité horaire — période personnalisée' },
+    en: { aujourdhui: 'Hourly intensity today', hier: 'Hourly intensity yesterday', septJours: 'Average hourly intensity — last 7 days', trenteJours: 'Average hourly intensity — last 30 days', moisDernier: 'Average hourly intensity — last month', trimestre: 'Average hourly intensity — quarter', annee: 'Average hourly intensity — year', personnalise: 'Hourly intensity — custom period' },
+    ar: { aujourdhui: 'كثافة الساعات اليوم', hier: 'كثافة الساعات أمس', septJours: 'متوسط الكثافة الساعية — آخر 7 أيام', trenteJours: 'متوسط الكثافة الساعية — آخر 30 يومًا', moisDernier: 'متوسط الكثافة الساعية — الشهر الماضي', trimestre: 'متوسط الكثافة الساعية — الربع', annee: 'متوسط الكثافة الساعية — السنة', personnalise: 'كثافة الساعات — فترة مخصصة' },
   };
   const COVERS_LABEL = { fr: 'couverts', en: 'guests', ar: 'زبون' };
 
-  const FEED_TITLE = { fr: { aujourdhui: 'Commandes en direct', hier: 'Commandes · hier', septJours: 'Commandes · 7 derniers jours', trenteJours: 'Commandes · 30 derniers jours', personnalise: 'Commandes en direct' },
-                       en: { aujourdhui: 'Live orders', hier: 'Yesterday\'s orders', septJours: 'Orders · last 7 days', trenteJours: 'Orders · last 30 days', personnalise: 'Live orders' },
-                       ar: { aujourdhui: 'الطلبات المباشرة', hier: 'طلبات أمس', septJours: 'طلبات · آخر 7 أيام', trenteJours: 'طلبات · آخر 30 يومًا', personnalise: 'الطلبات المباشرة' } };
-  const FEED_SUB =   { fr: { aujourdhui: '6 dernières · flux temps réel', hier: 'Dernières du service de hier', septJours: 'Échantillon · 7 derniers jours', trenteJours: 'Échantillon · 30 derniers jours', personnalise: '6 dernières · flux temps réel' },
-                       en: { aujourdhui: 'Last 6 · real-time feed', hier: 'Last 6 from yesterday', septJours: 'Sample · last 7 days', trenteJours: 'Sample · last 30 days', personnalise: 'Last 6 · real-time feed' },
-                       ar: { aujourdhui: 'آخر 6 · تدفّق لحظي', hier: 'آخر 6 من أمس', septJours: 'عيّنة · آخر 7 أيام', trenteJours: 'عيّنة · آخر 30 يومًا', personnalise: 'آخر 6 · تدفّق لحظي' } };
+  const FEED_TITLE = { fr: { aujourdhui: 'Commandes en direct', hier: 'Commandes · hier', septJours: 'Commandes · 7 derniers jours', trenteJours: 'Commandes · 30 derniers jours', moisDernier: 'Commandes · mois dernier', trimestre: 'Commandes · trimestre', annee: 'Commandes · année', personnalise: 'Commandes en direct' },
+                       en: { aujourdhui: 'Live orders', hier: 'Yesterday\'s orders', septJours: 'Orders · last 7 days', trenteJours: 'Orders · last 30 days', moisDernier: 'Orders · last month', trimestre: 'Orders · quarter', annee: 'Orders · year', personnalise: 'Live orders' },
+                       ar: { aujourdhui: 'الطلبات المباشرة', hier: 'طلبات أمس', septJours: 'طلبات · آخر 7 أيام', trenteJours: 'طلبات · آخر 30 يومًا', moisDernier: 'طلبات · الشهر الماضي', trimestre: 'طلبات · الربع', annee: 'طلبات · السنة', personnalise: 'الطلبات المباشرة' } };
+  const FEED_SUB =   { fr: { aujourdhui: '6 dernières · flux temps réel', hier: 'Dernières du service de hier', septJours: 'Échantillon · 7 derniers jours', trenteJours: 'Échantillon · 30 derniers jours', moisDernier: 'Échantillon · mois dernier', trimestre: 'Échantillon · trimestre', annee: 'Échantillon · année', personnalise: '6 dernières · flux temps réel' },
+                       en: { aujourdhui: 'Last 6 · real-time feed', hier: 'Last 6 from yesterday', septJours: 'Sample · last 7 days', trenteJours: 'Sample · last 30 days', moisDernier: 'Sample · last month', trimestre: 'Sample · quarter', annee: 'Sample · year', personnalise: 'Last 6 · real-time feed' },
+                       ar: { aujourdhui: 'آخر 6 · تدفّق لحظي', hier: 'آخر 6 من أمس', septJours: 'عيّنة · آخر 7 أيام', trenteJours: 'عيّنة · آخر 30 يومًا', moisDernier: 'عيّنة · الشهر الماضي', trimestre: 'عيّنة · الربع', annee: 'عيّنة · السنة', personnalise: 'آخر 6 · تدفّق لحظي' } };
 
-  const PRODUCTS_SUB = { fr: { aujourdhui: "Aujourd'hui · tous les items", hier: 'Hier · tous les items', septJours: '7 derniers jours · tous les items', trenteJours: '30 derniers jours · tous les items', personnalise: 'Période personnalisée · tous les items' },
-                         en: { aujourdhui: 'Today · all items', hier: 'Yesterday · all items', septJours: 'Last 7 days · all items', trenteJours: 'Last 30 days · all items', personnalise: 'Custom period · all items' },
-                         ar: { aujourdhui: 'اليوم · جميع العناصر', hier: 'أمس · جميع العناصر', septJours: 'آخر 7 أيام · جميع العناصر', trenteJours: 'آخر 30 يومًا · جميع العناصر', personnalise: 'فترة مخصصة · جميع العناصر' } };
-  const STAFF_SUB =    { fr: { aujourdhui: 'Service en cours · PIN connecté', hier: 'Service de hier · clos', septJours: 'Cumul 7 jours · par employé', trenteJours: 'Cumul 30 jours · par employé', personnalise: 'Période personnalisée · par employé' },
-                         en: { aujourdhui: 'Service in progress · PIN connected', hier: 'Yesterday\'s service · closed', septJours: '7-day total · per employee', trenteJours: '30-day total · per employee', personnalise: 'Custom period · per employee' },
-                         ar: { aujourdhui: 'الخدمة جارية · رموز PIN متّصلة', hier: 'خدمة أمس · مغلقة', septJours: 'إجمالي 7 أيام · لكل موظف', trenteJours: 'إجمالي 30 يومًا · لكل موظف', personnalise: 'فترة مخصصة · لكل موظف' } };
-  const HEALTH_SUB =   { fr: { aujourdhui: 'Mesuré sur 90 jours · facteurs activés', hier: 'Mesuré au close de hier', septJours: 'Mesuré sur les 7 derniers jours', trenteJours: 'Mesuré sur les 30 derniers jours', personnalise: 'Période personnalisée · facteurs activés' },
-                         en: { aujourdhui: 'Measured over 90 days · active factors', hier: 'Measured at yesterday\'s close', septJours: 'Measured over the last 7 days', trenteJours: 'Measured over the last 30 days', personnalise: 'Custom period · active factors' },
-                         ar: { aujourdhui: 'محسوب على 90 يومًا · عوامل مُفعَّلة', hier: 'محسوب عند إقفال أمس', septJours: 'محسوب على آخر 7 أيام', trenteJours: 'محسوب على آخر 30 يومًا', personnalise: 'فترة مخصصة · عوامل مُفعَّلة' } };
-  const BENCH_SUB =    { fr: { aujourdhui: '147 cafés casablancais · même gamme de ticket moyen', hier: 'Snapshot du close de hier · 147 cafés', septJours: 'Moyennes sur 7 jours · 147 cafés', trenteJours: 'Moyennes sur 30 jours · 147 cafés', personnalise: '147 cafés · période personnalisée' },
-                         en: { aujourdhui: '147 Casablanca cafés · same avg ticket range', hier: 'Yesterday\'s close · 147 cafés', septJours: '7-day averages · 147 cafés', trenteJours: '30-day averages · 147 cafés', personnalise: '147 cafés · custom period' },
-                         ar: { aujourdhui: '147 مقهى بالدار البيضاء · نفس متوسّط التذكرة', hier: 'إقفال أمس · 147 مقهى', septJours: 'متوسّطات على 7 أيام · 147 مقهى', trenteJours: 'متوسّطات على 30 يومًا · 147 مقهى', personnalise: '147 مقهى · فترة مخصصة' } };
+  const PRODUCTS_SUB = { fr: { aujourdhui: "Aujourd'hui · tous les items", hier: 'Hier · tous les items', septJours: '7 derniers jours · tous les items', trenteJours: '30 derniers jours · tous les items', moisDernier: 'Mois dernier · tous les items', trimestre: 'Trimestre · tous les items', annee: 'Année · tous les items', personnalise: 'Période personnalisée · tous les items' },
+                         en: { aujourdhui: 'Today · all items', hier: 'Yesterday · all items', septJours: 'Last 7 days · all items', trenteJours: 'Last 30 days · all items', moisDernier: 'Last month · all items', trimestre: 'Quarter · all items', annee: 'Year · all items', personnalise: 'Custom period · all items' },
+                         ar: { aujourdhui: 'اليوم · جميع العناصر', hier: 'أمس · جميع العناصر', septJours: 'آخر 7 أيام · جميع العناصر', trenteJours: 'آخر 30 يومًا · جميع العناصر', moisDernier: 'الشهر الماضي · جميع العناصر', trimestre: 'الربع · جميع العناصر', annee: 'السنة · جميع العناصر', personnalise: 'فترة مخصصة · جميع العناصر' } };
+  const STAFF_SUB =    { fr: { aujourdhui: 'Service en cours · PIN connecté', hier: 'Service de hier · clos', septJours: 'Cumul 7 jours · par employé', trenteJours: 'Cumul 30 jours · par employé', moisDernier: 'Cumul mois dernier · par employé', trimestre: 'Cumul trimestre · par employé', annee: 'Cumul année · par employé', personnalise: 'Période personnalisée · par employé' },
+                         en: { aujourdhui: 'Service in progress · PIN connected', hier: 'Yesterday\'s service · closed', septJours: '7-day total · per employee', trenteJours: '30-day total · per employee', moisDernier: 'Last month total · per employee', trimestre: 'Quarter total · per employee', annee: 'Year total · per employee', personnalise: 'Custom period · per employee' },
+                         ar: { aujourdhui: 'الخدمة جارية · رموز PIN متّصلة', hier: 'خدمة أمس · مغلقة', septJours: 'إجمالي 7 أيام · لكل موظف', trenteJours: 'إجمالي 30 يومًا · لكل موظف', moisDernier: 'إجمالي الشهر الماضي · لكل موظف', trimestre: 'إجمالي الربع · لكل موظف', annee: 'إجمالي السنة · لكل موظف', personnalise: 'فترة مخصصة · لكل موظف' } };
+  const HEALTH_SUB =   { fr: { aujourdhui: 'Mesuré sur 90 jours · facteurs activés', hier: 'Mesuré au close de hier', septJours: 'Mesuré sur les 7 derniers jours', trenteJours: 'Mesuré sur les 30 derniers jours', moisDernier: 'Mesuré sur le mois dernier', trimestre: 'Mesuré sur le trimestre', annee: "Mesuré sur l'année", personnalise: 'Période personnalisée · facteurs activés' },
+                         en: { aujourdhui: 'Measured over 90 days · active factors', hier: 'Measured at yesterday\'s close', septJours: 'Measured over the last 7 days', trenteJours: 'Measured over the last 30 days', moisDernier: 'Measured over last month', trimestre: 'Measured over the quarter', annee: 'Measured over the year', personnalise: 'Custom period · active factors' },
+                         ar: { aujourdhui: 'محسوب على 90 يومًا · عوامل مُفعَّلة', hier: 'محسوب عند إقفال أمس', septJours: 'محسوب على آخر 7 أيام', trenteJours: 'محسوب على آخر 30 يومًا', moisDernier: 'محسوب على الشهر الماضي', trimestre: 'محسوب على الربع', annee: 'محسوب على السنة', personnalise: 'فترة مخصصة · عوامل مُفعَّلة' } };
+  const BENCH_SUB =    { fr: { aujourdhui: '147 cafés casablancais · même gamme de ticket moyen', hier: 'Snapshot du close de hier · 147 cafés', septJours: 'Moyennes sur 7 jours · 147 cafés', trenteJours: 'Moyennes sur 30 jours · 147 cafés', moisDernier: 'Moyennes du mois dernier · 147 cafés', trimestre: 'Moyennes du trimestre · 147 cafés', annee: "Moyennes de l'année · 147 cafés", personnalise: '147 cafés · période personnalisée' },
+                         en: { aujourdhui: '147 Casablanca cafés · same avg ticket range', hier: 'Yesterday\'s close · 147 cafés', septJours: '7-day averages · 147 cafés', trenteJours: '30-day averages · 147 cafés', moisDernier: 'Last month averages · 147 cafés', trimestre: 'Quarter averages · 147 cafés', annee: 'Year averages · 147 cafés', personnalise: '147 cafés · custom period' },
+                         ar: { aujourdhui: '147 مقهى بالدار البيضاء · نفس متوسّط التذكرة', hier: 'إقفال أمس · 147 مقهى', septJours: 'متوسّطات على 7 أيام · 147 مقهى', trenteJours: 'متوسّطات على 30 يومًا · 147 مقهى', moisDernier: 'متوسّطات الشهر الماضي · 147 مقهى', trimestre: 'متوسّطات الربع · 147 مقهى', annee: 'متوسّطات السنة · 147 مقهى', personnalise: '147 مقهى · فترة مخصصة' } };
 
   /* ═══════════════ DATA TABLES ═══════════════ */
 
@@ -190,6 +202,9 @@
       hier:        { amount: 24820.00, deltaHier: -1.8, deltaSemaine: 12,   deltaMois: 6,  netAfterKiwi: 20640  },
       septJours:   { amount: 198400.00,deltaHier: null, deltaSemaine: 22,   deltaMois: 11, netAfterKiwi: 165280 },
       trenteJours: { amount: 842300.00,deltaHier: null, deltaSemaine: null, deltaMois: 15, netAfterKiwi: 702800 },
+      moisDernier: { amount: 783339.00,deltaHier: null, deltaSemaine: null, deltaMois: 11, netAfterKiwi: 653604 },
+      trimestre:   { amount: 2526900.00,deltaHier: null, deltaSemaine: null, deltaMois: 12, netAfterKiwi: 2108400 },
+      annee:       { amount: 10107600.00,deltaHier: null, deltaSemaine: null, deltaMois: 18, netAfterKiwi: 8433600 },
       personnalise: null,
     },
     maisonMansour: {
@@ -197,6 +212,9 @@
       hier:        { amount: 12110.00, deltaHier: 1.8,  deltaSemaine: 8,    deltaMois: 5,  netAfterKiwi: 10170  },
       septJours:   { amount: 84800.00, deltaHier: null, deltaSemaine: 14,   deltaMois: 8,  netAfterKiwi: 71200  },
       trenteJours: { amount: 358200.00,deltaHier: null, deltaSemaine: null, deltaMois: 12, netAfterKiwi: 300700 },
+      moisDernier: { amount: 333126.00,deltaHier: null, deltaSemaine: null, deltaMois: 9,  netAfterKiwi: 279651 },
+      trimestre:   { amount: 1074600.00,deltaHier: null, deltaSemaine: null, deltaMois: 11, netAfterKiwi: 902100 },
+      annee:       { amount: 4298400.00,deltaHier: null, deltaSemaine: null, deltaMois: 16, netAfterKiwi: 3608400 },
       personnalise: null,
     },
     spaBahia: {
@@ -204,6 +222,9 @@
       hier:        { amount: 8380.00,  deltaHier: -3.1, deltaSemaine: 16,   deltaMois: 9,  netAfterKiwi: 7035   },
       septJours:   { amount: 64200.00, deltaHier: null, deltaSemaine: 19,   deltaMois: 11, netAfterKiwi: 53890  },
       trenteJours: { amount: 269400.00,deltaHier: null, deltaSemaine: null, deltaMois: 16, netAfterKiwi: 226300 },
+      moisDernier: { amount: 250542.00,deltaHier: null, deltaSemaine: null, deltaMois: 12, netAfterKiwi: 210459 },
+      trimestre:   { amount: 808200.00,deltaHier: null, deltaSemaine: null, deltaMois: 13, netAfterKiwi: 678900 },
+      annee:       { amount: 3232800.00,deltaHier: null, deltaSemaine: null, deltaMois: 19, netAfterKiwi: 2715600 },
       personnalise: null,
     },
   };
@@ -215,24 +236,33 @@
       hier:        { goal: 28000,  current: 24820   },
       septJours:   { goal: 196000, current: 198400  },
       trenteJours: { goal: 840000, current: 842300  },
+      moisDernier: { goal: 781200, current: 783339  },
+      trimestre:   { goal: 2520000, current: 2526900 },
+      annee:       { goal: 10080000, current: 10107600 },
     },
     maisonMansour: {
       aujourdhui:  { goal: 12000,  current: 11820   },
       hier:        { goal: 12000,  current: 12110   },
       septJours:   { goal: 84000,  current: 84800   },
       trenteJours: { goal: 360000, current: 358200  },
+      moisDernier: { goal: 334800, current: 333126  },
+      trimestre:   { goal: 1080000, current: 1074600 },
+      annee:       { goal: 4320000, current: 4298400 },
     },
     spaBahia: {
       aujourdhui:  { goal: 9000,   current: 8950    },
       hier:        { goal: 9000,   current: 8380    },
       septJours:   { goal: 63000,  current: 64200   },
       trenteJours: { goal: 270000, current: 269400  },
+      moisDernier: { goal: 251100, current: 250542  },
+      trimestre:   { goal: 810000, current: 808200  },
+      annee:       { goal: 3240000, current: 3232800 },
     },
   };
   const GOAL_LABEL = {
-    fr: { aujourdhui: 'OBJECTIF JOUR', hier: 'OBJECTIF JOUR', septJours: 'OBJECTIF SEMAINE', trenteJours: 'OBJECTIF MOIS', personnalise: 'OBJECTIF JOUR' },
-    en: { aujourdhui: 'DAILY GOAL', hier: 'DAILY GOAL', septJours: 'WEEKLY GOAL', trenteJours: 'MONTHLY GOAL', personnalise: 'DAILY GOAL' },
-    ar: { aujourdhui: 'هدف اليوم', hier: 'هدف اليوم', septJours: 'هدف الأسبوع', trenteJours: 'هدف الشهر', personnalise: 'هدف اليوم' },
+    fr: { aujourdhui: 'OBJECTIF JOUR', hier: 'OBJECTIF JOUR', septJours: 'OBJECTIF SEMAINE', trenteJours: 'OBJECTIF MOIS', moisDernier: 'OBJECTIF MOIS DERNIER', trimestre: 'OBJECTIF TRIMESTRE', annee: 'OBJECTIF ANNÉE', personnalise: 'OBJECTIF JOUR' },
+    en: { aujourdhui: 'DAILY GOAL', hier: 'DAILY GOAL', septJours: 'WEEKLY GOAL', trenteJours: 'MONTHLY GOAL', moisDernier: 'LAST MONTH GOAL', trimestre: 'QUARTERLY GOAL', annee: 'YEARLY GOAL', personnalise: 'DAILY GOAL' },
+    ar: { aujourdhui: 'هدف اليوم', hier: 'هدف اليوم', septJours: 'هدف الأسبوع', trenteJours: 'هدف الشهر', moisDernier: 'هدف الشهر الماضي', trimestre: 'هدف الربع', annee: 'هدف السنة', personnalise: 'هدف اليوم' },
   };
 
   const HH_HOURS = ['11h','12h','13h','14h','15h','16h','17h','18h','19h','20h','21h','22h','23h','00h','01h','02h'];
@@ -315,6 +345,30 @@
         ratio:    { text: '68 / 32', unit: '%',                delta: 6 },
         regulars: { value: 1240,   unit: '/ 5320',fmt:'int',  delta: 24 },
       },
+      moisDernier: {
+        tx:       { value: 4948,   unit: '',     fmt: 'int',  delta: 17 },
+        panier:   { value: 140,    unit: 'MAD',  fmt: 'int',  delta: 3 },
+        tips:     { value: 44919,  unit: 'MAD',  fmt: 'int',  delta: 31 },
+        success:  { value: 99.26,  unit: '%',    fmt: 'pct2', delta: 0.3 },
+        ratio:    { text: '67 / 33', unit: '%',                delta: 4 },
+        regulars: { value: 1153,   unit: '/ 4948',fmt:'int',  delta: 19 },
+      },
+      trimestre: {
+        tx:       { value: 15960,  unit: '',     fmt: 'int',  delta: 12 },
+        panier:   { value: 143,    unit: 'MAD',  fmt: 'int',  delta: 4 },
+        tips:     { value: 144900, unit: 'MAD',  fmt: 'int',  delta: 22 },
+        success:  { value: 99.30,  unit: '%',    fmt: 'pct2', delta: 0.4 },
+        ratio:    { text: '68 / 32', unit: '%',                delta: 5 },
+        regulars: { value: 3720,   unit: '/ 15960',fmt:'int', delta: 16 },
+      },
+      annee: {
+        tx:       { value: 63840,  unit: '',     fmt: 'int',  delta: 18 },
+        panier:   { value: 145,    unit: 'MAD',  fmt: 'int',  delta: 6 },
+        tips:     { value: 579600, unit: 'MAD',  fmt: 'int',  delta: 28 },
+        success:  { value: 99.35,  unit: '%',    fmt: 'pct2', delta: 0.6 },
+        ratio:    { text: '69 / 31', unit: '%',                delta: 6 },
+        regulars: { value: 14880,  unit: '/ 63840',fmt:'int', delta: 21 },
+      },
       personnalise: null,
     },
     maisonMansour: {
@@ -350,6 +404,30 @@
         ratio:      { text: '85 / 15', unit: '%',               delta: 5 },
         regulars:   { value: 320,   unit: '/ 1240',fmt:'int',  delta: 21 },
       },
+      moisDernier: {
+        tx:         { value: 1153,  unit: '',     fmt: 'int',  delta: 14 },
+        panier:     { value: 286,   unit: 'MAD',  fmt: 'int',  delta: 3 },
+        tauxRetour: { value: 6.3,   unit: '%',    fmt: 'pct1', delta: -1.1 },
+        success:    { value: 99.4,  unit: '%',    fmt: 'pct2', delta: 0.2 },
+        ratio:      { text: '84 / 16', unit: '%',               delta: 4 },
+        regulars:   { value: 298,   unit: '/ 1153',fmt:'int',  delta: 17 },
+      },
+      trimestre: {
+        tx:         { value: 3720,  unit: '',     fmt: 'int',  delta: 11 },
+        panier:     { value: 291,   unit: 'MAD',  fmt: 'int',  delta: 4 },
+        tauxRetour: { value: 5.9,   unit: '%',    fmt: 'pct1', delta: -0.9 },
+        success:    { value: 99.5,  unit: '%',    fmt: 'pct2', delta: 0.3 },
+        ratio:      { text: '85 / 15', unit: '%',               delta: 4 },
+        regulars:   { value: 960,   unit: '/ 3720',fmt:'int',  delta: 15 },
+      },
+      annee: {
+        tx:         { value: 14880, unit: '',     fmt: 'int',  delta: 16 },
+        panier:     { value: 294,   unit: 'MAD',  fmt: 'int',  delta: 6 },
+        tauxRetour: { value: 5.7,   unit: '%',    fmt: 'pct1', delta: -1.2 },
+        success:    { value: 99.6,  unit: '%',    fmt: 'pct2', delta: 0.4 },
+        ratio:      { text: '86 / 14', unit: '%',               delta: 5 },
+        regulars:   { value: 3840,  unit: '/ 14880',fmt:'int', delta: 19 },
+      },
       personnalise: null,
     },
     spaBahia: {
@@ -384,6 +462,30 @@
         success:  { value: 92.1,  unit: '%',    fmt: 'pct1', delta: 4.5 },
         ratio:    { text: '92 / 8', unit: '%',                 delta: 5 },
         regulars: { value: 412,   unit: '/ 580',fmt: 'int',  delta: 20 },
+      },
+      moisDernier: {
+        tx:       { value: 539,   unit: '',     fmt: 'int',  delta: 18 },
+        panier:   { value: 458,   unit: 'MAD',  fmt: 'int',  delta: 4 },
+        tips:     { value: 35898, unit: 'MAD',  fmt: 'int',  delta: 27 },
+        success:  { value: 91.6,  unit: '%',    fmt: 'pct1', delta: 3.6 },
+        ratio:    { text: '91 / 9', unit: '%',                 delta: 4 },
+        regulars: { value: 383,   unit: '/ 539',fmt: 'int',  delta: 16 },
+      },
+      trimestre: {
+        tx:       { value: 1740,  unit: '',     fmt: 'int',  delta: 13 },
+        panier:   { value: 466,   unit: 'MAD',  fmt: 'int',  delta: 5 },
+        tips:     { value: 115800,unit: 'MAD',  fmt: 'int',  delta: 24 },
+        success:  { value: 92.3,  unit: '%',    fmt: 'pct1', delta: 4.0 },
+        ratio:    { text: '92 / 8', unit: '%',                 delta: 5 },
+        regulars: { value: 1236,  unit: '/ 1740',fmt:'int',   delta: 17 },
+      },
+      annee: {
+        tx:       { value: 6960,  unit: '',     fmt: 'int',  delta: 19 },
+        panier:   { value: 472,   unit: 'MAD',  fmt: 'int',  delta: 7 },
+        tips:     { value: 463200,unit: 'MAD',  fmt: 'int',  delta: 30 },
+        success:  { value: 92.8,  unit: '%',    fmt: 'pct1', delta: 4.8 },
+        ratio:    { text: '93 / 7', unit: '%',                 delta: 6 },
+        regulars: { value: 4944,  unit: '/ 6960',fmt:'int',   delta: 21 },
       },
       personnalise: null,
     },
@@ -733,9 +835,9 @@
     },
   };
   const SETTLE_LBL = {
-    fr: { aujourdhui: 'PROCHAIN RÈGLEMENT', hier: 'RÈGLEMENT REÇU', septJours: 'RÉGLÉ SUR 7 JOURS', trenteJours: 'RÉGLÉ SUR 30 JOURS', personnalise: 'PROCHAIN RÈGLEMENT' },
-    en: { aujourdhui: 'NEXT SETTLEMENT', hier: 'SETTLEMENT RECEIVED', septJours: 'SETTLED OVER 7 DAYS', trenteJours: 'SETTLED OVER 30 DAYS', personnalise: 'NEXT SETTLEMENT' },
-    ar: { aujourdhui: 'التسوية القادمة', hier: 'تسوية مستلمة', septJours: 'مسوّى على 7 أيام', trenteJours: 'مسوّى على 30 يومًا', personnalise: 'التسوية القادمة' },
+    fr: { aujourdhui: 'PROCHAIN RÈGLEMENT', hier: 'RÈGLEMENT REÇU', septJours: 'RÉGLÉ SUR 7 JOURS', trenteJours: 'RÉGLÉ SUR 30 JOURS', moisDernier: 'RÉGLÉ LE MOIS DERNIER', trimestre: 'RÉGLÉ SUR LE TRIMESTRE', annee: "RÉGLÉ SUR L'ANNÉE", personnalise: 'PROCHAIN RÈGLEMENT' },
+    en: { aujourdhui: 'NEXT SETTLEMENT', hier: 'SETTLEMENT RECEIVED', septJours: 'SETTLED OVER 7 DAYS', trenteJours: 'SETTLED OVER 30 DAYS', moisDernier: 'SETTLED LAST MONTH', trimestre: 'SETTLED OVER QUARTER', annee: 'SETTLED OVER YEAR', personnalise: 'NEXT SETTLEMENT' },
+    ar: { aujourdhui: 'التسوية القادمة', hier: 'تسوية مستلمة', septJours: 'مسوّى على 7 أيام', trenteJours: 'مسوّى على 30 يومًا', moisDernier: 'مسوّى في الشهر الماضي', trimestre: 'مسوّى خلال الربع', annee: 'مسوّى خلال السنة', personnalise: 'التسوية القادمة' },
   };
   const SETTLE_DETAIL_LBL = { fr: 'Commission Kiwi déduite', en: 'Kiwi commission deducted', ar: 'عمولة كيوي مخصومة' };
 

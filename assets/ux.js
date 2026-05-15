@@ -221,12 +221,6 @@
         e.preventDefault();
         open();
       }
-      // Mode toggle shortcut
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'm' && window.KiwiSimple) {
-        e.preventDefault();
-        const cur = window.KiwiSimple.getMode();
-        window.KiwiSimple.setMode(cur === 'simple' ? 'pro' : 'simple');
-      }
       // Single key shortcuts on dashboard
       if (!e.target.matches('input, textarea, [contenteditable]') && /dashboard\.html/.test(location.pathname)) {
         if (e.key === 'n' && !e.metaKey && !e.ctrlKey) {

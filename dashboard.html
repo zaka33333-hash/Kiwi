@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="assets/simple.css" />
 <link rel="stylesheet" href="assets/ux.css" />
 <link rel="stylesheet" href="assets/pages-pro.css" />
+<link rel="stylesheet" href="assets/polish-dashboard.css" />
 <style>
   /* ─────────────── SHELL ─────────────── */
   /* Ambient blobs — four soft radial gradients pinned to the viewport
@@ -245,7 +246,7 @@
   .sidebar nav a { display: flex; align-items: center; gap: 11px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: #8f9591; transition: all 120ms; position: relative; }
   .sidebar nav a:hover { background: rgba(255,255,255,0.04); color: var(--paper); }
   .sidebar nav a.active { background: rgba(125,242,176,0.08); color: var(--mint); }
-  .sidebar nav a.active::before { content: ""; position: absolute; left: -14px; top: 6px; bottom: 6px; width: 3px; background: var(--mint); border-radius: 0 2px 2px 0; }
+  .sidebar nav a.active::before { content: ""; position: absolute; inset-inline-start: 0; top: 6px; bottom: 6px; width: 3px; background: var(--mint); border-radius: 0; border-start-end-radius: 2px; border-end-end-radius: 2px; }
   .sidebar nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
   .sidebar nav a .tag { margin-left: auto; font-size: 10px; background: rgba(125,242,176,0.1); color: var(--mint); padding: 2px 6px; border-radius: 999px; font-family: var(--mono); }
   .sidebar nav a .count { margin-left: auto; font-size: 10.5px; color: #6a6e6c; font-family: var(--mono); }
@@ -882,7 +883,7 @@
   }
   .kiwi-greet h1 {
     margin: 0; line-height: 1.12;
-    font-size: 64px; font-weight: 600; letter-spacing: -0.034em;
+    font-size: clamp(30px, 6.4vw, 64px); font-weight: 600; letter-spacing: -0.034em;
     color: var(--ink);
     /* Light shadow only — heavy blur on text repaints every animation
      * frame and tanks fluidity. */
@@ -2543,7 +2544,7 @@
 <div class="kiwi-lock" data-kiwi-lock>
   <div class="kiwi-lock-inner">
     <div class="kiwi-lock-brand">kiwi<i></i></div>
-    <div class="kiwi-lock-title">Bienvenue, Rachid</div>
+    <div class="kiwi-lock-title" data-i18n="dash.lock.welcome">Bienvenue, Rachid</div>
     <div class="kiwi-lock-sub">Café Atlas · Maarif</div>
     <div class="kiwi-lock-pin" data-kiwi-pin>
       <div class="kiwi-pin-cell" data-cell="0"></div>
@@ -2552,14 +2553,14 @@
       <div class="kiwi-pin-cell" data-cell="3"></div>
     </div>
     <input type="tel" inputmode="numeric" maxlength="4" class="kiwi-pin-input" data-kiwi-pin-input autocomplete="off" autofocus />
-    <div class="kiwi-lock-help">Saisis ton <b>code à 4 chiffres</b> pour ouvrir le tableau de bord</div>
+    <div class="kiwi-lock-help" data-i18n="dash.lock.help">Saisis ton <b>code à 4 chiffres</b> pour ouvrir le tableau de bord</div>
   </div>
 </div>
 
 <!-- One-time greeting flash, revealed once after PIN unlock then dismissed -->
 <div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
   <div class="kiwi-greet-inner">
-    <h1><span>Bonjour Rachid,</span> <em>bonne journée.</em></h1>
+    <h1><span data-i18n="dash.hello">Bonjour Rachid,</span> <em data-i18n="dash.day">bonne journée.</em></h1>
     <div class="kiwi-greet-sub" data-kiwi-greet-sub>Café Atlas · service ouvert</div>
   </div>
 </div>
@@ -2570,7 +2571,7 @@
     <span class="live-dot"></span>
     <span>Démo live · compte <b style="color:var(--paper);" data-demo-account>Café Atlas</b> · données synthétiques mises à jour en temps réel</span>
   </div>
-  <div><a href="index.html">← Retour au site</a></div>
+  <div><a href="index.html" data-i18n="dash.demo.back">← Retour au site</a></div>
 </div>
 
 <div class="app">
@@ -2582,7 +2583,7 @@
     <div class="loc-switch-wrap">
       <div class="loc-switch" data-action="venue-toggle" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
         <div class="top">
-          <span class="badge"><i></i>EN SERVICE</span>
+          <span class="badge"><i></i><span data-i18n="dash.sidebar.inService">EN SERVICE</span></span>
           <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8a9187" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>
         </div>
         <div class="name" data-loc-name>Café Atlas · Maarif</div>
@@ -2595,39 +2596,39 @@
     <nav>
       <a href="#" class="active" data-nav="accueil">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-        Accueil
+        <span data-i18n="dash.sidebar.home">Accueil</span>
       </a>
       <a href="#" data-nav="transactions">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-        Commandes
+        <span data-i18n="dash.sidebar.orders">Commandes</span>
         <span class="count">182</span>
       </a>
       <a href="#" data-nav="terminaux">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>
-        Terminaux
+        <span data-i18n="dash.sidebar.terminals">Terminaux</span>
         <span class="count">3</span>
       </a>
       <!-- Règlements removed in Kiwi 1.0 (no payment-processing license yet).
            Handler code preserved in pages-pro.js · see KIWI_2.0_ROADMAP.md to re-enable. -->
       <a href="#" data-nav="conformite">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-        Conformité
+        <span data-i18n="dash.sidebar.compliance">Conformité</span>
         <span class="tag">AAA</span>
       </a>
       <a href="#" data-nav="equipe">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/></svg>
-        Équipe
+        <span data-i18n="dash.sidebar.team">Équipe</span>
         <span class="count">8</span>
       </a>
       <a href="#" data-nav="payroll">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        Paie & planning
-        <span class="tag">NOUV.</span>
+        <span data-i18n="dash.sidebar.payroll">Paie & planning</span>
+        <span class="tag" data-i18n="dash.sidebar.new">NOUV.</span>
       </a>
       <a href="#" data-nav="reservations">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M9 16l2 2 4-4"/></svg>
-        Réservations & RDV
-        <span class="tag">NOUV.</span>
+        <span data-i18n="dash.sidebar.reservations">Réservations & RDV</span>
+        <span class="tag" data-i18n="dash.sidebar.new">NOUV.</span>
       </a>
 
       <div data-vertical-section></div>
@@ -2647,7 +2648,7 @@
       <div class="avatar">RB</div>
       <div class="m-info">
         <div class="n">Rachid Benhima</div>
-        <div class="r">Propriétaire · admin</div>
+        <div class="r" data-i18n="dash.sidebar.ownerAdmin">Propriétaire · admin</div>
       </div>
       <div class="m-caret">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
@@ -2660,12 +2661,12 @@
 
     <!-- Topbar -->
     <div class="topbar"><div class="topbar-inner">
-      <div class="breadcrumb">
+      <div class="breadcrumb" data-i18n="dash.breadcrumb">
         Accueil <span class="sep">/</span> <b>Tableau de bord</b>
       </div>
       <div class="search-big">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-        Rechercher commande, produit, client, équipe…
+        <span data-i18n="dash.search.placeholder">Rechercher commande, produit, client, équipe…</span>
         <div class="k"><span>⌘</span><span>K</span></div>
       </div>
       <button class="icon-btn" aria-label="Notifications">
@@ -2677,7 +2678,7 @@
       </button>
       <button class="ai-btn" data-action="agent-mode">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg>
-        Kiwi AI · Agent
+        <span data-i18n="dash.agent">Kiwi AI · Agent</span>
       </button>
     </div></div>
 
@@ -2686,16 +2687,16 @@
       <!-- Page head -->
       <div class="page-head">
         <div>
-          <h1 class="greeting"><span class="greet-text">Bonjour Rachid,</span> <em>bonne journée.</em></h1>
+          <h1 class="greeting"><span class="greet-text" data-i18n="dash.hello">Bonjour Rachid,</span> <em data-i18n="dash.day">bonne journée.</em></h1>
         </div>
         <div class="quick-acts">
           <button class="btn-slim" data-action="payment-link">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 10a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-            Lien de paiement
+            <span data-i18n="dash.paymentLink">Lien de paiement</span>
           </button>
           <button class="btn-slim" data-action="export">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M5 10l7 7 7-7M5 21h14"/></svg>
-            Exporter
+            <span data-i18n="dash.export">Exporter</span>
           </button>
         </div>
       </div>
@@ -2735,19 +2736,19 @@
             <div class="hero-amount" data-hero-amount>27 512<span class="cents">,50</span><span class="currency">MAD</span></div>
             <div class="hero-breakdown">
               <div class="b" data-hero-delta="hier">
-                <div class="l">VS HIER</div>
+                <div class="l" data-i18n="dash.vsYesterday">VS HIER</div>
                 <div class="v" data-hero-delta-val>+3 724 MAD <span class="d">↑</span></div>
               </div>
               <div class="b" data-hero-delta="semaine">
-                <div class="l">VS SEMAINE</div>
+                <div class="l" data-i18n="dash.vsWeek">VS SEMAINE</div>
                 <div class="v" data-hero-delta-val>+18 % <span class="d">↑</span></div>
               </div>
               <div class="b" data-hero-delta="mois">
-                <div class="l">VS MOIS DERNIER</div>
+                <div class="l" data-i18n="dash.vsMonth">VS MOIS DERNIER</div>
                 <div class="v" data-hero-delta-val>+9 % <span class="d">↑</span></div>
               </div>
               <div class="b">
-                <div class="l">NET APRÈS KIWI</div>
+                <div class="l" data-i18n="dash.netKiwi">NET APRÈS KIWI</div>
                 <div class="v" data-hero-net-val>23 091 MAD</div>
               </div>
             </div>
@@ -2864,13 +2865,13 @@
             <div class="donut-legend" data-mix-legend></div>
           </div>
           <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--n-200); display: flex; justify-content: space-between; font-size: 12.5px;">
-            <div style="color: var(--n-500);">Abonnement Kiwi Pro</div>
-            <div style="font-family: var(--mono); font-weight: 500; color: var(--atlas);">399 MAD/mois · tout inclus</div>
+            <div style="color: var(--n-500);" data-i18n="dash.mix.subscription">Abonnement Kiwi Pro</div>
+            <div style="font-family: var(--mono); font-weight: 500; color: var(--atlas);" data-i18n="dash.mix.subscription.price">399 MAD/mois · tout inclus</div>
           </div>
           <div style="margin-top: 16px; padding: 14px 16px; background: var(--paper-soft); border-radius: 10px; display: flex; gap: 12px; align-items: flex-start;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
             <div style="font-size: 12.5px; color: var(--n-700); line-height: 1.45;">
-              <b data-i18n="dash.mix.savings.label">Économie vs CMI :</b> <span data-mix-savings>~3 900 MAD ce mois</span>. <a href="#" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.mix.savings.year">Voir l'an</a>
+              <b data-i18n="dash.mix.savings.label">Économie vs CMI :</b> <span data-mix-savings>~3 900 MAD ce mois</span>. <a href="#" data-action="cmi-year" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.mix.savings.year">Voir l'an</a>
             </div>
           </div>
         </div>
@@ -2886,8 +2887,8 @@
               <div class="s" data-feed-sub>6 dernières · flux temps réel</div>
             </div>
             <div class="right-actions">
-              <button class="btn-slim" data-action="filter-tx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrer</button>
-              <a href="#" style="font-size: 13px; color: var(--atlas); font-weight: 500;">Tout voir →</a>
+              <button class="btn-slim" data-action="filter-tx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span data-i18n="dash.feed.filter">Filtrer</span></button>
+              <a href="#" data-action="feed-view-all" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.feed.viewAll">Tout voir →</a>
             </div>
           </div>
           <!-- Live feed body is rendered by dateRange.js renderFeed() —
@@ -2904,23 +2905,23 @@
 
           <!-- Service du soir — uses the .settle dark-atlas card -->
           <div class="settle">
-            <div class="lbl">SERVICE DU SOIR · CE SOIR</div>
-            <div class="big">47 <span style="font-size:0.42em; opacity: 0.7;">couverts</span></div>
-            <div class="sub">8 réservations confirmées · ~12 walk-ins attendus selon l'historique des vendredis.</div>
+            <div class="lbl" data-i18n="dash.evening.title">SERVICE DU SOIR · CE SOIR</div>
+            <div class="big">47 <span style="font-size:0.42em; opacity: 0.7;" data-i18n="dash.evening.covers">couverts</span></div>
+            <div class="sub" data-i18n="dash.evening.summary">8 réservations confirmées · ~12 walk-ins attendus selon l'historique des vendredis.</div>
             <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; flex-direction: column; gap: 10px;">
               <div style="display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center; font-size: 12.5px;">
                 <span style="font-family: var(--mono); color: var(--mint); font-weight: 600;">19h30</span>
                 <div>
                   <div style="font-weight: 500;">Khalid Berrada · T7</div>
-                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;">4 couverts · habitué</div>
+                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;" data-i18n="dash.evening.guest1.note">4 couverts · habitué</div>
                 </div>
-                <span style="font-size: 10.5px; background: rgba(125,242,176,0.18); color: var(--mint); padding: 3px 8px; border-radius: 999px; font-family: var(--mono); letter-spacing: 0.05em;">VIP</span>
+                <span style="font-size: 10.5px; background: rgba(125,242,176,0.18); color: var(--mint); padding: 3px 8px; border-radius: 999px; font-family: var(--mono); letter-spacing: 0.05em;" data-i18n="dash.evening.vip">VIP</span>
               </div>
               <div style="display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center; font-size: 12.5px;">
                 <span style="font-family: var(--mono); color: var(--mint); font-weight: 600;">20h00</span>
                 <div>
                   <div style="font-weight: 500;">Sara M. · T12</div>
-                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;">6 couverts · anniversaire (gâteau prévu)</div>
+                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;" data-i18n="dash.evening.guest2.note">6 couverts · anniversaire (gâteau prévu)</div>
                 </div>
                 <span style="font-size: 14px;">🎂</span>
               </div>
@@ -2928,17 +2929,17 @@
                 <span style="font-family: var(--mono); color: var(--mint); font-weight: 600;">20h30</span>
                 <div>
                   <div style="font-weight: 500;">M. Tazi · T3</div>
-                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;">2 couverts · 1ʳᵉ visite</div>
+                  <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;" data-i18n="dash.evening.guest3.note">2 couverts · 1ʳᵉ visite</div>
                 </div>
-                <span style="font-size: 10.5px; background: rgba(255,255,255,0.10); color: #c6ead4; padding: 3px 8px; border-radius: 999px; font-family: var(--mono); letter-spacing: 0.05em;">NEW</span>
+                <span style="font-size: 10.5px; background: rgba(255,255,255,0.10); color: #c6ead4; padding: 3px 8px; border-radius: 999px; font-family: var(--mono); letter-spacing: 0.05em;" data-i18n="dash.evening.new">NEW</span>
               </div>
             </div>
             <div class="instant" data-action="nav-reservations">
               <div class="ico">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
               </div>
-              <div style="font-weight: 500;">Voir le plan de salle</div>
-              <div class="cost">+5 réservations</div>
+              <div style="font-weight: 500;" data-i18n="dash.evening.floorPlan">Voir le plan de salle</div>
+              <div class="cost" data-i18n="dash.evening.moreReservations">+5 réservations</div>
             </div>
           </div>
 
@@ -2946,8 +2947,8 @@
           <div class="block">
             <div class="block-head" style="margin-bottom: 14px;">
               <div>
-                <div class="t">Stock à recommander</div>
-                <div class="s">3 articles sous le seuil · IA a estimé les quantités pour le weekend</div>
+                <div class="t" data-i18n="dash.stock.title">Stock à recommander</div>
+                <div class="s" data-i18n="dash.stock.summary">3 articles sous le seuil · IA a estimé les quantités pour le weekend</div>
               </div>
               <span class="chip pend" style="font-size: 10.5px;">3</span>
             </div>
@@ -2956,8 +2957,8 @@
               <div style="display: grid; grid-template-columns: 8px 1fr auto; gap: 12px; align-items: center;">
                 <i style="width: 8px; height: 8px; border-radius: 50%; background: var(--danger);"></i>
                 <div>
-                  <div style="font-weight: 500; font-size: 13.5px;">Pastilla au poulet</div>
-                  <div style="font-size: 11.5px; color: var(--n-500); margin-top: 2px;">2 portions · rupture imminente · Cuisine Centrale</div>
+                  <div style="font-weight: 500; font-size: 13.5px;" data-i18n="dash.stock.item1.name">Pastilla au poulet</div>
+                  <div style="font-size: 11.5px; color: var(--n-500); margin-top: 2px;" data-i18n="dash.stock.item1.note">2 portions · rupture imminente · Cuisine Centrale</div>
                 </div>
                 <div style="text-align: right;">
                   <div style="font-family: var(--mono); font-size: 13px; font-weight: 600;">+24 u</div>
@@ -2968,8 +2969,8 @@
               <div style="display: grid; grid-template-columns: 8px 1fr auto; gap: 12px; align-items: center;">
                 <i style="width: 8px; height: 8px; border-radius: 50%; background: var(--warning);"></i>
                 <div>
-                  <div style="font-weight: 500; font-size: 13.5px;">Thé à la menthe</div>
-                  <div style="font-size: 11.5px; color: var(--n-500); margin-top: 2px;">12 portions · ~2 jours de stock · Bidaoui</div>
+                  <div style="font-weight: 500; font-size: 13.5px;" data-i18n="dash.stock.item2.name">Thé à la menthe</div>
+                  <div style="font-size: 11.5px; color: var(--n-500); margin-top: 2px;" data-i18n="dash.stock.item2.note">12 portions · ~2 jours de stock · Bidaoui</div>
                 </div>
                 <div style="text-align: right;">
                   <div style="font-family: var(--mono); font-size: 13px; font-weight: 600;">+5 kg</div>
@@ -2980,8 +2981,8 @@
               <div style="display: grid; grid-template-columns: 8px 1fr auto; gap: 12px; align-items: center;">
                 <i style="width: 8px; height: 8px; border-radius: 50%; background: var(--warning);"></i>
                 <div>
-                  <div style="font-weight: 500; font-size: 13.5px;">Crème fraîche</div>
-                  <div style="font-size: 11.5px; color: var(--n-500); margin-top: 2px;">0,5 L · ~1 jour · Maison Lait</div>
+                  <div style="font-weight: 500; font-size: 13.5px;" data-i18n="dash.stock.item3.name">Crème fraîche</div>
+                  <div style="font-size: 11.5px; color: var(--n-500); margin-top: 2px;" data-i18n="dash.stock.item3.note">0,5 L · ~1 jour · Maison Lait</div>
                 </div>
                 <div style="text-align: right;">
                   <div style="font-family: var(--mono); font-size: 13px; font-weight: 600;">+6 L</div>
@@ -2991,13 +2992,16 @@
             </div>
 
             <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--n-200); display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
-              <span style="color: var(--n-500);">Total commande suggérée</span>
+              <span style="color: var(--n-500);" data-i18n="dash.stock.total">Total commande suggérée</span>
               <b style="color: var(--ink); font-family: var(--mono); font-weight: 600; font-size: 14px;">3 324 MAD</b>
             </div>
             <button data-action="stock-reorder" style="margin-top: 12px; width: 100%; background: var(--atlas); color: var(--paper); border: 0; padding: 11px; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-family: var(--sans); transition: background 150ms;" onmouseover="this.style.background='var(--riad)'" onmouseout="this.style.background='var(--atlas)'">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 002 1.6h9.7a2 2 0 002-1.6L23 6H6"/></svg>
-              Commander en 1 clic chez tous les fournisseurs
+              <span data-i18n="dash.stock.orderAll">Commander en 1 clic chez tous les fournisseurs</span>
             </button>
+            <div style="margin-top: 10px; text-align: center;">
+              <a href="#" data-action="view-suppliers" style="font-size: 12.5px; color: var(--atlas); font-weight: 500;" data-i18n="dash.stock.suppliers">Fournisseurs &amp; historique des commandes →</a>
+            </div>
           </div>
         </div>
       </div>
@@ -3026,28 +3030,28 @@
             </div>
             <ul class="health-check">
               <li>
-                <span>Taux succès commandes</span>
+                <span data-i18n="dash.health.successRate">Taux succès commandes</span>
                 <span class="status good">99,34 % ✓</span>
               </li>
               <li>
-                <span>Onboarding équipe complet</span>
+                <span data-i18n="dash.health.teamOnboarding">Onboarding équipe complet</span>
                 <span class="status good">8/8 ✓</span>
               </li>
               <li>
-                <span>KYC à jour</span>
-                <span class="status good">Valide 2027 ✓</span>
+                <span data-i18n="dash.health.kycCurrent">KYC à jour</span>
+                <span class="status good" data-i18n="dash.health.kycValid">Valide 2027 ✓</span>
               </li>
               <li>
-                <span>Rétention clientèle</span>
+                <span data-i18n="dash.health.customerRetention">Rétention clientèle</span>
                 <span class="status good">72 % ✓</span>
               </li>
               <li>
-                <span>Pourboire moyen</span>
-                <span class="status warn">8,2 % · cible 10%</span>
+                <span data-i18n="dash.health.avgTip">Pourboire moyen</span>
+                <span class="status warn" data-i18n="dash.health.tipTarget">8,2 % · cible 10%</span>
               </li>
               <li>
-                <span>Diversification paiement</span>
-                <span class="status good">4 méthodes ✓</span>
+                <span data-i18n="dash.health.paymentDiversification">Diversification paiement</span>
+                <span class="status good" data-i18n="dash.health.paymentMethods">4 méthodes ✓</span>
               </li>
             </ul>
           </div>
@@ -3067,7 +3071,7 @@
           </div>
           <div class="bench-comp" data-bench-comp></div>
           <div style="margin-top: 14px; padding: 12px 14px; background: var(--paper-soft); border-radius: 10px; font-size: 12.5px; color: var(--n-700); line-height: 1.45;">
-            Vous surperformez <b>4 cafés sur 5</b> sur Casablanca. Le seul levier faible : le <b>pourboire</b>. <a href="#" style="color: var(--atlas); font-weight: 500;">Activer prompt auto →</a>
+            <span data-i18n="dash.bench.summary">Vous surperformez <b>4 cafés sur 5</b> sur Casablanca. Le seul levier faible : le <b>pourboire</b>.</span> <a href="#" data-action="tip-prompt" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.bench.autoPrompt">Activer prompt auto →</a>
           </div>
         </div>
       </div>
@@ -3081,7 +3085,10 @@
               <div class="t" data-i18n="dash.products.title">Top produits</div>
               <div class="s" data-products-sub>Aujourd'hui · tous les items</div>
             </div>
-            <a href="#" style="font-size: 13px; color: var(--atlas); font-weight: 500;">Gérer menu →</a>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <a href="#" data-action="view-margins" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.margins">Marges →</a>
+              <a href="#" data-action="menu-edit" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.manageMenu">Gérer menu →</a>
+            </div>
           </div>
           <div class="prod-list" data-products-list></div>
         </div>
@@ -3093,7 +3100,7 @@
               <div class="t" data-i18n="dash.staff.title">Performance équipe</div>
               <div class="s" data-staff-sub>Service en cours · PIN connecté</div>
             </div>
-            <a href="#" style="font-size: 13px; color: var(--atlas); font-weight: 500;">Paramètres équipe →</a>
+            <a href="#" data-action="team-settings" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.staff.settings">Paramètres équipe →</a>
           </div>
           <div data-staff-list></div>
         </div>
@@ -3103,38 +3110,38 @@
       <div class="block">
         <div class="block-head">
           <div>
-            <div class="t">Intégrations actives</div>
-            <div class="s">Les outils que Kiwi synchronise pour vous</div>
+            <div class="t" data-i18n="dash.integ.title">Intégrations actives</div>
+            <div class="s" data-i18n="dash.integ.sub">Les outils que Kiwi synchronise pour vous</div>
           </div>
-          <a href="#" data-action="add-integration" style="font-size: 13px; color: var(--atlas); font-weight: 500;">+ Ajouter une intégration</a>
+          <a href="#" data-action="add-integration" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.integ.add">+ Ajouter une intégration</a>
         </div>
         <div class="integ-grid">
           <div class="integ-card">
             <div class="logo" style="background: #F29137;">G</div>
             <div class="info">
               <div class="n">Glovo</div>
-              <div class="s"><span class="dot"></span>Payout réconcilié · 1 420 MAD</div>
+              <div class="s"><span class="dot"></span><span data-i18n="dash.integ.glovo.status">Payout réconcilié · 1 420 MAD</span></div>
             </div>
           </div>
           <div class="integ-card">
             <div class="logo" style="background: #E7611A;">J</div>
             <div class="info">
               <div class="n">Jumia Food</div>
-              <div class="s"><span class="dot"></span>24 commandes aujourd'hui</div>
+              <div class="s"><span class="dot"></span><span data-i18n="dash.integ.jumia.status">24 commandes aujourd'hui</span></div>
             </div>
           </div>
           <div class="integ-card">
             <div class="logo" style="background: #1D3F6B;">A</div>
             <div class="info">
-              <div class="n">Comptabilité</div>
-              <div class="s"><span class="dot"></span>Export quotidien OCP-compliant</div>
+              <div class="n" data-i18n="dash.integ.accounting.name">Comptabilité</div>
+              <div class="s"><span class="dot"></span><span data-i18n="dash.integ.accounting.status">Export quotidien OCP-compliant</span></div>
             </div>
           </div>
           <div class="integ-card">
             <div class="logo" style="background: #00613E;">B</div>
             <div class="info">
-              <div class="n">BMCE · Banque</div>
-              <div class="s"><span class="dot"></span>IBAN vérifié · 3291</div>
+              <div class="n" data-i18n="dash.integ.bank.name">BMCE · Banque</div>
+              <div class="s"><span class="dot"></span><span data-i18n="dash.integ.bank.status">IBAN vérifié · 3291</span></div>
             </div>
           </div>
         </div>
@@ -3168,8 +3175,8 @@
               <div class="fs-hero-top" data-fs-top-site>Top site · <b>Café Atlas</b> · 0 MAD</div>
             </div>
             <div class="fs-hero-right">
-              <div class="fs-ai-eyebrow">KIWI AI</div>
-              <div class="fs-ai-title">Recommandations portefeuille</div>
+              <div class="fs-ai-eyebrow" data-i18n="dash.fusion.ai.eyebrow">KIWI AI</div>
+              <div class="fs-ai-title" data-i18n="dash.fusion.ai.title">Recommandations portefeuille</div>
               <div class="fs-ai-insights" data-fs-ai-insights></div>
               <div class="fs-ai-chat">
                 <input type="text" class="fs-ai-chat-input" placeholder="Demandez à Kiwi AI · « Pourquoi le spa baisse ? »"/>
@@ -3181,14 +3188,14 @@
 
         <!-- ── Section 2 · KPI cards ────────────────────────────────── -->
         <div class="fs-section fs-kpis-section">
-          <div class="fs-section-head"><h3>Indicateurs portefeuille</h3></div>
+          <div class="fs-section-head"><h3 data-i18n="dash.fusion.kpis.title">Indicateurs portefeuille</h3></div>
           <div class="fs-kpi-grid" data-fs-kpis></div>
         </div>
 
         <!-- ── Section 3 · Venue comparison ────────────────────────── -->
         <div class="fs-section fs-venues-section">
           <div class="fs-section-head">
-            <h3>Performance par emplacement</h3>
+            <h3 data-i18n="dash.fusion.venues.title">Performance par emplacement</h3>
             <span class="fs-section-sub" data-fs-venues-sub>3 emplacements · vue consolidée</span>
           </div>
           <div class="fs-venues" data-fs-venues></div>
@@ -3205,7 +3212,7 @@
 
         <!-- ── Section 5 · Cross-venue intelligence (static) ───────── -->
         <div class="fs-section fs-intel-section">
-          <div class="fs-section-head"><h3>Intelligence cross-sites</h3></div>
+          <div class="fs-section-head"><h3 data-i18n="dash.fusion.intel.title">Intelligence cross-sites</h3></div>
           <div class="fs-intel" data-fs-intel></div>
         </div>
 
@@ -3218,8 +3225,8 @@
 
     <!-- Status bar -->
     <div class="status-bar">
-      <div><span class="pip"></span>Opérationnel · aucun incident · Kiwi Status : 99,99 %</div>
-      <div data-footer-line>Café Atlas · ICE 0025938400014 · opéré sous sponsoring Bank Al-Maghrib · Kiwi v2.38.1 · <a href="#">aide WhatsApp</a></div>
+      <div><span class="pip"></span><span data-i18n="dash.status.operational">Opérationnel · aucun incident · Kiwi Status : 99,99 %</span></div>
+      <div data-footer-line>Café Atlas · ICE 0025938400014 · opéré sous sponsoring Bank Al-Maghrib · Kiwi v2.38.1 · <a href="#" data-action="help-whatsapp">aide WhatsApp</a></div>
     </div>
   </main>
 </div>
@@ -3230,6 +3237,7 @@
 <script src="assets/polish.js" defer></script>
 <script src="assets/pages.js" defer></script>
 <script src="assets/pages-pro.js" defer></script>
+<script src="assets/dashboard-extra.js" defer></script>
 <script src="assets/simple.js" defer></script>
 <script src="assets/ux.js" defer></script>
 <script src="assets/venues.js" defer></script>

@@ -1,0 +1,87 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Kiwi · dashboard polish layer
+ * Micro-interactions, depth and motion refinement that make the owner
+ * dashboard feel like a finished product rather than a prototype.
+ * Loaded last so it refines — never fights — the core design system.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+:root { --ease-out: cubic-bezier(0.32, 0.72, 0, 1); }
+
+/* ─── Accessibility: honour the OS "reduce motion" setting ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── KPI tiles — they expand on click, so they lift on hover ─── */
+.kpi-m, .kpi-c {
+  transition: transform 220ms var(--ease-out),
+              box-shadow 220ms var(--ease-out),
+              border-color 220ms var(--ease-out) !important;
+  cursor: pointer;
+}
+.kpi-m:hover, .kpi-c:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -16px rgba(10, 15, 13, 0.22);
+}
+.kpi-m:active, .kpi-c:active { transform: translateY(0); }
+
+/* ─── Integration cards — clickable, so a gentle lift ─── */
+.integ-card {
+  transition: transform 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+  cursor: pointer;
+}
+.integ-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -16px rgba(10, 15, 13, 0.2);
+}
+
+/* ─── Buttons — uniform easing + a real press response ─── */
+.btn, .btn-slim, .kb, .dr-pill, .instant, button[data-action] {
+  transition: transform 140ms var(--ease-out),
+              background 170ms var(--ease-out),
+              color 170ms var(--ease-out),
+              border-color 170ms var(--ease-out),
+              box-shadow 170ms var(--ease-out);
+}
+.btn:active, .btn-slim:active, .kb:active,
+.instant:active, button[data-action]:active { transform: scale(0.972); }
+
+/* ─── List rows — clear hover affordance, since each row is clickable ─── */
+.feed-row, .tx-row, .staff-row, .prod, .prod-row, .bench-row, .timeline-day {
+  transition: background 130ms ease, transform 130ms var(--ease-out);
+  cursor: pointer;
+}
+.feed-row:hover, .tx-row:hover, .staff-row:hover,
+.prod:hover, .prod-row:hover, .bench-row:hover {
+  background: var(--paper-soft);
+}
+
+/* ─── Action links (the "→" links) — nudge on hover ─── */
+a[data-action] { transition: opacity 150ms var(--ease-out); }
+a[data-action]:hover { opacity: 0.7; }
+
+/* ─── Sidebar nav — smoother, with a hairline press ─── */
+.sidebar nav a { transition: background 160ms var(--ease-out), color 160ms var(--ease-out); }
+.sidebar nav a:active { transform: scale(0.99); }
+
+/* ─── Topbar icon buttons ─── */
+.icon-btn { transition: background 160ms var(--ease-out), transform 140ms var(--ease-out); }
+.icon-btn:hover { background: var(--paper-soft); }
+.icon-btn:active { transform: scale(0.92); }
+
+/* ─── Focus — refined, on-brand, never clipped ─── */
+:focus-visible { outline: 2px solid var(--atlas); outline-offset: 2px; border-radius: 6px; }
+.kpi-m:focus-visible, .kpi-c:focus-visible, .integ-card:focus-visible { outline-offset: 3px; }
+
+/* ─── Drawer & menu close buttons — consistent press ─── */
+.kiwi-drawer-close:hover { border-color: var(--n-400); color: var(--ink); }
+.kiwi-drawer-close:active { transform: scale(0.92); }
+
+/* ─── Greeting flash — keep the editorial line inside the viewport ───
+ * (font-size is clamped in dashboard.html; this is the wrap safety net) ─── */
+.kiwi-greet-inner { max-width: 94vw; }
