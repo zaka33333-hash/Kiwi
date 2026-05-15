@@ -323,6 +323,12 @@
    *   class toggles a different layout via CSS.
    * ────────────────────────────────────────────────────── */
   function drawer({title = '', subtitle = '', body = '', foot = '', width = 420, fullpage = false}) {
+    // Close any drawer already open so switching between drawers always works
+    // in a single click and the scroll-lock counter stays balanced.
+    document.querySelectorAll('.kiwi-drawer-backdrop').forEach((b) => {
+      if (b.__kiwiClose) b.__kiwiClose();
+      else b.remove();
+    });
     const back = document.createElement('div');
     back.className = 'kiwi-drawer-backdrop' + (fullpage ? ' kiwi-fullpage' : '');
     back.innerHTML = `
@@ -353,6 +359,7 @@
     document.addEventListener('keydown', esc);
     back.addEventListener('click', (e) => { if (e.target === back) close(); });
     back.querySelector('.kiwi-drawer-close').onclick = close;
+    back.__kiwiClose = close;   // lets a later drawer() call close this one cleanly
     return { close, el: back };
   }
 

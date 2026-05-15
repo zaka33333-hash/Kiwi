@@ -669,7 +669,7 @@
     const T = window.KiwiI18n?.T?.[lang] || {};
     const sponsor = T['dash.footer.sponsor'] || 'opéré sous sponsoring Bank Al-Maghrib';
     const help = T['dash.footer.help'] || 'aide WhatsApp';
-    el.innerHTML = `${v.name} · ICE ${v.ice} · ${sponsor} · Kiwi v2.38.1 · <a href="#">${help}</a>`;
+    el.innerHTML = `${v.name} · ICE ${v.ice} · ${sponsor} · Kiwi v2.38.1 · <a href="#" data-action="help-whatsapp">${help}</a>`;
   }
 
   /* ═══════════════ RENDER: SIDEBAR COUNTS ═══════════════ */

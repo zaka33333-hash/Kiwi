@@ -38,7 +38,7 @@
  * ─────────────────────────────────────────────────────────────────────────── */
 handlers['nav-accueil'] = () => {
   // Dismiss any open drawer / modal so the dashboard underneath is fully visible.
-  document.querySelectorAll('.kiwi-drawer-backdrop, .kiwi-modal-backdrop').forEach(el => {
+  document.querySelectorAll('.kiwi-drawer-backdrop, .kiwi-backdrop').forEach(el => {
     el.classList.remove('in');
     setTimeout(() => el.remove(), 280);
   });

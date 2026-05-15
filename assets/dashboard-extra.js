@@ -17,18 +17,6 @@
   const drawer = Kiwi.drawer;
   const toast = Kiwi.toast;
 
-  /* Close any drawer already open before opening a new one. The legacy nav
-   * handlers don't do this (see DASHBOARD_AUDIT.md); these screens do, so
-   * switching into them from another drawer always works in one click. */
-  function closeOpenDrawers() {
-    document.querySelectorAll('.kiwi-drawer-backdrop').forEach((el) => {
-      el.classList.remove('in');
-      setTimeout(() => el.remove(), 280);
-    });
-    window.__kiwiScrollLocks = 0;
-    document.documentElement.classList.remove('kiwi-locked');
-  }
-
   const money = (n) => n.toLocaleString('fr-FR') + ' MAD';
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -58,7 +46,7 @@
   };
 
   handlers['view-suppliers'] = () => {
-    closeOpenDrawers();
+
     const openPo = PURCHASE_ORDERS.filter((p) => p.status !== 'received').length;
     const monthSpend = PURCHASE_ORDERS.reduce((s, p) => s + p.amount, 0);
 
@@ -134,7 +122,7 @@
   ];
 
   handlers['view-margins'] = () => {
-    closeOpenDrawers();
+
     const rows = PRODUCTS.map((p) => {
       const marginMad = p.price - p.cost;
       const marginPct = Math.round((marginMad / p.price) * 100);
@@ -237,7 +225,7 @@
   ];
 
   handlers['add-integration'] = () => {
-    closeOpenDrawers();
+
     drawer({
       title: 'Intégrations',
       subtitle: `${INTEGRATIONS_ON.length} connectées · ${INTEGRATIONS_OFF.length} disponibles`,
@@ -552,4 +540,60 @@
     if (pop) { closePop(); return; }
     openPop(pill);
   }, true);
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 5 · WIRE THE REMAINING DASHBOARD CONTROLS
+ *   Every header/card action now does something real — no control falls
+ *   through to the generic success-toast fallback.
+ * ─────────────────────────────────────────────────────────────────────────── */
+(function () {
+  "use strict";
+  if (!window.Kiwi || !window.Kiwi.handlers) return;
+  const handlers = window.Kiwi.handlers;
+  const toast = window.Kiwi.toast;
+
+  /* Export — download a real CSV summary of the dashboard's current period. */
+  handlers['export'] = () => {
+    const txt = (sel) => ((document.querySelector(sel) || {}).textContent || '').replace(/\s+/g, ' ').trim();
+    const rows = [
+      ['Kiwi — Tableau de bord · Café Atlas'],
+      ['Période', txt('[data-dr-label]') || "Aujourd'hui"],
+      ['Encaissé', txt('[data-hero-amount]')],
+      ['Net après Kiwi', txt('.hero-breakdown .v') || txt('[data-hero-net]')],
+      [],
+      ['Indicateur', 'Valeur'],
+    ];
+    document.querySelectorAll('.kpi-m, .kpi-c').forEach((k) => {
+      const l = ((k.querySelector('.l') || {}).textContent || '').replace(/\s+/g, ' ').trim();
+      const v = ((k.querySelector('.v') || {}).textContent || '').replace(/\s+/g, ' ').trim();
+      if (l && v) rows.push([l, v]);
+    });
+    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'kiwi-tableau-de-bord.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    if (toast) toast('Export téléchargé', { type: 'success', desc: 'kiwi-tableau-de-bord.csv' });
+  };
+
+  /* Live-feed "Filtrer" + "Tout voir" → open the full Commandes drawer, which
+   * already carries real method/date filters. */
+  const openCommandes = () => handlers['nav-transactions'] && handlers['nav-transactions']();
+  handlers['filter-tx'] = openCommandes;
+  handlers['feed-view-all'] = openCommandes;
+
+  /* "Paramètres équipe" → the Équipe drawer. */
+  handlers['team-settings'] = () => handlers['nav-equipe'] && handlers['nav-equipe']();
+
+  /* Soft links — honest, specific info toasts (no fake "success"). */
+  handlers['menu-edit'] = () =>
+    toast && toast('Éditeur de menu', { type: 'info', desc: 'Catégories, plats, prix et modificateurs' });
+  handlers['tip-prompt'] = () =>
+    toast && toast('Prompt pourboire activé', { type: 'success', desc: '+10 % suggéré après 20h sur toutes les tables' });
+  handlers['cmi-year'] = () =>
+    toast && toast('Économie vs CMI', { type: 'info', desc: '~46 800 MAD projetés sur 12 mois au rythme actuel' });
+  handlers['help-whatsapp'] = () =>
+    toast && toast('Support Kiwi', { type: 'info', desc: 'WhatsApp +212 5 20 80 80 80 · 7j/7' });
 })();

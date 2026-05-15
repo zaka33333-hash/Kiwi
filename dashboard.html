@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="assets/simple.css" />
 <link rel="stylesheet" href="assets/ux.css" />
 <link rel="stylesheet" href="assets/pages-pro.css" />
+<link rel="stylesheet" href="assets/polish-dashboard.css" />
 <style>
   /* ─────────────── SHELL ─────────────── */
   /* Ambient blobs — four soft radial gradients pinned to the viewport
@@ -882,7 +883,7 @@
   }
   .kiwi-greet h1 {
     margin: 0; line-height: 1.12;
-    font-size: 64px; font-weight: 600; letter-spacing: -0.034em;
+    font-size: clamp(30px, 6.4vw, 64px); font-weight: 600; letter-spacing: -0.034em;
     color: var(--ink);
     /* Light shadow only — heavy blur on text repaints every animation
      * frame and tanks fluidity. */
@@ -2870,7 +2871,7 @@
           <div style="margin-top: 16px; padding: 14px 16px; background: var(--paper-soft); border-radius: 10px; display: flex; gap: 12px; align-items: flex-start;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
             <div style="font-size: 12.5px; color: var(--n-700); line-height: 1.45;">
-              <b data-i18n="dash.mix.savings.label">Économie vs CMI :</b> <span data-mix-savings>~3 900 MAD ce mois</span>. <a href="#" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.mix.savings.year">Voir l'an</a>
+              <b data-i18n="dash.mix.savings.label">Économie vs CMI :</b> <span data-mix-savings>~3 900 MAD ce mois</span>. <a href="#" data-action="cmi-year" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.mix.savings.year">Voir l'an</a>
             </div>
           </div>
         </div>
@@ -2887,7 +2888,7 @@
             </div>
             <div class="right-actions">
               <button class="btn-slim" data-action="filter-tx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span data-i18n="dash.feed.filter">Filtrer</span></button>
-              <a href="#" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.feed.viewAll">Tout voir →</a>
+              <a href="#" data-action="feed-view-all" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.feed.viewAll">Tout voir →</a>
             </div>
           </div>
           <!-- Live feed body is rendered by dateRange.js renderFeed() —
@@ -3070,7 +3071,7 @@
           </div>
           <div class="bench-comp" data-bench-comp></div>
           <div style="margin-top: 14px; padding: 12px 14px; background: var(--paper-soft); border-radius: 10px; font-size: 12.5px; color: var(--n-700); line-height: 1.45;">
-            <span data-i18n="dash.bench.summary">Vous surperformez <b>4 cafés sur 5</b> sur Casablanca. Le seul levier faible : le <b>pourboire</b>.</span> <a href="#" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.bench.autoPrompt">Activer prompt auto →</a>
+            <span data-i18n="dash.bench.summary">Vous surperformez <b>4 cafés sur 5</b> sur Casablanca. Le seul levier faible : le <b>pourboire</b>.</span> <a href="#" data-action="tip-prompt" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.bench.autoPrompt">Activer prompt auto →</a>
           </div>
         </div>
       </div>
@@ -3086,7 +3087,7 @@
             </div>
             <div style="display: flex; gap: 14px; align-items: center;">
               <a href="#" data-action="view-margins" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.margins">Marges →</a>
-              <a href="#" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.manageMenu">Gérer menu →</a>
+              <a href="#" data-action="menu-edit" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.manageMenu">Gérer menu →</a>
             </div>
           </div>
           <div class="prod-list" data-products-list></div>
@@ -3099,7 +3100,7 @@
               <div class="t" data-i18n="dash.staff.title">Performance équipe</div>
               <div class="s" data-staff-sub>Service en cours · PIN connecté</div>
             </div>
-            <a href="#" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.staff.settings">Paramètres équipe →</a>
+            <a href="#" data-action="team-settings" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.staff.settings">Paramètres équipe →</a>
           </div>
           <div data-staff-list></div>
         </div>
@@ -3225,7 +3226,7 @@
     <!-- Status bar -->
     <div class="status-bar">
       <div><span class="pip"></span><span data-i18n="dash.status.operational">Opérationnel · aucun incident · Kiwi Status : 99,99 %</span></div>
-      <div data-footer-line>Café Atlas · ICE 0025938400014 · opéré sous sponsoring Bank Al-Maghrib · Kiwi v2.38.1 · <a href="#">aide WhatsApp</a></div>
+      <div data-footer-line>Café Atlas · ICE 0025938400014 · opéré sous sponsoring Bank Al-Maghrib · Kiwi v2.38.1 · <a href="#" data-action="help-whatsapp">aide WhatsApp</a></div>
     </div>
   </main>
 </div>
