@@ -252,13 +252,14 @@ html[data-theme="dark"] .theme-tg .moon { opacity: 1; transform: rotate(0); }
 html[dir="rtl"] { font-family: 'IBM Plex Sans Arabic', var(--sans); }
 html[dir="rtl"] body { font-size: 15px; }
 html[dir="rtl"] .nav-links { flex-direction: row-reverse; }
-html[dir="rtl"] .sidebar nav a.active::before { left: auto; right: -14px; border-radius: 2px 0 0 2px; }
+/* sidebar active marker + dash-float use logical properties (inset-inline-*)
+   in their base rules, so they mirror automatically — no RTL override needed
+   and no viewport overflow on either axis. */
 html[dir="rtl"] .feat-row.flip .feat-txt { order: 1; }
 html[dir="rtl"] .feat-row.flip .feat-img { order: 2; }
 html[dir="rtl"] svg text { direction: ltr; }
 html[dir="rtl"] .mono { direction: ltr; unicode-bidi: embed; }
 html[dir="rtl"] .breadcrumb { flex-direction: row-reverse; }
-html[dir="rtl"] .dash-float { right: auto; left: -14px; }
 /* Flip directional arrow SVGs in CTAs */
 html[dir="rtl"] .btn svg, html[dir="rtl"] .kb svg, html[dir="rtl"] .simple-btn svg, html[dir="rtl"] .link-atlas svg { transform: scaleX(-1); }
 html[dir="rtl"] .chev, html[dir="rtl"] .help-card .chev { transform: scaleX(-1); }

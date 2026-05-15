@@ -27,3 +27,7 @@ npm-debug.log*
 # Local preview / scratch
 /tmp-preview/
 *.pid
+
+# Local preview tooling (machine-specific dev server)
+.claude/launch.json
+.claude/static-server.js
