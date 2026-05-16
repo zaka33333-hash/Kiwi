@@ -1254,6 +1254,9 @@
 
   function animateNumber(el, from, to, { duration = 800, format } = {}) {
     if (!el) return;
+    // Hidden tabs freeze requestAnimationFrame — set the final value at once
+    // so a background re-render never leaves a tile blank.
+    if (document.hidden) { el['inner' + 'HTML'] = format(to); return; }
     const start = performance.now();
     const ease = t => 1 - Math.pow(1 - t, 3);
     function tick(now) {
@@ -1533,6 +1536,13 @@
     ratio:        '<circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/>',
     regulars:     '<circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/>',
     tauxRetour:   '<path d="M3 12a9 9 0 119 9 9 9 0 01-6.36-2.64L3 21l.36-2.64"/><path d="M3 12h6M3 21v-6"/>',
+    revenue:      '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',
+    profit:       '<path d="M3 17l6-6 4 4 7-7"/><path d="M17 7h4v4"/>',
+    cogs:         '<path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8"/>',
+    retention:    '<path d="M12 21s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 7c-2.5 4.5-9.5 9-9.5 9z"/>',
+    newClients:   '<circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 014-4h4M18 9v6M15 12h6"/>',
+    revPerDay:    '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/>',
+    txPerDay:     '<path d="M4 6h16M4 12h16M4 18h10"/>',
   };
   // One sparkline path per key. Colour stays atlas; deltas drive the up/down chip.
   const KPI_SPARKS = {
@@ -1544,7 +1554,84 @@
     ratio:      'M0 14 L15 13 L30 12 L45 11 L60 10 L75 9 L90 7 L105 6 L120 5',
     regulars:   'M0 15 L15 14 L30 15 L45 13 L60 10 L75 11 L90 9 L105 8 L120 6',
     tauxRetour: 'M0 4 L15 6 L30 5 L45 8 L60 9 L75 11 L90 10 L105 13 L120 14',
+    revenue:    'M0 17 L15 15 L30 13 L45 14 L60 10 L75 9 L90 6 L105 5 L120 3',
+    profit:     'M0 18 L15 15 L30 14 L45 12 L60 11 L75 8 L90 7 L105 4 L120 2',
+    cogs:       'M0 9 L15 10 L30 9 L45 11 L60 10 L75 12 L90 11 L105 12 L120 13',
+    retention:  'M0 15 L15 14 L30 13 L45 13 L60 11 L75 10 L90 9 L105 7 L120 6',
+    newClients: 'M0 16 L15 14 L30 15 L45 12 L60 13 L75 10 L90 9 L105 7 L120 5',
+    revPerDay:  'M0 16 L15 14 L30 15 L45 12 L60 10 L75 11 L90 8 L105 6 L120 4',
+    txPerDay:   'M0 15 L15 13 L30 14 L45 11 L60 12 L75 9 L90 10 L105 6 L120 4',
   };
+
+  /* ═══════════════ KPI CATALOG · personnalisation ═══════════════
+   * The owner can pick any 6 of these for the band; the choice persists
+   * per vertical in localStorage ('kiwiKpiLayout'). Each entry derives
+   * its tile spec from the current range data, so every KPI works across
+   * all date ranges without extra datasets. */
+  const DEFAULT_MARGIN = { restaurant: 69, spa: 78, boutique: 54, fusion: 69 };
+  const TIP_RATE = { restaurant: 0.072, spa: 0.055, boutique: 0, fusion: 0.06 };
+  const RANGE_DAYS = { aujourdhui: 1, hier: 1, septJours: 7, trenteJours: 30, moisDernier: 30, trimestre: 90, annee: 365, personnalise: 1 };
+  const r1 = (n) => Math.round(n * 10) / 10;
+  const revOf = (d) => (d.tx && d.panier) ? d.tx.value * d.panier.value : null;
+  const margeOf = (d, ctx) => d.marge ? d.marge.value : (DEFAULT_MARGIN[ctx.venueType] ?? null);
+
+  const KPI_CATALOG = {
+    tx:         { labels: { default: 'Commandes', spa: 'Rendez-vous' }, i18n: 'dash.kpi.tx',
+                  desc: 'Nombre de ventes sur la période', derive: (d) => d.tx || null },
+    panier:     { labels: { default: 'Panier moyen' }, i18n: 'dash.kpi.basket',
+                  desc: 'Montant moyen dépensé par vente', derive: (d) => d.panier || null },
+    revenue:    { labels: { default: 'Chiffre d’affaires' }, i18n: 'dash.kpi.revenue',
+                  desc: 'Total encaissé sur la période', derive: (d) => { const r = revOf(d); return r == null ? null : { value: r, unit: 'MAD', fmt: 'int', delta: r1(d.tx.delta + d.panier.delta) }; } },
+    revPerDay:  { labels: { default: 'CA par jour' }, i18n: 'dash.kpi.revPerDay',
+                  desc: 'Chiffre d’affaires moyen par jour', derive: (d, ctx) => { const r = revOf(d); return r == null ? null : { value: r / ctx.nbDays, unit: 'MAD', fmt: 'int', delta: r1(d.tx.delta + d.panier.delta) }; } },
+    marge:      { labels: { default: 'Marge brute' }, i18n: 'dash.kpi.margin',
+                  desc: 'Part du CA conservée après coût matière', derive: (d) => d.marge || null },
+    profit:     { labels: { default: 'Bénéfice brut' }, i18n: 'dash.kpi.grossProfit',
+                  desc: 'Chiffre d’affaires moins le coût matière', derive: (d, ctx) => { const r = revOf(d), m = margeOf(d, ctx); return (r == null || m == null) ? null : { value: r * m / 100, unit: 'MAD', fmt: 'int', delta: r1(d.tx.delta + d.panier.delta + (d.marge ? d.marge.delta : 0)) }; } },
+    cogs:       { labels: { default: 'Coût matière' }, i18n: 'dash.kpi.cogs',
+                  desc: 'Dépense en matières premières', derive: (d, ctx) => { const r = revOf(d), m = margeOf(d, ctx); return (r == null || m == null) ? null : { value: r * (1 - m / 100), unit: 'MAD', fmt: 'int', delta: r1(d.tx.delta + d.panier.delta - (d.marge ? d.marge.delta : 0)) }; } },
+    tips:       { labels: { default: 'Pourboires' }, i18n: 'dash.kpi.tips',
+                  desc: 'Pourboires estimés encaissés', derive: (d, ctx) => { const r = revOf(d), rate = TIP_RATE[ctx.venueType] || 0; return (r == null || !rate) ? null : { value: r * rate, unit: 'MAD', fmt: 'int', delta: r1(d.tx.delta + d.panier.delta + 5) }; } },
+    success:    { labels: { default: 'Taux succès', spa: 'Taux remplissage' }, i18n: 'dash.kpi.success',
+                  desc: 'Paiements aboutis · créneaux remplis', derive: (d) => d.success || null },
+    ratio:      { labels: { default: 'Ratio card / cash' }, i18n: 'dash.kpi.ratio',
+                  desc: 'Répartition carte vs espèces', derive: (d) => d.ratio || null },
+    regulars:   { labels: { default: 'Clients réguliers', boutique: 'Clients fidèles', spa: 'Clients fidèles' }, i18n: 'dash.kpi.regular',
+                  desc: 'Clients déjà venus sur la période', derive: (d) => d.regulars || null },
+    retention:  { labels: { default: 'Taux de fidélité' }, i18n: 'dash.kpi.retention',
+                  desc: 'Part de clients réguliers parmi les ventes', derive: (d) => { if (!d.tx || !d.regulars) return null; return { value: d.regulars.value / d.tx.value * 100, unit: '%', fmt: 'pct1', delta: r1(d.regulars.delta - d.tx.delta) }; } },
+    newClients: { labels: { default: 'Nouveaux clients' }, i18n: 'dash.kpi.newClients',
+                  desc: 'Premières visites estimées', derive: (d) => { if (!d.tx || !d.regulars) return null; return { value: Math.max(0, d.tx.value - d.regulars.value), unit: '', fmt: 'int', delta: r1(d.tx.delta - d.regulars.delta * 0.3) }; } },
+    txPerDay:   { labels: { default: 'Ventes par jour', spa: 'RDV par jour' }, i18n: 'dash.kpi.txPerDay',
+                  desc: 'Nombre de ventes moyen par jour', derive: (d, ctx) => d.tx ? { value: d.tx.value / ctx.nbDays, unit: '', fmt: 'int', delta: d.tx.delta } : null },
+    tauxRetour: { labels: { default: 'Taux retour' }, i18n: 'dash.kpi.returnRate',
+                  desc: 'Part des articles retournés', derive: (d) => d.tauxRetour || null },
+  };
+
+  function loadKpiLayouts() {
+    try { return JSON.parse(localStorage.getItem('kiwiKpiLayout')) || {}; }
+    catch (_) { return {}; }
+  }
+  function getKpiLayout(venueType) {
+    const L = loadKpiLayouts()[venueType];
+    return (Array.isArray(L) && L.length === 6 && L.every((k) => KPI_CATALOG[k])) ? L : null;
+  }
+  function saveKpiLayout(venueType, keys) {
+    const all = loadKpiLayouts(); all[venueType] = keys;
+    try { localStorage.setItem('kiwiKpiLayout', JSON.stringify(all)); } catch (_) {}
+  }
+  function resetKpiLayout(venueType) {
+    const all = loadKpiLayouts(); delete all[venueType];
+    try { localStorage.setItem('kiwiKpiLayout', JSON.stringify(all)); } catch (_) {}
+  }
+  function defaultKpiKeys(venueType) {
+    return (window.KiwiVenue?.getKpiSpec?.(venueType) || []).map((s) => s.key);
+  }
+  function kpiLabel(key, venueType, lang) {
+    const c = KPI_CATALOG[key]; if (!c) return key;
+    const T = window.KiwiI18n?.T?.[lang] || {};
+    return T[c.i18n] || c.labels[venueType] || c.labels.default;
+  }
 
   function renderKpiBand() {
     const lang = getLang();
@@ -1570,9 +1657,24 @@
       }
     }
 
-    // Resolve which 6 KPI keys to render for this venue's vertical
+    // Resolve which 6 KPI keys to render — owner's saved layout, or the
+    // vertical default. Derived KPIs are merged into `data` so the tile
+    // builder and value loop below keep working unchanged.
     const venueType = window.KiwiVenue?.getVenueType?.() || 'restaurant';
-    const spec = window.KiwiVenue?.getKpiSpec?.(venueType) || [];
+    const layout = getKpiLayout(venueType) || defaultKpiKeys(venueType);
+    const ctx = { venueType, range: currentRange, nbDays: RANGE_DAYS[currentRange] || 1 };
+    const derived = {};
+    layout.forEach((k) => {
+      const c = KPI_CATALOG[k];
+      const t = c ? c.derive(data, ctx) : (data[k] || null);
+      if (t) derived[k] = t;
+    });
+    data = { ...data, ...derived };
+    const spec = layout.map((k) => ({
+      key: k,
+      i18n: (KPI_CATALOG[k] || {}).i18n,
+      label: kpiLabel(k, venueType, lang),
+    }));
 
     // Read previous values (for count-up animation continuity within same venue)
     const prevVals = {};
@@ -1634,6 +1736,99 @@
         deltaEl.innerHTML = `${arrowSvg(d >= 0)}${fmtPct(d)} ${suffix}`;
       }
     });
+  }
+
+  /* ═══════════════ KPI BAND · personnalisation drawer ═══════════════ */
+  function openKpiCustomizer() {
+    const Kiwi = window.Kiwi;
+    if (!Kiwi || !Kiwi.drawer) return;
+    const lang = getLang();
+    const venueType = window.KiwiVenue?.getVenueType?.() || 'restaurant';
+    const data = vData(kpiByVenue, currentRange) || {};
+    const ctx = { venueType, range: currentRange, nbDays: RANGE_DAYS[currentRange] || 1 };
+
+    // Only offer KPIs that actually resolve for this venue + range.
+    const available = Object.keys(KPI_CATALOG).filter((k) => {
+      try { return !!KPI_CATALOG[k].derive(data, ctx); } catch (_) { return false; }
+    });
+    let selected = (getKpiLayout(venueType) || defaultKpiKeys(venueType))
+      .filter((k) => available.includes(k)).slice(0, 6);
+
+    const cardHtml = (k) => {
+      const c = KPI_CATALOG[k];
+      const icon = KPI_ICONS[k] || KPI_ICONS.tx;
+      return `
+        <button class="kc-card" data-kc="${k}" type="button">
+          <span class="kc-badge"></span>
+          <span class="kc-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg></span>
+          <span class="kc-text">
+            <span class="kc-label">${kpiLabel(k, venueType, lang)}</span>
+            <span class="kc-desc">${c.desc}</span>
+          </span>
+          <span class="kc-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+        </button>`;
+    };
+
+    const body = `
+      <div class="kc">
+        <p class="kc-intro">Choisissez les 6 indicateurs affichés en haut de votre tableau de bord. Ils s’adaptent automatiquement à la période sélectionnée.</p>
+        <div class="kc-counter"><b data-kc-count>0 / 6</b> indicateurs sélectionnés</div>
+        <div class="kc-grid">${available.map(cardHtml).join('')}</div>
+      </div>`;
+
+    const res = Kiwi.drawer({
+      title: 'Personnaliser les indicateurs',
+      subtitle: 'Votre tableau de bord, vos priorités',
+      width: 520,
+      body,
+      foot: `<button class="kb ghost" data-kc-reset type="button">Réinitialiser</button>
+             <button class="kb atlas" data-kc-save type="button" style="flex:1; justify-content:center;">Enregistrer la sélection</button>`,
+    });
+    const root = res.el;
+
+    function refresh() {
+      root.querySelectorAll('.kc-card').forEach((card) => {
+        const idx = selected.indexOf(card.getAttribute('data-kc'));
+        const badge = card.querySelector('.kc-badge');
+        if (idx >= 0) { card.classList.add('sel'); badge.textContent = String(idx + 1); }
+        else { card.classList.remove('sel'); badge.textContent = ''; }
+      });
+      const count = root.querySelector('[data-kc-count]');
+      if (count) count.textContent = `${selected.length} / 6`;
+      const cwrap = root.querySelector('.kc-counter');
+      if (cwrap) cwrap.classList.toggle('full', selected.length === 6);
+      const save = root.querySelector('[data-kc-save]');
+      if (save) save.toggleAttribute('disabled', selected.length !== 6);
+    }
+
+    root.addEventListener('click', (e) => {
+      const card = e.target.closest('.kc-card');
+      if (card) {
+        const k = card.getAttribute('data-kc');
+        const idx = selected.indexOf(k);
+        if (idx >= 0) selected.splice(idx, 1);
+        else if (selected.length < 6) selected.push(k);
+        else { Kiwi.toast?.('6 indicateurs maximum', { type: 'info', desc: 'Désélectionnez-en un pour en ajouter un autre.' }); return; }
+        refresh();
+        return;
+      }
+      if (e.target.closest('[data-kc-save]')) {
+        if (selected.length !== 6) return;
+        saveKpiLayout(venueType, selected);
+        res.close();
+        renderKpiBand();
+        Kiwi.toast?.('Indicateurs mis à jour', { type: 'success', desc: 'Votre sélection est enregistrée pour ce type d’établissement.' });
+        return;
+      }
+      if (e.target.closest('[data-kc-reset]')) {
+        resetKpiLayout(venueType);
+        res.close();
+        renderKpiBand();
+        Kiwi.toast?.('Indicateurs réinitialisés', { type: 'info', desc: 'Retour à la sélection par défaut.' });
+        return;
+      }
+    });
+    refresh();
   }
 
   /* ═══════════════ RENDER: REVENUE LINE CHART ═══════════════ */
@@ -2558,6 +2753,7 @@
       if (window.Kiwi?.handlers) {
         window.Kiwi.handlers['date-range'] = onAction;
         window.Kiwi.handlers['rev-compare'] = onCompareToggle;
+        window.Kiwi.handlers['customize-kpi'] = openKpiCustomizer;
         window.Kiwi.handlers['hh-ai-glovo'] = () => {
           window.Kiwi?.toast?.('Combo Glovo · bientôt disponible', {
             type: 'info',
