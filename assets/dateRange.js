@@ -2045,8 +2045,9 @@
       }
     }
 
-    // Measure actual rendered width so 1 viewBox unit = 1 pixel (no stretching).
-    const H = 280;
+    // Measure actual rendered width + height so 1 viewBox unit = 1 pixel.
+    // Height is flex-driven (the chart fills its column) — measure it live.
+    const H = Math.max(150, Math.round(svg.clientHeight || 240));
     const measured = Math.round(svg.clientWidth || svg.parentElement?.clientWidth || 820);
     const W = Math.max(620, measured);
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
