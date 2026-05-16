@@ -85,3 +85,37 @@ a[data-action]:hover { opacity: 0.7; }
 /* ─── Greeting flash — keep the editorial line inside the viewport ───
  * (font-size is clamped in dashboard.html; this is the wrap safety net) ─── */
 .kiwi-greet-inner { max-width: 94vw; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Section reveal — the landing page's signature fade-and-rise, brought to
+ * the dashboard. Each top-level section settles in with the Apple glide
+ * easing, gently staggered, so the dashboard *arrives* rather than just
+ * appears.
+ *
+ * Pure CSS, gated entirely on the dashboard's own reveal state
+ * (.app loses .kw-app-hidden once the PIN lock + greeting clear). The
+ * animation uses fill-mode `both`, so a section always ends fully visible
+ * — it can never get stuck hidden, and it never animates behind the lock.
+ * The global reduced-motion block above collapses the animation to an
+ * instant, so it degrades gracefully.
+ * ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --ease-glide: cubic-bezier(0.16, 1, 0.30, 1);    /* Apple — fast start, long settle */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes kd-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.app:not(.kw-app-hidden) .dash-standard > * {
+  animation: kd-rise 720ms var(--ease-glide) both;
+}
+.app:not(.kw-app-hidden) .dash-standard > *:nth-child(1)    { animation-delay: 280ms; }
+.app:not(.kw-app-hidden) .dash-standard > *:nth-child(2)    { animation-delay: 365ms; }
+.app:not(.kw-app-hidden) .dash-standard > *:nth-child(3)    { animation-delay: 450ms; }
+.app:not(.kw-app-hidden) .dash-standard > *:nth-child(4)    { animation-delay: 535ms; }
+.app:not(.kw-app-hidden) .dash-standard > *:nth-child(5)    { animation-delay: 620ms; }
+.app:not(.kw-app-hidden) .dash-standard > *:nth-child(6)    { animation-delay: 705ms; }
+.app:not(.kw-app-hidden) .dash-standard > *:nth-child(n+7)  { animation-delay: 790ms; }
