@@ -22,6 +22,11 @@
   /* ─────────────── APP SHELL ─────────────── */
   .app { grid-template-columns: 1fr; min-height: 100vh; }
   .main { max-width: 100%; }
+  /* NOTE: .app carries a transform (the reveal/lock animation), which makes
+   * it a containing block — a position:fixed sidebar inside it would be
+   * trapped in .app's scaled coordinate space. mobile-nav.js therefore moves
+   * the .sidebar element out to <body> on phones, so the rules below anchor
+   * it to the viewport. */
   .container { padding: 18px 14px 96px; }   /* 96px clears the bottom tab bar */
 
   /* Hide the demo bar — the phone owner doesn't drive the demo clock */
@@ -58,6 +63,7 @@
     border-top: 0;
     top: 0 !important;
     padding: 9px 12px;
+    padding-top: calc(9px + env(safe-area-inset-top, 0px));
     z-index: 60;
   }
   .topbar > .topbar-inner { gap: 8px; }
@@ -175,12 +181,13 @@
   }
   .kiwi-drawer-foot { flex-wrap: wrap; }
 
-  /* Modals fit the viewport with a safe gutter */
-  .kiwi-modal { width: calc(100vw - 26px) !important; max-width: calc(100vw - 26px) !important; }
+  /* Modals fit the viewport — the backdrop already adds 20px padding,
+   * so the modal must stay inside 100vw − 40px to avoid overflow. */
+  .kiwi-modal { width: auto !important; max-width: calc(100vw - 40px) !important; }
   .kiwi-modal-body { max-height: 68vh !important; overflow-y: auto !important; }
 
-  /* Command palette — near full-width */
-  .kp { width: calc(100vw - 24px) !important; max-width: calc(100vw - 24px) !important; }
+  /* Command palette — near full-width, inside the backdrop padding */
+  .kp { width: auto !important; max-width: calc(100vw - 40px) !important; }
 
   /* Toasts — full-width band, kept clear of the notch */
   .kiwi-toasts {

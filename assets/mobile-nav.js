@@ -18,24 +18,12 @@
 
   /* Icons — stroked, 24-grid */
   const I = {
-    home:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.7V21h14V9.7"/></svg>',
-    orders:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>',
-    team:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 20a5.6 5.6 0 0 1 11 0"/><path d="M16.2 5.3a3.4 3.4 0 0 1 0 5.4M17 20a5.6 5.6 0 0 0-3.2-5"/></svg>',
-    menu:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+    home:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.7V21h14V9.7"/></svg>',
+    orders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>',
+    team:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 20a5.6 5.6 0 0 1 11 0"/><path d="M16.2 5.3a3.4 3.4 0 0 1 0 5.4M17 20a5.6 5.6 0 0 0-3.2-5"/></svg>',
+    menu:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
   };
   const MERCHANT = 'assets/landing/icons/merchant.png';
-
-  /* Close every open drawer / modal / palette cleanly. */
-  function closeOverlays() {
-    document.querySelectorAll('.kiwi-drawer-backdrop').forEach((b) => {
-      if (typeof b.__kiwiClose === 'function') b.__kiwiClose();
-      else b.remove();
-    });
-    document.querySelectorAll('.kiwi-backdrop').forEach((b) => b.remove());
-  }
-
-  function closeMenu() { document.body.classList.remove('kw-menu-open'); }
-  function toggleMenu() { document.body.classList.toggle('kw-menu-open'); }
 
   function runHandler(name) {
     const h = window.Kiwi && window.Kiwi.handlers && window.Kiwi.handlers[name];
@@ -44,20 +32,88 @@
   }
 
   ready(function () {
+    /* Idempotent — never inject the mobile chrome twice. */
+    if (document.querySelector('.kw-tabbar')) return;
     const topbarInner = document.querySelector('.topbar > .topbar-inner');
     if (!topbarInner) return;
 
+    const sidebar = document.querySelector('.sidebar');
+    const app = document.querySelector('.app');
+    if (sidebar && !sidebar.id) sidebar.id = 'kw-sidebar';
+    if (sidebar) {
+      sidebar.setAttribute('aria-label', 'Menu principal');
+      sidebar.setAttribute('aria-hidden', 'true');
+    }
+
+    /* ── Re-home the sidebar so position:fixed actually anchors ──
+     * .app carries a transform (reveal/lock animation) → it is a containing
+     * block, which would trap a fixed-position sidebar in its coordinate
+     * space. On phones the sidebar lives directly under <body>; on desktop
+     * it returns to .app as the first grid column. */
+    const phoneMq = window.matchMedia('(max-width: 860px)');
+    function placeSidebar() {
+      if (!sidebar || !app) return;
+      if (phoneMq.matches) {
+        if (sidebar.parentElement !== document.body) document.body.appendChild(sidebar);
+      } else if (sidebar.parentElement !== app) {
+        app.insertBefore(sidebar, app.firstElementChild);
+      }
+    }
+    placeSidebar();
+    phoneMq.addEventListener('change', placeSidebar);
+
     /* ── Hamburger + wordmark into the topbar ── */
     topbarInner.insertAdjacentHTML('afterbegin',
-      `<button class="kw-hamburger" type="button" aria-label="Menu">${I.menu}</button>
+      `<button class="kw-hamburger" type="button" aria-label="Ouvrir le menu"
+               aria-controls="kw-sidebar" aria-expanded="false">${I.menu}</button>
        <div class="kw-topbar-brand">kiwi<i></i></div>`);
-    topbarInner.querySelector('.kw-hamburger').addEventListener('click', toggleMenu);
+    const hamburger = topbarInner.querySelector('.kw-hamburger');
 
     /* ── Backdrop for the off-canvas menu ── */
     const backdrop = document.createElement('div');
     backdrop.className = 'kw-menu-backdrop';
-    backdrop.addEventListener('click', closeMenu);
     document.body.appendChild(backdrop);
+
+    /* ── Menu open / close — centralised so aria + focus stay correct ── */
+    let lastFocus = null;
+    function isMenuOpen() { return document.body.classList.contains('kw-menu-open'); }
+    function openMenu() {
+      if (isMenuOpen()) return;
+      lastFocus = document.activeElement;
+      document.body.classList.add('kw-menu-open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      if (sidebar) {
+        sidebar.setAttribute('aria-hidden', 'false');
+        const first = sidebar.querySelector('nav a, [role="button"]');
+        if (first) setTimeout(() => first.focus(), 340);
+      }
+    }
+    function closeMenu() {
+      if (!isMenuOpen()) return;
+      document.body.classList.remove('kw-menu-open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      if (sidebar) sidebar.setAttribute('aria-hidden', 'true');
+      if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+      lastFocus = null;
+    }
+    function toggleMenu() { isMenuOpen() ? closeMenu() : openMenu(); }
+
+    hamburger.addEventListener('click', toggleMenu);
+    backdrop.addEventListener('click', closeMenu);
+
+    /* Close every open drawer / modal / palette cleanly — calling each
+     * surface's real close path so the page scroll-lock stays balanced. */
+    function closeOverlays() {
+      document.querySelectorAll('.kiwi-drawer-backdrop').forEach((b) => {
+        if (typeof b.__kiwiClose === 'function') b.__kiwiClose();
+        else b.remove();
+      });
+      document.querySelectorAll('.kiwi-backdrop').forEach((b) => {
+        const btn = b.querySelector('.kiwi-modal-close');
+        if (btn) btn.click();   // runs close() → unlockPageScroll()
+        else document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      });
+    }
 
     /* ── Bottom tab bar ── */
     const tabbar = document.createElement('nav');
@@ -70,22 +126,28 @@
       <button class="kw-tab" data-kw-tab="commandes" type="button">
         ${I.orders}<span class="kw-tab-l">Commandes</span>
       </button>
-      <button class="kw-tab kw-tab-ai" data-kw-tab="ai" type="button">
+      <button class="kw-tab kw-tab-ai" data-kw-tab="ai" type="button" aria-label="Kiwi AI">
         <span class="kw-tab-ico"><img src="${MERCHANT}" alt="" width="20" height="20" decoding="async"/></span>
         <span class="kw-tab-l">Kiwi AI</span>
       </button>
       <button class="kw-tab" data-kw-tab="equipe" type="button">
         ${I.team}<span class="kw-tab-l">Équipe</span>
       </button>
-      <button class="kw-tab" data-kw-tab="menu" type="button">
+      <button class="kw-tab" data-kw-tab="menu" type="button"
+              aria-controls="kw-sidebar" aria-expanded="false">
         ${I.menu}<span class="kw-tab-l">Menu</span>
       </button>
     `);
     document.body.appendChild(tabbar);
 
     const tabs = [...tabbar.querySelectorAll('.kw-tab')];
+    const menuTab = tabbar.querySelector('[data-kw-tab="menu"]');
     function setActive(key) {
       tabs.forEach((t) => t.classList.toggle('on', t.dataset.kwTab === key));
+    }
+    /* Keep the menu tab's aria in sync whenever the menu state changes. */
+    function syncMenuAria() {
+      menuTab.setAttribute('aria-expanded', String(isMenuOpen()));
     }
 
     tabbar.addEventListener('click', (e) => {
@@ -93,8 +155,8 @@
       if (!tab) return;
       const key = tab.dataset.kwTab;
 
-      if (key === 'menu') { toggleMenu(); return; }   // no active state for the menu toggle
-      closeMenu();
+      if (key === 'menu') { toggleMenu(); syncMenuAria(); return; }
+      closeMenu(); syncMenuAria();
 
       if (key === 'accueil') {
         closeOverlays();
@@ -115,18 +177,25 @@
     });
 
     /* Tapping a destination inside the menu closes the menu. */
-    const sidebar = document.querySelector('.sidebar');
     if (sidebar) {
       sidebar.addEventListener('click', (e) => {
         if (e.target.closest('nav a[data-nav]') || e.target.closest('.merchant')) {
-          setTimeout(closeMenu, 60);
+          setTimeout(() => { closeMenu(); syncMenuAria(); }, 60);
         }
       });
     }
 
     /* Esc closes the menu. */
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && document.body.classList.contains('kw-menu-open')) closeMenu();
+      if (e.key === 'Escape' && isMenuOpen()) { closeMenu(); syncMenuAria(); }
     });
+
+    /* Re-sync the active tab: once every drawer/overlay is gone the merchant
+     * is back on the home view, so the highlight returns to Accueil. */
+    const resync = new MutationObserver(() => {
+      const anyOverlay = document.querySelector('.kiwi-drawer-backdrop, .kiwi-backdrop');
+      if (!anyOverlay && !tabs[0].classList.contains('on')) setActive('accueil');
+    });
+    resync.observe(document.body, { childList: true });
   });
 })();
