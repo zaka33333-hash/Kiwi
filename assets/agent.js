@@ -576,7 +576,7 @@
     return h;
   }
 
-  function open() {
+  function open(prefill) {
     if (!window.Kiwi || !window.Kiwi.drawer) return;
     injectCss();
 
@@ -787,6 +787,12 @@
     // greeting
     pushAgent(replyHtml(sHelp()));
 
+    // If opened with a question (e.g. from the dashboard hero input),
+    // ask it straight away.
+    if (typeof prefill === 'string' && prefill.trim()) {
+      setTimeout(() => ask(prefill.trim()), 360);
+    }
+
     // ─── input wiring ───
     function send() {
       const v = input.value;
@@ -864,4 +870,31 @@
     window.Kiwi.handlers['open-assistant'] = open;
   }
   register();
+
+  // The dashboard hero's "Recommandations du jour" question box now opens
+  // this assistant and asks the typed question directly.
+  function wireHeroInput() {
+    const form = document.querySelector('.hai-input');
+    if (!form) { setTimeout(wireHeroInput, 120); return; }
+    if (form.dataset.faWired === '1') return;
+    form.dataset.faWired = '1';
+    const field = form.querySelector('[data-hai-input]');
+    const go = (e) => {
+      if (e) e.preventDefault();
+      const q = (field && field.value || '').trim();
+      if (field) field.value = '';
+      open(q);
+    };
+    // submit covers the Enter key; a capture-phase click on the send button
+    // covers the pointer path (the global click router cancels the default
+    // form submission, so we can't rely on the submit event for clicks).
+    form.addEventListener('submit', go);
+    const sendBtn = form.querySelector('.hai-send');
+    if (sendBtn) sendBtn.addEventListener('click', go, true);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireHeroInput);
+  } else {
+    wireHeroInput();
+  }
 })();
