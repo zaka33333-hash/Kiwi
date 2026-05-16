@@ -568,7 +568,7 @@
     margin-top: 4px; letter-spacing: 0.01em;
   }
 
-  /* ─── Hero card · today ⇄ chart view toggle ─── */
+  /* ─── Hero card · day ⇄ chart morph (left column only) ─── */
   .hero-view-toggle {
     position: absolute; top: 15px; inset-inline-end: 26px; z-index: 5;
     display: inline-flex; align-items: center; gap: 7px;
@@ -582,21 +582,54 @@
   .hero-view-toggle:hover { background: rgba(125,242,176,0.2); }
   .hero-view-toggle svg { width: 14px; height: 14px; flex-shrink: 0; }
   .hero-view-toggle .tg-to-today { display: none; }
-  .hero-pane-chart { display: none; }
-
-  .hero-today.chart-view { background: var(--paper); color: var(--ink); }
-  .hero-today.chart-view::before,
-  .hero-today.chart-view::after { display: none; }
-  .hero-today.chart-view .hero-pane-today { display: none; }
-  .hero-today.chart-view .hero-pane-chart { display: block; }
-  .hero-today.chart-view .hero-view-toggle {
-    background: var(--paper-soft); color: var(--n-600);
-    border-color: var(--n-200);
-  }
-  .hero-today.chart-view .hero-view-toggle:hover { background: var(--n-100); color: var(--ink); }
   .hero-today.chart-view .hero-view-toggle .tg-to-chart { display: none; }
   .hero-today.chart-view .hero-view-toggle .tg-to-today { display: inline; }
-  body.fusion-mode .hero-today.chart-view { background: #0E1638 !important; color: var(--ink); }
+
+  /* Left column stacks both layers in one grid cell — they cross-fade in
+   * place, the card height stays constant (no reflow jump). */
+  .hero-left { position: relative; display: grid; min-width: 0; }
+  .hero-left-layer {
+    grid-area: 1 / 1; min-width: 0;
+    transition: opacity 360ms ease, transform 460ms cubic-bezier(0.32,0.72,0,1);
+  }
+  .hero-left-today { display: flex; flex-direction: column; justify-content: center; }
+  .hero-left-chart { opacity: 0; transform: translateY(16px) scale(0.985); pointer-events: none; }
+  .hero-today.chart-view .hero-left-today {
+    opacity: 0; transform: translateY(-16px) scale(0.985); pointer-events: none;
+  }
+  .hero-today.chart-view .hero-left-chart {
+    opacity: 1; transform: none; pointer-events: auto;
+  }
+
+  /* Chart restyled for the dark-green card surface */
+  .hero-left-chart .block-head { align-items: flex-start; }
+  .hero-left-chart .t { color: #fff; }
+  .hero-left-chart .chip.neutral { background: rgba(125,242,176,0.14); color: var(--mint); }
+  .hero-left-chart .rev-hero-val { color: #fff; }
+  .hero-left-chart .rev-hero-cur { color: rgba(247,245,240,0.55); }
+  .hero-left-chart .rev-hero-delta.up { color: var(--mint); }
+  .hero-left-chart .rev-hero-delta.down { color: #F29B8F; }
+  .hero-left-chart .rev-hero-delta .lbl { color: rgba(247,245,240,0.55); }
+  .hero-left-chart .s { color: rgba(247,245,240,0.62); }
+  .hero-left-chart .cmp-caption { color: rgba(247,245,240,0.5); }
+  .hero-left-chart .cmp-btn {
+    background: rgba(0,0,0,0.22); color: rgba(247,245,240,0.85);
+    border-color: rgba(125,242,176,0.16);
+  }
+  .hero-left-chart .cmp-btn:hover:not(.on) { background: rgba(0,0,0,0.34); color: #fff; }
+  .hero-left-chart .cmp-btn.on {
+    background: var(--mint); color: var(--riad);
+    box-shadow: 0 4px 14px -4px rgba(125,242,176,0.5);
+  }
+  .hero-left-chart .chart-legend { color: rgba(247,245,240,0.65); }
+  .hero-left-chart .chart-legend .leg-line-primary { background: var(--mint); }
+  .hero-left-chart .chart-legend .leg-line-compare { background: rgba(247,245,240,0.4); }
+  .hero-left-chart .rev-live-dot { fill: var(--mint); stroke: var(--riad); }
+  .hero-left-chart .rev-live-ring { fill: rgba(125,242,176,0.5); }
+  .hero-left-chart .rev-hit { cursor: crosshair; }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-left-layer { transition: none; }
+  }
 
   /* Donut entrance + smooth range transition */
   [data-mix-donut] .seg {
@@ -3378,10 +3411,10 @@
           <span class="tg-to-today" data-i18n="dash.hero.toggle.today">Vue du jour</span>
         </button>
 
-        <!-- ░░ TODAY VIEW ░░ -->
-        <div class="hero-pane hero-pane-today">
         <div class="hero-grid">
           <div class="hero-left">
+            <!-- ░░ left · day view ░░ -->
+            <div class="hero-left-layer hero-left-today">
             <div class="greet">
               <span class="live-badge"><span class="dot"></span>LIVE · 14:37 GMT+1</span>
               <span class="meta">24 heures · session continue depuis 08:12</span>
@@ -3415,7 +3448,36 @@
                 <div class="g-fill" data-goal-fill style="width: 87%;"></div>
               </div>
             </div>
-          </div>
+            </div><!-- /.hero-left-today -->
+
+            <!-- ░░ left · chart view ░░ -->
+            <div class="hero-left-layer hero-left-chart">
+              <div class="block-head">
+                <div>
+                  <div class="t">
+                    <span data-i18n="dash.rev.title">Revenu & commandes</span>
+                    <span class="chip neutral" data-rev-range-badge style="padding: 2px 8px; font-size: 10.5px;">AUJOURD'HUI · LIVE</span>
+                  </div>
+                  <div class="rev-hero-val" data-rev-hero-val>—</div>
+                  <div class="rev-hero-delta" data-rev-hero-delta></div>
+                  <div class="s" data-rev-sub>Cumul horaire · service en cours</div>
+                  <div class="cmp-caption" data-rev-compare-caption hidden>vs. Hier</div>
+                </div>
+                <div class="right-actions">
+                  <button type="button" class="cmp-btn" data-action="rev-compare" data-rev-compare-btn aria-pressed="false" data-i18n="dash.compare">Comparer</button>
+                </div>
+              </div>
+              <svg class="chart-wrap" data-rev-svg width="100%" height="280">
+                <defs>
+                  <linearGradient id="gfill" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0" stop-color="#7DF2B0" stop-opacity="0.22"/>
+                    <stop offset="1" stop-color="#7DF2B0" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="chart-legend" data-rev-legend></div>
+            </div><!-- /.hero-left-chart -->
+          </div><!-- /.hero-left -->
           <div class="hero-right">
             <div>
               <div class="hai-eyebrow" data-i18n="dash.hero.ai.eyebrow">KIWI AI</div>
@@ -3436,35 +3498,6 @@
             </form>
           </div>
         </div>
-        </div><!-- /.hero-pane-today -->
-
-        <!-- ░░ CHART VIEW ░░ -->
-        <div class="hero-pane hero-pane-chart">
-          <div class="block-head">
-            <div>
-              <div class="t">
-                <span data-i18n="dash.rev.title">Revenu & commandes</span>
-                <span class="chip neutral" data-rev-range-badge style="padding: 2px 8px; font-size: 10.5px;">AUJOURD'HUI · LIVE</span>
-              </div>
-              <div class="rev-hero-val" data-rev-hero-val>—</div>
-              <div class="rev-hero-delta" data-rev-hero-delta></div>
-              <div class="s" data-rev-sub>Cumul horaire · service en cours</div>
-              <div class="cmp-caption" data-rev-compare-caption hidden>vs. Hier</div>
-            </div>
-            <div class="right-actions">
-              <button type="button" class="cmp-btn" data-action="rev-compare" data-rev-compare-btn aria-pressed="false" data-i18n="dash.compare">Comparer</button>
-            </div>
-          </div>
-          <svg class="chart-wrap" data-rev-svg width="100%" height="280">
-            <defs>
-              <linearGradient id="gfill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0" stop-color="#053B2C" stop-opacity="0.20"/>
-                <stop offset="1" stop-color="#053B2C" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          <div class="chart-legend" data-rev-legend></div>
-        </div><!-- /.hero-pane-chart -->
       </div>
 
       <!-- ═══ KPI BAND · render target — populated by renderKpiBand() in dateRange.js ═══ -->

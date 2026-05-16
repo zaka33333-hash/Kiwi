@@ -2158,9 +2158,9 @@
       <defs>
         <!-- 3-stop gradient: punchy near the line, fades fast — Robinhood depth -->
         <linearGradient id="gfill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0"    stop-color="#0B6E4F" stop-opacity="0.15"/>
-          <stop offset="0.6"  stop-color="#0B6E4F" stop-opacity="0.035"/>
-          <stop offset="1"    stop-color="#0B6E4F" stop-opacity="0"/>
+          <stop offset="0"    stop-color="#7DF2B0" stop-opacity="0.30"/>
+          <stop offset="0.6"  stop-color="#7DF2B0" stop-opacity="0.06"/>
+          <stop offset="1"    stop-color="#7DF2B0" stop-opacity="0"/>
         </linearGradient>
         <filter id="rev-line-glow" x="-2%" y="-30%" width="104%" height="160%">
           <feGaussianBlur stdDeviation="3"/>
@@ -2177,13 +2177,13 @@
         </filter>
       </defs>
       ${yLabelsHtml}
-      <g font-family="Inter Tight" font-size="10.5" fill="#B4B1A8" letter-spacing="0.02em">${xLabelsHtml}</g>
-      <line class="rev-cross-line" x1="${PAD.left}" x2="${PAD.left}" y1="${PAD.top}" y2="${(PAD.top + innerH).toFixed(1)}" stroke="rgba(11,110,79,0.22)" stroke-width="1"/>
-      ${cmpPath ? `<path class="rev-cmp" d="${cmpPath}" stroke="#9A9A9A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" style="opacity:${showCmp ? 1 : 0};"/>` : ''}
+      <g font-family="Inter Tight" font-size="10.5" fill="rgba(247,245,240,0.5)" letter-spacing="0.02em">${xLabelsHtml}</g>
+      <line class="rev-cross-line" x1="${PAD.left}" x2="${PAD.left}" y1="${PAD.top}" y2="${(PAD.top + innerH).toFixed(1)}" stroke="rgba(255,255,255,0.32)" stroke-width="1"/>
+      ${cmpPath ? `<path class="rev-cmp" d="${cmpPath}" stroke="rgba(247,245,240,0.4)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" style="opacity:${showCmp ? 1 : 0};"/>` : ''}
       <path class="rev-area" d="${areaPath}" fill="url(#gfill)"/>
       <!-- Halo: wider, blurred sibling of the line — Apple Stocks soft glow -->
-      <path class="rev-line-halo" d="${linePath}" stroke="#0B6E4F" stroke-width="5" stroke-opacity="0.10" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#rev-line-glow)" pathLength="1"/>
-      <path class="rev-line" d="${linePath}" stroke="#0B6E4F" stroke-width="2.25" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>
+      <path class="rev-line-halo" d="${linePath}" stroke="#7DF2B0" stroke-width="5" stroke-opacity="0.20" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#rev-line-glow)" pathLength="1"/>
+      <path class="rev-line" d="${linePath}" stroke="#7DF2B0" stroke-width="2.25" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>
       ${showLive ? `
       <g class="rev-live" transform="translate(${liveX.toFixed(1)} ${liveY.toFixed(1)})">
         <circle class="rev-live-ring" cx="0" cy="0" r="4"/>
@@ -2191,8 +2191,8 @@
         <circle class="rev-live-dot" cx="0" cy="0" r="4"/>
       </g>` : ''}
       <g class="rev-active">
-        <circle class="rev-active-cmp" cx="${PAD.left}" cy="${PAD.top}" r="4" fill="#9A9A9A" stroke="#fff" stroke-width="2"/>
-        <circle class="rev-active-dot" cx="${PAD.left}" cy="${PAD.top}" r="5.5" fill="#053B2C" stroke="#fff" stroke-width="2"/>
+        <circle class="rev-active-cmp" cx="${PAD.left}" cy="${PAD.top}" r="4" fill="rgba(247,245,240,0.55)" stroke="#053B2C" stroke-width="2"/>
+        <circle class="rev-active-dot" cx="${PAD.left}" cy="${PAD.top}" r="5.5" fill="#7DF2B0" stroke="#053B2C" stroke-width="2"/>
       </g>
       <g class="rev-tip">
         <rect class="rev-tip-rect" rx="14" ry="14" fill="url(#rev-tip-gradient)" stroke="rgba(125,242,176,0.18)" stroke-width="1" filter="url(#rev-tip-shadow)"/>
