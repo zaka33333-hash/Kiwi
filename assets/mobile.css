@@ -1,0 +1,206 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Kiwi · mobile layer
+ * The phone-version rebuild. Loaded last, gated entirely behind a single
+ * phone breakpoint so it never touches the desktop layout.
+ *
+ *   · App shell      — sidebar becomes an off-canvas drawer, single column
+ *   · Topbar         — compact flush header (hamburger · wordmark · alert)
+ *   · Bottom tab bar — native-app navigation, injected by mobile-nav.js
+ *   · Home sections  — hero, KPI band, charts, blocks reflow to one column
+ *   · Drawers        — side drawers go full-width; modals fit the viewport
+ *
+ * Breakpoint: 860px — covers every phone in any orientation plus small
+ * tablets, and kills the old broken 640–1100px stacked-sidebar zone.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* Bottom bar + hamburger are injected on every load; hidden until the
+ * phone breakpoint so the desktop layout is never affected. */
+.kw-tabbar, .kw-hamburger, .kw-topbar-brand, .kw-menu-backdrop { display: none; }
+
+@media (max-width: 860px) {
+
+  /* ─────────────── APP SHELL ─────────────── */
+  .app { grid-template-columns: 1fr; min-height: 100vh; }
+  .main { max-width: 100%; }
+  .container { padding: 18px 14px 96px; }   /* 96px clears the bottom tab bar */
+
+  /* Hide the demo bar — the phone owner doesn't drive the demo clock */
+  .demo-bar { display: none !important; }
+
+  /* ─── Sidebar → off-canvas menu drawer ─── */
+  .sidebar {
+    position: fixed; top: 0; bottom: 0; inset-inline-start: 0;
+    width: 84vw; max-width: 320px; height: 100vh;
+    z-index: 1400;
+    transform: translateX(-102%);
+    transition: transform 340ms cubic-bezier(0.32, 0.72, 0, 1);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  [dir="rtl"] .sidebar { transform: translateX(102%); }
+  body.kw-menu-open .sidebar {
+    transform: none;
+    box-shadow: 0 0 80px -10px rgba(0, 0, 0, 0.6);
+  }
+  .kw-menu-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 1390;
+    background: rgba(10, 15, 13, 0.55);
+    opacity: 0; pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+  body.kw-menu-open .kw-menu-backdrop { opacity: 1; pointer-events: auto; }
+  body.kw-menu-open { overflow: hidden; }
+
+  /* ─────────────── TOPBAR — compact flush header ─────────────── */
+  .topbar {
+    margin: 0 !important;
+    border-radius: 0;
+    border-inline: 0;
+    border-top: 0;
+    top: 0 !important;
+    padding: 9px 12px;
+    z-index: 60;
+  }
+  .topbar > .topbar-inner { gap: 8px; }
+  /* Desktop affordances that don't belong on a phone header */
+  .topbar .breadcrumb,
+  .topbar .search-big,
+  .topbar .ai-btn { display: none !important; }
+  .topbar .icon-btn[aria-label="Paramètres"] { display: none; }
+
+  .kw-hamburger {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; flex-shrink: 0;
+    border: 1px solid var(--n-200); border-radius: 11px;
+    background: #fff; color: var(--ink); cursor: pointer;
+    transition: background 140ms;
+  }
+  .kw-hamburger:active { background: var(--paper-soft); }
+  .kw-topbar-brand {
+    display: flex; align-items: baseline; gap: 3px;
+    font-weight: 700; font-size: 21px; letter-spacing: -0.05em;
+    color: var(--ink); margin-inline-end: auto;
+  }
+  .kw-topbar-brand i { width: 5px; height: 5px; background: var(--mint); border-radius: 50%; }
+
+  /* ─────────────── BOTTOM TAB BAR ─────────────── */
+  .kw-tabbar {
+    display: flex; align-items: stretch;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200;
+    background: rgba(247, 245, 240, 0.94);
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border-top: 1px solid var(--n-200);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .kw-tab {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start; gap: 3px;
+    padding: 9px 2px 7px; background: none; border: 0; cursor: pointer;
+    font: inherit; color: var(--n-500);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .kw-tab svg { width: 22px; height: 22px; }
+  .kw-tab .kw-tab-l {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.01em; line-height: 1;
+  }
+  .kw-tab.on { color: var(--atlas); }
+  .kw-tab:active { transform: scale(0.94); }
+  /* Centre AI tab — raised accent button */
+  .kw-tab-ai .kw-tab-ico {
+    width: 46px; height: 46px; margin-top: -16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(150deg, var(--atlas), var(--riad));
+    box-shadow: 0 8px 20px -6px rgba(11, 110, 79, 0.65);
+    border: 3px solid var(--paper);
+  }
+  .kw-tab-ai .kw-tab-ico img {
+    width: 20px; height: 20px;
+    filter: brightness(0) saturate(100%) invert(85%) sepia(31%) saturate(469%)
+      hue-rotate(70deg) brightness(102%) contrast(91%);
+  }
+  .kw-tab-ai .kw-tab-l { margin-top: 1px; }
+
+  /* ─────────────── HOME · PAGE HEAD + DATE RANGE ─────────────── */
+  .page-head { margin-bottom: 16px; }
+  .quick-acts { width: 100%; }
+  .quick-acts .btn-slim { flex: 1; justify-content: center; }
+
+  .dash-date-range { gap: 14px; margin: 6px 0 20px; }
+  .dash-date-range .dr-label { font-size: 23px; }
+  .dash-date-range .dr-sub { font-size: 12px; margin-top: 4px; }
+  .dr-pills {
+    width: 100%;
+    flex-wrap: nowrap; overflow-x: auto;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .dr-pills::-webkit-scrollbar { display: none; }
+  .dr-pill { white-space: nowrap; flex-shrink: 0; }
+
+  /* ─────────────── HOME · HERO ─────────────── */
+  .hero-today { padding: 26px 20px; border-radius: 18px; margin-bottom: 14px; }
+  .hero-grid { gap: 24px; }
+
+  /* ─────────────── HOME · KPI BAND ─────────────── */
+  .kpi-band { grid-template-columns: 1fr 1fr; gap: 9px; }
+  .kpi-band-head { margin-bottom: 10px; }
+  .kpi-m, .kpi-c { padding: 13px 14px; }
+
+  /* ─────────────── HOME · ROWS + BLOCKS ─────────────── */
+  .row,
+  .row.r-2-1, .row.r-1-1, .row.r-3, .row.r-65-35 {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  .block { padding: 17px 16px; border-radius: 13px; }
+  .block-head { flex-wrap: wrap; gap: 8px; }
+
+  /* Integration cards — 1 column so each stays tappable */
+  .integ-grid { grid-template-columns: 1fr !important; }
+
+  /* Wide tables inside blocks scroll rather than overflow the screen */
+  .block table, .p-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* ─────────────── DRAWERS — full-width on a phone ───────────────
+   * interactive.js / agent.js inject their CSS at runtime, after this
+   * file in the cascade, so phone overrides for .kiwi-* / .fa-* need
+   * !important to win. */
+  .kiwi-drawer-backdrop:not(.kiwi-fullpage) .kiwi-drawer {
+    width: 100vw !important; max-width: 100vw !important;
+    border-radius: 0 !important;
+  }
+  .kiwi-drawer-backdrop:not(.kiwi-fullpage) .kiwi-drawer-head,
+  .kiwi-drawer-backdrop:not(.kiwi-fullpage) .kiwi-drawer-body,
+  .kiwi-drawer-backdrop:not(.kiwi-fullpage) .kiwi-drawer-foot {
+    padding-inline: 18px !important;
+  }
+  .kiwi-drawer-foot { flex-wrap: wrap; }
+
+  /* Modals fit the viewport with a safe gutter */
+  .kiwi-modal { width: calc(100vw - 26px) !important; max-width: calc(100vw - 26px) !important; }
+  .kiwi-modal-body { max-height: 68vh !important; overflow-y: auto !important; }
+
+  /* Command palette — near full-width */
+  .kp { width: calc(100vw - 24px) !important; max-width: calc(100vw - 24px) !important; }
+
+  /* Toasts — full-width band, kept clear of the notch */
+  .kiwi-toasts {
+    left: 12px !important; right: 12px !important;
+    top: calc(12px + env(safe-area-inset-top, 0)) !important;
+    max-width: none !important;
+  }
+  .kiwi-toast { min-width: 0 !important; }
+
+  /* ─────────────── ASSISTANT (Kiwi AI) on a phone ─────────────── */
+  .fa-thread { padding: 22px 16px 20px !important; }
+  .fa-dock { padding: 12px 14px 16px !important; }
+  .fa-msg.user .fa-bubble { max-width: 86% !important; }
+  .fa-msg.agent .fa-bubble { max-width: 100% !important; }
+  .fa-kpgrid button { padding: 13px 0 !important; }
+
+}
+
+/* Very small phones — tighten the KPI band to a single column */
+@media (max-width: 380px) {
+  .kpi-band { grid-template-columns: 1fr; }
+  .fa-stats { grid-template-columns: 1fr !important; }
+}
