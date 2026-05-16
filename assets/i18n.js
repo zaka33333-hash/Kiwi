@@ -259,6 +259,7 @@
       'dash.sidebar.payroll': 'Payroll & scheduling',
       'dash.sidebar.new': 'NEW',
       'dash.sidebar.reservations': 'Reservations & appointments',
+      'dash.sidebar.assistant': 'Financial assistant',
       'dash.sidebar.ownerAdmin': 'Owner · admin',
       'dash.breadcrumb': 'Home <span class="sep">/</span> <b>Dashboard</b>',
       'dash.search.placeholder': 'Search order, product, customer, team…',
@@ -615,6 +616,7 @@
       'dash.sidebar.payroll': 'الرواتب والتخطيط', /* AR: needs native review */
       'dash.sidebar.new': 'جديد', /* AR: needs native review */
       'dash.sidebar.reservations': 'الحجوزات والمواعيد', /* AR: needs native review */
+      'dash.sidebar.assistant': 'المساعد المالي', /* AR: needs native review */
       'dash.sidebar.ownerAdmin': 'المالك · المدير', /* AR: needs native review */
       'dash.breadcrumb': 'الرئيسية <span class="sep">/</span> <b>لوحة التحكم</b>', /* AR: needs native review */
       'dash.search.placeholder': 'ابحث عن طلب أو منتج أو زبون أو فريق…', /* AR: needs native review */

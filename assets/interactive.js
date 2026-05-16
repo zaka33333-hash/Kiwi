@@ -444,6 +444,7 @@
       { icon: '🧾', label: 'Commandes', sub: 'Aujourd\'hui · live', action: () => handlers['nav-transactions']?.(), kbd: 'G C' },
       // Règlements removed in Kiwi 1.0 — see KIWI_2.0_ROADMAP.md
       { icon: '👥', label: 'Équipe', sub: '8 membres', action: () => toast('Page équipe', {type: 'info'}), kbd: 'G E' },
+      { icon: '🧮', label: 'Assistant financier', sub: 'Calculateur · prévisions · scénarios', action: () => handlers['nav-assistant']?.() },
       { sect: 'ACTIONS RAPIDES' },
       { icon: '➕', label: 'Nouvelle vente', sub: 'Encaisser un montant', action: () => handlers['new-sale']() },
       { icon: '↩', label: 'Rembourser une transaction', action: () => toast('Sélectionnez une transaction', {type: 'info'}) },
