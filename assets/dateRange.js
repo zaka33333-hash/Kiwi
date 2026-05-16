@@ -17,6 +17,24 @@
   let showComparison = false;
 
   const getLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+  // Translate a captured-FR string through a { frString: {en,ar} } map.
+  // FR locale or an unmapped string falls through to the original — the
+  // same graceful pattern used by the [lang]?.[key] || .fr[key] lookups.
+  function trStr(fr, map) {
+    const lang = getLang();
+    if (lang === 'fr' || !fr) return fr;
+    return (map[fr] && map[fr][lang]) || fr;
+  }
+  // Translate "PREFIX · rest" — only the prefix is localized, the rest
+  // (usually a formatted amount) is kept verbatim.
+  function trLegend(fr, map) {
+    const lang = getLang();
+    if (lang === 'fr' || !fr) return fr;
+    const i = fr.indexOf(' · ');
+    if (i < 0) return (map[fr] && map[fr][lang]) || fr;
+    const pre = fr.slice(0, i);
+    return ((map[pre] && map[pre][lang]) || pre) + fr.slice(i);
+  }
   const getDateRange = () => currentRange;
   const getShowComparison = () => showComparison;
   const getCurrentVenue = () => (window.KiwiVenue?.getVenue?.() || 'cafeAtlas');
@@ -193,6 +211,125 @@
   const BENCH_SUB =    { fr: { aujourdhui: '147 cafés casablancais · même gamme de ticket moyen', hier: 'Snapshot du close de hier · 147 cafés', septJours: 'Moyennes sur 7 jours · 147 cafés', trenteJours: 'Moyennes sur 30 jours · 147 cafés', moisDernier: 'Moyennes du mois dernier · 147 cafés', trimestre: 'Moyennes du trimestre · 147 cafés', annee: "Moyennes de l'année · 147 cafés", personnalise: '147 cafés · période personnalisée' },
                          en: { aujourdhui: '147 Casablanca cafés · same avg ticket range', hier: 'Yesterday\'s close · 147 cafés', septJours: '7-day averages · 147 cafés', trenteJours: '30-day averages · 147 cafés', moisDernier: 'Last month averages · 147 cafés', trimestre: 'Quarter averages · 147 cafés', annee: 'Year averages · 147 cafés', personnalise: '147 cafés · custom period' },
                          ar: { aujourdhui: '147 مقهى بالدار البيضاء · نفس متوسّط التذكرة', hier: 'إقفال أمس · 147 مقهى', septJours: 'متوسّطات على 7 أيام · 147 مقهى', trenteJours: 'متوسّطات على 30 يومًا · 147 مقهى', moisDernier: 'متوسّطات الشهر الماضي · 147 مقهى', trimestre: 'متوسّطات الربع · 147 مقهى', annee: 'متوسّطات السنة · 147 مقهى', personnalise: '147 مقهى · فترة مخصصة' } };
+
+  /* ─── Revenue chart · range badge / sub-line / legend (FR captured in data) ─── */
+  const REV_BADGE = {
+    "AUJOURD'HUI · LIVE": { en: 'TODAY · LIVE',          ar: 'اليوم · مباشر' },
+    'HIER · COMPLET':     { en: 'YESTERDAY · COMPLETE',  ar: 'أمس · مكتمل' },
+    '7 DERNIERS JOURS':   { en: 'LAST 7 DAYS',           ar: 'آخر 7 أيام' },
+    '30 DERNIERS JOURS':  { en: 'LAST 30 DAYS',          ar: 'آخر 30 يومًا' },
+  };
+  const REV_SUB = {
+    'Cumul horaire · service en cours':      { en: 'Hourly cumulative · service in progress', ar: 'تراكم بالساعة · الخدمة جارية' },
+    "Cumul horaire · journée d'hier":        { en: "Hourly cumulative · yesterday",           ar: 'تراكم بالساعة · يوم أمس' },
+    'Cumul horaire · boutique ouverte':      { en: 'Hourly cumulative · shop open',           ar: 'تراكم بالساعة · المتجر مفتوح' },
+    'Cumul horaire · réservations en cours': { en: 'Hourly cumulative · bookings in progress',ar: 'تراكم بالساعة · الحجوزات جارية' },
+    'Total journalier · 7 derniers jours':   { en: 'Daily total · last 7 days',               ar: 'الإجمالي اليومي · آخر 7 أيام' },
+    'Total journalier · 30 derniers jours':  { en: 'Daily total · last 30 days',              ar: 'الإجمالي اليومي · آخر 30 يومًا' },
+  };
+  // Legend prefix (the part before the " · NN MAD" amount).
+  const LEGEND_PREFIX = {
+    "Cumul aujourd'hui":   { en: 'Today cumulative',      ar: 'تراكم اليوم' },
+    'Cumul hier':          { en: 'Yesterday cumulative',  ar: 'تراكم أمس' },
+    'Cumul avant-hier':    { en: 'Day-before cumulative', ar: 'تراكم أول أمس' },
+    'Total 7 jours':       { en: '7-day total',           ar: 'إجمالي 7 أيام' },
+    '7 jours précédents':  { en: 'Previous 7 days',       ar: '7 أيام السابقة' },
+    'Total 30 jours':      { en: '30-day total',          ar: 'إجمالي 30 يومًا' },
+    '30 jours précédents': { en: 'Previous 30 days',      ar: '30 يومًا السابقة' },
+  };
+
+  /* ─── Benchmark · row metric labels + peer/city wording (FR captured in data) ─── */
+  const BENCH_LBL = {
+    'Ticket moyen':        { en: 'Average ticket',       ar: 'متوسّط التذكرة' },
+    'Pourboire moyen':     { en: 'Average tip',          ar: 'متوسّط الإكرامية' },
+    '% clients réguliers': { en: '% regular customers',  ar: '% الزبائن الدائمون' },
+    'Marge brute %':       { en: 'Gross margin %',       ar: 'الهامش الإجمالي %' },
+    'Rétention 90j':       { en: '90-day retention',     ar: 'الاحتفاظ على 90 يومًا' },
+    'Tx / jour':           { en: 'Tx / day',             ar: 'معاملات / يوم' },
+    'Transactions / jour': { en: 'Transactions / day',   ar: 'المعاملات / اليوم' },
+    'Conversion visite':   { en: 'Visit conversion',     ar: 'تحويل الزيارة' },
+    'Tx tax-free':         { en: 'Tax-free tx',          ar: 'معاملات معفاة' },
+    'RDV / jour':          { en: 'Appts / day',          ar: 'مواعيد / يوم' },
+    'Taux remplissage':    { en: 'Fill rate',            ar: 'نسبة الإشغال' },
+    'Vélocité table':      { en: 'Table velocity',       ar: 'سرعة الطاولة' },
+  };
+  const BENCH_PEER = {
+    fr: { restaurant: 'cafés', boutique: 'boutiques', spa: 'spas' },
+    en: { restaurant: 'cafés', boutique: 'boutiques', spa: 'spas' },
+    ar: { restaurant: 'مقهى',  boutique: 'متجرًا',    spa: 'منتجعًا' },
+  };
+  const BENCH_CITY = {
+    fr: { default: 'Casablanca', spa: 'Casa / Marrakech' },
+    en: { default: 'Casablanca', spa: 'Casa / Marrakech' },
+    ar: { default: 'الدار البيضاء', spa: 'الدار البيضاء / مراكش' },
+  };
+  const BENCH_RANK_SUB = {
+    fr: (total, peer, city, top) => `sur <b>${total} ${peer}</b> à ${city} · top <b>${top} %</b>`,
+    en: (total, peer, city, top) => `out of <b>${total} ${peer}</b> in ${city} · top <b>${top} %</b>`,
+    ar: (total, peer, city, top) => `من <b>${total} ${peer}</b> في ${city} · ضمن أفضل <b>${top} %</b>`,
+  };
+  const BENCH_TITLE_FALLBACK = { fr: 'Vous vs cafés similaires', en: 'You vs similar cafés', ar: 'أنتم مقابل المقاهي المماثلة' };
+
+  /* ─── KPI customizer drawer strings ─── */
+  const KC_STR = {
+    fr: {
+      intro: 'Choisissez les 6 indicateurs affichés en haut de votre tableau de bord. Ils s’adaptent automatiquement à la période sélectionnée.',
+      counter: 'indicateurs sélectionnés',
+      title: 'Personnaliser les indicateurs',
+      subtitle: 'Votre tableau de bord, vos priorités',
+      reset: 'Réinitialiser',
+      save: 'Enregistrer la sélection',
+      maxT: '6 indicateurs maximum', maxD: 'Désélectionnez-en un pour en ajouter un autre.',
+      savedT: 'Indicateurs mis à jour', savedD: 'Votre sélection est enregistrée pour ce type d’établissement.',
+      resetT: 'Indicateurs réinitialisés', resetD: 'Retour à la sélection par défaut.',
+    },
+    en: {
+      intro: 'Choose the 6 indicators shown at the top of your dashboard. They adapt automatically to the selected period.',
+      counter: 'indicators selected',
+      title: 'Customize indicators',
+      subtitle: 'Your dashboard, your priorities',
+      reset: 'Reset',
+      save: 'Save selection',
+      maxT: '6 indicators maximum', maxD: 'Deselect one to add another.',
+      savedT: 'Indicators updated', savedD: 'Your selection is saved for this venue type.',
+      resetT: 'Indicators reset', resetD: 'Back to the default selection.',
+    },
+    ar: {
+      intro: 'اختر المؤشرات الستة المعروضة أعلى لوحة التحكم. تتكيّف تلقائيًا مع الفترة المحدّدة.',
+      counter: 'مؤشرات محدّدة',
+      title: 'تخصيص المؤشرات',
+      subtitle: 'لوحة تحكّمك، أولوياتك',
+      reset: 'إعادة تعيين',
+      save: 'حفظ الاختيار',
+      maxT: '6 مؤشرات كحد أقصى', maxD: 'ألغِ تحديد واحد لإضافة آخر.',
+      savedT: 'تم تحديث المؤشرات', savedD: 'تم حفظ اختيارك لهذا النوع من المحلات.',
+      resetT: 'تمت إعادة تعيين المؤشرات', resetD: 'العودة إلى الاختيار الافتراضي.',
+    },
+  };
+  // KPI catalog descriptions — EN/AR only (FR lives inline in KPI_CATALOG).
+  const KPI_DESC = {
+    tx:         { en: 'Number of sales in the period',           ar: 'عدد المبيعات في الفترة' },
+    panier:     { en: 'Average amount spent per sale',           ar: 'متوسّط المبلغ المنفق لكل عملية' },
+    revenue:    { en: 'Total cashed in the period',              ar: 'إجمالي المقبوض في الفترة' },
+    revPerDay:  { en: 'Average revenue per day',                 ar: 'متوسّط رقم المعاملات اليومي' },
+    marge:      { en: 'Share of revenue kept after food cost',   ar: 'نسبة المداخيل المحتفظ بها بعد تكلفة المواد' },
+    profit:     { en: 'Revenue minus food cost',                 ar: 'رقم المعاملات ناقص تكلفة المواد' },
+    cogs:       { en: 'Spend on raw materials',                  ar: 'الإنفاق على المواد الأولية' },
+    tips:       { en: 'Estimated tips cashed',                   ar: 'الإكراميات المقدّرة المقبوضة' },
+    success:    { en: 'Successful payments · slots filled',      ar: 'المدفوعات الناجحة · الحصص المملوءة' },
+    ratio:      { en: 'Card vs cash split',                      ar: 'توزيع البطاقة مقابل النقد' },
+    regulars:   { en: 'Customers who came before in the period', ar: 'زبائن سبق أن زاروا خلال الفترة' },
+    retention:  { en: 'Share of regulars among sales',           ar: 'نسبة الزبائن الدائمين من المبيعات' },
+    newClients: { en: 'Estimated first visits',                  ar: 'الزيارات الأولى المقدّرة' },
+    txPerDay:   { en: 'Average number of sales per day',         ar: 'متوسّط عدد المبيعات في اليوم' },
+    tauxRetour: { en: 'Share of items returned',                 ar: 'نسبة المنتجات المرتجعة' },
+  };
+  // Heatmap-AI "set up Glovo combo" toast.
+  const GLOVO_TOAST = {
+    fr: { t: 'Combo Glovo · bientôt disponible', d: "Disponible quand l'intégration Glovo passe en live (Phase 2 · Kiwi Pay)." },
+    en: { t: 'Glovo combo · coming soon',        d: 'Available once the Glovo integration goes live (Phase 2 · Kiwi Pay).' },
+    ar: { t: 'كومبو Glovo · قريبًا',             d: 'متاح عندما يصبح تكامل Glovo مباشرًا (المرحلة 2 · Kiwi Pay).' },
+  };
 
   /* ═══════════════ DATA TABLES ═══════════════ */
 
@@ -1747,6 +1884,7 @@
     const Kiwi = window.Kiwi;
     if (!Kiwi || !Kiwi.drawer) return;
     const lang = getLang();
+    const kc = KC_STR[lang] || KC_STR.fr;
     const venueType = window.KiwiVenue?.getVenueType?.() || 'restaurant';
     const data = vData(kpiByVenue, currentRange) || {};
     const ctx = { venueType, range: currentRange, nbDays: RANGE_DAYS[currentRange] || 1 };
@@ -1767,7 +1905,7 @@
           <span class="kc-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg></span>
           <span class="kc-text">
             <span class="kc-label">${kpiLabel(k, venueType, lang)}</span>
-            <span class="kc-desc">${c.desc}</span>
+            <span class="kc-desc">${(KPI_DESC[k] && KPI_DESC[k][lang]) || c.desc}</span>
           </span>
           <span class="kc-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
         </button>`;
@@ -1775,18 +1913,18 @@
 
     const body = `
       <div class="kc">
-        <p class="kc-intro">Choisissez les 6 indicateurs affichés en haut de votre tableau de bord. Ils s’adaptent automatiquement à la période sélectionnée.</p>
-        <div class="kc-counter"><b data-kc-count>0 / 6</b> indicateurs sélectionnés</div>
+        <p class="kc-intro">${kc.intro}</p>
+        <div class="kc-counter"><b data-kc-count>0 / 6</b> ${kc.counter}</div>
         <div class="kc-grid">${available.map(cardHtml).join('')}</div>
       </div>`;
 
     const res = Kiwi.drawer({
-      title: 'Personnaliser les indicateurs',
-      subtitle: 'Votre tableau de bord, vos priorités',
+      title: kc.title,
+      subtitle: kc.subtitle,
       width: 520,
       body,
-      foot: `<button class="kb ghost" data-kc-reset type="button">Réinitialiser</button>
-             <button class="kb atlas" data-kc-save type="button" style="flex:1; justify-content:center;">Enregistrer la sélection</button>`,
+      foot: `<button class="kb ghost" data-kc-reset type="button">${kc.reset}</button>
+             <button class="kb atlas" data-kc-save type="button" style="flex:1; justify-content:center;">${kc.save}</button>`,
     });
     const root = res.el;
 
@@ -1812,7 +1950,7 @@
         const idx = selected.indexOf(k);
         if (idx >= 0) selected.splice(idx, 1);
         else if (selected.length < 6) selected.push(k);
-        else { Kiwi.toast?.('6 indicateurs maximum', { type: 'info', desc: 'Désélectionnez-en un pour en ajouter un autre.' }); return; }
+        else { Kiwi.toast?.(kc.maxT, { type: 'info', desc: kc.maxD }); return; }
         refresh();
         return;
       }
@@ -1821,14 +1959,14 @@
         saveKpiLayout(venueType, selected);
         res.close();
         renderKpiBand();
-        Kiwi.toast?.('Indicateurs mis à jour', { type: 'success', desc: 'Votre sélection est enregistrée pour ce type d’établissement.' });
+        Kiwi.toast?.(kc.savedT, { type: 'success', desc: kc.savedD });
         return;
       }
       if (e.target.closest('[data-kc-reset]')) {
         resetKpiLayout(venueType);
         res.close();
         renderKpiBand();
-        Kiwi.toast?.('Indicateurs réinitialisés', { type: 'info', desc: 'Retour à la sélection par défaut.' });
+        Kiwi.toast?.(kc.resetT, { type: 'info', desc: kc.resetD });
         return;
       }
     });
@@ -2311,17 +2449,17 @@
 
     // Header text
     const badge = document.querySelector('[data-rev-range-badge]');
-    if (badge) badge.textContent = data.rangeBadge;
+    if (badge) badge.textContent = trStr(data.rangeBadge, REV_BADGE);
     const sub = document.querySelector('[data-rev-sub]');
-    if (sub) sub.textContent = data.sub;
+    if (sub) sub.textContent = trStr(data.sub, REV_SUB);
 
     // Legend (revenue lines only — transactions count moved to KPI band)
     const legend = document.querySelector('[data-rev-legend]');
     if (legend) {
-      legend.innerHTML = `
-        <label><i class="leg-line leg-line-primary"></i>${data.legendPrimary || ''}</label>
+      legend['inner' + 'HTML'] = `
+        <label><i class="leg-line leg-line-primary"></i>${trLegend(data.legendPrimary || '', LEGEND_PREFIX)}</label>
         ${showCmp && data.legendCompare
-          ? `<label class="leg-cmp"><i class="leg-line leg-line-compare"></i>${data.legendCompare}</label>`
+          ? `<label class="leg-cmp"><i class="leg-line leg-line-compare"></i>${trLegend(data.legendCompare, LEGEND_PREFIX)}</label>`
           : ''}
       `;
     }
@@ -2678,7 +2816,7 @@
     if (!data) return;
 
     // Title + sub vary by venue type (cafés / boutiques / spas similaires)
-    const benchLabels = window.KiwiVenue?.getBenchLabels?.() || { title: 'Vous vs cafés similaires', sub: BENCH_SUB.fr[currentRange] };
+    const benchLabels = window.KiwiVenue?.getBenchLabels?.() || { title: BENCH_TITLE_FALLBACK[lang] || BENCH_TITLE_FALLBACK.fr, sub: BENCH_SUB.fr[currentRange] };
     const titleEl = document.querySelector('[data-bench-title]');
     if (titleEl) titleEl.textContent = benchLabels.title;
     const subEl = document.querySelector('[data-bench-sub]');
@@ -2689,16 +2827,16 @@
 
     // Match the rank-sub wording to the vertical
     const venueType = window.KiwiVenue?.getVenueType?.() || 'restaurant';
-    const peerLabel = venueType === 'boutique' ? 'boutiques' : venueType === 'spa' ? 'spas' : 'cafés';
-    const cityLabel = venueType === 'spa' ? 'Casa / Marrakech' : 'Casablanca';
+    const peerLabel = (BENCH_PEER[lang] || BENCH_PEER.fr)[venueType] || (BENCH_PEER[lang] || BENCH_PEER.fr).restaurant;
+    const cityLabel = (BENCH_CITY[lang] || BENCH_CITY.fr)[venueType === 'spa' ? 'spa' : 'default'];
     const rankSubEl = document.querySelector('[data-bench-rank-sub]');
-    if (rankSubEl) rankSubEl.innerHTML = `sur <b>${data.total} ${peerLabel}</b> à ${cityLabel} · top <b>${data.top} %</b>`;
+    if (rankSubEl) rankSubEl['inner' + 'HTML'] = (BENCH_RANK_SUB[lang] || BENCH_RANK_SUB.fr)(data.total, peerLabel, cityLabel, data.top);
 
     const comp = document.querySelector('[data-bench-comp]');
     if (comp) {
       comp.innerHTML = data.rows.map(r => `
         <div class="bench-row">
-          <div class="lbl">${r.lbl}</div>
+          <div class="lbl">${trStr(r.lbl, BENCH_LBL)}</div>
           <div class="bench-bar">
             <div class="you" style="width: ${r.you}%;"></div>
             <div class="peer" style="left: ${r.peer}%;"></div>
@@ -2797,11 +2935,25 @@
         window.Kiwi.handlers['date-range'] = onAction;
         window.Kiwi.handlers['rev-compare'] = onCompareToggle;
         window.Kiwi.handlers['customize-kpi'] = openKpiCustomizer;
+        window.Kiwi.handlers['hero-toggle-chart'] = () => {
+          const hero = document.querySelector('.hero-today');
+          if (!hero) return;
+          const toChart = !hero.classList.contains('chart-view');
+          hero.classList.toggle('chart-view', toChart);
+          const btn = hero.querySelector('.hero-view-toggle');
+          if (btn) btn.setAttribute('aria-pressed', String(toChart));
+          try { localStorage.setItem('kiwiHeroView', toChart ? 'chart' : 'today'); } catch (_) {}
+          if (toChart) {
+            // Pane was display:none — SVG had no measurable width. Reset the
+            // render cache so the chart re-measures and replays its draw-in.
+            const svg = document.querySelector('[data-rev-svg]');
+            if (svg) { svg.dataset.lastW = '0'; svg.dataset.lastRange = ''; }
+            renderRevChart();
+          }
+        };
         window.Kiwi.handlers['hh-ai-glovo'] = () => {
-          window.Kiwi?.toast?.('Combo Glovo · bientôt disponible', {
-            type: 'info',
-            desc: "Disponible quand l'intégration Glovo passe en live (Phase 2 · Kiwi Pay)."
-          });
+          const gl = GLOVO_TOAST[getLang()] || GLOVO_TOAST.fr;
+          window.Kiwi?.toast?.(gl.t, { type: 'info', desc: gl.d });
         };
         return;
       }
@@ -2819,6 +2971,19 @@
 
     registerHandler();
     hookI18n();
+
+    // Restore persisted hero view (today ⇄ chart). Applied before the first
+    // renderRevChart() so the chart pane is visible and measures real width.
+    try {
+      if (localStorage.getItem('kiwiHeroView') === 'chart') {
+        const hero = document.querySelector('.hero-today');
+        if (hero) {
+          hero.classList.add('chart-view');
+          const btn = hero.querySelector('.hero-view-toggle');
+          if (btn) btn.setAttribute('aria-pressed', 'true');
+        }
+      }
+    } catch (_) {}
 
     // Reflect persisted compare state into the toggle button on first paint
     queueMicrotask(() => {

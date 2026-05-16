@@ -352,7 +352,7 @@
   .container { padding: 28px 32px 80px; }
 
   /* ─────────────── HERO TODAY CARD ─────────────── */
-  .hero-today { position: relative; background: linear-gradient(135deg, #0A4A38 0%, #0B6E4F 40%, #05301F 100%); color: var(--paper); border-radius: 22px; padding: 36px 40px; overflow: hidden; margin-bottom: 16px; }
+  .hero-today { position: relative; background: linear-gradient(135deg, #0A4A38 0%, #0B6E4F 40%, #05301F 100%); color: var(--paper); border-radius: 22px; padding: 54px 40px 36px; overflow: hidden; margin-bottom: 16px; }
   .hero-today::before { content: ""; position: absolute; top: -100px; right: -80px; width: 360px; height: 360px; background: radial-gradient(circle, rgba(125,242,176,0.3), transparent 60%); pointer-events: none; }
   .hero-today::after { content: ""; position: absolute; bottom: -60px; left: -60px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(11,110,79,0.4), transparent 60%); pointer-events: none; }
   .hero-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 50px; position: relative; z-index: 2; align-items: center; }
@@ -567,6 +567,36 @@
     font-size: 11px; font-style: italic; color: var(--n-500);
     margin-top: 4px; letter-spacing: 0.01em;
   }
+
+  /* ─── Hero card · today ⇄ chart view toggle ─── */
+  .hero-view-toggle {
+    position: absolute; top: 15px; inset-inline-end: 26px; z-index: 5;
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 14px; border-radius: 999px;
+    font-family: var(--sans); font-size: 12.5px; font-weight: 500;
+    letter-spacing: -0.005em; cursor: pointer;
+    background: rgba(125,242,176,0.12); color: var(--mint);
+    border: 1px solid rgba(125,242,176,0.22);
+    transition: background 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out;
+  }
+  .hero-view-toggle:hover { background: rgba(125,242,176,0.2); }
+  .hero-view-toggle svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .hero-view-toggle .tg-to-today { display: none; }
+  .hero-pane-chart { display: none; }
+
+  .hero-today.chart-view { background: var(--paper); color: var(--ink); }
+  .hero-today.chart-view::before,
+  .hero-today.chart-view::after { display: none; }
+  .hero-today.chart-view .hero-pane-today { display: none; }
+  .hero-today.chart-view .hero-pane-chart { display: block; }
+  .hero-today.chart-view .hero-view-toggle {
+    background: var(--paper-soft); color: var(--n-600);
+    border-color: var(--n-200);
+  }
+  .hero-today.chart-view .hero-view-toggle:hover { background: var(--n-100); color: var(--ink); }
+  .hero-today.chart-view .hero-view-toggle .tg-to-chart { display: none; }
+  .hero-today.chart-view .hero-view-toggle .tg-to-today { display: inline; }
+  body.fusion-mode .hero-today.chart-view { background: #0E1638 !important; color: var(--ink); }
 
   /* Donut entrance + smooth range transition */
   [data-mix-donut] .seg {
@@ -3342,6 +3372,14 @@
 
       <!-- ═══ HERO TODAY CARD ═══ -->
       <div class="hero-today fade-in">
+        <button type="button" class="hero-view-toggle" data-action="hero-toggle-chart" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 13l4-5 4 3 5-7"/></svg>
+          <span class="tg-to-chart" data-i18n="dash.hero.toggle.chart">Voir le graphique</span>
+          <span class="tg-to-today" data-i18n="dash.hero.toggle.today">Vue du jour</span>
+        </button>
+
+        <!-- ░░ TODAY VIEW ░░ -->
+        <div class="hero-pane hero-pane-today">
         <div class="hero-grid">
           <div class="hero-left">
             <div class="greet">
@@ -3398,20 +3436,10 @@
             </form>
           </div>
         </div>
-      </div>
+        </div><!-- /.hero-pane-today -->
 
-      <!-- ═══ KPI BAND · render target — populated by renderKpiBand() in dateRange.js ═══ -->
-      <div class="kpi-band-head">
-        <button class="kpi-customize" data-action="customize-kpi" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M4 12h7M4 18h13M16 4v4M11 10v4M19 16v4"/></svg>
-          <span data-i18n="dash.kpi.customize">Personnaliser</span>
-        </button>
-      </div>
-      <div class="kpi-band" data-kpi-band></div>
-
-      <!-- ═══ REVENUE CHART · full width ═══ -->
-      <div class="row">
-        <div class="block rev-card">
+        <!-- ░░ CHART VIEW ░░ -->
+        <div class="hero-pane hero-pane-chart">
           <div class="block-head">
             <div>
               <div class="t">
@@ -3436,8 +3464,17 @@
             </defs>
           </svg>
           <div class="chart-legend" data-rev-legend></div>
-        </div>
+        </div><!-- /.hero-pane-chart -->
       </div>
+
+      <!-- ═══ KPI BAND · render target — populated by renderKpiBand() in dateRange.js ═══ -->
+      <div class="kpi-band-head">
+        <button class="kpi-customize" data-action="customize-kpi" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M4 12h7M4 18h13M16 4v4M11 10v4M19 16v4"/></svg>
+          <span data-i18n="dash.kpi.customize">Personnaliser</span>
+        </button>
+      </div>
+      <div class="kpi-band" data-kpi-band></div>
 
       <!-- ═══ HEATMAP (65) + PAYMENT MIX (35) ═══ -->
       <div class="row r-65-35">
