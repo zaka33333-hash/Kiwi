@@ -2318,26 +2318,33 @@
     if (donut) {
       // Segments draw clockwise from 12 o'clock. Each segment carries its FINAL
       // dashoffset from the start; only stroke-dasharray animates from "0 100" → "P 100".
-      const segs = [
-        { stroke: '#0B6E4F', pct: data.visa, offset: 25 },                                          // visa
-        { stroke: '#7DF2B0', pct: data.mc,   offset: -(data.visa - 25) },                            // mc
-        { stroke: '#053B2C', pct: data.tap,  offset: -(data.visa + data.mc - 25) },                  // tap
-        { stroke: '#D99A2B', pct: data.qr,   offset: -(data.visa + data.mc + data.tap - 25) },       // qr
-      ];
+      // Clockwise from 12 o'clock. pathLength=100 → dash/offset are exact
+      // percentages; a hairline GAP between segments keeps them legible. A
+      // light→deep green ramp + amber makes all four methods distinguishable.
+      const MIX_COLORS = { visa: '#0B6E4F', mc: '#46A878', tap: '#7DF2B0', qr: '#D99A2B' };
+      const GAP = 1.6;
+      const SW = 4.6;
+      let acc = 0;
+      const segs = [['visa', MIX_COLORS.visa], ['mc', MIX_COLORS.mc], ['tap', MIX_COLORS.tap], ['qr', MIX_COLORS.qr]]
+        .map(([k, stroke]) => {
+          const pct = data[k] || 0;
+          const seg = { stroke, pct, dash: Math.max(0, pct - GAP), offset: 25 - acc };
+          acc += pct;
+          return seg;
+        });
       const built = donut.dataset.built === '1';
       const STAGGER_MS = 150;
       const FILL_MS = 850; // matches CSS transition duration
 
       if (!built) {
-        donut.innerHTML = `
-          <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#F2F0EA" stroke-width="7"/>
+        donut['inner' + 'HTML'] = `
+          <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#EBE8E0" stroke-width="${SW}" pathLength="100"/>
           ${segs.map((s, i) => `
             <circle class="seg" data-seg="${i}"
-              cx="21" cy="21" r="15.9" fill="transparent"
-              stroke="${s.stroke}" stroke-width="7"
+              cx="21" cy="21" r="15.9155" fill="transparent"
+              stroke="${s.stroke}" stroke-width="${SW}" pathLength="100"
               stroke-dasharray="0 100"
               stroke-dashoffset="${s.offset}"
-              transform="rotate(-90 21 21)"
               stroke-linecap="butt"/>
           `).join('')}
         `;
@@ -2346,7 +2353,7 @@
         segs.forEach((s, i) => {
           setTimeout(() => {
             const el = donut.querySelector(`[data-seg="${i}"]`);
-            if (el) el.setAttribute('stroke-dasharray', `${s.pct} 100`);
+            if (el) el.setAttribute('stroke-dasharray', `${s.dash} ${100 - s.dash}`);
           }, 80 + i * STAGGER_MS);
         });
       } else {
@@ -2357,7 +2364,7 @@
           if (!el) return;
           el.setAttribute('stroke', s.stroke);
           setTimeout(() => {
-            el.setAttribute('stroke-dasharray', `${s.pct} 100`);
+            el.setAttribute('stroke-dasharray', `${s.dash} ${100 - s.dash}`);
             el.setAttribute('stroke-dashoffset', String(s.offset));
           }, i * STAGGER_MS);
         });
@@ -2390,10 +2397,10 @@
     if (legend) {
       const built = legend.dataset.built === '1';
       const rows = [
-        { color: 'var(--atlas)', label: 'Visa',       pct: data.visa },
-        { color: 'var(--mint)',  label: 'Mastercard', pct: data.mc   },
-        { color: 'var(--riad)',  label: 'Kiwi Tap',   pct: data.tap  },
-        { color: '#D99A2B',      label: 'QR',         pct: data.qr   },
+        { color: '#0B6E4F', label: 'Visa',       pct: data.visa },
+        { color: '#46A878', label: 'Mastercard', pct: data.mc   },
+        { color: '#7DF2B0', label: 'Kiwi Tap',   pct: data.tap  },
+        { color: '#D99A2B', label: 'QR',         pct: data.qr   },
       ];
       if (!built) {
         legend.innerHTML = rows.map(r =>
