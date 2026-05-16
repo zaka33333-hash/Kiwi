@@ -486,7 +486,7 @@
           <span>Kiwi ⌘K</span>
         </div>
       `;
-      kp.querySelector('input').oninput = (e) => renderKp(e.target.value);
+      const kpInput = kp.querySelector('input');
       kp.querySelectorAll('.kp-item').forEach(el => {
         el.onclick = () => {
           const it = items[+el.dataset.idx];
@@ -495,6 +495,88 @@
           else it.action?.();
         };
       });
+      /* Filter as the user types — re-render ONLY the result list, never
+         the <input>, so the typed text and focus are preserved. */
+      kpInput.addEventListener('input', () => filterKpList(kpInput.value));
+      /* ↑ ↓ move the highlight, ↵ runs the highlighted command. */
+      kpInput.addEventListener('keydown', (e) => {
+        const rows = [].slice.call(kp.querySelectorAll('.kp-item'));
+        if (!rows.length) return;
+        const cur = rows.findIndex(r => r.classList.contains('active'));
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const next = (cur + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length;
+          rows.forEach((r, i) => r.classList.toggle('active', i === next));
+          rows[next].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          (rows[cur] || rows[0]).click();
+        }
+      });
+    }
+
+    /* Re-render only the result list (built from DOM nodes — no innerHTML)
+       so the search field above it is never rebuilt. */
+    function filterKpList(q) {
+      const query = (q || '').trim().toLowerCase();
+      const out = [];
+      items.forEach((it) => {
+        if (it.sect) { out.push(it); return; }
+        if (!query || (it.label + ' ' + (it.sub || '')).toLowerCase().includes(query)) out.push(it);
+      });
+      /* drop section headers left with no commands beneath them */
+      const rows = out.filter((it, i) => !it.sect || (out[i + 1] && !out[i + 1].sect));
+      const list = kp.querySelector('.kp-list');
+      const frag = document.createDocumentFragment();
+      if (!rows.some((it) => !it.sect)) {
+        const empty = document.createElement('div');
+        empty.style.cssText = 'padding:28px 20px; text-align:center; color:var(--n-500); font-size:13px;';
+        empty.textContent = 'Aucun résultat';
+        frag.appendChild(empty);
+      } else {
+        rows.forEach((it) => {
+          if (it.sect) {
+            const s = document.createElement('div');
+            s.className = 'kp-sect';
+            s.textContent = it.sect;
+            frag.appendChild(s);
+            return;
+          }
+          const row = document.createElement('div');
+          row.className = 'kp-item';
+          row.dataset.idx = items.indexOf(it);
+          const ic = document.createElement('div');
+          ic.className = 'kpi-ic';
+          ic.style.fontSize = '14px';
+          ic.textContent = it.icon;
+          const mid = document.createElement('div');
+          mid.style.flex = '1';
+          const t = document.createElement('div');
+          t.className = 'kpi-t';
+          t.textContent = it.label;
+          mid.appendChild(t);
+          if (it.sub) {
+            const sub = document.createElement('div');
+            sub.className = 'kpi-s';
+            sub.textContent = it.sub;
+            mid.appendChild(sub);
+          }
+          row.append(ic, mid);
+          if (it.kbd) {
+            const k = document.createElement('div');
+            k.className = 'kpi-k';
+            k.textContent = it.kbd;
+            row.appendChild(k);
+          }
+          row.addEventListener('click', () => {
+            close();
+            if (it.href) location.href = it.href;
+            else it.action?.();
+          });
+          frag.appendChild(row);
+        });
+      }
+      list.replaceChildren(frag);
     }
 
     back.appendChild(kp);
