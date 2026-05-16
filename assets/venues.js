@@ -360,48 +360,140 @@
   };
 
   const HERO_AI_REC = {
-    cafeAtlas: {
-      title: 'Votre heure creuse de 15h-17h représente un potentiel inexploité',
-      obs: "Entre 15h et 17h, vous réalisez seulement 8% de votre chiffre d'affaires quotidien. Pourtant, c'est l'heure où vos clients restent le plus longtemps assis (temps moyen : 47 minutes, contre 31 minutes au déjeuner).",
-      act: '→ Proposer un menu « goûter » avec thé à la menthe et msemen à prix réduit pourrait augmenter la rotation des tables de 20-30%.',
+    fr: {
+      cafeAtlas: {
+        title: 'Votre heure creuse de 15h-17h représente un potentiel inexploité',
+        obs: "Entre 15h et 17h, vous réalisez seulement 8% de votre chiffre d'affaires quotidien. Pourtant, c'est l'heure où vos clients restent le plus longtemps assis (temps moyen : 47 minutes, contre 31 minutes au déjeuner).",
+        act: '→ Proposer un menu « goûter » avec thé à la menthe et msemen à prix réduit pourrait augmenter la rotation des tables de 20-30%.',
+      },
+      maisonMansour: {
+        title: 'Vos clients touristes dépensent en moyenne +35 % par panier',
+        obs: 'Les paniers réglés sur cartes étrangères (38 % des commandes) atteignent en moyenne 380 MAD, contre 282 MAD sur les cartes marocaines. Les acheteurs allemands et espagnols sont sur-représentés.',
+        act: '→ Activer un catalogue PDF en anglais sur le terminal Kiwi et un onglet « Tax-free » pourrait lifter le panier moyen de 6-9 %.',
+      },
+      spaBahia: {
+        title: 'Le créneau 14h-15h du mardi est sous-utilisé (38 % rempli)',
+        obs: 'Sur les 4 dernières semaines, ce créneau affiche un taux de remplissage de 38 % seulement, contre 87 % en moyenne sur la semaine. Vos clientes fidèles n\'y sont jamais venues.',
+        act: '→ Pousser un message WhatsApp aux 47 clients fidèles avec une offre « -20 % mardi 14h-15h » pourrait combler 4-6 créneaux/semaine.',
+      },
+      fusion: {
+        title: 'Café Atlas génère 58 % du CA · concentration à diversifier',
+        obs: 'Sur les 30 derniers jours, Café Atlas (58 %) tire le portefeuille, devant Maison Mansour (24 %) et Spa Bahia (18 %). Les 3 sites partagent 312 clients communs — déjà fidèles à l\'écosystème — qu\'on peut activer en cross-sell.',
+        act: '→ Lancer une carte fidélité unifiée Kiwi pour les 312 clients cross-site pourrait lifter le CA global de 4-7 %.',
+      },
     },
-    maisonMansour: {
-      title: 'Vos clients touristes dépensent en moyenne +35 % par panier',
-      obs: 'Les paniers réglés sur cartes étrangères (38 % des commandes) atteignent en moyenne 380 MAD, contre 282 MAD sur les cartes marocaines. Les acheteurs allemands et espagnols sont sur-représentés.',
-      act: '→ Activer un catalogue PDF en anglais sur le terminal Kiwi et un onglet « Tax-free » pourrait lifter le panier moyen de 6-9 %.',
+    en: {
+      cafeAtlas: {
+        title: 'Your 3pm-5pm lull is untapped potential',
+        obs: "Between 3pm and 5pm you bring in only 8% of daily revenue. Yet it's when guests stay seated the longest (47 min average, vs 31 min at lunch).",
+        act: '→ A « goûter » menu with mint tea and msemen at a reduced price could lift table turnover by 20-30%.',
+      },
+      maisonMansour: {
+        title: 'Your tourist customers spend on average +35% per basket',
+        obs: 'Baskets paid with foreign cards (38% of orders) average 380 MAD, versus 282 MAD on Moroccan cards. German and Spanish shoppers are over-represented.',
+        act: '→ Enabling an English PDF catalogue on the Kiwi terminal and a « Tax-free » tab could lift the average basket by 6-9%.',
+      },
+      spaBahia: {
+        title: 'The Tuesday 2pm-3pm slot is underused (38% filled)',
+        obs: 'Over the last 4 weeks, this slot shows a fill rate of only 38%, versus 87% on average across the week. Your loyal clients have never come at that time.',
+        act: '→ Sending a WhatsApp message to the 47 loyal clients with a « -20% Tuesday 2pm-3pm » offer could fill 4-6 slots/week.',
+      },
+      fusion: {
+        title: 'Café Atlas generates 58% of revenue · concentration to diversify',
+        obs: 'Over the last 30 days, Café Atlas (58%) drives the portfolio, ahead of Maison Mansour (24%) and Spa Bahia (18%). The 3 sites share 312 common customers — already loyal to the ecosystem — who can be activated through cross-sell.',
+        act: '→ Launching a unified Kiwi loyalty card for the 312 cross-site customers could lift overall revenue by 4-7%.',
+      },
     },
-    spaBahia: {
-      title: 'Le créneau 14h-15h du mardi est sous-utilisé (38 % rempli)',
-      obs: 'Sur les 4 dernières semaines, ce créneau affiche un taux de remplissage de 38 % seulement, contre 87 % en moyenne sur la semaine. Vos clientes fidèles n\'y sont jamais venues.',
-      act: '→ Pousser un message WhatsApp aux 47 clients fidèles avec une offre « -20 % mardi 14h-15h » pourrait combler 4-6 créneaux/semaine.',
-    },
-    fusion: {
-      title: 'Café Atlas génère 58 % du CA · concentration à diversifier',
-      obs: 'Sur les 30 derniers jours, Café Atlas (58 %) tire le portefeuille, devant Maison Mansour (24 %) et Spa Bahia (18 %). Les 3 sites partagent 312 clients communs — déjà fidèles à l\'écosystème — qu\'on peut activer en cross-sell.',
-      act: '→ Lancer une carte fidélité unifiée Kiwi pour les 312 clients cross-site pourrait lifter le CA global de 4-7 %.',
+    ar: {
+      cafeAtlas: {
+        title: 'فترة الركود بين 15h و17h تمثّل فرصة غير مستغلّة',
+        obs: 'بين الساعة 15h و17h، تحقّقون فقط 8% من رقم معاملاتكم اليومي. ومع ذلك، هذه هي الساعات التي يجلس فيها زبائنكم أطول مدة (47 دقيقة في المتوسط، مقابل 31 دقيقة وقت الغداء).',
+        act: '→ اقتراح قائمة « العصرونة » بالأتاي والمسمن بسعر مخفّض قد يرفع دوران الطاولات بـ 20-30%.',
+      },
+      maisonMansour: {
+        title: 'زبائنكم السيّاح ينفقون في المتوسّط +35٪ لكل سلّة',
+        obs: 'السلال المدفوعة ببطاقات أجنبية (38٪ من الطلبات) تبلغ في المتوسّط 380 درهمًا، مقابل 282 درهمًا على البطاقات المغربية. المشترون الألمان والإسبان ممثّلون بكثرة.',
+        act: '→ تفعيل كتالوج PDF بالإنجليزية على جهاز كيوي وعلامة تبويب « معفى من الضريبة » قد يرفع متوسّط السلّة بـ 6-9٪.',
+      },
+      spaBahia: {
+        title: 'فترة الثلاثاء بين 14h و15h غير مستغلّة بما يكفي (38٪ ممتلئة)',
+        obs: 'خلال الأسابيع الأربعة الأخيرة، تُظهر هذه الفترة نسبة إشغال لا تتجاوز 38٪، مقابل 87٪ في المتوسّط خلال الأسبوع. زبوناتكم الوفيات لم يأتين فيها قط.',
+        act: '→ إرسال رسالة واتساب إلى الزبناء الأوفياء الـ47 بعرض « -20٪ الثلاثاء 14h-15h » قد يملأ 4-6 فترات في الأسبوع.',
+      },
+      fusion: {
+        title: 'مقهى أطلس يحقّق 58٪ من المداخيل · تركّز يجب تنويعه',
+        obs: 'خلال الـ30 يومًا الأخيرة، يقود مقهى أطلس (58٪) المحفظة، متقدّمًا على ميزون منصور (24٪) وسبا باهية (18٪). تتقاسم المواقع الثلاثة 312 زبونًا مشتركًا — أوفياء للمنظومة — يمكن تفعيلهم عبر البيع المتقاطع.',
+        act: '→ إطلاق بطاقة وفاء كيوي موحّدة للزبناء الـ312 المشتركين بين المواقع قد يرفع المداخيل الإجمالية بـ 4-7٪.',
+      },
     },
   };
 
   const HEATMAP_AI_REC = {
-    cafeAtlas: {
-      title: 'Lancer un combo livraison Glovo pour 15h–17h',
-      obs: "Pendant cette fenêtre creuse, votre salle tourne à 22 % de capacité mais l'équipe reste disponible. Un combo Tajine kefta + thé à la menthe à 75 MAD sur Glovo capte typiquement 8–12 commandes par après-midi dans les cafés similaires de Maarif.",
-      cta: '→ Configurer le combo Glovo',
+    fr: {
+      cafeAtlas: {
+        title: 'Lancer un combo livraison Glovo pour 15h–17h',
+        obs: "Pendant cette fenêtre creuse, votre salle tourne à 22 % de capacité mais l'équipe reste disponible. Un combo Tajine kefta + thé à la menthe à 75 MAD sur Glovo capte typiquement 8–12 commandes par après-midi dans les cafés similaires de Maarif.",
+        cta: '→ Configurer le combo Glovo',
+      },
+      maisonMansour: {
+        title: 'Programmer un push Instagram Shopping pour 14h–16h',
+        obs: "L'après-midi (14h–16h) ne représente que 11 % de vos ventes alors que vos posts Instagram captent 64 % de leur engagement à ces heures. Lancer un carousel « Caftans · pièces uniques » avec lien d'achat direct pourrait convertir.",
+        cta: '→ Programmer la campagne Instagram',
+      },
+      spaBahia: {
+        title: 'Campagne WhatsApp pour combler les créneaux 14h–16h',
+        obs: 'Sur les 4 dernières semaines, 11 créneaux/semaine restent vacants l\'après-midi (14h–16h). Vos 47 clientes fidèles ont un taux d\'ouverture WhatsApp de 92 %.',
+        cta: '→ Lancer la campagne WhatsApp',
+      },
+      fusion: {
+        title: 'Synchroniser les heures creuses inter-sites sur le même mardi',
+        obs: 'Vos 3 sites partagent une même fenêtre creuse 15h–17h (22 % de capacité moyenne). Une campagne unifiée « Mardi Kiwi · -15 % cross-site » programmée sur les 3 caisses simultanément multiplie la portée par 3.',
+        cta: '→ Programmer la campagne tri-site',
+      },
     },
-    maisonMansour: {
-      title: 'Programmer un push Instagram Shopping pour 14h–16h',
-      obs: "L'après-midi (14h–16h) ne représente que 11 % de vos ventes alors que vos posts Instagram captent 64 % de leur engagement à ces heures. Lancer un carousel « Caftans · pièces uniques » avec lien d'achat direct pourrait convertir.",
-      cta: '→ Programmer la campagne Instagram',
+    en: {
+      cafeAtlas: {
+        title: 'Launch a Glovo delivery combo for 3pm–5pm',
+        obs: 'During this lull, your dining room runs at 22% capacity but staff is available. A Tajine kefta + mint tea combo at 75 MAD on Glovo typically captures 8–12 orders per afternoon at similar Maarif cafés.',
+        cta: '→ Set up the Glovo combo',
+      },
+      maisonMansour: {
+        title: 'Schedule an Instagram Shopping push for 2pm–4pm',
+        obs: 'The afternoon (2pm–4pm) accounts for only 11% of your sales, yet your Instagram posts capture 64% of their engagement at those hours. Launching a « Caftans · one-of-a-kind » carousel with a direct buy link could convert.',
+        cta: '→ Schedule the Instagram campaign',
+      },
+      spaBahia: {
+        title: 'WhatsApp campaign to fill the 2pm–4pm slots',
+        obs: 'Over the last 4 weeks, 11 slots/week stay empty in the afternoon (2pm–4pm). Your 47 loyal clients have a 92% WhatsApp open rate.',
+        cta: '→ Launch the WhatsApp campaign',
+      },
+      fusion: {
+        title: 'Sync the cross-site lulls on the same Tuesday',
+        obs: 'Your 3 sites share the same 3pm–5pm lull (22% average capacity). A unified « Kiwi Tuesday · -15% cross-site » campaign scheduled on all 3 registers at once multiplies reach by 3.',
+        cta: '→ Schedule the tri-site campaign',
+      },
     },
-    spaBahia: {
-      title: 'Campagne WhatsApp pour combler les créneaux 14h–16h',
-      obs: 'Sur les 4 dernières semaines, 11 créneaux/semaine restent vacants l\'après-midi (14h–16h). Vos 47 clientes fidèles ont un taux d\'ouverture WhatsApp de 92 %.',
-      cta: '→ Lancer la campagne WhatsApp',
-    },
-    fusion: {
-      title: 'Synchroniser les heures creuses inter-sites sur le même mardi',
-      obs: 'Vos 3 sites partagent une même fenêtre creuse 15h–17h (22 % de capacité moyenne). Une campagne unifiée « Mardi Kiwi · -15 % cross-site » programmée sur les 3 caisses simultanément multiplie la portée par 3.',
-      cta: '→ Programmer la campagne tri-site',
+    ar: {
+      cafeAtlas: {
+        title: 'أطلق وجبة توصيل عبر Glovo بين 15h و17h',
+        obs: 'خلال هذه الفترة الهادئة، تشتغل قاعتك بـ 22% من طاقتها بينما الفريق متاح. كومبو طاجين الكفتة + أتاي بالنعناع بـ 75 درهم على Glovo يجلب عادة 8–12 طلب في فترة الزوال لدى مقاهي معاريف المماثلة.',
+        cta: '→ إعداد كومبو Glovo',
+      },
+      maisonMansour: {
+        title: 'برمجة دفعة Instagram Shopping بين 14h و16h',
+        obs: 'لا يمثّل بعد الظهر (14h–16h) سوى 11٪ من مبيعاتكم، بينما تجمع منشورات Instagram الخاصة بكم 64٪ من تفاعلها في تلك الساعات. إطلاق عرض دوّار « قفاطين · قطع فريدة » برابط شراء مباشر قد يحقّق تحويلات.',
+        cta: '→ برمجة حملة Instagram',
+      },
+      spaBahia: {
+        title: 'حملة واتساب لملء فترات 14h–16h',
+        obs: 'خلال الأسابيع الأربعة الأخيرة، تبقى 11 فترة في الأسبوع شاغرة بعد الظهر (14h–16h). زبوناتكم الوفيات الـ47 لديهنّ نسبة فتح واتساب تبلغ 92٪.',
+        cta: '→ إطلاق حملة واتساب',
+      },
+      fusion: {
+        title: 'مزامنة ساعات الركود بين المواقع في نفس يوم الثلاثاء',
+        obs: 'تتقاسم مواقعكم الثلاثة نفس فترة الركود بين 15h و17h (22٪ متوسّط الطاقة). حملة موحّدة « ثلاثاء كيوي · -15٪ بين المواقع » مبرمجة على الصناديق الثلاثة في آن واحد تضاعف المدى ثلاث مرّات.',
+        cta: '→ برمجة الحملة ثلاثية المواقع',
+      },
     },
   };
 
@@ -410,18 +502,46 @@
 
   /* Mix de paiement bottom callout — savings vs CMI scales with revenue */
   const MIX_CMI_SAVINGS = {
-    cafeAtlas:     '~3 900 MAD ce mois',
-    maisonMansour: '~1 700 MAD ce mois',
-    spaBahia:     '~1 350 MAD ce mois',
-    fusion:        '~6 950 MAD ce mois · 3 sites',
+    fr: {
+      cafeAtlas:     '~3 900 MAD ce mois',
+      maisonMansour: '~1 700 MAD ce mois',
+      spaBahia:      '~1 350 MAD ce mois',
+      fusion:        '~6 950 MAD ce mois · 3 sites',
+    },
+    en: {
+      cafeAtlas:     '~3,900 MAD this month',
+      maisonMansour: '~1,700 MAD this month',
+      spaBahia:      '~1,350 MAD this month',
+      fusion:        '~6,950 MAD this month · 3 sites',
+    },
+    ar: {
+      cafeAtlas:     '~3 900 درهم هذا الشهر',
+      maisonMansour: '~1 700 درهم هذا الشهر',
+      spaBahia:      '~1 350 درهم هذا الشهر',
+      fusion:        '~6 950 درهم هذا الشهر · 3 مواقع',
+    },
   };
 
   /* Vous vs … benchmark labels */
   const BENCH_LABELS = {
-    cafeAtlas:     { title: 'Vous vs cafés similaires',     sub: '147 cafés casablancais · même gamme de ticket moyen' },
-    maisonMansour: { title: 'Vous vs boutiques similaires', sub: '89 boutiques marocaines · gamme premium' },
-    spaBahia:     { title: 'Vous vs spas similaires',      sub: '42 spas haut de gamme · Casa / Marrakech' },
-    fusion:        { title: 'Portfolio vs marchands multi-sites', sub: '38 marchands Kiwi · 3+ emplacements actifs' },
+    fr: {
+      cafeAtlas:     { title: 'Vous vs cafés similaires',     sub: '147 cafés casablancais · même gamme de ticket moyen' },
+      maisonMansour: { title: 'Vous vs boutiques similaires', sub: '89 boutiques marocaines · gamme premium' },
+      spaBahia:      { title: 'Vous vs spas similaires',      sub: '42 spas haut de gamme · Casa / Marrakech' },
+      fusion:        { title: 'Portfolio vs marchands multi-sites', sub: '38 marchands Kiwi · 3+ emplacements actifs' },
+    },
+    en: {
+      cafeAtlas:     { title: 'You vs similar cafés',     sub: '147 Casablanca cafés · same avg ticket range' },
+      maisonMansour: { title: 'You vs similar boutiques', sub: '89 Moroccan boutiques · premium range' },
+      spaBahia:      { title: 'You vs similar spas',      sub: '42 high-end spas · Casa / Marrakech' },
+      fusion:        { title: 'Portfolio vs multi-site merchants', sub: '38 Kiwi merchants · 3+ active locations' },
+    },
+    ar: {
+      cafeAtlas:     { title: 'أنتم مقابل المقاهي المماثلة',   sub: '147 مقهى بالدار البيضاء · نفس متوسّط التذكرة' },
+      maisonMansour: { title: 'أنتم مقابل المتاجر المماثلة',   sub: '89 متجرًا مغربيًا · الفئة الراقية' },
+      spaBahia:      { title: 'أنتم مقابل المنتجعات المماثلة', sub: '42 منتجعًا راقيًا · الدار البيضاء / مراكش' },
+      fusion:        { title: 'المحفظة مقابل التجار متعددي المواقع', sub: '38 تاجرًا في كيوي · 3+ مواقع نشطة' },
+    },
   };
 
   /* ═══════════════ STATE ═══════════════ */
@@ -500,9 +620,16 @@
     spa:        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 6h6l-5 4 2 7-5-4-5 4 2-7-5-4h6z"/></svg>',
   };
 
+  const DROPDOWN_CTA = {
+    fr: { exitT: 'Revenir à la vue simple', exitS: 'Repasser sur un seul emplacement', enterT: 'Fusionner les 3 emplacements', enterS: 'Vue consolidée · données multi-sites' },
+    en: { exitT: 'Back to single view', exitS: 'Return to a single location', enterT: 'Merge the 3 locations', enterS: 'Consolidated view · multi-site data' },
+    ar: { exitT: 'العودة إلى العرض البسيط', exitS: 'الرجوع إلى موقع واحد', enterT: 'دمج المواقع الثلاثة', enterS: 'عرض موحّد · بيانات متعدّدة المواقع' },
+  };
+
   function renderDropdown() {
     const wrap = document.querySelector('[data-venue-dropdown]');
     if (!wrap) return;
+    const dd = DROPDOWN_CTA[fusionLang()] || DROPDOWN_CTA.fr;
     const inFusion = currentVenue === 'fusion';
     const venueRows = REAL_VENUES.map(id => {
       const v = VENUES[id];
@@ -526,8 +653,8 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
           </div>
           <div class="va-body">
-            <div class="va-title">Revenir à la vue simple</div>
-            <div class="va-sub" style="font-size:11px;color:var(--n-500);margin-top:1px;">Repasser sur un seul emplacement</div>
+            <div class="va-title">${dd.exitT}</div>
+            <div class="va-sub" style="font-size:11px;color:var(--n-500);margin-top:1px;">${dd.exitS}</div>
           </div>
         </button>
       ` : `
@@ -536,8 +663,8 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 8l3.5 7M16 8l-3.5 7"/></svg>
           </div>
           <div class="va-body">
-            <div class="va-title">Fusionner les 3 emplacements</div>
-            <div class="va-sub">Vue consolidée · données multi-sites</div>
+            <div class="va-title">${dd.enterT}</div>
+            <div class="va-sub">${dd.enterS}</div>
           </div>
         </button>
       `;
@@ -915,6 +1042,7 @@
       renderFooter();
       renderVerticalSection({ skipFade: true });
       renderDropdown();
+      if (currentVenue === 'fusion') { try { renderFusionView(); } catch (_) {} }
       return r;
     };
     api.__venueWrapped = true;
@@ -1047,17 +1175,16 @@
 
   // ── Delta label per range (matches single-venue convention) ──
   const FUSION_DELTA_LABELS = {
-    aujourdhui:  'vs hier',
-    hier:        'vs avant-hier',
-    septJours:   'vs 7 jours précédents',
-    trenteJours: 'vs 30 jours précédents',
+    fr: { aujourdhui: 'vs hier', hier: 'vs avant-hier', septJours: 'vs 7 jours précédents', trenteJours: 'vs 30 jours précédents' },
+    en: { aujourdhui: 'vs yesterday', hier: 'vs day before', septJours: 'vs previous 7 days', trenteJours: 'vs previous 30 days' },
+    ar: { aujourdhui: 'مقابل أمس', hier: 'مقابل أول أمس', septJours: 'مقابل 7 أيام السابقة', trenteJours: 'مقابل 30 يومًا السابقة' },
   };
   const FUSION_HERO_LABELS = {
-    aujourdhui:  "ENCAISSÉ AUJOURD'HUI · PORTEFEUILLE",
-    hier:        'ENCAISSÉ HIER · PORTEFEUILLE',
-    septJours:   'ENCAISSÉ 7 JOURS · PORTEFEUILLE',
-    trenteJours: 'ENCAISSÉ 30 JOURS · PORTEFEUILLE',
+    fr: { aujourdhui: "ENCAISSÉ AUJOURD'HUI · PORTEFEUILLE", hier: 'ENCAISSÉ HIER · PORTEFEUILLE', septJours: 'ENCAISSÉ 7 JOURS · PORTEFEUILLE', trenteJours: 'ENCAISSÉ 30 JOURS · PORTEFEUILLE' },
+    en: { aujourdhui: 'CASHED TODAY · PORTFOLIO', hier: 'CASHED YESTERDAY · PORTFOLIO', septJours: 'CASHED 7 DAYS · PORTFOLIO', trenteJours: 'CASHED 30 DAYS · PORTFOLIO' },
+    ar: { aujourdhui: 'المقبوض اليوم · المحفظة', hier: 'المقبوض أمس · المحفظة', septJours: 'المقبوض في 7 أيام · المحفظة', trenteJours: 'المقبوض في 30 يومًا · المحفظة' },
   };
+  const fusionLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
 
   // ── Effective range with personnalise→aujourdhui fallback ──
   function fusionEffectiveRange() {
@@ -1225,7 +1352,7 @@
 
     // ── Section 1 · Hero ──
     const heroLabel = root.querySelector('[data-fs-hero-label]');
-    if (heroLabel) heroLabel.textContent = FUSION_HERO_LABELS[range] || FUSION_HERO_LABELS.aujourdhui;
+    if (heroLabel) heroLabel.textContent = (FUSION_HERO_LABELS[fusionLang()] || FUSION_HERO_LABELS.fr)[range] || FUSION_HERO_LABELS.fr.aujourdhui;
     const livePill = root.querySelector('[data-fs-live-pill]');
     if (livePill) livePill.style.display = isToday ? '' : 'none';
     if (isToday && livePill) {
@@ -1244,7 +1371,7 @@
     // Deltas — hide null values
     const deltaWrap = root.querySelector('[data-fs-deltas]');
     if (deltaWrap) {
-      const lbl = FUSION_DELTA_LABELS[range];
+      const lbl = (FUSION_DELTA_LABELS[fusionLang()] || FUSION_DELTA_LABELS.fr)[range];
       const items = [];
       if (snap.deltaHier    != null) items.push({ k: 'hier',    label: lbl, value: snap.deltaHier });
       if (snap.deltaSemaine != null) items.push({ k: 'semaine', label: 'vs semaine dernière', value: snap.deltaSemaine });
@@ -1300,7 +1427,7 @@
     // ── Section 2 · KPI Cards ──
     const kpiWrap = root.querySelector('[data-fs-kpis]');
     if (kpiWrap) {
-      const lbl = FUSION_DELTA_LABELS[range];
+      const lbl = (FUSION_DELTA_LABELS[fusionLang()] || FUSION_DELTA_LABELS.fr)[range];
       const txVal     = isToday && live ? live.portfolio.tx          : kpis.transactionsTotales.value;
       const panierVal = isToday && live ? live.portfolio.panierMoyen : kpis.panierMoyenPondere.value;
       const margeVal  = kpis.margeBrute.value;
@@ -3778,10 +3905,10 @@
     getCurrentVenueData,
     getVenueType,
     getKpiSpec: type => KPI_BY_TYPE[type] || KPI_BY_TYPE.restaurant,
-    getHeroAiRec: id => HERO_AI_REC[id || currentVenue] || HERO_AI_REC.cafeAtlas,
-    getHeatmapAiRec: id => HEATMAP_AI_REC[id || currentVenue] || HEATMAP_AI_REC.cafeAtlas,
-    getMixCmiSavings: id => MIX_CMI_SAVINGS[id || currentVenue] || MIX_CMI_SAVINGS.cafeAtlas,
-    getBenchLabels: id => BENCH_LABELS[id || currentVenue] || BENCH_LABELS.cafeAtlas,
+    getHeroAiRec: id => { const L = HERO_AI_REC[fusionLang()] || HERO_AI_REC.fr; return L[id || currentVenue] || L.cafeAtlas; },
+    getHeatmapAiRec: id => { const L = HEATMAP_AI_REC[fusionLang()] || HEATMAP_AI_REC.fr; return L[id || currentVenue] || L.cafeAtlas; },
+    getMixCmiSavings: id => { const L = MIX_CMI_SAVINGS[fusionLang()] || MIX_CMI_SAVINGS.fr; return L[id || currentVenue] || L.cafeAtlas; },
+    getBenchLabels: id => { const L = BENCH_LABELS[fusionLang()] || BENCH_LABELS.fr; return L[id || currentVenue] || L.cafeAtlas; },
     isFusion: () => currentVenue === 'fusion',
     enterFusion,
     exitFusion,
