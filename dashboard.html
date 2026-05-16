@@ -453,6 +453,17 @@
   .block-head .t .pulse-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s infinite; }
   .block-head .s { font-size: 12.5px; color: var(--n-500); margin-top: 3px; }
   .block-head .right-actions { display: flex; gap: 8px; align-items: center; }
+  /* Revenue card · Robinhood-style hero readout */
+  .rev-hero-val { display: inline-block; margin-top: 12px; font-size: 35px; font-weight: 600;
+    letter-spacing: -0.032em; line-height: 1.04; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .rev-hero-cur { font-size: 16px; font-weight: 500; color: var(--n-500); margin-inline-start: 5px; letter-spacing: 0; }
+  .rev-hero-delta { display: flex; align-items: center; gap: 6px; margin-top: 6px; min-height: 18px;
+    font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .rev-hero-delta.up { color: var(--atlas); }
+  .rev-hero-delta.down { color: #C2362B; }
+  .rev-hero-delta .lbl { color: var(--n-500); font-weight: 400; margin-inline-start: 3px; }
+  .rev-hero-delta svg { width: 12px; height: 12px; }
+  .rev-card .block-head .s { margin-top: 8px; }
 
   .range { display: inline-flex; background: var(--n-100); border-radius: 8px; padding: 2px; font-size: 12px; }
   .range span { padding: 5px 10px; color: var(--n-500); border-radius: 6px; cursor: pointer; transition: all 100ms; }
@@ -3406,6 +3417,8 @@
                 <span data-i18n="dash.rev.title">Revenu & commandes</span>
                 <span class="chip neutral" data-rev-range-badge style="padding: 2px 8px; font-size: 10.5px;">AUJOURD'HUI · LIVE</span>
               </div>
+              <div class="rev-hero-val" data-rev-hero-val>—</div>
+              <div class="rev-hero-delta" data-rev-hero-delta></div>
               <div class="s" data-rev-sub>Cumul horaire · service en cours</div>
               <div class="cmp-caption" data-rev-compare-caption hidden>vs. Hier</div>
             </div>

@@ -1931,7 +1931,7 @@
     svg.classList.toggle('no-anim', suppressAnim);
     svg.classList.toggle('cmp-toggle', isCmpToggle);
 
-    const PAD = { left: 60, right: 30, top: 22, bottom: 40 };
+    const PAD = { left: 20, right: 26, top: 26, bottom: 40 };
     const innerW = W - PAD.left - PAD.right;
     const innerH = H - PAD.top - PAD.bottom;
     const N = data.rev.length;
@@ -1985,6 +1985,10 @@
     // and for positioning the live pulse on the live-truncated curve.
     let lastIdx = -1;
     for (let i = 0; i < N; i++) { if (data.rev[i] != null) lastIdx = i; }
+    // Resting hero readout = the latest cumulative point vs the same point
+    // on the comparison curve.
+    const restingVal  = lastIdx >= 0 ? data.rev[lastIdx] : 0;
+    const restingPrev = (data.revPrev && lastIdx >= 0) ? data.revPrev[lastIdx] : null;
     const linePath = smoothPath(data.rev);
     const cmpPath  = smoothPath(data.revPrev);
     // Area's right edge follows the line's actual tip — sim x in live mode.
@@ -2004,10 +2008,9 @@
     const xLabelsHtml = visibleIdx.map(i =>
       `<text x="${xs[i].toFixed(1)}" y="${(H - 14).toFixed(1)}" text-anchor="middle">${data.xLabels[i] || ''}</text>`
     ).join('');
-    const yLabelsHtml = yTicks.map(v => {
-      const y = yScale(v);
-      return `<text x="${(PAD.left - 12).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono" font-size="11" fill="#9A9A9A">${fmtYTick(v)}</text>`;
-    }).join('');
+    // Robinhood-clean: no y-axis labels — the hero readout + scrubber carry
+    // the exact figures, so the line floats free of gridline clutter.
+    const yLabelsHtml = '';
 
     const showCmp = !!showComparison;
     const captionFull = COMPARE_CAPTION[lang]?.[currentRange] || COMPARE_CAPTION.fr[currentRange] || '';
@@ -2017,9 +2020,9 @@
       <defs>
         <!-- 3-stop gradient: punchy near the line, fades fast — Robinhood depth -->
         <linearGradient id="gfill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0"    stop-color="#053B2C" stop-opacity="0.28"/>
-          <stop offset="0.55" stop-color="#053B2C" stop-opacity="0.07"/>
-          <stop offset="1"    stop-color="#053B2C" stop-opacity="0"/>
+          <stop offset="0"    stop-color="#0B6E4F" stop-opacity="0.15"/>
+          <stop offset="0.6"  stop-color="#0B6E4F" stop-opacity="0.035"/>
+          <stop offset="1"    stop-color="#0B6E4F" stop-opacity="0"/>
         </linearGradient>
         <filter id="rev-line-glow" x="-2%" y="-30%" width="104%" height="160%">
           <feGaussianBlur stdDeviation="3"/>
@@ -2036,13 +2039,13 @@
         </filter>
       </defs>
       ${yLabelsHtml}
-      <g font-family="Inter Tight" font-size="11" fill="#9A9A9A">${xLabelsHtml}</g>
-      <line class="rev-cross-line" x1="${PAD.left}" x2="${PAD.left}" y1="${PAD.top}" y2="${(PAD.top + innerH).toFixed(1)}" stroke="#0B6E4F" stroke-width="1" stroke-dasharray="3 5"/>
+      <g font-family="Inter Tight" font-size="10.5" fill="#B4B1A8" letter-spacing="0.02em">${xLabelsHtml}</g>
+      <line class="rev-cross-line" x1="${PAD.left}" x2="${PAD.left}" y1="${PAD.top}" y2="${(PAD.top + innerH).toFixed(1)}" stroke="rgba(11,110,79,0.22)" stroke-width="1"/>
       ${cmpPath ? `<path class="rev-cmp" d="${cmpPath}" stroke="#9A9A9A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" style="opacity:${showCmp ? 1 : 0};"/>` : ''}
       <path class="rev-area" d="${areaPath}" fill="url(#gfill)"/>
       <!-- Halo: wider, blurred sibling of the line — Apple Stocks soft glow -->
-      <path class="rev-line-halo" d="${linePath}" stroke="#0B6E4F" stroke-width="6" stroke-opacity="0.18" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#rev-line-glow)" pathLength="1"/>
-      <path class="rev-line" d="${linePath}" stroke="#053B2C" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>
+      <path class="rev-line-halo" d="${linePath}" stroke="#0B6E4F" stroke-width="5" stroke-opacity="0.10" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#rev-line-glow)" pathLength="1"/>
+      <path class="rev-line" d="${linePath}" stroke="#0B6E4F" stroke-width="2.25" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>
       ${showLive ? `
       <g class="rev-live" transform="translate(${liveX.toFixed(1)} ${liveY.toFixed(1)})">
         <circle class="rev-live-ring" cx="0" cy="0" r="4"/>
@@ -2081,6 +2084,28 @@
       const abs = Math.abs(pct);
       const txt = (Math.abs(abs - Math.round(abs)) < 0.05) ? String(Math.round(abs)) : abs.toFixed(1).replace('.', ',');
       return `${sign}${txt} %`;
+    }
+
+    // Robinhood-style hero readout: a big live figure that the scrubber drives.
+    function setHero(val, prev, animate) {
+      const vEl = document.querySelector('[data-rev-hero-val]');
+      const dEl = document.querySelector('[data-rev-hero-delta]');
+      if (vEl) {
+        const fmtV = (v) => `${frInt(v)}<span class="rev-hero-cur">MAD</span>`;
+        if (animate) animateNumber(vEl, parseAmountFromEl(vEl), val, { duration: 720, format: fmtV });
+        else vEl['inner' + 'HTML'] = fmtV(val);
+      }
+      if (dEl) {
+        if (prev != null && prev > 0) {
+          const diff = Math.round(val - prev);
+          const up = diff >= 0;
+          dEl.className = 'rev-hero-delta ' + (up ? 'up' : 'down');
+          dEl['inner' + 'HTML'] = `${arrowSvg(up)}<span>${up ? '+' : '−'}${frInt(Math.abs(diff))} MAD · ${fmtDeltaPct(val, prev)}</span><span class="lbl">${captionShort || 'vs préc.'}</span>`;
+        } else {
+          dEl.className = 'rev-hero-delta';
+          dEl['inner' + 'HTML'] = '';
+        }
+      }
     }
 
     // True if the x-axis labels are hourly (e.g. "11h"). Hourly ranges
@@ -2271,11 +2296,18 @@
         tipCmp.style.display = 'none';
       }
       svg.classList.add('is-hover');
+      setHero(valueAtCursor, prevAtCursor, false);
     }
-    function leave() { svg.classList.remove('is-hover'); }
+    function leave() {
+      svg.classList.remove('is-hover');
+      setHero(restingVal, restingPrev, false);
+    }
     hit.addEventListener('pointermove', move);
     hit.addEventListener('pointerenter', move);
     hit.addEventListener('pointerleave', leave);
+
+    // Hero readout — latest cumulative figure + delta vs the comparison.
+    setHero(restingVal, restingPrev, !suppressAnim);
 
     // Header text
     const badge = document.querySelector('[data-rev-range-badge]');
