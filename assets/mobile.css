@@ -70,12 +70,15 @@
     padding-top: calc(9px + env(safe-area-inset-top, 0px));
     z-index: 60;
   }
-  .topbar > .topbar-inner { gap: 8px; }
+  .topbar > .topbar-inner { gap: 8px; position: relative; }
   /* Desktop affordances that don't belong on a phone header */
   .topbar .breadcrumb,
   .topbar .search-big,
   .topbar .ai-btn { display: none !important; }
   .topbar .icon-btn[aria-label="Paramètres"] { display: none; }
+  /* Hamburger stays left, the alert bell is pushed to the right edge —
+   * the wordmark is absolutely centred between them. */
+  .topbar .icon-btn { margin-inline-start: auto; }
 
   .kw-hamburger {
     display: flex; align-items: center; justify-content: center;
@@ -86,10 +89,15 @@
   }
   .kw-hamburger:active { background: var(--paper-soft); }
   .kw-topbar-brand {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
     display: flex; align-items: baseline; gap: 3px;
     font-weight: 700; font-size: 21px; letter-spacing: -0.05em;
-    color: var(--ink); margin-inline-end: auto;
+    color: var(--ink);
+    background: none; border: 0; padding: 4px 8px; cursor: pointer;
+    font-family: inherit; line-height: 1;
   }
+  .kw-topbar-brand:active { transform: translate(-50%, -50%) scale(0.94); }
   .kw-topbar-brand i { width: 5px; height: 5px; background: var(--mint); border-radius: 50%; }
 
   /* ─────────────── BOTTOM TAB BAR ─────────────── */

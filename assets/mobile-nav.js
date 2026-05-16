@@ -62,12 +62,16 @@
     placeSidebar();
     phoneMq.addEventListener('change', placeSidebar);
 
-    /* ── Hamburger + wordmark into the topbar ── */
+    /* ── Hamburger + centred wordmark into the topbar ── */
     topbarInner.insertAdjacentHTML('afterbegin',
       `<button class="kw-hamburger" type="button" aria-label="Ouvrir le menu"
                aria-controls="kw-sidebar" aria-expanded="false">${I.menu}</button>
-       <div class="kw-topbar-brand">kiwi<i></i></div>`);
+       <button class="kw-topbar-brand" type="button" aria-label="Revenir en haut du tableau de bord">kiwi<i></i></button>`);
     const hamburger = topbarInner.querySelector('.kw-hamburger');
+    /* Tapping the centred wordmark scrolls back to the top of the dashboard. */
+    topbarInner.querySelector('.kw-topbar-brand').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
     /* ── Backdrop for the off-canvas menu ── */
     const backdrop = document.createElement('div');
