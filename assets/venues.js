@@ -175,7 +175,7 @@
         aujourdhui: {
           transactionsTotales: { value: 273,  delta: 13.7, label: 'Transactions totales' },
           panierMoyenPondere:  { value: 132,  unit: 'MAD', delta: 4.2,  label: 'Panier moyen pondéré' },
-          pourboiresCumules:   { value: 852,  unit: 'MAD', delta: 30,   label: 'Pourboires cumulés' },
+          margeBrute:          { value: 71.8, unit: '%',   delta: 1.6,  label: 'Marge brute moyenne' },
           tauxSuccesMoyen:     { value: 97.15, unit: '%',  delta: 1.2,  label: 'Taux succès moyen' },
           ratioCardCash:       { value: '68 / 32', unit: '%', delta: 3, label: 'Ratio card / cash' },
           clientsFideles:      { value: 23,   subValue: 90, delta: 18.7, label: 'Clients fidèles' },
@@ -183,7 +183,7 @@
         hier: {
           transactionsTotales: { value: 251,  delta: -2.3, label: 'Transactions totales' },
           panierMoyenPondere:  { value: 128,  unit: 'MAD', delta: 1.8,  label: 'Panier moyen pondéré' },
-          pourboiresCumules:   { value: 780,  unit: 'MAD', delta: 12,   label: 'Pourboires cumulés' },
+          margeBrute:          { value: 70.4, unit: '%',   delta: 0.5,  label: 'Marge brute moyenne' },
           tauxSuccesMoyen:     { value: 96.80, unit: '%',  delta: 0.8,  label: 'Taux succès moyen' },
           ratioCardCash:       { value: '67 / 33', unit: '%', delta: 2, label: 'Ratio card / cash' },
           clientsFideles:      { value: 19,   subValue: 90, delta: 8.2,  label: 'Clients fidèles' },
@@ -191,7 +191,7 @@
         septJours: {
           transactionsTotales: { value: 1820, delta: 18.4, label: 'Transactions totales' },
           panierMoyenPondere:  { value: 135,  unit: 'MAD', delta: 6.1,  label: 'Panier moyen pondéré' },
-          pourboiresCumules:   { value: 5940, unit: 'MAD', delta: 28,   label: 'Pourboires cumulés' },
+          margeBrute:          { value: 72.1, unit: '%',   delta: 2.0,  label: 'Marge brute moyenne' },
           tauxSuccesMoyen:     { value: 97.42, unit: '%',  delta: 1.5,  label: 'Taux succès moyen' },
           ratioCardCash:       { value: '69 / 31', unit: '%', delta: 4, label: 'Ratio card / cash' },
           clientsFideles:      { value: 142,  subValue: 312, delta: 22.4, label: 'Clients fidèles' },
@@ -199,7 +199,7 @@
         trenteJours: {
           transactionsTotales: { value: 7820, delta: 21.2, label: 'Transactions totales' },
           panierMoyenPondere:  { value: 138,  unit: 'MAD', delta: 8.4,  label: 'Panier moyen pondéré' },
-          pourboiresCumules:   { value: 24800, unit: 'MAD', delta: 32,  label: 'Pourboires cumulés' },
+          margeBrute:          { value: 72.6, unit: '%',   delta: 2.8,  label: 'Marge brute moyenne' },
           tauxSuccesMoyen:     { value: 97.80, unit: '%',  delta: 2.1,  label: 'Taux succès moyen' },
           ratioCardCash:       { value: '70 / 30', unit: '%', delta: 5, label: 'Ratio card / cash' },
           clientsFideles:      { value: 312,  subValue: 312, delta: 28.6, label: 'Clients fidèles' },
@@ -318,7 +318,7 @@
     restaurant: [
       { key: 'tx',         label: 'Commandes',         i18n: 'dash.kpi.tx' },
       { key: 'panier',     label: 'Panier moyen',      i18n: 'dash.kpi.basket' },
-      { key: 'tips',       label: 'Pourboires',        i18n: 'dash.kpi.tips' },
+      { key: 'marge',      label: 'Marge brute',       i18n: 'dash.kpi.margin' },
       { key: 'success',    label: 'Taux succès',       i18n: 'dash.kpi.success' },
       { key: 'ratio',      label: 'Ratio card / cash', i18n: 'dash.kpi.ratio' },
       { key: 'regulars',   label: 'Clients réguliers', i18n: 'dash.kpi.regular' },
@@ -334,7 +334,7 @@
     spa: [
       { key: 'tx',         label: 'Rendez-vous',       i18n: 'dash.kpi.appointments' },
       { key: 'panier',     label: 'Panier moyen',      i18n: 'dash.kpi.basket' },
-      { key: 'tips',       label: 'Pourboires',        i18n: 'dash.kpi.tips' },
+      { key: 'marge',      label: 'Marge brute',       i18n: 'dash.kpi.margin' },
       { key: 'success',    label: 'Taux remplissage',  i18n: 'dash.kpi.fillRate' },
       { key: 'ratio',      label: 'Ratio card / cash', i18n: 'dash.kpi.ratio' },
       { key: 'regulars',   label: 'Clients fidèles',   i18n: 'dash.kpi.loyalCustomers' },
@@ -344,7 +344,7 @@
     fusion: [
       { key: 'tx',         label: 'Transactions totales', i18n: 'dash.kpi.tx' },
       { key: 'panier',     label: 'Panier moyen pondéré', i18n: 'dash.kpi.basket' },
-      { key: 'tips',       label: 'Pourboires cumulés',   i18n: 'dash.kpi.tips' },
+      { key: 'marge',      label: 'Marge brute moyenne',  i18n: 'dash.kpi.margin' },
       { key: 'success',    label: 'Taux succès moyen',    i18n: 'dash.kpi.success' },
       { key: 'ratio',      label: 'Ratio card / cash',    i18n: 'dash.kpi.ratio' },
       { key: 'regulars',   label: 'Clients fidèles',      i18n: 'dash.kpi.regular' },
@@ -1303,11 +1303,11 @@
       const lbl = FUSION_DELTA_LABELS[range];
       const txVal     = isToday && live ? live.portfolio.tx          : kpis.transactionsTotales.value;
       const panierVal = isToday && live ? live.portfolio.panierMoyen : kpis.panierMoyenPondere.value;
-      const tipsVal   = isToday && live ? Math.round(live.portfolio.tips) : kpis.pourboiresCumules.value;
+      const margeVal  = kpis.margeBrute.value;
       const cards = [
         { key: 'tx',      label: kpis.transactionsTotales.label, value: txVal,                                  unit: '',                                        delta: kpis.transactionsTotales.delta },
         { key: 'panier',  label: kpis.panierMoyenPondere.label,  value: panierVal,                              unit: kpis.panierMoyenPondere.unit || 'MAD',     delta: kpis.panierMoyenPondere.delta },
-        { key: 'tips',    label: kpis.pourboiresCumules.label,   value: tipsVal,                                unit: kpis.pourboiresCumules.unit || 'MAD',      delta: kpis.pourboiresCumules.delta },
+        { key: 'marge',   label: kpis.margeBrute.label,          value: margeVal,                               unit: kpis.margeBrute.unit || '%',               delta: kpis.margeBrute.delta, isPct: true },
         { key: 'success', label: kpis.tauxSuccesMoyen.label,     value: kpis.tauxSuccesMoyen.value,             unit: kpis.tauxSuccesMoyen.unit || '%',          delta: kpis.tauxSuccesMoyen.delta, isPct: true },
         { key: 'ratio',   label: kpis.ratioCardCash.label,       value: kpis.ratioCardCash.value, isString: true, unit: kpis.ratioCardCash.unit || '%',          delta: kpis.ratioCardCash.delta },
         { key: 'loyal',   label: kpis.clientsFideles.label,      value: kpis.clientsFideles.value,              unit: kpis.clientsFideles.subValue ? `/ ${kpis.clientsFideles.subValue}` : '', delta: kpis.clientsFideles.delta },

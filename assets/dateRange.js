@@ -316,7 +316,7 @@
       aujourdhui: {
         tx:       { value: 182,    unit: '',     fmt: 'int',  delta: 15.2 },
         panier:   { value: 134,    unit: 'MAD',  fmt: 'int',  delta: 1.5 },
-        tips:     { value: 1867,   unit: 'MAD',  fmt: 'int',  delta: 32 },
+        marge:    { value: 71.4,   unit: '%',    fmt: 'pct1', delta: 1.8 },
         success:  { value: 99.34,  unit: '%',    fmt: 'pct2', delta: 0.2 },
         ratio:    { text: '68 / 32', unit: '%',                delta: 4 },
         regulars: { value: 47,     unit: '/ 182',fmt: 'int',  delta: 26 },
@@ -324,7 +324,7 @@
       hier: {
         tx:       { value: 168,    unit: '',     fmt: 'int',  delta: 8.4 },
         panier:   { value: 132,    unit: 'MAD',  fmt: 'int',  delta: 0.8 },
-        tips:     { value: 1620,   unit: 'MAD',  fmt: 'int',  delta: 24 },
+        marge:    { value: 69.6,   unit: '%',    fmt: 'pct1', delta: 0.4 },
         success:  { value: 99.18,  unit: '%',    fmt: 'pct2', delta: 0.1 },
         ratio:    { text: '64 / 36', unit: '%',                delta: 2 },
         regulars: { value: 42,     unit: '/ 168',fmt: 'int',  delta: 25 },
@@ -332,7 +332,7 @@
       septJours: {
         tx:       { value: 1240,   unit: '',     fmt: 'int',  delta: 18 },
         panier:   { value: 138,    unit: 'MAD',  fmt: 'int',  delta: 3 },
-        tips:     { value: 11200,  unit: 'MAD',  fmt: 'int',  delta: 35 },
+        marge:    { value: 70.8,   unit: '%',    fmt: 'pct1', delta: 2.1 },
         success:  { value: 99.28,  unit: '%',    fmt: 'pct2', delta: 0.3 },
         ratio:    { text: '66 / 34', unit: '%',                delta: 5 },
         regulars: { value: 286,    unit: '/ 1240',fmt:'int',  delta: 23 },
@@ -340,7 +340,7 @@
       trenteJours: {
         tx:       { value: 5320,   unit: '',     fmt: 'int',  delta: 21 },
         panier:   { value: 142,    unit: 'MAD',  fmt: 'int',  delta: 5 },
-        tips:     { value: 48300,  unit: 'MAD',  fmt: 'int',  delta: 40 },
+        marge:    { value: 70.2,   unit: '%',    fmt: 'pct1', delta: 1.5 },
         success:  { value: 99.32,  unit: '%',    fmt: 'pct2', delta: 0.5 },
         ratio:    { text: '68 / 32', unit: '%',                delta: 6 },
         regulars: { value: 1240,   unit: '/ 5320',fmt:'int',  delta: 24 },
@@ -348,7 +348,7 @@
       moisDernier: {
         tx:       { value: 4948,   unit: '',     fmt: 'int',  delta: 17 },
         panier:   { value: 140,    unit: 'MAD',  fmt: 'int',  delta: 3 },
-        tips:     { value: 44919,  unit: 'MAD',  fmt: 'int',  delta: 31 },
+        marge:    { value: 69.4,   unit: '%',    fmt: 'pct1', delta: 0.9 },
         success:  { value: 99.26,  unit: '%',    fmt: 'pct2', delta: 0.3 },
         ratio:    { text: '67 / 33', unit: '%',                delta: 4 },
         regulars: { value: 1153,   unit: '/ 4948',fmt:'int',  delta: 19 },
@@ -356,7 +356,7 @@
       trimestre: {
         tx:       { value: 15960,  unit: '',     fmt: 'int',  delta: 12 },
         panier:   { value: 143,    unit: 'MAD',  fmt: 'int',  delta: 4 },
-        tips:     { value: 144900, unit: 'MAD',  fmt: 'int',  delta: 22 },
+        marge:    { value: 70.0,   unit: '%',    fmt: 'pct1', delta: 1.2 },
         success:  { value: 99.30,  unit: '%',    fmt: 'pct2', delta: 0.4 },
         ratio:    { text: '68 / 32', unit: '%',                delta: 5 },
         regulars: { value: 3720,   unit: '/ 15960',fmt:'int', delta: 16 },
@@ -364,7 +364,7 @@
       annee: {
         tx:       { value: 63840,  unit: '',     fmt: 'int',  delta: 18 },
         panier:   { value: 145,    unit: 'MAD',  fmt: 'int',  delta: 6 },
-        tips:     { value: 579600, unit: 'MAD',  fmt: 'int',  delta: 28 },
+        marge:    { value: 70.6,   unit: '%',    fmt: 'pct1', delta: 2.4 },
         success:  { value: 99.35,  unit: '%',    fmt: 'pct2', delta: 0.6 },
         ratio:    { text: '69 / 31', unit: '%',                delta: 6 },
         regulars: { value: 14880,  unit: '/ 63840',fmt:'int', delta: 21 },
@@ -434,7 +434,7 @@
       aujourdhui: {
         tx:       { value: 20,    unit: '',     fmt: 'int',  delta: 14 },
         panier:   { value: 447,   unit: 'MAD',  fmt: 'int',  delta: 6.5 },
-        tips:     { value: 1340,  unit: 'MAD',  fmt: 'int',  delta: 28 },
+        marge:    { value: 78.2,  unit: '%',    fmt: 'pct1', delta: 2.1 },
         success:  { value: 92.5,  unit: '%',    fmt: 'pct1', delta: 3.2 },
         ratio:    { text: '92 / 8', unit: '%',                 delta: 2 },
         regulars: { value: 14,    unit: '/ 20', fmt: 'int',  delta: 12 },
@@ -442,7 +442,7 @@
       hier: {
         tx:       { value: 18,    unit: '',     fmt: 'int',  delta: 5 },
         panier:   { value: 466,   unit: 'MAD',  fmt: 'int',  delta: 2 },
-        tips:     { value: 1260,  unit: 'MAD',  fmt: 'int',  delta: 18 },
+        marge:    { value: 76.5,  unit: '%',    fmt: 'pct1', delta: -0.8 },
         success:  { value: 89.3,  unit: '%',    fmt: 'pct1', delta: -1.5 },
         ratio:    { text: '90 / 10', unit: '%',                 delta: -2 },
         regulars: { value: 13,    unit: '/ 18', fmt: 'int',  delta: 14 },
@@ -450,7 +450,7 @@
       septJours: {
         tx:       { value: 142,   unit: '',     fmt: 'int',  delta: 19 },
         panier:   { value: 452,   unit: 'MAD',  fmt: 'int',  delta: 4 },
-        tips:     { value: 9140,  unit: 'MAD',  fmt: 'int',  delta: 24 },
+        marge:    { value: 77.8,  unit: '%',    fmt: 'pct1', delta: 1.6 },
         success:  { value: 91.8,  unit: '%',    fmt: 'pct1', delta: 2.7 },
         ratio:    { text: '91 / 9', unit: '%',                 delta: 3 },
         regulars: { value: 92,    unit: '/ 142',fmt: 'int',  delta: 18 },
@@ -458,7 +458,7 @@
       trenteJours: {
         tx:       { value: 580,   unit: '',     fmt: 'int',  delta: 22 },
         panier:   { value: 464,   unit: 'MAD',  fmt: 'int',  delta: 6 },
-        tips:     { value: 38600, unit: 'MAD',  fmt: 'int',  delta: 34 },
+        marge:    { value: 78.0,  unit: '%',    fmt: 'pct1', delta: 2.4 },
         success:  { value: 92.1,  unit: '%',    fmt: 'pct1', delta: 4.5 },
         ratio:    { text: '92 / 8', unit: '%',                 delta: 5 },
         regulars: { value: 412,   unit: '/ 580',fmt: 'int',  delta: 20 },
@@ -466,7 +466,7 @@
       moisDernier: {
         tx:       { value: 539,   unit: '',     fmt: 'int',  delta: 18 },
         panier:   { value: 458,   unit: 'MAD',  fmt: 'int',  delta: 4 },
-        tips:     { value: 35898, unit: 'MAD',  fmt: 'int',  delta: 27 },
+        marge:    { value: 77.2,  unit: '%',    fmt: 'pct1', delta: 1.1 },
         success:  { value: 91.6,  unit: '%',    fmt: 'pct1', delta: 3.6 },
         ratio:    { text: '91 / 9', unit: '%',                 delta: 4 },
         regulars: { value: 383,   unit: '/ 539',fmt: 'int',  delta: 16 },
@@ -474,7 +474,7 @@
       trimestre: {
         tx:       { value: 1740,  unit: '',     fmt: 'int',  delta: 13 },
         panier:   { value: 466,   unit: 'MAD',  fmt: 'int',  delta: 5 },
-        tips:     { value: 115800,unit: 'MAD',  fmt: 'int',  delta: 24 },
+        marge:    { value: 77.6,  unit: '%',    fmt: 'pct1', delta: 1.8 },
         success:  { value: 92.3,  unit: '%',    fmt: 'pct1', delta: 4.0 },
         ratio:    { text: '92 / 8', unit: '%',                 delta: 5 },
         regulars: { value: 1236,  unit: '/ 1740',fmt:'int',   delta: 17 },
@@ -482,7 +482,7 @@
       annee: {
         tx:       { value: 6960,  unit: '',     fmt: 'int',  delta: 19 },
         panier:   { value: 472,   unit: 'MAD',  fmt: 'int',  delta: 7 },
-        tips:     { value: 463200,unit: 'MAD',  fmt: 'int',  delta: 30 },
+        marge:    { value: 78.4,  unit: '%',    fmt: 'pct1', delta: 3.0 },
         success:  { value: 92.8,  unit: '%',    fmt: 'pct1', delta: 4.8 },
         ratio:    { text: '93 / 7', unit: '%',                 delta: 6 },
         regulars: { value: 4944,  unit: '/ 6960',fmt:'int',   delta: 21 },
@@ -1519,6 +1519,7 @@
     const unit = spec.unit ? `<span class="u">${spec.unit}</span>` : '';
     if (spec.text) return spec.text + unit;
     if (spec.fmt === 'pct2') return v.toFixed(2).replace('.', ',') + unit;
+    if (spec.fmt === 'pct1') return v.toFixed(1).replace('.', ',') + unit;
     return frInt(v) + unit;
   }
 
@@ -1527,6 +1528,7 @@
     tx:           '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
     panier:       '<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V5a4 4 0 018 0v3"/>',
     tips:         '<path d="M12 2v20M15 5H9.5a2.5 2.5 0 000 5h5a2.5 2.5 0 010 5H8"/>',
+    marge:        '<path d="M19 5L5 19"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>',
     success:      '<path d="M5 12l5 5L20 7"/>',
     ratio:        '<circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/>',
     regulars:     '<circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/>',
@@ -1537,6 +1539,7 @@
     tx:         'M0 18 L15 15 L30 16 L45 12 L60 10 L75 7 L90 11 L105 6 L120 4',
     panier:     'M0 11 L15 13 L30 10 L45 14 L60 11 L75 12 L90 10 L105 13 L120 11',
     tips:       'M0 18 L15 16 L30 14 L45 15 L60 10 L75 11 L90 7 L105 4 L120 2',
+    marge:      'M0 13 L15 12 L30 13 L45 10 L60 11 L75 9 L90 8 L105 6 L120 5',
     success:    'M0 7 L15 6 L30 8 L45 5 L60 6 L75 4 L90 5 L105 3 L120 2',
     ratio:      'M0 14 L15 13 L30 12 L45 11 L60 10 L75 9 L90 7 L105 6 L120 5',
     regulars:   'M0 15 L15 14 L30 15 L45 13 L60 10 L75 11 L90 9 L105 8 L120 6',
@@ -1552,7 +1555,7 @@
     const wrap = document.querySelector('[data-kpi-band]');
     if (!wrap) return;
 
-    // Live-demo override: tx/tips/panier/regulars all scale with sim time.
+    // Live-demo override: tx/panier/regulars all scale with sim time.
     // success and ratio stay near their static values (don't ramp from 0%).
     if (isLiveDemo()) {
       const sim = getSim();
@@ -1561,7 +1564,6 @@
           ...data,
           tx:         data.tx       ? { ...data.tx,       value: sim.cumTx } : data.tx,
           panier:     data.panier   ? { ...data.panier,   value: sim.panierMoyen || data.panier.value } : data.panier,
-          tips:       data.tips     ? { ...data.tips,     value: Math.round(sim.cumTips) } : data.tips,
           regulars:   data.regulars ? { ...data.regulars, value: sim.cumRegulars, unit: `/ ${Math.max(1, sim.cumTx)}` } : data.regulars,
           // success / ratio / tauxRetour stay at their static daily values
         };

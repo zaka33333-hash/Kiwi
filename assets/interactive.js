@@ -1335,6 +1335,27 @@
       `
     },
 
+    /* ════════ Marge brute ════════ */
+    'marge': {
+      title: 'Marge brute',
+      subtitle: 'Chiffre d\'affaires moins coût matière · 30 jours',
+      foot: kpiFootBtns('Fermer', 'Voir le coût matière →'),
+      body: `
+        ${kpiHero('71,4 <span style="font-size:18px; color:var(--n-500); font-weight:500;">%</span>', 'Coût matière 28,6 % du CA · objectif ≤ 30 %', '↑ +1,8 pt vs 30 jours préc.')}
+        ${kpiSection('MARGE PAR CATÉGORIE', [
+          ['Boissons chaudes', '28 % du CA', '82 %'],
+          ['Boissons fraîches', '17 % du CA', '74 %'],
+          ['Pâtisseries maison', '21 % du CA', '66 %'],
+          ['Plats & salades', '34 % du CA', '58 %'],
+        ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
+        ${kpiSection('À SURVEILLER', [
+          ['Jus pressés', 'coût matière en hausse · +6 pts', '61 %'],
+          ['Formule déjeuner', 'marge sous l\'objectif', '54 %'],
+        ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
+        ${kpiInsight(`<b style="color:var(--mint);">Insight :</b> Les boissons chaudes portent la marge — <b>+3 pts</b> possibles en déplaçant la mise en avant menu des plats vers le café et la pâtisserie.`)}
+      `
+    },
+
     /* ════════ Taux de succès ════════ */
     'success': {
       title: 'Taux de succès',
