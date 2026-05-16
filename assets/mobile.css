@@ -229,8 +229,9 @@
 
 }
 
-/* Very small phones — tighten the KPI band to a single column */
-@media (max-width: 380px) {
+/* Only genuinely tiny phones (≤340px, e.g. iPhone SE 1st-gen) drop to a
+ * single column — 375px is mainstream and keeps the 2-up KPI grid. */
+@media (max-width: 340px) {
   .kpi-band { grid-template-columns: 1fr; }
   .fa-stats { grid-template-columns: 1fr !important; }
 }
