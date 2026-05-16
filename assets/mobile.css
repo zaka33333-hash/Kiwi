@@ -20,8 +20,12 @@
 @media (max-width: 860px) {
 
   /* ─────────────── APP SHELL ─────────────── */
-  .app { grid-template-columns: 1fr; min-height: 100vh; }
-  .main { max-width: 100%; }
+  .app { grid-template-columns: minmax(0, 1fr); min-height: 100vh; }
+  /* min-width:0 — without it the grid item keeps its min-content width and
+   * the 1fr track balloons past the viewport (horizontal-scroll bug). */
+  .main { max-width: 100%; min-width: 0; }
+  /* Last-line safety net: never let the page scroll sideways. */
+  html, body { overflow-x: hidden; max-width: 100%; }
   /* NOTE: .app carries a transform (the reveal/lock animation), which makes
    * it a containing block — a position:fixed sidebar inside it would be
    * trapped in .app's scaled coordinate space. mobile-nav.js therefore moves
@@ -145,6 +149,9 @@
   /* ─────────────── HOME · HERO ─────────────── */
   .hero-today { padding: 50px 20px 26px; border-radius: 18px; margin-bottom: 14px; }
   .hero-grid { gap: 24px; }
+  /* 4 deltas across is too tight on a phone — lay them out 2×2 */
+  .hero-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 16px; }
+  .hero-breakdown .b .v { font-size: 16px; }
 
   /* ─────────────── HOME · KPI BAND ─────────────── */
   .kpi-band { grid-template-columns: 1fr 1fr; gap: 9px; }
