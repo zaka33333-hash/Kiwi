@@ -5,6 +5,9 @@
 (() => {
   'use strict';
 
+  /* i18n — current locale (fr default); window.KiwiI18n owns the master dict. */
+  const kiwiLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+
   /* ─────────── INJECTED STYLES ─────────── */
   const CSS = `
   /* Toasts */
@@ -433,6 +436,65 @@
   }
 
   /* ═══════════════════════ COMMAND PALETTE ═══════════════════════ */
+  const CP_STR = {
+    fr: {
+      sNav: 'NAVIGATION', sActions: 'ACTIONS RAPIDES', sResto: 'RESTAURATION', sHelp: 'AIDE',
+      dash: 'Tableau de bord', dashSub: 'Vue principale',
+      orders: 'Commandes', ordersSub: "Aujourd'hui · live",
+      team: 'Équipe', teamSub: '8 membres', teamToast: 'Page équipe',
+      assistant: 'Assistant financier', assistantSub: 'Calculateur · prévisions · scénarios',
+      newSale: 'Nouvelle vente', newSaleSub: 'Encaisser un montant',
+      refund: 'Rembourser une transaction', refundToast: 'Sélectionnez une transaction',
+      waSummary: 'Envoyer résumé par WhatsApp', waSummaryToast: 'Résumé envoyé · +212 6 xx xx xx xx',
+      instant: 'Régler instantanément', instantSub: '1,50 MAD · ~10s',
+      exportTx: 'Exporter les transactions',
+      floor: 'Ouvrir plan de salle', floorToast: 'Tables · 6 occupées · 2 libres',
+      editMenu: 'Modifier le menu', editMenuToast: 'Éditeur de menu',
+      closing: 'Fermeture de service', closingToast: 'Clôture initiée…',
+      support: 'Contacter le support WhatsApp', supportToast: 'Redirection WhatsApp…',
+      docs: 'Documentation', docsToast: 'docs.kiwi.ma',
+      placeholder: 'Rechercher transactions, produits, équipe, actions…',
+      navigate: 'naviguer', select: 'sélectionner', noResult: 'Aucun résultat',
+    },
+    en: {
+      sNav: 'NAVIGATION', sActions: 'QUICK ACTIONS', sResto: 'RESTAURANT', sHelp: 'HELP',
+      dash: 'Dashboard', dashSub: 'Main view',
+      orders: 'Orders', ordersSub: 'Today · live',
+      team: 'Team', teamSub: '8 members', teamToast: 'Team page',
+      assistant: 'Financial assistant', assistantSub: 'Calculator · forecasts · scenarios',
+      newSale: 'New sale', newSaleSub: 'Take a payment',
+      refund: 'Refund a transaction', refundToast: 'Select a transaction',
+      waSummary: 'Send summary by WhatsApp', waSummaryToast: 'Summary sent · +212 6 xx xx xx xx',
+      instant: 'Settle instantly', instantSub: '1.50 MAD · ~10s',
+      exportTx: 'Export transactions',
+      floor: 'Open floor plan', floorToast: 'Tables · 6 occupied · 2 free',
+      editMenu: 'Edit the menu', editMenuToast: 'Menu editor',
+      closing: 'Service closing', closingToast: 'Closing started…',
+      support: 'Contact WhatsApp support', supportToast: 'Redirecting to WhatsApp…',
+      docs: 'Documentation', docsToast: 'docs.kiwi.ma',
+      placeholder: 'Search transactions, products, team, actions…',
+      navigate: 'navigate', select: 'select', noResult: 'No results',
+    },
+    ar: {
+      sNav: 'التنقّل', sActions: 'إجراءات سريعة', sResto: 'المطعم', sHelp: 'المساعدة',
+      dash: 'لوحة التحكم', dashSub: 'العرض الرئيسي',
+      orders: 'الطلبات', ordersSub: 'اليوم · مباشر',
+      team: 'الفريق', teamSub: '8 أعضاء', teamToast: 'صفحة الفريق',
+      assistant: 'المساعد المالي', assistantSub: 'حاسبة · توقّعات · سيناريوهات',
+      newSale: 'عملية بيع جديدة', newSaleSub: 'تحصيل مبلغ',
+      refund: 'استرجاع معاملة', refundToast: 'اختر معاملة',
+      waSummary: 'إرسال الملخّص عبر واتساب', waSummaryToast: 'تم إرسال الملخّص · +212 6 xx xx xx xx',
+      instant: 'تسوية فورية', instantSub: '1,50 درهم · ~10 ثوانٍ',
+      exportTx: 'تصدير المعاملات',
+      floor: 'فتح مخطط القاعة', floorToast: 'الطاولات · 6 مشغولة · 2 شاغرة',
+      editMenu: 'تعديل القائمة', editMenuToast: 'محرّر القائمة',
+      closing: 'إقفال الخدمة', closingToast: 'بدأ الإقفال…',
+      support: 'التواصل مع دعم واتساب', supportToast: 'إعادة التوجيه إلى واتساب…',
+      docs: 'التوثيق', docsToast: 'docs.kiwi.ma',
+      placeholder: 'ابحث عن معاملات، منتجات، فريق، إجراءات…',
+      navigate: 'تنقّل', select: 'اختيار', noResult: 'لا نتائج',
+    },
+  };
   function commandPalette() {
     if (document.querySelector('.kp')) return;
     const back = document.createElement('div');
@@ -440,26 +502,27 @@
     back.style.background = 'rgba(10,15,13,0.45)';
     const kp = document.createElement('div');
     kp.className = 'kp';
+    const cp = CP_STR[kiwiLang()] || CP_STR.fr;
     const items = [
-      { sect: 'NAVIGATION' },
-      { icon: '📊', label: 'Tableau de bord', sub: 'Vue principale', href: 'dashboard.html', kbd: 'G A' },
-      { icon: '🧾', label: 'Commandes', sub: 'Aujourd\'hui · live', action: () => handlers['nav-transactions']?.(), kbd: 'G C' },
+      { sect: cp.sNav },
+      { icon: '📊', label: cp.dash, sub: cp.dashSub, href: 'dashboard.html', kbd: 'G A' },
+      { icon: '🧾', label: cp.orders, sub: cp.ordersSub, action: () => handlers['nav-transactions']?.(), kbd: 'G C' },
       // Règlements removed in Kiwi 1.0 — see KIWI_2.0_ROADMAP.md
-      { icon: '👥', label: 'Équipe', sub: '8 membres', action: () => toast('Page équipe', {type: 'info'}), kbd: 'G E' },
-      { icon: '🧮', label: 'Assistant financier', sub: 'Calculateur · prévisions · scénarios', action: () => handlers['nav-assistant']?.() },
-      { sect: 'ACTIONS RAPIDES' },
-      { icon: '➕', label: 'Nouvelle vente', sub: 'Encaisser un montant', action: () => handlers['new-sale']() },
-      { icon: '↩', label: 'Rembourser une transaction', action: () => toast('Sélectionnez une transaction', {type: 'info'}) },
-      { icon: '📧', label: 'Envoyer résumé par WhatsApp', action: () => toast('Résumé envoyé · +212 6 xx xx xx xx', {type: 'success'}) },
-      { icon: '⚡', label: 'Régler instantanément', sub: '1,50 MAD · ~10s', action: () => handlers['instant-settle']() },
-      { icon: '📤', label: 'Exporter les transactions', action: () => handlers.export() },
-      { sect: 'RESTAURATION' },
-      { icon: '🍽️', label: 'Ouvrir plan de salle', action: () => toast('Tables · 6 occupées · 2 libres', {type: 'info'}) },
-      { icon: '📋', label: 'Modifier le menu', action: () => toast('Éditeur de menu', {type: 'info'}) },
-      { icon: '🧾', label: 'Fermeture de service', action: () => toast('Clôture initiée…', {type: 'info'}) },
-      { sect: 'AIDE' },
-      { icon: '💬', label: 'Contacter le support WhatsApp', action: () => toast('Redirection WhatsApp…', {type: 'info', desc: '+212 5 22 xx xx xx'}) },
-      { icon: '📚', label: 'Documentation', action: () => toast('docs.kiwi.ma', {type: 'info'}) },
+      { icon: '👥', label: cp.team, sub: cp.teamSub, action: () => toast(cp.teamToast, {type: 'info'}), kbd: 'G E' },
+      { icon: '🧮', label: cp.assistant, sub: cp.assistantSub, action: () => handlers['nav-assistant']?.() },
+      { sect: cp.sActions },
+      { icon: '➕', label: cp.newSale, sub: cp.newSaleSub, action: () => handlers['new-sale']() },
+      { icon: '↩', label: cp.refund, action: () => toast(cp.refundToast, {type: 'info'}) },
+      { icon: '📧', label: cp.waSummary, action: () => toast(cp.waSummaryToast, {type: 'success'}) },
+      { icon: '⚡', label: cp.instant, sub: cp.instantSub, action: () => handlers['instant-settle']() },
+      { icon: '📤', label: cp.exportTx, action: () => handlers.export() },
+      { sect: cp.sResto },
+      { icon: '🍽️', label: cp.floor, action: () => toast(cp.floorToast, {type: 'info'}) },
+      { icon: '📋', label: cp.editMenu, action: () => toast(cp.editMenuToast, {type: 'info'}) },
+      { icon: '🧾', label: cp.closing, action: () => toast(cp.closingToast, {type: 'info'}) },
+      { sect: cp.sHelp },
+      { icon: '💬', label: cp.support, action: () => toast(cp.supportToast, {type: 'info', desc: '+212 5 22 xx xx xx'}) },
+      { icon: '📚', label: cp.docs, action: () => toast(cp.docsToast, {type: 'info'}) },
     ];
     renderKp();
 
@@ -468,7 +531,7 @@
       kp.innerHTML = `
         <div class="kp-head">
           <span style="color:var(--n-500);">${I.search}</span>
-          <input type="text" placeholder="Rechercher transactions, produits, équipe, actions…" autofocus />
+          <input type="text" placeholder="${cp.placeholder}" autofocus />
           <span style="font-family:var(--mono); font-size:10.5px; background:var(--n-100); padding:3px 8px; border-radius:5px; color:var(--n-500);">ESC</span>
         </div>
         <div class="kp-list">
@@ -484,8 +547,8 @@
           `).join('')}
         </div>
         <div class="kp-foot">
-          <span><kbd>↑↓</kbd> naviguer</span>
-          <span><kbd>↵</kbd> sélectionner</span>
+          <span><kbd>↑↓</kbd> ${cp.navigate}</span>
+          <span><kbd>↵</kbd> ${cp.select}</span>
           <span>Kiwi ⌘K</span>
         </div>
       `;
@@ -534,7 +597,7 @@
       if (!rows.some((it) => !it.sect)) {
         const empty = document.createElement('div');
         empty.style.cssText = 'padding:28px 20px; text-align:center; color:var(--n-500); font-size:13px;';
-        empty.textContent = 'Aucun résultat';
+        empty.textContent = cp.noResult;
         frag.appendChild(empty);
       } else {
         rows.forEach((it) => {
