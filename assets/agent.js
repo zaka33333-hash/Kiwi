@@ -513,14 +513,27 @@
     .fa-ctx-eyebrow { font-size:10px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:var(--atlas); }
     .fa-ctx-biz { font-family:'Instrument Serif',serif; font-size:23px; color:var(--ink); margin-top:7px; line-height:1.15; }
     .fa-ctx-sub { font-size:11px; color:var(--n-500); margin-top:4px; }
-    .fa-ctx-list { margin-top:22px; display:flex; flex-direction:column; }
-    .fa-ctx-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px;
-      padding:12px 0; border-bottom:1px solid var(--n-200); }
-    .fa-ctx-row:last-child { border-bottom:none; }
-    .fa-ctx-row .k { font-size:12px; color:var(--n-600); }
-    .fa-ctx-row .v { font-size:13px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; text-align:end; }
-    .fa-ctx-net { margin-top:16px; padding:16px 17px; border-radius:17px; color:#fff;
-      background:linear-gradient(145deg,var(--atlas),var(--riad)); box-shadow:0 16px 34px -20px rgba(11,110,79,.65); }
+    .fa-ctx-group { margin-top:6px; }
+    .fa-ctx-gh { display:flex; justify-content:space-between; align-items:baseline; gap:8px;
+      font-size:10px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--n-500);
+      margin:18px 0 5px; padding:0 10px; }
+    .fa-ctx-gh .tot { color:var(--atlas); letter-spacing:.02em; }
+    .fa-ctx-item { display:flex; justify-content:space-between; align-items:baseline; gap:12px; width:100%;
+      padding:9px 10px; border:none; background:transparent; border-radius:10px; cursor:pointer;
+      text-align:start; font:inherit; transition:background 130ms var(--fa-ease); }
+    .fa-ctx-item:hover { background:var(--paper-soft); }
+    .fa-ctx-item .k { font-size:12px; color:var(--n-600); }
+    .fa-ctx-item .v { font-size:12.5px; font-weight:600; color:var(--ink);
+      font-variant-numeric:tabular-nums; text-align:end; white-space:nowrap; }
+    .fa-ctx-item.fa-flash { animation:fa-flash-kf 540ms var(--fa-ease); }
+    @keyframes fa-flash-kf { 0%{ background:rgba(11,110,79,.20); } 100%{ background:transparent; } }
+    .fa-ctx-net { margin-top:18px; padding:16px 17px; border-radius:17px; color:#fff; width:100%;
+      text-align:start; border:none; cursor:pointer;
+      background:linear-gradient(145deg,var(--atlas),var(--riad)); box-shadow:0 16px 34px -20px rgba(11,110,79,.65);
+      transition:transform 160ms var(--fa-ease); }
+    .fa-ctx-net:hover { transform:translateY(-2px); }
+    .fa-ctx-net.fa-flash { animation:fa-flash-net 540ms ease; }
+    @keyframes fa-flash-net { 0%{ filter:brightness(1.4); } 100%{ filter:brightness(1); } }
     .fa-ctx-net .k { font-size:10px; letter-spacing:.1em; text-transform:uppercase; opacity:.82; }
     .fa-ctx-net .v { font-size:23px; font-weight:600; margin-top:6px; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
     .fa-ctx-net .s { font-size:11.5px; opacity:.82; margin-top:2px; }
@@ -564,13 +577,33 @@
     if (!window.Kiwi || !window.Kiwi.drawer) return;
     injectCss();
 
-    const ctxRows = [
-      ['Chiffre d’affaires', fmtMad(B.revenue)],
-      ['Coût matière', `${fmtMad(B.cogs)} · ${fmt1(100 - B.grossMargin)} %`],
-      ['Marge brute', `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`],
-      ['Charges fixes', fmtMad(B.totalOpex)],
-      ['Trésorerie dispo.', fmtMad(B.cashBuffer)],
-    ];
+    // Every fact the agent knows — grouped, each row click-to-insert.
+    const ctxItem = (k, v) =>
+      `<button class="fa-ctx-item" type="button" data-fa-fact="${escAttr(`${k} : ${v}`)}"><span class="k">${k}</span><span class="v">${v}</span></button>`;
+    const ctxGroup = (title, items, total) =>
+      `<div class="fa-ctx-group"><div class="fa-ctx-gh"><span>${title}</span>${total ? `<span class="tot">${total}</span>` : ''}</div>${items.map(([k, v]) => ctxItem(k, v)).join('')}</div>`;
+    const opexItems = Object.entries(B.opex).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, fmtMad(v)]);
+    const ctxRail =
+      ctxGroup('Activité', [
+        ['Chiffre d’affaires', fmtMad(B.revenue)],
+        ['CA par jour', fmtMad(B.dailyRev)],
+        ['CA du mois en cours', `${fmtMad(B.mtdRevenue)} · ${B.mtdDays} j`],
+        ['Commandes / mois', fmt(B.ordersPerMonth)],
+        ['Commandes / jour', fmt(B.ordersPerDay)],
+        ['Panier moyen', fmtMad(B.avgBasket)],
+      ]) +
+      ctxGroup('Rentabilité', [
+        ['Marge brute', `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`],
+        ['Coût matière', `${fmtMad(B.cogs)} · ${fmt1(100 - B.grossMargin)} %`],
+        ['Bénéfice par commande', fmtMad(B.netPerOrder)],
+        ['Seuil de rentabilité', `${fmtMad(B.breakEvenRev)} / mois`],
+      ]) +
+      ctxGroup('Charges fixes', opexItems, `${fmtMad(B.totalOpex)} / mois`) +
+      ctxGroup('Trésorerie & équipe', [
+        ['Trésorerie disponible', fmtMad(B.cashBuffer)],
+        ['Effectif', `${B.staffCount} employés`],
+      ]);
+    const netFact = `Bénéfice net : ${fmtMad(B.netProfit)} · marge nette ${fmt1(B.netMargin)} %`;
 
     const body = `
       <div class="fa">
@@ -605,16 +638,14 @@
         <aside class="fa-context">
           <div class="fa-ctx-eyebrow">Ce que je sais</div>
           <div class="fa-ctx-biz">${B.name}</div>
-          <div class="fa-ctx-sub">30 derniers jours</div>
-          <div class="fa-ctx-list">
-            ${ctxRows.map(([k, v]) => `<div class="fa-ctx-row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}
-          </div>
-          <div class="fa-ctx-net">
+          <div class="fa-ctx-sub">30 derniers jours · cliquez pour insérer</div>
+          ${ctxRail}
+          <button class="fa-ctx-net" type="button" data-fa-fact="${escAttr(netFact)}">
             <div class="k">Bénéfice net</div>
             <div class="v">${fmtMad(B.netProfit)}</div>
             <div class="s">marge nette ${fmt1(B.netMargin)} %</div>
-          </div>
-          <div class="fa-ctx-note">Chaque réponse est calculée sur ces données réelles — pas d’estimations vagues.</div>
+          </button>
+          <div class="fa-ctx-note">Cliquez un chiffre pour l’ajouter à votre message — l’assistant raisonnera dessus.</div>
           <div class="fa-ctx-trust">${ICON.lock}<span>Tout s’exécute en local. Aucune donnée ne quitte cet appareil.</span></div>
         </aside>
       </div>`;
@@ -760,6 +791,16 @@
       input.style.height = 'auto';
       ask(v);
     }
+    // Insert a known fact from the context rail into the message field.
+    function insertFact(text, el) {
+      const cur = input.value.trim();
+      input.value = cur ? `${cur} · ${text}` : text;
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 144) + 'px';
+      input.focus();
+      try { input.setSelectionRange(input.value.length, input.value.length); } catch (_) {}
+      if (el) { el.classList.remove('fa-flash'); void el.offsetWidth; el.classList.add('fa-flash'); }
+    }
     root.querySelector('[data-fa-send]').addEventListener('click', send);
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
@@ -776,6 +817,8 @@
       const follow = e.target.closest('[data-fa-follow]');
       if (follow) { ask(follow.getAttribute('data-fa-follow')); return; }
       if (e.target.closest('[data-fa-activate]')) { activateLlm(); return; }
+      const fact = e.target.closest('[data-fa-fact]');
+      if (fact) { insertFact(fact.getAttribute('data-fa-fact'), fact); return; }
     });
 
     // ─── keypad ───
