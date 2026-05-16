@@ -291,7 +291,7 @@
 
   function sHelp() {
     return {
-      text: `Bonjour Rachid. Je suis votre assistant financier — je connais Café Atlas : chiffre d’affaires, coût matière, charges, marges et trésorerie. Posez-moi une question chiffrée et je calcule l’impact réel sur votre résultat. Par exemple :`,
+      text: `Bonjour Rachid. Je suis votre assistant financier — je connais Café Atlas : chiffre d’affaires, coût matière, charges, marges et trésorerie. Posez-moi une question chiffrée et je calcule l’impact réel sur votre résultat ; pour une question ouverte sur la gestion de votre café, je peux activer un assistant IA dans votre navigateur. Par exemple :`,
       follow: [
         'Puis-je embaucher un serveur ?',
         'Et si j’augmente mes prix de 5 % ?',
@@ -299,15 +299,6 @@
         'Prévision de bénéfice ce mois',
         'Puis-je investir 80 000 MAD ?',
       ],
-    };
-  }
-
-  function sFallback(q) {
-    const r = evalMath(q);
-    if (r != null) return sCalc(q, r);
-    return {
-      text: `Je n’ai pas saisi la question, mais je peux estimer : une <b>embauche</b>, une <b>hausse de prix</b>, un <b>investissement</b>, votre <b>seuil de rentabilité</b>, une <b>prévision</b>, ou décomposer vos <b>charges</b>. Vous pouvez aussi taper un calcul (ex. <i>462000 / 16 × 31</i>).`,
-      follow: ['Décompose mes charges', 'Prévision de bénéfice ce mois', 'Quel est mon seuil de rentabilité ?'],
     };
   }
 
@@ -336,7 +327,48 @@
     if (/(charge|depense|cout|frais|opex)/.test(q)) return sCharges();
     if (/(chiffre|revenu|\bca\b|encaiss|vente|recette)/.test(q)) return sRevenue();
     if (/(benefice|profit|gagne|resultat|rentre|combien je gagne)/.test(q)) return sProfit();
-    return sFallback(raw);
+    const r = evalMath(raw);
+    if (r != null) return sCalc(raw, r);
+    return null;   // unmatched → routed to the in-browser LLM
+  }
+
+  /* ═══════════════ IN-BROWSER LLM · WebLLM ═══════════════
+   * Anything the deterministic scenario engine doesn't recognise is
+   * answered by an open-source model running fully in the browser via
+   * WebGPU — no backend, no API key, no data leaves the device.
+   * The model is downloaded once (cached by the browser) and only after
+   * the owner explicitly opts in. */
+  const LLM = {
+    model: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',  // open-source · ~2 Go · swap freely
+    sizeLabel: '≈ 2 Go',
+    cdn: 'https://esm.run/@mlc-ai/web-llm',
+    status: 'idle',   // idle · loading · ready · error
+    engine: null,
+    progress: 0,
+  };
+  const llmHistory = [];   // {role,content} — conversation memory for follow-ups
+
+  function buildSystemPrompt() {
+    const o = B.opex;
+    return [
+      'Tu es l\'assistant financier de "Café Atlas · Maarif", un café-restaurant à Casablanca, au Maroc.',
+      'Tu conseilles son propriétaire, Rachid. Voici ses chiffres réels sur les 30 derniers jours (en dirhams marocains, MAD) :',
+      `- Chiffre d'affaires : ${fmt(B.revenue)} MAD`,
+      `- Coût matière : ${fmt(B.cogs)} MAD (${fmt1(100 - B.grossMargin)} % du CA)`,
+      `- Marge brute : ${fmt(B.grossProfit)} MAD (${fmt1(B.grossMargin)} %)`,
+      `- Charges fixes : ${fmt(B.totalOpex)} MAD — dont masse salariale ${fmt(o['Masse salariale'])}, loyer ${fmt(o['Loyer'])}, énergie ${fmt(o['Eau · électricité · gaz'])}.`,
+      `- Bénéfice net : ${fmt(B.netProfit)} MAD (marge nette ${fmt1(B.netMargin)} %)`,
+      `- Trésorerie disponible : ${fmt(B.cashBuffer)} MAD`,
+      `- Panier moyen : ${fmt(B.avgBasket)} MAD · ${fmt(B.ordersPerMonth)} ventes/mois · ${B.staffCount} employés.`,
+      '',
+      'Règles :',
+      '- Réponds toujours en français, de façon concise, concrète et chiffrée quand c\'est utile.',
+      '- Tu peux discuter de tout ce qui touche la gestion du café : finances, RH, marketing, opérations, fournisseurs, stratégie, motivation.',
+      '- Tu NE réponds PAS aux questions sans lien avec l\'activité (sport, célébrités, actualité générale, culture générale). Dans ce cas, décline poliment en une phrase et propose de revenir au café.',
+      '- Tu n\'as pas accès à Internet ni à des données en temps réel : dis-le clairement si on te demande un fait récent (score, météo, cours).',
+      '- Ne donne jamais de conseil d\'investissement boursier.',
+      '- N\'invente pas de chiffres : appuie-toi sur les données ci-dessus.',
+    ].join('\n');
   }
 
   /* ═══════════════ UI ═══════════════ */
@@ -430,6 +462,13 @@
     .fa-ctx-row.hl .v { color:var(--atlas); font-size:15px; }
     .fa-ctx-note { margin-top:18px; font-size:11.5px; color:var(--n-500); line-height:1.5; }
     @media (max-width:920px) { .fa-context { display:none; } }
+    .fa-llm-btn { font-size:12.5px; font-weight:600; padding:9px 16px; border-radius:999px;
+      border:1px solid var(--atlas); background:var(--atlas); color:#fff; cursor:pointer; transition:background 130ms; }
+    .fa-llm-btn:hover { background:var(--riad); }
+    .fa-llm-prog { height:7px; border-radius:999px; background:var(--n-200); overflow:hidden; margin:11px 0 7px; }
+    .fa-llm-bar { height:100%; width:0%; border-radius:999px; background:var(--atlas); transition:width 220ms var(--ease-out,ease); }
+    .fa-llm-ptxt { font-size:11.5px; color:var(--n-500); }
+    [data-fa-stream] { white-space:pre-wrap; }
     `;
     document.head.appendChild(s);
   }
@@ -543,12 +582,87 @@
       const t = (text || '').trim();
       if (!t) return;
       pushUser(t);
-      const typing = pushTyping();
       const reply = respond(t);
-      setTimeout(() => {
+      if (reply) {
+        const typing = pushTyping();
+        setTimeout(() => { typing.remove(); pushAgent(replyHtml(reply)); }, 460 + Math.random() * 300);
+        return;
+      }
+      routeToLlm(t);
+    }
+
+    function routeToLlm(question) {
+      if (!('gpu' in navigator)) {
+        pushAgent(replyHtml({
+          text: 'Cette question sort de mes calculs prédéfinis. Pour y répondre librement j’utilise un assistant IA dans le navigateur, mais le vôtre ne prend pas en charge WebGPU — essayez Chrome ou Edge à jour sur ordinateur. Je reste disponible pour tout calcul : embauche, prix, investissement, seuil, prévisions.',
+          follow: ['Décompose mes charges', 'Quel est mon seuil de rentabilité ?'],
+        }));
+        return;
+      }
+      if (LLM.status === 'ready') { runLlm(question); return; }
+      if (LLM.status === 'loading') {
+        LLM.pending = question;
+        pushAgent(replyHtml({ text: `Mon assistant IA finit de se charger (${Math.round(LLM.progress * 100)} %). Je réponds dès qu’il est prêt.` }));
+        return;
+      }
+      // idle or error → opt-in activation card
+      LLM.pending = question;
+      pushAgent(
+        `<div>Cette question sort de mes calculs prédéfinis — mais je peux y répondre librement avec un <b>assistant IA open-source</b> qui s’exécute <b>entièrement dans votre navigateur</b> : aucune donnée ne part ailleurs.</div>
+         <div class="fa-note" style="font-style:normal;">Premier lancement : un téléchargement unique de ${LLM.sizeLabel}, ensuite instantané.</div>
+         <div class="fa-follow"><button type="button" class="fa-llm-btn" data-fa-activate>Activer l’assistant IA</button></div>`);
+    }
+
+    async function activateLlm() {
+      if (LLM.status === 'loading' || LLM.status === 'ready') return;
+      LLM.status = 'loading';
+      const card = pushAgent(
+        `<div>Installation de l’assistant IA — modèle open-source exécuté dans votre navigateur.</div>
+         <div class="fa-llm-prog"><div class="fa-llm-bar" data-fa-bar></div></div>
+         <div class="fa-llm-ptxt" data-fa-ptxt>Initialisation…</div>`);
+      const bar = card.querySelector('[data-fa-bar]');
+      const ptxt = card.querySelector('[data-fa-ptxt]');
+      try {
+        const webllm = await import(LLM.cdn);
+        LLM.engine = await webllm.CreateMLCEngine(LLM.model, {
+          initProgressCallback: (p) => {
+            LLM.progress = p.progress || 0;
+            if (bar) bar.style.width = Math.round(LLM.progress * 100) + '%';
+            if (ptxt) ptxt.textContent = p.text || `${Math.round(LLM.progress * 100)} %`;
+          },
+        });
+        LLM.status = 'ready';
+        if (bar) bar.style.width = '100%';
+        if (ptxt) ptxt.textContent = 'Assistant IA prêt.';
+        pushAgent(replyHtml({ text: 'Mon assistant IA est prêt. Posez-moi vos questions sur la gestion, les finances, l’équipe ou le marketing de votre café — je reste concentré sur votre activité.' }));
+        if (LLM.pending) { const q = LLM.pending; LLM.pending = null; runLlm(q); }
+      } catch (e) {
+        LLM.status = 'error';
+        if (ptxt) ptxt.textContent = 'Échec du chargement.';
+        pushAgent(replyHtml({ text: 'Je n’ai pas pu charger l’assistant IA (connexion, mémoire ou navigateur incompatible). Mes calculs financiers restent pleinement disponibles.' }));
+      }
+    }
+
+    async function runLlm(question) {
+      const typing = pushTyping();
+      llmHistory.push({ role: 'user', content: question });
+      const messages = [{ role: 'system', content: buildSystemPrompt() }, ...llmHistory.slice(-8)];
+      try {
+        const stream = await LLM.engine.chat.completions.create({ messages, temperature: 0.5, stream: true });
         typing.remove();
-        pushAgent(replyHtml(reply));
-      }, 480 + Math.random() * 320);
+        const bubble = pushAgent('<span data-fa-stream></span>');
+        const target = bubble.querySelector('[data-fa-stream]');
+        let acc = '';
+        for await (const chunk of stream) {
+          acc += chunk.choices?.[0]?.delta?.content || '';
+          if (target) target.textContent = acc;
+          scrollDown();
+        }
+        llmHistory.push({ role: 'assistant', content: acc });
+      } catch (e) {
+        typing.remove();
+        pushAgent(replyHtml({ text: 'Une erreur est survenue côté assistant IA. Réessayez, ou demandez-moi un calcul précis.' }));
+      }
     }
 
     // greeting
@@ -576,6 +690,7 @@
       if (chip) { ask(chip.getAttribute('data-fa-chip')); return; }
       const follow = e.target.closest('[data-fa-follow]');
       if (follow) { ask(follow.getAttribute('data-fa-follow')); return; }
+      if (e.target.closest('[data-fa-activate]')) { activateLlm(); return; }
     });
 
     // ─── keypad ───
