@@ -374,7 +374,7 @@
   /* ═══════════════ UI ═══════════════ */
 
   const ICON = {
-    avatar: '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.6l2.55 6.86 6.85 2.54-6.85 2.55L12 22.4l-2.55-6.85L2.6 13l6.85-2.54z"/></svg>',
+    avatar: '<img class="fa-avatar-ico" src="assets/landing/icons/merchant.png" alt="" width="17" height="17" decoding="async"/>',
     keypad: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h4"/></svg>',
     send: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
@@ -420,6 +420,9 @@
       display:flex; align-items:center; justify-content:center;
       background:linear-gradient(150deg,var(--atlas),var(--riad)); color:var(--mint);
       box-shadow:0 3px 10px -3px rgba(11,110,79,.55); }
+    .fa-avatar-ico { width:17px; height:17px;
+      filter:brightness(0) saturate(100%) invert(85%) sepia(31%) saturate(469%)
+        hue-rotate(70deg) brightness(102%) contrast(91%); }
 
     /* agent message — text flows on paper, no box */
     .fa-msg.agent .fa-bubble { flex:1; min-width:0; max-width:632px; padding-top:3px;
