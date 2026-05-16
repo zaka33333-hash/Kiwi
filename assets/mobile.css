@@ -79,7 +79,7 @@
 
   .kw-hamburger {
     display: flex; align-items: center; justify-content: center;
-    width: 38px; height: 38px; flex-shrink: 0;
+    width: 42px; height: 42px; flex-shrink: 0;
     border: 1px solid var(--n-200); border-radius: 11px;
     background: #fff; color: var(--ink); cursor: pointer;
     transition: background 140ms;
@@ -105,6 +105,7 @@
   .kw-tab {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: flex-start; gap: 3px;
+    min-height: 52px;
     padding: 9px 2px 7px; background: none; border: 0; cursor: pointer;
     font: inherit; color: var(--n-500);
     -webkit-tap-highlight-color: transparent;
@@ -170,8 +171,23 @@
   /* Integration cards — 1 column so each stays tappable */
   .integ-grid { grid-template-columns: 1fr !important; }
 
-  /* Wide tables inside blocks scroll rather than overflow the screen */
-  .block table, .p-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* ─── Data tables — tighter cells, sticky first column, swipe to scroll ─── */
+  .block table, .p-table {
+    display: block; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .p-table th, .p-table td {
+    padding: 11px 12px !important;
+    font-size: 12.5px !important;
+    white-space: nowrap;
+  }
+  /* keep the time/label column pinned while the rest of the row scrolls */
+  .p-table th:first-child, .p-table td:first-child {
+    position: sticky; left: 0; background: #fff; z-index: 1;
+  }
+
+  /* ─── Mix de paiement — donut stacks above its legend ─── */
+  .donut-row { flex-direction: column; align-items: center; gap: 18px; }
+  .donut-legend { width: 100%; flex: none; }
 
   /* ─────────────── DRAWERS — full-width on a phone ───────────────
    * interactive.js / agent.js inject their CSS at runtime, after this
