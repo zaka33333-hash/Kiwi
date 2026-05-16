@@ -1070,6 +1070,244 @@
     .profil-clockout svg { width: 18px; height: 18px; }
 
     /* ===========================================================
+       === Gamification layer ===  (profil cards · carte du soir · rank chip)
+       =========================================================== */
+    .kg-card {
+      background: var(--paper-mute);
+      border-radius: var(--r-xl);
+      padding: 18px;
+    }
+    .kg-eyebrow {
+      font-size: 11px; font-weight: 500;
+      color: var(--ink-4);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    /* a) Niveau / Grade */
+    .kg-rank-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 12px;
+    }
+    .kg-rank-name {
+      font-family: var(--serif); font-style: italic; font-weight: 400;
+      font-size: 27px; line-height: 1.05; color: var(--ink);
+      margin-top: 6px;
+    }
+    .kg-rank-xp { text-align: right; flex: 0 0 auto; }
+    .kg-rank-xp-num {
+      font-family: var(--mono); font-size: 16px; font-weight: 500;
+      color: var(--forest); font-feature-settings: "tnum" 1;
+    }
+    .kg-rank-xp-label {
+      font-size: 10px; color: var(--ink-4);
+      letter-spacing: 0.04em; margin-top: 1px;
+    }
+    .kg-bar {
+      height: 7px; border-radius: 999px;
+      background: var(--mint-edge);
+      overflow: hidden; margin-top: 14px;
+    }
+    .kg-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: var(--gradient); width: 0%;
+      transition: width 600ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .kg-rank-foot {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-top: 8px; font-size: 11.5px; color: var(--ink-3);
+    }
+    .kg-rank-foot em {
+      font-family: var(--serif); font-style: italic;
+      font-size: 13px; color: var(--ink-2);
+    }
+    .kg-rank-foot .kg-mono {
+      font-family: var(--mono); font-feature-settings: "tnum" 1;
+      color: var(--ink-2);
+    }
+
+    /* b) Records personnels */
+    .kg-rec-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px; margin-top: 12px;
+    }
+    .kg-rec-tile {
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--r-lg);
+      padding: 12px 8px 10px;
+      text-align: center;
+      transition: background 240ms ease, border-color 240ms ease;
+    }
+    .kg-rec-num {
+      font-family: var(--mono); font-weight: 500;
+      font-size: 22px; color: var(--ink);
+      font-feature-settings: "tnum" 1; letter-spacing: -0.02em;
+    }
+    .kg-rec-num small { font-size: 11px; color: var(--ink-4); font-weight: 400; }
+    .kg-rec-label {
+      font-size: 9.5px; color: var(--ink-4);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-top: 5px; line-height: 1.25;
+    }
+    .kg-rec-flag {
+      display: none; margin-top: 6px;
+      font-size: 9px; font-weight: 600;
+      color: var(--forest); letter-spacing: 0.02em;
+    }
+    .kg-rec-tile.is-record {
+      background: var(--mint-tint); border-color: var(--mint-edge);
+    }
+    .kg-rec-tile.is-record .kg-rec-num { color: var(--forest-deep); }
+    .kg-rec-tile.is-record .kg-rec-flag { display: block; }
+    .kg-rec-tile.kg-just-broke { animation: kg-record-pop 1500ms ease; }
+    @keyframes kg-record-pop {
+      0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(125,242,176,0); }
+      18%  { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(125,242,176,0.45); }
+      100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(125,242,176,0); }
+    }
+
+    /* c) Défi du soir */
+    .kg-defi-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .kg-defi-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--emerald); color: #fff;
+      display: none; align-items: center; justify-content: center;
+      flex: 0 0 22px;
+    }
+    .kg-defi-check svg { width: 13px; height: 13px; }
+    .kg-defi-text {
+      font-size: 15px; font-weight: 600; color: var(--ink);
+      margin-top: 10px; line-height: 1.3; letter-spacing: -0.01em;
+    }
+    .kg-defi-bar {
+      height: 7px; border-radius: 999px;
+      background: #fff; border: 1px solid var(--line-soft);
+      overflow: hidden; margin-top: 12px;
+    }
+    .kg-defi-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: var(--gradient); width: 0%;
+      transition: width 600ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .kg-defi-meta {
+      font-size: 11px; color: var(--ink-3); margin-top: 8px;
+      font-family: var(--mono); font-feature-settings: "tnum" 1;
+    }
+    .kg-card.kg-defi.is-done {
+      background: var(--forest-deep);
+      box-shadow: 0 0 0 1px var(--emerald), 0 12px 30px rgba(31,93,60,0.28);
+    }
+    .kg-defi.is-done .kg-eyebrow  { color: var(--mint); }
+    .kg-defi.is-done .kg-defi-text { color: #fff; }
+    .kg-defi.is-done .kg-defi-check { display: inline-flex; }
+    .kg-defi.is-done .kg-defi-bar { background: rgba(255,255,255,0.14); border-color: transparent; }
+    .kg-defi.is-done .kg-defi-meta { color: var(--mint); }
+
+    /* Rank chip on the card payment screen */
+    .kg-rank-chip {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: 12px; font-size: 11.5px; color: var(--ink-3);
+    }
+    .kg-rank-chip-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--mint); flex: 0 0 6px;
+    }
+    .kg-rank-chip-name { font-weight: 600; color: var(--ink-2); }
+    .kg-rank-chip-role {
+      font-family: var(--serif); font-style: italic;
+      font-size: 13px; color: var(--ink-3);
+    }
+
+    /* Carte du soir — shift report modal */
+    .kg-sc-veil {
+      position: absolute; inset: 0;
+      background: var(--ink-bg);
+      display: none; flex-direction: column;
+      z-index: 200; overflow-y: auto;
+    }
+    .kg-sc-veil.is-open { display: flex; animation: kg-sc-veil-in 280ms ease-out; }
+    @keyframes kg-sc-veil-in { from { opacity: 0; } to { opacity: 1; } }
+    .kg-sc {
+      flex: 1; min-height: 100%;
+      display: flex; flex-direction: column;
+      padding: 32px 26px 22px;
+      color: var(--paper-cream);
+    }
+    .kg-sc-eyebrow {
+      font-size: 11px; font-weight: 500; color: var(--mint);
+      text-transform: uppercase; letter-spacing: 0.14em;
+    }
+    .kg-sc-title {
+      font-family: var(--serif); font-style: italic; font-weight: 400;
+      font-size: 42px; line-height: 1; color: #fff; margin-top: 8px;
+    }
+    .kg-sc-meta {
+      font-size: 12px; color: rgba(247,245,240,0.5);
+      margin-top: 8px; letter-spacing: 0.02em;
+    }
+    .kg-sc-rows { margin-top: 22px; }
+    .kg-sc-row {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(247,245,240,0.09);
+      opacity: 0; transform: translateY(8px);
+      animation: kg-sc-row-in 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    @keyframes kg-sc-row-in { to { opacity: 1; transform: translateY(0); } }
+    .kg-sc-row-label { font-size: 13px; color: rgba(247,245,240,0.62); }
+    .kg-sc-row-value {
+      font-size: 17px; font-weight: 700; color: #fff;
+      font-feature-settings: "tnum" 1; letter-spacing: -0.01em;
+    }
+    .kg-sc-row-value.kg-mono { font-family: var(--mono); font-weight: 500; }
+    .kg-sc-highlight {
+      margin-top: 22px;
+      background: linear-gradient(135deg, rgba(63,182,122,0.22), rgba(125,242,176,0.10));
+      border: 1px solid rgba(125,242,176,0.28);
+      border-radius: var(--r-xl);
+      padding: 16px 16px 17px;
+      display: flex; gap: 13px; align-items: flex-start;
+      opacity: 0;
+      animation: kg-sc-row-in 460ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    .kg-sc-hl-icon {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--emerald); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 34px;
+    }
+    .kg-sc-hl-icon svg { width: 17px; height: 17px; }
+    .kg-sc-hl-label {
+      font-size: 10px; color: var(--mint); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .kg-sc-hl-text {
+      font-size: 15px; color: #fff; margin-top: 3px;
+      line-height: 1.35; font-weight: 500;
+    }
+    .kg-sc-hl-text em { font-family: var(--serif); font-style: italic; font-weight: 400; }
+    .kg-sc-actions {
+      margin-top: auto; padding-top: 24px;
+      display: flex; flex-direction: column; gap: 9px;
+    }
+    .kg-sc-btn {
+      height: 52px; border-radius: var(--r-xl);
+      font-size: 15px; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 80ms ease, background 150ms ease;
+    }
+    .kg-sc-btn:active { transform: scale(0.985); }
+    .kg-sc-btn svg { width: 17px; height: 17px; }
+    .kg-sc-btn.kg-primary { background: var(--emerald); color: #06281A; }
+    .kg-sc-btn.kg-secondary {
+      background: transparent; color: rgba(247,245,240,0.72);
+      border: 1px solid rgba(247,245,240,0.16);
+    }
+    .kg-sc-btn.kg-secondary:active { background: rgba(247,245,240,0.06); }
+
+    /* ===========================================================
        MODALS
        =========================================================== */
     .modal-veil {
@@ -2258,6 +2496,56 @@
               </div>
             </div>
 
+            <!-- === Gamification layer · profil cards === -->
+            <div class="kg-card kg-rank" id="kg-rank-card">
+              <div class="kg-rank-top">
+                <div>
+                  <div class="kg-eyebrow">Grade</div>
+                  <div class="kg-rank-name" id="kg-rank-name">Serveur</div>
+                </div>
+                <div class="kg-rank-xp">
+                  <div class="kg-rank-xp-num" id="kg-rank-xp">2 400</div>
+                  <div class="kg-rank-xp-label">XP totale</div>
+                </div>
+              </div>
+              <div class="kg-bar"><div class="kg-bar-fill" id="kg-rank-fill"></div></div>
+              <div class="kg-rank-foot">
+                <span id="kg-rank-next">Prochain · <em>Serveur Confirmé</em></span>
+                <span class="kg-mono" id="kg-rank-gap">+0 XP</span>
+              </div>
+            </div>
+
+            <div class="kg-card kg-rec" id="kg-rec-card">
+              <div class="kg-eyebrow">Records personnels</div>
+              <div class="kg-rec-grid">
+                <div class="kg-rec-tile" id="kg-rec-night">
+                  <div class="kg-rec-num" id="kg-rec-night-num">28</div>
+                  <div class="kg-rec-label">Meilleur soir</div>
+                  <div class="kg-rec-flag">+ Nouveau record</div>
+                </div>
+                <div class="kg-rec-tile" id="kg-rec-streak">
+                  <div class="kg-rec-num" id="kg-rec-streak-num">4</div>
+                  <div class="kg-rec-label">Tables en série</div>
+                </div>
+                <div class="kg-rec-tile" id="kg-rec-speed">
+                  <div class="kg-rec-num" id="kg-rec-speed-num">24<small> mn</small></div>
+                  <div class="kg-rec-label">Vitesse moyenne</div>
+                  <div class="kg-rec-flag">+ Nouveau record</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="kg-card kg-defi" id="kg-defi-card">
+              <div class="kg-defi-head">
+                <div class="kg-eyebrow">Défi du soir</div>
+                <div class="kg-defi-check"><i data-lucide="check"></i></div>
+              </div>
+              <div class="kg-defi-text" id="kg-defi-text">Réglez 12 tables ce soir</div>
+              <div class="kg-defi-bar"><div class="kg-defi-bar-fill" id="kg-defi-fill"></div></div>
+              <div class="kg-defi-meta" id="kg-defi-meta">0 / 12 tables</div>
+            </div>
+            <!-- === /Gamification profil cards === -->
+
             <button class="profil-clockout" id="profil-clockout">
               <i data-lucide="log-out"></i>
               <span>Pointer le départ</span>
@@ -2382,6 +2670,13 @@
             <div class="reader-status" id="reader-status">Approchez la carte ou le téléphone<span class="ellipsis"></span></div>
             <div class="reader-method" id="reader-method">Kiwi Tap · NFC · QR</div>
             <div class="reader-txn" id="reader-txn" hidden></div>
+          </div>
+          <!-- === Gamification · rank chip (customer-facing) === -->
+          <div class="kg-rank-chip" id="kg-card-rank-chip">
+            <span class="kg-rank-chip-dot"></span>
+            <span class="kg-rank-chip-name">Yassir</span>
+            <span>·</span>
+            <span class="kg-rank-chip-role" id="kg-card-rank-role">serveur</span>
           </div>
           <div class="modal-actions" id="card-actions">
             <button class="ma-btn primary" data-modal-action="print">
@@ -2539,6 +2834,31 @@
               <p>L'addition est soldée · choukran</p>
               <button class="split-close-btn" id="split-done-close">Fermer</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ CARTE DU SOIR — shift report (Gamification) ============ -->
+      <div class="kg-sc-veil" id="kg-shiftcard" role="dialog" aria-modal="true" aria-label="Carte du soir">
+        <div class="kg-sc">
+          <div class="kg-sc-eyebrow">Fin de service</div>
+          <div class="kg-sc-title">Carte du soir</div>
+          <div class="kg-sc-meta" id="kg-sc-meta">Café Atlas</div>
+          <div class="kg-sc-rows" id="kg-sc-rows"><!-- stat rows injected --></div>
+          <div class="kg-sc-highlight" id="kg-sc-highlight" style="display:none;">
+            <div class="kg-sc-hl-icon"><i data-lucide="sparkles"></i></div>
+            <div>
+              <div class="kg-sc-hl-label" id="kg-sc-hl-label">Ce soir</div>
+              <div class="kg-sc-hl-text" id="kg-sc-hl-text"></div>
+            </div>
+          </div>
+          <div class="kg-sc-actions">
+            <button class="kg-sc-btn kg-primary" id="kg-sc-share">
+              <i data-lucide="share-2"></i><span>Partager</span>
+            </button>
+            <button class="kg-sc-btn kg-secondary" id="kg-sc-clockout">
+              <i data-lucide="log-out"></i><span>Pointer le départ</span>
+            </button>
           </div>
         </div>
       </div>
@@ -4512,6 +4832,356 @@
     window.addEventListener('load', () => {
       if (window.lucide) lucide.createIcons();
     });
+
+    /* =========================================================
+       === Gamification layer ===
+       Profil cards · Carte du soir · rank chip.
+       Read-only over existing state; banked to localStorage.
+       Touches nothing in the PIN, tables, menu, cart or payment
+       flows — it wraps markTablePaid/renderProfil as pass-throughs
+       and intercepts the clock-out button upstream (capture phase).
+       ========================================================= */
+    (function () {
+      /* --- ranks (serif-italic names in the UI) --- */
+      const KG_RANKS = [
+        { name: 'Apprenti',         xp: 0    },
+        { name: 'Garçon',           xp: 700  },
+        { name: 'Serveur',          xp: 1700 },
+        { name: 'Serveur Confirmé', xp: 2750 },
+        { name: 'Maître',           xp: 4400 },
+        { name: "Maître d'Hôtel",   xp: 6800 },
+      ];
+
+      /* --- défi pool — one auto-picked per shift (deterministic by date) --- */
+      const KG_DEFIS = [
+        { text: 'Réglez 12 tables ce soir',           target: 12,   metric: 'tables'  },
+        { text: 'Encaissez 3 000 MAD ce service',     target: 3000, metric: 'revenue' },
+        { text: 'Réglez 8 tables avant la fermeture', target: 8,    metric: 'tables'  },
+        { text: 'Atteignez 2 500 MAD ce service',     target: 2500, metric: 'revenue' },
+      ];
+      const kgDefi = KG_DEFIS[new Date().getDate() % KG_DEFIS.length];
+
+      /* --- persistence (keyed by server initials) --- */
+      const KG_KEY = 'kiwi-serveur-progress';
+      const kgInitials  = (servers[currentUser] && servers[currentUser].initials) || 'YK';
+      const kgFirstName = (((servers[currentUser] && servers[currentUser].name) || 'Yassir')).split(' ')[0];
+
+      function kgDefaults() {
+        return { lifetimeXP: 2400, records: { bestNight: 28, streak: 4, bestSpeed: 24 } };
+      }
+      function kgLoad() {
+        let all = {};
+        try { all = JSON.parse(localStorage.getItem(KG_KEY)) || {}; } catch (e) {}
+        const s = all[kgInitials] || kgDefaults();
+        const r = (s && s.records) || {};
+        return {
+          lifetimeXP: Number.isFinite(s.lifetimeXP) ? s.lifetimeXP : 2400,
+          records: {
+            bestNight: Number.isFinite(r.bestNight) ? r.bestNight : 28,
+            streak:    Number.isFinite(r.streak)    ? r.streak    : 4,
+            bestSpeed: Number.isFinite(r.bestSpeed) ? r.bestSpeed : 24,
+          },
+        };
+      }
+      function kgSave() {
+        let all = {};
+        try { all = JSON.parse(localStorage.getItem(KG_KEY)) || {}; } catch (e) {}
+        all[kgInitials] = kgState;
+        try { localStorage.setItem(KG_KEY, JSON.stringify(all)); } catch (e) {}
+      }
+
+      /* --- shift-local state (resets each shift / page reload) --- */
+      let kgState        = kgLoad();
+      let kgShiftRevenue = 0;   // MAD encaissé this shift (tallied via markTablePaid)
+      let kgShiftTurnMin = 0;   // sum of occupancy minutes of paid tables
+      let kgShareLine    = 'Service bouclé';
+      const kgBroke      = { bestNight: false, bestSpeed: false };
+
+      /* --- helpers --- */
+      const kgNum = n => new Intl.NumberFormat('fr-FR', { useGrouping: true }).format(Math.round(n || 0));
+      function kgFmtDur(min) {
+        const h = Math.floor(min / 60), m = min % 60;
+        return h > 0 ? (h + 'h ' + String(m).padStart(2, '0')) : (m + ' mn');
+      }
+      function kgRankIdxFor(xp) {
+        let idx = 0;
+        for (let i = 0; i < KG_RANKS.length; i++) if (xp >= KG_RANKS[i].xp) idx = i;
+        return idx;
+      }
+
+      /* --- live shift snapshot (computed; never mutates app state) --- */
+      function kgSnapshot() {
+        const durMin = shiftStart ? Math.max(0, Math.floor((Date.now() - shiftStart.getTime()) / 60000)) : 0;
+        const paid = tablesPaid;
+        const occupied = Object.values(tables).filter(t =>
+          t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam'
+        ).length;
+        const speed = paid > 0 ? Math.round(kgShiftTurnMin / paid) : null;
+        const shiftXP = Math.round(paid * 10 + kgShiftRevenue * 0.01);
+        const totalXP = kgState.lifetimeXP + shiftXP;
+        const rankIdx = kgRankIdxFor(totalXP);
+        const rank = KG_RANKS[rankIdx];
+        const next = KG_RANKS[rankIdx + 1] || null;
+        const progress = next ? (totalXP - rank.xp) / (next.xp - rank.xp) : 1;
+        return {
+          durMin: durMin, paid: paid, served: paid + occupied, occupied: occupied,
+          speed: speed, shiftXP: shiftXP, totalXP: totalXP,
+          rankIdx: rankIdx, rank: rank, next: next, progress: progress,
+          revenue: kgShiftRevenue, ticket: paid > 0 ? kgShiftRevenue / paid : 0,
+        };
+      }
+      function kgDefiProgress() {
+        const snap = kgSnapshot();
+        const val = kgDefi.metric === 'tables' ? snap.paid : snap.revenue;
+        return { val: val, target: kgDefi.target, frac: Math.min(1, val / kgDefi.target), done: val >= kgDefi.target };
+      }
+
+      /* --- profil card rendering --- */
+      function kgSetRecTile(key, value, unit, isRecord) {
+        const tile = document.getElementById('kg-rec-' + key);
+        const num  = document.getElementById('kg-rec-' + key + '-num');
+        if (!tile || !num) return;
+        num.innerHTML = unit ? (value + '<small>' + unit + '</small>') : String(value);
+        const flagKey = key === 'night' ? 'bestNight' : (key === 'speed' ? 'bestSpeed' : null);
+        if (isRecord) {
+          tile.classList.add('is-record');
+          if (flagKey && !kgBroke[flagKey]) {
+            kgBroke[flagKey] = true;
+            tile.classList.add('kg-just-broke');
+            setTimeout(function () { tile.classList.remove('kg-just-broke'); }, 1500);
+          }
+        } else {
+          tile.classList.remove('is-record');
+        }
+      }
+      function kgRenderProfil() {
+        const snap = kgSnapshot();
+
+        /* a) Niveau / Grade */
+        const nameEl = document.getElementById('kg-rank-name');
+        if (nameEl) nameEl.textContent = snap.rank.name;
+        const xpEl = document.getElementById('kg-rank-xp');
+        if (xpEl) xpEl.textContent = kgNum(snap.totalXP);
+        const fillEl = document.getElementById('kg-rank-fill');
+        if (fillEl) fillEl.style.width = Math.round(snap.progress * 100) + '%';
+        const nextEl = document.getElementById('kg-rank-next');
+        const gapEl  = document.getElementById('kg-rank-gap');
+        if (snap.next) {
+          if (nextEl) nextEl.innerHTML = 'Prochain · <em>' + snap.next.name + '</em>';
+          if (gapEl)  gapEl.textContent = '+' + kgNum(snap.next.xp - snap.totalXP) + ' XP';
+        } else {
+          if (nextEl) nextEl.innerHTML = '<em>Grade maximal atteint</em>';
+          if (gapEl)  gapEl.textContent = '';
+        }
+
+        /* b) Records personnels */
+        const nightBeat = snap.paid > kgState.records.bestNight;
+        const speedBeat = snap.speed != null && snap.speed > 0 && snap.speed < kgState.records.bestSpeed;
+        kgSetRecTile('night',  Math.max(kgState.records.bestNight, snap.paid), '', nightBeat);
+        kgSetRecTile('streak', kgState.records.streak, '', false);
+        kgSetRecTile('speed',  snap.speed != null ? snap.speed : 24, ' mn', speedBeat);
+
+        /* c) Défi du soir */
+        const dp = kgDefiProgress();
+        const defiText = document.getElementById('kg-defi-text');
+        if (defiText) defiText.textContent = dp.done ? 'Défi accompli' : kgDefi.text;
+        const defiFill = document.getElementById('kg-defi-fill');
+        if (defiFill) defiFill.style.width = Math.round(dp.frac * 100) + '%';
+        const defiMeta = document.getElementById('kg-defi-meta');
+        if (defiMeta) defiMeta.textContent = kgDefi.metric === 'tables'
+          ? (dp.val + ' / ' + dp.target + ' tables')
+          : (kgNum(dp.val) + ' / ' + kgNum(dp.target) + ' MAD');
+        const defiCard = document.getElementById('kg-defi-card');
+        if (defiCard) defiCard.classList.toggle('is-done', dp.done);
+
+        if (window.lucide) lucide.createIcons();
+      }
+
+      /* --- rank chip on the card payment screen --- */
+      function kgUpdateRankChip() {
+        const roleEl = document.getElementById('kg-card-rank-role');
+        if (roleEl) roleEl.textContent = kgSnapshot().rank.name.toLowerCase();
+      }
+
+      /* --- Carte du soir : pick the best thing about tonight --- */
+      function kgBestHighlight(snap) {
+        const startIdx = kgRankIdxFor(kgState.lifetimeXP);
+        if (snap.rankIdx > startIdx) {
+          return { label: 'Niveau débloqué', icon: 'trending-up',
+                   text: 'Tu passes <em>' + snap.rank.name + '</em> ce soir.',
+                   share: 'Niveau ' + snap.rank.name + ' débloqué' };
+        }
+        if (snap.paid > kgState.records.bestNight) {
+          return { label: 'Nouveau record', icon: 'trophy',
+                   text: '<em>' + snap.paid + ' tables</em> réglées — ton meilleur soir.',
+                   share: 'Nouveau record · ' + snap.paid + ' tables réglées' };
+        }
+        if (snap.speed != null && snap.speed > 0 && snap.speed < kgState.records.bestSpeed) {
+          return { label: 'Nouveau record', icon: 'zap',
+                   text: '<em>' + snap.speed + ' mn</em> par table — jamais aussi rapide.',
+                   share: 'Record de vitesse · ' + snap.speed + ' mn par table' };
+        }
+        if (kgDefiProgress().done) {
+          return { label: 'Défi accompli', icon: 'flag',
+                   text: 'Défi du soir relevé — <em>' + kgDefi.text.toLowerCase() + '</em>.',
+                   share: 'Défi du soir accompli' };
+        }
+        const lines = [
+          'Service propre, du début à la fin.',
+          'Chaque table comptée — beau travail.',
+          'Un service de plus, bien mené.',
+          'Régulier et solide, c\'est ça le métier.',
+        ];
+        return { label: 'Ce soir', icon: 'sparkles',
+                 text: lines[(snap.paid + new Date().getDate()) % lines.length],
+                 share: 'Service bouclé' };
+      }
+
+      /* --- Carte du soir : open the shift report --- */
+      function kgOpenShiftCard() {
+        const veil = document.getElementById('kg-shiftcard');
+        if (!veil) { clockOut(); return; }
+        const snap = kgSnapshot();
+
+        const now = new Date();
+        const metaEl = document.getElementById('kg-sc-meta');
+        if (metaEl) metaEl.textContent = 'Café Atlas · ' +
+          dafrDays[now.getDay()] + ' ' + now.getDate() + ' ' + monthsEn[now.getMonth()];
+
+        const rows = [
+          ['Tables servies',          String(snap.served),                            false],
+          ['Tables réglées',          String(snap.paid),                              false],
+          ['Revenu encaissé',         kgNum(snap.revenue) + ' MAD',                   true ],
+          ['Ticket moyen',            kgNum(snap.ticket) + ' MAD',                    true ],
+          ['Durée du service',        kgFmtDur(snap.durMin),                          false],
+          ['Vitesse moyenne / table', (snap.speed != null ? snap.speed : 24) + ' mn', false],
+        ];
+        const rowsEl = document.getElementById('kg-sc-rows');
+        if (rowsEl) rowsEl.innerHTML = rows.map(function (r, i) {
+          return '<div class="kg-sc-row" style="animation-delay:' + (i * 80) + 'ms">' +
+                   '<span class="kg-sc-row-label">' + r[0] + '</span>' +
+                   '<span class="kg-sc-row-value' + (r[2] ? ' kg-mono' : '') + '">' + r[1] + '</span>' +
+                 '</div>';
+        }).join('');
+
+        const hl = kgBestHighlight(snap);
+        kgShareLine = hl.share;
+        const hlEl    = document.getElementById('kg-sc-highlight');
+        const hlIcon  = veil.querySelector('.kg-sc-hl-icon');
+        const hlLabel = document.getElementById('kg-sc-hl-label');
+        const hlText  = document.getElementById('kg-sc-hl-text');
+        if (hlIcon)  hlIcon.innerHTML = '<i data-lucide="' + hl.icon + '"></i>';
+        if (hlLabel) hlLabel.textContent = hl.label;
+        if (hlText)  hlText.innerHTML = hl.text;
+        if (hlEl) {
+          hlEl.style.display = 'flex';
+          hlEl.style.animation = 'none';
+          void hlEl.offsetWidth;                       // restart the entrance animation
+          hlEl.style.animation = '';
+          hlEl.style.animationDelay = (rows.length * 80 + 60) + 'ms';
+        }
+
+        veil.classList.add('is-open');
+        if (window.lucide) lucide.createIcons();
+      }
+
+      /* --- bank the shift into lifetime progress at clock-out --- */
+      function kgBankShift() {
+        const snap = kgSnapshot();
+        kgState.lifetimeXP += snap.shiftXP;
+        if (snap.paid > kgState.records.bestNight) kgState.records.bestNight = snap.paid;
+        if (snap.speed != null && snap.speed > 0 && snap.speed < kgState.records.bestSpeed)
+          kgState.records.bestSpeed = snap.speed;
+        if (snap.paid >= 8) kgState.records.streak += 1;
+        else if (snap.paid > 0) kgState.records.streak = 1;
+        kgSave();
+        /* reset shift-local accumulators for the next shift */
+        kgShiftRevenue = 0; kgShiftTurnMin = 0;
+        kgBroke.bestNight = false; kgBroke.bestSpeed = false;
+      }
+
+      /* --- share the shift card --- */
+      function shareShiftCard() {
+        const snap = kgSnapshot();
+        const txt = 'Mon service ce soir au Café Atlas 🍃\n' +
+                    '• ' + snap.served + ' tables servies\n' +
+                    '• ' + kgNum(snap.revenue) + ' MAD encaissés\n' +
+                    '• ' + kgShareLine + '\n' +
+                    '— via Kiwi';
+        if (navigator.share) {
+          navigator.share({ text: txt }).catch(function () {});
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(txt).then(function () { toast('Copié'); })
+                                            .catch(function () { toast('Copié'); });
+        } else {
+          toast('Copié');
+        }
+      }
+
+      /* --- intercept markTablePaid: pass-through wrapper, tallies revenue only.
+             The original runs unchanged — the payment flow is untouched. --- */
+      const kgOrigMarkTablePaid = markTablePaid;
+      markTablePaid = function (id) {
+        let rev = 0, occ = 0;
+        try {
+          rev = (typeof getTableTotal === 'function' && id) ? (getTableTotal(id) || 0) : 0;
+          occ = (tables[id] && tables[id].elapsed) || 0;
+        } catch (e) {}
+        const result = kgOrigMarkTablePaid.apply(this, arguments);
+        try {
+          kgShiftRevenue += rev;
+          kgShiftTurnMin += occ;
+          if (shiftStart) kgRenderProfil();
+          kgUpdateRankChip();
+        } catch (e) {}
+        return result;
+      };
+
+      /* --- wrap renderProfil so the gamification cards refresh with the tab --- */
+      const kgOrigRenderProfil = renderProfil;
+      renderProfil = function () {
+        const r = kgOrigRenderProfil.apply(this, arguments);
+        try { if (shiftStart) kgRenderProfil(); } catch (e) {}
+        return r;
+      };
+
+      /* --- intercept the clock-out button in the capture phase, so it runs
+             before the existing #profil-clockout listener (which never fires) --- */
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest || !e.target.closest('#profil-clockout')) return;
+        e.stopPropagation();
+        e.preventDefault();
+        kgOpenShiftCard();
+      }, true);
+
+      /* --- Carte du soir buttons --- */
+      const kgShareBtn = document.getElementById('kg-sc-share');
+      if (kgShareBtn) kgShareBtn.addEventListener('click', shareShiftCard);
+      const kgClockoutBtn = document.getElementById('kg-sc-clockout');
+      if (kgClockoutBtn) kgClockoutBtn.addEventListener('click', function () {
+        kgBankShift();
+        const veil = document.getElementById('kg-shiftcard');
+        if (veil) veil.classList.remove('is-open');
+        clockOut();   // the original clock-out logic
+      });
+
+      /* --- keep the card-screen rank chip fresh whenever the modal opens --- */
+      const kgCardModal = document.getElementById('card-modal');
+      if (kgCardModal && window.MutationObserver) {
+        new MutationObserver(function () {
+          if (kgCardModal.classList.contains('is-open')) kgUpdateRankChip();
+        }).observe(kgCardModal, { attributes: true, attributeFilter: ['class'] });
+      }
+
+      /* --- init --- */
+      const kgChipName = document.querySelector('#kg-card-rank-chip .kg-rank-chip-name');
+      if (kgChipName) kgChipName.textContent = kgFirstName;
+      kgUpdateRankChip();
+
+      /* expose for the share button + console inspection */
+      window.shareShiftCard = shareShiftCard;
+      window.kgSnapshot = kgSnapshot;
+    })();
   </script>
 </body>
 </html>
