@@ -369,7 +369,9 @@
     };
     const esc = (e) => { if (e.key === 'Escape') close(); };
     document.addEventListener('keydown', esc);
-    back.addEventListener('click', (e) => { if (e.target === back) close(); });
+    back.addEventListener('click', (e) => {
+      if (e.target === back || e.target.closest('[data-dismiss]')) close();
+    });
     back.querySelector('.kiwi-drawer-close').onclick = close;
     back.__kiwiClose = close;   // lets a later drawer() call close this one cleanly
     return { close, el: back };
@@ -1149,13 +1151,31 @@
       setTimeout(() => toast('Deck PDF envoyé', {type:'success', desc:'NDA inclus · valable 48 h'}), 1600);
     },
 
-    'kpi-detail': (el, arg) => drawer({
-      title: kpiData[arg]?.title || 'Métrique',
-      subtitle: kpiData[arg]?.subtitle || 'Analyse détaillée · 30 jours',
-      width: 540,
-      body: kpiData[arg]?.body || `<div style="color:var(--n-500); padding:20px 0;">Analyse détaillée disponible ici.</div>`,
-      foot: kpiData[arg]?.foot || '',
-    }),
+    'kpi-detail': (el, arg) => {
+      const authored = kpiData[arg];
+      if (authored) {
+        drawer({ title: authored.title, subtitle: authored.subtitle, width: 540, body: authored.body, foot: authored.foot });
+        return;
+      }
+      // Generic detail view for personalised / derived KPIs — reads the
+      // clicked tile's live value + delta so it's never an empty drawer.
+      const label = el?.querySelector('.l span, .l, .lbl')?.textContent?.trim() || 'Indicateur';
+      const value = el?.querySelector('.v')?.textContent?.trim() || '—';
+      const delta = el?.querySelector('.d')?.textContent?.trim() || '';
+      const desc = KPI_DESC[arg] || 'Indicateur de votre tableau de bord personnalisé.';
+      const long = KPI_LONG[arg] || 'Cet indicateur fait partie de votre bande personnalisée. Il se recalcule automatiquement pour chaque période sélectionnée.';
+      drawer({
+        title: label,
+        subtitle: 'Indicateur personnalisé · période en cours',
+        width: 460,
+        body: `
+          ${kpiHero(value, desc, delta)}
+          ${kpiSection('COMMENT LIRE CET INDICATEUR', `<div style="font-size:13px; color:var(--n-600); line-height:1.62;">${long}</div>`)}
+          ${kpiInsight('<b style="color:var(--mint);">Astuce :</b> demandez à Kiwi AI d\'analyser cet indicateur — il croisera vos chiffres et vous dira quoi en faire.')}
+        `,
+        foot: `<button class="kb ghost" data-dismiss style="flex:1; justify-content:center;">Fermer</button><button class="kb atlas" data-action="open-assistant" style="flex:1; justify-content:center;">Analyser avec Kiwi AI →</button>`,
+      });
+    },
 
     'filter-tx': () => drawer({
       title: 'Filtrer les transactions',
@@ -1236,6 +1256,29 @@
     <button class="kb ghost" data-dismiss style="flex:1; justify-content:center;">${ghostLabel}</button>
     <button class="kb atlas" style="flex:1; justify-content:center;">${atlasLabel}</button>
   `;
+
+  /* Short + long descriptions for personalised KPIs that have no hand-authored
+     detail view — used to build a clean generic drawer on click. */
+  const KPI_DESC = {
+    revenue:    'Total encaissé sur la période.',
+    revPerDay:  'Chiffre d\'affaires moyen par jour.',
+    profit:     'Ce qu\'il reste après le coût matière.',
+    cogs:       'Dépense en matières premières.',
+    tips:       'Pourboires estimés encaissés.',
+    retention:  'Part de clients réguliers parmi vos ventes.',
+    newClients: 'Premières visites estimées sur la période.',
+    txPerDay:   'Nombre de ventes moyen par jour.',
+  };
+  const KPI_LONG = {
+    revenue:    'Le chiffre d\'affaires additionne toutes vos ventes encaissées — espèces, carte et mobile — sur la période choisie. C\'est le point de départ de tous vos calculs de marge et de rentabilité.',
+    revPerDay:  'Le chiffre d\'affaires divisé par le nombre de jours d\'ouverture. Utile pour comparer des périodes de longueurs différentes et repérer vos meilleurs jours.',
+    profit:     'Le bénéfice brut, c\'est le chiffre d\'affaires moins le coût des matières premières. Il ne tient pas encore compte des charges fixes — loyer, salaires, énergie.',
+    cogs:       'Le coût matière regroupe tout ce que vous achetez pour produire vos ventes : ingrédients, boissons, consommables. Le surveiller protège directement votre marge.',
+    tips:       'Estimation des pourboires encaissés sur la période, calculée à partir de votre volume de ventes. Ils reviennent à l\'équipe et n\'entrent pas dans votre chiffre d\'affaires.',
+    retention:  'La part de vos ventes réalisées avec des clients déjà venus. Un taux élevé signale une clientèle fidèle — bien moins coûteuse à servir qu\'à conquérir.',
+    newClients: 'Estimation du nombre de premières visites sur la période. C\'est votre rythme d\'acquisition de nouveaux clients.',
+    txPerDay:   'Le nombre de ventes moyen par jour d\'ouverture — un bon indicateur de fréquentation, indépendant du montant dépensé.',
+  };
 
   const kpiData = {
     /* ════════ Transactions ════════ */

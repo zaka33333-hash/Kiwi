@@ -1468,10 +1468,14 @@
     return 'i4';
   }
   function buildHeatmap(rng) {
-    if (rng === 'personnalise') rng = 'aujourdhui';
+    // The hourly heatmap only carries the 4 base ranges; map the rest onto
+    // the closest one so it never crashes on moisDernier/trimestre/annee.
+    rng = ({ personnalise: 'aujourdhui', moisDernier: 'trenteJours', trimestre: 'trenteJours', annee: 'trenteJours' })[rng] || rng;
     const v = getCurrentVenue();
-    const rev = (HH_RAW_BY_VENUE[v]?.[rng]) || HH_RAW_BY_VENUE.cafeAtlas[rng];
-    const cov = (HH_COVERS_BY_VENUE[v]?.[rng]) || HH_COVERS_BY_VENUE.cafeAtlas[rng];
+    const rev = HH_RAW_BY_VENUE[v]?.[rng] || HH_RAW_BY_VENUE.cafeAtlas[rng]
+      || HH_RAW_BY_VENUE.cafeAtlas.trenteJours || HH_RAW_BY_VENUE.cafeAtlas.aujourdhui;
+    const cov = HH_COVERS_BY_VENUE[v]?.[rng] || HH_COVERS_BY_VENUE.cafeAtlas[rng]
+      || HH_COVERS_BY_VENUE.cafeAtlas.trenteJours || HH_COVERS_BY_VENUE.cafeAtlas.aujourdhui;
     const max = Math.max(...rev);
     return HH_HOURS.map((h, i) => ({
       hour: h, revenue: rev[i], covers: cov[i],
