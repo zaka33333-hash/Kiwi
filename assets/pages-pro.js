@@ -3237,15 +3237,32 @@ handlers['menu-publish'] = () => {
     });
     document.querySelector('[data-dismiss-modal]')?.addEventListener('click', () => document.querySelector('.kiwi-backdrop')?.remove());
   };
+  const SAVED_SUPPLIERS = [
+    'Omar Dajaj',
+    'Hamza Lhawat',
+    'Yassine Lkhadar',
+    'Boucherie Hassan Maarif',
+    'Maraîcher El Jadida',
+    'Coopérative El Jadida',
+    'Crémerie Aïcha',
+    'Atelier Beldi',
+  ];
   handlers['stock-reorder'] = (el) => {
     const name = el?.dataset.name || 'ingrédient';
-    const sup = el?.dataset.supplier || 'fournisseur';
+    let sup = el?.dataset.supplier || 'fournisseur';
+    if (!SAVED_SUPPLIERS.includes(sup)) SAVED_SUPPLIERS.unshift(sup);
     modal({
       tag: 'COMMANDE',
       title: `Commander ${name}`,
       desc: `Envoi WhatsApp à ${sup} · livraison estimée demain matin.`,
       width: 500,
       body: `
+        <div class="kf-group">
+          <label class="kf-label">Fournisseur</label>
+          <select class="kf-input" data-supplier-select>
+            ${SAVED_SUPPLIERS.map((s) => `<option value="${s}"${s === sup ? ' selected' : ''}>${s}</option>`).join('')}
+          </select>
+        </div>
         <div class="kf-row">
           <div class="kf-group">
             <label class="kf-label">Quantité</label>
@@ -3257,7 +3274,7 @@ handlers['menu-publish'] = () => {
           </div>
         </div>
         <div class="kf-group">
-          <label class="kf-label">Note pour ${sup}</label>
+          <label class="kf-label" data-supplier-note-label>Note pour ${sup}</label>
           <textarea class="kf-input" rows="3" placeholder="Ex. livraison avant 11h, entrée arrière">Livraison vendredi avant 11 h · Mehdi reçoit en cuisine</textarea>
         </div>
         <div style="display:flex; gap:10px; padding:10px 12px; background:var(--paper-soft); border-radius:10px; font-size:12.5px;">
@@ -3266,6 +3283,12 @@ handlers['menu-publish'] = () => {
         </div>
       `,
       foot: `<button class="kb ghost" data-dismiss-modal>Annuler</button><button class="kb atlas" data-confirm-order>Envoyer la commande</button>`,
+    });
+    const supSelect = document.querySelector('[data-supplier-select]');
+    supSelect?.addEventListener('change', () => {
+      sup = supSelect.value;
+      const noteLabel = document.querySelector('[data-supplier-note-label]');
+      if (noteLabel) noteLabel.textContent = `Note pour ${sup}`;
     });
     document.querySelector('[data-confirm-order]')?.addEventListener('click', () => {
       document.querySelector('.kiwi-backdrop')?.remove();
