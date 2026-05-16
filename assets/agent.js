@@ -1,11 +1,15 @@
 /* ═══════════════════════════════════════════════════════════════════════════
- * Kiwi · Assistant financier
+ * Kiwi · Financial assistant  (Assistant financier · المساعد المالي)
  * A hybrid agent + calculator surface, built for the owner of Café Atlas.
  * It "knows" the café — revenue, cost of goods, fixed charges, margins,
- * cash on hand — and turns plain-French questions into real numbers:
+ * cash on hand — and turns plain-language questions into real numbers:
  * hiring, price changes, investments, break-even, forecasts.
  *
- * Pure vanilla. Opens as a fullpage drawer from the sidebar or ⌘K.
+ * Tri-lingual: follows the dashboard language (fr / en / ar) and flips to
+ * RTL for Arabic. Strings live in the T dictionary below.
+ *   ⚠ AR strings are best-effort MSA — flagged for native review.
+ *
+ * Pure vanilla. Opens as a fullpage drawer from the topbar or ⌘K.
  * No backend: the "intelligence" is a deterministic scenario engine that
  * computes against the business profile below.
  * ─────────────────────────────────────────────────────────────────────────── */
@@ -14,35 +18,33 @@
 
   /* ─────────────── BUSINESS PROFILE · Café Atlas · Maarif ───────────────
    * Monthly figures (MAD), aligned with the dashboard's 30-day revenue
-   * chart total (842 300 MAD) and the KPI band (panier 142 MAD,
-   * marge brute 69 %). The agent reasons entirely off this object. */
+   * chart total (842 300 MAD) and the KPI band. The agent reasons entirely
+   * off this object. opex keys are stable IDs — labels come from T.opex. */
   const B = {
     name: 'Café Atlas · Maarif',
-    revenue: 842300,          // CA · 30 derniers jours
-    cogs: 261000,             // coût matière (≈ 31 % du CA)
+    revenue: 842300,
+    cogs: 261000,
     grossProfit: 581300,
-    grossMargin: 69.0,        // %
-    // Charges fixes mensuelles (hors coût matière)
+    grossMargin: 69.0,
     opex: {
-      'Masse salariale': 218000,
-      'Loyer': 56000,
-      'Eau · électricité · gaz': 28000,
-      'Marketing & divers': 19000,
-      'Entretien & équipement': 14500,
-      'Assurances & taxes': 15000,
-      'Amortissement & prêt': 42000,
-      'Abonnement Kiwi POS': 699,
+      salaries: 218000,
+      rent: 56000,
+      utilities: 28000,
+      marketing: 19000,
+      maintenance: 14500,
+      insurance: 15000,
+      financing: 42000,
+      subscription: 699,
     },
     totalOpex: 393199,
-    netProfit: 188101,        // bénéfice net mensuel
-    netMargin: 22.3,          // %
+    netProfit: 188101,
+    netMargin: 22.3,
     avgBasket: 142,
     ordersPerMonth: 5931,
     ordersPerDay: 198,
     daysOpen: 30,
-    cashBuffer: 465000,       // trésorerie disponible
-    contribRatio: 0.69,       // marge sur coûts variables
-    // Mois en cours (mai) — pour les projections
+    cashBuffer: 465000,
+    contribRatio: 0.69,
     mtdRevenue: 462000,
     mtdDays: 16,
     daysInMonth: 31,
@@ -55,31 +57,446 @@
   B.breakEvenOrdersDay = B.breakEvenRev / B.avgBasket / B.daysOpen;
   B.marginOfSafety = (B.revenue - B.breakEvenRev) / B.revenue * 100;
 
+  /* ─────────────── LANGUAGE ─────────────── */
+  function getLang() {
+    const l = window.KiwiI18n && window.KiwiI18n.getLang && window.KiwiI18n.getLang();
+    return (l === 'en' || l === 'ar') ? l : 'fr';
+  }
+  let L = 'fr';   // resolved at open()
+
   /* ─────────────── FORMATTING ─────────────── */
   const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
   const fmtMad = (n) => fmt(n) + ' MAD';
   const fmt1 = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const escAttr = (s) => String(s).replace(/"/g, '&quot;');
+  // Arabic-Indic / Persian digits → ASCII, so number parsing works in AR.
+  const fixDigits = (s) => String(s)
+    .replace(/[٠-٩]/g, (d) => d.charCodeAt(0) - 0x0660)
+    .replace(/[۰-۹]/g, (d) => d.charCodeAt(0) - 0x06F0);
+
+  /* ═══════════════ STRING DICTIONARY ═══════════════
+   * Every user-facing string, in fr / en / ar. Interpolated strings are
+   * functions; computed numbers are passed in already formatted-ready. */
+  const T = {
+    fr: {
+      ui: {
+        title: 'Assistant financier',
+        subtitle: 'Il connaît votre café — revenus, charges, marges, trésorerie',
+        placeholder: 'Posez une question — embauche, prix, investissement, prévision…',
+        calc: 'Calculatrice', enterToSend: 'Entrée pour envoyer', send: 'Envoyer',
+        kpError: 'Erreur',
+        ctxEyebrow: 'Ce que je sais',
+        ctxSub: '30 derniers jours · cliquez pour insérer',
+        ctxNote: 'Cliquez un chiffre pour l’ajouter à votre message — l’assistant raisonnera dessus.',
+        ctxTrust: 'Tout s’exécute en local. Aucune donnée ne quitte cet appareil.',
+        gActivity: 'Activité', gProfit: 'Rentabilité', gFixed: 'Charges fixes', gCash: 'Trésorerie & équipe',
+        perMonth: '/ mois', days: 'j', employees: (n) => `${n} employés`,
+      },
+      facts: {
+        revenue: 'Chiffre d’affaires', revPerDay: 'CA par jour', mtdRev: 'CA du mois en cours',
+        ordersMonth: 'Commandes / mois', ordersDay: 'Commandes / jour', basket: 'Panier moyen',
+        grossMargin: 'Marge brute', cogs: 'Coût matière', profitPerOrder: 'Bénéfice par commande',
+        breakEven: 'Seuil de rentabilité', cashAvail: 'Trésorerie disponible', headcount: 'Effectif',
+        netProfit: 'Bénéfice net', netMarginLine: (m) => `marge nette ${m} %`,
+      },
+      opex: {
+        salaries: 'Masse salariale', rent: 'Loyer', utilities: 'Eau · électricité · gaz',
+        marketing: 'Marketing & divers', maintenance: 'Entretien & équipement',
+        insurance: 'Assurances & taxes', financing: 'Amortissement & prêt', subscription: 'Abonnement Kiwi POS',
+      },
+      chips: {
+        hire: 'Puis-je embaucher un serveur ?', price5: 'Et si j’augmente mes prix de 5 % ?',
+        breakeven: 'Quel est mon seuil de rentabilité ?', forecast: 'Prévision de bénéfice ce mois',
+        charges: 'Décompose mes charges', invest80: 'Puis-je investir 80 000 MAD ?',
+        invest150: 'Puis-je investir 150 000 MAD ?',
+      },
+      hire: {
+        text: (c) => `Une embauche à <b>${fmtMad(c)}/mois</b> en coût chargé représente <b>${fmtMad(c * 12)}/an</b>.`,
+        s1l: 'Pour s’autofinancer', s1v: (o) => `${fmt1(o / 30)} cmd/jour`, s1h: (o) => `soit ${fmt(o)} commandes/mois`,
+        s2l: 'CA additionnel requis', s2h: 'au panier moyen actuel',
+        s3l: 'Bénéfice net après', s3h: () => `vs ${fmtMad(B.netProfit)} aujourd’hui`,
+        s4l: 'Part du bénéfice', s4h: 'de votre résultat mensuel',
+        vGood: (o) => `Favorable — il suffit de ${fmt1(o / 30)} commandes en plus par jour pour absorber ce poste. Votre marge le permet largement.`,
+        vWarn: 'Faisable, mais ce poste pèse lourd dans le résultat. Assurez-vous que l’embauche génère bien du chiffre additionnel.',
+        vBad: 'Prudence — ce coût dépasse votre marge de manœuvre actuelle. À envisager seulement avec une hausse d’activité confirmée.',
+        note: 'Hypothèse : 7 200 MAD/mois en coût chargé pour un serveur (salaire net + CNSS + primes). Indiquez un montant précis pour affiner.',
+      },
+      price: {
+        text: (p) => `Une ${p >= 0 ? 'hausse' : 'baisse'} de <b>${fmt1(Math.abs(p))} %</b> sur l’ensemble de la carte, à volume constant, ne touche pas le coût matière — l’écart tombe presque entièrement dans le résultat.`,
+        s1l: 'Bénéfice net /mois', s1h: (d) => `${d >= 0 ? '+' : ''}${fmtMad(d)}`,
+        s2l: 'Effet sur 12 mois', s2h: 'à activité égale',
+        s3l: 'Nouvelle marge nette', s3h: () => `vs ${fmt1(B.netMargin)} % aujourd’hui`,
+        s4l: 'Nouveau CA /mois', s4h: (b) => `panier moyen ${fmtMad(b)}`,
+        vUp: (p, d) => `Levier puissant — ${fmt1(p)} % de prix en plus = ${fmtMad(d)} de bénéfice mensuel sans dépense supplémentaire.`,
+        vDown: (need) => `Une baisse de prix ne se finance que par du volume : il faudrait +${fmt1(need)} % de commandes pour préserver le résultat.`,
+        note: 'Calcul à volume constant. En pratique une hausse de prix réduit souvent la fréquentation de 2 à 4 % — surveillez le nombre de commandes les deux semaines suivantes.',
+        noteAssumed: ' (Hypothèse : 5 %.)',
+      },
+      afford: {
+        ask: 'Indiquez le montant de l’investissement et je vous dis s’il est à votre portée — par exemple : <i>« puis-je investir 80 000 MAD dans une terrasse ? »</i>',
+        text: (a) => `Un investissement de <b>${fmtMad(a)}</b> se compare à votre trésorerie disponible (${fmtMad(B.cashBuffer)}) et à votre bénéfice net (${fmtMad(B.netProfit)}/mois).`,
+        s1l: 'Récupéré en', s1v: (m) => `${fmt1(m)} mois`, s1h: 'avec le bénéfice net actuel',
+        s2l: 'Trésorerie après', s2hOk: (p) => `${fmt1(p)} % engagés`, s2hNo: 'financement nécessaire',
+        s3l: 'Équivalent', s3v: (d) => `${fmt1(d)} jours`, s3h: 'de bénéfice d’exploitation',
+        s4l: 'Poids annuel', s4h: 'du bénéfice sur 12 mois',
+        vGood: (m, cash) => `Abordable — payable comptant, amorti en ${fmt1(m)} mois, et il reste ${fmtMad(cash)} de trésorerie.`,
+        vWarn: (m, p) => `Payable comptant, mais l’amortissement prend ${fmt1(m)} mois et mobilise ${fmt1(p)} % de votre trésorerie — gardez un coussin de sécurité.`,
+        vBad: () => `Au-delà de votre trésorerie disponible (${fmtMad(B.cashBuffer)}). Un financement, ou un étalement, serait nécessaire.`,
+      },
+      forecast: {
+        text: (run) => `Sur vos <b>${B.mtdDays} premiers jours du mois</b> (${fmtMad(B.mtdRevenue)} encaissés), le rythme est de <b>${fmtMad(run)}/jour</b>.`,
+        s1l: 'CA projeté · mois', s1h: () => `${B.daysInMonth} jours`,
+        s2l: 'Bénéfice projeté · mois', s2h: () => `marge nette ${fmt1(B.netMargin)} %`,
+        s3l: 'CA projeté · 12 mois', s3h: 'au rythme actuel',
+        s4l: 'Bénéfice · 12 mois', s4h: 'avant impôt sur les sociétés',
+        vGood: (v) => `Tendance positive — le mois dépasse votre moyenne 30 jours de ${fmt1(v)} %. Si le rythme tient, c’est votre meilleur mois.`,
+        vWarn: (v) => `Le mois est ${fmt1(v)} % sous votre moyenne 30 jours — un coup d’accélérateur sur les soirs de week-end remettrait la barre.`,
+        note: 'Projection linéaire : un jour férié, un week-end pluvieux ou une opération spéciale peuvent faire varier le résultat réel.',
+      },
+      breakeven: {
+        text: () => `Votre point mort — le chiffre d’affaires qui couvre exactement vos charges fixes (${fmtMad(B.totalOpex)}) avec une marge sur coûts variables de ${fmt1(B.contribRatio * 100)} %.`,
+        s1l: 'Seuil · CA mensuel', s1h: () => `vs ${fmtMad(B.revenue)} réalisé`,
+        s2l: 'Seuil · commandes/jour', s2h: () => `vs ${fmt(B.ordersPerDay)} aujourd’hui`,
+        s3l: 'Marge de sécurité', s3h: 'chute d’activité absorbable',
+        s4l: 'Seuil · CA journalier', s4h: () => `vs ${fmtMad(B.dailyRev)} réalisé`,
+        vGood: () => `Position solide — vous opérez ${fmt1(B.marginOfSafety)} % au-dessus du point mort. Il faudrait perdre près d’un tiers de l’activité pour être à l’équilibre.`,
+      },
+      margin: {
+        text: 'Vos deux marges, sur les 30 derniers jours :',
+        s1l: 'Marge brute', s1h: () => `${fmtMad(B.grossProfit)} après coût matière`,
+        s2l: 'Marge nette', s2h: () => `${fmtMad(B.netProfit)} après toutes charges`,
+        s3l: 'Coût matière', s3h: () => fmtMad(B.cogs),
+        s4l: 'Bénéfice par commande', s4h: () => `panier moyen ${fmtMad(B.avgBasket)}`,
+        vGood: () => `Marge nette de ${fmt1(B.netMargin)} % — nettement au-dessus de la moyenne du secteur café-restauration (8 à 12 %). Votre coût matière est bien tenu.`,
+        note: 'La marge brute mesure la rentabilité de la carte ; la marge nette, celle de toute l’exploitation.',
+      },
+      charges: {
+        text: () => `Vos charges fixes mensuelles totalisent <b>${fmtMad(B.totalOpex)}</b>, auxquelles s’ajoute le coût matière (${fmtMad(B.cogs)}).`,
+        share: (p) => `${fmt1(p)} % des charges`,
+        verdict: (name, p) => `« ${name} » est votre premier poste (${fmt1(p)} % des charges) — c’est là que se trouve votre principal levier d’optimisation.`,
+      },
+      revenue: {
+        text: 'Votre activité sur les 30 derniers jours :',
+        s1l: 'Chiffre d’affaires', s1h: '30 derniers jours',
+        s2l: 'CA moyen /jour', s2h: () => `${fmt(B.ordersPerDay)} commandes`,
+        s3l: 'Commandes /mois', s3h: () => `panier moyen ${fmtMad(B.avgBasket)}`,
+        s4l: 'Bénéfice net /mois', s4h: () => `marge nette ${fmt1(B.netMargin)} %`,
+      },
+      profit: {
+        text: 'Votre résultat, une fois toutes les charges payées :',
+        s1l: 'Bénéfice net /mois', s1h: () => `marge nette ${fmt1(B.netMargin)} %`,
+        s2l: 'Bénéfice net /jour', s2h: () => `${B.daysOpen} jours d’ouverture`,
+        s3l: 'Bénéfice par commande', s3h: () => `sur ${fmtMad(B.avgBasket)} de panier`,
+        s4l: 'Bénéfice projeté /an', s4h: 'au rythme actuel',
+        vGood: () => `Café rentable et sain : vous dégagez ${fmtMad(B.dailyNet)} de bénéfice net par jour d’ouverture.`,
+      },
+      help: {
+        text: 'Bonjour Rachid. Je suis votre assistant financier — je connais Café Atlas : chiffre d’affaires, coût matière, charges, marges et trésorerie. Posez-moi une question chiffrée et je calcule l’impact réel sur votre résultat ; pour une question ouverte sur la gestion de votre café, je peux activer un assistant IA dans votre navigateur. Par exemple :',
+      },
+      calc: { title: 'Calcul', result: 'résultat' },
+      llm: {
+        noGpu: 'Cette question sort de mes calculs prédéfinis. Pour y répondre librement j’utilise un assistant IA dans le navigateur, mais le vôtre ne prend pas en charge WebGPU — essayez Chrome ou Edge à jour sur ordinateur. Je reste disponible pour tout calcul : embauche, prix, investissement, seuil, prévisions.',
+        loading: (p) => `Mon assistant IA finit de se charger (${p} %). Je réponds dès qu’il est prêt.`,
+        offerLead: 'Cette question sort de mes calculs prédéfinis — mais je peux y répondre librement avec un <b>assistant IA open-source</b> qui s’exécute <b>entièrement dans votre navigateur</b> : aucune donnée ne part ailleurs.',
+        offerSize: (sz) => `Premier lancement : un téléchargement unique de ${sz}, ensuite instantané.`,
+        activate: 'Activer l’assistant IA',
+        installing: 'Installation de l’assistant IA — modèle open-source exécuté dans votre navigateur.',
+        initializing: 'Initialisation…',
+        ready: 'Assistant IA prêt.',
+        readyMsg: 'Mon assistant IA est prêt. Posez-moi vos questions sur la gestion, les finances, l’équipe ou le marketing de votre café — je reste concentré sur votre activité.',
+        loadFail: 'Échec du chargement.',
+        loadFailMsg: 'Je n’ai pas pu charger l’assistant IA (connexion, mémoire ou navigateur incompatible). Mes calculs financiers restent pleinement disponibles.',
+        runErr: 'Une erreur est survenue côté assistant IA. Réessayez, ou demandez-moi un calcul précis.',
+      },
+    },
+
+    en: {
+      ui: {
+        title: 'Financial assistant',
+        subtitle: 'It knows your café — revenue, costs, margins, cash',
+        placeholder: 'Ask a question — hiring, pricing, investment, forecast…',
+        calc: 'Calculator', enterToSend: 'Enter to send', send: 'Send',
+        kpError: 'Error',
+        ctxEyebrow: 'What I know',
+        ctxSub: 'Last 30 days · click to insert',
+        ctxNote: 'Click any figure to add it to your message — the assistant will reason on it.',
+        ctxTrust: 'Everything runs locally. No data leaves this device.',
+        gActivity: 'Activity', gProfit: 'Profitability', gFixed: 'Fixed costs', gCash: 'Cash & team',
+        perMonth: '/ month', days: 'd', employees: (n) => `${n} employees`,
+      },
+      facts: {
+        revenue: 'Revenue', revPerDay: 'Revenue per day', mtdRev: 'Month-to-date revenue',
+        ordersMonth: 'Orders / month', ordersDay: 'Orders / day', basket: 'Average basket',
+        grossMargin: 'Gross margin', cogs: 'Cost of goods', profitPerOrder: 'Profit per order',
+        breakEven: 'Break-even point', cashAvail: 'Cash available', headcount: 'Headcount',
+        netProfit: 'Net profit', netMarginLine: (m) => `net margin ${m} %`,
+      },
+      opex: {
+        salaries: 'Payroll', rent: 'Rent', utilities: 'Water · electricity · gas',
+        marketing: 'Marketing & misc.', maintenance: 'Maintenance & equipment',
+        insurance: 'Insurance & taxes', financing: 'Depreciation & loan', subscription: 'Kiwi POS subscription',
+      },
+      chips: {
+        hire: 'Can I hire a waiter?', price5: 'What if I raise prices 5%?',
+        breakeven: 'What is my break-even point?', forecast: 'Profit forecast this month',
+        charges: 'Break down my costs', invest80: 'Can I invest 80,000 MAD?',
+        invest150: 'Can I invest 150,000 MAD?',
+      },
+      hire: {
+        text: (c) => `A hire at <b>${fmtMad(c)}/month</b> loaded cost works out to <b>${fmtMad(c * 12)}/year</b>.`,
+        s1l: 'To pay for itself', s1v: (o) => `${fmt1(o / 30)} orders/day`, s1h: (o) => `i.e. ${fmt(o)} orders/month`,
+        s2l: 'Extra revenue needed', s2h: 'at the current average basket',
+        s3l: 'Net profit after', s3h: () => `vs ${fmtMad(B.netProfit)} today`,
+        s4l: 'Share of profit', s4h: 'of your monthly result',
+        vGood: (o) => `Favourable — just ${fmt1(o / 30)} more orders a day cover this role. Your margin allows it comfortably.`,
+        vWarn: 'Doable, but this role weighs heavily on the result. Make sure the hire genuinely drives extra revenue.',
+        vBad: 'Caution — this cost exceeds your current room to manoeuvre. Only consider it with a confirmed rise in activity.',
+        note: 'Assumption: 7,200 MAD/month loaded cost for a waiter (net pay + CNSS + bonuses). Give a precise figure to refine.',
+      },
+      price: {
+        text: (p) => `A <b>${fmt1(Math.abs(p))}%</b> ${p >= 0 ? 'increase' : 'decrease'} across the whole menu, at constant volume, doesn't touch cost of goods — the difference falls almost entirely into your result.`,
+        s1l: 'Net profit /month', s1h: (d) => `${d >= 0 ? '+' : ''}${fmtMad(d)}`,
+        s2l: 'Effect over 12 months', s2h: 'at equal activity',
+        s3l: 'New net margin', s3h: () => `vs ${fmt1(B.netMargin)} % today`,
+        s4l: 'New revenue /month', s4h: (b) => `average basket ${fmtMad(b)}`,
+        vUp: (p, d) => `Powerful lever — ${fmt1(p)}% more on price = ${fmtMad(d)} of monthly profit with no extra spend.`,
+        vDown: (need) => `A price cut is only funded by volume: you'd need +${fmt1(need)}% orders to keep the result steady.`,
+        note: 'Calculated at constant volume. In practice a price rise often trims footfall by 2–4% — watch order counts over the next two weeks.',
+        noteAssumed: ' (Assumption: 5%.)',
+      },
+      afford: {
+        ask: 'Tell me the investment amount and I\'ll say whether it\'s within reach — for example: <i>"can I invest 80,000 MAD in a terrace?"</i>',
+        text: (a) => `An investment of <b>${fmtMad(a)}</b> compares against your available cash (${fmtMad(B.cashBuffer)}) and your net profit (${fmtMad(B.netProfit)}/month).`,
+        s1l: 'Recouped in', s1v: (m) => `${fmt1(m)} months`, s1h: 'at the current net profit',
+        s2l: 'Cash afterwards', s2hOk: (p) => `${fmt1(p)} % committed`, s2hNo: 'financing required',
+        s3l: 'Equivalent to', s3v: (d) => `${fmt1(d)} days`, s3h: 'of operating profit',
+        s4l: 'Annual weight', s4h: 'of profit over 12 months',
+        vGood: (m, cash) => `Affordable — payable in cash, paid back in ${fmt1(m)} months, with ${fmtMad(cash)} of cash left.`,
+        vWarn: (m, p) => `Payable in cash, but payback takes ${fmt1(m)} months and ties up ${fmt1(p)}% of your cash — keep a safety cushion.`,
+        vBad: () => `Beyond your available cash (${fmtMad(B.cashBuffer)}). Financing, or spreading the cost, would be needed.`,
+      },
+      forecast: {
+        text: (run) => `Over the <b>first ${B.mtdDays} days of the month</b> (${fmtMad(B.mtdRevenue)} taken), the pace is <b>${fmtMad(run)}/day</b>.`,
+        s1l: 'Projected revenue · month', s1h: () => `${B.daysInMonth} days`,
+        s2l: 'Projected profit · month', s2h: () => `net margin ${fmt1(B.netMargin)} %`,
+        s3l: 'Projected revenue · 12 mo.', s3h: 'at the current pace',
+        s4l: 'Profit · 12 months', s4h: 'before corporate tax',
+        vGood: (v) => `Positive trend — the month is running ${fmt1(v)}% above your 30-day average. If the pace holds, it's your best month.`,
+        vWarn: (v) => `The month is ${fmt1(v)}% below your 30-day average — a push on weekend evenings would bring it back up.`,
+        note: 'Linear projection: a public holiday, a rainy weekend or a special event can shift the real figure.',
+      },
+      breakeven: {
+        text: () => `Your break-even — the revenue that exactly covers your fixed costs (${fmtMad(B.totalOpex)}) at a ${fmt1(B.contribRatio * 100)}% contribution margin.`,
+        s1l: 'Break-even · monthly rev.', s1h: () => `vs ${fmtMad(B.revenue)} achieved`,
+        s2l: 'Break-even · orders/day', s2h: () => `vs ${fmt(B.ordersPerDay)} today`,
+        s3l: 'Margin of safety', s3h: 'drop in activity you can absorb',
+        s4l: 'Break-even · daily rev.', s4h: () => `vs ${fmtMad(B.dailyRev)} achieved`,
+        vGood: () => `Solid position — you operate ${fmt1(B.marginOfSafety)}% above break-even. You'd have to lose nearly a third of activity to reach it.`,
+      },
+      margin: {
+        text: 'Your two margins, over the last 30 days:',
+        s1l: 'Gross margin', s1h: () => `${fmtMad(B.grossProfit)} after cost of goods`,
+        s2l: 'Net margin', s2h: () => `${fmtMad(B.netProfit)} after all costs`,
+        s3l: 'Cost of goods', s3h: () => fmtMad(B.cogs),
+        s4l: 'Profit per order', s4h: () => `average basket ${fmtMad(B.avgBasket)}`,
+        vGood: () => `Net margin of ${fmt1(B.netMargin)}% — well above the café-restaurant sector average (8 to 12%). Your cost of goods is well controlled.`,
+        note: 'Gross margin measures how profitable the menu is; net margin, how profitable the whole operation is.',
+      },
+      charges: {
+        text: () => `Your monthly fixed costs total <b>${fmtMad(B.totalOpex)}</b>, on top of which comes the cost of goods (${fmtMad(B.cogs)}).`,
+        share: (p) => `${fmt1(p)} % of costs`,
+        verdict: (name, p) => `"${name}" is your biggest line (${fmt1(p)}% of costs) — that's where your main optimisation lever sits.`,
+      },
+      revenue: {
+        text: 'Your activity over the last 30 days:',
+        s1l: 'Revenue', s1h: 'last 30 days',
+        s2l: 'Avg. revenue /day', s2h: () => `${fmt(B.ordersPerDay)} orders`,
+        s3l: 'Orders /month', s3h: () => `average basket ${fmtMad(B.avgBasket)}`,
+        s4l: 'Net profit /month', s4h: () => `net margin ${fmt1(B.netMargin)} %`,
+      },
+      profit: {
+        text: 'Your result, once every cost is paid:',
+        s1l: 'Net profit /month', s1h: () => `net margin ${fmt1(B.netMargin)} %`,
+        s2l: 'Net profit /day', s2h: () => `${B.daysOpen} opening days`,
+        s3l: 'Profit per order', s3h: () => `on a ${fmtMad(B.avgBasket)} basket`,
+        s4l: 'Projected profit /year', s4h: 'at the current pace',
+        vGood: () => `A healthy, profitable café: you clear ${fmtMad(B.dailyNet)} of net profit per opening day.`,
+      },
+      help: {
+        text: 'Hello Rachid. I\'m your financial assistant — I know Café Atlas: revenue, cost of goods, costs, margins and cash. Ask me a numbers question and I\'ll compute the real impact on your result; for an open question about running your café, I can switch on an AI assistant right in your browser. For example:',
+      },
+      calc: { title: 'Calculation', result: 'result' },
+      llm: {
+        noGpu: 'This question is beyond my preset calculations. To answer it freely I use an in-browser AI assistant, but yours doesn\'t support WebGPU — try an up-to-date Chrome or Edge on a computer. I\'m still here for any calculation: hiring, pricing, investment, break-even, forecasts.',
+        loading: (p) => `My AI assistant is finishing loading (${p}%). I'll answer as soon as it's ready.`,
+        offerLead: 'This question is beyond my preset calculations — but I can answer it freely with an <b>open-source AI assistant</b> that runs <b>entirely in your browser</b>: no data goes anywhere.',
+        offerSize: (sz) => `First launch: a one-time download of ${sz}, instant after that.`,
+        activate: 'Turn on the AI assistant',
+        installing: 'Installing the AI assistant — open-source model running in your browser.',
+        initializing: 'Initialising…',
+        ready: 'AI assistant ready.',
+        readyMsg: 'My AI assistant is ready. Ask me about managing, financing, staffing or marketing your café — I stay focused on your business.',
+        loadFail: 'Loading failed.',
+        loadFailMsg: 'I couldn\'t load the AI assistant (connection, memory, or an incompatible browser). My financial calculations remain fully available.',
+        runErr: 'Something went wrong on the AI assistant side. Try again, or ask me for a precise calculation.',
+      },
+    },
+
+    ar: {
+      /* AR: best-effort MSA — needs native review */
+      ui: {
+        title: 'المساعد المالي',
+        subtitle: 'يعرف مقهاك — المداخيل، التكاليف، الهوامش، الخزينة',
+        placeholder: 'اطرح سؤالاً — توظيف، أسعار، استثمار، توقّعات…',
+        calc: 'الآلة الحاسبة', enterToSend: 'اضغط Enter للإرسال', send: 'إرسال',
+        kpError: 'خطأ',
+        ctxEyebrow: 'ما أعرفه',
+        ctxSub: 'آخر 30 يوماً · انقر للإدراج',
+        ctxNote: 'انقر على أي رقم لإضافته إلى رسالتك — وسيحلّله المساعد.',
+        ctxTrust: 'كل شيء يعمل محلياً. لا تغادر أي بيانات هذا الجهاز.',
+        gActivity: 'النشاط', gProfit: 'الربحية', gFixed: 'التكاليف الثابتة', gCash: 'الخزينة والفريق',
+        perMonth: '/ شهر', days: 'يوم', employees: (n) => `${n} موظفين`,
+      },
+      facts: {
+        revenue: 'رقم المعاملات', revPerDay: 'المداخيل في اليوم', mtdRev: 'مداخيل الشهر الجاري',
+        ordersMonth: 'الطلبات / شهر', ordersDay: 'الطلبات / يوم', basket: 'متوسط السلة',
+        grossMargin: 'الهامش الإجمالي', cogs: 'تكلفة المواد', profitPerOrder: 'الربح لكل طلب',
+        breakEven: 'نقطة التعادل', cashAvail: 'الخزينة المتاحة', headcount: 'عدد الموظفين',
+        netProfit: 'الربح الصافي', netMarginLine: (m) => `هامش صافٍ ${m} %`,
+      },
+      opex: {
+        salaries: 'كتلة الأجور', rent: 'الكراء', utilities: 'الماء · الكهرباء · الغاز',
+        marketing: 'التسويق ومصاريف متنوعة', maintenance: 'الصيانة والمعدات',
+        insurance: 'التأمينات والضرائب', financing: 'الإهلاك والقرض', subscription: 'اشتراك Kiwi POS',
+      },
+      chips: {
+        hire: 'هل يمكنني توظيف نادل؟', price5: 'ماذا لو رفعت أسعاري 5%؟',
+        breakeven: 'ما هي نقطة التعادل لدي؟', forecast: 'توقّع الربح هذا الشهر',
+        charges: 'حلّل تكاليفي', invest80: 'هل يمكنني استثمار 80 000 MAD؟',
+        invest150: 'هل يمكنني استثمار 150 000 MAD؟',
+      },
+      hire: {
+        text: (c) => `توظيف بتكلفة محمّلة قدرها <b>${fmtMad(c)}/شهر</b> يعادل <b>${fmtMad(c * 12)}/سنة</b>.`,
+        s1l: 'لتمويل نفسه', s1v: (o) => `${fmt1(o / 30)} طلب/يوم`, s1h: (o) => `أي ${fmt(o)} طلب/شهر`,
+        s2l: 'المداخيل الإضافية المطلوبة', s2h: 'بمتوسط السلة الحالي',
+        s3l: 'الربح الصافي بعد ذلك', s3h: () => `مقابل ${fmtMad(B.netProfit)} اليوم`,
+        s4l: 'حصة من الربح', s4h: 'من نتيجتك الشهرية',
+        vGood: (o) => `مناسب — يكفي ${fmt1(o / 30)} طلب إضافي في اليوم لتغطية هذا المنصب. هامشك يسمح بذلك بأريحية.`,
+        vWarn: 'ممكن، لكن هذا المنصب يثقل النتيجة. تأكد من أن التوظيف يولّد مداخيل إضافية فعلية.',
+        vBad: 'حذار — هذه التكلفة تتجاوز هامش مناورتك الحالي. لا تأخذها بعين الاعتبار إلا مع ارتفاع مؤكد في النشاط.',
+        note: 'افتراض: 7 200 MAD/شهر تكلفة محمّلة لنادل (الأجر الصافي + CNSS + المكافآت). حدّد مبلغاً دقيقاً للتحسين.',
+      },
+      price: {
+        text: (p) => `${p >= 0 ? 'رفع' : 'خفض'} الأسعار بنسبة <b>${fmt1(Math.abs(p))} %</b> على كامل القائمة، بحجم ثابت، لا يمسّ تكلفة المواد — والفارق يذهب كله تقريباً إلى النتيجة.`,
+        s1l: 'الربح الصافي / شهر', s1h: (d) => `${d >= 0 ? '+' : ''}${fmtMad(d)}`,
+        s2l: 'الأثر على 12 شهراً', s2h: 'بنشاط مماثل',
+        s3l: 'الهامش الصافي الجديد', s3h: () => `مقابل ${fmt1(B.netMargin)} % اليوم`,
+        s4l: 'رقم المعاملات الجديد / شهر', s4h: (b) => `متوسط السلة ${fmtMad(b)}`,
+        vUp: (p, d) => `رافعة قوية — ${fmt1(p)} % زيادة في السعر = ${fmtMad(d)} ربحاً شهرياً دون أي إنفاق إضافي.`,
+        vDown: (need) => `خفض السعر لا يموّله إلا الحجم: ستحتاج إلى +${fmt1(need)} % من الطلبات للحفاظ على النتيجة.`,
+        note: 'حساب بحجم ثابت. عملياً، رفع الأسعار يقلّص الإقبال غالباً بنسبة 2 إلى 4 % — راقب عدد الطلبات خلال الأسبوعين التاليين.',
+        noteAssumed: ' (افتراض: 5 %.)',
+      },
+      afford: {
+        ask: 'حدّد مبلغ الاستثمار وسأخبرك إن كان في متناولك — مثلاً: <i>«هل يمكنني استثمار 80 000 MAD في تيراس؟»</i>',
+        text: (a) => `استثمار قدره <b>${fmtMad(a)}</b> يُقارَن بخزينتك المتاحة (${fmtMad(B.cashBuffer)}) وبربحك الصافي (${fmtMad(B.netProfit)}/شهر).`,
+        s1l: 'يُسترَدّ في', s1v: (m) => `${fmt1(m)} شهراً`, s1h: 'بالربح الصافي الحالي',
+        s2l: 'الخزينة بعد ذلك', s2hOk: (p) => `${fmt1(p)} % مُلتزَم بها`, s2hNo: 'يتطلب تمويلاً',
+        s3l: 'ما يعادل', s3v: (d) => `${fmt1(d)} يوماً`, s3h: 'من ربح التشغيل',
+        s4l: 'الوزن السنوي', s4h: 'من الربح على 12 شهراً',
+        vGood: (m, cash) => `في المتناول — يُدفع نقداً، ويُسترَدّ في ${fmt1(m)} شهراً، ويبقى ${fmtMad(cash)} في الخزينة.`,
+        vWarn: (m, p) => `يُدفع نقداً، لكن الاسترداد يستغرق ${fmt1(m)} شهراً ويجمّد ${fmt1(p)} % من خزينتك — احتفظ بهامش أمان.`,
+        vBad: () => `يتجاوز خزينتك المتاحة (${fmtMad(B.cashBuffer)}). سيلزم تمويل أو تقسيط للتكلفة.`,
+      },
+      forecast: {
+        text: (run) => `خلال <b>الأيام الـ${B.mtdDays} الأولى من الشهر</b> (${fmtMad(B.mtdRevenue)} محصّلة)، الوتيرة هي <b>${fmtMad(run)}/يوم</b>.`,
+        s1l: 'رقم معاملات متوقّع · الشهر', s1h: () => `${B.daysInMonth} يوماً`,
+        s2l: 'ربح متوقّع · الشهر', s2h: () => `هامش صافٍ ${fmt1(B.netMargin)} %`,
+        s3l: 'رقم معاملات متوقّع · 12 شهراً', s3h: 'بالوتيرة الحالية',
+        s4l: 'الربح · 12 شهراً', s4h: 'قبل الضريبة على الشركات',
+        vGood: (v) => `اتجاه إيجابي — الشهر يتجاوز متوسط 30 يوماً بنسبة ${fmt1(v)} %. إن صمدت الوتيرة، فهو أفضل شهر لك.`,
+        vWarn: (v) => `الشهر أدنى بـ${fmt1(v)} % من متوسط 30 يوماً — دفعة في أمسيات نهاية الأسبوع تعيد التوازن.`,
+        note: 'توقّع خطّي: يوم عطلة أو نهاية أسبوع ممطرة أو عملية خاصة قد تغيّر النتيجة الفعلية.',
+      },
+      breakeven: {
+        text: () => `نقطة تعادلك — رقم المعاملات الذي يغطّي تماماً تكاليفك الثابتة (${fmtMad(B.totalOpex)}) بهامش مساهمة قدره ${fmt1(B.contribRatio * 100)} %.`,
+        s1l: 'العتبة · رقم معاملات شهري', s1h: () => `مقابل ${fmtMad(B.revenue)} مُحقّق`,
+        s2l: 'العتبة · طلبات/يوم', s2h: () => `مقابل ${fmt(B.ordersPerDay)} اليوم`,
+        s3l: 'هامش الأمان', s3h: 'تراجع في النشاط يمكن استيعابه',
+        s4l: 'العتبة · رقم معاملات يومي', s4h: () => `مقابل ${fmtMad(B.dailyRev)} مُحقّق`,
+        vGood: () => `وضع متين — تشتغل بنسبة ${fmt1(B.marginOfSafety)} % فوق نقطة التعادل. ستحتاج إلى خسارة ثُلث النشاط تقريباً للوصول إليها.`,
+      },
+      margin: {
+        text: 'هامشاك، على مدى آخر 30 يوماً:',
+        s1l: 'الهامش الإجمالي', s1h: () => `${fmtMad(B.grossProfit)} بعد تكلفة المواد`,
+        s2l: 'الهامش الصافي', s2h: () => `${fmtMad(B.netProfit)} بعد كل التكاليف`,
+        s3l: 'تكلفة المواد', s3h: () => fmtMad(B.cogs),
+        s4l: 'الربح لكل طلب', s4h: () => `متوسط السلة ${fmtMad(B.avgBasket)}`,
+        vGood: () => `هامش صافٍ قدره ${fmt1(B.netMargin)} % — أعلى بكثير من متوسط قطاع المقاهي والمطاعم (8 إلى 12 %). تكلفة موادك مضبوطة جيداً.`,
+        note: 'الهامش الإجمالي يقيس ربحية القائمة؛ والهامش الصافي يقيس ربحية الاستغلال بأكمله.',
+      },
+      charges: {
+        text: () => `مجموع تكاليفك الثابتة الشهرية <b>${fmtMad(B.totalOpex)}</b>، تُضاف إليها تكلفة المواد (${fmtMad(B.cogs)}).`,
+        share: (p) => `${fmt1(p)} % من التكاليف`,
+        verdict: (name, p) => `«${name}» هو أكبر بند لديك (${fmt1(p)} % من التكاليف) — وهنا تكمن رافعة التحسين الرئيسية.`,
+      },
+      revenue: {
+        text: 'نشاطك على مدى آخر 30 يوماً:',
+        s1l: 'رقم المعاملات', s1h: 'آخر 30 يوماً',
+        s2l: 'متوسط المداخيل / يوم', s2h: () => `${fmt(B.ordersPerDay)} طلب`,
+        s3l: 'الطلبات / شهر', s3h: () => `متوسط السلة ${fmtMad(B.avgBasket)}`,
+        s4l: 'الربح الصافي / شهر', s4h: () => `هامش صافٍ ${fmt1(B.netMargin)} %`,
+      },
+      profit: {
+        text: 'نتيجتك، بعد أداء كل التكاليف:',
+        s1l: 'الربح الصافي / شهر', s1h: () => `هامش صافٍ ${fmt1(B.netMargin)} %`,
+        s2l: 'الربح الصافي / يوم', s2h: () => `${B.daysOpen} يوم عمل`,
+        s3l: 'الربح لكل طلب', s3h: () => `على سلة قدرها ${fmtMad(B.avgBasket)}`,
+        s4l: 'ربح متوقّع / سنة', s4h: 'بالوتيرة الحالية',
+        vGood: () => `مقهى رابح وسليم: تحقّق ${fmtMad(B.dailyNet)} ربحاً صافياً عن كل يوم عمل.`,
+      },
+      help: {
+        text: 'مرحباً رشيد. أنا مساعدك المالي — أعرف Café Atlas: رقم المعاملات، تكلفة المواد، التكاليف، الهوامش والخزينة. اطرح سؤالاً رقمياً وأحسب الأثر الفعلي على نتيجتك؛ ولسؤال مفتوح حول تسيير مقهاك، يمكنني تشغيل مساعد ذكاء اصطناعي داخل متصفّحك. مثلاً:',
+      },
+      calc: { title: 'حساب', result: 'النتيجة' },
+      llm: {
+        noGpu: 'هذا السؤال خارج حساباتي المُعدّة مسبقاً. للإجابة عنه بحرية أستعمل مساعد ذكاء اصطناعي داخل المتصفّح، لكن متصفّحك لا يدعم WebGPU — جرّب Chrome أو Edge محدّثاً على حاسوب. أبقى متاحاً لأي حساب: توظيف، أسعار، استثمار، عتبة، توقّعات.',
+        loading: (p) => `مساعد الذكاء الاصطناعي يكمل التحميل (${p}%). سأجيب فور جاهزيته.`,
+        offerLead: 'هذا السؤال خارج حساباتي المُعدّة مسبقاً — لكن يمكنني الإجابة عنه بحرية عبر <b>مساعد ذكاء اصطناعي مفتوح المصدر</b> يعمل <b>كلياً داخل متصفّحك</b>: لا تغادر أي بيانات.',
+        offerSize: (sz) => `الإطلاق الأول: تنزيل واحد بحجم ${sz}، ثم فوري بعد ذلك.`,
+        activate: 'تشغيل مساعد الذكاء الاصطناعي',
+        installing: 'تثبيت مساعد الذكاء الاصطناعي — نموذج مفتوح المصدر يعمل في متصفّحك.',
+        initializing: 'جارٍ التهيئة…',
+        ready: 'مساعد الذكاء الاصطناعي جاهز.',
+        readyMsg: 'مساعد الذكاء الاصطناعي جاهز. اسألني عن تسيير مقهاك وتمويله وفريقه وتسويقه — أبقى مركّزاً على نشاطك.',
+        loadFail: 'فشل التحميل.',
+        loadFailMsg: 'تعذّر تحميل مساعد الذكاء الاصطناعي (الاتصال أو الذاكرة أو متصفّح غير متوافق). تبقى حساباتي المالية متاحة بالكامل.',
+        runErr: 'حدث خطأ من جهة مساعد الذكاء الاصطناعي. أعد المحاولة، أو اطلب مني حساباً دقيقاً.',
+      },
+    },
+  };
+
+  const tr = () => T[L] || T.fr;
 
   /* ─────────────── NUMBER PARSING ─────────────── */
   function parseAmount(q) {
-    const m = q.match(/(\d[\d  .]*\d|\d)\s*(millions?|m\b|k\b|mille)?/i);
+    const m = q.match(/(\d[\d  .]*\d|\d)\s*(millions?|m\b|k\b|mille|thousand|alf|ألف)?/i);
     if (!m) return null;
     let n = parseFloat(m[1].replace(/[  .]/g, '').replace(',', '.'));
     const suf = (m[2] || '').toLowerCase();
-    if (suf === 'k' || suf === 'mille') n *= 1000;
+    if (suf === 'k' || suf === 'mille' || suf === 'thousand' || suf === 'alf' || suf === 'ألف') n *= 1000;
     else if (suf[0] === 'm') n *= 1000000;
     return isFinite(n) ? n : null;
   }
   function parsePercent(q) {
-    const m = q.match(/(\d+(?:[.,]\d+)?)\s*(?:%|pour\s?cent|pourcent)/i);
+    const m = q.match(/(\d+(?:[.,]\d+)?)\s*(?:%|pour\s?cent|pourcent|percent|بالمئة|بالمائة|في المئة)/i);
     return m ? parseFloat(m[1].replace(',', '.')) : null;
   }
 
   /* ─────────────── CALCULATOR ENGINE ─────────────── */
   function evalMath(expr) {
-    let e = String(expr).replace(/×/g, '*').replace(/÷/g, '/')
+    let e = fixDigits(String(expr)).replace(/×/g, '*').replace(/÷/g, '/')
       .replace(/\s/g, '').replace(/,/g, '.');
     e = e.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
     if (!/^[-+*/().\d]+$/.test(e) || !/\d/.test(e)) return null;
@@ -89,7 +506,7 @@
     } catch (_) { return null; }
   }
   function looksLikeMath(q) {
-    const s = q.replace(/\s/g, '');
+    const s = fixDigits(q).replace(/\s/g, '');
     return /^[-+*/().,%×÷\d]+$/.test(s) && /\d/.test(s) && /[-+*/×÷]/.test(s);
   }
 
@@ -97,36 +514,31 @@
    * Each returns { text, stats:[{l,v,h}], verdict:{tone,text}, note, follow:[] } */
 
   function sHire(q) {
+    const t = tr().hire;
     let c = parseAmount(q), assumed = false;
     if (!c || c < 1800) { c = 7200; assumed = true; }
     const ordersMo = c / (B.avgBasket * B.contribRatio);
     const newNet = B.netProfit - c;
     const tone = c < B.netProfit * 0.4 ? 'good' : c < B.netProfit * 0.8 ? 'warn' : 'bad';
     return {
-      text: `Une embauche à <b>${fmtMad(c)}/mois</b> en coût chargé représente <b>${fmtMad(c * 12)}/an</b>.`,
+      text: t.text(c),
       stats: [
-        { l: 'Pour s’autofinancer', v: `${fmt1(ordersMo / 30)} cmd/jour`, h: `soit ${fmt(ordersMo)} commandes/mois` },
-        { l: 'CA additionnel requis', v: fmtMad(c / B.contribRatio), h: 'au panier moyen actuel' },
-        { l: 'Bénéfice net après', v: `${fmtMad(newNet)}`, h: `vs ${fmtMad(B.netProfit)} aujourd’hui` },
-        { l: 'Part du bénéfice', v: `${fmt1(c / B.netProfit * 100)} %`, h: 'de votre résultat mensuel' },
+        { l: t.s1l, v: t.s1v(ordersMo), h: t.s1h(ordersMo) },
+        { l: t.s2l, v: fmtMad(c / B.contribRatio), h: t.s2h },
+        { l: t.s3l, v: fmtMad(newNet), h: t.s3h() },
+        { l: t.s4l, v: `${fmt1(c / B.netProfit * 100)} %`, h: t.s4h },
       ],
-      verdict: {
-        tone,
-        text: tone === 'good'
-          ? `Favorable — il suffit de ${fmt1(ordersMo / 30)} commandes en plus par jour pour absorber ce poste. Votre marge le permet largement.`
-          : tone === 'warn'
-            ? `Faisable, mais ce poste pèse lourd dans le résultat. Assurez-vous que l’embauche génère bien du chiffre additionnel.`
-            : `Prudence — ce coût dépasse votre marge de manœuvre actuelle. À envisager seulement avec une hausse d’activité confirmée.`,
-      },
-      note: assumed ? 'Hypothèse : 7 200 MAD/mois en coût chargé pour un serveur (salaire net + CNSS + primes). Indiquez un montant précis pour affiner.' : '',
-      follow: ['Et si j’augmente mes prix de 5 % ?', 'Quel est mon seuil de rentabilité ?'],
+      verdict: { tone, text: tone === 'good' ? t.vGood(ordersMo) : tone === 'warn' ? t.vWarn : t.vBad },
+      note: assumed ? t.note : '',
+      follow: [tr().chips.price5, tr().chips.breakeven],
     };
   }
 
   function sPrice(q) {
+    const t = tr().price;
     let p = parsePercent(q), assumed = false;
     if (p == null) { p = 5; assumed = true; }
-    const down = /\b(baiss|rédui|reduir|diminu)/i.test(norm(q));
+    const down = /\b(baiss|rédui|reduir|diminu|lower|cut|reduc|decrease|خفض|تخفيض)/i.test(norm(q));
     if (down) p = -Math.abs(p);
     const deltaNet = B.revenue * p / 100;
     const newNet = B.netProfit + deltaNet;
@@ -134,31 +546,24 @@
     const newNetMargin = newNet / newRev * 100;
     const tone = p > 0 ? (p <= 8 ? 'good' : 'warn') : 'warn';
     return {
-      text: `Une ${p >= 0 ? 'hausse' : 'baisse'} de <b>${fmt1(Math.abs(p))} %</b> sur l’ensemble de la carte, à volume constant, ne touche pas le coût matière — l’écart tombe presque entièrement dans le résultat.`,
+      text: t.text(p),
       stats: [
-        { l: 'Bénéfice net /mois', v: fmtMad(newNet), h: `${deltaNet >= 0 ? '+' : ''}${fmtMad(deltaNet)}` },
-        { l: 'Effet sur 12 mois', v: `${deltaNet >= 0 ? '+' : ''}${fmtMad(deltaNet * 12)}`, h: 'à activité égale' },
-        { l: 'Nouvelle marge nette', v: `${fmt1(newNetMargin)} %`, h: `vs ${fmt1(B.netMargin)} % aujourd’hui` },
-        { l: 'Nouveau CA /mois', v: fmtMad(newRev), h: `panier moyen ${fmtMad(B.avgBasket * (1 + p / 100))}` },
+        { l: t.s1l, v: fmtMad(newNet), h: t.s1h(deltaNet) },
+        { l: t.s2l, v: `${deltaNet >= 0 ? '+' : ''}${fmtMad(deltaNet * 12)}`, h: t.s2h },
+        { l: t.s3l, v: `${fmt1(newNetMargin)} %`, h: t.s3h() },
+        { l: t.s4l, v: fmtMad(newRev), h: t.s4h(B.avgBasket * (1 + p / 100)) },
       ],
-      verdict: {
-        tone,
-        text: p > 0
-          ? `Levier puissant — ${fmt1(p)} % de prix en plus = ${fmtMad(deltaNet)} de bénéfice mensuel sans dépense supplémentaire.`
-          : `Une baisse de prix ne se finance que par du volume : il faudrait +${fmt1(Math.abs(p) / B.contribRatio)} % de commandes pour préserver le résultat.`,
-      },
-      note: 'Calcul à volume constant. En pratique une hausse de prix réduit souvent la fréquentation de 2 à 4 % — surveillez le nombre de commandes les deux semaines suivantes.' + (assumed ? ' (Hypothèse : 5 %.)' : ''),
-      follow: ['Prévision de bénéfice ce mois', 'Décompose mes charges'],
+      verdict: { tone, text: p > 0 ? t.vUp(p, deltaNet) : t.vDown(Math.abs(p) / B.contribRatio) },
+      note: t.note + (assumed ? t.noteAssumed : ''),
+      follow: [tr().chips.forecast, tr().chips.charges],
     };
   }
 
   function sAfford(q) {
+    const t = tr().afford;
     const A = parseAmount(q);
     if (!A || A < 100) {
-      return {
-        text: 'Indiquez le montant de l’investissement et je vous dis s’il est à votre portée — par exemple : <i>« puis-je investir 80 000 MAD dans une terrasse ? »</i>',
-        follow: ['Puis-je investir 80 000 MAD ?', 'Puis-je investir 150 000 MAD ?'],
-      };
+      return { text: t.ask, follow: [tr().chips.invest80, tr().chips.invest150] };
     }
     const monthsRecoup = A / B.netProfit;
     const afterCash = B.cashBuffer - A;
@@ -166,187 +571,184 @@
     const tone = (A <= B.cashBuffer && monthsRecoup < 6) ? 'good'
       : (A <= B.cashBuffer ? 'warn' : 'bad');
     return {
-      text: `Un investissement de <b>${fmtMad(A)}</b> se compare à votre trésorerie disponible (${fmtMad(B.cashBuffer)}) et à votre bénéfice net (${fmtMad(B.netProfit)}/mois).`,
+      text: t.text(A),
       stats: [
-        { l: 'Récupéré en', v: `${fmt1(monthsRecoup)} mois`, h: 'avec le bénéfice net actuel' },
-        { l: 'Trésorerie après', v: fmtMad(Math.max(afterCash, 0)), h: afterCash >= 0 ? `${fmt1(pctCash)} % engagés` : 'financement nécessaire' },
-        { l: 'Équivalent', v: `${fmt1(A / B.dailyNet)} jours`, h: 'de bénéfice d’exploitation' },
-        { l: 'Poids annuel', v: `${fmt1(A / (B.netProfit * 12) * 100)} %`, h: 'du bénéfice sur 12 mois' },
+        { l: t.s1l, v: t.s1v(monthsRecoup), h: t.s1h },
+        { l: t.s2l, v: fmtMad(Math.max(afterCash, 0)), h: afterCash >= 0 ? t.s2hOk(pctCash) : t.s2hNo },
+        { l: t.s3l, v: t.s3v(A / B.dailyNet), h: t.s3h },
+        { l: t.s4l, v: `${fmt1(A / (B.netProfit * 12) * 100)} %`, h: t.s4h },
       ],
       verdict: {
         tone,
-        text: tone === 'good'
-          ? `Abordable — payable comptant, amorti en ${fmt1(monthsRecoup)} mois, et il reste ${fmtMad(afterCash)} de trésorerie.`
-          : tone === 'warn'
-            ? `Payable comptant, mais l’amortissement prend ${fmt1(monthsRecoup)} mois et mobilise ${fmt1(pctCash)} % de votre trésorerie — gardez un coussin de sécurité.`
-            : `Au-delà de votre trésorerie disponible (${fmtMad(B.cashBuffer)}). Un financement, ou un étalement, serait nécessaire.`,
+        text: tone === 'good' ? t.vGood(monthsRecoup, afterCash)
+          : tone === 'warn' ? t.vWarn(monthsRecoup, pctCash) : t.vBad(),
       },
-      follow: ['Quel est mon seuil de rentabilité ?', 'Prévision de bénéfice ce mois'],
+      follow: [tr().chips.breakeven, tr().chips.forecast],
     };
   }
 
   function sForecast() {
+    const t = tr().forecast;
     const runRate = B.mtdRevenue / B.mtdDays;
     const projRev = runRate * B.daysInMonth;
     const projNet = projRev * B.netMargin / 100;
     const vsAvg = (projRev - B.revenue) / B.revenue * 100;
     const tone = vsAvg >= 0 ? 'good' : 'warn';
     return {
-      text: `Sur vos <b>${B.mtdDays} premiers jours de mai</b> (${fmtMad(B.mtdRevenue)} encaissés), le rythme est de <b>${fmtMad(runRate)}/jour</b>.`,
+      text: t.text(runRate),
       stats: [
-        { l: 'CA projeté · mai', v: fmtMad(projRev), h: `${B.daysInMonth} jours` },
-        { l: 'Bénéfice projeté · mai', v: fmtMad(projNet), h: `marge nette ${fmt1(B.netMargin)} %` },
-        { l: 'CA projeté · 12 mois', v: fmtMad(projRev * 12), h: 'au rythme actuel' },
-        { l: 'Bénéfice · 12 mois', v: fmtMad(projNet * 12), h: 'avant impôt sur les sociétés' },
+        { l: t.s1l, v: fmtMad(projRev), h: t.s1h() },
+        { l: t.s2l, v: fmtMad(projNet), h: t.s2h() },
+        { l: t.s3l, v: fmtMad(projRev * 12), h: t.s3h },
+        { l: t.s4l, v: fmtMad(projNet * 12), h: t.s4h },
       ],
-      verdict: {
-        tone,
-        text: vsAvg >= 0
-          ? `Tendance positive — mai dépasse votre moyenne 30 jours de ${fmt1(vsAvg)} %. Si le rythme tient, c’est votre meilleur mois.`
-          : `Mai est ${fmt1(Math.abs(vsAvg))} % sous votre moyenne 30 jours — un coup d’accélérateur sur les soirs de week-end remettrait la barre.`,
-      },
-      note: 'Projection linéaire : un jour férié, un week-end pluvieux ou une opération spéciale peuvent faire varier le résultat réel.',
-      follow: ['Décompose mes charges', 'Et si j’augmente mes prix de 5 % ?'],
+      verdict: { tone, text: vsAvg >= 0 ? t.vGood(vsAvg) : t.vWarn(Math.abs(vsAvg)) },
+      note: t.note,
+      follow: [tr().chips.charges, tr().chips.price5],
     };
   }
 
   function sBreakEven() {
+    const t = tr().breakeven;
     return {
-      text: `Votre point mort — le chiffre d’affaires qui couvre exactement vos charges fixes (${fmtMad(B.totalOpex)}) avec une marge sur coûts variables de ${fmt1(B.contribRatio * 100)} %.`,
+      text: t.text(),
       stats: [
-        { l: 'Seuil · CA mensuel', v: fmtMad(B.breakEvenRev), h: `vs ${fmtMad(B.revenue)} réalisé` },
-        { l: 'Seuil · commandes/jour', v: fmt(B.breakEvenOrdersDay), h: `vs ${fmt(B.ordersPerDay)} aujourd’hui` },
-        { l: 'Marge de sécurité', v: `${fmt1(B.marginOfSafety)} %`, h: 'chute d’activité absorbable' },
-        { l: 'Seuil · CA journalier', v: fmtMad(B.breakEvenRev / B.daysOpen), h: `vs ${fmtMad(B.dailyRev)} réalisé` },
+        { l: t.s1l, v: fmtMad(B.breakEvenRev), h: t.s1h() },
+        { l: t.s2l, v: fmt(B.breakEvenOrdersDay), h: t.s2h() },
+        { l: t.s3l, v: `${fmt1(B.marginOfSafety)} %`, h: t.s3h },
+        { l: t.s4l, v: fmtMad(B.breakEvenRev / B.daysOpen), h: t.s4h() },
       ],
-      verdict: {
-        tone: 'good',
-        text: `Position solide — vous opérez ${fmt1(B.marginOfSafety)} % au-dessus du point mort. Il faudrait perdre près d’un tiers de l’activité pour être à l’équilibre.`,
-      },
-      follow: ['Puis-je embaucher un serveur ?', 'Prévision de bénéfice ce mois'],
+      verdict: { tone: 'good', text: t.vGood() },
+      follow: [tr().chips.hire, tr().chips.forecast],
     };
   }
 
   function sMargin() {
+    const t = tr().margin;
     return {
-      text: `Vos deux marges, sur les 30 derniers jours :`,
+      text: t.text,
       stats: [
-        { l: 'Marge brute', v: `${fmt1(B.grossMargin)} %`, h: `${fmtMad(B.grossProfit)} après coût matière` },
-        { l: 'Marge nette', v: `${fmt1(B.netMargin)} %`, h: `${fmtMad(B.netProfit)} après toutes charges` },
-        { l: 'Coût matière', v: `${fmt1(100 - B.grossMargin)} %`, h: fmtMad(B.cogs) },
-        { l: 'Bénéfice par commande', v: fmtMad(B.netPerOrder), h: `panier moyen ${fmtMad(B.avgBasket)}` },
+        { l: t.s1l, v: `${fmt1(B.grossMargin)} %`, h: t.s1h() },
+        { l: t.s2l, v: `${fmt1(B.netMargin)} %`, h: t.s2h() },
+        { l: t.s3l, v: `${fmt1(100 - B.grossMargin)} %`, h: t.s3h() },
+        { l: t.s4l, v: fmtMad(B.netPerOrder), h: t.s4h() },
       ],
-      verdict: {
-        tone: 'good',
-        text: `Marge nette de ${fmt1(B.netMargin)} % — nettement au-dessus de la moyenne du secteur café-restauration (8 à 12 %). Votre coût matière est bien tenu.`,
-      },
-      note: 'La marge brute mesure la rentabilité de la carte ; la marge nette, celle de toute l’exploitation.',
-      follow: ['Décompose mes charges', 'Et si j’augmente mes prix de 5 % ?'],
+      verdict: { tone: 'good', text: t.vGood() },
+      note: t.note,
+      follow: [tr().chips.charges, tr().chips.price5],
     };
   }
 
   function sCharges() {
+    const t = tr().charges;
+    const labels = tr().opex;
     const items = Object.entries(B.opex).sort((a, b) => b[1] - a[1]);
     const biggest = items[0];
     return {
-      text: `Vos charges fixes mensuelles totalisent <b>${fmtMad(B.totalOpex)}</b>, auxquelles s’ajoute le coût matière (${fmtMad(B.cogs)}).`,
-      stats: items.map(([k, v]) => ({ l: k, v: fmtMad(v), h: `${fmt1(v / B.totalOpex * 100)} % des charges` })),
-      verdict: {
-        tone: 'warn',
-        text: `« ${biggest[0]} » est votre premier poste (${fmt1(biggest[1] / B.totalOpex * 100)} % des charges) — c’est là que se trouve votre principal levier d’optimisation.`,
-      },
-      follow: ['Puis-je embaucher un serveur ?', 'Quel est mon seuil de rentabilité ?'],
+      text: t.text(),
+      stats: items.map(([k, v]) => ({ l: labels[k] || k, v: fmtMad(v), h: t.share(v / B.totalOpex * 100) })),
+      verdict: { tone: 'warn', text: t.verdict(labels[biggest[0]] || biggest[0], biggest[1] / B.totalOpex * 100) },
+      follow: [tr().chips.hire, tr().chips.breakeven],
     };
   }
 
   function sRevenue() {
+    const t = tr().revenue;
     return {
-      text: `Votre activité sur les 30 derniers jours :`,
+      text: t.text,
       stats: [
-        { l: 'Chiffre d’affaires', v: fmtMad(B.revenue), h: '30 derniers jours' },
-        { l: 'CA moyen /jour', v: fmtMad(B.dailyRev), h: `${fmt(B.ordersPerDay)} commandes` },
-        { l: 'Commandes /mois', v: fmt(B.ordersPerMonth), h: `panier moyen ${fmtMad(B.avgBasket)}` },
-        { l: 'Bénéfice net /mois', v: fmtMad(B.netProfit), h: `marge nette ${fmt1(B.netMargin)} %` },
+        { l: t.s1l, v: fmtMad(B.revenue), h: t.s1h },
+        { l: t.s2l, v: fmtMad(B.dailyRev), h: t.s2h() },
+        { l: t.s3l, v: fmt(B.ordersPerMonth), h: t.s3h() },
+        { l: t.s4l, v: fmtMad(B.netProfit), h: t.s4h() },
       ],
-      follow: ['Prévision de bénéfice ce mois', 'Décompose mes charges'],
+      follow: [tr().chips.forecast, tr().chips.charges],
     };
   }
 
   function sProfit() {
+    const t = tr().profit;
     return {
-      text: `Votre résultat, une fois toutes les charges payées :`,
+      text: t.text,
       stats: [
-        { l: 'Bénéfice net /mois', v: fmtMad(B.netProfit), h: `marge nette ${fmt1(B.netMargin)} %` },
-        { l: 'Bénéfice net /jour', v: fmtMad(B.dailyNet), h: `${B.daysOpen} jours d’ouverture` },
-        { l: 'Bénéfice par commande', v: fmtMad(B.netPerOrder), h: `sur ${fmtMad(B.avgBasket)} de panier` },
-        { l: 'Bénéfice projeté /an', v: fmtMad(B.netProfit * 12), h: 'au rythme actuel' },
+        { l: t.s1l, v: fmtMad(B.netProfit), h: t.s1h() },
+        { l: t.s2l, v: fmtMad(B.dailyNet), h: t.s2h() },
+        { l: t.s3l, v: fmtMad(B.netPerOrder), h: t.s3h() },
+        { l: t.s4l, v: fmtMad(B.netProfit * 12), h: t.s4h },
       ],
-      verdict: {
-        tone: 'good',
-        text: `Café rentable et sain : vous dégagez ${fmtMad(B.dailyNet)} de bénéfice net par jour d’ouverture.`,
-      },
-      follow: ['Puis-je investir 80 000 MAD ?', 'Quel est mon seuil de rentabilité ?'],
+      verdict: { tone: 'good', text: t.vGood() },
+      follow: [tr().chips.invest80, tr().chips.breakeven],
     };
   }
 
   function sHelp() {
     return {
-      text: `Bonjour Rachid. Je suis votre assistant financier — je connais Café Atlas : chiffre d’affaires, coût matière, charges, marges et trésorerie. Posez-moi une question chiffrée et je calcule l’impact réel sur votre résultat ; pour une question ouverte sur la gestion de votre café, je peux activer un assistant IA dans votre navigateur. Par exemple :`,
-      follow: [
-        'Puis-je embaucher un serveur ?',
-        'Et si j’augmente mes prix de 5 % ?',
-        'Quel est mon seuil de rentabilité ?',
-        'Prévision de bénéfice ce mois',
-        'Puis-je investir 80 000 MAD ?',
-      ],
+      text: tr().help.text,
+      follow: [tr().chips.hire, tr().chips.price5, tr().chips.breakeven, tr().chips.forecast, tr().chips.invest80],
     };
   }
 
   function sCalc(expr, result) {
     return {
-      text: `Calcul`,
-      stats: [{ l: expr.trim(), v: fmt1(Math.round(result * 100) / 100).replace(/,0$/, ''), h: Math.abs(result) > 999 ? 'résultat' : '' }],
+      text: tr().calc.title,
+      stats: [{
+        l: expr.trim(),
+        v: fmt1(Math.round(result * 100) / 100).replace(/,0$/, ''),
+        h: Math.abs(result) > 999 ? tr().calc.result : '',
+      }],
     };
   }
 
-  /* ─────────────── INTENT ROUTER ─────────────── */
-  function respond(raw) {
+  /* ─────────────── INTENT ROUTER (fr / en / ar) ─────────────── */
+  const RX = {
+    greet: /(bonjour|salut|coucou|aide|que (peux|sais)|qui es|comment ca|hello|^hi$|^hey|help|who are you|what can you|مرحبا|سلام|اهلا|مساعدة|من انت|ماذا تفعل)/,
+    hire: /(embauch|recrut|engag|serveur|cuisinier|barista|salarie|nouvel employe|main d.?oeuvre|une personne en plus|hire|recruit|waiter|cook|barista|staff|employee|توظيف|تشغيل|نادل|طباخ|عامل|موظف|استخدام)/,
+    hireExcl: /(embauch|recrut|serveur|hire|recruit|waiter|توظيف|نادل)/,
+    afford: /(puis.?je|peux.?je|ai.?je les moyens|me permettre|abordable|financ|investir|acheter|depenser|coute|can i|afford|invest|buy|purchase|spend|cost of|هل يمكن|استثمار|شراء|صرف|اشتري|اقدر|في متناول)/,
+    price: /(prix|tarif|price|pricing|سعر|اسعار|ثمن|تسعير)/,
+    priceVerb: /(augment|hauss|baiss|monter|raise|increase|lower|cut|reduce|رفع|خفض|زيادة|تخفيض)/,
+    forecast: /(prevision|projection|prevoir|previs|fin du mois|fin d.?annee|run.?rate|tendance|combien.*(vais|gagner|ferai)|forecast|projection|predict|end of month|trend|outlook|توقع|تنبؤ|اخر الشهر|نهاية الشهر|اتجاه)/,
+    breakeven: /(seuil|rentab|equilibre|break.?even|point mort|breakeven|threshold|نقطة التعادل|عتبة|التعادل)/,
+    margin: /(marge|margin|هامش)/,
+    charges: /(charge|depense|cout|frais|opex|cost|expense|overhead|spending|تكاليف|مصاريف|نفقات|تكلفة)/,
+    revenue: /(chiffre|revenu|\bca\b|encaiss|vente|recette|revenue|sales|turnover|income|مداخيل|مبيعات|دخل|رقم المعاملات|معاملات)/,
+    profit: /(benefice|profit|gagne|resultat|rentre|combien je gagne|earn|bottom line|net income|make money|ربح|ارباح|صافي|نتيجة)/,
+  };
+  function respond(rawIn) {
+    const raw = fixDigits(rawIn);
     const q = norm(raw);
     if (looksLikeMath(raw)) {
       const r = evalMath(raw);
       if (r != null) return sCalc(raw, r);
     }
-    if (/(bonjour|salut|hello|coucou|aide|que (peux|sais)|qui es|comment ca|^aide)/.test(q)) return sHelp();
-    if (/(embauch|recrut|engag|serveur|cuisinier|barista|salarie|nouvel employe|main d.?oeuvre|une personne en plus)/.test(q)) return sHire(raw);
-    if (/(puis.?je|peux.?je|ai.?je les moyens|me permettre|abordable|financ|investir|acheter|depenser|coute)/.test(q)
-        && !/(embauch|recrut|serveur)/.test(q)) return sAfford(raw);
-    if (/prix|tarif/.test(q) || (parsePercent(raw) != null && /(augment|hauss|baiss|monter)/.test(q))) return sPrice(raw);
-    if (/(prevision|projection|prevoir|previs|fin du mois|fin d.?annee|run.?rate|tendance|combien.*(vais|gagner|ferai))/.test(q)) return sForecast();
-    if (/(seuil|rentab|equilibre|break.?even|point mort)/.test(q)) return sBreakEven();
-    if (/marge/.test(q)) return sMargin();
-    if (/(charge|depense|cout|frais|opex)/.test(q)) return sCharges();
-    if (/(chiffre|revenu|\bca\b|encaiss|vente|recette)/.test(q)) return sRevenue();
-    if (/(benefice|profit|gagne|resultat|rentre|combien je gagne)/.test(q)) return sProfit();
+    if (RX.greet.test(q)) return sHelp();
+    if (RX.hire.test(q)) return sHire(raw);
+    if (RX.afford.test(q) && !RX.hireExcl.test(q)) return sAfford(raw);
+    if (RX.price.test(q) || (parsePercent(raw) != null && RX.priceVerb.test(q))) return sPrice(raw);
+    if (RX.forecast.test(q)) return sForecast();
+    if (RX.breakeven.test(q)) return sBreakEven();
+    if (RX.margin.test(q)) return sMargin();
+    if (RX.charges.test(q)) return sCharges();
+    if (RX.revenue.test(q)) return sRevenue();
+    if (RX.profit.test(q)) return sProfit();
     const r = evalMath(raw);
     if (r != null) return sCalc(raw, r);
     return null;   // unmatched → routed to the in-browser LLM
   }
 
   /* ═══════════════ IN-BROWSER LLM · WebLLM ═══════════════
-   * Anything the deterministic scenario engine doesn't recognise is
-   * answered by an open-source model running fully in the browser via
-   * WebGPU — no backend, no API key, no data leaves the device.
-   * The model is downloaded once (cached by the browser) and only after
-   * the owner explicitly opts in. */
+   * Anything the deterministic engine doesn't recognise is answered by an
+   * open-source model running fully in the browser via WebGPU — no backend,
+   * no API key, no data leaves the device. Opt-in download. */
   const LLM = {
-    model: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',  // open-source · ~2 Go · swap freely
+    model: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
     sizeLabel: '≈ 2 Go',
     cdn: 'https://esm.run/@mlc-ai/web-llm',
-    status: 'idle',   // idle · loading · ready · error
+    status: 'idle',
     engine: null,
     progress: 0,
   };
-  const llmHistory = [];   // {role,content} — conversation memory for follow-ups
+  const llmHistory = [];
 
   function buildSystemPrompt() {
     const o = B.opex;
@@ -356,15 +758,16 @@
       `- Chiffre d'affaires : ${fmt(B.revenue)} MAD`,
       `- Coût matière : ${fmt(B.cogs)} MAD (${fmt1(100 - B.grossMargin)} % du CA)`,
       `- Marge brute : ${fmt(B.grossProfit)} MAD (${fmt1(B.grossMargin)} %)`,
-      `- Charges fixes : ${fmt(B.totalOpex)} MAD — dont masse salariale ${fmt(o['Masse salariale'])}, loyer ${fmt(o['Loyer'])}, énergie ${fmt(o['Eau · électricité · gaz'])}.`,
+      `- Charges fixes : ${fmt(B.totalOpex)} MAD — dont masse salariale ${fmt(o.salaries)}, loyer ${fmt(o.rent)}, énergie ${fmt(o.utilities)}.`,
       `- Bénéfice net : ${fmt(B.netProfit)} MAD (marge nette ${fmt1(B.netMargin)} %)`,
       `- Trésorerie disponible : ${fmt(B.cashBuffer)} MAD`,
       `- Panier moyen : ${fmt(B.avgBasket)} MAD · ${fmt(B.ordersPerMonth)} ventes/mois · ${B.staffCount} employés.`,
       '',
       'Règles :',
-      '- Réponds toujours en français, de façon concise, concrète et chiffrée quand c\'est utile.',
+      '- Réponds TOUJOURS dans la langue de la question de l\'utilisateur (français, anglais, ou arabe / darija marocaine).',
+      '- Sois concis, concret et chiffré quand c\'est utile.',
       '- Tu peux discuter de tout ce qui touche la gestion du café : finances, RH, marketing, opérations, fournisseurs, stratégie, motivation.',
-      '- Tu NE réponds PAS aux questions sans lien avec l\'activité (sport, célébrités, actualité générale, culture générale). Dans ce cas, décline poliment en une phrase et propose de revenir au café.',
+      '- Tu NE réponds PAS aux questions sans lien avec l\'activité (sport, célébrités, actualité, culture générale). Décline poliment en une phrase et propose de revenir au café.',
       '- Tu n\'as pas accès à Internet ni à des données en temps réel : dis-le clairement si on te demande un fait récent (score, météo, cours).',
       '- Ne donne jamais de conseil d\'investissement boursier.',
       '- N\'invente pas de chiffres : appuie-toi sur les données ci-dessus.',
@@ -380,22 +783,13 @@
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>',
   };
 
-  const CHIPS = [
-    'Puis-je embaucher un serveur ?',
-    'Et si j’augmente mes prix de 5 % ?',
-    'Quel est mon seuil de rentabilité ?',
-    'Prévision de bénéfice ce mois',
-    'Décompose mes charges',
-    'Puis-je investir 80 000 MAD ?',
-  ];
-
   /* one-time CSS */
   function injectCss() {
     if (document.getElementById('fa-css')) return;
     const s = document.createElement('style');
     s.id = 'fa-css';
     s.textContent = `
-    /* ─── Assistant financier · interface ─────────────────────────────── */
+    /* ─── Financial assistant · interface ─────────────────────────────── */
     .fa-drawer .kiwi-drawer { display:flex; flex-direction:column; }
     .fa-drawer .kiwi-drawer-body { flex:1; min-height:0; padding:0 !important; display:flex; }
     .fa-drawer .kiwi-drawer-head { background:var(--paper); }
@@ -431,6 +825,7 @@
     .fa-msg.user .fa-bubble { max-width:78%; background:#fff; border:1px solid var(--n-200);
       border-radius:18px 18px 6px 18px; padding:11px 16px; font-size:13.5px; line-height:1.55;
       color:var(--ink); box-shadow:0 4px 16px -10px rgba(10,15,13,.22); }
+    [dir="rtl"] .fa-msg.user .fa-bubble { border-radius:18px 18px 18px 6px; }
     .fa-bubble b { font-weight:600; color:var(--riad); }
     .fa-bubble i { color:var(--n-500); font-style:italic; }
 
@@ -471,7 +866,7 @@
       padding:15px clamp(20px,8%,120px) 19px; }
     .fa-dock-in { max-width:730px; margin:0 auto; }
     .fa-inputwrap { display:flex; align-items:flex-end; gap:8px; background:#fff;
-      border:1px solid var(--n-300); border-radius:21px; padding:6px 6px 6px 18px;
+      border:1px solid var(--n-300); border-radius:21px; padding:6px; padding-inline-start:18px;
       box-shadow:0 8px 26px -16px rgba(10,15,13,.26); transition:border-color 170ms, box-shadow 170ms; }
     .fa-inputwrap:focus-within { border-color:var(--atlas); box-shadow:0 10px 30px -16px rgba(11,110,79,.4); }
     .fa-input { flex:1; resize:none; border:none; outline:none; background:transparent; font:inherit;
@@ -482,6 +877,7 @@
       transition:transform 150ms var(--fa-ease), background 150ms; }
     .fa-send:hover { background:var(--riad); transform:scale(1.06); }
     .fa-send:active { transform:scale(.93); }
+    [dir="rtl"] .fa-send svg { transform:scaleX(-1); }
     .fa-toolbar { display:flex; align-items:center; justify-content:space-between; margin-top:11px; padding:0 4px; }
     .fa-tool { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:500;
       color:var(--n-600); background:#fff; border:1px solid var(--n-200); border-radius:999px;
@@ -497,9 +893,10 @@
     @keyframes fa-kp-in { from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:none; } }
     .fa-keypad-card { background:#fff; border:1px solid var(--n-200); border-radius:22px; padding:14px;
       margin-bottom:14px; box-shadow:0 18px 44px -26px rgba(10,15,13,.35); }
-    .fa-kpdisplay { background:var(--ink); color:#fff; border-radius:14px; padding:16px 18px; text-align:right;
+    .fa-kpdisplay { background:var(--ink); color:#fff; border-radius:14px; padding:16px 18px;
+      text-align:right; direction:ltr;
       font-family:var(--mono); font-size:25px; letter-spacing:.02em; overflow:hidden; white-space:nowrap; }
-    .fa-kpgrid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:11px; }
+    .fa-kpgrid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:11px; direction:ltr; }
     .fa-kpgrid button { padding:15px 0; border-radius:14px; border:1px solid var(--n-200);
       background:var(--paper-soft); font-size:16px; font-family:var(--mono); color:var(--ink);
       cursor:pointer; transition:transform 90ms, background 130ms; }
@@ -578,35 +975,39 @@
 
   function open(prefill) {
     if (!window.Kiwi || !window.Kiwi.drawer) return;
+    L = getLang();
     injectCss();
+    const u = tr().ui;
 
     // Every fact the agent knows — grouped, each row click-to-insert.
     const ctxItem = (k, v) =>
       `<button class="fa-ctx-item" type="button" data-fa-fact="${escAttr(`${k} : ${v}`)}"><span class="k">${k}</span><span class="v">${v}</span></button>`;
     const ctxGroup = (title, items, total) =>
       `<div class="fa-ctx-group"><div class="fa-ctx-gh"><span>${title}</span>${total ? `<span class="tot">${total}</span>` : ''}</div>${items.map(([k, v]) => ctxItem(k, v)).join('')}</div>`;
-    const opexItems = Object.entries(B.opex).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, fmtMad(v)]);
+    const f = tr().facts;
+    const opexItems = Object.entries(B.opex).sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => [tr().opex[k] || k, fmtMad(v)]);
     const ctxRail =
-      ctxGroup('Activité', [
-        ['Chiffre d’affaires', fmtMad(B.revenue)],
-        ['CA par jour', fmtMad(B.dailyRev)],
-        ['CA du mois en cours', `${fmtMad(B.mtdRevenue)} · ${B.mtdDays} j`],
-        ['Commandes / mois', fmt(B.ordersPerMonth)],
-        ['Commandes / jour', fmt(B.ordersPerDay)],
-        ['Panier moyen', fmtMad(B.avgBasket)],
+      ctxGroup(u.gActivity, [
+        [f.revenue, fmtMad(B.revenue)],
+        [f.revPerDay, fmtMad(B.dailyRev)],
+        [f.mtdRev, `${fmtMad(B.mtdRevenue)} · ${B.mtdDays} ${u.days}`],
+        [f.ordersMonth, fmt(B.ordersPerMonth)],
+        [f.ordersDay, fmt(B.ordersPerDay)],
+        [f.basket, fmtMad(B.avgBasket)],
       ]) +
-      ctxGroup('Rentabilité', [
-        ['Marge brute', `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`],
-        ['Coût matière', `${fmtMad(B.cogs)} · ${fmt1(100 - B.grossMargin)} %`],
-        ['Bénéfice par commande', fmtMad(B.netPerOrder)],
-        ['Seuil de rentabilité', `${fmtMad(B.breakEvenRev)} / mois`],
+      ctxGroup(u.gProfit, [
+        [f.grossMargin, `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`],
+        [f.cogs, `${fmtMad(B.cogs)} · ${fmt1(100 - B.grossMargin)} %`],
+        [f.profitPerOrder, fmtMad(B.netPerOrder)],
+        [f.breakEven, `${fmtMad(B.breakEvenRev)} ${u.perMonth}`],
       ]) +
-      ctxGroup('Charges fixes', opexItems, `${fmtMad(B.totalOpex)} / mois`) +
-      ctxGroup('Trésorerie & équipe', [
-        ['Trésorerie disponible', fmtMad(B.cashBuffer)],
-        ['Effectif', `${B.staffCount} employés`],
+      ctxGroup(u.gFixed, opexItems, `${fmtMad(B.totalOpex)} ${u.perMonth}`) +
+      ctxGroup(u.gCash, [
+        [f.cashAvail, fmtMad(B.cashBuffer)],
+        [f.headcount, u.employees(B.staffCount)],
       ]);
-    const netFact = `Bénéfice net : ${fmtMad(B.netProfit)} · marge nette ${fmt1(B.netMargin)} %`;
+    const netFact = `${f.netProfit} : ${fmtMad(B.netProfit)} · ${f.netMarginLine(fmt1(B.netMargin))}`;
 
     const body = `
       <div class="fa">
@@ -628,34 +1029,34 @@
               </div>
               <div class="fa-inputwrap">
                 <textarea class="fa-input" data-fa-input rows="1"
-                  placeholder="Posez une question — embauche, prix, investissement, prévision…"></textarea>
-                <button class="fa-send" data-fa-send title="Envoyer">${ICON.send}</button>
+                  placeholder="${escAttr(u.placeholder)}"></textarea>
+                <button class="fa-send" data-fa-send title="${escAttr(u.send)}">${ICON.send}</button>
               </div>
               <div class="fa-toolbar">
-                <button class="fa-tool" data-fa-keypad-toggle type="button">${ICON.keypad}<span>Calculatrice</span></button>
-                <span class="fa-hint">Entrée pour envoyer</span>
+                <button class="fa-tool" data-fa-keypad-toggle type="button">${ICON.keypad}<span>${u.calc}</span></button>
+                <span class="fa-hint">${u.enterToSend}</span>
               </div>
             </div>
           </div>
         </div>
         <aside class="fa-context">
-          <div class="fa-ctx-eyebrow">Ce que je sais</div>
+          <div class="fa-ctx-eyebrow">${u.ctxEyebrow}</div>
           <div class="fa-ctx-biz">${B.name}</div>
-          <div class="fa-ctx-sub">30 derniers jours · cliquez pour insérer</div>
+          <div class="fa-ctx-sub">${u.ctxSub}</div>
           ${ctxRail}
           <button class="fa-ctx-net" type="button" data-fa-fact="${escAttr(netFact)}">
-            <div class="k">Bénéfice net</div>
+            <div class="k">${f.netProfit}</div>
             <div class="v">${fmtMad(B.netProfit)}</div>
-            <div class="s">marge nette ${fmt1(B.netMargin)} %</div>
+            <div class="s">${f.netMarginLine(fmt1(B.netMargin))}</div>
           </button>
-          <div class="fa-ctx-note">Cliquez un chiffre pour l’ajouter à votre message — l’assistant raisonnera dessus.</div>
-          <div class="fa-ctx-trust">${ICON.lock}<span>Tout s’exécute en local. Aucune donnée ne quitte cet appareil.</span></div>
+          <div class="fa-ctx-note">${u.ctxNote}</div>
+          <div class="fa-ctx-trust">${ICON.lock}<span>${u.ctxTrust}</span></div>
         </aside>
       </div>`;
 
     const res = window.Kiwi.drawer({
-      title: 'Assistant financier',
-      subtitle: 'Il connaît votre café — revenus, charges, marges, trésorerie',
+      title: u.title,
+      subtitle: u.subtitle,
       body,
       fullpage: true,
     });
@@ -711,34 +1112,32 @@
     }
 
     function routeToLlm(question) {
+      const m = tr().llm;
       if (!('gpu' in navigator)) {
-        pushAgent(replyHtml({
-          text: 'Cette question sort de mes calculs prédéfinis. Pour y répondre librement j’utilise un assistant IA dans le navigateur, mais le vôtre ne prend pas en charge WebGPU — essayez Chrome ou Edge à jour sur ordinateur. Je reste disponible pour tout calcul : embauche, prix, investissement, seuil, prévisions.',
-          follow: ['Décompose mes charges', 'Quel est mon seuil de rentabilité ?'],
-        }));
+        pushAgent(replyHtml({ text: m.noGpu, follow: [tr().chips.charges, tr().chips.breakeven] }));
         return;
       }
       if (LLM.status === 'ready') { runLlm(question); return; }
       if (LLM.status === 'loading') {
         LLM.pending = question;
-        pushAgent(replyHtml({ text: `Mon assistant IA finit de se charger (${Math.round(LLM.progress * 100)} %). Je réponds dès qu’il est prêt.` }));
+        pushAgent(replyHtml({ text: m.loading(Math.round(LLM.progress * 100)) }));
         return;
       }
-      // idle or error → opt-in activation card
       LLM.pending = question;
       pushAgent(
-        `<div>Cette question sort de mes calculs prédéfinis — mais je peux y répondre librement avec un <b>assistant IA open-source</b> qui s’exécute <b>entièrement dans votre navigateur</b> : aucune donnée ne part ailleurs.</div>
-         <div class="fa-note" style="font-style:normal;">Premier lancement : un téléchargement unique de ${LLM.sizeLabel}, ensuite instantané.</div>
-         <div class="fa-follow"><button type="button" class="fa-llm-btn" data-fa-activate>Activer l’assistant IA</button></div>`);
+        `<div>${m.offerLead}</div>
+         <div class="fa-note" style="font-style:normal;">${m.offerSize(LLM.sizeLabel)}</div>
+         <div class="fa-follow"><button type="button" class="fa-llm-btn" data-fa-activate>${m.activate}</button></div>`);
     }
 
     async function activateLlm() {
       if (LLM.status === 'loading' || LLM.status === 'ready') return;
+      const m = tr().llm;
       LLM.status = 'loading';
       const card = pushAgent(
-        `<div>Installation de l’assistant IA — modèle open-source exécuté dans votre navigateur.</div>
+        `<div>${m.installing}</div>
          <div class="fa-llm-prog"><div class="fa-llm-bar" data-fa-bar></div></div>
-         <div class="fa-llm-ptxt" data-fa-ptxt>Initialisation…</div>`);
+         <div class="fa-llm-ptxt" data-fa-ptxt>${m.initializing}</div>`);
       const bar = card.querySelector('[data-fa-bar]');
       const ptxt = card.querySelector('[data-fa-ptxt]');
       try {
@@ -752,13 +1151,13 @@
         });
         LLM.status = 'ready';
         if (bar) bar.style.width = '100%';
-        if (ptxt) ptxt.textContent = 'Assistant IA prêt.';
-        pushAgent(replyHtml({ text: 'Mon assistant IA est prêt. Posez-moi vos questions sur la gestion, les finances, l’équipe ou le marketing de votre café — je reste concentré sur votre activité.' }));
+        if (ptxt) ptxt.textContent = m.ready;
+        pushAgent(replyHtml({ text: m.readyMsg }));
         if (LLM.pending) { const q = LLM.pending; LLM.pending = null; runLlm(q); }
       } catch (e) {
         LLM.status = 'error';
-        if (ptxt) ptxt.textContent = 'Échec du chargement.';
-        pushAgent(replyHtml({ text: 'Je n’ai pas pu charger l’assistant IA (connexion, mémoire ou navigateur incompatible). Mes calculs financiers restent pleinement disponibles.' }));
+        if (ptxt) ptxt.textContent = m.loadFail;
+        pushAgent(replyHtml({ text: m.loadFailMsg }));
       }
     }
 
@@ -780,15 +1179,13 @@
         llmHistory.push({ role: 'assistant', content: acc });
       } catch (e) {
         typing.remove();
-        pushAgent(replyHtml({ text: 'Une erreur est survenue côté assistant IA. Réessayez, ou demandez-moi un calcul précis.' }));
+        pushAgent(replyHtml({ text: tr().llm.runErr }));
       }
     }
 
     // greeting
     pushAgent(replyHtml(sHelp()));
 
-    // If opened with a question (e.g. from the dashboard hero input),
-    // ask it straight away.
     if (typeof prefill === 'string' && prefill.trim()) {
       setTimeout(() => ask(prefill.trim()), 360);
     }
@@ -800,7 +1197,6 @@
       input.style.height = 'auto';
       ask(v);
     }
-    // Insert a known fact from the context rail into the message field.
     function insertFact(text, el) {
       const cur = input.value.trim();
       input.value = cur ? `${cur} · ${text}` : text;
@@ -819,10 +1215,8 @@
       input.style.height = Math.min(input.scrollHeight, 130) + 'px';
     });
 
-    // ─── chips + follow-ups (delegated) ───
+    // ─── chips + follow-ups + facts (delegated) ───
     root.addEventListener('click', (e) => {
-      const chip = e.target.closest('[data-fa-chip]');
-      if (chip) { ask(chip.getAttribute('data-fa-chip')); return; }
       const follow = e.target.closest('[data-fa-follow]');
       if (follow) { ask(follow.getAttribute('data-fa-follow')); return; }
       if (e.target.closest('[data-fa-activate]')) { activateLlm(); return; }
@@ -850,7 +1244,7 @@
         if (r != null) {
           kpExpr = String(Math.round(r * 1e6) / 1e6);
           kpDone = true;
-        } else { kpd.textContent = 'Erreur'; return; }
+        } else { kpd.textContent = tr().ui.kpError; return; }
       } else {
         const isOp = /[÷×−+%]/.test(k);
         if (kpDone && !isOp) { kpExpr = ''; kpDone = false; }
@@ -871,8 +1265,7 @@
   }
   register();
 
-  // The dashboard hero's "Recommandations du jour" question box now opens
-  // this assistant and asks the typed question directly.
+  // The dashboard hero's question box opens this assistant with the typed question.
   function wireHeroInput() {
     const form = document.querySelector('.hai-input');
     if (!form) { setTimeout(wireHeroInput, 120); return; }
@@ -885,9 +1278,6 @@
       if (field) field.value = '';
       open(q);
     };
-    // submit covers the Enter key; a capture-phase click on the send button
-    // covers the pointer path (the global click router cancels the default
-    // form submission, so we can't rely on the submit event for clicks).
     form.addEventListener('submit', go);
     const sendBtn = form.querySelector('.hai-send');
     if (sendBtn) sendBtn.addEventListener('click', go, true);
