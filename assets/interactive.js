@@ -354,6 +354,18 @@
       setTimeout(() => back.remove(), 280);
       document.removeEventListener('keydown', esc);
       unlockPageScroll();
+      /* Once the last drawer is gone the view is back on the main
+         dashboard, so the sidebar highlight returns to "Accueil". The
+         delay (> the 280ms removal) lets a drawer-to-drawer switch append
+         its replacement first — so switching never flickers home. */
+      setTimeout(() => {
+        if (document.querySelector('.kiwi-drawer-backdrop')) return;
+        const nav = document.querySelector('.sidebar nav');
+        if (!nav) return;
+        nav.querySelectorAll('a').forEach((x) => x.classList.remove('active'));
+        const home = nav.querySelector('a[data-nav="accueil"]');
+        if (home) home.classList.add('active');
+      }, 320);
     };
     const esc = (e) => { if (e.key === 'Escape') close(); };
     document.addEventListener('keydown', esc);
