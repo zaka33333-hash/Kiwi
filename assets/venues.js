@@ -2164,7 +2164,9 @@
     // centre hole) scales up when a long amount needs more room.
     const size = px || 150;
     const GAP = 2.5;   // gap between segments, in %
-    const SW = 15;     // stroke width (viewBox units)
+    // Keep the *visible* ring a consistent ~13px no matter how big the donut
+    // grows — the viewBox is fixed at 150, so scale the stroke inversely.
+    const SW = +(13 * 150 / size).toFixed(2);
     let acc = 0;
     const track = `<circle cx="75" cy="75" r="52" fill="none" stroke="var(--n-200)" stroke-width="${SW}" pathLength="100"/>`;
     const rings = segs.map((g, i) => {
@@ -2231,13 +2233,16 @@
             </table>
           </div>
           ${(() => {
-            // Grow the ring so a long amount never spills out of the centre.
-            // 150px fits a ~10-char amount; every extra character widens the
-            // hole by 13px (capped) so big numbers always sit clear of the ring.
+            // Size the ring to the amount, then auto-fit the centre figure to
+            // the inner hole so it never touches the stroke — clean at any
+            // length. Ring grows 190→214px; font shrinks within 13–18px.
             const centerStr = eqMad(gross);
-            const donutPx = Math.min(210, 150 + Math.max(0, centerStr.length - 10) * 13);
-            const dvPx = (18 * donutPx / 150).toFixed(1);
-            const dlPx = (9.5 * donutPx / 150).toFixed(1);
+            const len = centerStr.length;
+            const donutPx = Math.round(Math.min(214, Math.max(190, len * 19)));
+            const vbSW = 13 * 150 / donutPx;                    // stroke, viewBox units
+            const holePx = donutPx * (104 - vbSW) / 150;        // inner hole diameter, real px
+            const dvPx = Math.max(13, Math.min(18, (holePx * 0.80) / (len * 0.58))).toFixed(1);
+            const dlPx = Math.max(8, Math.min(11, dvPx * 0.54)).toFixed(1);
             return `<div class="eq-donut-wrap">
             <div class="eq-donut" style="width:${donutPx}px; height:${donutPx}px;">
               ${eqDonut(segs, donutPx)}
