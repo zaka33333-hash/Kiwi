@@ -2157,12 +2157,15 @@
   }
 
   /* ── Section 3 · Payroll summary ──────────────────────────────────────── */
-  function eqDonut(segs) {
+  function eqDonut(segs, px) {
     // pathLength=100 → dash/offset are exact percentages (no circumference
     // math, no rotate() hack). A hairline GAP separates segments; each wipes
     // in clockwise from 12 o'clock, staggered, via the CSS keyframe below.
+    // `px` = rendered size; the viewBox is fixed so the whole ring (and its
+    // centre hole) scales up when a long amount needs more room.
+    const size = px || 150;
     const GAP = 2.5;   // gap between segments, in %
-    const SW = 15;     // stroke width
+    const SW = 15;     // stroke width (viewBox units)
     let acc = 0;
     const track = `<circle cx="75" cy="75" r="52" fill="none" stroke="var(--n-200)" stroke-width="${SW}" pathLength="100"/>`;
     const rings = segs.map((g, i) => {
@@ -2175,7 +2178,7 @@
         + `stroke-dasharray="${dash.toFixed(2)} ${(100 - dash).toFixed(2)}" `
         + `stroke-dashoffset="${offset.toFixed(2)}" style="animation-delay:${80 + i * 110}ms"/>`;
     }).join('');
-    return `<svg viewBox="0 0 150 150" width="150" height="150" class="eq-donut-svg">`
+    return `<svg viewBox="0 0 150 150" width="${size}" height="${size}" class="eq-donut-svg">`
       + `<style>`
       + `.eq-donseg{animation:eq-donseg-grow 720ms cubic-bezier(0.16,1,0.3,1) both;}`
       + `@keyframes eq-donseg-grow{from{stroke-dasharray:0 100;}}`
@@ -2228,13 +2231,22 @@
               <tbody>${deptRows}</tbody>
             </table>
           </div>
-          <div class="eq-donut-wrap">
-            <div class="eq-donut">
-              ${eqDonut(segs)}
-              <div class="eq-donut-center"><div class="dv">${eqMad(gross)}</div><div class="dl">Masse · mois</div></div>
+          ${(() => {
+            // Grow the ring so a long amount never spills out of the centre.
+            // 150px fits a ~10-char amount; every extra character widens the
+            // hole by 13px (capped) so big numbers always sit clear of the ring.
+            const centerStr = eqMad(gross);
+            const donutPx = Math.min(210, 150 + Math.max(0, centerStr.length - 10) * 13);
+            const dvPx = (18 * donutPx / 150).toFixed(1);
+            const dlPx = (9.5 * donutPx / 150).toFixed(1);
+            return `<div class="eq-donut-wrap">
+            <div class="eq-donut" style="width:${donutPx}px; height:${donutPx}px;">
+              ${eqDonut(segs, donutPx)}
+              <div class="eq-donut-center"><div class="dv" style="font-size:${dvPx}px;">${centerStr}</div><div class="dl" style="font-size:${dlPx}px;">Masse · mois</div></div>
             </div>
             <div class="eq-donut-legend">${legend}</div>
-          </div>
+          </div>`;
+          })()}
         </div>
         <div class="eq-payroll-cta">
           <button class="eq-cta-gradient" data-action="eq-generate-payslips">${eqSvg('file', 15)}<span>Générer les fiches de paie</span></button>
