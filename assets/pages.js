@@ -9,6 +9,731 @@
   if (!window.Kiwi) return;
   const { toast, modal, drawer, handlers, confetti } = window.Kiwi;
 
+  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+
+  const pageTranslations = {
+    fr: {
+      accueilTitle: "Accueil · tableau de bord",
+      // Transactions
+      transactionsTitle: "Commandes",
+      transactionsSubtitle: (count, total) => `${count} commandes · ${total} MAD aujourd'hui`,
+      transactionsHeroLabel: "VOLUME AUJOURD'HUI",
+      transactionsHeroSub: (count, avg) => `${count} commandes · panier moyen ${avg} MAD`,
+      transactionsSearch: "Rechercher…",
+      transactionsFilter: "Filtrer",
+      transactionsExport: "Exporter",
+      transactionsNewSale: "Encaisser",
+      transactionsThTime: "HEURE",
+      transactionsThMethod: "MÉTHODE",
+      transactionsThCustomer: "CLIENT",
+      transactionsThAmount: "MONTANT",
+      transactionsThTip: "POURBOIRE",
+      transactionsThStatus: "STATUT",
+      transactionsStatusSettled: "Réglé",
+      transactionsStatusPending: "Attente",
+      // Terminaux
+      terminalsTitle: "Terminaux Kiwi",
+      terminalsSubtitle: (total, active) => `${total} appareils · ${active} actifs · ${total - active} hors-ligne`,
+      terminalsHeroLabel: "ÉTAT DU PARC",
+      terminalsHeroBig: (active, total) => `${active} / ${total}`,
+      terminalsHeroBigUnit: "actifs",
+      terminalsHeroSub: (battery, uptime) => `Batterie moyenne : ${battery} % · uptime 24h : ${uptime} %`,
+      terminalStatusOnline: "En ligne",
+      terminalStatusOffline: "Hors-ligne depuis",
+      terminalManage: "Gérer",
+      terminalDiagnose: "Diagnostiquer",
+      terminalOrderTitle: "Commander un nouveau terminal",
+      terminalOrderDesc: "PAX A920 Pro · 990 MAD ou 69 MAD/mois × 18",
+      terminalOrderCta: "Commander · livraison 48h →",
+      // Règlements
+      settlementsTitle: "Règlements",
+      settlementsSubtitle: (month, year) => `${month} ${year} · versements vers BMCE •• 3291`,
+      settlementsHeroLabel: "RÉGLÉ CE MOIS",
+      settlementsHeroSub: (count, onTime) => `${count} règlements · T+1 · ${onTime} % des règlements à l'heure`,
+      settlementsNext: "PROCHAIN",
+      settlementsNextTime: "Demain 9h00",
+      settlementsCommissions: "COMMISSIONS",
+      settlementsBlended: "blended",
+      settlementsSavings: "ÉCONOMIE vs CMI",
+      settlementsVsCmi: "Vs 2,0 % CMI + loc",
+      settlementsCalendar: (month, year) => `CALENDRIER · ${month} ${year}`,
+      settlementsDow: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
+      settlementsInProgress: "EN COURS",
+      settlementsHistory: "HISTORIQUE RÉCENT",
+      settlementsScheduled: "Prévu demain 9h00",
+      settlementsDone: "Réglé BMCE ••3291",
+      settlementsInstant: "Réglé · Virement Instant",
+      // Conformité
+      complianceTitle: "Conformité & Sécurité",
+      complianceSubtitle: "Kiwi · Café Atlas · 100 % conforme",
+      complianceScoreLabel: "SCORE DE CONFORMITÉ",
+      complianceScoreSub: (date) => `Tous les contrôles Bank Al-Maghrib et PCI-DSS passés. Dernier audit : ${date}.`,
+      complianceItemStatusActive: "ACTIVE",
+      complianceItemStatusValid: (year) => `VALIDE ${year}`,
+      complianceItemStatusVerified: "VÉRIFIÉ",
+      complianceItemStatusCompliant: "CONFORME",
+      complianceItemStatusPlanned: "PLANIFIÉ",
+      complianceBAM: "Bank Al-Maghrib · sponsoring acquéreur",
+      complianceBAMDesc: "Partenariat actif avec un acquéreur principal licencié. PE en cours.",
+      compliancePCIDSS: "PCI-DSS Niveau 1",
+      compliancePCIDSSDesc: (date) => `Certification valide jusqu'au ${date}. Scope SAQ-D-merchant.`,
+      complianceTokenization: "Tokenisation réseau Visa & Mastercard",
+      complianceTokenizationDesc: "PAN jamais stocké en clair · network tokens actifs sur 98 % des cartes.",
+      complianceKYC: "KYC Café Atlas",
+      complianceKYCDesc: "CIN Rachid Benhima + RC 3847821 + patente valides.",
+      complianceAML: "AML / GAFI",
+      complianceAMLDesc: "Screening UN, EU, OFAC, ANRF à l'onboarding + monitoring continu.",
+      compliance3DS: "3-D Secure 2",
+      compliance3DSDesc: "Challenge actif sur CNP > 500 MAD et risque élevé.",
+      complianceLaw: "Loi 09-08 · Données personnelles",
+      complianceLawDesc: "Ledger + KYC hébergés au Maroc (N+ONE Casa). CNDP déclaration OK.",
+      complianceMonitoring: "Monitoring 24/7",
+      complianceMonitoringDesc: "Détection fraude temps réel · alertes push/WhatsApp · SLA <5 min.",
+      complianceAudit: "Audit annuel externe",
+      complianceAuditDesc: (date) => `Prochain audit : ${date}. Aucun non-conformité l'an dernier.`,
+      complianceReportButton: "Télécharger le rapport de conformité",
+      complianceReportDesc: "PDF signé · à présenter à votre comptable, votre banque ou un auditeur.",
+      complianceDownload: "Télécharger",
+      // Équipe
+      teamTitle: "Équipe Café Atlas",
+      teamSubtitle: (total, active) => `${total} membres · ${active} en service · ${total - active} hors-service`,
+      teamHeroLabel: "PERFORMANCE ÉQUIPE · AUJOURD'HUI",
+      teamHeroSub: (orders, basket, tip) => `${orders} commandes · panier moyen ${basket} MAD · pourboire moyen ${tip} MAD`,
+      teamRoleOwner: "Propriétaire · admin",
+      teamStatusOnline: "En ligne",
+      teamStatusToday: "Aujourd'hui",
+      teamRoleWaitress: "Serveuse senior",
+      teamRoleWaiter: "Serveur terrasse",
+      teamRoleBarista: "Barista comptoir",
+      teamStatusBreak: "Serveur · pause",
+      teamStatusDone: "Cuisine · terminé",
+      teamStatusCashier: "Caissière · terminé",
+      teamStatusRunner: "Runner · congé",
+      teamKpiShift: "Shift",
+      teamKpiOrders: "Commandes",
+      teamKpiRevenue: "Revenu",
+      teamAddMember: "Ajouter un membre",
+      teamWeeklyPlan: "Planning hebdo",
+      // Tables
+      tablesModalTag: "SALLE EN DIRECT",
+      tablesModalTitle: "Plan de salle · Café Atlas",
+      tablesModalDesc: "Cliquez une table pour ouvrir l'addition. Glissez pour réarranger.",
+      tablesHeroLabel: "EN SERVICE",
+      tablesHeroBig: (occupied, total) => `${occupied} / ${total}`,
+      tablesHeroBigUnit: "tables occupées",
+      tablesHeroSub: (covers, velocity, next) => `Couverts : ${covers} · vélocité moyenne ${velocity} min/table · prochain seating ~${next}`,
+      tablesZoneIndoor: "SALLE INTÉRIEURE",
+      tablesZoneTerrace: "TERRASSE",
+      tablesStateCovers: (count) => `${count} couverts`,
+      tablesStatePaid: "payé",
+      tablesStateFree: "libre",
+      tablesStatePending: "addition demandée",
+      tablesAlert: (table, time) => `<b>${table} attend l'addition depuis ${time} min.</b> Voulez-vous alerter Fatima ?`,
+      tablesAlertButton: "Alerter",
+      tablesCloseButton: "Fermer",
+      tablesNewTableButton: "+ Ouvrir une nouvelle table",
+      // Menu
+      menuTitle: "Menu & modificateurs",
+      menuSubtitle: (items, cats, mods) => `${items} items · ${cats} catégories · ${mods} modificateurs actifs`,
+      menuSearch: "Rechercher un item…",
+      menuAdd: "Ajouter",
+      menuCategoryEntrees: "Entrées",
+      menuCategoryPlats: "Plats",
+      menuCategoryBoissons: "Boissons",
+      menuCategoryDesserts: "Desserts",
+      menuItems: "items",
+      menuAvg: "moyenne",
+      menuStock: (stock) => `${stock} % stock`,
+      menuPortions: (count) => `${count} portions`,
+      menuPieces: (count) => `${count} pièces`,
+      menuUnlimited: "illimité",
+      menuModifiers: (count) => `+ ${count} modificateurs`,
+      menuMilkModifiers: "+ 4 modif. lait",
+      menuFridayOnly: "vendredi uniquement",
+      menuOutOfStock: "0 portion",
+      menuSeasonal: "saisonnier",
+      menuArtisanal: "artisanal",
+      // KDS
+      kdsTag: "ÉCRAN CUISINE",
+      kdsTitle: "Kitchen Display System · service midi",
+      kdsDesc: "8 tickets en préparation · SLA 12 min · optimisé pour iPad mural",
+      kdsColCold: "Froide",
+      kdsColHot: "Chaude",
+      kdsColBar: "Bar",
+      kdsAvgPrep: "Moyenne de préparation",
+      kdsSlaMet: "SLA respecté à",
+      kdsFullscreen: "Basculer plein écran",
+      // Stock
+      stockTitle: "Stock ingrédients",
+      stockSubtitle: "42 ingrédients suivis · 5 en alerte · réappro auto active",
+      stockHeroLabel: "ALERTES STOCK · AUJOURD'HUI",
+      stockHeroBigUnit: "ingrédients faibles",
+      stockHeroSub: "2 ruptures totales · commande automatique possible",
+      stockAlertOutOfStock: "RUPTURE",
+      stockAlertLowStock: "STOCK BAS",
+      stockAlertStockOk: "STOCK OK · APERÇU",
+      stockOrder: "Commander",
+      stockAdjust: "Ajuster",
+      stockView: "Voir",
+      stockHistory: "Historique commandes",
+      stockOrderAll: "Valider commande groupée",
+      // Payroll
+      payrollTitle: "Paie & planning",
+      payrollSubtitle: "Pointage POS · pourboires partagés · ratio main d'œuvre",
+      payrollHeroLabel: (date) => `${date} · MAIN D'ŒUVRE`,
+      payrollHeroBig: (present, total) => `${present} / ${total}`,
+      payrollHeroBigUnit: "employés pointés",
+      payrollHeroSub: (cost, ratio) => `Coût aujourd'hui <b style="color:var(--mint);">${cost} MAD</b> · ratio ${ratio} % des ventes — sain`,
+      payrollLiveClocking: "Pointage en direct · service du soir",
+      payrollLiveClockingSub: (present, exited) => `Tap sur la carte Kiwi ou code PIN pour pointer · ${present} actifs · ${exited} sorti`,
+      payrollManualClock: "+ Pointage manuel",
+      payrollDuration: "DURÉE",
+      payrollClockOut: "Sortie",
+      payrollOnBreak: "En pause",
+      payrollFinished: "Terminé",
+      payrollTotal: "TOTAL",
+      payrollWeeklyPlan: (week) => `Planning · semaine du ${week}`,
+      payrollWeeklyPlanSub: "Glissez une cellule pour modifier · WhatsApp envoyé à l'équipe à chaque mise à jour",
+      payrollEditPlan: "Modifier le planning",
+      payrollDow: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+      payrollShiftDay: "JOUR",
+      payrollShiftEvening: "SOIR",
+      payrollShiftCounter: "COMPTOIR",
+      payrollShiftDouble: "DOUBLE",
+      payrollSharedTips: "Pourboires partagés",
+      payrollSharedTipsSub: (amount) => `Pool ${amount} MAD aujourd'hui · à distribuer en fin de service`,
+      payrollPoolRule: "Pool partagé Café Atlas",
+      payrollPoolRuleDesc: "60 % salle · 25 % bar · 15 % cuisine · réparti aux heures travaillées",
+      payrollEditRule: "Modifier",
+      payrollDistribute: "Distribuer · WhatsApp à l'équipe →",
+      payrollLaborCost: "Coût main d'œuvre vs ventes",
+      payrollLaborCostSub: "Ratio cible < 30 % · benchmark cafés Casa 28 %",
+      payrollToday: "Aujourd'hui",
+      payroll7days: "7 derniers jours",
+      payrollTarget: "Cible",
+      payrollHealthy: "SAIN",
+      payrollInsight: "ratio sous le marché de <b>11 pts</b>. Vous pouvez ajouter un 6ᵉ employé samedi soir sans dépasser la cible.",
+      payrollExport: "Exporter la paie du mois",
+      // Reservations
+      reservationsTitle: "Réservations & rendez-vous",
+      reservationsSubtitle: "Trois métiers · une plateforme client unique",
+      reservationsHeroLabel: (date) => `${date} · CAFÉ ATLAS`,
+      reservationsHeroBigUnit: "réservations confirmées",
+      reservationsHeroSub: (covers, pending, waitlist) => `${covers} couverts prévus · ${pending} acomptes en attente · liste d'attente : ${waitlist} personnes`,
+      reservationsTabRestaurant: "Restaurants",
+      reservationsTabSpa: "Spas & hammams",
+      reservationsTabSalon: "Salons & barbiers",
+      reservationsToday: "Réservations du jour",
+      reservationsAdd: "+ Ajouter",
+      reservationsConfirmed: "Confirmé",
+      reservationsCovers: (count) => `${count} couverts`,
+      reservationsRegular: "client régulier",
+      reservationsVisits: (count) => `${count} visites`,
+      reservationsDepositReceived: "Acompte ✓",
+      reservationsDepositPending: "Acompte attendu",
+      reservationsNoPreference: "sans préférence",
+      reservationsWaitlist: "LISTE D'ATTENTE",
+      reservationsWaitlistCount: (count) => `${count} EN FILE`,
+      reservationsWaitlistReadyIn: (time) => `prêt dans ~${time} min`,
+      reservationsWaitlistSmsReady: "SMS prêt →",
+      reservationsWaitlistSms: "SMS",
+      reservationsWaitlistFooter: "SMS automatique « votre table est prête » dès qu'une table se libère pour le bon nombre de couverts.",
+      reservationsNoShow: "SUIVI NO-SHOW PAR NUMÉRO",
+      reservationsNoShowRisk: (count) => `${count} absences en 6 mois · risque modéré`,
+      reservationsNoShowBlocked: (count) => `${count} absences consécutives · client bloqué`,
+      reservationsNoShowFooter: "Acompte automatique demandé après 2 no-show · verrouillage à 3.",
+      reservationsDepositRequired: "Acompte requis",
+      reservationsBlocked: "Bloqué",
+      // Stubs for reservations
+      toastNewReservation: "Nouvelle réservation",
+      toastNewReservationDesc: "Sélectionnez date, heure, nombre de couverts puis envoyez la confirmation WhatsApp.",
+      toastSmsReady: "SMS « votre table est prête » envoyé",
+      toastSmsReadyDesc: "Délivré dans 5 secondes.",
+      toastMultiService: "Parcours multi-services",
+      toastMultiServiceDesc: "Enchaînez Hammam → Massage → Soin avec auto-allocation des cabines.",
+    },
+    en: {
+      accueilTitle: "Home · Dashboard",
+      // Transactions
+      transactionsTitle: "Orders",
+      transactionsSubtitle: (count, total) => `${count} orders · ${total} MAD today`,
+      transactionsHeroLabel: "TODAY'S VOLUME",
+      transactionsHeroSub: (count, avg) => `${count} orders · average basket ${avg} MAD`,
+      transactionsSearch: "Search…",
+      transactionsFilter: "Filter",
+      transactionsExport: "Export",
+      transactionsNewSale: "New Sale",
+      transactionsThTime: "TIME",
+      transactionsThMethod: "METHOD",
+      transactionsThCustomer: "CUSTOMER",
+      transactionsThAmount: "AMOUNT",
+      transactionsThTip: "TIP",
+      transactionsThStatus: "STATUS",
+      transactionsStatusSettled: "Settled",
+      transactionsStatusPending: "Pending",
+      // Terminaux
+      terminalsTitle: "Kiwi Terminals",
+      terminalsSubtitle: (total, active) => `${total} devices · ${active} active · ${total - active} offline`,
+      terminalsHeroLabel: "FLEET STATUS",
+      terminalsHeroBig: (active, total) => `${active} / ${total}`,
+      terminalsHeroBigUnit: "active",
+      terminalsHeroSub: (battery, uptime) => `Average battery: ${battery}% · 24h uptime: ${uptime}%`,
+      terminalStatusOnline: "Online",
+      terminalStatusOffline: "Offline since",
+      terminalManage: "Manage",
+      terminalDiagnose: "Diagnose",
+      terminalOrderTitle: "Order a new terminal",
+      terminalOrderDesc: "PAX A920 Pro · 990 MAD or 69 MAD/month × 18",
+      terminalOrderCta: "Order · 48h delivery →",
+      // Règlements
+      settlementsTitle: "Settlements",
+      settlementsSubtitle: (month, year) => `${month} ${year} · payouts to BMCE •• 3291`,
+      settlementsHeroLabel: "SETTLED THIS MONTH",
+      settlementsHeroSub: (count, onTime) => `${count} settlements · T+1 · ${onTime}% of payouts on time`,
+      settlementsNext: "NEXT",
+      settlementsNextTime: "Tomorrow 9:00am",
+      settlementsCommissions: "COMMISSIONS",
+      settlementsBlended: "blended",
+      settlementsSavings: "SAVINGS vs CMI",
+      settlementsVsCmi: "Vs 2.0% CMI + rental",
+      settlementsCalendar: (month, year) => `CALENDAR · ${month} ${year}`,
+      settlementsDow: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      settlementsInProgress: "IN PROGRESS",
+      settlementsHistory: "RECENT HISTORY",
+      settlementsScheduled: "Scheduled tomorrow 9:00am",
+      settlementsDone: "Settled to BMCE ••3291",
+      settlementsInstant: "Settled · Instant Transfer",
+      // Conformité
+      complianceTitle: "Compliance & Security",
+      complianceSubtitle: "Kiwi · Café Atlas · 100% compliant",
+      complianceScoreLabel: "COMPLIANCE SCORE",
+      complianceScoreSub: (date) => `All Bank Al-Maghrib and PCI-DSS controls passed. Last audit: ${date}.`,
+      complianceItemStatusActive: "ACTIVE",
+      complianceItemStatusValid: (year) => `VALID ${year}`,
+      complianceItemStatusVerified: "VERIFIED",
+      complianceItemStatusCompliant: "COMPLIANT",
+      complianceItemStatusPlanned: "PLANNED",
+      complianceBAM: "Bank Al-Maghrib · acquiring sponsorship",
+      complianceBAMDesc: "Active partnership with a licensed principal acquirer. PE license in progress.",
+      compliancePCIDSS: "PCI-DSS Level 1",
+      compliancePCIDSSDesc: (date) => `Certification valid until ${date}. Scope SAQ-D-merchant.`,
+      complianceTokenization: "Visa & Mastercard network tokenization",
+      complianceTokenizationDesc: "PAN never stored in clear text · network tokens active on 98% of cards.",
+      complianceKYC: "KYC Café Atlas",
+      complianceKYCDesc: "Rachid Benhima's CIN + RC 3847821 + patentes are valid.",
+      complianceAML: "AML / FATF",
+      complianceAMLDesc: "UN, EU, OFAC, ANRF screening at onboarding + continuous monitoring.",
+      compliance3DS: "3-D Secure 2",
+      compliance3DSDesc: "Challenge active on CNP > 500 MAD and high-risk transactions.",
+      complianceLaw: "Law 09-08 · Personal Data",
+      complianceLawDesc: "Ledger + KYC hosted in Morocco (N+ONE Casa). CNDP declaration OK.",
+      complianceMonitoring: "24/7 Monitoring",
+      complianceMonitoringDesc: "Real-time fraud detection · push/WhatsApp alerts · SLA <5 min.",
+      complianceAudit: "Annual external audit",
+      complianceAuditDesc: (date) => `Next audit: ${date}. No non-compliance last year.`,
+      complianceReportButton: "Download compliance report",
+      complianceReportDesc: "Signed PDF · to be presented to your accountant, bank, or auditor.",
+      complianceDownload: "Download",
+      // Équipe
+      teamTitle: "Team Café Atlas",
+      teamSubtitle: (total, active) => `${total} members · ${active} on duty · ${total - active} off duty`,
+      teamHeroLabel: "TEAM PERFORMANCE · TODAY",
+      teamHeroSub: (orders, basket, tip) => `${orders} orders · avg basket ${basket} MAD · avg tip ${tip} MAD`,
+      teamRoleOwner: "Owner · admin",
+      teamStatusOnline: "Online",
+      teamStatusToday: "Today",
+      teamRoleWaitress: "Senior Waitress",
+      teamRoleWaiter: "Terrace Waiter",
+      teamRoleBarista: "Counter Barista",
+      teamStatusBreak: "Waiter · on break",
+      teamStatusDone: "Kitchen · finished",
+      teamStatusCashier: "Cashier · finished",
+      teamStatusRunner: "Runner · on leave",
+      teamKpiShift: "Shift",
+      teamKpiOrders: "Orders",
+      teamKpiRevenue: "Revenue",
+      teamAddMember: "Add a member",
+      teamWeeklyPlan: "Weekly plan",
+      // Tables
+      tablesModalTag: "LIVE FLOOR",
+      tablesModalTitle: "Floor plan · Café Atlas",
+      tablesModalDesc: "Click a table to open the check. Drag to rearrange.",
+      tablesHeroLabel: "IN SERVICE",
+      tablesHeroBig: (occupied, total) => `${occupied} / ${total}`,
+      tablesHeroBigUnit: "tables occupied",
+      tablesHeroSub: (covers, velocity, next) => `Covers: ${covers} · average velocity ${velocity} min/table · next seating ~${next}`,
+      tablesZoneIndoor: "INDOOR DINING",
+      tablesZoneTerrace: "TERRACE",
+      tablesStateCovers: (count) => `${count} covers`,
+      tablesStatePaid: "paid",
+      tablesStateFree: "free",
+      tablesStatePending: "check requested",
+      tablesAlert: (table, time) => `<b>${table} has been waiting for the check for ${time} min.</b> Alert Fatima?`,
+      tablesAlertButton: "Alert",
+      tablesCloseButton: "Close",
+      tablesNewTableButton: "+ Open a new table",
+      // Menu
+      menuTitle: "Menu & Modifiers",
+      menuSubtitle: (items, cats, mods) => `${items} items · ${cats} categories · ${mods} active modifiers`,
+      menuSearch: "Search an item…",
+      menuAdd: "Add",
+      menuCategoryEntrees: "Starters",
+      menuCategoryPlats: "Main Courses",
+      menuCategoryBoissons: "Drinks",
+      menuCategoryDesserts: "Desserts",
+      menuItems: "items",
+      menuAvg: "avg",
+      menuStock: (stock) => `${stock}% stock`,
+      menuPortions: (count) => `${count} portions`,
+      menuPieces: (count) => `${count} pieces`,
+      menuUnlimited: "unlimited",
+      menuModifiers: (count) => `+ ${count} modifiers`,
+      menuMilkModifiers: "+ 4 milk modif.",
+      menuFridayOnly: "Friday only",
+      menuOutOfStock: "0 portions",
+      menuSeasonal: "seasonal",
+      menuArtisanal: "artisanal",
+      // KDS
+      kdsTag: "KITCHEN DISPLAY",
+      kdsTitle: "Kitchen Display System · lunch service",
+      kdsDesc: "8 tickets in preparation · SLA 12 min · optimized for wall-mounted iPad",
+      kdsColCold: "Cold",
+      kdsColHot: "Hot",
+      kdsColBar: "Bar",
+      kdsAvgPrep: "Average preparation time",
+      kdsSlaMet: "SLA met at",
+      kdsFullscreen: "Switch to fullscreen",
+      // Stock
+      stockTitle: "Ingredient Stock",
+      stockSubtitle: "42 ingredients tracked · 5 alerts · auto-reorder active",
+      stockHeroLabel: "STOCK ALERTS · TODAY",
+      stockHeroBigUnit: "low ingredients",
+      stockHeroSub: "2 total stockouts · automatic order possible",
+      stockAlertOutOfStock: "OUT OF STOCK",
+      stockAlertLowStock: "LOW STOCK",
+      stockAlertStockOk: "STOCK OK · OVERVIEW",
+      stockOrder: "Order",
+      stockAdjust: "Adjust",
+      stockView: "View",
+      stockHistory: "Order history",
+      stockOrderAll: "Confirm group order",
+       // Payroll
+      payrollTitle: "Payroll & Scheduling",
+      payrollSubtitle: "POS clock-in · shared tips · labor ratio",
+      payrollHeroLabel: (date) => `${date} · LABOR`,
+      payrollHeroBig: (present, total) => `${present} / ${total}`,
+      payrollHeroBigUnit: "employees clocked in",
+      payrollHeroSub: (cost, ratio) => `Cost today <b style="color:var(--mint);">${cost} MAD</b> · ${ratio}% of sales — healthy`,
+      payrollLiveClocking: "Live clock-in · evening service",
+      payrollLiveClockingSub: (present, exited) => `Tap Kiwi card or PIN to clock in · ${present} active · ${exited} clocked out`,
+      payrollManualClock: "+ Manual clock-in",
+      payrollDuration: "DURATION",
+      payrollClockOut: "Clock out",
+      payrollOnBreak: "On break",
+      payrollFinished: "Finished",
+      payrollTotal: "TOTAL",
+      payrollWeeklyPlan: (week) => `Schedule · week of ${week}`,
+      payrollWeeklyPlanSub: "Drag a cell to modify · WhatsApp sent to team on each update",
+      payrollEditPlan: "Edit schedule",
+      payrollDow: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      payrollShiftDay: "DAY",
+      payrollShiftEvening: "EVENING",
+      payrollShiftCounter: "COUNTER",
+      payrollShiftDouble: "DOUBLE",
+      payrollSharedTips: "Shared Tips",
+      payrollSharedTipsSub: (amount) => `Pool ${amount} MAD today · to be distributed at end of service`,
+      payrollPoolRule: "Café Atlas Shared Pool",
+      payrollPoolRuleDesc: "60% floor · 25% bar · 15% kitchen · distributed by hours worked",
+      payrollEditRule: "Edit",
+      payrollDistribute: "Distribute · WhatsApp to team →",
+      payrollLaborCost: "Labor Cost vs Sales",
+      payrollLaborCostSub: "Target ratio < 30% · Casa cafés benchmark 28%",
+      payrollToday: "Today",
+      payroll7days: "7 days",
+      payrollTarget: "Target",
+      payrollHealthy: "HEALTHY",
+      payrollInsight: "ratio is <b>11 pts</b> below market. You can add a 6th employee on Saturday evening without exceeding the target.",
+      payrollExport: "Export month's payroll",
+      // Reservations
+      reservationsTitle: "Reservations & Appointments",
+      reservationsSubtitle: "Three verticals · one unified customer platform",
+      reservationsHeroLabel: (date) => `${date} · CAFÉ ATLAS`,
+      reservationsHeroBigUnit: "confirmed reservations",
+      reservationsHeroSub: (covers, pending, waitlist) => `${covers} covers expected · ${pending} deposits pending · waitlist: ${waitlist} people`,
+      reservationsTabRestaurant: "Restaurants",
+      reservationsTabSpa: "Spas & Hammams",
+      reservationsTabSalon: "Salons & Barbers",
+      reservationsToday: "Today's Reservations",
+      reservationsAdd: "+ Add",
+      reservationsConfirmed: "Confirmed",
+      reservationsCovers: (count) => `${count} covers`,
+      reservationsRegular: "regular customer",
+      reservationsVisits: (count) => `${count} visits`,
+      reservationsDepositReceived: "Deposit ✓",
+      reservationsDepositPending: "Deposit pending",
+      reservationsNoPreference: "no preference",
+      reservationsWaitlist: "WAITLIST",
+      reservationsWaitlistCount: (count) => `${count} IN QUEUE`,
+      reservationsWaitlistReadyIn: (time) => `ready in ~${time} min`,
+      reservationsWaitlistSmsReady: "SMS ready →",
+      reservationsWaitlistSms: "SMS",
+      reservationsWaitlistFooter: "Automatic 'your table is ready' SMS is sent as soon as a table for the right number of covers is free.",
+      reservationsNoShow: "NO-SHOW TRACKING BY NUMBER",
+      reservationsNoShowRisk: (count) => `${count} no-shows in 6 months · moderate risk`,
+      reservationsNoShowBlocked: (count) => `${count} consecutive no-shows · client blocked`,
+      reservationsNoShowFooter: "Automatic deposit requested after 2 no-shows · locked at 3.",
+      reservationsDepositRequired: "Deposit required",
+      reservationsBlocked: "Blocked",
+      // Stubs for reservations
+      toastNewReservation: "New reservation",
+      toastNewReservationDesc: "Select date, time, number of covers then send WhatsApp confirmation.",
+      toastSmsReady: "'Your table is ready' SMS sent",
+      toastSmsReadyDesc: "Delivered in 5 seconds.",
+      toastMultiService: "Multi-service journey",
+      toastMultiServiceDesc: "Chain Hammam → Massage → Facial with automatic room allocation.",
+    },
+    ar: {
+      accueilTitle: "الرئيسية · لوحة التحكم",
+      // Transactions
+      transactionsTitle: "الطلبات",
+      transactionsSubtitle: (count, total) => `${count} طلبات · ${total} درهم اليوم`,
+      transactionsHeroLabel: "حجم التداول اليوم",
+      transactionsHeroSub: (count, avg) => `${count} طلبات · متوسط السلة ${avg} درهم`,
+      transactionsSearch: "بحث…",
+      transactionsFilter: "تصفية",
+      transactionsExport: "تصدير",
+      transactionsNewSale: "تحصيل",
+      transactionsThTime: "الوقت",
+      transactionsThMethod: "الطريقة",
+      transactionsThCustomer: "الزبون",
+      transactionsThAmount: "المبلغ",
+      transactionsThTip: "الإكرامية",
+      transactionsThStatus: "الحالة",
+      transactionsStatusSettled: "مدفوع",
+      transactionsStatusPending: "قيد الانتظار",
+      // Terminaux
+      terminalsTitle: "أجهزة كيوي",
+      terminalsSubtitle: (total, active) => `${total} أجهزة · ${active} نشطة · ${total - active} غير متصلة`,
+      terminalsHeroLabel: "حالة الأسطول",
+      terminalsHeroBig: (active, total) => `${active} / ${total}`,
+      terminalsHeroBigUnit: "نشطة",
+      terminalsHeroSub: (battery, uptime) => `متوسط البطارية: ${battery}٪ · وقت التشغيل 24 ساعة: ${uptime}٪`,
+      terminalStatusOnline: "متصل",
+      terminalStatusOffline: "غير متصل منذ",
+      terminalManage: "إدارة",
+      terminalDiagnose: "تشخيص",
+      terminalOrderTitle: "طلب جهاز جديد",
+      terminalOrderDesc: "PAX A920 Pro · 990 درهم أو 69 درهم/شهر × 18",
+      terminalOrderCta: "اطلب · توصيل في 48 ساعة →",
+      // Règlements
+      settlementsTitle: "التسويات",
+      settlementsSubtitle: (month, year) => `${month} ${year} · الدفعات إلى BMCE •• 3291`,
+      settlementsHeroLabel: "تمت تسويته هذا الشهر",
+      settlementsHeroSub: (count, onTime) => `${count} تسويات · T+1 · ${onTime}٪ من التسويات في الوقت المحدد`,
+      settlementsNext: "التالي",
+      settlementsNextTime: "غداً 9:00 صباحاً",
+      settlementsCommissions: "العمولات",
+      settlementsBlended: "مختلط",
+      settlementsSavings: "التوفير مقابل CMI",
+      settlementsVsCmi: "مقابل 2.0٪ CMI + كراء",
+      settlementsCalendar: (month, year) => `التقويم · ${month} ${year}`,
+      settlementsDow: ['إ', 'ث', 'ث', 'خ', 'ج', 'س', 'أ'],
+      settlementsInProgress: "قيد التنفيذ",
+      settlementsHistory: "السجل الحديث",
+      settlementsScheduled: "مجدول غداً 9:00 صباحاً",
+      settlementsDone: "تمت التسوية إلى BMCE ••3291",
+      settlementsInstant: "تمت التسوية · تحويل فوري",
+      // Conformité
+      complianceTitle: "الامتثال والأمان",
+      complianceSubtitle: "كيوي · مقهى أطلس · مطابق 100٪",
+      complianceScoreLabel: "درجة الامتثال",
+      complianceScoreSub: (date) => `جميع ضوابط بنك المغرب و PCI-DSS تم اجتيازها. آخر تدقيق: ${date}.`,
+      complianceItemStatusActive: "نشط",
+      complianceItemStatusValid: (year) => `صالح ${year}`,
+      complianceItemStatusVerified: "تم التحقق",
+      complianceItemStatusCompliant: "مطابق",
+      complianceItemStatusPlanned: "مخطط له",
+      complianceBAM: "بنك المغرب · رعاية الاستحواذ",
+      complianceBAMDesc: "شراكة نشطة مع مستحوذ رئيسي مرخص. رخصة مؤسسة الدفع قيد الإجراء.",
+      compliancePCIDSS: "PCI-DSS المستوى 1",
+      compliancePCIDSSDesc: (date) => `شهادة صالحة حتى ${date}. نطاق SAQ-D-merchant.`,
+      complianceTokenization: "ترميز شبكة فيزا وماستركارد",
+      complianceTokenizationDesc: "لا يتم تخزين PAN بنص عادي أبدًا · الرموز الشبكية نشطة على 98٪ من البطاقات.",
+      complianceKYC: "اعرف عميلك (KYC) مقهى أطلس",
+      complianceKYCDesc: "بطاقة التعريف الوطنية لرشيد بنهيمة + السجل التجاري 3847821 + الباتنت صالحة.",
+      complianceAML: "مكافحة غسيل الأموال / مجموعة العمل المالي",
+      complianceAMLDesc: "فحص الأمم المتحدة، الاتحاد الأوروبي، OFAC، ANRF عند التسجيل + مراقبة مستمرة.",
+      compliance3DS: "3-D Secure 2",
+      compliance3DSDesc: "التحدي نشط على CNP > 500 درهم والمعاملات عالية المخاطر.",
+      complianceLaw: "قانون 09-08 · البيانات الشخصية",
+      complianceLawDesc: "السجل + اعرف عميلك (KYC) مستضاف في المغرب (N+ONE Casa). تصريح CNDP موافق عليه.",
+      complianceMonitoring: "مراقبة 24/7",
+      complianceMonitoringDesc: "كشف الاحتيال في الوقت الحقيقي · تنبيهات عبر الإشعارات/واتساب · اتفاقية مستوى الخدمة <5 دقائق.",
+      complianceAudit: "تدقيق سنوي خارجي",
+      complianceAuditDesc: (date) => `التدقيق التالي: ${date}. لا يوجد عدم امتثال في العام الماضي.`,
+      complianceReportButton: "تحميل تقرير الامتثال",
+      complianceReportDesc: "ملف PDF موقع · لتقديمه إلى محاسبك أو البنك أو المدقق.",
+      complianceDownload: "تحميل",
+       // Équipe
+      teamTitle: "فريق مقهى أطلس",
+      teamSubtitle: (total, active) => `${total} أعضاء · ${active} في الخدمة · ${total - active} خارج الخدمة`,
+      teamHeroLabel: "أداء الفريق · اليوم",
+      teamHeroSub: (orders, basket, tip) => `${orders} طلبات · متوسط السلة ${basket} درهم · متوسط الإكرامية ${tip} درهم`,
+      teamRoleOwner: "المالك · المسؤول",
+      teamStatusOnline: "متصل",
+      teamStatusToday: "اليوم",
+      teamRoleWaitress: "نادلة أولى",
+      teamRoleWaiter: "نادل الشرفة",
+      teamRoleBarista: "باريستا الكاونتر",
+      teamStatusBreak: "نادل · في استراحة",
+      teamStatusDone: "المطبخ · انتهى",
+      teamStatusCashier: "أمين الصندوق · انتهى",
+      teamStatusRunner: "مساعد · في إجازة",
+      teamKpiShift: "الدوام",
+      teamKpiOrders: "الطلبات",
+      teamKpiRevenue: "الإيرادات",
+      teamAddMember: "إضافة عضو",
+      teamWeeklyPlan: "الخطة الأسبوعية",
+      // Tables
+      tablesModalTag: "القاعة مباشرة",
+      tablesModalTitle: "مخطط القاعة · مقهى أطلس",
+      tablesModalDesc: "انقر على طاولة لفتح الفاتورة. اسحب لإعادة الترتيب.",
+      tablesHeroLabel: "في الخدمة",
+      tablesHeroBig: (occupied, total) => `${occupied} / ${total}`,
+      tablesHeroBigUnit: "طاولات مشغولة",
+      tablesHeroSub: (covers, velocity, next) => `عدد الزبائن: ${covers} · متوسط السرعة ${velocity} دقيقة/طاولة · الجلوس التالي ~${next}`,
+      tablesZoneIndoor: "القاعة الداخلية",
+      tablesZoneTerrace: "الشرفة",
+      tablesStateCovers: (count) => `${count} زبائن`,
+      tablesStatePaid: "مدفوعة",
+      tablesStateFree: "فارغة",
+      tablesStatePending: "الفاتورة مطلوبة",
+      tablesAlert: (table, time) => `<b>${table} تنتظر الفاتورة منذ ${time} دقائق.</b> هل تريد تنبيه فاطمة؟`,
+      tablesAlertButton: "تنبيه",
+      tablesCloseButton: "إغلاق",
+      tablesNewTableButton: "+ فتح طاولة جديدة",
+      // Menu
+      menuTitle: "القائمة والمعدلات",
+      menuSubtitle: (items, cats, mods) => `${items} صنفًا · ${cats} فئات · ${mods} معدلات نشطة`,
+      menuSearch: "ابحث عن صنف…",
+      menuAdd: "إضافة",
+      menuCategoryEntrees: "المقبلات",
+      menuCategoryPlats: "الأطباق الرئيسية",
+      menuCategoryBoissons: "المشروبات",
+      menuCategoryDesserts: "الحلويات",
+      menuItems: "أصناف",
+      menuAvg: "متوسط",
+      menuStock: (stock) => `${stock}٪ مخزون`,
+      menuPortions: (count) => `${count} حصص`,
+      menuPieces: (count) => `${count} قطع`,
+      menuUnlimited: "غير محدود",
+      menuModifiers: (count) => `+ ${count} معدلات`,
+      menuMilkModifiers: "+ 4 معدلات حليب",
+      menuFridayOnly: "الجمعة فقط",
+      menuOutOfStock: "0 حصة",
+      menuSeasonal: "موسمي",
+      menuArtisanal: "تقليدي",
+      // KDS
+      kdsTag: "شاشة المطبخ",
+      kdsTitle: "نظام عرض المطبخ · خدمة الغداء",
+      kdsDesc: "8 تذاكر قيد التحضير · اتفاقية مستوى الخدمة 12 دقيقة · محسن لجهاز iPad على الحائط",
+      kdsColCold: "بارد",
+      kdsColHot: "ساخن",
+      kdsColBar: "البار",
+      kdsAvgPrep: "متوسط وقت التحضير",
+      kdsSlaMet: "تم الالتزام باتفاقية مستوى الخدمة بنسبة",
+      kdsFullscreen: "التبديل إلى وضع ملء الشاشة",
+      // Stock
+      stockTitle: "مخزون المكونات",
+      stockSubtitle: "42 مكونًا مُتتبعًا · 5 في حالة تنبيه · إعادة التعبئة التلقائية نشطة",
+      stockHeroLabel: "تنبيهات المخزون · اليوم",
+      stockHeroBigUnit: "مكونات منخفضة",
+      stockHeroSub: "2 نفاد كلي للمخزون · الطلب التلقائي ممكن",
+      stockAlertOutOfStock: "نفد المخزون",
+      stockAlertLowStock: "مخزون منخفض",
+      stockAlertStockOk: "المخزون جيد · نظرة عامة",
+      stockOrder: "اطلب",
+      stockAdjust: "تعديل",
+      stockView: "عرض",
+      stockHistory: "سجل الطلبات",
+      stockOrderAll: "تأكيد الطلب المجمع",
+      // Payroll
+      payrollTitle: "الرواتب والتخطيط",
+      payrollSubtitle: "تسجيل الحضور عبر نقاط البيع · الإكراميات المشتركة · نسبة العمالة",
+      payrollHeroLabel: (date) => `${date} · اليد العاملة`,
+      payrollHeroBig: (present, total) => `${present} / ${total}`,
+      payrollHeroBigUnit: "موظفين مسجلين",
+      payrollHeroSub: (cost, ratio) => `التكلفة اليوم <b style="color:var(--mint);">${cost} درهم</b> · نسبة ${ratio}% من المبيعات — صحية`,
+      payrollLiveClocking: "تسجيل الحضور المباشر · خدمة المساء",
+      payrollLiveClockingSub: (present, exited) => `انقر على بطاقة كيوي أو أدخل رقم التعريف الشخصي لتسجيل الحضور · ${present} نشطين · ${exited} خرج`,
+      payrollManualClock: "+ تسجيل يدوي",
+      payrollDuration: "المدة",
+      payrollClockOut: "تسجيل الخروج",
+      payrollOnBreak: "في استراحة",
+      payrollFinished: "انتهى",
+      payrollTotal: "المجموع",
+      payrollWeeklyPlan: (week) => `التخطيط · أسبوع ${week}`,
+      payrollWeeklyPlanSub: "اسحب خلية للتعديل · يتم إرسال واتساب للفريق عند كل تحديث",
+      payrollEditPlan: "تعديل التخطيط",
+      payrollDow: ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'],
+      payrollShiftDay: "النهار",
+      payrollShiftEvening: "المساء",
+      payrollShiftCounter: "الكاونتر",
+      payrollShiftDouble: "مزدوج",
+      payrollSharedTips: "الإكراميات المشتركة",
+      payrollSharedTipsSub: (amount) => `مجمع ${amount} درهم اليوم · للتوزيع في نهاية الخدمة`,
+      payrollPoolRule: "مجمع مقهى أطلس المشترك",
+      payrollPoolRuleDesc: "60٪ قاعة · 25٪ بار · 15٪ مطبخ · موزعة حسب ساعات العمل",
+      payrollEditRule: "تعديل",
+      payrollDistribute: "وزع · واتساب للفريق →",
+      payrollLaborCost: "تكلفة اليد العاملة مقابل المبيعات",
+      payrollLaborCostSub: "النسبة المستهدفة < 30٪ · معيار مقاهي الدار البيضاء 28٪",
+      payrollToday: "اليوم",
+      payroll7days: "7 أيام",
+      payrollTarget: "الهدف",
+      payrollHealthy: "صحي",
+      payrollInsight: "النسبة أقل من السوق بـ <b>11 نقطة</b>. يمكنك إضافة موظف سادس مساء السبت دون تجاوز الهدف.",
+      payrollExport: "تصدير رواتب الشهر",
+      // Reservations
+      reservationsTitle: "الحجوزات والمواعيد",
+      reservationsSubtitle: "ثلاثة مهن · منصة عملاء موحدة",
+      reservationsHeroLabel: (date) => `${date} · مقهى أطلس`,
+      reservationsHeroBigUnit: "حجوزات مؤكدة",
+      reservationsHeroSub: (covers, pending, waitlist) => `${covers} زبون متوقع · ${pending} عربون قيد الانتظار · قائمة الانتظار: ${waitlist} أشخاص`,
+      reservationsTabRestaurant: "المطاعم",
+      reservationsTabSpa: "المنتجعات والحمامات",
+      reservationsTabSalon: "الصالونات والحلاقون",
+      reservationsToday: "حجوزات اليوم",
+      reservationsAdd: "+ إضافة",
+      reservationsConfirmed: "مؤكد",
+      reservationsCovers: (count) => `${count} زبائن`,
+      reservationsRegular: "زبون دائم",
+      reservationsVisits: (count) => `${count} زيارات`,
+      reservationsDepositReceived: "تم استلام العربون ✓",
+      reservationsDepositPending: "العربون قيد الانتظar",
+      reservationsNoPreference: "بدون تفضيل",
+      reservationsWaitlist: "قائمة الانتظار",
+      reservationsWaitlistCount: (count) => `${count} في الطابور`,
+      reservationsWaitlistReadyIn: (time) => `جاهز في ~${time} دقيقة`,
+      reservationsWaitlistSmsReady: "الرسالة النصية جاهزة →",
+      reservationsWaitlistSms: "رسالة نصية",
+      reservationsWaitlistFooter: "رسالة نصية تلقائية 'طاولتك جاهزة' تُرسل بمجرد توفر طاولة لعدد مناسب من الزبائن.",
+      reservationsNoShow: "تتبع عدم الحضور بالرقم",
+      reservationsNoShowRisk: (count) => `${count} غيابات في 6 أشهر · خطر معتدل`,
+      reservationsNoShowBlocked: (count) => `${count} غيابات متتالية · تم حظر الزبون`,
+      reservationsNoShowFooter: "يُطلب عربون تلقائيًا بعد غيابين · يتم الحظر عند 3 غيابات.",
+      reservationsDepositRequired: "العربون مطلوب",
+      reservationsBlocked: "محظور",
+      // Stubs for reservations
+      toastNewReservation: "حجز جديد",
+      toastNewReservationDesc: "اختر التاريخ والوقت وعدد الزبائن ثم أرسل تأكيدًا عبر واتساب.",
+      toastSmsReady: "تم إرسال رسالة 'طاولتك جاهزة'",
+      toastSmsReadyDesc: "سيتم التسليم في 5 ثوانٍ.",
+      toastMultiService: "رحلة متعددة الخدمات",
+      toastMultiServiceDesc: "سلسلة حمام ← تدليك ← عناية بالوجه مع تخصيص تلقائي للغرف.",
+    }
+  };
+
   /* ─── Shared CSS for page views ─── */
   const CSS = `
   /* Page drawer scale */
@@ -324,12 +1049,16 @@
 
   /* ═══════════════════ ACCUEIL ═══════════════════ */
   handlers['nav-accueil'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast('Accueil · tableau de bord', { type: 'info', duration: 1400 });
+    toast(T.accueilTitle, { type: 'info', duration: 1400 });
   };
 
   /* ═══════════════════ TRANSACTIONS ═══════════════════ */
   handlers['nav-transactions'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     const methods = [
       { m: 'visa', n: 'Visa', mask: '4291' },
       { m: 'mc', n: 'Mastercard', mask: '7820' },
@@ -354,26 +1083,26 @@
       rows.push({ t: `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`, ...m, c: customers[Math.floor(Math.random() * customers.length)], amt, tip, status: Math.random() > 0.95 ? 'pend' : 'ok' });
     }
     drawer({
-      title: 'Commandes',
-      subtitle: `${rows.length} commandes · ${tot.toFixed(0)} MAD aujourd'hui`,
+      title: T.transactionsTitle,
+      subtitle: T.transactionsSubtitle(rows.length, tot.toFixed(0)),
       width: 920,
       body: `
         <div class="p-hero">
-          <div class="l">VOLUME AUJOURD'HUI</div>
+          <div class="l">${T.transactionsHeroLabel}</div>
           <div class="big">${tot.toLocaleString('fr-FR', {maximumFractionDigits: 0})} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-          <div class="sub">${rows.length} commandes · panier moyen ${Math.round(tot / rows.length)} MAD</div>
+          <div class="sub">${T.transactionsHeroSub(rows.length, Math.round(tot / rows.length))}</div>
         </div>
         <div class="p-toolbar">
           <div class="p-search">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-            Rechercher…
+            ${T.transactionsSearch}
           </div>
-          <button class="kb ghost" data-action="filter-tx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrer</button>
-          <button class="kb ghost" data-action="export"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M5 10l7 7 7-7M5 21h14"/></svg>Exporter</button>
-          <button class="kb primary" data-action="new-sale"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Encaisser</button>
+          <button class="kb ghost" data-action="filter-tx"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>${T.transactionsFilter}</button>
+          <button class="kb ghost" data-action="export"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M5 10l7 7 7-7M5 21h14"/></svg>${T.transactionsExport}</button>
+          <button class="kb primary" data-action="new-sale"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>${T.transactionsNewSale}</button>
         </div>
         <table class="p-table">
-          <thead><tr><th>HEURE</th><th>MÉTHODE</th><th>CLIENT</th><th class="right">MONTANT</th><th class="right">POURBOIRE</th><th>STATUT</th></tr></thead>
+          <thead><tr><th>${T.transactionsThTime}</th><th>${T.transactionsThMethod}</th><th>${T.transactionsThCustomer}</th><th class="right">${T.transactionsThAmount}</th><th class="right">${T.transactionsThTip}</th><th>${T.transactionsThStatus}</th></tr></thead>
           <tbody>
             ${rows.map(r => `
               <tr data-action="tx-detail" data-arg="tx1">
@@ -382,7 +1111,7 @@
                 <td style="color:var(--n-600);">${r.c}</td>
                 <td class="mono right">${r.amt.toFixed(2).replace('.', ',')}</td>
                 <td class="mono right" style="color:${r.tip > 0 ? 'var(--success)' : 'var(--n-400)'};">${r.tip > 0 ? '+' + r.tip.toFixed(2).replace('.', ',') : '—'}</td>
-                <td><span class="chip ${r.status === 'ok' ? 'ok' : 'pend'}">${r.status === 'ok' ? 'Réglé' : 'Attente'}</span></td>
+                <td><span class="chip ${r.status === 'ok' ? 'ok' : 'pend'}">${r.status === 'ok' ? T.transactionsStatusSettled : T.transactionsStatusPending}</span></td>
               </tr>
             `).join('')}
           </tbody>
@@ -393,15 +1122,17 @@
 
   /* ═══════════════════ TERMINAUX ═══════════════════ */
   handlers['nav-terminaux'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     drawer({
-      title: 'Terminaux Kiwi',
-      subtitle: '3 appareils · 2 actifs · 1 hors-ligne',
+      title: T.terminalsTitle,
+      subtitle: T.terminalsSubtitle(3, 2),
       width: 680,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, #0B6E4F, #053B2C);">
-          <div class="l">ÉTAT DU PARC</div>
-          <div class="big">2 / 3 <span style="font-size:18px; opacity:0.7;">actifs</span></div>
-          <div class="sub">Batterie moyenne : 71 % · uptime 24h : 94,2 %</div>
+          <div class="l">${T.terminalsHeroLabel}</div>
+          <div class="big">${T.terminalsHeroBig(2, 3)} <span style="font-size:18px; opacity:0.7;">${T.terminalsHeroBigUnit}</span></div>
+          <div class="sub">${T.terminalsHeroSub(71, 94.2)}</div>
         </div>
 
         <div class="term">
@@ -410,14 +1141,14 @@
             <div class="n">Station Comptoir · PAX A920 Pro</div>
             <div class="sn">S/N A920PRO-KW-2831 · firmware 4.2.1</div>
             <div class="row">
-              <span><i></i>En ligne · Wi-Fi</span>
+              <span><i></i>${T.terminalStatusOnline} · Wi-Fi</span>
               <span>🔋 87 %</span>
               <span>Dernière tx : 14:37</span>
               <span>42 tx aujourd'hui</span>
             </div>
           </div>
           <div class="actions">
-            <button class="kb ghost" style="padding:6px 12px; font-size:12px;">Gérer</button>
+            <button class="kb ghost" style="padding:6px 12px; font-size:12px;">${T.terminalManage}</button>
           </div>
         </div>
 
@@ -427,14 +1158,14 @@
             <div class="n">Tap Samsung A54 · SoftPOS</div>
             <div class="sn">IMEI 356894 ••• 2912 · Fatima Khalki</div>
             <div class="row">
-              <span><i></i>En ligne · 4G</span>
+              <span><i></i>${T.terminalStatusOnline} · 4G</span>
               <span>🔋 63 %</span>
               <span>Dernière tx : 14:32</span>
               <span>28 tx aujourd'hui</span>
             </div>
           </div>
           <div class="actions">
-            <button class="kb ghost" style="padding:6px 12px; font-size:12px;">Gérer</button>
+            <button class="kb ghost" style="padding:6px 12px; font-size:12px;">${T.terminalManage}</button>
           </div>
         </div>
 
@@ -444,21 +1175,21 @@
             <div class="n">Station Terrasse · PAX A920 Pro</div>
             <div class="sn">S/N A920PRO-KW-2832 · firmware 4.2.1</div>
             <div class="row">
-              <span><i class="err"></i>Hors-ligne depuis 09:18</span>
+              <span><i class="err"></i>${T.terminalStatusOffline} 09:18</span>
               <span>🔋 64 % (dernier rapport)</span>
               <span>Wi-Fi terrasse down</span>
             </div>
           </div>
           <div class="actions">
-            <button class="kb atlas" style="padding:6px 12px; font-size:12px;">Diagnostiquer</button>
+            <button class="kb atlas" style="padding:6px 12px; font-size:12px;">${T.terminalDiagnose}</button>
           </div>
         </div>
 
         <div style="padding:20px; margin-top: 20px; background: var(--paper-soft); border-radius: 14px; border: 1px dashed var(--n-300); text-align:center;">
           <div style="font-size: 32px; margin-bottom: 10px;">🖥️</div>
-          <div style="font-weight: 600; margin-bottom: 6px;">Commander un nouveau terminal</div>
-          <div style="font-size: 13px; color: var(--n-500); margin-bottom: 14px;">PAX A920 Pro · 990 MAD ou 69 MAD/mois × 18</div>
-          <button class="kb atlas">Commander · livraison 48h →</button>
+          <div style="font-weight: 600; margin-bottom: 6px;">${T.terminalOrderTitle}</div>
+          <div style="font-size: 13px; color: var(--n-500); margin-bottom: 14px;">${T.terminalOrderDesc}</div>
+          <button class="kb atlas">${T.terminalOrderCta}</button>
         </div>
       `,
     });
@@ -466,10 +1197,10 @@
 
   /* ═══════════════════ RÈGLEMENTS ═══════════════════ */
   handlers['nav-reglements'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     const cal = [];
-    // Pad Sunday-start (Saturday = 0 in Morocco convention, but let's use Monday start like France)
-    // Simulate April 2026 (starts Wednesday)
-    const dow = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    const dow = T.settlementsDow;
     for (let i = 0; i < 2; i++) cal.push({ pad: true });
     for (let d = 1; d <= 30; d++) {
       const isToday = d === 24;
@@ -478,42 +1209,50 @@
       cal.push({ d, amt, today: isToday, settled });
     }
     const thisMonth = 347280;
+    const monthName = lang === 'en' ? 'April' : lang === 'ar' ? 'أبريل' : 'Avril';
     drawer({
-      title: 'Règlements',
-      subtitle: 'Avril 2026 · versements vers BMCE •• 3291',
+      title: T.settlementsTitle,
+      subtitle: T.settlementsSubtitle(monthName, 2026),
       width: 680,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, var(--atlas), #053B2C);">
-          <div class="l">RÉGLÉ CE MOIS</div>
+          <div class="l">${T.settlementsHeroLabel}</div>
           <div class="big">${thisMonth.toLocaleString('fr-FR').replace(/,/g,' ')} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-          <div class="sub">22 règlements · T+1 · 99,2 % des règlements à l'heure</div>
+          <div class="sub">${T.settlementsHeroSub(22, '99,2')}</div>
         </div>
 
         <div style="background: var(--paper-soft); border-radius: 14px; padding: 18px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-          <div><div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; font-family: var(--mono);">PROCHAIN</div><div style="font-size: 22px; font-weight: 600; margin-top: 4px;">23 091 MAD</div><div style="font-size: 12px; color: var(--n-500); margin-top: 2px;">Demain 9h00</div></div>
-          <div><div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; font-family: var(--mono);">COMMISSIONS</div><div style="font-size: 22px; font-weight: 600; margin-top: 4px; color: var(--danger);">−4 128 MAD</div><div style="font-size: 12px; color: var(--n-500); margin-top: 2px;">1,18 % blended</div></div>
-          <div><div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; font-family: var(--mono);">ÉCONOMIE vs CMI</div><div style="font-size: 22px; font-weight: 600; margin-top: 4px; color: var(--atlas);">+2 840 MAD</div><div style="font-size: 12px; color: var(--n-500); margin-top: 2px;">Vs 2,0 % CMI + loc</div></div>
+          <div><div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; font-family: var(--mono);">${T.settlementsNext}</div><div style="font-size: 22px; font-weight: 600; margin-top: 4px;">23 091 MAD</div><div style="font-size: 12px; color: var(--n-500); margin-top: 2px;">${T.settlementsNextTime}</div></div>
+          <div><div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; font-family: var(--mono);">${T.settlementsCommissions}</div><div style="font-size: 22px; font-weight: 600; margin-top: 4px; color: var(--danger);">−4 128 MAD</div><div style="font-size: 12px; color: var(--n-500); margin-top: 2px;">1,18 % ${T.settlementsBlended}</div></div>
+          <div><div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; font-family: var(--mono);">${T.settlementsSavings}</div><div style="font-size: 22px; font-weight: 600; margin-top: 4px; color: var(--atlas);">+2 840 MAD</div><div style="font-size: 12px; color: var(--n-500); margin-top: 2px;">${T.settlementsVsCmi}</div></div>
         </div>
 
-        <div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin-bottom: 8px;">CALENDRIER · AVRIL 2026</div>
+        <div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin-bottom: 8px;">${T.settlementsCalendar(monthName, 2026)}</div>
         <div class="settle-cal">
           ${dow.map(d => `<div class="settle-dow">${d}</div>`).join('')}
           ${cal.map(c => c.pad ? `<div class="settle-cell pad"></div>` : `
             <div class="settle-cell ${c.today ? 'today' : c.settled ? 'settled' : ''}">
               <div class="d">${c.d}</div>
-              <div class="amt">${c.today ? 'EN COURS' : (c.amt / 1000).toFixed(1) + 'k'}</div>
+              <div class="amt">${c.today ? T.settlementsInProgress : (c.amt / 1000).toFixed(1) + 'k'}</div>
             </div>
           `).join('')}
         </div>
 
         <div style="margin-top: 22px;">
-          <div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin-bottom: 12px;">HISTORIQUE RÉCENT</div>
-          ${[['23 avril', '23 091 MAD', 'Prévu demain 9h00', 'pend'],['22 avril', '19 824 MAD', 'Réglé BMCE ••3291', 'ok'],['21 avril', '17 290 MAD', 'Réglé BMCE ••3291', 'ok'],['20 avril', '21 688 MAD', 'Réglé BMCE ••3291', 'ok'],['19 avril (week-end)', '24 102 MAD', 'Réglé · Virement Instant', 'ok'],['18 avril (week-end)', '22 850 MAD', 'Réglé · Virement Instant', 'ok']].map(([d, a, s, st]) => `
+          <div style="font-size: 11px; color: var(--n-500); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin-bottom: 12px;">${T.settlementsHistory}</div>
+          ${[
+            [lang === 'ar' ? '23 أبريل' : '23 avril', '23 091 MAD', T.settlementsScheduled, 'pend'],
+            [lang === 'ar' ? '22 أبريل' : '22 avril', '19 824 MAD', T.settlementsDone, 'ok'],
+            [lang === 'ar' ? '21 أبريل' : '21 avril', '17 290 MAD', T.settlementsDone, 'ok'],
+            [lang === 'ar' ? '20 أبريل' : '20 avril', '21 688 MAD', T.settlementsDone, 'ok'],
+            [lang === 'ar' ? '19 أبريل (عطلة نهاية الأسبوع)' : '19 avril (week-end)', '24 102 MAD', T.settlementsInstant, 'ok'],
+            [lang === 'ar' ? '18 أبريل (عطلة نهاية الأسبوع)' : '18 avril (week-end)', '22 850 MAD', T.settlementsInstant, 'ok']
+          ].map(([d, a, s, st]) => `
             <div style="display: grid; grid-template-columns: 140px 1fr 140px auto; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--n-200); align-items: center; font-size: 13px;">
               <div><b>${d}</b></div>
               <div class="mono" style="font-family: var(--mono); font-weight: 500;">${a}</div>
               <div style="color: var(--n-500); font-size: 12px;">${s}</div>
-              <div><span class="chip ${st}">${st === 'ok' ? 'Réglé' : 'Attente'}</span></div>
+              <div><span class="chip ${st}">${st === 'ok' ? T.transactionsStatusSettled : T.transactionsStatusPending}</span></div>
             </div>
           `).join('')}
         </div>
@@ -523,9 +1262,11 @@
 
   /* ═══════════════════ CONFORMITÉ ═══════════════════ */
   handlers['nav-conformite'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     drawer({
-      title: 'Conformité & Sécurité',
-      subtitle: 'Kiwi · Café Atlas · 100 % conforme',
+      title: T.complianceTitle,
+      subtitle: T.complianceSubtitle,
       width: 680,
       body: `
         <div class="comp-score">
@@ -537,22 +1278,22 @@
             <div class="c">AAA</div>
           </div>
           <div>
-            <div class="t">SCORE DE CONFORMITÉ</div>
+            <div class="t">${T.complianceScoreLabel}</div>
             <div class="v">100 / 100 · AAA</div>
-            <div class="d">Tous les contrôles Bank Al-Maghrib et PCI-DSS passés. Dernier audit : 12 mars 2026.</div>
+            <div class="d">${T.complianceScoreSub('12 mars 2026')}</div>
           </div>
         </div>
 
         ${[
-          ['🏛️', 'Bank Al-Maghrib · sponsoring acquéreur', 'Partenariat actif avec un acquéreur principal licencié. PE en cours.', 'ACTIVE', 'ok'],
-          ['🔐', 'PCI-DSS Niveau 1', 'Certification valide jusqu\'au 12 mars 2027. Scope SAQ-D-merchant.', 'VALIDE 2027', 'ok'],
-          ['🛡️', 'Tokenisation réseau Visa & Mastercard', 'PAN jamais stocké en clair · network tokens actifs sur 98 % des cartes.', 'ACTIVE', 'ok'],
-          ['🧾', 'KYC Café Atlas', 'CIN Rachid Benhima + RC 3847821 + patente valides.', 'VÉRIFIÉ', 'ok'],
-          ['📋', 'AML / GAFI', 'Screening UN, EU, OFAC, ANRF à l\'onboarding + monitoring continu.', 'ACTIVE', 'ok'],
-          ['🔑', '3-D Secure 2', 'Challenge actif sur CNP > 500 MAD et risque élevé.', 'ACTIVE', 'ok'],
-          ['🇲🇦', 'Loi 09-08 · Données personnelles', 'Ledger + KYC hébergés au Maroc (N+ONE Casa). CNDP déclaration OK.', 'CONFORME', 'ok'],
-          ['📡', 'Monitoring 24/7', 'Détection fraude temps réel · alertes push/WhatsApp · SLA <5 min.', 'ACTIF', 'ok'],
-          ['📅', 'Audit annuel externe', 'Prochain audit : 12 mars 2027. Aucun non-conformité l\'an dernier.', 'PLANIFIÉ', 'warn'],
+          ['🏛️', T.complianceBAM, T.complianceBAMDesc, T.complianceItemStatusActive, 'ok'],
+          ['🔐', T.compliancePCIDSS, T.compliancePCIDSSDesc('12 mars 2027'), T.complianceItemStatusValid(2027), 'ok'],
+          ['🛡️', T.complianceTokenization, T.complianceTokenizationDesc, T.complianceItemStatusActive, 'ok'],
+          ['🧾', T.complianceKYC, T.complianceKYCDesc, T.complianceItemStatusVerified, 'ok'],
+          ['📋', T.complianceAML, T.complianceAMLDesc, T.complianceItemStatusActive, 'ok'],
+          ['🔑', T.compliance3DS, T.compliance3DSDesc, T.complianceItemStatusActive, 'ok'],
+          ['🇲🇦', T.complianceLaw, T.complianceLawDesc, T.complianceItemStatusCompliant, 'ok'],
+          ['📡', T.complianceMonitoring, T.complianceMonitoringDesc, T.complianceItemStatusActive, 'ok'],
+          ['📅', T.complianceAudit, T.complianceAuditDesc('12 mars 2027'), T.complianceItemStatusPlanned, 'warn'],
         ].map(([icn, n, d, st, s]) => `
           <div class="comp-item">
             <div class="icn" style="font-size: 18px;">${icn}</div>
@@ -563,8 +1304,8 @@
 
         <div style="margin-top: 24px; padding: 18px; background: var(--paper-soft); border-radius: 12px; display: flex; gap: 14px; align-items: flex-start;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
-          <div style="flex: 1;"><div style="font-weight: 600; margin-bottom: 4px;">Télécharger le rapport de conformité</div><div style="font-size: 12.5px; color: var(--n-500); line-height: 1.4;">PDF signé · à présenter à votre comptable, votre banque ou un auditeur.</div></div>
-          <button class="kb atlas" data-action="download-kit">Télécharger</button>
+          <div style="flex: 1;"><div style="font-weight: 600; margin-bottom: 4px;">${T.complianceReportButton}</div><div style="font-size: 12.5px; color: var(--n-500); line-height: 1.4;">${T.complianceReportDesc}</div></div>
+          <button class="kb atlas" data-action="download-kit">${T.complianceDownload}</button>
         </div>
       `,
     });
@@ -572,27 +1313,29 @@
 
   /* ═══════════════════ ÉQUIPE ═══════════════════ */
   handlers['nav-equipe'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     drawer({
-      title: 'Équipe Café Atlas',
-      subtitle: '8 membres · 4 en service · 4 hors-service',
+      title: T.teamTitle,
+      subtitle: T.teamSubtitle(8, 4),
       width: 680,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, var(--riad), var(--atlas));">
-          <div class="l">PERFORMANCE ÉQUIPE · AUJOURD'HUI</div>
+          <div class="l">${T.teamHeroLabel}</div>
           <div class="big">16 340 <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-          <div class="sub">159 commandes · panier moyen 103 MAD · pourboire moyen 12 MAD</div>
+          <div class="sub">${T.teamHeroSub(159, 103, 12)}</div>
         </div>
 
         <div class="team-grid">
           ${[
-            ['RB', '', 'Rachid Benhima', 'Propriétaire · admin', 'En ligne', 'Aujourd\'hui', '—', '—'],
-            ['FK', '', 'Fatima Khalki', 'Serveuse senior', '5h 32', '42 tx', '5 240 MAD', '420 tip'],
-            ['HJ', 'b', 'Hamid Jelloul', 'Serveur terrasse', '5h 10', '38 tx', '4 680 MAD', '380 tip'],
-            ['SB', 'c', 'Sofia Belkadi', 'Barista comptoir', '4h 48', '54 tx', '3 920 MAD', '180 tip'],
-            ['YA', 'd', 'Youssef Amrani', 'Serveur · pause', '3h 22', '25 tx', '2 110 MAD', '215 tip'],
-            ['MM', 'offline', 'Mehdi Mansouri', 'Cuisine · terminé', '6h 00', '—', '—', '—'],
-            ['LN', 'offline', 'Laila Nouri', 'Caissière · terminé', '4h 30', '18 tx', '1 680 MAD', '52 tip'],
-            ['AT', 'offline', 'Amine Talhi', 'Runner · congé', '—', '—', '—', '—'],
+            ['RB', '', 'Rachid Benhima', T.teamRoleOwner, T.teamStatusOnline, T.teamStatusToday, '—', '—'],
+            ['FK', '', 'Fatima Khalki', T.teamRoleWaitress, '5h 32', '42 tx', '5 240 MAD', '420 tip'],
+            ['HJ', 'b', 'Hamid Jelloul', T.teamRoleWaiter, '5h 10', '38 tx', '4 680 MAD', '380 tip'],
+            ['SB', 'c', 'Sofia Belkadi', T.teamRoleBarista, '4h 48', '54 tx', '3 920 MAD', '180 tip'],
+            ['YA', 'd', 'Youssef Amrani', T.teamStatusBreak, '3h 22', '25 tx', '2 110 MAD', '215 tip'],
+            ['MM', 'offline', 'Mehdi Mansouri', T.teamStatusDone, '6h 00', '—', '—', '—'],
+            ['LN', 'offline', 'Laila Nouri', T.teamStatusCashier, '4h 30', '18 tx', '1 680 MAD', '52 tip'],
+            ['AT', 'offline', 'Amine Talhi', T.teamStatusRunner, '—', '—', '—', '—'],
           ].map(([i, k, n, r, shift, tx, rev, tip]) => `
             <div class="team-mem">
               <div class="top">
@@ -600,17 +1343,17 @@
                 <div style="flex: 1;"><div class="n">${n}</div><div class="role">${r}</div></div>
               </div>
               <div class="kpis">
-                <div><div class="k">Shift</div><div class="v">${shift}</div></div>
-                <div><div class="k">Commandes</div><div class="v">${tx}</div></div>
-                <div><div class="k">Revenu</div><div class="v">${rev}</div></div>
+                <div><div class="k">${T.teamKpiShift}</div><div class="v">${shift}</div></div>
+                <div><div class="k">${T.teamKpiOrders}</div><div class="v">${tx}</div></div>
+                <div><div class="k">${T.teamKpiRevenue}</div><div class="v">${rev}</div></div>
               </div>
             </div>
           `).join('')}
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px;">
-          <button class="kb ghost" style="padding: 14px; justify-content: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Ajouter un membre</button>
-          <button class="kb ghost" style="padding: 14px; justify-content: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Planning hebdo</button>
+          <button class="kb ghost" style="padding: 14px; justify-content: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>${T.teamAddMember}</button>
+          <button class="kb ghost" style="padding: 14px; justify-content: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${T.teamWeeklyPlan}</button>
         </div>
       `,
     });
@@ -618,95 +1361,99 @@
 
   /* ═══════════════════ TABLES & ADDITIONS ═══════════════════ */
   handlers['nav-tables'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     modal({
-      tag: 'SALLE EN DIRECT',
-      title: 'Plan de salle · Café Atlas',
-      desc: 'Cliquez une table pour ouvrir l\'addition. Glissez pour réarranger.',
+      tag: T.tablesModalTag,
+      title: T.tablesModalTitle,
+      desc: T.tablesModalDesc,
       width: 760,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, #D99A2B, #8A6210);">
-          <div class="l">EN SERVICE</div>
-          <div class="big">5 / 8 <span style="font-size:18px; opacity:0.7;">tables occupées</span></div>
-          <div class="sub">Couverts : 14 · vélocité moyenne 42 min/table · prochain seating ~15:20</div>
+          <div class="l">${T.tablesHeroLabel}</div>
+          <div class="big">${T.tablesHeroBig(5, 8)} <span style="font-size:18px; opacity:0.7;">${T.tablesHeroBigUnit}</span></div>
+          <div class="sub">${T.tablesHeroSub(14, 42, '15:20')}</div>
         </div>
 
-        <div class="floor-zone">SALLE INTÉRIEURE</div>
+        <div class="floor-zone">${T.tablesZoneIndoor}</div>
         <div class="floor">
           <div class="tbl occupied">
             <div class="tbl-n">T1</div>
-            <div class="tbl-state">4 couverts · 18 min</div>
+            <div class="tbl-state">${T.tablesStateCovers(4)} · 18 min</div>
             <div class="tbl-amt">340 MAD</div>
           </div>
           <div class="tbl paid">
             <div class="tbl-n">T2</div>
-            <div class="tbl-state">payé 12:30</div>
+            <div class="tbl-state">${T.tablesStatePaid} 12:30</div>
             <div class="tbl-amt" style="color:var(--success);">286 MAD</div>
           </div>
           <div class="tbl">
             <div class="tbl-n">T3</div>
-            <div class="tbl-state">libre</div>
+            <div class="tbl-state">${T.tablesStateFree}</div>
           </div>
           <div class="tbl pay-pending">
             <div class="tbl-n">T4</div>
-            <div class="tbl-state">addition demandée</div>
+            <div class="tbl-state">${T.tablesStatePending}</div>
             <div class="tbl-amt">215 MAD</div>
           </div>
         </div>
 
-        <div class="floor-zone">TERRASSE</div>
+        <div class="floor-zone">${T.tablesZoneTerrace}</div>
         <div class="floor">
           <div class="tbl occupied">
             <div class="tbl-n">T5</div>
-            <div class="tbl-state">2 couverts · 6 min</div>
+            <div class="tbl-state">${T.tablesStateCovers(2)} · 6 min</div>
             <div class="tbl-amt">84 MAD</div>
           </div>
           <div class="tbl occupied">
             <div class="tbl-n">T6</div>
-            <div class="tbl-state">2 couverts · 24 min</div>
+            <div class="tbl-state">${T.tablesStateCovers(2)} · 24 min</div>
             <div class="tbl-amt">215 MAD</div>
           </div>
           <div class="tbl">
             <div class="tbl-n">T7</div>
-            <div class="tbl-state">libre</div>
+            <div class="tbl-state">${T.tablesStateFree}</div>
           </div>
           <div class="tbl occupied">
             <div class="tbl-n">T8</div>
-            <div class="tbl-state">1 couvert · 12 min</div>
+            <div class="tbl-state">${T.tablesStateCovers(1)} · 12 min</div>
             <div class="tbl-amt">88 MAD</div>
           </div>
         </div>
 
         <div style="padding: 14px 16px; background: var(--ink); color: var(--paper); border-radius: 12px; margin-top: 20px; display: flex; gap: 12px; align-items: center;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="2"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg>
-          <div style="flex: 1; font-size: 13.5px; line-height: 1.4;"><b style="color:var(--mint);">T4 attend l'addition depuis 4 min.</b> Voulez-vous alerter Fatima ?</div>
-          <button class="kb" style="background: var(--mint); color: var(--riad);">Alerter</button>
+          <div style="flex: 1; font-size: 13.5px; line-height: 1.4;">${T.tablesAlert('T4', 4)}</div>
+          <button class="kb" style="background: var(--mint); color: var(--riad);">${T.tablesAlertButton}</button>
         </div>
       `,
       foot: `
-        <button class="kb ghost" data-dismiss>Fermer</button>
-        <button class="kb primary" data-action="new-sale">+ Ouvrir une nouvelle table</button>
+        <button class="kb ghost" data-dismiss>${T.tablesCloseButton}</button>
+        <button class="kb primary" data-action="new-sale">${T.tablesNewTableButton}</button>
       `
     });
   };
 
   /* ═══════════════════ MENU & MODIFICATEURS ═══════════════════ */
   handlers['nav-menu'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     drawer({
-      title: 'Menu & modificateurs',
-      subtitle: '48 items · 4 catégories · 12 modificateurs actifs',
+      title: T.menuTitle,
+      subtitle: T.menuSubtitle(48, 4, 12),
       width: 680,
       body: `
         <div class="p-toolbar">
-          <div class="p-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Rechercher un item…</div>
-          <button class="kb primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Ajouter</button>
+          <div class="p-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>${T.menuSearch}</div>
+          <button class="kb primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>${T.menuAdd}</button>
         </div>
 
         <div class="menu-cat">
           <div class="menu-cat-head">
-            <h4>🥗 Entrées <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 8 items</span></h4>
-            <div class="count">moyenne : 28 MAD</div>
+            <h4>🥗 ${T.menuCategoryEntrees} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 8 ${T.menuItems}</span></h4>
+            <div class="count">${T.menuAvg} : 28 MAD</div>
           </div>
-          ${[['Salade marocaine', 'Tomate, concombre, oignon, huile d\'olive', '32,00', 'ok', '87 % stock'],['Bissara', 'Fèves moulues, cumin, huile d\'olive', '22,00', 'ok', 'illimité'],['Zaalouk', 'Aubergine fumée, tomate, ail', '28,00', 'low', '6 portions'],['Briouates à la viande', 'Triangles croustillants, boeuf mijoté', '45,00', 'ok', '32 portions'],['Caviar d\'aubergine', 'Mezze traditionnel marocain', '35,00', 'ok', '24 portions']].map(([n, d, p, st, stock]) => `
+          ${[[`Salade marocaine`, `Tomate, concombre, oignon, huile d'olive`, '32,00', 'ok', T.menuStock(87)],[`Bissara`, `Fèves moulues, cumin, huile d'olive`, '22,00', 'ok', T.menuUnlimited],[`Zaalouk`, `Aubergine fumée, tomate, ail`, '28,00', 'low', T.menuPortions(6)],[`Briouates à la viande`, `Triangles croustillants, boeuf mijoté`, '45,00', 'ok', T.menuPortions(32)],[`Caviar d'aubergine`, `Mezze traditionnel marocain`, '35,00', 'ok', T.menuPortions(24)]].map(([n, d, p, st, stock]) => `
             <div class="menu-item">
               <div class="name">${n}<div class="desc">${d}</div></div>
               <div class="price">${p} MAD</div>
@@ -718,10 +1465,10 @@
 
         <div class="menu-cat">
           <div class="menu-cat-head">
-            <h4>🍽️ Plats <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 14 items</span></h4>
-            <div class="count">moyenne : 82 MAD</div>
+            <h4>🍽️ ${T.menuCategoryPlats} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 14 ${T.menuItems}</span></h4>
+            <div class="count">${T.menuAvg} : 82 MAD</div>
           </div>
-          ${[['Tajine kefta œuf', 'Viande hachée, œuf, tomate, épices', '85,00', 'ok', '+ 3 modificateurs'],['Couscous royal vendredi', 'Boeuf, poulet, merguez, légumes', '120,00', 'ok', 'vendredi uniquement'],['Pastilla au poulet', 'Feuille fine, amandes, cannelle, sucre', '95,00', 'low', '3 portions'],['Tajine agneau pruneaux', 'Agneau mijoté, pruneaux, amandes', '110,00', 'out', '0 portion'],['Poulet méchoui', 'Poulet rôti, épices, citron confit', '98,00', 'ok', '+ 2 modificateurs']].map(([n, d, p, st, stock]) => `
+          ${[[`Tajine kefta œuf`, `Viande hachée, œuf, tomate, épices`, '85,00', 'ok', T.menuModifiers(3)],[`Couscous royal vendredi`, `Boeuf, poulet, merguez, légumes`, '120,00', 'ok', T.menuFridayOnly],[`Pastilla au poulet`, `Feuille fine, amandes, cannelle, sucre`, '95,00', 'low', T.menuPortions(3)],[`Tajine agneau pruneaux`, `Agneau mijoté, pruneaux, amandes`, '110,00', 'out', T.menuOutOfStock],[`Poulet méchoui`, `Poulet rôti, épices, citron confit`, '98,00', 'ok', T.menuModifiers(2)]].map(([n, d, p, st, stock]) => `
             <div class="menu-item">
               <div class="name">${n}<div class="desc">${d}</div></div>
               <div class="price">${p} MAD</div>
@@ -733,10 +1480,10 @@
 
         <div class="menu-cat">
           <div class="menu-cat-head">
-            <h4>☕ Boissons <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 18 items</span></h4>
-            <div class="count">moyenne : 18 MAD</div>
+            <h4>☕ ${T.menuCategoryBoissons} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 18 ${T.menuItems}</span></h4>
+            <div class="count">${T.menuAvg} : 18 MAD</div>
           </div>
-          ${[['Thé à la menthe', 'Gunpowder + menthe fraîche + sucre', '12,00', 'ok', 'illimité'],['Café noir double', 'Expresso double · grain Algeria', '14,00', 'ok', '+ 4 modif. lait'],['Orange pressée', 'Pressée minute sur demande', '18,00', 'ok', '45 oranges'],['Limonade traditionnelle', 'Citron vert + eau de fleur d\'oranger', '16,00', 'ok', 'illimité'],['Smoothie dattes-lait', 'Dattes Majhoul, lait, cannelle', '24,00', 'low', '8 portions']].map(([n, d, p, st, stock]) => `
+          ${[[`Thé à la menthe`, `Gunpowder + menthe fraîche + sucre`, '12,00', 'ok', T.menuUnlimited],[`Café noir double`, `Expresso double · grain Algeria`, '14,00', 'ok', T.menuMilkModifiers],[`Orange pressée`, `Pressée minute sur demande`, '18,00', 'ok', '45 oranges'],[`Limonade traditionnelle`, `Citron vert + eau de fleur d'oranger`, '16,00', 'ok', T.menuUnlimited],[`Smoothie dattes-lait`, `Dattes Majhoul, lait, cannelle`, '24,00', 'low', T.menuPortions(8)]].map(([n, d, p, st, stock]) => `
             <div class="menu-item">
               <div class="name">${n}<div class="desc">${d}</div></div>
               <div class="price">${p} MAD</div>
@@ -748,10 +1495,10 @@
 
         <div class="menu-cat">
           <div class="menu-cat-head">
-            <h4>🍮 Desserts <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 8 items</span></h4>
-            <div class="count">moyenne : 32 MAD</div>
+            <h4>🍮 ${T.menuCategoryDesserts} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 8 ${T.menuItems}</span></h4>
+            <div class="count">${T.menuAvg} : 32 MAD</div>
           </div>
-          ${[['Sellou', 'Graines de sésame, amandes, miel', '30,00', 'ok', 'artisanal'],['Cornes de gazelle', 'Pâte d\'amande, fleur d\'oranger', '28,00', 'low', '12 pièces'],['Msemen beurre miel', 'Crêpe feuilletée, beurre, miel', '22,00', 'ok', 'illimité'],['Chebakia', 'Gâteaux de miel frit · Ramadan', '24,00', 'out', 'saisonnier']].map(([n, d, p, st, stock]) => `
+          ${[[`Sellou`, `Graines de sésame, amandes, miel`, '30,00', 'ok', T.menuArtisanal],[`Cornes de gazelle`, `Pâte d'amande, fleur d'oranger`, '28,00', 'low', T.menuPieces(12)],[`Msemen beurre miel`, `Crêpe feuilletée, beurre, miel`, '22,00', 'ok', T.menuUnlimited],[`Chebakia`, `Gâteaux de miel frit · Ramadan`, '24,00', 'out', T.menuSeasonal]].map(([n, d, p, st, stock]) => `
             <div class="menu-item">
               <div class="name">${n}<div class="desc">${d}</div></div>
               <div class="price">${p} MAD</div>
@@ -766,15 +1513,17 @@
 
   /* ═══════════════════ KDS (kitchen display) ═══════════════════ */
   handlers['nav-kds'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     modal({
-      tag: 'ÉCRAN CUISINE',
-      title: 'Kitchen Display System · service midi',
-      desc: '8 tickets en préparation · SLA 12 min · optimisé pour iPad mural',
+      tag: T.kdsTag,
+      title: T.kdsTitle,
+      desc: T.kdsDesc,
       width: 900,
       body: `
         <div class="kds-grid">
           <div>
-            <div class="kds-col-head">❄ Froide <span class="count">3</span></div>
+            <div class="kds-col-head">❄ ${T.kdsColCold} <span class="count">3</span></div>
             <div class="kds-col-body">
               <div class="kds-ticket">
                 <div class="thead"><span>T1 · Fatima</span><span class="timer">04:22</span></div>
@@ -792,7 +1541,7 @@
           </div>
 
           <div>
-            <div class="kds-col-head">🔥 Chaude <span class="count">4</span></div>
+            <div class="kds-col-head">🔥 ${T.kdsColHot} <span class="count">4</span></div>
             <div class="kds-col-body">
               <div class="kds-ticket">
                 <div class="thead"><span>T1 · Fatima</span><span class="timer">04:22</span></div>
@@ -814,7 +1563,7 @@
           </div>
 
           <div>
-            <div class="kds-col-head">☕ Bar <span class="count">1</span></div>
+            <div class="kds-col-head">☕ ${T.kdsColBar} <span class="count">1</span></div>
             <div class="kds-col-body">
               <div class="kds-ticket">
                 <div class="thead"><span>Comptoir · Sofia</span><span class="timer">00:42</span></div>
@@ -825,8 +1574,8 @@
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--n-200);">
-          <div style="font-size: 13px; color: var(--n-500);">Moyenne de préparation : <b style="color: var(--ink);">8 min 14 s</b> · SLA respecté à <b style="color: var(--success);">87 %</b></div>
-          <button class="kb atlas">📲 Basculer plein écran</button>
+          <div style="font-size: 13px; color: var(--n-500);">${T.kdsAvgPrep} : <b style="color: var(--ink);">8 min 14 s</b> · ${T.kdsSlaMet} <b style="color: var(--success);">87 %</b></div>
+          <button class="kb atlas">📲 ${T.kdsFullscreen}</button>
         </div>
       `,
     });
@@ -834,118 +1583,122 @@
 
   /* ═══════════════════ STOCK INGRÉDIENTS ═══════════════════ */
   handlers['nav-stock'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     drawer({
-      title: 'Stock ingrédients',
-      subtitle: '42 ingrédients suivis · 5 en alerte · réappro auto active',
+      title: T.stockTitle,
+      subtitle: T.stockSubtitle,
       width: 680,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, var(--warning), #8A6210);">
-          <div class="l">ALERTES STOCK · AUJOURD'HUI</div>
-          <div class="big">5 <span style="font-size:18px; opacity:0.7;">ingrédients faibles</span></div>
-          <div class="sub">2 ruptures totales · commande automatique possible</div>
+          <div class="l">${T.stockHeroLabel}</div>
+          <div class="big">5 <span style="font-size:18px; opacity:0.7;">${T.stockHeroBigUnit}</span></div>
+          <div class="sub">${T.stockHeroSub}</div>
         </div>
 
-        <div style="font-size: 11px; color: var(--danger); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin-bottom: 10px;">🔴 RUPTURE</div>
+        <div style="font-size: 11px; color: var(--danger); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin-bottom: 10px;">🔴 ${T.stockAlertOutOfStock}</div>
         <div class="stock-row">
           <div class="icn">🥬</div>
           <div><div class="name">Feuilles de brick</div><div class="sup">Fournisseur · Feuilletier Derb Omar</div></div>
           <div class="bar out"><div style="width:0%;"></div></div>
           <div class="qty" style="color: var(--danger);">0 / 80</div>
-          <button class="kb atlas" style="padding:6px 10px; font-size:11px;">Commander</button>
+          <button class="kb atlas" style="padding:6px 10px; font-size:11px;">${T.stockOrder}</button>
         </div>
         <div class="stock-row">
           <div class="icn">🫐</div>
           <div><div class="name">Pruneaux</div><div class="sup">Fournisseur · Épicerie Chaouen</div></div>
           <div class="bar out"><div style="width:0%;"></div></div>
           <div class="qty" style="color: var(--danger);">0 kg / 3 kg</div>
-          <button class="kb atlas" style="padding:6px 10px; font-size:11px;">Commander</button>
+          <button class="kb atlas" style="padding:6px 10px; font-size:11px;">${T.stockOrder}</button>
         </div>
 
-        <div style="font-size: 11px; color: var(--warning); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin: 20px 0 10px;">🟡 STOCK BAS</div>
+        <div style="font-size: 11px; color: var(--warning); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin: 20px 0 10px;">🟡 ${T.stockAlertLowStock}</div>
         <div class="stock-row">
           <div class="icn">🍅</div>
           <div><div class="name">Tomates fraîches</div><div class="sup">Marché central · livraison quotidienne</div></div>
           <div class="bar low"><div style="width:22%;"></div></div>
           <div class="qty">2,4 / 11 kg</div>
-          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">Ajuster</button>
+          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">${T.stockAdjust}</button>
         </div>
         <div class="stock-row">
           <div class="icn">🥚</div>
           <div><div class="name">Œufs (plateaux 30)</div><div class="sup">Ferme Ben Slimane</div></div>
           <div class="bar low"><div style="width:30%;"></div></div>
           <div class="qty">3 / 10 plateaux</div>
-          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">Ajuster</button>
+          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">${T.stockAdjust}</button>
         </div>
         <div class="stock-row">
           <div class="icn">🌶️</div>
           <div><div class="name">Paprika fumé</div><div class="sup">Épicerie Chaouen</div></div>
           <div class="bar low"><div style="width:18%;"></div></div>
           <div class="qty">180 / 1000 g</div>
-          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">Ajuster</button>
+          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">${T.stockAdjust}</button>
         </div>
 
-        <div style="font-size: 11px; color: var(--success); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin: 20px 0 10px;">🟢 STOCK OK · APERÇU</div>
+        <div style="font-size: 11px; color: var(--success); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin: 20px 0 10px;">🟢 ${T.stockAlertStockOk}</div>
         <div class="stock-row">
           <div class="icn">🍋</div>
           <div><div class="name">Citrons jaunes</div><div class="sup">Marché central</div></div>
           <div class="bar"><div style="width:86%;"></div></div>
           <div class="qty">17 / 20 kg</div>
-          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">Voir</button>
+          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">${T.stockView}</button>
         </div>
         <div class="stock-row">
           <div class="icn">🫒</div>
           <div><div class="name">Huile d'olive extra</div><div class="sup">Coopérative Meknès · 5L</div></div>
           <div class="bar"><div style="width:72%;"></div></div>
           <div class="qty">12 / 16 L</div>
-          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">Voir</button>
+          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">${T.stockView}</button>
         </div>
         <div class="stock-row">
           <div class="icn">🍚</div>
           <div><div class="name">Couscous moyen</div><div class="sup">Coopérative Atlas</div></div>
           <div class="bar"><div style="width:94%;"></div></div>
           <div class="qty">28 / 30 kg</div>
-          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">Voir</button>
+          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">${T.stockView}</button>
         </div>
         <div class="stock-row">
           <div class="icn">🌿</div>
           <div><div class="name">Menthe fraîche</div><div class="sup">Marché central · quotidien</div></div>
           <div class="bar"><div style="width:66%;"></div></div>
           <div class="qty">3,2 / 5 kg</div>
-          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">Voir</button>
+          <button class="kb ghost" style="padding:6px 10px; font-size:11px;">${T.stockView}</button>
         </div>
       `,
       foot: `
-        <button class="kb ghost" style="flex:1; justify-content:center;">📦 Historique commandes</button>
-        <button class="kb atlas" style="flex:1; justify-content:center;">✓ Valider commande groupée</button>
+        <button class="kb ghost" style="flex:1; justify-content:center;">📦 ${T.stockHistory}</button>
+        <button class="kb atlas" style="flex:1; justify-content:center;">✓ ${T.stockOrderAll}</button>
       `
     });
   };
 
   /* ═══════════════════ RÉSERVATIONS & RENDEZ-VOUS ═══════════════════ */
   handlers['nav-reservations'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     const r = drawer({
-      title: 'Réservations & rendez-vous',
-      subtitle: 'Trois métiers · une plateforme client unique',
+      title: T.reservationsTitle,
+      subtitle: T.reservationsSubtitle,
       width: 920,
       body: `
         <div class="p-hero">
-          <div class="l">SAMEDI 25 AVRIL · CAFÉ ATLAS</div>
-          <div class="big">12 <span style="font-size:18px; opacity:0.7;">réservations confirmées</span></div>
-          <div class="sub">38 couverts prévus · 2 acomptes en attente · liste d'attente : 3 personnes</div>
+          <div class="l">${T.reservationsHeroLabel("SAMEDI 25 AVRIL")}</div>
+          <div class="big">12 <span style="font-size:18px; opacity:0.7;">${T.reservationsHeroBigUnit}</span></div>
+          <div class="sub">${T.reservationsHeroSub(38, 2, 3)}</div>
         </div>
 
         <div class="resv-tabs" role="tablist">
           <button class="resv-tab on" data-resv-tab="resto">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M5 6v12a2 2 0 002 2h10a2 2 0 002-2V6"/></svg>
-            Restaurants
+            ${T.reservationsTabRestaurant}
           </button>
           <button class="resv-tab" data-resv-tab="spa">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-3 4-3 8 0 12 3-4 3-8 0-12zM4 22c2-4 6-4 8-4s6 0 8 4"/></svg>
-            Spas & hammams
+            ${T.reservationsTabSpa}
           </button>
           <button class="resv-tab" data-resv-tab="salon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8 16L20 4M16 16L4 4"/></svg>
-            Salons & barbiers
+            ${T.reservationsTabSalon}
           </button>
         </div>
 
@@ -953,65 +1706,65 @@
         <div class="resv-pane" data-resv-pane="resto">
           <div class="resv-section">
             <div class="resv-section-head">
-              <h4>Réservations du jour</h4>
-              <button class="kb ghost" data-action="add-reservation">+ Ajouter</button>
+              <h4>${T.reservationsToday}</h4>
+              <button class="kb ghost" data-action="add-reservation">${T.reservationsAdd}</button>
             </div>
             <div class="resv-line">
               <div class="t">12:30</div>
-              <div class="info"><div class="n">Famille Bensaïd</div><div class="m">4 couverts · terrasse · +212 6 12 34 56 78</div></div>
-              <span class="chip ok">Confirmé</span>
+              <div class="info"><div class="n">Famille Bensaïd</div><div class="m">${T.reservationsCovers(4)} · terrasse · +212 6 12 34 56 78</div></div>
+              <span class="chip ok">${T.reservationsConfirmed}</span>
             </div>
             <div class="resv-line">
               <div class="t">13:15</div>
-              <div class="info"><div class="n">Tarik &amp; Yasmine</div><div class="m">2 couverts · salle · client régulier · 12 visites</div></div>
-              <span class="chip ok">Confirmé</span>
+              <div class="info"><div class="n">Tarik &amp; Yasmine</div><div class="m">${T.reservationsCovers(2)} · salle · ${T.reservationsRegular} · ${T.reservationsVisits(12)}</div></div>
+              <span class="chip ok">${T.reservationsConfirmed}</span>
             </div>
             <div class="resv-line">
               <div class="t">19:30</div>
-              <div class="info"><div class="n">Anniversaire — Karim B.</div><div class="m">8 couverts · acompte 200 MAD reçu · gâteau prévu 21h</div></div>
-              <span class="chip ok">Acompte ✓</span>
+              <div class="info"><div class="n">Anniversaire — Karim B.</div><div class="m">${T.reservationsCovers(8)} · acompte 200 MAD reçu · gâteau prévu 21h</div></div>
+              <span class="chip ok">${T.reservationsDepositReceived}</span>
             </div>
             <div class="resv-line">
               <div class="t">20:00</div>
-              <div class="info"><div class="n">Société Atlas Pharma</div><div class="m">12 couverts · groupe · acompte 400 MAD demandé</div></div>
-              <span class="chip pend">Acompte attendu</span>
+              <div class="info"><div class="n">Société Atlas Pharma</div><div class="m">${T.reservationsCovers(12)} · groupe · acompte 400 MAD demandé</div></div>
+              <span class="chip pend">${T.reservationsDepositPending}</span>
             </div>
             <div class="resv-line">
               <div class="t">21:00</div>
-              <div class="info"><div class="n">Sara L. &amp; invités</div><div class="m">6 couverts · sans préférence</div></div>
-              <span class="chip ok">Confirmé</span>
+              <div class="info"><div class="n">Sara L. &amp; invités</div><div class="m">${T.reservationsCovers(6)} · ${T.reservationsNoPreference}</div></div>
+              <span class="chip ok">${T.reservationsConfirmed}</span>
             </div>
           </div>
 
           <div class="resv-grid-2">
             <div class="resv-card">
-              <div class="rc-head"><div class="rc-tag">LISTE D'ATTENTE</div><div class="rc-count">3 EN FILE</div></div>
+              <div class="rc-head"><div class="rc-tag">${T.reservationsWaitlist}</div><div class="rc-count">${T.reservationsWaitlistCount(3)}</div></div>
               <div class="resv-wait">
-                <div><b>+212 6 22 11 09 88</b><div class="m">2 pers · prêt dans ~12 min</div></div>
-                <button class="kb atlas" data-action="resv-sms">SMS prêt →</button>
+                <div><b>+212 6 22 11 09 88</b><div class="m">${T.reservationsCovers(2)} · ${T.reservationsWaitlistReadyIn(12)}</div></div>
+                <button class="kb atlas" data-action="resv-sms">${T.reservationsWaitlistSmsReady}</button>
               </div>
               <div class="resv-wait">
-                <div><b>Mehdi R.</b><div class="m">4 pers · prêt dans ~25 min</div></div>
-                <button class="kb ghost" data-action="resv-sms">SMS</button>
+                <div><b>Mehdi R.</b><div class="m">${T.reservationsCovers(4)} · ${T.reservationsWaitlistReadyIn(25)}</div></div>
+                <button class="kb ghost" data-action="resv-sms">${T.reservationsWaitlistSms}</button>
               </div>
               <div class="resv-wait">
-                <div><b>+212 6 41 02 76 12</b><div class="m">2 pers · prêt dans ~40 min</div></div>
-                <button class="kb ghost" data-action="resv-sms">SMS</button>
+                <div><b>+212 6 41 02 76 12</b><div class="m">${T.reservationsCovers(2)} · ${T.reservationsWaitlistReadyIn(40)}</div></div>
+                <button class="kb ghost" data-action="resv-sms">${T.reservationsWaitlistSms}</button>
               </div>
-              <div class="rc-foot">SMS automatique « votre table est prête » dès qu'une table se libère pour le bon nombre de couverts.</div>
+              <div class="rc-foot">${T.reservationsWaitlistFooter}</div>
             </div>
 
             <div class="resv-card">
-              <div class="rc-head"><div class="rc-tag">SUIVI NO-SHOW PAR NUMÉRO</div></div>
+              <div class="rc-head"><div class="rc-tag">${T.reservationsNoShow}</div></div>
               <div class="resv-wait">
-                <div><b>+212 6 78 22 14 09</b><div class="m">2 absences en 6 mois · risque modéré</div></div>
-                <span class="chip pend">Acompte requis</span>
+                <div><b>+212 6 78 22 14 09</b><div class="m">${T.reservationsNoShowRisk(2)}</div></div>
+                <span class="chip pend">${T.reservationsDepositRequired}</span>
               </div>
               <div class="resv-wait">
-                <div><b>+212 6 11 88 04 27</b><div class="m">3 absences consécutives · client bloqué</div></div>
-                <span class="chip ref">Bloqué</span>
+                <div><b>+212 6 11 88 04 27</b><div class="m">${T.reservationsNoShowBlocked(3)}</div></div>
+                <span class="chip ref">${T.reservationsBlocked}</span>
               </div>
-              <div class="rc-foot">Acompte automatique demandé après 2 no-show · verrouillage à 3.</div>
+              <div class="rc-foot">${T.reservationsNoShowFooter}</div>
             </div>
           </div>
         </div>
@@ -1164,8 +1917,8 @@
         </div>
       `,
       foot: `
-        <button class="kb ghost" data-dismiss>Fermer</button>
-        <button class="kb primary" data-action="add-reservation">+ Nouvelle réservation</button>
+        <button class="kb ghost" data-dismiss>${T.tablesCloseButton}</button>
+        <button class="kb primary" data-action="add-reservation">+ ${T.reservationsAdd}</button>
       `,
     });
     r.el.querySelector('.kiwi-drawer').classList.add('page-xl');
@@ -1181,129 +1934,137 @@
   };
 
   /* Stub handlers used inside the reservations drawer */
-  handlers['add-reservation'] = () => toast('Nouvelle réservation', { type: 'info', desc: 'Sélectionnez date, heure, nombre de couverts puis envoyez la confirmation WhatsApp.' });
-  handlers['resv-sms'] = () => toast('SMS « votre table est prête » envoyé', { type: 'success', desc: 'Délivré dans 5 secondes.' });
-  handlers['resv-builder'] = () => toast('Parcours multi-services', { type: 'info', desc: 'Enchaînez Hammam → Massage → Soin avec auto-allocation des cabines.' });
+  handlers['add-reservation'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
+    toast(T.toastNewReservation, { type: 'info', desc: T.toastNewReservationDesc });
+  };
+  handlers['resv-sms'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
+    toast(T.toastSmsReady, { type: 'success', desc: T.toastSmsReadyDesc });
+  };
+  handlers['resv-builder'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
+    toast(T.toastMultiService, { type: 'info', desc: T.toastMultiServiceDesc });
+  };
 
   /* ═══════════════════ PAIE & PLANNING ═══════════════════ */
   handlers['nav-payroll'] = () => {
+    const lang = trLang();
+    const T = pageTranslations[lang] || pageTranslations.fr;
     const r = drawer({
-      title: 'Paie & planning',
-      subtitle: 'Pointage POS · pourboires partagés · ratio main d\'œuvre',
+      title: T.payrollTitle,
+      subtitle: T.payrollSubtitle,
       width: 920,
       body: `
         <div class="p-hero">
-          <div class="l">SAMEDI 25 AVRIL · MAIN D'ŒUVRE</div>
-          <div class="big">4 / 5 <span style="font-size:18px; opacity:0.7;">employés pointés</span></div>
-          <div class="sub">Coût aujourd'hui <b style="color:var(--mint);">1 240 MAD</b> · ratio 16,8 % des ventes — sain</div>
+          <div class="l">${T.payrollHeroLabel("SAMEDI 25 AVRIL")}</div>
+          <div class="big">${T.payrollHeroBig(4, 5)} <span style="font-size:18px; opacity:0.7;">${T.payrollHeroBigUnit}</span></div>
+          <div class="sub">${T.payrollHeroSub("1 240", "16,8")}</div>
         </div>
 
         <div class="sh-section">
           <div class="sh-section-head">
             <div>
-              <h4>Pointage en direct · service du soir</h4>
-              <div class="sub">Tap sur la carte Kiwi ou code PIN pour pointer · 4 actifs · 1 sorti</div>
+              <h4>${T.payrollLiveClocking}</h4>
+              <div class="sub">${T.payrollLiveClockingSub(4, 1)}</div>
             </div>
-            <button class="kb ghost" data-action="manual-clock">+ Pointage manuel</button>
+            <button class="kb ghost" data-action="manual-clock">${T.payrollManualClock}</button>
           </div>
           <div class="sh-clock-row">
             <div class="av">FK</div>
-            <div class="who"><div class="n">Fatima Khalki</div><div class="role">Serveuse senior</div></div>
+            <div class="who"><div class="n">Fatima Khalki</div><div class="role">${T.teamRoleWaitress}</div></div>
             <div class="sh-bar" title="Entrée 08:12"><div class="work" style="left:6%; width:69%;"></div><div class="now" style="left:75%;"></div></div>
-            <div class="dur"><span class="l">DURÉE</span>6 h 25</div>
-            <button class="kb ghost" data-action="clock-out">Sortie</button>
+            <div class="dur"><span class="l">${T.payrollDuration}</span>6 h 25</div>
+            <button class="kb ghost" data-action="clock-out">${T.payrollClockOut}</button>
           </div>
           <div class="sh-clock-row">
             <div class="av b">HJ</div>
-            <div class="who"><div class="n">Hamid Jelloul</div><div class="role">Serveur · terrasse</div></div>
+            <div class="who"><div class="n">Hamid Jelloul</div><div class="role">${T.teamRoleWaiter}</div></div>
             <div class="sh-bar" title="Entrée 09:00"><div class="work" style="left:13%; width:62%;"></div><div class="now" style="left:75%;"></div></div>
-            <div class="dur"><span class="l">DURÉE</span>5 h 38</div>
-            <button class="kb ghost" data-action="clock-out">Sortie</button>
+            <div class="dur"><span class="l">${T.payrollDuration}</span>5 h 38</div>
+            <button class="kb ghost" data-action="clock-out">${T.payrollClockOut}</button>
           </div>
           <div class="sh-clock-row">
             <div class="av c">SB</div>
-            <div class="who"><div class="n">Sofia Belkadi</div><div class="role">Barista · comptoir</div></div>
+            <div class="who"><div class="n">Sofia Belkadi</div><div class="role">${T.teamRoleBarista}</div></div>
             <div class="sh-bar" title="Entrée 09:30"><div class="work" style="left:17%; width:58%;"></div><div class="now" style="left:75%;"></div></div>
-            <div class="dur"><span class="l">DURÉE</span>5 h 08</div>
-            <button class="kb ghost" data-action="clock-out">Sortie</button>
+            <div class="dur"><span class="l">${T.payrollDuration}</span>5 h 08</div>
+            <button class="kb ghost" data-action="clock-out">${T.payrollClockOut}</button>
           </div>
           <div class="sh-clock-row">
             <div class="av d">YA</div>
-            <div class="who"><div class="n">Youssef Amrani</div><div class="role">Serveur · pause depuis 14:12</div></div>
+            <div class="who"><div class="n">Youssef Amrani</div><div class="role">${T.teamStatusBreak} depuis 14:12</div></div>
             <div class="sh-bar" title="Entrée 11:00 · pause 14:12"><div class="work" style="left:25%; width:38%;"></div><div class="brk" style="left:63%; width:6%;"></div><div class="now" style="left:75%;"></div></div>
-            <div class="dur"><span class="l">DURÉE</span>3 h 22</div>
-            <span class="chip pend">En pause</span>
+            <div class="dur"><span class="l">${T.payrollDuration}</span>3 h 22</div>
+            <span class="chip pend">${T.payrollOnBreak}</span>
           </div>
           <div class="sh-clock-row">
             <div class="av off">MM</div>
-            <div class="who"><div class="n">Mehdi Mansouri</div><div class="role">Cuisine · sorti à 14:00</div></div>
+            <div class="who"><div class="n">Mehdi Mansouri</div><div class="role">${T.teamStatusDone} à 14:00</div></div>
             <div class="sh-bar" title="Service terminé"><div class="work" style="left:0%; width:58%; opacity:0.45;"></div></div>
-            <div class="dur"><span class="l">TOTAL</span>5 h 12</div>
-            <span class="chip neutral">Terminé</span>
+            <div class="dur"><span class="l">${T.payrollTotal}</span>5 h 12</div>
+            <span class="chip neutral">${T.payrollFinished}</span>
           </div>
         </div>
 
         <div class="sh-section">
           <div class="sh-section-head">
             <div>
-              <h4>Planning · semaine du 21 au 27 avril</h4>
-              <div class="sub">Glissez une cellule pour modifier · WhatsApp envoyé à l'équipe à chaque mise à jour</div>
+              <h4>${T.payrollWeeklyPlan('21 au 27 avril')}</h4>
+              <div class="sub">${T.payrollWeeklyPlanSub}</div>
             </div>
-            <button class="kb ghost" data-action="edit-shifts">Modifier le planning</button>
+            <button class="kb ghost" data-action="edit-shifts">${T.payrollEditPlan}</button>
           </div>
           <div class="sh-week">
             <div></div>
-            <div class="head">Lun 21</div>
-            <div class="head">Mar 22</div>
-            <div class="head">Mer 23</div>
-            <div class="head">Jeu 24</div>
-            <div class="head">Ven 25</div>
-            <div class="head today">Sam 26</div>
-            <div class="head">Dim 27</div>
+            ${T.payrollDow.map((d, i) => `<div class="head ${i === 5 ? 'today' : ''}">${d} ${21 + i}</div>`).join('')}
 
             <div class="name">Fatima · serveuse</div>
-            <div class="cell morning"><div class="h">8–17</div><div class="d">JOUR</div></div>
-            <div class="cell morning"><div class="h">8–17</div><div class="d">JOUR</div></div>
+            <div class="cell morning"><div class="h">8–17</div><div class="d">${T.payrollShiftDay}</div></div>
+            <div class="cell morning"><div class="h">8–17</div><div class="d">${T.payrollShiftDay}</div></div>
             <div class="cell off"><div class="h">off</div></div>
-            <div class="cell morning"><div class="h">8–17</div><div class="d">JOUR</div></div>
-            <div class="cell morning"><div class="h">8–17</div><div class="d">JOUR</div></div>
-            <div class="cell morning"><div class="h">8–17</div><div class="d">JOUR</div></div>
+            <div class="cell morning"><div class="h">8–17</div><div class="d">${T.payrollShiftDay}</div></div>
+            <div class="cell morning"><div class="h">8–17</div><div class="d">${T.payrollShiftDay}</div></div>
+            <div class="cell morning"><div class="h">8–17</div><div class="d">${T.payrollShiftDay}</div></div>
             <div class="cell off"><div class="h">off</div></div>
 
             <div class="name">Hamid · serveur</div>
-            <div class="cell evening"><div class="h">12–22</div><div class="d">SOIR</div></div>
-            <div class="cell evening"><div class="h">12–22</div><div class="d">SOIR</div></div>
+            <div class="cell evening"><div class="h">12–22</div><div class="d">${T.payrollShiftEvening}</div></div>
+            <div class="cell evening"><div class="h">12–22</div><div class="d">${T.payrollShiftEvening}</div></div>
             <div class="cell off"><div class="h">off</div></div>
-            <div class="cell evening"><div class="h">12–22</div><div class="d">SOIR</div></div>
-            <div class="cell evening"><div class="h">12–22</div><div class="d">SOIR</div></div>
-            <div class="cell evening"><div class="h">12–22</div><div class="d">SOIR</div></div>
-            <div class="cell evening"><div class="h">12–22</div><div class="d">SOIR</div></div>
+            <div class="cell evening"><div class="h">12–22</div><div class="d">${T.payrollShiftEvening}</div></div>
+            <div class="cell evening"><div class="h">12–22</div><div class="d">${T.payrollShiftEvening}</div></div>
+            <div class="cell evening"><div class="h">12–22</div><div class="d">${T.payrollShiftEvening}</div></div>
+            <div class="cell evening"><div class="h">12–22</div><div class="d">${T.payrollShiftEvening}</div></div>
 
             <div class="name">Sofia · barista</div>
-            <div class="cell day"><div class="h">9–15</div><div class="d">COMPTOIR</div></div>
-            <div class="cell day"><div class="h">9–15</div><div class="d">COMPTOIR</div></div>
-            <div class="cell day"><div class="h">9–15</div><div class="d">COMPTOIR</div></div>
+            <div class="cell day"><div class="h">9–15</div><div class="d">${T.payrollShiftCounter}</div></div>
+            <div class="cell day"><div class="h">9–15</div><div class="d">${T.payrollShiftCounter}</div></div>
+            <div class="cell day"><div class="h">9–15</div><div class="d">${T.payrollShiftCounter}</div></div>
             <div class="cell off"><div class="h">off</div></div>
-            <div class="cell day"><div class="h">9–15</div><div class="d">COMPTOIR</div></div>
-            <div class="cell day"><div class="h">9–15</div><div class="d">COMPTOIR</div></div>
-            <div class="cell day"><div class="h">9–15</div><div class="d">COMPTOIR</div></div>
+            <div class="cell day"><div class="h">9–15</div><div class="d">${T.payrollShiftCounter}</div></div>
+            <div class="cell day"><div class="h">9–15</div><div class="d">${T.payrollShiftCounter}</div></div>
+            <div class="cell day"><div class="h">9–15</div><div class="d">${T.payrollShiftCounter}</div></div>
 
             <div class="name">Youssef · serveur</div>
             <div class="cell off"><div class="h">off</div></div>
-            <div class="cell evening"><div class="h">17–23</div><div class="d">SOIR</div></div>
-            <div class="cell evening"><div class="h">17–23</div><div class="d">SOIR</div></div>
-            <div class="cell evening"><div class="h">17–23</div><div class="d">SOIR</div></div>
-            <div class="cell evening"><div class="h">17–23</div><div class="d">SOIR</div></div>
-            <div class="cell evening"><div class="h">11–23</div><div class="d">DOUBLE</div></div>
+            <div class="cell evening"><div class="h">17–23</div><div class="d">${T.payrollShiftEvening}</div></div>
+            <div class="cell evening"><div class="h">17–23</div><div class="d">${T.payrollShiftEvening}</div></div>
+            <div class="cell evening"><div class="h">17–23</div><div class="d">${T.payrollShiftEvening}</div></div>
+            <div class="cell evening"><div class="h">17–23</div><div class="d">${T.payrollShiftEvening}</div></div>
+            <div class="cell evening"><div class="h">11–23</div><div class="d">${T.payrollShiftDouble}</div></div>
             <div class="cell off"><div class="h">off</div></div>
 
             <div class="name">Mehdi · cuisine</div>
-            <div class="cell morning"><div class="h">7–14</div><div class="d">JOUR</div></div>
-            <div class="cell morning"><div class="h">7–14</div><div class="d">JOUR</div></div>
-            <div class="cell morning"><div class="h">7–14</div><div class="d">JOUR</div></div>
-            <div class="cell morning"><div class="h">7–14</div><div class="d">JOUR</div></div>
-            <div class="cell morning"><div class="h">7–14</div><div class="d">JOUR</div></div>
-            <div class="cell morning"><div class="h">7–14</div><div class="d">JOUR</div></div>
+            <div class="cell morning"><div class="h">7–14</div><div class="d">${T.payrollShiftDay}</div></div>
+            <div class="cell morning"><div class="h">7–14</div><div class="d">${T.payrollShiftDay}</div></div>
+            <div class="cell morning"><div class="h">7–14</div><div class="d">${T.payrollShiftDay}</div></div>
+            <div class="cell morning"><div class="h">7–14</div><div class="d">${T.payrollShiftDay}</div></div>
+            <div class="cell morning"><div class="h">7–14</div><div class="d">${T.payrollShiftDay}</div></div>
+            <div class="cell morning"><div class="h">7–14</div><div class="d">${T.payrollShiftDay}</div></div>
             <div class="cell off"><div class="h">off</div></div>
           </div>
         </div>
@@ -1312,16 +2073,16 @@
           <div class="sh-section" style="margin-bottom:0;">
             <div class="sh-section-head" style="margin-bottom:10px;">
               <div>
-                <h4>Pourboires partagés</h4>
-                <div class="sub">Pool 1 867 MAD aujourd'hui · à distribuer en fin de service</div>
+                <h4>${T.payrollSharedTips}</h4>
+                <div class="sub">${T.payrollSharedTipsSub('1 867')}</div>
               </div>
             </div>
             <div class="sh-tip-cfg">
               <div>
-                <b>Pool partagé Café Atlas</b>
-                <div class="m">60 % salle · 25 % bar · 15 % cuisine · réparti aux heures travaillées</div>
+                <b>${T.payrollPoolRule}</b>
+                <div class="m">${T.payrollPoolRuleDesc}</div>
               </div>
-              <button class="kb ghost" data-action="edit-tip-rule">Modifier</button>
+              <button class="kb ghost" data-action="edit-tip-rule">${T.payrollEditRule}</button>
             </div>
             <div class="sh-tip-pool">
               <div class="av a">FK</div>
@@ -1347,14 +2108,14 @@
               <div class="pct">10 %</div>
               <div class="amt">+186 MAD</div>
             </div>
-            <button class="kb atlas" style="width:100%; justify-content:center; margin-top:14px;" data-action="distribute-tips">Distribuer · WhatsApp à l'équipe →</button>
+            <button class="kb atlas" style="width:100%; justify-content:center; margin-top:14px;" data-action="distribute-tips">${T.payrollDistribute}</button>
           </div>
 
           <div class="sh-section" style="margin-bottom:0;">
             <div class="sh-section-head" style="margin-bottom:10px;">
               <div>
-                <h4>Coût main d'œuvre vs ventes</h4>
-                <div class="sub">Ratio cible &lt; 30 % · benchmark cafés Casa 28 %</div>
+                <h4>${T.payrollLaborCost}</h4>
+                <div class="sub">${T.payrollLaborCostSub}</div>
               </div>
             </div>
             <div class="sh-lvs">
@@ -1363,45 +2124,43 @@
                   <div class="sh-lvs-num">16,8<span class="u">%</span></div>
                   <div style="font-size:11px; color:var(--n-500); margin-top:4px; font-family:var(--mono); letter-spacing:0.04em;">AUJ. · 1 240 / 7 380 MAD</div>
                 </div>
-                <span class="chip ok">SAIN</span>
+                <span class="chip ok">${T.payrollHealthy}</span>
               </div>
               <svg viewBox="0 0 280 120" style="width:100%; height:120px; margin-top:6px;">
                 <line x1="0" y1="42" x2="280" y2="42" stroke="#A8A49A" stroke-dasharray="3 3" stroke-width="1"/>
                 <text x="278" y="38" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="#6F6C65">cible 30 %</text>
-                ${[
-                  ['Lun', 22], ['Mar', 19], ['Mer', 24], ['Jeu', 18], ['Ven', 17], ['Sam', 16.8], ['Dim', 0],
-                ].map(([day, pct], i) => {
+                ${T.payrollDow.slice(0, -1).map((day, i) => {
+                  const pct = [22, 19, 24, 18, 17, 16.8, 0][i];
                   const x = 8 + i * 38;
                   const h = pct === 0 ? 0 : (pct / 35) * 88;
                   const y = 102 - h;
                   const isToday = i === 5;
-                  const isFuture = pct === 0;
-                  const fill = isFuture ? '#E8E6E0' : isToday ? '#0B6E4F' : '#7DF2B0';
+                  const fill = isToday ? '#0B6E4F' : '#7DF2B0';
                   return `<g><rect x="${x}" y="${y}" width="22" height="${h}" rx="3" fill="${fill}"/><text x="${x + 11}" y="116" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="${isToday ? '#0B6E4F' : '#6F6C65'}" font-weight="${isToday ? '600' : '400'}">${day}</text>${pct > 0 ? `<text x="${x + 11}" y="${y - 4}" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#0A0F0D">${pct}%</text>` : ''}</g>`;
                 }).join('')}
               </svg>
               <div class="sh-lvs-foot">
-                <label><i style="background:var(--atlas);"></i>Aujourd'hui</label>
-                <label><i style="background:var(--mint);"></i>7 derniers jours</label>
-                <label><i style="background:#A8A49A;"></i>Cible</label>
+                <label><i style="background:var(--atlas);"></i>${T.payrollToday}</label>
+                <label><i style="background:var(--mint);"></i>${T.payroll7days}</label>
+                <label><i style="background:#A8A49A;"></i>${T.payrollTarget}</label>
               </div>
             </div>
             <div style="margin-top:12px; padding:11px 14px; background: var(--atlas); color: var(--paper); border-radius:10px; font-size:12.5px; line-height:1.45;">
-              <b style="color:var(--mint);">Insight :</b> ratio sous le marché de <b>11 pts</b>. Vous pouvez ajouter un 6ᵉ employé samedi soir sans dépasser la cible.
+              <b style="color:var(--mint);">Insight :</b> ${T.payrollInsight}
             </div>
           </div>
         </div>
       `,
       foot: `
-        <button class="kb ghost" data-dismiss>Fermer</button>
-        <button class="kb primary" data-action="export-payroll">Exporter la paie du mois</button>
+        <button class="kb ghost" data-dismiss>${T.tablesCloseButton}</button>
+        <button class="kb primary" data-action="export-payroll">${T.payrollExport}</button>
       `,
     });
     r.el.querySelector('.kiwi-drawer').classList.add('page-xl');
   };
 
   /* Stub handlers used inside the payroll drawer */
-  handlers['manual-clock'] = () => toast('Pointage manuel', { type: 'info', desc: 'Sélectionnez l\'employé puis l\'heure d\'entrée ou de sortie.' });
+  handlers['manual-clock'] = () => toast('Pointage manuel', { type: 'info', desc: `Sélectionnez l'employé puis l'heure d'entrée ou de sortie.` });
   handlers['clock-out'] = (el) => {
     const row = el?.closest('.sh-clock-row');
     const name = row?.querySelector('.who .n')?.textContent || 'Employé';
