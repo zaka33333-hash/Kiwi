@@ -32,7 +32,7 @@
   .zk-hero .sub { color: #c6ead4; font-size: 13px; margin-top: 8px; line-height: 1.45; }
   .zk-field { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--n-200); font-size: 14px; }
   .zk-field .l { color: var(--n-600); }
-  .zk-field input { width: 140px; text-align: right; background: transparent; border: 0; outline: 0; font-family: var(--mono); font-size: 14px; color: var(--ink); font-weight: 500; border-bottom: 1px dashed var(--n-300); padding: 4px 6px; }
+  .zk-field input { width: 140px; text-align: end; background: transparent; border: 0; outline: 0; font-family: var(--mono); font-size: 14px; color: var(--ink); font-weight: 500; border-bottom: 1px dashed var(--n-300); padding: 4px 6px; }
   .zk-field input:focus { border-bottom-color: var(--atlas); }
   .zk-total { padding: 14px 0 4px; display: flex; justify-content: space-between; font-weight: 600; font-size: 18px; font-feature-settings: "tnum" 1; }
   .zk-recipients { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
@@ -64,8 +64,8 @@
   .dx-row .info { flex: 1; }
   .dx-row .info .l { font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; font-family: var(--mono); }
   .dx-row .info .amount { font-size: 26px; font-weight: 600; letter-spacing: -0.025em; margin-top: 2px; font-feature-settings: "tnum" 1; }
-  .dx-row .info .amount .u { font-size: 13px; color: var(--n-500); margin-left: 4px; font-weight: 500; }
-  .dx-row input { flex: 1; background: transparent; border: 0; outline: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; font-feature-settings: "tnum" 1; color: var(--ink); text-align: right; font-family: var(--sans); max-width: 180px; }
+  .dx-row .info .amount .u { font-size: 13px; color: var(--n-500); margin-inline-start: 4px; font-weight: 500; }
+  .dx-row input { flex: 1; background: transparent; border: 0; outline: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; font-feature-settings: "tnum" 1; color: var(--ink); text-align: end; font-family: var(--sans); max-width: 180px; }
   .dx-cmp { margin: 14px 0; padding: 14px 16px; background: var(--mint-soft); border-radius: 12px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; color: var(--riad); }
   html[data-theme="dark"] .dx-cmp { background: rgba(125,242,176,0.1); color: var(--mint); }
   .dx-methods { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; }

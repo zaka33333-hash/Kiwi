@@ -237,11 +237,20 @@
       });
     }
 
+    /* Observing <body> is unavoidable — drawers/modals/toasts all mount
+     * there — but a confetti burst alone fires dozens of mutations. Coalesce
+     * every batch into a single rAF-throttled pass. */
+    let resyncQueued = false;
     const resync = new MutationObserver(() => {
-      const anyOverlay = document.querySelector('.kiwi-drawer-backdrop, .kiwi-backdrop');
-      if (!anyOverlay && !tabs[0].classList.contains('on')) setActive('accueil');
-      tagTxTables();
-      document.querySelectorAll('.kiwi-drawer-backdrop').forEach(wireSheetSwipe);
+      if (resyncQueued) return;
+      resyncQueued = true;
+      requestAnimationFrame(() => {
+        resyncQueued = false;
+        const anyOverlay = document.querySelector('.kiwi-drawer-backdrop, .kiwi-backdrop');
+        if (!anyOverlay && !tabs[0].classList.contains('on')) setActive('accueil');
+        tagTxTables();
+        document.querySelectorAll('.kiwi-drawer-backdrop').forEach(wireSheetSwipe);
+      });
     });
     resync.observe(document.body, { childList: true });
     tagTxTables();

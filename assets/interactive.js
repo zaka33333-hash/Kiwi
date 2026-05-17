@@ -536,7 +536,7 @@ ar: {
   .tx-detail-hero .status { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--atlas); }
   .tx-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; font-size: 13.5px; }
   .tx-detail-grid dt { color: var(--n-500); padding: 8px 0; border-bottom: 1px solid var(--n-200); }
-  .tx-detail-grid dd { margin: 0; padding: 8px 0; border-bottom: 1px solid var(--n-200); text-align: right; font-family: var(--mono); font-weight: 500; font-feature-settings: "tnum" 1; }
+  .tx-detail-grid dd { margin: 0; padding: 8px 0; border-bottom: 1px solid var(--n-200); text-align: end; font-family: var(--mono); font-weight: 500; font-feature-settings: "tnum" 1; }
   .tx-timeline { margin-top: 24px; position: relative; padding-left: 24px; }
   .tx-timeline::before { content: ""; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--n-200); }
   .tx-timeline-item { position: relative; padding: 8px 0 12px; font-size: 13px; }
@@ -637,12 +637,14 @@ ar: {
     document.body.appendChild(back);
     lockPageScroll();
     requestAnimationFrame(() => back.classList.add('in'));
+    const releaseFocus = trapFocus(back.querySelector('.kiwi-modal'));
     let closed = false;
     const close = () => {
       if (closed) return; closed = true;
       back.classList.remove('in');
       setTimeout(() => back.remove(), 280);
       document.removeEventListener('keydown', esc);
+      releaseFocus();
       unlockPageScroll();
     };
     const esc = (e) => { if (e.key === 'Escape') close(); };
@@ -650,6 +652,34 @@ ar: {
     back.addEventListener('click', (e) => { if (e.target === back) close(); });
     back.querySelector('.kiwi-modal-close').onclick = close;
     return { close, el: back };
+  }
+
+  /* ─── Focus trap for overlays — keyboard focus stays inside the open
+   * drawer/modal, and returns to the trigger element on close. ─── */
+  function trapFocus(panel) {
+    if (!panel) return () => {};
+    const prev = document.activeElement;
+    panel.setAttribute('tabindex', '-1');
+    const SEL = 'a[href],button:not([disabled]),input:not([disabled]),' +
+                'select:not([disabled]),textarea:not([disabled]),' +
+                '[tabindex]:not([tabindex="-1"])';
+    const focusables = () =>
+      Array.prototype.slice.call(panel.querySelectorAll(SEL))
+        .filter((el) => el.offsetWidth || el.offsetHeight || el === document.activeElement);
+    requestAnimationFrame(() => { (focusables()[0] || panel).focus(); });
+    const onKey = (e) => {
+      if (e.key !== 'Tab') return;
+      const f = focusables();
+      if (!f.length) { e.preventDefault(); return; }
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    panel.addEventListener('keydown', onKey);
+    return () => {
+      panel.removeEventListener('keydown', onKey);
+      try { prev && prev.focus && prev.focus(); } catch (_) {}
+    };
   }
 
   /* ─── Scroll-lock helpers (counter-tracked for nested drawers/modals) ─── */
@@ -700,12 +730,14 @@ ar: {
     document.body.appendChild(back);
     lockPageScroll();
     requestAnimationFrame(() => back.classList.add('in'));
+    const releaseFocus = trapFocus(back.querySelector('.kiwi-drawer'));
     let closed = false;
     const close = () => {
       if (closed) return; closed = true;
       back.classList.remove('in');
       setTimeout(() => back.remove(), 280);
       document.removeEventListener('keydown', esc);
+      releaseFocus();
       unlockPageScroll();
       /* Once the last drawer is gone the view is back on the main
          dashboard, so the sidebar highlight returns to "Accueil". The
@@ -2193,7 +2225,7 @@ ar: {
               <div style="display:grid; grid-template-columns:80px 1fr 36px; gap:10px; align-items:center; padding:5px 0; font-size:12.5px;">
                 <div style="color:var(--n-600);">${lbl}</div>
                 <div style="height:8px; background:#fff; border-radius:4px; overflow:hidden;"><div style="width:${(n/58)*100}%; height:100%; background:${c}; border-radius:4px;"></div></div>
-                <div style="font-family:var(--mono); text-align:right; font-weight:500;">${n}</div>
+                <div style="font-family:var(--mono); text-align:end; font-weight:500;">${n}</div>
               </div>
             `).join('')}
           </div>
@@ -2280,7 +2312,7 @@ ar: {
               <div style="display:grid; grid-template-columns:160px 1fr 50px; gap:10px; align-items:center; padding:6px 0; font-size:12.5px;">
                 <div style="color:var(--n-600);">${lbl}</div>
                 <div style="height:8px; background:#fff; border-radius:4px; overflow:hidden;"><div style="width:${(pct - 97) / 2.5 * 100}%; height:100%; background:${c}; border-radius:4px;"></div></div>
-                <div style="font-family:var(--mono); text-align:right; font-weight:500;">${pct.toFixed(2).replace('.',',')} %</div>
+                <div style="font-family:var(--mono); text-align:end; font-weight:500;">${pct.toFixed(2).replace('.',',')} %</div>
               </div>
             `).join('')}
           </div>
@@ -2325,8 +2357,8 @@ ar: {
               <div style="display:grid; grid-template-columns:120px 1fr 50px 100px; gap:10px; align-items:center; padding:6px 0; font-size:12.5px;">
                 <div style="display:flex; align-items:center; gap:8px; color:var(--n-700);"><i style="width:10px; height:10px; border-radius:3px; background:${c}; display:inline-block;"></i>${lbl}</div>
                 <div style="height:8px; background:#fff; border-radius:4px; overflow:hidden;"><div style="width:${pct/48*100}%; height:100%; background:${c}; border-radius:4px;"></div></div>
-                <div style="font-family:var(--mono); text-align:right; font-weight:500;">${pct} %</div>
-                <div style="font-family:var(--mono); text-align:right; color:var(--n-500); font-size:11.5px;">${mad}</div>
+                <div style="font-family:var(--mono); text-align:end; font-weight:500;">${pct} %</div>
+                <div style="font-family:var(--mono); text-align:end; color:var(--n-500); font-size:11.5px;">${mad}</div>
               </div>
             `).join('')}
           </div>
@@ -2366,7 +2398,7 @@ ar: {
               <div style="display:grid; grid-template-columns:160px 1fr 36px; gap:10px; align-items:center; padding:5px 0; font-size:12.5px;">
                 <div style="color:var(--n-700);">${lbl}</div>
                 <div style="height:8px; background:#fff; border-radius:4px; overflow:hidden;"><div style="width:${n/68*100}%; height:100%; background:${c}; border-radius:4px;"></div></div>
-                <div style="font-family:var(--mono); text-align:right; font-weight:500;">${n}</div>
+                <div style="font-family:var(--mono); text-align:end; font-weight:500;">${n}</div>
               </div>
             `).join('')}
           </div>
