@@ -544,6 +544,47 @@
     },
   };
 
+  /* ═══════════════ CUSTOM (USER-CREATED) VENUES ═══════════════
+   * The onboarding wizard lets a merchant create their own venue. These carry
+   * no demo data — dateRange.js's vData() hands back a zeroed dataset for them
+   * — and persist in localStorage so they survive reloads. */
+  const CUSTOM_KEY = 'kiwiCustomVenues';
+  const customIds = new Set();
+
+  function loadCustomVenues() {
+    let saved = [];
+    try { saved = JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]'); } catch (_) {}
+    if (!Array.isArray(saved)) saved = [];
+    saved.forEach(v => { if (v && v.id) { VENUES[v.id] = v; customIds.add(v.id); } });
+  }
+  function persistCustomVenues() {
+    try { localStorage.setItem(CUSTOM_KEY, JSON.stringify([...customIds].map(id => VENUES[id]))); }
+    catch (_) {}
+  }
+  const isCustom = id => customIds.has(id || currentVenue);
+
+  /* Build + register a venue from the wizard config. Returns the new id. */
+  function createVenue(cfg) {
+    cfg = cfg || {};
+    const id = 'v' + Date.now().toString(36);
+    const TYPE_LABELS = { restaurant: 'Restaurant', boutique: 'Boutique', spa: 'Spa' };
+    const type = ['restaurant', 'boutique', 'spa'].includes(cfg.type) ? cfg.type : 'restaurant';
+    const name = (cfg.name || 'Mon activité').trim();
+    const location = (cfg.location || '').trim();
+    VENUES[id] = {
+      id, name, location,
+      fullDisplay: location ? `${name} · ${location}` : name,
+      type, typeLabel: TYPE_LABELS[type],
+      siblings: '', status: 'En service', ice: '—',
+      txCount: 0, staffCount: 0, custom: true,
+      hours: cfg.hours || '', methods: cfg.methods || '', goal: +cfg.goal || 0,
+    };
+    customIds.add(id);
+    persistCustomVenues();
+    return id;
+  }
+  loadCustomVenues();
+
   /* ═══════════════ STATE ═══════════════ */
 
   const getVenue = () => currentVenue;
@@ -552,11 +593,11 @@
   const getVenueType = id => (VENUES[id] || VENUES[currentVenue])?.type;
 
   function setVenue(id) {
-    if (!VALID.includes(id)) return;
+    if (!VALID.includes(id) && !customIds.has(id)) return;
     if (id === currentVenue) return;
-    // Switching to a real venue from anywhere → ensure fusion-mode class is off.
+    // Switching to a real / custom venue from anywhere → ensure fusion-mode is off.
     // (Switching INTO fusion goes through enterFusion(), not setVenue.)
-    if (REAL_VENUES.includes(id)) document.body.classList.remove('fusion-mode');
+    if (REAL_VENUES.includes(id) || customIds.has(id)) document.body.classList.remove('fusion-mode');
     currentVenue = id;
     try { localStorage.setItem(STORAGE_KEY, id); } catch (_) {}
     renderAll();
@@ -1726,7 +1767,7 @@
       stored = null;
       try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
     }
-    currentVenue = REAL_VENUES.includes(stored) ? stored : DEFAULT_VENUE;
+    currentVenue = (REAL_VENUES.includes(stored) || customIds.has(stored)) ? stored : DEFAULT_VENUE;
     // Defensive: strip any stale fusion-mode class + dark theme attribute.
     document.body.classList.remove('fusion-mode');
     document.documentElement.removeAttribute('data-theme');
@@ -3936,6 +3977,8 @@
     getMixCmiSavings: id => { const L = MIX_CMI_SAVINGS[fusionLang()] || MIX_CMI_SAVINGS.fr; return L[id || currentVenue] || L.cafeAtlas; },
     getBenchLabels: id => { const L = BENCH_LABELS[fusionLang()] || BENCH_LABELS.fr; return L[id || currentVenue] || L.cafeAtlas; },
     isFusion: () => currentVenue === 'fusion',
+    isCustom,
+    createVenue,
     enterFusion,
     exitFusion,
     REAL_VENUES,

@@ -94,6 +94,21 @@
     }
     return first;
   }
+  // Deep clone of a data slice with every number zeroed and every array kept
+  // at the same length — used to give a brand-new user-created venue a
+  // structurally-valid but empty dataset, so every renderer paints its real
+  // "no data yet" state instead of crashing or falling back to demo numbers.
+  function zeroClone(x) {
+    if (typeof x === 'number') return 0;
+    if (Array.isArray(x)) return x.map(zeroClone);
+    if (x && typeof x === 'object') {
+      const o = {};
+      for (const k in x) o[k] = zeroClone(x[k]);
+      return o;
+    }
+    return x; // strings (labels), booleans, null — preserved
+  }
+
   // Resolve a venue-keyed table for the active venue + range, with cafeAtlas fallback.
   function vData(table, range) {
     const v = getCurrentVenue();
@@ -101,6 +116,13 @@
     const requested = range === 'personnalise' ? 'aujourdhui' : range;
     const hasRequested = !!(table?.[v]?.[requested] ?? table?.cafeAtlas?.[requested]);
     const eff = knownRanges.includes(range) || hasRequested ? requested : 'trenteJours';
+    // A user-created venue has no demo data — hand back a zeroed clone of the
+    // cafeAtlas shape so the dashboard renders empty rather than borrowing
+    // Café Atlas's numbers via the fallback below.
+    if (window.KiwiVenue?.isCustom?.(v)) {
+      const shape = table?.cafeAtlas?.[eff] ?? table?.cafeAtlas?.trenteJours;
+      return shape == null ? shape : zeroClone(shape);
+    }
     if (v === 'fusion') {
       const slices = [
         table?.cafeAtlas?.[eff],
@@ -116,6 +138,9 @@
   // True only on the live "today" range, with the demo clock active.
   function isLiveDemo() {
     const eff = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    // A user-created venue has no synthetic demo clock — it stays at zero
+    // until the merchant records real sales.
+    if (window.KiwiVenue?.isCustom?.(getCurrentVenue())) return false;
     return eff === 'aujourdhui' && !!window.KiwiDemoClock?.isActive?.();
   }
   function getSim() { return window.KiwiDemoClock?.getSimState?.() || null; }
@@ -2096,7 +2121,10 @@
     const xs = data.rev.map((_, i) => xAt(i));
 
     const yTicks = data.yTicks;
-    const yMin = Math.min(...yTicks), yMax = Math.max(...yTicks);
+    const yMin = Math.min(...yTicks);
+    // Guard the all-zero case (empty user-created venue) — yMax===yMin would
+    // make yScale divide by zero.
+    const yMax = Math.max(...yTicks) || (yMin + 1);
     const yScale = v => PAD.top + innerH * (1 - (v - yMin) / (yMax - yMin));
     const baseY = yScale(yMin);
 
@@ -2738,7 +2766,10 @@
     const isLive = effective === 'aujourdhui';
 
     const venue = window.KiwiVenue?.getVenue?.() || 'cafeAtlas';
-    const rows = isLive ? buildLiveFeed(venue) : vData(FEED_BY_VENUE, currentRange);
+    // A user-created venue has no order history — show the empty state, not
+    // zeroed demo rows.
+    const rows = window.KiwiVenue?.isCustom?.(venue) ? []
+      : isLive ? buildLiveFeed(venue) : vData(FEED_BY_VENUE, currentRange);
     const wrap = document.querySelector('[data-feed]');
 
     if (wrap) {
@@ -2898,7 +2929,7 @@
   function renderProducts() {
     const lang = getLang();
     const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
-    const data = vData(productsByVenue, currentRange);
+    const data = window.KiwiVenue?.isCustom?.() ? [] : vData(productsByVenue, currentRange);
     const list = document.querySelector('[data-products-list]');
     if (list && data) {
       list.innerHTML = data.map((p, i) => `
@@ -2922,7 +2953,7 @@
   function renderStaff() {
     const lang = getLang();
     const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
-    const data = vData(staffByVenue, currentRange);
+    const data = window.KiwiVenue?.isCustom?.() ? [] : vData(staffByVenue, currentRange);
     const list = document.querySelector('[data-staff-list]');
     if (list && data) {
       list.innerHTML = data.map(s => `
