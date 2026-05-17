@@ -1625,6 +1625,12 @@
       const sim = getSim();
       if (sim) data = { ...data, goal: sim.target.revenue, current: sim.cumRevenue };
     }
+    // User-created venue — goal comes from the merchant's setting, progress
+    // from their recorded sales.
+    if (window.KiwiVenue?.isCustom?.() && window.KiwiSales) {
+      const vd = window.KiwiVenue.getCurrentVenueData?.() || {};
+      data = { ...data, goal: +vd.goal || 0, current: window.KiwiSales.totals(getCurrentVenue()).revenue };
+    }
 
     const labelTxt = GOAL_LABEL[lang]?.[currentRange] || GOAL_LABEL.fr[currentRange];
     const labelEl = document.querySelector('[data-goal-label]');

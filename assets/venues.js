@@ -583,6 +583,26 @@
     persistCustomVenues();
     return id;
   }
+
+  /* Patch an existing custom venue (name / location / hours / methods / goal)
+   * from the Settings editor — persists and re-renders if it's active. */
+  function updateVenue(id, patch) {
+    id = id || currentVenue;
+    const v = VENUES[id];
+    if (!v || !customIds.has(id) || !patch) return false;
+    if (patch.name != null)     v.name = String(patch.name).trim() || v.name;
+    if (patch.location != null) v.location = String(patch.location).trim();
+    if (patch.hours != null)    v.hours = String(patch.hours).trim();
+    if (patch.methods != null)  v.methods = String(patch.methods).trim();
+    if (patch.goal != null)     v.goal = Math.max(0, +patch.goal || 0);
+    v.fullDisplay = v.location ? `${v.name} · ${v.location}` : v.name;
+    persistCustomVenues();
+    if (id === currentVenue) {
+      renderAll();
+      subscribers.forEach(fn => { try { fn(id); } catch (_) {} });
+    }
+    return true;
+  }
   loadCustomVenues();
 
   /* ═══════════════ STATE ═══════════════ */
@@ -4386,6 +4406,7 @@
     isFusion: () => currentVenue === 'fusion',
     isCustom,
     createVenue,
+    updateVenue,
     enterFusion,
     exitFusion,
     REAL_VENUES,

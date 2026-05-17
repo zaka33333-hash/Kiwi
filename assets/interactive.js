@@ -1316,6 +1316,10 @@ ar: {
       const LANGNAME = { fr: 'Français', en: 'English', ar: 'العربية' };
       const setOn = (k) => { try { return localStorage.getItem('kiwiSet:' + k) !== '0'; } catch (_) { return true; } };
       const sec = (t) => `<div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-weight:500; font-family:var(--mono); margin-bottom:10px;">${t}</div>`;
+      const KV = window.KiwiVenue;
+      const cv = !!(KV && KV.isCustom && KV.isCustom());
+      const vd = (KV && KV.getCurrentVenueData && KV.getCurrentVenueData()) || {};
+      const fmtN = (n) => (+n || 0).toLocaleString('fr-FR').replace(/[ , ]/g, ' ');
       return drawer({
       title: 'Paramètres',
       subtitle: 'Compte · boutique · conformité',
@@ -1343,10 +1347,17 @@ ar: {
         <div style="margin-bottom:20px;">
           ${sec('BOUTIQUE')}
           <div style="display:flex; flex-direction:column; gap:2px;">
+            ${cv ? `
+            ${settingsRow('🏪', vd.fullDisplay || vd.name || 'Ma boutique', vd.typeLabel || 'Activité', { action: 'settings-edit-venue' })}
+            ${settingsRow('⏰', 'Heures d\'ouverture', vd.hours || 'À définir', { action: 'settings-edit-venue' })}
+            ${settingsRow('🎯', 'Objectif journalier', vd.goal ? fmtN(vd.goal) + ' MAD' : 'À définir', { action: 'settings-edit-venue' })}
+            ${settingsRow('💳', 'Méthodes acceptées', vd.methods || 'Toutes acceptées', { action: 'settings-edit-venue' })}
+            ` : `
             ${settingsRow('🏪', 'Café Atlas · Maarif', 'Emplacement principal', { action: 'settings-soon' })}
             ${settingsRow('⏰', 'Heures d\'ouverture', '07:00 - 23:00 · tous les jours', { action: 'settings-soon' })}
             ${settingsRow('💳', 'Méthodes acceptées', 'Visa · MC · Kiwi Tap · QR', { action: 'settings-soon' })}
             ${settingsRow('🎯', 'Objectif journalier', '28 000 MAD', { action: 'settings-soon' })}
+            `}
           </div>
         </div>
         <div style="margin-bottom:20px;">
@@ -1404,6 +1415,52 @@ ar: {
     },
 
     'settings-soon': () => {},
+
+    /* Edit a user-created venue's identity from Settings → Boutique. */
+    'settings-edit-venue': () => {
+      const KV = window.KiwiVenue;
+      if (!KV || !KV.isCustom || !KV.isCustom()) return;
+      const vd = KV.getCurrentVenueData() || {};
+      const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;';
+      const lbl = 'display:block;font-size:12px;font-weight:500;color:var(--n-600);margin:16px 0 6px;';
+      const m = modal({
+        tag: 'MA BOUTIQUE',
+        title: 'Modifier votre activité',
+        width: 460,
+        body: `
+          <style>.ev-field:focus{border-color:var(--atlas)!important;}</style>
+          <label style="${lbl}margin-top:2px;">Nom de l'activité</label>
+          <input class="ev-field" data-ev-name style="${fld}" maxlength="40"/>
+          <label style="${lbl}">Ville</label>
+          <input class="ev-field" data-ev-city style="${fld}" maxlength="30"/>
+          <label style="${lbl}">Heures d'ouverture</label>
+          <input class="ev-field" data-ev-hours placeholder="Ex. 08:00 - 22:00 · tous les jours" style="${fld}" maxlength="44"/>
+          <label style="${lbl}">Objectif de chiffre d'affaires par jour <span style="color:var(--n-400);font-weight:400;">· MAD</span></label>
+          <input class="ev-field" data-ev-goal type="number" inputmode="numeric" style="${fld}" min="0"/>
+        `,
+        foot: `<button class="kb atlas" data-ev-save type="button" style="width:100%;justify-content:center;padding:12px;font-size:15px;">Enregistrer</button>`,
+      });
+      m.el.querySelector('[data-ev-name]').value = vd.name || '';
+      m.el.querySelector('[data-ev-city]').value = vd.location || '';
+      m.el.querySelector('[data-ev-hours]').value = vd.hours || '';
+      m.el.querySelector('[data-ev-goal]').value = vd.goal || '';
+      setTimeout(() => m.el.querySelector('[data-ev-name]').focus(), 320);
+      m.el.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-ev-save]')) return;
+        const name = (m.el.querySelector('[data-ev-name]').value || '').trim();
+        if (!name) { toast('Le nom de l\'activité est requis', { type: 'pend', force: true }); return; }
+        KV.updateVenue(KV.getVenue(), {
+          name,
+          location: m.el.querySelector('[data-ev-city]').value,
+          hours:    m.el.querySelector('[data-ev-hours]').value,
+          goal:     m.el.querySelector('[data-ev-goal]').value,
+        });
+        m.close();
+        // The Settings drawer behind now holds stale values — close it too.
+        document.querySelectorAll('.kiwi-drawer-backdrop').forEach((b) => b.__kiwiClose && b.__kiwiClose());
+        toast('Boutique mise à jour', { type: 'success', force: true });
+      });
+    },
 
     /* ─── Onboarding wizard — create the merchant's own (blank) dashboard.
      * Reached by entering PIN 0000 at the lock screen. ─── */
