@@ -2684,6 +2684,158 @@
     .pay-tip-breakdown.is-visible { display: block; }
     .pay-tip-breakdown .mono { color: var(--ink-2); font-weight: 600; }
     .pay-tip-breakdown .pay-tip-sep { margin: 0 6px; color: var(--line); }
+
+    /* ============ REÇU / TICKET — thermal-receipt modal ============ */
+    .modal.modal-receipt {
+      width: auto;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      display: flex; flex-direction: column;
+      align-items: center;
+    }
+    .receipt-paper {
+      width: 322px; max-width: calc(100vw - 48px);
+      background: #FBF9F2;          /* warm cream — never pure white */
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 12px; line-height: 1.55;
+      padding: 26px 24px 22px;
+      box-shadow: var(--shadow-2);
+      /* torn-edge top + bottom — small zig-zag */
+      --rct-tooth: 9px;
+      -webkit-mask:
+        radial-gradient(var(--rct-tooth) at 50% 0, transparent 98%, #000) 0 0 / 18px 100%,
+        radial-gradient(var(--rct-tooth) at 50% 100%, transparent 98%, #000) 0 100% / 18px 100%;
+      mask:
+        radial-gradient(var(--rct-tooth) at 50% 0, transparent 98%, #000) 0 0 / 18px 100%,
+        radial-gradient(var(--rct-tooth) at 50% 100%, transparent 98%, #000) 0 100% / 18px 100%;
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
+    }
+    .receipt-scroll { max-height: 76vh; overflow-y: auto; }
+    .receipt-scroll::-webkit-scrollbar { width: 0; }
+
+    /* header */
+    .rct-head { text-align: center; }
+    .rct-logo {
+      font-family: var(--sans);
+      font-size: 19px; font-weight: 800; letter-spacing: -0.02em;
+      color: var(--forest);
+    }
+    .rct-logo i {
+      display: inline-block; width: 7px; height: 7px;
+      background: var(--emerald); border-radius: 50%;
+      margin-left: 2px; vertical-align: 3px;
+    }
+    .rct-sub { font-size: 10.5px; color: var(--ink-3); margin-top: 3px; }
+    .rct-sub.rct-tiny { font-size: 9.5px; color: var(--ink-4); margin-top: 1px; }
+
+    /* dividers */
+    .rct-rule {
+      border: 0; border-top: 1px solid rgba(17,17,17,.18);
+      margin: 13px 0;
+    }
+    .rct-dash {
+      text-align: center; color: var(--ink-4);
+      font-size: 11px; letter-spacing: 1px;
+      margin: 12px 0; user-select: none;
+      overflow: hidden; white-space: nowrap;
+    }
+
+    /* meta + generic key/value rows */
+    .rct-row {
+      display: flex; justify-content: space-between; gap: 10px;
+      font-size: 11px;
+    }
+    .rct-row + .rct-row { margin-top: 3px; }
+    .rct-row .rct-k { color: var(--ink-3); }
+    .rct-row .rct-v { color: var(--ink); text-align: right; }
+
+    /* line items — qty x name ......... total */
+    .rct-line {
+      display: flex; align-items: baseline; gap: 4px;
+      font-size: 11.5px;
+    }
+    .rct-line + .rct-line { margin-top: 5px; }
+    .rct-line-qty { color: var(--forest); font-weight: 700; flex: none; }
+    .rct-line-name { color: var(--ink); }
+    .rct-line-dots {
+      flex: 1 1 auto; min-width: 8px;
+      border-bottom: 1px dotted rgba(17,17,17,.32);
+      transform: translateY(-3px);
+    }
+    .rct-line-total {
+      flex: none; color: var(--ink);
+      font-feature-settings: "tnum" 1;
+    }
+
+    /* totals */
+    .rct-tot {
+      display: flex; justify-content: space-between;
+      font-size: 11.5px; font-feature-settings: "tnum" 1;
+    }
+    .rct-tot + .rct-tot { margin-top: 4px; }
+    .rct-tot .rct-tot-k { color: var(--ink-3); }
+    .rct-tot .rct-tot-v { color: var(--ink-2); }
+    .rct-tot.rct-grand {
+      font-size: 14px; font-weight: 700;
+      margin-top: 9px; padding-top: 9px;
+      border-top: 1px solid rgba(17,17,17,.22);
+    }
+    .rct-tot.rct-grand .rct-tot-k { color: var(--ink); }
+    .rct-tot.rct-grand .rct-tot-v { color: var(--forest); }
+    .rct-paid {
+      text-align: center; font-size: 11px;
+      color: var(--ink-2); margin-top: 11px;
+    }
+    .rct-paid i {
+      width: 12px; height: 12px; vertical-align: -2px;
+      margin-right: 4px; color: var(--forest);
+    }
+
+    /* refund variant */
+    .rct-refund-banner {
+      text-align: center;
+      font-family: var(--sans);
+      font-size: 12px; font-weight: 800; letter-spacing: 0.12em;
+      color: var(--danger-mute);
+      border: 1px dashed var(--danger-mute);
+      border-radius: 6px;
+      padding: 6px 8px; margin: 13px 0 4px;
+    }
+    .receipt-paper.is-refund .rct-line-qty,
+    .receipt-paper.is-refund .rct-tot.rct-grand .rct-tot-v { color: var(--danger-mute); }
+
+    /* footer — thank-you + faux barcode */
+    .rct-thanks {
+      text-align: center; font-size: 11px;
+      color: var(--ink-2); margin-top: 4px;
+    }
+    .rct-thanks b { color: var(--forest); font-weight: 700; }
+    .rct-barcode {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 2px; height: 44px; margin-top: 14px;
+    }
+    .rct-barcode span {
+      display: block; width: 2px; height: 100%;
+      background: var(--ink);
+    }
+    .rct-barcode span:nth-child(3n)  { width: 4px; }
+    .rct-barcode span:nth-child(4n)  { width: 1px; opacity: .55; }
+    .rct-barcode span:nth-child(7n)  { width: 5px; }
+    .rct-barcode-num {
+      text-align: center; font-size: 10px;
+      letter-spacing: 3px; color: var(--ink-3);
+      margin-top: 5px;
+    }
+
+    /* footer action bar — sits below the paper */
+    .rct-actions {
+      display: flex; gap: 10px;
+      width: 322px; max-width: calc(100vw - 48px);
+      margin-top: 14px;
+    }
   </style>
 </head>
 
@@ -3496,6 +3648,21 @@
     </div>
   </div>
 
+  <!-- ============ REÇU / TICKET MODAL ============ -->
+  <div class="modal-veil" id="receipt-modal" role="dialog" aria-modal="true" aria-label="Reçu">
+    <div class="modal modal-receipt">
+      <div class="receipt-paper" id="receipt-paper">
+        <div class="receipt-scroll" id="receipt-body"><!-- ticket injected --></div>
+      </div>
+      <div class="rct-actions">
+        <button class="ma-btn secondary" id="receipt-close" style="flex:1;">Fermer</button>
+        <button class="ma-btn primary" id="receipt-print" style="flex:2;">
+          <i data-lucide="printer"></i><span>Imprimer</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ TOAST STACK ============ -->
   <div id="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
@@ -4295,6 +4462,18 @@
     function payTipAmount() {
       return Math.round(currentTotal() * payTipPct() / 100);
     }
+    /* Itemised lines for the receipt of the sale being tendered (non-split).
+       Table → generateOrder; vente rapida → the cart. */
+    function currentSaleLines() {
+      if (mode === 'vrap') {
+        return cart.map(c => ({ name: c.name, qty: c.qty, total: c.price * c.qty }));
+      }
+      if (selectedId && tables[selectedId]) {
+        return generateOrder(selectedId, tables[selectedId])
+          .map(l => ({ name: l.name, qty: l.qty, total: l.total }));
+      }
+      return [];
+    }
     function resetPayTip() {
       payTipMode = '0';
       payTipCustom = 0;
@@ -4413,7 +4592,7 @@
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'card', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'), payTipAmount());
+      if (!splitPayCallback) recordSale(currentTotal(), 'card', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'), payTipAmount(), currentSaleLines());
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -4495,7 +4674,7 @@
       cashAmountOverride = null;
       cashModal.classList.remove('is-open');
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'cash', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'), payTipAmount());
+      if (!splitPayCallback) recordSale(currentTotal(), 'cash', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'), payTipAmount(), currentSaleLines());
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -5355,8 +5534,9 @@
     }
 
     /* Record one completed tender (table payment, vente rapida, or split part).
-       `amount` stays the base addition; `tip` (pourboire) is recorded alongside. */
-    function recordSale(amount, method, label, tip) {
+       `amount` stays the base addition; `tip` (pourboire) is recorded alongside.
+       `lines` (optional) — itemised order [{ name, qty, total }] for the receipt. */
+    function recordSale(amount, method, label, tip, lines) {
       amount = Math.round(amount || 0);
       if (amount <= 0) return;
       const entry = {
@@ -5366,11 +5546,142 @@
         amount: amount, method: method, ref: genRef(),
         tip: Math.round(tip) || 0,
       };
+      if (Array.isArray(lines) && lines.length) {
+        entry.lines = lines.map(l => ({ name: l.name, qty: l.qty, total: l.total }));
+      }
       journal.push(entry);
       lastSaleId = entry.id;
       renderShiftStats();
       if ($('#journal-drawer').classList.contains('is-open')) renderJournal();
     }
+
+    /* ============ REÇU / TICKET — receipt preview ============ */
+    /* Faux but plausible Moroccan establishment identifiers. */
+    const RECEIPT_ICE   = '002176548000071';   /* 15-digit ICE */
+    const RECEIPT_PHONE = '+212 522 27 84 19'; /* Casablanca landline */
+
+    /* Render a journal entry as a printed thermal ticket. */
+    function renderReceipt(entry) {
+      const paper = $('#receipt-paper');
+      const body  = $('#receipt-body');
+      if (!entry || !paper || !body) return;
+
+      const isRefund = entry.kind === 'refund';
+      paper.classList.toggle('is-refund', isRefund);
+
+      const d   = entry.time instanceof Date ? entry.time : new Date(entry.time);
+      const dd  = String(d.getDate()).padStart(2, '0');
+      const mo  = String(d.getMonth() + 1).padStart(2, '0');
+      const yy  = d.getFullYear();
+      const hh  = String(d.getHours()).padStart(2, '0');
+      const mi  = String(d.getMinutes()).padStart(2, '0');
+
+      /* amount is signed for refunds — work off the magnitude for TVA math. */
+      const gross = Math.abs(entry.amount);
+      const ht    = Math.round(gross / 1.10);   /* TVA marocaine restauration = 10 % */
+      const tva   = gross - ht;
+      const tip   = !isRefund && entry.tip > 0 ? entry.tip : 0;
+      const sign  = isRefund ? '− ' : '';   /* minus sign */
+
+      /* line items — itemised if entry.lines present, else summary fallback. */
+      let itemsHTML;
+      if (Array.isArray(entry.lines) && entry.lines.length) {
+        itemsHTML = entry.lines.map(l => {
+          const qty = l.qty || 1;
+          return `<div class="rct-line">`
+               +   `<span class="rct-line-qty">${qty}×</span>`
+               +   `<span class="rct-line-name">${l.name}</span>`
+               +   `<span class="rct-line-dots" aria-hidden="true"></span>`
+               +   `<span class="rct-line-total">${sign}${fmtMAD(Math.abs(l.total))}</span>`
+               + `</div>`;
+        }).join('');
+      } else {
+        itemsHTML = `<div class="rct-line">`
+                  +   `<span class="rct-line-qty">1×</span>`
+                  +   `<span class="rct-line-name">Commande</span>`
+                  +   `<span class="rct-line-dots" aria-hidden="true"></span>`
+                  +   `<span class="rct-line-total">${sign}${fmtMAD(gross)}</span>`
+                  + `</div>`;
+      }
+
+      const totalPaye = gross + tip;
+      let totalsHTML =
+          `<div class="rct-tot"><span class="rct-tot-k">Total HT</span>`
+        +   `<span class="rct-tot-v">${sign}${fmtMAD(ht)}</span></div>`
+        + `<div class="rct-tot"><span class="rct-tot-k">TVA 10 %</span>`
+        +   `<span class="rct-tot-v">${sign}${fmtMAD(tva)}</span></div>`
+        + `<div class="rct-tot"><span class="rct-tot-k">Total TTC</span>`
+        +   `<span class="rct-tot-v">${sign}${fmtMAD(gross)}</span></div>`;
+      if (tip > 0) {
+        totalsHTML +=
+            `<div class="rct-tot"><span class="rct-tot-k">Pourboire</span>`
+          +   `<span class="rct-tot-v">${fmtMAD(tip)}</span></div>`;
+      }
+      totalsHTML +=
+          `<div class="rct-tot rct-grand">`
+        +   `<span class="rct-tot-k">${isRefund ? 'TOTAL REMBOURSÉ' : 'TOTAL PAYÉ'}</span>`
+        +   `<span class="rct-tot-v">${sign}${fmtMAD(totalPaye)}</span></div>`;
+
+      const payLabel = entry.method === 'cash'
+        ? (isRefund ? 'Remboursé en espèces' : 'Réglé en espèces')
+        : (isRefund ? 'Remboursé sur carte'  : 'Réglé par carte');
+      const payIcon  = entry.method === 'cash' ? 'banknote' : 'credit-card';
+
+      /* faux barcode — 38 bars, widths vary purely via CSS nth-child. */
+      const bars = '<span></span>'.repeat(38);
+
+      body.innerHTML =
+          `<div class="rct-head">`
+        +   `<div class="rct-logo">Café Atlas<i aria-hidden="true"></i></div>`
+        +   `<div class="rct-sub">Maarif · Casablanca</div>`
+        +   `<div class="rct-sub rct-tiny">ICE ${RECEIPT_ICE}</div>`
+        +   `<div class="rct-sub rct-tiny">${RECEIPT_PHONE}</div>`
+        + `</div>`
+        + (isRefund ? `<div class="rct-refund-banner">REMBOURSEMENT</div>` : '')
+        + `<hr class="rct-rule" />`
+        + `<div class="rct-row"><span class="rct-k">Date</span>`
+        +   `<span class="rct-v">${dd}/${mo}/${yy}</span></div>`
+        + `<div class="rct-row"><span class="rct-k">Heure</span>`
+        +   `<span class="rct-v">${hh}:${mi}</span></div>`
+        + `<div class="rct-row"><span class="rct-k">N° ticket</span>`
+        +   `<span class="rct-v">${entry.ref}</span></div>`
+        + `<div class="rct-row"><span class="rct-k">${isRefund ? 'Origine' : 'Service'}</span>`
+        +   `<span class="rct-v">${entry.label}</span></div>`
+        + `<div class="rct-row"><span class="rct-k">Caissier</span>`
+        +   `<span class="rct-v">Rachid B.</span></div>`
+        + `<div class="rct-dash" aria-hidden="true">${'· '.repeat(28)}</div>`
+        + itemsHTML
+        + `<hr class="rct-rule" />`
+        + totalsHTML
+        + `<div class="rct-paid"><i data-lucide="${payIcon}"></i>${payLabel}</div>`
+        + `<div class="rct-dash" aria-hidden="true">${'· '.repeat(28)}</div>`
+        + `<div class="rct-thanks">`
+        +   (isRefund
+              ? `Sma7 lina · merci d'votre compréhension`
+              : `Bsa7tkom · à bientôt chez <b>Café Atlas</b>`)
+        + `</div>`
+        + `<div class="rct-barcode" aria-hidden="true">${bars}</div>`
+        + `<div class="rct-barcode-num">${entry.ref}</div>`;
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openReceipt(entry) {
+      if (!entry) { toast('Ticket introuvable'); return; }
+      renderReceipt(entry);
+      $('#receipt-modal').classList.add('is-open');
+      $('#receipt-body').scrollTop = 0;
+    }
+    function closeReceipt() { $('#receipt-modal').classList.remove('is-open'); }
+
+    $('#receipt-close').addEventListener('click', closeReceipt);
+    $('#receipt-print').addEventListener('click', () => {
+      toast('Ticket envoyé à l\'imprimante');
+      closeReceipt();
+    });
+    $('#receipt-modal').addEventListener('click', (e) => {
+      if (e.target === $('#receipt-modal')) closeReceipt();
+    });
 
     /* Live sidebar stats — computed from the journal */
     function renderShiftStats() {
@@ -5639,8 +5950,11 @@
     $('#journal-drawer-close').addEventListener('click', closeJournal);
     $('#journal-drawer').addEventListener('click', (e) => {
       if (e.target === $('#journal-drawer')) { closeJournal(); return; }
-      const entry = e.target.closest('[data-jr-ref]');
-      if (entry) toast('Ticket réimprimé · ' + entry.dataset.jrRef);
+      const row = e.target.closest('[data-jr-ref]');
+      if (row) {
+        const ref = row.dataset.jrRef;
+        openReceipt(journal.find(en => en.ref === ref));
+      }
     });
     $('#jr-search-input').addEventListener('input', (e) => {
       journalSearch = e.target.value;
@@ -6657,6 +6971,7 @@
         if (e.refundOf)        entry.refundOf = e.refundOf;
         if (e.refunded)        entry.refunded = true;
         if (e.tip)             entry.tip      = e.tip;        // pourboire
+        if (e.lines)           entry.lines    = e.lines;      // itemised receipt
         journal.push(entry);
       });
       cashMovements.length = 0;
