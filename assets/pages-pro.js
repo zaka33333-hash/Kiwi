@@ -25,6 +25,7 @@
   const toast = Kiwi.toast;
   const menu = Kiwi.menu;
   const confetti = Kiwi.confetti;
+  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
 /* ═══════════════════════════════════════════════════════════════════════════
  * Kiwi · sidebar pages — investor-demo polish
  * 4 handlers: nav-accueil, nav-transactions, nav-terminaux, nav-reglements
@@ -36,6 +37,11 @@
  * 1 · ACCUEIL · return to the main dashboard view
  *     Closes any open drawer/modal and scrolls back to top. No drawer.
  * ─────────────────────────────────────────────────────────────────────────── */
+const NAV_ACCUEIL_STR = {
+    fr: 'Accueil · tableau de bord',
+    en: 'Home · Dashboard',
+    ar: 'الرئيسية · لوحة التحكم'
+};
 handlers['nav-accueil'] = () => {
   // Dismiss any open drawer / modal so the dashboard underneath is fully visible.
   document.querySelectorAll('.kiwi-drawer-backdrop, .kiwi-backdrop').forEach(el => {
@@ -48,7 +54,7 @@ handlers['nav-accueil'] = () => {
   document.documentElement.classList.remove('kiwi-locked');
   // Glide back to top of the main view.
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  toast('Accueil · tableau de bord', { type: 'info', duration: 1200 });
+  toast(NAV_ACCUEIL_STR[trLang()] || NAV_ACCUEIL_STR.fr, { type: 'info', duration: 1200 });
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -64,8 +70,172 @@ handlers['nav-accueil'] = () => {
  * Réconciliation / Anti-fraude) and the row-click detail are all wired.
  * ─────────────────────────────────────────────────────────────────────────── */
 handlers['nav-transactions'] = () => {
+  const TX_STR = {
+    fr: {
+        title: 'Commandes',
+        heroLive: "VOLUME AUJOURD'HUI · LIVE",
+        heroVolume: 'VOLUME · ',
+        order: 'commande',
+        orders: 'commandes',
+        avgBasket: 'panier moyen',
+        liveSync: 'sync horloge démo · refresh 3 s',
+        consolidated: 'données consolidées',
+        all: 'Toutes',
+        cards: 'Cartes',
+        mobile: 'Mobile',
+        cash: 'Espèces',
+        refunds: 'Remboursements',
+        reconciliation: 'Réconciliation',
+        fraud: 'Anti-fraude',
+        filterActive: 'Filtre actif :',
+        ordersDisplayed: 'commandes affichées',
+        orderDisplayed: 'commande affichée',
+        on: 'sur',
+        clear: 'Effacer',
+        noOrders: 'Aucune commande pour ce filtre.',
+        olderOrdersHidden: 'commandes plus anciennes masquées',
+        olderOrderHidden: 'commande plus ancienne masquée',
+        showAll: 'Tout afficher',
+        settlementOf: 'Règlement du',
+        reconciled: 'Rapproché',
+        grossVolume: 'Volume brut',
+        visaMcInterchange: 'Interchange Visa/MC',
+        kiwiNetworkFees: 'Frais réseau Kiwi',
+        vatOnFees: 'TVA sur frais',
+        netPaidOut: 'Net versé',
+        savingsVsCmi: 'Économie vs CMI :',
+        today: 'ce jour',
+        vs: 'vs',
+        openAlerts: 'alertes ouvertes',
+        model: 'Modèle',
+        slidingWindow: 'fenêtre glissante',
+        examine: 'Examiner',
+        markLegitimate: 'Marquer légitime',
+        blockCard: 'Bloquer la carte',
+        paid: 'Réglé',
+        pending: 'Attente',
+        refunded: 'Remboursé',
+        hour: 'HEURE',
+        method: 'MÉTHODE',
+        client: 'CLIENT',
+        amount: 'MONTANT',
+        tip: 'POURBOIRE',
+        status: 'STATUT',
+    },
+    en: {
+        title: 'Orders',
+        heroLive: "TODAY'S VOLUME · LIVE",
+        heroVolume: 'VOLUME · ',
+        order: 'order',
+        orders: 'orders',
+        avgBasket: 'avg basket',
+        liveSync: 'demo clock sync · refresh 3s',
+        consolidated: 'consolidated data',
+        all: 'All',
+        cards: 'Cards',
+        mobile: 'Mobile',
+        cash: 'Cash',
+        refunds: 'Refunds',
+        reconciliation: 'Reconciliation',
+        fraud: 'Anti-fraud',
+        filterActive: 'Active filter:',
+        ordersDisplayed: 'orders displayed',
+        orderDisplayed: 'order displayed',
+        on: 'of',
+        clear: 'Clear',
+        noOrders: 'No orders for this filter.',
+        olderOrdersHidden: 'older orders hidden',
+        olderOrderHidden: 'older order hidden',
+        showAll: 'Show all',
+        settlementOf: 'Settlement of',
+        reconciled: 'Reconciled',
+        grossVolume: 'Gross volume',
+        visaMcInterchange: 'Visa/MC Interchange',
+        kiwiNetworkFees: 'Kiwi network fees',
+        vatOnFees: 'VAT on fees',
+        netPaidOut: 'Net paid out',
+        savingsVsCmi: 'Savings vs CMI:',
+        today: 'today',
+        vs: 'vs',
+        openAlerts: 'open alerts',
+        model: 'Model',
+        slidingWindow: 'sliding window',
+        examine: 'Examine',
+        markLegitimate: 'Mark legitimate',
+        blockCard: 'Block card',
+        paid: 'Paid',
+        pending: 'Pending',
+        refunded: 'Refunded',
+        hour: 'TIME',
+        method: 'METHOD',
+        client: 'CUSTOMER',
+        amount: 'AMOUNT',
+        tip: 'TIP',
+        status: 'STATUS',
+    },
+    ar: {
+        title: 'الطلبات',
+        heroLive: "حجم التداول اليوم · مباشر",
+        heroVolume: 'حجم التداول · ',
+        order: 'طلب',
+        orders: 'طلبات',
+        avgBasket: 'متوسط السلة',
+        liveSync: 'مزامنة مع الساعة التجريبية · تحديث كل 3 ثوانٍ',
+        consolidated: 'بيانات موحدة',
+        all: 'الكل',
+        cards: 'البطاقات',
+        mobile: 'الجوال',
+        cash: 'نقدًا',
+        refunds: 'المبالغ المستردة',
+        reconciliation: 'التسوية',
+        fraud: 'مكافحة الاحتيال',
+        filterActive: 'فلتر نشط:',
+        ordersDisplayed: 'طلبات معروضة',
+        orderDisplayed: 'طلب معروض',
+        on: 'من',
+        clear: 'مسح',
+        noOrders: 'لا توجد طلبات لهذا الفلتر.',
+        olderOrdersHidden: 'طلبات أقدم مخفية',
+        olderOrderHidden: 'طلب أقدم مخفي',
+        showAll: 'عرض الكل',
+        settlementOf: 'تسوية',
+        reconciled: 'تمت التسوية',
+        grossVolume: 'الحجم الإجمالي',
+        visaMcInterchange: 'رسوم فيزا/ماستركارد',
+        kiwiNetworkFees: 'رسوم شبكة كيوي',
+        vatOnFees: 'الضريبة على الرسوم',
+        netPaidOut: 'صافي المبلغ المدفوع',
+        savingsVsCmi: 'التوفير مقابل CMI:',
+        today: 'اليوم',
+        vs: 'مقابل',
+        openAlerts: 'تنبيهات مفتوحة',
+        model: 'نموذج',
+        slidingWindow: 'نافذة منزلقة',
+        examine: 'فحص',
+        markLegitimate: 'وضع علامة كمشروع',
+        blockCard: 'حظر البطاقة',
+        paid: 'مدفوع',
+        pending: 'قيد الانتظار',
+        refunded: 'مسترد',
+        hour: 'الوقت',
+        method: 'الطريقة',
+        client: 'العميل',
+        amount: 'المبلغ',
+        tip: 'الإكرامية',
+        status: 'الحالة',
+    }
+  };
+
+  const RANGE_LABEL_STR = {
+    fr: { aujourdhui: "Aujourd'hui", hier: 'Hier', sept: '7 derniers jours', trente: '30 derniers jours' },
+    en: { aujourdhui: "Today", hier: 'Yesterday', sept: 'Last 7 days', trente: 'Last 30 days' },
+    ar: { aujourdhui: "اليوم", hier: 'أمس', sept: 'آخر 7 أيام', trente: 'آخر 30 يومًا' },
+  };
   const venue = (window.KiwiVenue?.getVenue?.()) || 'cafeAtlas';
   const DAILY_TARGET = ({ cafeAtlas: 215, maisonMansour: 48, spaBahia: 22 })[venue] || 215;
+
+  const lang = trLang();
+  const T = TX_STR[lang] || TX_STR.fr;
 
   /* Deterministic PRNG (Mulberry32 + FNV-1a seed). Keeps the day's order
    * pool stable across drawer opens — closing and reopening shows the same
@@ -82,9 +252,9 @@ handlers['nav-transactions'] = () => {
   }
 
   const METHODS = {
-    Cartes:    [{ n: 'Visa', mask: '4291' }, { n: 'Mastercard', mask: '7820' }, { n: 'Visa', mask: '0043' }, { n: 'Visa', mask: '8124' }, { n: 'Mastercard', mask: '1209' }, { n: 'Mastercard', mask: '6670' }],
-    Mobile:    [{ n: 'Kiwi Tap', mask: 'NFC' }, { n: 'Kiwi Wallet', mask: 'QR' }, { n: 'Apple Pay', mask: 'NFC' }, { n: 'Google Pay', mask: 'NFC' }],
-    'Espèces': [{ n: 'Espèces', mask: '—' }],
+    [T.cards]:    [{ n: 'Visa', mask: '4291' }, { n: 'Mastercard', mask: '7820' }, { n: 'Visa', mask: '0043' }, { n: 'Visa', mask: '8124' }, { n: 'Mastercard', mask: '1209' }, { n: 'Mastercard', mask: '6670' }],
+    [T.mobile]:    [{ n: 'Kiwi Tap', mask: 'NFC' }, { n: 'Kiwi Wallet', mask: 'QR' }, { n: 'Apple Pay', mask: 'NFC' }, { n: 'Google Pay', mask: 'NFC' }],
+    [T.cash]: [{ n: T.cash, mask: '—' }],
   };
   const CUSTOMERS = ['Karim B.', 'Sara L.', 'Youssef A.', 'Nawal K.', 'Hassan J.', 'Imane M.', 'Mehdi R.', 'Fatima Z.', 'Rachid O.', 'Lina S.', 'Ahmed T.', 'Yasmine H.', 'Omar F.', 'Naima Z.', 'Tarik B.', 'Aïcha M.', 'Walid K.', 'Soukaina A.', 'Reda H.', 'Salma F.', 'Hicham D.', 'Mariam S.', 'Brahim K.', 'Latifa O.', 'Khalid R.'];
 
@@ -96,7 +266,7 @@ handlers['nav-transactions'] = () => {
     const pool = [];
     for (let i = 0; i < size; i++) {
       const r = rng();
-      const cat = r < 0.66 ? 'Cartes' : r < 0.92 ? 'Mobile' : 'Espèces';
+      const cat = r < 0.66 ? T.cards : r < 0.92 ? T.mobile : T.cash;
       const opts = METHODS[cat];
       const m = opts[Math.floor(rng() * opts.length)];
       const amt = Math.round((40 + rng() * 360) * 100) / 100;
@@ -128,7 +298,7 @@ handlers['nav-transactions'] = () => {
         id: `KW-RB-${(40000 + i).toString().padStart(5, '0')}`,
         t: src.t, n: src.n, mask: src.mask, c: src.c,
         amt: -Math.round(src.amt * (0.4 + rng() * 0.5) * 100) / 100,
-        tip: 0, status: 'ref', cat: 'Remboursements', simIdx: src.simIdx,
+        tip: 0, status: 'ref', cat: T.refunds, simIdx: src.simIdx,
       });
     }
     return out;
@@ -146,7 +316,7 @@ handlers['nav-transactions'] = () => {
   const fmt0 = (n) => Math.round(n).toLocaleString('fr-FR').replace(/,/g, ' ');
 
   /* Drawer state */
-  let activeFilter = 'Toutes';
+  let activeFilter = T.all;
   let activeRange  = 'aujourdhui';
   let activeTab    = 'flux';
   let expanded     = false;
@@ -170,11 +340,11 @@ handlers['nav-transactions'] = () => {
     return buildRefunds(base.length ? base : POOL.aujourdhui, n);
   }
 
-  const RANGE_LABEL = { aujourdhui: "Aujourd'hui", hier: 'Hier', sept: '7 derniers jours', trente: '30 derniers jours' };
-  const FILTERS     = ['Toutes', 'Cartes', 'Mobile', 'Espèces', 'Remboursements'];
+  const RANGE_LABEL = RANGE_LABEL_STR[lang] || RANGE_LABEL_STR.fr;
+  const FILTERS     = [T.all, T.cards, T.mobile, T.cash, T.refunds];
 
   let host;
-  const dr = drawer({ title: 'Commandes', subtitle: '…', width: 920, body: `<div data-tx-host></div>` });
+  const dr = drawer({ title: T.title, subtitle: '…', width: 920, body: `<div data-tx-host></div>` });
   host = dr.el.querySelector('[data-tx-host]');
 
   function render() {
@@ -188,25 +358,25 @@ handlers['nav-transactions'] = () => {
     const heroAvg    = heroTotal > 0 ? Math.round(heroSum / heroTotal) : 0;
 
     /* ─── TABLE = filtered subset ─── */
-    const list = activeFilter === 'Remboursements' ? refunds
-               : activeFilter === 'Toutes'         ? baseRows
+    const list = activeFilter === T.refunds ? refunds
+               : activeFilter === T.all         ? baseRows
                : baseRows.filter(r => r.cat === activeFilter);
     const total   = list.length;
     const sumAmt  = list.reduce((s, r) => s + r.amt, 0);
     const live    = activeRange === 'aujourdhui';
-    const filtered = activeFilter !== 'Toutes';
+    const filtered = activeFilter !== T.all;
     const sortedDesc = list.slice().sort((a, b) => b.simIdx - a.simIdx || b.t.localeCompare(a.t));
     const limit   = expanded ? 500 : 80;
     const display = sortedDesc.slice(0, limit);
     const hidden  = Math.max(0, total - display.length);
 
-    const tabs = [['flux','Toutes'], ['rec','Réconciliation'], ['fra','Anti-fraude']];
+    const tabs = [['flux',T.all], ['rec',T.reconciliation], ['fra',T.fraud]];
 
     host.innerHTML = `
       <div class="p-hero">
-        <div class="l">${live ? "VOLUME AUJOURD'HUI · LIVE" : 'VOLUME · ' + RANGE_LABEL[activeRange].toUpperCase()}</div>
+        <div class="l">${live ? T.heroLive : T.heroVolume + RANGE_LABEL[activeRange].toUpperCase()}</div>
         <div class="big">${fmt0(Math.abs(heroSum))} <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-        <div class="sub">${heroTotal} commande${heroTotal > 1 ? 's' : ''} · panier moyen ${heroAvg} MAD · ${live ? 'sync horloge démo · refresh 3 s' : 'données consolidées'}</div>
+        <div class="sub">${heroTotal} ${heroTotal > 1 ? T.orders : T.order} · ${T.avgBasket} ${heroAvg} MAD · ${live ? T.liveSync : T.consolidated}</div>
       </div>
 
       <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">
@@ -219,8 +389,8 @@ handlers['nav-transactions'] = () => {
 
       ${filtered ? `
         <div style="background:rgba(125,242,176,0.10); border:1px solid rgba(11,110,79,0.16); padding:8px 14px; border-radius:9px; margin-bottom:12px; font-size:12.5px; color:var(--riad); display:flex; align-items:center; justify-content:space-between; gap:10px;">
-          <span>Filtre actif : <b>${activeFilter}</b> · ${total} commande${total > 1 ? 's' : ''} affichée${total > 1 ? 's' : ''}${activeFilter !== 'Remboursements' ? ` sur ${heroTotal}` : ''} · ${fmt0(Math.abs(sumAmt))} MAD</span>
-          <button class="kb ghost" data-action="tx-filter" data-arg="Toutes" style="padding:4px 10px; font-size:11.5px;">Effacer</button>
+          <span>${T.filterActive} <b>${activeFilter}</b> · ${total} ${total > 1 ? T.ordersDisplayed : T.orderDisplayed}${activeFilter !== T.refunds ? ` ${T.on} ${heroTotal}` : ''} · ${fmt0(Math.abs(sumAmt))} MAD</span>
+          <button class="kb ghost" data-action="tx-filter" data-arg="${T.all}" style="padding:4px 10px; font-size:11.5px;">${T.clear}</button>
         </div>
       ` : ''}
 
@@ -233,10 +403,10 @@ handlers['nav-transactions'] = () => {
 
       <div data-tx-pane="flux" style="display:${activeTab === 'flux' ? '' : 'none'};">
         ${display.length === 0 ? `
-          <div style="padding:40px 16px; text-align:center; color:var(--n-500); font-size:13px;">Aucune commande pour ce filtre.</div>
+          <div style="padding:40px 16px; text-align:center; color:var(--n-500); font-size:13px;">${T.noOrders}</div>
         ` : `
           <table class="p-table">
-            <thead><tr><th>HEURE</th><th>MÉTHODE</th><th>CLIENT</th><th class="right">MONTANT</th><th class="right">POURBOIRE</th><th>STATUT</th></tr></thead>
+            <thead><tr><th>${T.hour.toUpperCase()}</th><th>${T.method.toUpperCase()}</th><th>${T.client.toUpperCase()}</th><th class="right">${T.amount.toUpperCase()}</th><th class="right">${T.tip.toUpperCase()}</th><th>${T.status.toUpperCase()}</th></tr></thead>
             <tbody>
               ${display.map(r => `
                 <tr data-action="tx-detail" data-arg="${r.id}" style="cursor:pointer;">
@@ -245,15 +415,15 @@ handlers['nav-transactions'] = () => {
                   <td style="color:var(--n-600);">${r.c}</td>
                   <td class="mono right" style="${r.amt < 0 ? 'color:var(--danger);' : ''}">${r.amt < 0 ? '−' : ''}${fmt2(r.amt)}</td>
                   <td class="mono right" style="color:${r.tip > 0 ? 'var(--success)' : 'var(--n-400)'};">${r.tip > 0 ? '+' + fmt2(r.tip) : '—'}</td>
-                  <td><span class="chip ${r.status === 'ok' ? 'ok' : 'pend'}">${r.status === 'ok' ? 'Réglé' : r.status === 'ref' ? 'Remboursé' : 'Attente'}</span></td>
+                  <td><span class="chip ${r.status === 'ok' ? 'ok' : 'pend'}">${r.status === 'ok' ? T.paid : r.status === 'ref' ? T.refunded : T.pending}</span></td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
           ${hidden > 0 ? `
             <div style="text-align:center; padding:14px; color:var(--n-500); font-size:12px;">
-              ${hidden} commande${hidden > 1 ? 's' : ''} plus ancienne${hidden > 1 ? 's' : ''} masquée${hidden > 1 ? 's' : ''} ·
-              <a href="#" data-action="tx-show-all" style="color:var(--atlas); font-weight:500;">Tout afficher</a>
+              ${hidden} ${hidden > 1 ? T.olderOrdersHidden : T.olderOrderHidden} ·
+              <a href="#" data-action="tx-show-all" style="color:var(--atlas); font-weight:500;">${T.showAll}</a>
             </div>
           ` : ''}
         `}
@@ -261,26 +431,26 @@ handlers['nav-transactions'] = () => {
 
       <div data-tx-pane="rec" style="display:${activeTab === 'rec' ? '' : 'none'};">
         <div class="p-card" style="background:#fff;">
-          <div class="head"><h4>Règlement du 28 avril</h4><span class="chip ok">Rapproché</span></div>
+          <div class="head"><h4>${T.settlementOf} 28 avril</h4><span class="chip ok">${T.reconciled}</span></div>
           <table class="p-table" style="margin-top:6px;">
             <tbody>
-              <tr><td>Volume brut · 174 commandes</td><td class="mono right">+30 482,50 MAD</td></tr>
-              <tr><td style="color:var(--n-500);">Interchange Visa/MC (1,18 %)</td><td class="mono right" style="color:var(--danger);">−359,69 MAD</td></tr>
-              <tr><td style="color:var(--n-500);">Frais réseau Kiwi (0,30 %)</td><td class="mono right" style="color:var(--danger);">−91,45 MAD</td></tr>
-              <tr><td style="color:var(--n-500);">TVA sur frais</td><td class="mono right" style="color:var(--danger);">−90,23 MAD</td></tr>
-              <tr style="border-top:2px solid var(--ink);"><td><b>Net versé BMCE ••3291</b></td><td class="mono right"><b style="color:var(--atlas); font-size:15px;">29 941,13 MAD</b></td></tr>
+              <tr><td>${T.grossVolume} · 174 ${T.orders}</td><td class="mono right">+30 482,50 MAD</td></tr>
+              <tr><td style="color:var(--n-500);">${T.visaMcInterchange} (1,18 %)</td><td class="mono right" style="color:var(--danger);">−359,69 MAD</td></tr>
+              <tr><td style="color:var(--n-500);">${T.kiwiNetworkFees} (0,30 %)</td><td class="mono right" style="color:var(--danger);">−91,45 MAD</td></tr>
+              <tr><td style="color:var(--n-500);">${T.vatOnFees}</td><td class="mono right" style="color:var(--danger);">−90,23 MAD</td></tr>
+              <tr style="border-top:2px solid var(--ink);"><td><b>${T.netPaidOut} BMCE ••3291</b></td><td class="mono right"><b style="color:var(--atlas); font-size:15px;">29 941,13 MAD</b></td></tr>
             </tbody>
           </table>
           <div style="margin-top:14px; padding:10px 14px; background:var(--mint-soft, rgba(125,242,176,0.18)); border-radius:9px; font-size:12.5px; color:var(--riad);">
-            <b>Économie vs CMI :</b> +247 MAD ce jour · 1,18 % vs 2,0 % CMI
+            <b>${T.savingsVsCmi}</b> +247 MAD ${T.today} · 1,18 % ${T.vs} 2,0 % CMI
           </div>
         </div>
       </div>
 
       <div data-tx-pane="fra" style="display:${activeTab === 'fra' ? '' : 'none'};">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
-          <span class="chip" style="background:#FFF4DD; color:#8A6210;">2 alertes ouvertes</span>
-          <span style="font-size:11.5px; color:var(--n-500);">Modèle : Kiwi Sentinel · 30 j fenêtre glissante</span>
+          <span class="chip" style="background:#FFF4DD; color:#8A6210;">2 ${T.openAlerts}</span>
+          <span style="font-size:11.5px; color:var(--n-500);">${T.model}: Kiwi Sentinel · 30 j ${T.slidingWindow}</span>
         </div>
         ${[
           { t: 'Visa •• 0043 — 3ᵉ remboursement cette semaine', d: 'Pattern récurrent · 240 MAD à chaque fois · adresse IP changeante', risk: 'Élevé' },
@@ -295,9 +465,9 @@ handlers['nav-transactions'] = () => {
               <span class="chip ${a.risk === 'Élevé' ? 'pend' : 'neutral'}">${a.risk}</span>
             </div>
             <div style="display:flex; gap:6px; margin-top:8px;">
-              <button class="kb ghost" data-action="fra-investigate" style="padding:6px 10px; font-size:12px;">Examiner</button>
-              <button class="kb ghost" data-action="fra-allow" style="padding:6px 10px; font-size:12px;">Marquer légitime</button>
-              <button class="kb atlas" data-action="fra-block" style="padding:6px 10px; font-size:12px;">Bloquer la carte</button>
+              <button class="kb ghost" data-action="fra-investigate" style="padding:6px 10px; font-size:12px;">${T.examine}</button>
+              <button class="kb ghost" data-action="fra-allow" style="padding:6px 10px; font-size:12px;">${T.markLegitimate}</button>
+              <button class="kb atlas" data-action="fra-block" style="padding:6px 10px; font-size:12px;">${T.blockCard}</button>
             </div>
           </div>
         `).join('')}
@@ -311,7 +481,7 @@ handlers['nav-transactions'] = () => {
 
     /* Live subtitle */
     const subEl = dr.el.querySelector('.kiwi-drawer-head p');
-    if (subEl) subEl.textContent = `${heroTotal} commande${heroTotal > 1 ? 's' : ''} · ${fmt0(Math.abs(heroSum))} MAD · ${RANGE_LABEL[activeRange]}`;
+    if (subEl) subEl.textContent = `${heroTotal} ${heroTotal > 1 ? T.orders : T.order} · ${fmt0(Math.abs(heroSum))} MAD · ${RANGE_LABEL[activeRange]}`;
   }
 
   render();
@@ -325,19 +495,22 @@ handlers['nav-transactions'] = () => {
   };
   handlers['tx-daterange'] = (el) => {
     if (!el) return;
+    const lang = trLang();
+    const T = TX_STR[lang] || TX_STR.fr;
+    const RANGE_LABEL = RANGE_LABEL_STR[lang] || RANGE_LABEL_STR.fr;
     menu(el, [
-      { label: "Aujourd'hui",       active: activeRange === 'aujourdhui', onClick: () => { activeRange = 'aujourdhui'; activeFilter = 'Toutes'; expanded = false; render(); } },
-      { label: 'Hier',               active: activeRange === 'hier',       onClick: () => { activeRange = 'hier';       activeFilter = 'Toutes'; expanded = false; render(); } },
+      { label: RANGE_LABEL.aujourdhui,       active: activeRange === 'aujourdhui', onClick: () => { activeRange = 'aujourdhui'; activeFilter = T.all; expanded = false; render(); } },
+      { label: RANGE_LABEL.hier,               active: activeRange === 'hier',       onClick: () => { activeRange = 'hier';       activeFilter = T.all; expanded = false; render(); } },
       { sep: true },
-      { label: '7 derniers jours',   active: activeRange === 'sept',       onClick: () => { activeRange = 'sept';       activeFilter = 'Toutes'; expanded = false; render(); } },
-      { label: '30 derniers jours',  active: activeRange === 'trente',     onClick: () => { activeRange = 'trente';     activeFilter = 'Toutes'; expanded = false; render(); } },
+      { label: RANGE_LABEL.sept,   active: activeRange === 'sept',       onClick: () => { activeRange = 'sept';       activeFilter = T.all; expanded = false; render(); } },
+      { label: RANGE_LABEL.trente,  active: activeRange === 'trente',     onClick: () => { activeRange = 'trente';     activeFilter = T.all; expanded = false; render(); } },
     ]);
   };
   handlers['tx-show-all'] = () => { expanded = true; render(); };
-  handlers['tx-detail']   = (_el, id) => toast(`Commande ${id || ''} · détails`, { type: 'info', duration: 1500 });
-  if (!handlers['fra-investigate']) handlers['fra-investigate'] = () => toast('Dossier ouvert · équipe risque notifiée', { type: 'info', duration: 1800 });
-  if (!handlers['fra-allow'])       handlers['fra-allow']       = () => toast('Marqué légitime · modèle mis à jour', { type: 'success', duration: 1600 });
-  if (!handlers['fra-block'])       handlers['fra-block']       = () => toast('Carte bloquée · client contacté', { type: 'success', duration: 1800 });
+  handlers['tx-detail']   = (_el, id) => toast(`${T.title} ${id || ''} · ${T.details}`, { type: 'info', duration: 1500 });
+  if (!handlers['fra-investigate']) handlers['fra-investigate'] = () => toast(T.dossierOuvert, { type: 'info', duration: 1800 });
+  if (!handlers['fra-allow'])       handlers['fra-allow']       = () => toast(T.marqueLegitime, { type: 'success', duration: 1600 });
+  if (!handlers['fra-block'])       handlers['fra-block']       = () => toast(T.carteBloquee, { type: 'success', duration: 1800 });
 
   /* Live updates from the demo clock (only when viewing today). */
   if (window.KiwiDemoClock?.subscribe) {
@@ -361,6 +534,110 @@ handlers['nav-transactions'] = () => {
  *
  * "Ajouter" and "Demander un terminal" both open the new catalog drawer.
  * ─────────────────────────────────────────────────────────────────────────── */
+const TERMINAUX_STR = {
+    fr: {
+        loaned: 'Prêté · Kiwi Pro',
+        purchased: 'Acheté · 03/2025',
+        replacement: 'Remplacement dû',
+        title: 'Parc terminaux',
+        subtitle: (active, total) => `${active} / ${total} actifs · uptime 24h 94,2 % · 273 tx aujourd'hui`,
+        heroTitle: 'ÉTAT DU PARC · CAFÉ ATLAS',
+        online: 'en ligne',
+        heroSubtitle: 'Batterie moy. 78 % · firmware à jour majoritaire · 1 mise à jour disponible',
+        deployedDevices: 'Appareils déployés',
+        add: 'Ajouter',
+        updateAvailable: 'MAJ disponible',
+        onlineStatus: 'En ligne',
+        offlineStatus: 'Hors-ligne',
+        txToday: 'tx aujourd\'hui',
+        testTx: 'Tx test',
+        diagnose: 'Diagnostiquer',
+        manage: 'Gérer',
+        beats: 'PULSATIONS · 30 MIN',
+        battery: 'BATTERIE',
+        lastTx: 'DERNIÈRE TX',
+        beforeDisconnect: 'avant déconnexion',
+        orderNewTerminal: 'Commander un nouveau terminal',
+        orderNewTerminalDesc: 'KiwiPad pro, KiwiPad cashless ou KiwiOrders pro · livraison 48h Casablanca',
+        requestTerminal: 'Demander un terminal',
+        testTxSent: 'Tx test envoyée',
+        diagOpen: 'Diagnostic ... · ouvert',
+        comptoir: 'Comptoir',
+        salle: 'Salle',
+        terrasse: 'Terrasse',
+        cuisine: 'Cuisine',
+        wifi: 'Wi-Fi',
+        fourG: '4G',
+    },
+    en: {
+        loaned: 'Loaned · Kiwi Pro',
+        purchased: 'Purchased · 03/2025',
+        replacement: 'Replacement due',
+        title: 'Terminal Fleet',
+        subtitle: (active, total) => `${active} / ${total} active · 24h uptime 94.2% · 273 tx today`,
+        heroTitle: 'FLEET STATUS · CAFÉ ATLAS',
+        online: 'online',
+        heroSubtitle: 'Avg. battery 78% · majority firmware up-to-date · 1 update available',
+        deployedDevices: 'Deployed Devices',
+        add: 'Add',
+        updateAvailable: 'Update available',
+        onlineStatus: 'Online',
+        offlineStatus: 'Offline',
+        txToday: 'tx today',
+        testTx: 'Test Tx',
+        diagnose: 'Diagnose',
+        manage: 'Manage',
+        beats: 'HEARTBEATS · 30 MIN',
+        battery: 'BATTERY',
+        lastTx: 'LAST TX',
+        beforeDisconnect: 'before disconnect',
+        orderNewTerminal: 'Order a new terminal',
+        orderNewTerminalDesc: 'KiwiPad pro, KiwiPad cashless or KiwiOrders pro · 48h delivery in Casablanca',
+        requestTerminal: 'Request a terminal',
+        testTxSent: 'Test tx sent',
+        diagOpen: 'Diagnosis ... · open',
+        comptoir: 'Counter',
+        salle: 'Floor',
+        terrasse: 'Terrace',
+        cuisine: 'Kitchen',
+        wifi: 'Wi-Fi',
+        fourG: '4G',
+    },
+    ar: {
+        loaned: 'معار · كيوي برو',
+        purchased: 'تم الشراء · 03/2025',
+        replacement: 'يجب استبداله',
+        title: 'أسطول الأجهزة',
+        subtitle: (active, total) => `${active} / ${total} نشط · وقت التشغيل 24 ساعة 94.2% · 273 معاملة اليوم`,
+        heroTitle: 'حالة الأسطول · مقهى أطلس',
+        online: 'متصل',
+        heroSubtitle: 'متوسط البطارية 78% · معظم البرامج الثابتة محدثة · 1 تحديث متوفر',
+        deployedDevices: 'الأجهزة المنشورة',
+        add: 'إضافة',
+        updateAvailable: 'تحديث متوفر',
+        onlineStatus: 'متصل',
+        offlineStatus: 'غير متصل',
+        txToday: 'معاملة اليوم',
+        testTx: 'اختبار معاملة',
+        diagnose: 'تشخيص',
+        manage: 'إدارة',
+        beats: 'النبضات · 30 دقيقة',
+        battery: 'البطارية',
+        lastTx: 'آخر معاملة',
+        beforeDisconnect: 'قبل انقطاع الاتصال',
+        orderNewTerminal: 'طلب جهاز جديد',
+        orderNewTerminalDesc: 'KiwiPad pro, KiwiPad cashless أو KiwiOrders pro · توصيل خلال 48 ساعة في الدار البيضاء',
+        requestTerminal: 'طلب جهاز',
+        testTxSent: 'تم إرسال معاملة اختبار',
+        diagOpen: 'تشخيص ... · مفتوح',
+        comptoir: 'الكاونتر',
+        salle: 'القاعة',
+        terrasse: 'الشرفة',
+        cuisine: 'المطبخ',
+        wifi: 'Wi-Fi',
+        fourG: '4G',
+    },
+};
 handlers['nav-terminaux'] = () => {
   // sparkline helper — 30 points, 0..1 normalized
   const spark = (arr, color = 'var(--atlas)') => {
@@ -378,56 +655,57 @@ handlers['nav-terminaux'] = () => {
 
   /* The Café Atlas fleet — KiwiPad pro / KiwiPad cashless / KiwiPad / KiwiOrders pro.
    * `img` points to the gamification PNG; the catalog drawer uses the real photo. */
+  const T = TERMINAUX_STR[trLang()] || TERMINAUX_STR.fr;
   const terms = [
     {
-      id: 'KP-PRO-2831', name: 'KiwiPad pro', loc: 'Comptoir',
+      id: 'KP-PRO-2831', name: 'KiwiPad pro', loc: T.comptoir,
       img: 'Hardware_pictures/Hardware_gamefication4.png',
-      state: 'on', net: 'Wi-Fi', batt: 87, battStart: 96,
+      state: 'on', net: T.wifi, batt: 87, battStart: 96,
       fw: '4.2.1', fwUpdate: false, txDay: 87,
-      life: 'loaned', lifeLabel: 'Prêté · Kiwi Pro',
+      life: 'loaned', lifeLabel: T.loaned,
       spark: beat(0.7),
     },
     {
-      id: 'KP-CL-1208', name: 'KiwiPad cashless', loc: 'Salle',
+      id: 'KP-CL-1208', name: 'KiwiPad cashless', loc: T.salle,
       img: 'Hardware_pictures/Hardware_gamefication2.png',
-      state: 'on', net: '4G', batt: 63, battStart: 92,
+      state: 'on', net: T.fourG, batt: 63, battStart: 92,
       fw: '2.0.4', fwUpdate: true, txDay: 54,
-      life: 'purchased', lifeLabel: 'Acheté · 03/2025',
+      life: 'purchased', lifeLabel: T.purchased,
       spark: beat(0.55),
     },
     {
-      id: 'KP-PRO-2832', name: 'KiwiPad pro', loc: 'Terrasse',
+      id: 'KP-PRO-2832', name: 'KiwiPad pro', loc: T.terrasse,
       img: 'Hardware_pictures/Hardware_gamefication4.png',
-      state: 'off', net: 'Hors-ligne', batt: 64, battStart: 88,
+      state: 'off', net: T.offlineStatus, batt: 64, battStart: 88,
       fw: '4.2.1', fwUpdate: false, txDay: 0,
-      life: 'replacement', lifeLabel: 'Remplacement dû',
+      life: 'replacement', lifeLabel: T.replacement,
       spark: beat(0.05),
     },
     {
-      id: 'KO-PRO-4501', name: 'KiwiOrders pro', loc: 'Cuisine',
+      id: 'KO-PRO-4501', name: 'KiwiOrders pro', loc: T.cuisine,
       img: 'Hardware_pictures/Hardware_KDSgamefication1.png',
-      state: 'on', net: 'Wi-Fi', batt: 100, battStart: 100,
+      state: 'on', net: T.wifi, batt: 100, battStart: 100,
       fw: '3.1.0', fwUpdate: false, txDay: 132,
-      life: 'loaned', lifeLabel: 'Prêté · Kiwi Pro',
+      life: 'loaned', lifeLabel: T.loaned,
       spark: beat(0.78),
     },
   ];
   const lifeChip = { loaned: 'ok', purchased: 'neutral', replacement: 'pend' };
 
   drawer({
-    title: 'Parc terminaux',
-    subtitle: `${v_count_active(terms)} / ${terms.length} actifs · uptime 24h 94,2 % · 273 tx aujourd'hui`,
+    title: T.title,
+    subtitle: T.subtitle(v_count_active(terms), terms.length),
     width: 780,
     body: `
       <div class="p-hero">
-        <div class="l">ÉTAT DU PARC · CAFÉ ATLAS</div>
-        <div class="big">${v_count_active(terms)} / ${terms.length} <span style="font-size:18px; opacity:0.7;">en ligne</span></div>
-        <div class="sub">Batterie moy. 78 % · firmware à jour majoritaire · 1 mise à jour disponible</div>
+        <div class="l">${T.heroTitle}</div>
+        <div class="big">${v_count_active(terms)} / ${terms.length} <span style="font-size:18px; opacity:0.7;">${T.online}</span></div>
+        <div class="sub">${T.heroSubtitle}</div>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase;">Appareils déployés</div>
-        <button class="kb ghost" data-action="add-terminal" style="padding:6px 12px; font-size:12px; gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Ajouter</button>
+        <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase;">${T.deployedDevices}</div>
+        <button class="kb ghost" data-action="add-terminal" style="padding:6px 12px; font-size:12px; gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>${T.add}</button>
       </div>
 
       ${terms.map(t => `
@@ -438,46 +716,46 @@ handlers['nav-terminaux'] = () => {
             </div>
             <div>
               <div style="font-weight:600; font-size:14.5px; letter-spacing:-0.005em;">${t.name} · ${t.loc}</div>
-              <div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:2px;">S/N ${t.id} · firmware ${t.fw}${t.fwUpdate ? ' · <span class="chip pend" style="padding:1px 7px; font-size:10px; margin-left:4px;">MAJ disponible</span>' : ''}</div>
+              <div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:2px;">S/N ${t.id} · firmware ${t.fw}${t.fwUpdate ? ` · <span class="chip pend" style="padding:1px 7px; font-size:10px; margin-left:4px;">${T.updateAvailable}</span>` : ''}</div>
               <div style="display:flex; gap:14px; margin-top:8px; font-size:11.5px; color:var(--n-600); flex-wrap:wrap;">
-                <span style="display:inline-flex; align-items:center; gap:5px;"><i style="width:6px; height:6px; border-radius:50%; background:${t.state==='on'?'var(--success)':'var(--danger)'};"></i>${t.state==='on'?`En ligne · ${t.net}`:'Hors-ligne · 09:18'}</span>
-                <span>${t.txDay} tx aujourd'hui</span>
+                <span style="display:inline-flex; align-items:center; gap:5px;"><i style="width:6px; height:6px; border-radius:50%; background:${t.state==='on'?'var(--success)':'var(--danger)'};"></i>${t.state==='on'?`${T.onlineStatus} · ${t.net}`:`${T.offlineStatus} · 09:18`}</span>
+                <span>${t.txDay} ${T.txToday}</span>
                 <span class="chip ${lifeChip[t.life]}" style="padding:1px 8px; font-size:10px;">${t.lifeLabel}</span>
               </div>
             </div>
             <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
-              <button class="kb ghost" data-action="term-test" data-arg="${t.id}" style="padding:5px 10px; font-size:11.5px; gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>Tx test</button>
-              <button class="kb ${t.state==='off'?'atlas':'ghost'}" data-action="term-manage" data-arg="${t.id}" style="padding:5px 10px; font-size:11.5px;">${t.state==='off'?'Diagnostiquer':'Gérer'}</button>
+              <button class="kb ghost" data-action="term-test" data-arg="${t.id}" style="padding:5px 10px; font-size:11.5px; gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>${T.testTx}</button>
+              <button class="kb ${t.state==='off'?'atlas':'ghost'}" data-action="term-manage" data-arg="${t.id}" style="padding:5px 10px; font-size:11.5px;">${t.state==='off'?T.diagnose:T.manage}</button>
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; padding-top:12px; border-top:1px solid var(--n-200);">
             <div>
-              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">PULSATIONS · 30 MIN</div>
+              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.beats}</div>
               ${spark(t.spark, t.state === 'off' ? 'var(--danger)' : 'var(--atlas)')}
             </div>
             <div>
-              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">BATTERIE · ${t.batt} %</div>
+              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.battery} · ${t.batt} %</div>
               ${battCurve(t.battStart / 100, t.batt / 100)}
             </div>
             <div>
-              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">DERNIÈRE TX</div>
+              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.lastTx}</div>
               <div style="font-family:var(--mono); font-weight:500; font-size:13px;">${t.state==='on'?'14:'+(28+Math.floor(Math.random()*9)):'09:18'}</div>
-              <div style="font-size:11px; color:var(--n-500); margin-top:2px;">${t.state==='on'?Math.round(40+Math.random()*200)+',00 MAD':'avant déconnexion'}</div>
+              <div style="font-size:11px; color:var(--n-500); margin-top:2px;">${t.state==='on'?Math.round(40+Math.random()*200)+',00 MAD':T.beforeDisconnect}</div>
             </div>
           </div>
         </div>
       `).join('')}
 
       <div style="padding:18px; margin-top:6px; background:var(--paper-soft); border-radius:14px; border:1px dashed var(--n-300); text-align:center;">
-        <div style="font-weight:600; margin-bottom:4px; font-size:14.5px;">Commander un nouveau terminal</div>
-        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:12px;">KiwiPad pro, KiwiPad cashless ou KiwiOrders pro · livraison 48h Casablanca</div>
-        <button class="kb atlas" data-action="add-terminal" style="padding:9px 18px;">Demander un terminal</button>
+        <div style="font-weight:600; margin-bottom:4px; font-size:14.5px;">${T.orderNewTerminal}</div>
+        <div style="font-size:12.5px; color:var(--n-500); margin-bottom:12px;">${T.orderNewTerminalDesc}</div>
+        <button class="kb atlas" data-action="add-terminal" style="padding:9px 18px;">${T.requestTerminal}</button>
       </div>
     `,
   });
 
-  if (!handlers['term-test'])   handlers['term-test']   = (_el, id) => toast(`Tx test envoyée · ${(id||'').slice(-4)}`, { type: 'success', duration: 1800 });
-  if (!handlers['term-manage']) handlers['term-manage'] = (_el, id) => toast(`Diagnostic ${(id||'').slice(-4)} · ouvert`, { type: 'info', duration: 1600 });
+  if (!handlers['term-test'])   handlers['term-test']   = (_el, id) => toast(`${T.testTxSent} · ${(id||'').slice(-4)}`, { type: 'success', duration: 1800 });
+  if (!handlers['term-manage']) handlers['term-manage'] = (_el, id) => toast(T.diagOpen((id||'').slice(-4)), { type: 'info', duration: 1600 });
 
   /* "Ajouter" + "Demander un terminal" both open the catalog drawer. */
   handlers['add-terminal'] = () => handlers['terminal-catalog']?.();
@@ -491,38 +769,119 @@ handlers['nav-terminaux'] = () => {
  * 5 products on a 2-column grid. Each card: hero photo, name, price tag,
  * tagline, description, and a "Commander" CTA that toasts a confirmation.
  * ─────────────────────────────────────────────────────────────────────────── */
+const CATALOG_STR = {
+    fr: {
+        kiwipadProTag: 'Comptoir modulaire · flagship 2026',
+        kiwipadProDesc: 'Écran tactile sur pied réglable, imprimante de tickets, tiroir-caisse intégré, lecteur de carte sans fil. Design discret, modules détachables. Le poste de référence Kiwi.',
+        kiwiordersProTag: 'KDS · cuisine + bar + stations',
+        kiwiordersProDesc: 'Écran KDS sur bras articulé avec imprimante de tickets. Pour cuisine, bar, BBQ ou toute station de préparation reliée à la caisse principale.',
+        kiwipadCashlessTag: '100 % cashless · tablette + lecteur',
+        kiwipadCashlessDesc: 'Tablette tactile + lecteur de carte + imprimante. Pour commerces 100 % cashless sans gestion d\'espèces ni tiroir-caisse.',
+        title: 'Demander un terminal',
+        subtitle: 'Catalogue Kiwi · livraison 48h Casablanca · paiement échelonné disponible',
+        heroTitle: 'CATALOGUE HARDWARE · KIWI 2026',
+        heroModels: '3 modèles',
+        heroKds: 'dont 1 KDS',
+        heroSubtitle: "Le KiwiPad pro et le KiwiOrders pro sont prêtés gratuitement avec l'abonnement Kiwi Pro · les modèles additionnels et upgrades sont facturés.",
+        flagship: 'FLAGSHIP 2026',
+        order: 'Commander',
+        proProgram: 'PROGRAMME PRO',
+        proProgramTitle: '1 KiwiPad pro + 1 KiwiOrders pro offerts',
+        proProgramDesc: "Inclus dans l'abonnement Kiwi Pro · les pièces additionnelles utilisent le tarif ci-dessus.",
+        talkToAdvisor: 'Parler à un conseiller',
+        orderSent: 'Commande envoyée',
+        delivery: 'Livraison 48h à Casablanca',
+        billing: 'facturation',
+        onNextSettlement: 'sur votre prochain règlement',
+        advisorNotified: 'Conseiller Kiwi notifié',
+        advisorCallback: "Un membre de l'équipe vous rappellera dans la journée.",
+    },
+    en: {
+        kiwipadProTag: 'Modular counter · 2026 flagship',
+        kiwipadProDesc: 'Adjustable stand touchscreen, ticket printer, integrated cash drawer, wireless card reader. Discreet design, detachable modules. The Kiwi reference station.',
+        kiwiordersProTag: 'KDS · kitchen + bar + stations',
+        kiwiordersProDesc: 'KDS screen on an articulated arm with ticket printer. For kitchen, bar, BBQ or any preparation station connected to the main cash register.',
+        kiwipadCashlessTag: '100% cashless · tablet + reader',
+        kiwipadCashlessDesc: 'Touch tablet + card reader + printer. For 100% cashless businesses without cash management or cash drawer.',
+        title: 'Request a terminal',
+        subtitle: 'Kiwi Catalog · 48h delivery in Casablanca · installment payment available',
+        heroTitle: 'HARDWARE CATALOG · KIWI 2026',
+        heroModels: '3 models',
+        heroKds: 'including 1 KDS',
+        heroSubtitle: 'The KiwiPad pro and a KiwiOrders pro are loaned for free with the Kiwi Pro subscription · additional models and upgrades are billed.',
+        flagship: 'FLAGSHIP 2026',
+        order: 'Order',
+        proProgram: 'PRO PROGRAM',
+        proProgramTitle: '1 KiwiPad pro + 1 KiwiOrders pro offered',
+        proProgramDesc: 'Included in the Kiwi Pro subscription · additional items use the price list above.',
+        talkToAdvisor: 'Talk to an advisor',
+        orderSent: 'Order sent',
+        delivery: '48h delivery in Casablanca',
+        billing: 'billing',
+        onNextSettlement: 'on your next settlement',
+        advisorNotified: 'Kiwi advisor notified',
+        advisorCallback: 'A team member will call you back during the day.',
+    },
+    ar: {
+        kiwipadProTag: 'كاونتر معياري · الرائد 2026',
+        kiwipadProDesc: 'شاشة لمس على حامل قابل للتعديل، طابعة إيصالات، درج نقود مدمج، قارئ بطاقات لاسلكي. تصميم بسيط، وحدات قابلة للفصل. محطة كيوي المرجعية.',
+        kiwiordersProTag: 'KDS · مطبخ + بار + محطات',
+        kiwiordersProDesc: 'شاشة KDS على ذراع مفصلي مع طابعة إيصالات. للمطبخ، البار، الشواء أو أي محطة تحضير متصلة بالصندوق الرئيسي.',
+        kiwipadCashlessTag: '100٪ غير نقدي · جهاز لوحي + قارئ',
+        kiwipadCashlessDesc: 'جهاز لوحي يعمل باللمس + قارئ بطاقات + طابعة. للشركات غير النقدية 100٪ بدون إدارة نقدية أو درج نقود.',
+        title: 'طلب جهاز طرفي',
+        subtitle: 'كتالوج كيوي · توصيل خلال 48 ساعة في الدار البيضاء · الدفع بالتقسيط متاح',
+        heroTitle: 'كتالوج الأجهزة · كيوي 2026',
+        heroModels: '3 موديلات',
+        heroKds: 'منها 1 KDS',
+        heroSubtitle: 'يتم إعارة KiwiPad pro و KiwiOrders pro مجانًا مع اشتراك Kiwi Pro · تتم فوترة الموديلات الإضافية والترقيات.',
+        flagship: 'رائد 2026',
+        order: 'اطلب',
+        proProgram: 'برنامج PRO',
+        proProgramTitle: '1 KiwiPad pro + 1 KiwiOrders pro مجانًا',
+        proProgramDesc: 'مضمن في اشتراك Kiwi Pro · تستخدم العناصر الإضافية قائمة الأسعار أعلاه.',
+        talkToAdvisor: 'تحدث إلى مستشار',
+        orderSent: 'تم إرسال الطلب',
+        delivery: 'توصيل خلال 48 ساعة في الدار البيضاء',
+        billing: 'فوترة',
+        onNextSettlement: 'على تسويتك التالية',
+        advisorNotified: 'تم إشعار مستشار كيوي',
+        advisorCallback: 'سيتصل بك أحد أعضاء الفريق خلال اليوم.',
+    },
+};
 handlers['terminal-catalog'] = () => {
+  const T = CATALOG_STR[trLang()] || CATALOG_STR.fr;
   const CATALOG = [
     {
       sku: 'kiwipad-pro', name: 'KiwiPad pro', price: '300 €',
       img: 'Hardware_pictures/Hardware_4.png',
-      tag: 'Comptoir modulaire · flagship 2026',
-      desc: 'Écran tactile sur pied réglable, imprimante de tickets, tiroir-caisse intégré, lecteur de carte sans fil. Design discret, modules détachables. Le poste de référence Kiwi.',
+      tag: T.kiwipadProTag,
+      desc: T.kiwipadProDesc,
       featured: true,
     },
     {
       sku: 'kiwiorders-pro', name: 'KiwiOrders pro', price: '200 €',
       img: 'Hardware_pictures/Hardware_KDS1.png',
-      tag: 'KDS · cuisine + bar + stations',
-      desc: 'Écran KDS sur bras articulé avec imprimante de tickets. Pour cuisine, bar, BBQ ou toute station de préparation reliée à la caisse principale.',
+      tag: T.kiwiordersProTag,
+      desc: T.kiwiordersProDesc,
     },
     {
       sku: 'kiwipad-cashless', name: 'KiwiPad cashless', price: '100 €',
       img: 'Hardware_pictures/Hardware_2.png',
-      tag: '100 % cashless · tablette + lecteur',
-      desc: 'Tablette tactile + lecteur de carte + imprimante. Pour commerces 100 % cashless sans gestion d\'espèces ni tiroir-caisse.',
+      tag: T.kiwipadCashlessTag,
+      desc: T.kiwipadCashlessDesc,
     },
   ];
 
   drawer({
-    title: 'Demander un terminal',
-    subtitle: 'Catalogue Kiwi · livraison 48h Casablanca · paiement échelonné disponible',
+    title: T.title,
+    subtitle: T.subtitle,
     width: 880,
     body: `
       <div class="p-hero">
-        <div class="l">CATALOGUE HARDWARE · KIWI 2026</div>
-        <div class="big" style="font-size:26px;">3 modèles <span style="font-size:16px; opacity:0.75;">· dont 1 KDS</span></div>
-        <div class="sub">Le KiwiPad pro et le KiwiOrders pro sont prêtés gratuitement avec l'abonnement Kiwi Pro · les modèles additionnels et upgrades sont facturés.</div>
+        <div class="l">${T.heroTitle}</div>
+        <div class="big" style="font-size:26px;">${T.heroModels} <span style="font-size:16px; opacity:0.75;">· ${T.heroKds}</span></div>
+        <div class="sub">${T.heroSubtitle}</div>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
@@ -530,7 +889,7 @@ handlers['terminal-catalog'] = () => {
           <div class="p-card" style="margin:0; padding:0; overflow:hidden; background:#fff; ${p.featured ? 'grid-column:1 / -1; display:grid; grid-template-columns:1.1fr 1fr;' : ''} border:1px solid ${p.featured ? 'rgba(11,110,79,0.22)' : 'var(--n-200)'}; ${p.featured ? 'box-shadow:0 1px 0 rgba(11,110,79,0.06), 0 14px 32px -18px rgba(11,110,79,0.22);' : ''}">
             <div style="position:relative; ${p.featured ? 'aspect-ratio:auto; min-height:260px;' : 'aspect-ratio:5/3;'} background:var(--paper-soft); display:flex; align-items:center; justify-content:center; padding:${p.featured ? '20' : '14'}px; ${p.featured ? 'border-right:1px solid var(--n-200);' : 'border-bottom:1px solid var(--n-200);'}">
               <img src="${p.img}" alt="${p.name}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
-              ${p.featured ? `<span class="chip" style="position:absolute; top:12px; left:12px; background:var(--ink); color:var(--mint); font-size:10px; padding:4px 10px; letter-spacing:0.08em;">FLAGSHIP 2026</span>` : ''}
+              ${p.featured ? `<span class="chip" style="position:absolute; top:12px; left:12px; background:var(--ink); color:var(--mint); font-size:10px; padding:4px 10px; letter-spacing:0.08em;">${T.flagship}</span>` : ''}
               <span style="position:absolute; top:${p.featured ? '12' : '10'}px; right:${p.featured ? '12' : '10'}px; background:#fff; border:1px solid var(--n-200); border-radius:999px; padding:4px 10px; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink);">${p.price}</span>
             </div>
             <div style="padding:${p.featured ? '20px 22px' : '14px 16px 16px'}; display:flex; flex-direction:column;">
@@ -539,7 +898,7 @@ handlers['terminal-catalog'] = () => {
               <p style="margin:0 0 14px; font-size:${p.featured ? '13.5' : '12.5'}px; color:var(--n-600); line-height:1.55; flex:1;">${p.desc}</p>
               <button class="kb ${p.featured ? 'atlas' : 'ghost'}" data-action="catalog-order" data-arg="${p.sku}" style="width:100%; justify-content:center; padding:${p.featured ? '10px 16px' : '8px 12px'}; font-size:${p.featured ? '13' : '12.5'}px;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18l-2 13H5L3 3z"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>
-                Commander · ${p.price}
+                ${T.order} · ${p.price}
               </button>
             </div>
           </div>
@@ -549,11 +908,11 @@ handlers['terminal-catalog'] = () => {
       <div style="padding:16px 18px; background:var(--ink); color:var(--paper); border-radius:14px;">
         <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
           <div style="flex:1; min-width:240px;">
-            <div style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--mint); margin-bottom:4px;">PROGRAMME PRO</div>
-            <div style="font-size:14px; font-weight:600;">1 KiwiPad pro + 1 KiwiOrders pro offerts</div>
-            <div style="font-size:12px; color:#a7d5b9; margin-top:3px;">Inclus dans l'abonnement Kiwi Pro · les pièces additionnelles utilisent le tarif ci-dessus.</div>
+            <div style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--mint); margin-bottom:4px;">${T.proProgram}</div>
+            <div style="font-size:14px; font-weight:600;">${T.proProgramTitle}</div>
+            <div style="font-size:12px; color:#a7d5b9; margin-top:3px;">${T.proProgramDesc}</div>
           </div>
-          <button class="kb" data-action="contact-sales" style="background:var(--mint); color:var(--riad); padding:9px 16px; font-size:12.5px; font-weight:600;">Parler à un conseiller</button>
+          <button class="kb" data-action="contact-sales" style="background:var(--mint); color:var(--riad); padding:9px 16px; font-size:12.5px; font-weight:600;">${T.talkToAdvisor}</button>
         </div>
       </div>
     `,
@@ -563,17 +922,151 @@ handlers['terminal-catalog'] = () => {
     handlers['catalog-order'] = (_el, sku) => {
       const p = CATALOG.find(x => x.sku === sku);
       if (!p) return;
-      toast(`Commande envoyée · ${p.name}`, { type: 'success', duration: 2200, desc: `Livraison 48h à Casablanca · facturation ${p.price} sur votre prochain règlement.` });
+      toast(`${T.orderSent} · ${p.name}`, { type: 'success', duration: 2200, desc: `${T.delivery} · ${T.billing} ${p.price} ${T.onNextSettlement}.` });
     };
   }
   if (!handlers['contact-sales']) {
-    handlers['contact-sales'] = () => toast('Conseiller Kiwi notifié', { type: 'info', duration: 1800, desc: 'Un membre de l\'équipe vous rappellera dans la journée.' });
+    handlers['contact-sales'] = () => toast(T.advisorNotified, { type: 'info', duration: 1800, desc: T.advisorCallback });
   }
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * 4 · RÈGLEMENTS · settlements ledger + 30-day cash-flow forecast
  * ─────────────────────────────────────────────────────────────────────────── */
+const REGLEMENTS_STR = {
+    fr: {
+        settlements: 'Règlements',
+        subtitle: (month, year, bank, acct, percent) => `${month} ${year} · ${bank} ••${acct} · T+1 · ${percent}% à l'heure`,
+        settledThisMonth: 'RÉGLÉ CE MOIS',
+        settlementsCount: (count) => `${count} versements`,
+        savingsVsCmi: 'économie vs CMI',
+        cashflow30d: 'Cash-flow · 30 jours',
+        history14d: 'Historique 14 j · projection IA 16 j à venir',
+        upcoming16d: 'à venir 16 j',
+        today: 'AUJ.',
+        nextT1: 'PROCHAIN T+1',
+        tomorrow9am: 'Demain 9h00',
+        settleNow: 'Régler maintenant',
+        commissions: 'COMMISSIONS',
+        blended: 'blended',
+        savingsVsCmiTitle: 'ÉCONOMIE vs CMI',
+        vsTpeRental: 'Vs 2,0 % + loc TPE',
+        linkedBankAccounts: 'Comptes bancaires liés',
+        addIban: '+ IBAN',
+        mainAccount: 'Compte principal · 100 % du flux',
+        backupAccount: 'Backup · 0 % flux configuré',
+        reconciled: 'Rapproché',
+        pending: 'En attente',
+        details: 'Détails',
+        settlementDetail: (date) => `Détail du règlement de demain (${date})`,
+        grossVolume: 'Volume brut',
+        orders: 'commandes',
+        visaMcInterchange: 'Interchange Visa/MC',
+        kiwiNetworkFees: 'Frais réseau Kiwi',
+        vatOnFees: 'TVA sur frais',
+        netPaid: 'Net versé',
+        recentHistory: 'Historique récent',
+        settled: 'Réglé',
+        instantTransfer: 'Virement instantané · weekend',
+        exportPdf: 'Export PDF',
+        exportCsv: 'Export CSV',
+        accountingPackage: 'Pack comptable',
+        instantSettlementToast: (amount) => `Règlement instantané · ${amount} MAD viré`,
+        addIbanToast: 'Ajouter un IBAN — flux KYC bientôt',
+        ibanDetailsToast: 'Détails du compte',
+        pdfExportToast: 'Export PDF généré · téléchargement en cours',
+        csvExportToast: (lines) => `Export CSV généré · ${lines} lignes`,
+        accountingPackageToast: 'Pack comptable · envoyé à votre expert-comptable',
+    },
+    en: {
+        settlements: 'Settlements',
+        subtitle: (month, year, bank, acct, percent) => `${month} ${year} · ${bank} ••${acct} · T+1 · ${percent}% on time`,
+        settledThisMonth: 'SETTLED THIS MONTH',
+        settlementsCount: (count) => `${count} settlements`,
+        savingsVsCmi: 'savings vs CMI',
+        cashflow30d: 'Cash-flow · 30 days',
+        history14d: '14-day history · 16-day AI projection',
+        upcoming16d: 'upcoming 16 d',
+        today: 'TODAY',
+        nextT1: 'NEXT T+1',
+        tomorrow9am: 'Tomorrow 9:00 AM',
+        settleNow: 'Settle now',
+        commissions: 'COMMISSIONS',
+        blended: 'blended',
+        savingsVsCmiTitle: 'SAVINGS vs CMI',
+        vsTpeRental: 'Vs 2.0% + POS rental',
+        linkedBankAccounts: 'Linked bank accounts',
+        addIban: '+ IBAN',
+        mainAccount: 'Main account · 100% of flow',
+        backupAccount: 'Backup · 0% flow configured',
+        reconciled: 'Reconciled',
+        pending: 'Pending',
+        details: 'Details',
+        settlementDetail: (date) => `Settlement detail for tomorrow (${date})`,
+        grossVolume: 'Gross volume',
+        orders: 'orders',
+        visaMcInterchange: 'Visa/MC Interchange',
+        kiwiNetworkFees: 'Kiwi network fees',
+        vatOnFees: 'VAT on fees',
+        netPaid: 'Net paid',
+        recentHistory: 'Recent history',
+        settled: 'Settled',
+        instantTransfer: 'Instant transfer · weekend',
+        exportPdf: 'Export PDF',
+        exportCsv: 'Export CSV',
+        accountingPackage: 'Accounting package',
+        instantSettlementToast: (amount) => `Instant settlement · ${amount} MAD transferred`,
+        addIbanToast: 'Add an IBAN — KYC flow coming soon',
+        ibanDetailsToast: 'Account details',
+        pdfExportToast: 'PDF Export generated · download in progress',
+        csvExportToast: (lines) => `CSV Export generated · ${lines} lines`,
+        accountingPackageToast: 'Accounting package · sent to your accountant',
+    },
+    ar: {
+        settlements: 'التسويات',
+        subtitle: (month, year, bank, acct, percent) => `${month} ${year} · ${bank} ••${acct} · T+1 · ${percent}% في الوقت المحدد`,
+        settledThisMonth: 'تمت تسويته هذا الشهر',
+        settlementsCount: (count) => `${count} تسويات`,
+        savingsVsCmi: 'التوفير مقابل CMI',
+        cashflow30d: 'التدفق النقدي · 30 يومًا',
+        history14d: 'سجل 14 يومًا · توقعات الذكاء الاصطناعي لـ 16 يومًا قادمة',
+        upcoming16d: 'قادم في 16 يومًا',
+        today: 'اليوم',
+        nextT1: 'T+1 التالي',
+        tomorrow9am: 'غدًا 9:00 صباحًا',
+        settleNow: 'تسوية الآن',
+        commissions: 'العمولات',
+        blended: 'مخلوط',
+        savingsVsCmiTitle: 'التوفير مقابل CMI',
+        vsTpeRental: 'مقابل 2.0٪ + إيجار TPE',
+        linkedBankAccounts: 'الحسابات المصرفية المرتبطة',
+        addIban: '+ IBAN',
+        mainAccount: 'الحساب الرئيسي · 100٪ من التدفق',
+        backupAccount: 'حساب احتياطي · 0٪ تدفق مهيأ',
+        reconciled: 'تمت التسوية',
+        pending: 'قيد الانتظار',
+        details: 'التفاصيل',
+        settlementDetail: (date) => `تفاصيل تسوية الغد (${date})`,
+        grossVolume: 'الحجم الإجمالي',
+        orders: 'طلبات',
+        visaMcInterchange: 'رسوم فيزا/ماستركارد',
+        kiwiNetworkFees: 'رسوم شبكة كيوي',
+        vatOnFees: 'ضريبة القيمة المضافة على الرسوم',
+        netPaid: 'صافي المبلغ المدفوع',
+        recentHistory: 'السجل الحديث',
+        settled: 'تمت التسوية',
+        instantTransfer: 'تحويل فوري · عطلة نهاية الأسبوع',
+        exportPdf: 'تصدير PDF',
+        exportCsv: 'تصدير CSV',
+        accountingPackage: 'حزمة المحاسبة',
+        instantSettlementToast: (amount) => `تسوية فورية · ${amount} درهم محوّل`,
+        addIbanToast: 'إضافة IBAN — تدفق KYC قريبًا',
+        ibanDetailsToast: 'تفاصيل الحساب',
+        pdfExportToast: 'تم إنشاء تصدير PDF · التنزيل قيد التقدم',
+        csvExportToast: (lines) => `تم إنشاء تصدير CSV · ${lines} أسطر`,
+        accountingPackageToast: 'حزمة المحاسبة · أرسلت إلى محاسبك',
+    },
+};
 handlers['nav-reglements'] = () => {
   // 30-day forecast — historical 14 days (solid) + 16 days projected (dashed)
   const days = 30;
@@ -594,19 +1087,21 @@ handlers['nav-reglements'] = () => {
   const areaPts = `${pad},${H - pad} ${histPts} ${x(13)},${H - pad}`;
   const totalProj = fc.slice(14).reduce((a, b) => a + b, 0);
 
+  const T = REGLEMENTS_STR[trLang()] || REGLEMENTS_STR.fr;
+
   const settles = [
-    ['28 avril', '29 941,13', 'Réglé · BMCE ••3291', 'ok'],
-    ['27 avril', '24 102,80', 'Réglé · BMCE ••3291', 'ok'],
-    ['26 avril', '22 850,40', 'Virement instantané · weekend', 'ok'],
-    ['25 avril', '21 688,15', 'Réglé · BMCE ••3291', 'ok'],
-    ['24 avril', '17 290,60', 'Réglé · BMCE ••3291', 'ok'],
-    ['23 avril', '19 824,25', 'Réglé · BMCE ••3291', 'ok'],
-    ['22 avril', '23 091,50', 'Réglé · BMCE ••3291', 'ok'],
+    ['28 avril', '29 941,13', `${T.settled} · BMCE ••3291`, 'ok'],
+    ['27 avril', '24 102,80', `${T.settled} · BMCE ••3291`, 'ok'],
+    ['26 avril', '22 850,40', `${T.instantTransfer}`, 'ok'],
+    ['25 avril', '21 688,15', `${T.settled} · BMCE ••3291`, 'ok'],
+    ['24 avril', '17 290,60', `${T.settled} · BMCE ••3291`, 'ok'],
+    ['23 avril', '19 824,25', `${T.settled} · BMCE ••3291`, 'ok'],
+    ['22 avril', '23 091,50', `${T.settled} · BMCE ••3291`, 'ok'],
   ];
 
   drawer({
-    title: 'Règlements',
-    subtitle: `Avril 2026 · BMCE ••3291 · T+1 · 99,2 % à l'heure`,
+    title: T.settlements,
+    subtitle: T.subtitle('Avril', '2026', 'BMCE', '3291', '99,2'),
     width: 760,
     body: `
       <div class="p-hero">
@@ -722,6 +1217,7 @@ handlers['nav-reglements'] = () => {
 /* ═══ Section 1B · conformite / equipe / payroll / reservations ═══ */
 (function() {
   "use strict";
+  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
   if (!window.Kiwi || !window.Kiwi.handlers) return;
   const Kiwi = window.Kiwi;
   const handlers = Kiwi.handlers;
@@ -740,8 +1236,125 @@ handlers['nav-reglements'] = () => {
  * ──────────────────────────────────────────────────────────────────────────── */
 
 /* ═══════════════════ CONFORMITÉ ═══════════════════ */
+const CONFORMITE_STR = {
+    fr: {
+        title: 'Conformité & sécurité',
+        subtitle: (name) => `${name} · 100 % conforme · audit BAM passé`,
+        scoreTitle: 'SCORE DE CONFORMITÉ',
+        score: '100 / 100 · AAA',
+        scoreDesc: 'Bank Al-Maghrib · PCI-DSS L1 · CNDP loi 09-08 · GAFI. Dernier audit 12 mars 2026.',
+        reportPdf: 'Rapport PDF',
+        kycDocs: 'Coffre KYC documentaire',
+        kycDocsSub: '6 documents · synchronisés DGI / CNSS · re-upload en 1 clic',
+        upload: 'Téléverser',
+        doc: 'DOCUMENT',
+        ref: 'RÉFÉRENCE',
+        status: 'STATUT',
+        expires: 'ÉCHÉANCE',
+        reupload: 'Re-upload',
+        amlScreening: 'Screening AML / PEP',
+        amlScreeningSub: 'Dernier scan il y a 6 min · prochain scan 18:00',
+        live: 'Live',
+        noMatch: 'Aucun match',
+        declarationsCalendar: 'Calendrier déclarations BAM & DGI',
+        declarationsCalendarSub: '3 échéances dans les 30 jours',
+        auditLog: "Journal d'audit · loi 09-08 / RGPD",
+        auditLogSub: 'Toute action sensible enregistrée · 7 ans de rétention',
+        exportSignedCsv: 'Exporter CSV signé',
+        secretsRotation: 'Rotation des secrets',
+        secretsRotationSub: 'Clés API · webhooks · tokens · HSM ledger',
+        manualRotation: 'Rotation manuelle',
+        uploadKycToast: 'Téléverser un document KYC',
+        uploadKycToastDesc: 'Glissez le PDF/JPEG · OCR + vérification automatique en 30 s.',
+        reuploadKycToast: 'Re-upload document',
+        reuploadKycToastDesc: 'Sélectionnez le nouveau fichier · ancienne version archivée 7 ans.',
+        calendarExportToast: 'Calendrier .ics exporté',
+        calendarExportToastDesc: 'Importable dans Google Calendar, Outlook, Apple Calendar.',
+        auditExportToast: 'Export CSV signé',
+        auditExportToastDesc: 'Hash SHA-256 + signature horodatée Bank Al-Maghrib.',
+        rotateSecretToast: 'Rotation manuelle initiée',
+        rotateSecretToastDesc: 'Nouveau secret généré · ancien valide 24 h pour transition.',
+    },
+    en: {
+        title: 'Compliance & Security',
+        subtitle: (name) => `${name} · 100% compliant · BAM audit passed`,
+        scoreTitle: 'COMPLIANCE SCORE',
+        score: '100 / 100 · AAA',
+        scoreDesc: 'Bank Al-Maghrib · PCI-DSS L1 · CNDP law 09-08 · FATF. Last audit March 12, 2026.',
+        reportPdf: 'PDF Report',
+        kycDocs: 'KYC Document Vault',
+        kycDocsSub: '6 documents · DGI / CNSS synchronized · 1-click re-upload',
+        upload: 'Upload',
+        doc: 'DOCUMENT',
+        ref: 'REFERENCE',
+        status: 'STATUS',
+        expires: 'EXPIRATION',
+        reupload: 'Re-upload',
+        amlScreening: 'AML / PEP Screening',
+        amlScreeningSub: 'Last scan 6 min ago · next scan 6:00 PM',
+        live: 'Live',
+        noMatch: 'No match',
+        declarationsCalendar: 'BAM & DGI Declarations Calendar',
+        declarationsCalendarSub: '3 deadlines within 30 days',
+        auditLog: 'Audit Log · Law 09-08 / GDPR',
+        auditLogSub: 'All sensitive actions recorded · 7-year retention',
+        exportSignedCsv: 'Export Signed CSV',
+        secretsRotation: 'Secrets Rotation',
+        secretsRotationSub: 'API keys · webhooks · tokens · HSM ledger',
+        manualRotation: 'Manual Rotation',
+        uploadKycToast: 'Upload a KYC document',
+        uploadKycToastDesc: 'Drag and drop the PDF/JPEG · OCR + automatic verification in 30s.',
+        reuploadKycToast: 'Re-upload document',
+        reuploadKycToastDesc: 'Select the new file · old version archived for 7 years.',
+        calendarExportToast: 'Calendar .ics exported',
+        calendarExportToastDesc: 'Importable into Google Calendar, Outlook, Apple Calendar.',
+        auditExportToast: 'Signed CSV Export',
+        auditExportToastDesc: 'SHA-256 hash + Bank Al-Maghrib timestamped signature.',
+        rotateSecretToast: 'Manual rotation initiated',
+        rotateSecretToastDesc: 'New secret generated · old one valid for 24h for transition.',
+    },
+    ar: {
+        title: 'الامتثال والأمان',
+        subtitle: (name) => `${name} · امتثال 100٪ · تم اجتياز تدقيق بنك المغرب`,
+        scoreTitle: 'درجة الامتثال',
+        score: '100 / 100 · AAA',
+        scoreDesc: 'بنك المغرب · PCI-DSS L1 · قانون CNDP 09-08 · GAFI. آخر تدقيق 12 مارس 2026.',
+        reportPdf: 'تقرير PDF',
+        kycDocs: 'خزنة مستندات اعرف عميلك',
+        kycDocsSub: '6 مستندات · متزامنة مع DGI / CNSS · إعادة تحميل بنقرة واحدة',
+        upload: 'تحميل',
+        doc: 'المستند',
+        ref: 'المرجع',
+        status: 'الحالة',
+        expires: 'انتهاء الصلاحية',
+        reupload: 'إعادة تحميل',
+        amlScreening: 'فحص مكافحة غسيل الأموال / PEP',
+        amlScreeningSub: 'آخر فحص قبل 6 دقائق · الفحص التالي 6:00 مساءً',
+        live: 'مباشر',
+        noMatch: 'لا يوجد تطابق',
+        declarationsCalendar: 'تقويم إعلانات بنك المغرب و DGI',
+        declarationsCalendarSub: '3 مواعيد نهائية خلال 30 يومًا',
+        auditLog: 'سجل التدقيق · قانون 09-08 / GDPR',
+        auditLogSub: 'جميع الإجراءات الحساسة مسجلة · الاحتفاظ لمدة 7 سنوات',
+        exportSignedCsv: 'تصدير CSV موقع',
+        secretsRotation: 'تدوير الأسرار',
+        secretsRotationSub: 'مفاتيح API · webhooks · الرموز · دفتر الأستاذ HSM',
+        manualRotation: 'تدوير يدوي',
+        uploadKycToast: 'تحميل مستند KYC',
+        uploadKycToastDesc: 'اسحب وأفلت ملف PDF/JPEG · OCR + تحقق تلقائي في 30 ثانية.',
+        reuploadKycToast: 'إعادة تحميل المستند',
+        reuploadKycToastDesc: 'حدد الملف الجديد · يتم أرشفة الإصدار القديم لمدة 7 سنوات.',
+        calendarExportToast: 'تم تصدير تقويم .ics',
+        calendarExportToastDesc: 'يمكن استيراده إلى تقويم Google و Outlook و Apple Calendar.',
+        auditExportToast: 'تصدير CSV موقع',
+        auditExportToastDesc: 'تجزئة SHA-256 + توقيع بنك المغرب المختوم بالوقت.',
+        rotateSecretToast: 'بدء التدوير اليدوي',
+        rotateSecretToastDesc: 'تم إنشاء سر جديد · القديم صالح لمدة 24 ساعة للانتقال.',
+    },
+};
 handlers['nav-conformite'] = () => {
   const v = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
+  const T = CONFORMITE_STR[trLang()] || CONFORMITE_STR.fr;
   const docs = [
     ['CIN gérant', 'Rachid Benhima · BK 384721', 'Expire dans 14 mois', 'ok', '14 mars 2027'],
     ['Registre de commerce', 'RC Tanger · 3847821', 'Renouvelé · valide 12 mois', 'ok', '20 janv. 2027'],
@@ -751,10 +1364,10 @@ handlers['nav-conformite'] = () => {
     ['Quittance TVA · Q1 2026', 'Régime du réel · trimestriel', 'À déposer dans 6 jours', 'pend', '5 mai 2026'],
   ];
   const aml = [
-    ['UN sanctions', 'Aucun match', '14:02 aujourd\'hui'],
-    ['EU consolidated', 'Aucun match', '14:02 aujourd\'hui'],
-    ['OFAC SDN', 'Aucun match', '14:02 aujourd\'hui'],
-    ['ANRF Maroc · PEP', 'Aucun match', '14:02 aujourd\'hui'],
+    ['UN sanctions', T.noMatch, `14:02 ${T.today}`],
+    ['EU consolidated', T.noMatch, `14:02 ${T.today}`],
+    ['OFAC SDN', T.noMatch, `14:02 ${T.today}`],
+    ['ANRF Maroc · PEP', T.noMatch, `14:02 ${T.today}`],
   ];
   const audit = [
     ['14:02', 'Screening AML automatique', 'Système · 4 listes', 'ok'],
@@ -772,8 +1385,8 @@ handlers['nav-conformite'] = () => {
     ['Clé chiffrement ledger', 'KMS · n+one Casa', 'HSM · rotation annuelle', '6 mois', 'ok'],
   ];
   drawer({
-    title: 'Conformité & sécurité',
-    subtitle: `${v.name} · 100 % conforme · audit BAM passé`,
+    title: T.title,
+    subtitle: T.subtitle(v.name),
     width: 880,
     body: `
       <div class="comp-score">
@@ -785,22 +1398,22 @@ handlers['nav-conformite'] = () => {
           <div class="c">AAA</div>
         </div>
         <div>
-          <div class="t">SCORE DE CONFORMITÉ</div>
-          <div class="v">100 / 100 · AAA</div>
-          <div class="d">Bank Al-Maghrib · PCI-DSS L1 · CNDP loi 09-08 · GAFI. Dernier audit 12 mars 2026.</div>
+          <div class="t">${T.scoreTitle}</div>
+          <div class="v">${T.score}</div>
+          <div class="d">${T.scoreDesc}</div>
         </div>
         <button class="kb" data-action="download-kit" style="background:var(--mint); color:var(--riad); padding:9px 14px; font-size:12.5px; align-self:center;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M5 10l7 7 7-7M5 21h14"/></svg>Rapport PDF
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M5 10l7 7 7-7M5 21h14"/></svg>${T.reportPdf}
         </button>
       </div>
 
       <div class="sh-section">
         <div class="sh-section-head">
-          <div><h4>Coffre KYC documentaire</h4><div class="sub">6 documents · synchronisés DGI / CNSS · re-upload en 1 clic</div></div>
-          <button class="kb ghost" data-action="upload-kyc">+ Téléverser</button>
+          <div><h4>${T.kycDocs}</h4><div class="sub">${T.kycDocsSub}</div></div>
+          <button class="kb ghost" data-action="upload-kyc">+ ${T.upload}</button>
         </div>
         <table class="p-table">
-          <thead><tr><th>DOCUMENT</th><th>RÉFÉRENCE</th><th>STATUT</th><th class="right">ÉCHÉANCE</th><th></th></tr></thead>
+          <thead><tr><th>${T.doc}</th><th>${T.ref}</th><th>${T.status}</th><th class="right">${T.expires}</th><th></th></tr></thead>
           <tbody>
             ${docs.map(([n, ref, s, st, exp]) => `
               <tr>
@@ -808,7 +1421,7 @@ handlers['nav-conformite'] = () => {
                 <td style="color:var(--n-500); font-size:12px;">${ref}</td>
                 <td><span class="chip ${st}">${s}</span></td>
                 <td class="mono right" style="font-size:12px;">${exp}</td>
-                <td class="right"><button class="kb ghost" data-action="kyc-replace" style="padding:5px 9px; font-size:11px;">Re-upload</button></td>
+                <td class="right"><button class="kb ghost" data-action="kyc-replace" style="padding:5px 9px; font-size:11px;">${T.reupload}</button></td>
               </tr>
             `).join('')}
           </tbody>
@@ -818,8 +1431,8 @@ handlers['nav-conformite'] = () => {
       <div class="sh-grid-2">
         <div class="sh-section" style="margin-bottom:12px;">
           <div class="sh-section-head" style="margin-bottom:10px;">
-            <div><h4>Screening AML / PEP</h4><div class="sub">Dernier scan il y a 6 min · prochain scan 18:00</div></div>
-            <span class="chip ok">Live</span>
+            <div><h4>${T.amlScreening}</h4><div class="sub">${T.amlScreeningSub}</div></div>
+            <span class="chip ok">${T.live}</span>
           </div>
           ${aml.map(([list, res, t]) => `
             <div style="display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:10px 0; border-top:1px solid var(--n-200); font-size:12.5px;">
@@ -834,7 +1447,7 @@ handlers['nav-conformite'] = () => {
 
         <div class="sh-section" style="margin-bottom:12px;">
           <div class="sh-section-head" style="margin-bottom:10px;">
-            <div><h4>Calendrier déclarations BAM &amp; DGI</h4><div class="sub">3 échéances dans les 30 jours</div></div>
+            <div><h4>${T.declarationsCalendar}</h4><div class="sub">${T.declarationsCalendarSub}</div></div>
             <button class="kb ghost" data-action="cal-export" style="padding:6px 10px; font-size:11px;">.ics</button>
           </div>
           ${[
@@ -854,8 +1467,8 @@ handlers['nav-conformite'] = () => {
 
       <div class="sh-section" style="margin-bottom:12px;">
         <div class="sh-section-head" style="margin-bottom:10px;">
-          <div><h4>Journal d'audit · loi 09-08 / RGPD</h4><div class="sub">Toute action sensible enregistrée · 7 ans de rétention</div></div>
-          <button class="kb ghost" data-action="audit-export" style="padding:6px 10px; font-size:11px;">Exporter CSV signé</button>
+          <div><h4>${T.auditLog}</h4><div class="sub">${T.auditLogSub}</div></div>
+          <button class="kb ghost" data-action="audit-export" style="padding:6px 10px; font-size:11px;">${T.exportSignedCsv}</button>
         </div>
         ${audit.map(([t, ev, who, st]) => `
           <div style="display:grid; grid-template-columns:90px 1fr 1fr auto; gap:12px; align-items:center; padding:9px 0; border-top:1px solid var(--n-200); font-size:12.5px;">
@@ -869,8 +1482,8 @@ handlers['nav-conformite'] = () => {
 
       <div class="sh-section" style="margin-bottom:0;">
         <div class="sh-section-head" style="margin-bottom:10px;">
-          <div><h4>Rotation des secrets</h4><div class="sub">Clés API · webhooks · tokens · HSM ledger</div></div>
-          <button class="kb ghost" data-action="rotate-secret" style="padding:6px 10px; font-size:11px;">Rotation manuelle</button>
+          <div><h4>${T.secretsRotation}</h4><div class="sub">${T.secretsRotationSub}</div></div>
+          <button class="kb ghost" data-action="rotate-secret" style="padding:6px 10px; font-size:11px;">${T.manualRotation}</button>
         </div>
         ${secrets.map(([n, mask, pol, age, st]) => `
           <div style="display:grid; grid-template-columns:1fr 160px 130px auto; gap:12px; align-items:center; padding:10px 0; border-top:1px solid var(--n-200); font-size:12.5px;">
@@ -1876,11 +2489,26 @@ handlers['nav-reservations'] = () => {
 };
 
 /* Stub handlers used inside the new drawers */
-handlers['upload-kyc']      = () => toast('Téléverser un document KYC', { type: 'info', desc: 'Glissez le PDF/JPEG · OCR + vérification automatique en 30 s.' });
-handlers['kyc-replace']     = () => toast('Re-upload document', { type: 'info', desc: 'Sélectionnez le nouveau fichier · ancienne version archivée 7 ans.' });
-handlers['cal-export']      = () => toast('Calendrier .ics exporté', { type: 'success', desc: 'Importable dans Google Calendar, Outlook, Apple Calendar.' });
-handlers['audit-export']    = () => toast('Export CSV signé', { type: 'success', desc: 'Hash SHA-256 + signature horodatée Bank Al-Maghrib.' });
-handlers['rotate-secret']   = () => toast('Rotation manuelle initiée', { type: 'info', desc: 'Nouveau secret généré · ancien valide 24 h pour transition.' });
+handlers['upload-kyc']      = () => {
+    const T = CONFORMITE_STR[trLang()] || CONFORMITE_STR.fr;
+    toast(T.uploadKycToast, { type: 'info', desc: T.uploadKycToastDesc });
+};
+handlers['kyc-replace']     = () => {
+    const T = CONFORMITE_STR[trLang()] || CONFORMITE_STR.fr;
+    toast(T.reuploadKycToast, { type: 'info', desc: T.reuploadKycToastDesc });
+};
+handlers['cal-export']      = () => {
+    const T = CONFORMITE_STR[trLang()] || CONFORMITE_STR.fr;
+    toast(T.calendarExportToast, { type: 'success', desc: T.calendarExportToastDesc });
+};
+handlers['audit-export']    = () => {
+    const T = CONFORMITE_STR[trLang()] || CONFORMITE_STR.fr;
+    toast(T.auditExportToast, { type: 'success', desc: T.auditExportToastDesc });
+};
+handlers['rotate-secret']   = () => {
+    const T = CONFORMITE_STR[trLang()] || CONFORMITE_STR.fr;
+    toast(T.rotateSecretToast, { type: 'info', desc: T.rotateSecretToastDesc });
+};
 // add-member / member-detail / edit-perms are now registered inside
 // nav-equipe's handler so they can close over the live team state.
 handlers['payslip-pdf']     = () => toast('Bulletin PDF généré · Fatima Khalki', { type: 'success', desc: 'Bulletin avril 2026 envoyé par WhatsApp.' });
