@@ -1097,6 +1097,46 @@
       background:linear-gradient(90deg,var(--atlas),var(--mint)); transition:width 240ms ease; }
     .fa-llm-ptxt { font-size:11.5px; color:var(--n-500); }
     [data-fa-stream] { white-space:pre-wrap; }
+
+    /* ─── Dark theme · flat, contour-free, off-white (ChatGPT-style) ──────
+     * In dark mode the assistant drops every light card, border and bright
+     * accent — surfaces sit on the flat --paper tones, text is off-white,
+     * nothing is outlined. */
+    html[data-theme="dark"] .fa-msg.user .fa-bubble {
+      background:var(--paper-soft); border:none; box-shadow:none; }
+    html[data-theme="dark"] .fa-bubble b { color:var(--ink); }
+    html[data-theme="dark"] .fa-avatar { background:var(--paper-muted); box-shadow:none; }
+    html[data-theme="dark"] .fa-avatar-ico { filter:brightness(0) invert(0.92); }
+    html[data-theme="dark"] .fa-stat,
+    html[data-theme="dark"] .fa-stat:hover { background:var(--paper-soft); border:none; }
+    html[data-theme="dark"] .fa-follow button {
+      background:var(--paper-soft); border:none; color:var(--ink); box-shadow:none; }
+    html[data-theme="dark"] .fa-follow button:hover { background:var(--paper-muted); color:var(--ink); }
+    html[data-theme="dark"] .fa-dock { border-top:none; }
+    html[data-theme="dark"] .fa-inputwrap { background:var(--paper-soft); border:none; box-shadow:none; }
+    html[data-theme="dark"] .fa-inputwrap:focus-within {
+      background:var(--paper-muted); border:none; box-shadow:none; }
+    html[data-theme="dark"] .fa-send { background:var(--ink); color:var(--paper); }
+    html[data-theme="dark"] .fa-send:hover { background:var(--n-700); }
+    html[data-theme="dark"] .fa-tool { background:var(--paper-soft); border:none; color:var(--ink); }
+    html[data-theme="dark"] .fa-tool:hover,
+    html[data-theme="dark"] .fa-tool.on { background:var(--paper-muted); border:none; color:var(--ink); }
+    html[data-theme="dark"] .fa-keypad-card { background:var(--paper-soft); border:none; box-shadow:none; }
+    html[data-theme="dark"] .fa-kpdisplay { background:var(--paper-muted); color:var(--ink); }
+    html[data-theme="dark"] .fa-kpgrid button { background:var(--paper-muted); border:none; }
+    html[data-theme="dark"] .fa-kpgrid button.op { color:var(--ink); }
+    html[data-theme="dark"] .fa-kpgrid button.eq { background:var(--n-200); border:none; color:var(--ink); }
+    html[data-theme="dark"] .fa-context { background:var(--paper-soft); border-inline-start:none; }
+    html[data-theme="dark"] .fa-ctx-eyebrow { color:var(--n-500); }
+    html[data-theme="dark"] .fa-ctx-gh .tot { color:var(--ink); }
+    html[data-theme="dark"] .fa-ctx-item:hover { background:var(--paper-muted); }
+    html[data-theme="dark"] .fa-ctx-net {
+      background:var(--paper-muted); border:none; box-shadow:none; color:var(--ink); }
+    html[data-theme="dark"] .fa-ctx-trust svg { color:var(--n-500); }
+    html[data-theme="dark"] .fa-llm-btn {
+      background:var(--paper-muted); color:var(--ink); box-shadow:none; }
+    html[data-theme="dark"] .fa-llm-btn:hover { background:var(--n-200); }
+    html[data-theme="dark"] .fa-drawer :focus-visible { outline-color:var(--n-500); }
     `;
     document.head.appendChild(s);
   }
