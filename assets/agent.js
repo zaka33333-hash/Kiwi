@@ -85,7 +85,7 @@
         subtitle: 'Il connaît votre café — revenus, charges, marges, trésorerie',
         placeholder: 'Posez une question — embauche, prix, investissement, prévision…',
         calc: 'Calculatrice', enterToSend: 'Entrée pour envoyer', send: 'Envoyer',
-        kpError: 'Erreur',
+        kpError: 'Erreur', kpUse: 'Utiliser ce résultat',
         ctxEyebrow: 'Ce que je sais',
         ctxSub: '30 derniers jours · cliquez pour insérer',
         ctxNote: 'Cliquez un chiffre pour l’ajouter à votre message — l’assistant raisonnera dessus.',
@@ -209,6 +209,13 @@
         loadFailMsg: 'Je n’ai pas pu charger l’assistant IA (connexion, mémoire ou navigateur incompatible). Mes calculs financiers restent pleinement disponibles.',
         runErr: 'Une erreur est survenue côté assistant IA. Réessayez, ou demandez-moi un calcul précis.',
       },
+      acct: {
+        hub: 'Je suis aussi votre comptable, teneur de livres, fiscaliste et gestionnaire de paie — tout est réuni dans votre Comptabilité : livre, états financiers, TVA & impôts, et paie.',
+        tva: (D) => `Je m'occupe de votre fiscalité. Pour ${D.period} : TVA à payer <b>${fmtMad(D.tva.aPayer)}</b>, échéance ${D.tva.echeance}. IS estimé sur l'exercice : ${fmtMad(D.is.estimeAnnuel)}. J'ouvre le module pour préparer la déclaration.`,
+        paie: (D) => `Côté paie : <b>${D.payroll.headcount} salariés</b>, ${fmtMad(D.payroll.totalNet)} net à verser pour ${D.period}. La déclaration CNSS est due le ${D.payroll.echeance} — je peux générer les fiches.`,
+        etats: (D) => `Vos états de ${D.period} : résultat net <b>${fmtMad(D.netProfit)}</b>, trésorerie ${fmtMad(D.cash)}, bilan équilibré. J'ouvre vos états financiers.`,
+        livre: (D) => `<b>${fmt(D.entriesThisMonth)} écritures</b> ce mois — chaque vente et chaque dépense, enregistrée et catégorisée automatiquement.`,
+      },
     },
 
     en: {
@@ -217,7 +224,7 @@
         subtitle: 'It knows your café — revenue, costs, margins, cash',
         placeholder: 'Ask a question — hiring, pricing, investment, forecast…',
         calc: 'Calculator', enterToSend: 'Enter to send', send: 'Send',
-        kpError: 'Error',
+        kpError: 'Error', kpUse: 'Use this result',
         ctxEyebrow: 'What I know',
         ctxSub: 'Last 30 days · click to insert',
         ctxNote: 'Click any figure to add it to your message — the assistant will reason on it.',
@@ -341,6 +348,13 @@
         loadFailMsg: 'I couldn\'t load the AI assistant (connection, memory, or an incompatible browser). My financial calculations remain fully available.',
         runErr: 'Something went wrong on the AI assistant side. Try again, or ask me for a precise calculation.',
       },
+      acct: {
+        hub: 'I\'m also your accountant, bookkeeper, tax adviser and payroll manager — it\'s all together in your Accounting: ledger, financial statements, VAT & tax, and payroll.',
+        tva: (D) => `I'll handle your taxes. For ${D.period}: VAT due <b>${fmtMad(D.tva.aPayer)}</b>, deadline ${D.tva.echeance}. Estimated corporate tax for the year: ${fmtMad(D.is.estimeAnnuel)}. I'm opening the module to prepare the return.`,
+        paie: (D) => `On payroll: <b>${D.payroll.headcount} employees</b>, ${fmtMad(D.payroll.totalNet)} net to pay for ${D.period}. The CNSS return is due ${D.payroll.echeance} — I can generate the payslips.`,
+        etats: (D) => `Your ${D.period} statements: net result <b>${fmtMad(D.netProfit)}</b>, cash ${fmtMad(D.cash)}, balanced sheet. I'm opening your financial statements.`,
+        livre: (D) => `<b>${fmt(D.entriesThisMonth)} entries</b> this month — every sale and expense, recorded and categorised automatically.`,
+      },
     },
 
     ar: {
@@ -350,7 +364,7 @@
         subtitle: 'يعرف مقهاك — المداخيل، التكاليف، الهوامش، الخزينة',
         placeholder: 'اطرح سؤالاً — توظيف، أسعار، استثمار، توقّعات…',
         calc: 'الآلة الحاسبة', enterToSend: 'اضغط Enter للإرسال', send: 'إرسال',
-        kpError: 'خطأ',
+        kpError: 'خطأ', kpUse: 'استعمل هذه النتيجة',
         ctxEyebrow: 'ما أعرفه',
         ctxSub: 'آخر 30 يوماً · انقر للإدراج',
         ctxNote: 'انقر على أي رقم لإضافته إلى رسالتك — وسيحلّله المساعد.',
@@ -473,6 +487,13 @@
         loadFail: 'فشل التحميل.',
         loadFailMsg: 'تعذّر تحميل مساعد الذكاء الاصطناعي (الاتصال أو الذاكرة أو متصفّح غير متوافق). تبقى حساباتي المالية متاحة بالكامل.',
         runErr: 'حدث خطأ من جهة مساعد الذكاء الاصطناعي. أعد المحاولة، أو اطلب مني حساباً دقيقاً.',
+      },
+      acct: {
+        hub: 'أنا أيضاً محاسبك وماسك دفاترك ومستشارك الضريبي ومدير أجورك — كل ذلك مجتمع في قسم المحاسبة: الدفتر، القوائم المالية، الضريبة والرسوم، والأجور.',
+        tva: (D) => `سأتكفّل بضرائبك. لـ ${D.period}: الضريبة المستحقة <b>${fmtMad(D.tva.aPayer)}</b>، الأجل ${D.tva.echeance}. الضريبة على الشركات المقدّرة للسنة: ${fmtMad(D.is.estimeAnnuel)}. أفتح الوحدة لتحضير التصريح.`,
+        paie: (D) => `بخصوص الأجور: <b>${D.payroll.headcount} موظفين</b>، ${fmtMad(D.payroll.totalNet)} صافٍ للدفع عن ${D.period}. تصريح CNSS مستحق في ${D.payroll.echeance} — يمكنني إنشاء كشوف الرواتب.`,
+        etats: (D) => `قوائم ${D.period}: النتيجة الصافية <b>${fmtMad(D.netProfit)}</b>، الخزينة ${fmtMad(D.cash)}، ميزانية متوازنة. أفتح قوائمك المالية.`,
+        livre: (D) => `<b>${fmt(D.entriesThisMonth)} قيد</b> هذا الشهر — كل عملية بيع ونفقة، مسجّلة ومصنّفة تلقائياً.`,
       },
     },
   };
@@ -688,7 +709,7 @@
     ar: { open: 'افتح محاسبتي', tva: 'الضريبة والـTVA', paie: 'الأجور', etats: 'القوائم المالية', livre: 'دفتر الأستاذ' },
   };
   const acctLabel = (k) => (ACCT_LBL[L] || ACCT_LBL.fr)[k];
-  const RX_ACCT = /(comptab|grand.?livre|ecritur|\btva\b|impot|fiscal|declarat|cnss|\bpaie\b|fiche.?de.?paie|bulletin.?de.?paie|bilan|cloture|amortiss|\bdgi\b|etats financiers)/;
+  const RX_ACCT = /(comptab|grand.?livre|ecritur|\btva\b|impot|fiscal|declarat|cnss|\bpaie\b|fiche.?de.?paie|bulletin.?de.?paie|bilan|cloture|amortiss|\bdgi\b|etats financiers|account|bookkeep|ledger|\bvat\b|payroll|payslip|\btax\b|balance.?sheet|financial.?statement|محاسب|دفتر|ضريب)/;
 
   /* ─── Empty-state hero — the assistant's first screen ─── */
   const HERO_L = {
@@ -758,21 +779,18 @@
 
   function sAccounting(q) {
     const D = window.KiwiComptable && window.KiwiComptable.data;
+    const a = tr().acct;
     let handler = 'open-comptabilite', btn = acctLabel('open'), text;
-    if (D && /\btva\b|impot|fiscal|declarat|acompte|\bdgi\b|\bis\b/.test(q)) {
-      handler = 'acct-tva'; btn = acctLabel('tva');
-      text = `Je m'occupe de votre fiscalité. Pour ${D.period} : TVA à payer <b>${fmtMad(D.tva.aPayer)}</b>, échéance ${D.tva.echeance}. IS estimé sur l'exercice : ${fmtMad(D.is.estimeAnnuel)}. J'ouvre le module pour préparer la déclaration.`;
-    } else if (D && /cnss|\bpaie\b|fiche|bulletin|salair/.test(q)) {
-      handler = 'acct-paie'; btn = acctLabel('paie');
-      text = `Côté paie : <b>${D.payroll.headcount} salariés</b>, ${fmtMad(D.payroll.totalNet)} net à verser pour ${D.period}. La déclaration CNSS est due le ${D.payroll.echeance} — je peux générer les fiches.`;
-    } else if (D && /bilan|resultat|\betats?\b|cloture|comptes/.test(q)) {
-      handler = 'acct-etats'; btn = acctLabel('etats');
-      text = `Vos états de ${D.period} : résultat net <b>${fmtMad(D.netProfit)}</b>, trésorerie ${fmtMad(D.cash)}, bilan équilibré. J'ouvre vos états financiers.`;
-    } else if (D && /livre|ecritur|journal|comptabilis/.test(q)) {
-      handler = 'acct-livre'; btn = acctLabel('livre');
-      text = `<b>${fmt(D.entriesThisMonth)} écritures</b> ce mois — chaque vente et chaque dépense, enregistrée et catégorisée automatiquement.`;
+    if (D && /\btva\b|\bvat\b|impot|\btax\b|fiscal|declarat|acompte|\bdgi\b|\bis\b/.test(q)) {
+      handler = 'acct-tva'; btn = acctLabel('tva'); text = a.tva(D);
+    } else if (D && /cnss|\bpaie\b|payroll|payslip|fiche|bulletin|salair|salary|wage/.test(q)) {
+      handler = 'acct-paie'; btn = acctLabel('paie'); text = a.paie(D);
+    } else if (D && /bilan|balance|result|\betats?\b|statement|financial|cloture|comptes/.test(q)) {
+      handler = 'acct-etats'; btn = acctLabel('etats'); text = a.etats(D);
+    } else if (D && /livre|ledger|ecritur|entries|journal|bookkeep|comptabilis/.test(q)) {
+      handler = 'acct-livre'; btn = acctLabel('livre'); text = a.livre(D);
     } else {
-      text = 'Je suis aussi votre comptable, teneur de livres, fiscaliste et gestionnaire de paie — tout est réuni dans votre Comptabilité : livre, états financiers, TVA & impôts, et paie.';
+      text = a.hub;
     }
     return { text, open: [{ label: btn, handler }] };
   }
@@ -996,6 +1014,13 @@
     .fa-kpgrid button.eq { background:var(--atlas); color:#fff; border-color:var(--atlas);
       grid-column:span 2; font-weight:600; }
     .fa-kpgrid button.eq:hover { background:var(--riad); }
+    .fa-kp-use { display:block; margin-top:10px; width:100%; padding:11px 12px;
+      border-radius:13px; border:0; background:var(--atlas); color:#fff;
+      font:inherit; font-size:12.5px; font-weight:600; cursor:pointer;
+      transition:background 130ms, transform 90ms; }
+    .fa-kp-use[hidden] { display:none; }
+    .fa-kp-use:hover { background:var(--riad); }
+    .fa-kp-use:active { transform:scale(.97); }
 
     /* context rail */
     .fa-context { width:312px; flex-shrink:0; border-inline-start:1px solid var(--n-200);
@@ -1227,6 +1252,7 @@
                       .map((k) => `<button class="${/[÷×−+%]/.test(k) ? 'op' : ''}" data-fa-key="${k}">${k}</button>`).join('')}
                     <button class="eq" data-fa-key="=">=</button>
                   </div>
+                  <button class="fa-kp-use" data-fa-kp-use type="button" hidden>${u.kpUse}</button>
                 </div>
               </div>
               <div class="fa-inputwrap">
@@ -1453,8 +1479,12 @@
       toggle.classList.toggle('on', isOpen);
     });
 
+    const kpUse = root.querySelector('[data-fa-kp-use]');
     let kpExpr = '', kpDone = false;
-    const kpShow = () => { kpd.textContent = kpExpr || '0'; };
+    const kpShow = () => {
+      kpd.textContent = kpExpr || '0';
+      if (kpUse) kpUse.hidden = !(kpDone && kpExpr);
+    };
     keypad.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-fa-key]');
       if (!btn) return;
@@ -1466,7 +1496,7 @@
         if (r != null) {
           kpExpr = String(Math.round(r * 1e6) / 1e6);
           kpDone = true;
-        } else { kpd.textContent = tr().ui.kpError; return; }
+        } else { kpd.textContent = tr().ui.kpError; if (kpUse) kpUse.hidden = true; return; }
       } else {
         const isOp = /[÷×−+%]/.test(k);
         if (kpDone && !isOp) { kpExpr = ''; kpDone = false; }
@@ -1474,6 +1504,14 @@
         kpExpr += k;
       }
       kpShow();
+    });
+    /* Calculator → conversation bridge — drop the computed result into the
+     * message box so the owner can build a question around it. */
+    if (kpUse) kpUse.addEventListener('click', () => {
+      if (!kpExpr) return;
+      insertFact(kpExpr);
+      keypad.classList.remove('open');
+      toggle.classList.remove('on');
     });
 
     setTimeout(() => input.focus(), 480);
