@@ -662,14 +662,15 @@ ar: {
   function modal({title = '', tag = '', desc = '', body = '', foot = '', width = 540}) {
     const back = document.createElement('div');
     const s = GENERAL_STR[kiwiLang()] || GENERAL_STR.fr;
+    const headId = 'kw-mdl-' + Math.random().toString(36).slice(2, 8);
     back.className = 'kiwi-backdrop';
     back.innerHTML = `
-      <div class="kiwi-modal" style="max-width:${width}px;">
+      <div class="kiwi-modal" style="max-width:${width}px;" role="dialog" aria-modal="true" aria-labelledby="${headId}">
         <button class="kiwi-modal-close" aria-label="${s.close}">${I.close}</button>
         <div class="kiwi-modal-head">
           <div>
             ${tag ? `<div class="tag">${tag}</div>` : ''}
-            <h3>${title}</h3>
+            <h3 id="${headId}">${title}</h3>
             ${desc ? `<p>${desc}</p>` : ''}
           </div>
         </div>
@@ -757,11 +758,12 @@ ar: {
     const back = document.createElement('div');
     const s = GENERAL_STR[kiwiLang()] || GENERAL_STR.fr;
     back.className = 'kiwi-drawer-backdrop' + (fullpage ? ' kiwi-fullpage' : '');
+    const headId = 'kw-drw-' + Math.random().toString(36).slice(2, 8);
     back.innerHTML = `
-      <div class="kiwi-drawer"${fullpage ? '' : ` style="width:${width}px;"`}>
+      <div class="kiwi-drawer"${fullpage ? '' : ` style="width:${width}px;"`} role="dialog" aria-modal="true" aria-labelledby="${headId}">
         <div class="kiwi-drawer-head">
           <div>
-            <h3>${title}</h3>
+            <h3 id="${headId}">${title}</h3>
             ${subtitle ? `<p>${subtitle}</p>` : ''}
           </div>
           <button class="kiwi-drawer-close" aria-label="${s.close}">${I.close}</button>
@@ -949,6 +951,9 @@ ar: {
     const kp = document.createElement('div');
     kp.className = 'kp';
     const cp = CP_STR[kiwiLang()] || CP_STR.fr;
+    kp.setAttribute('role', 'dialog');
+    kp.setAttribute('aria-modal', 'true');
+    kp.setAttribute('aria-label', cp.placeholder || 'Recherche');
     const items = [
       { sect: cp.sNav },
       { icon: '📊', label: cp.dash, sub: cp.dashSub, href: 'dashboard.html', kbd: 'G A' },

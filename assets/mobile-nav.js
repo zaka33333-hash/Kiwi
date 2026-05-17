@@ -40,10 +40,7 @@
     const sidebar = document.querySelector('.sidebar');
     const app = document.querySelector('.app');
     if (sidebar && !sidebar.id) sidebar.id = 'kw-sidebar';
-    if (sidebar) {
-      sidebar.setAttribute('aria-label', 'Menu principal');
-      sidebar.setAttribute('aria-hidden', 'true');
-    }
+    if (sidebar) sidebar.setAttribute('aria-label', 'Menu principal');
 
     /* ── Re-home the sidebar so position:fixed actually anchors ──
      * .app carries a transform (reveal/lock animation) → it is a containing
@@ -51,6 +48,16 @@
      * space. On phones the sidebar lives directly under <body>; on desktop
      * it returns to .app as the first grid column. */
     const phoneMq = window.matchMedia('(max-width: 860px)');
+    /* aria-hidden only belongs on the sidebar at the phone breakpoint, where
+     * it is an off-canvas drawer that is genuinely hidden when closed. On
+     * desktop the sidebar is a permanent, visible landmark — leaving an
+     * aria-hidden="true" there (a leak from this mobile layer) would drop the
+     * entire navigation from assistive tech. */
+    function syncSidebarAria() {
+      if (!sidebar) return;
+      if (phoneMq.matches) sidebar.setAttribute('aria-hidden', String(!isMenuOpen()));
+      else sidebar.removeAttribute('aria-hidden');
+    }
     function placeSidebar() {
       if (!sidebar || !app) return;
       if (phoneMq.matches) {
@@ -58,6 +65,7 @@
       } else if (sidebar.parentElement !== app) {
         app.insertBefore(sidebar, app.firstElementChild);
       }
+      syncSidebarAria();
     }
     placeSidebar();
     phoneMq.addEventListener('change', placeSidebar);
@@ -86,8 +94,8 @@
       lastFocus = document.activeElement;
       document.body.classList.add('kw-menu-open');
       hamburger.setAttribute('aria-expanded', 'true');
+      syncSidebarAria();
       if (sidebar) {
-        sidebar.setAttribute('aria-hidden', 'false');
         const first = sidebar.querySelector('nav a, [role="button"]');
         if (first) setTimeout(() => first.focus(), 340);
       }
@@ -96,7 +104,7 @@
       if (!isMenuOpen()) return;
       document.body.classList.remove('kw-menu-open');
       hamburger.setAttribute('aria-expanded', 'false');
-      if (sidebar) sidebar.setAttribute('aria-hidden', 'true');
+      syncSidebarAria();
       if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
       lastFocus = null;
     }

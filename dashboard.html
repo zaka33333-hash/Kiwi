@@ -255,8 +255,8 @@
   .sidebar nav a.active::before { content: ""; position: absolute; inset-inline-start: 0; top: 6px; bottom: 6px; width: 3px; background: var(--mint); border-radius: 0; border-start-end-radius: 2px; border-end-end-radius: 2px; }
   .sidebar nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
   .sidebar nav a .tag { margin-left: auto; font-size: 10px; background: rgba(125,242,176,0.1); color: var(--mint); padding: 2px 6px; border-radius: 999px; font-family: var(--mono); }
-  .sidebar nav a .count { margin-left: auto; font-size: 10.5px; color: #6a6e6c; font-family: var(--mono); }
-  .sidebar .sect { text-transform: uppercase; letter-spacing: 0.14em; font-size: 10px; color: #5a605c; margin: 20px 10px 8px; font-weight: 500; }
+  .sidebar nav a .count { margin-left: auto; font-size: 10.5px; color: #7e827f; font-family: var(--mono); }
+  .sidebar .sect { text-transform: uppercase; letter-spacing: 0.14em; font-size: 10px; color: #7e827f; margin: 20px 10px 8px; font-weight: 500; }
 
   .sidebar .upsell { margin-top: auto; padding: 16px; border-radius: 12px; background: linear-gradient(145deg, rgba(125,242,176,0.08), rgba(11,110,79,0.1)); border: 1px solid rgba(125,242,176,0.12); margin-top: 18px; }
   .sidebar .upsell .t { font-family: var(--mono); font-size: 10px; color: var(--mint); letter-spacing: 0.1em; }
@@ -3251,12 +3251,11 @@
           <div class="dr-label" data-dr-label>Aujourd'hui</div>
           <div class="dr-sub" data-dr-sub>24.04.2026</div>
         </div>
-        <div class="dr-pills" role="tablist">
-          <button class="dr-pill on" data-action="date-range" data-range="aujourdhui" data-i18n="dash.range.pill.today">Aujourd'hui</button>
-          <button class="dr-pill" data-action="date-range" data-range="hier" data-i18n="dash.range.pill.yesterday">Hier</button>
-          <button class="dr-pill" data-action="date-range" data-range="septJours" data-i18n="dash.range.pill.7d">7 jours</button>
-          <button class="dr-pill" data-action="date-range" data-range="trenteJours" data-i18n="dash.range.pill.30d">30 jours</button>
-          <button class="dr-pill" data-action="date-range" data-range="personnalise" data-i18n="dash.range.pill.custom">Personnalisé</button>
+        <div class="dr-pills" role="group" aria-label="Plage de dates">
+          <button class="dr-pill on" type="button" data-action="date-range" data-range="aujourdhui" aria-pressed="true" data-i18n="dash.range.pill.today">Aujourd'hui</button>
+          <button class="dr-pill" type="button" data-action="date-range" data-range="hier" aria-pressed="false" data-i18n="dash.range.pill.yesterday">Hier</button>
+          <button class="dr-pill" type="button" data-action="date-range" data-range="septJours" aria-pressed="false" data-i18n="dash.range.pill.7d">7 jours</button>
+          <button class="dr-pill" type="button" data-action="date-range" data-range="trenteJours" aria-pressed="false" data-i18n="dash.range.pill.30d">30 jours</button>
         </div>
       </div>
 

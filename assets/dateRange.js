@@ -11,7 +11,12 @@
   const STORAGE_KEY = 'kiwiDateRange';
   const CMP_KEY = 'kiwiRevCompare';
   const DEFAULT_RANGE = 'aujourdhui';
-  const VALID = ['aujourdhui', 'hier', 'septJours', 'trenteJours', 'moisDernier', 'trimestre', 'annee', 'personnalise'];
+  /* 'personnalise' is intentionally absent: the custom-range pill was a
+   * demo stub (it silently mapped to 'aujourdhui'), so it was removed from
+   * the UI. Keeping it out of VALID also migrates any returning user whose
+   * stored range was 'personnalise' back to the default. The downstream
+   * `=== 'personnalise'` guards are left as harmless dead defensive code. */
+  const VALID = ['aujourdhui', 'hier', 'septJours', 'trenteJours', 'moisDernier', 'trimestre', 'annee'];
   const subscribers = new Set();
   let currentRange = DEFAULT_RANGE;
   let showComparison = false;
@@ -1469,7 +1474,11 @@
     const subEl = document.querySelector('[data-dr-sub]');
     if (labelEl) labelEl.textContent = RANGE_STR[lang]?.[currentRange] || RANGE_STR.fr[currentRange];
     if (subEl)   subEl.textContent = computeSubLine(currentRange);
-    document.querySelectorAll('.dr-pill').forEach(p => p.classList.toggle('on', p.dataset.range === currentRange));
+    document.querySelectorAll('.dr-pill').forEach(p => {
+      const on = p.dataset.range === currentRange;
+      p.classList.toggle('on', on);
+      p.setAttribute('aria-pressed', String(on));
+    });
   }
 
   /* ═══════════════ RENDER: HERO ═══════════════ */
