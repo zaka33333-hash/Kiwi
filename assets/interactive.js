@@ -8,6 +8,42 @@
   /* i18n — current locale (fr default); window.KiwiI18n owns the master dict. */
   const kiwiLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
 
+  const GENERAL_STR = {
+    fr: {
+      close: 'Fermer',
+      cancel: 'Annuler',
+      back: '← Retour',
+      continue: 'Continuer →',
+      download: 'Télécharger',
+      send: 'Envoyer',
+      or: 'Ou',
+      yes: 'Oui',
+      no: 'Non',
+    },
+    en: {
+      close: 'Close',
+      cancel: 'Cancel',
+      back: '← Back',
+      continue: 'Continue →',
+      download: 'Download',
+      send: 'Send',
+      or: 'Or',
+      yes: 'Yes',
+      no: 'No',
+    },
+    ar: {
+      close: 'إغلاق',
+      cancel: 'إلغاء',
+      back: '→ رجوع',
+      continue: 'متابعة ←',
+      download: 'تحميل',
+      send: 'إرسال',
+      or: 'أو',
+      yes: 'نعم',
+      no: 'لا',
+    }
+  };
+
   const AI_RESPONSES_STR = {
     fr: {
       'Envoyer le résumé de midi sur WhatsApp': '<b>Kiwi AI :</b> Résumé envoyé à <b>+212 6 xx xx xx xx</b>. Contenu : 24 380 MAD · 182 transactions · pic 13h · top serveuse Sofia (54 tx).',
@@ -92,6 +128,224 @@
     }
   };
 
+    const SIGNUP_STR = {
+    fr: {
+      tag: 'INSCRIPTION',
+      title: 'Commençons par vous connaître.',
+      desc: 'Votre compte Kiwi est activé en 3 minutes, directement depuis ce site.',
+      steps: ['Type de commerce', 'Identité', 'Activation'],
+      step_prefix: 'ÉTAPE',
+      finish_button: 'Terminer l\'inscription ✓',
+      business_resto: 'Restaurant / café',
+      business_resto_desc: 'Plan de salle, tables, split bill, ticket cuisine inclus.',
+      business_retail: 'Commerce de détail',
+      business_retail_desc: 'Épicerie, boutique, pharmacie — caisse rapide avec inventaire.',
+      business_services: 'Services',
+      business_services_desc: 'Salon de coiffure, beauté, VTC — prise de rdv + encaissement.',
+      business_other: 'Autre activité',
+      business_other_desc: 'Notre équipe vous recommande la meilleure configuration.',
+      shop_name_label: 'Nom de la boutique',
+      shop_name_placeholder: 'Ex. Café Atlas',
+      first_name_label: 'Prénom',
+      first_name_placeholder: 'Rachid',
+      last_name_label: 'Nom',
+      last_name_placeholder: 'Benhima',
+      phone_label: 'Téléphone marocain',
+      phone_placeholder: '+212 6 xx xx xx xx',
+      city_label: 'Ville',
+      city_placeholder: 'Casablanca',
+      kyc_notice: '🔒 Vos données restent hébergées au Maroc. KYC automatique via votre CIN à l\'étape suivante.',
+      ready_title: 'Votre compte Kiwi est prêt.',
+      ready_desc: 'Vous recevez votre terminal PAX A920 gratuitement sous 48h. En attendant, commencez à encaisser dès maintenant sur votre téléphone.',
+      subscription_label: 'ABONNEMENT',
+      subscription_value: '399 MAD/mois',
+      settlement_label: 'RÈGLEMENT',
+      settlement_value: 'T+1 auto',
+      hardware_label: 'MATÉRIEL',
+      hardware_value: 'Offert',
+      commitment_label: 'ENGAGEMENT',
+      commitment_value: 'Aucun',
+      toast_success_title: 'Compte Kiwi créé · RC en cours de vérification',
+      toast_success_desc: 'Un conseiller vous contacte dans 2 heures sur WhatsApp.'
+    },
+    en: {
+      tag: 'SIGN UP',
+      title: 'Let\'s get to know you.',
+      desc: 'Your Kiwi account is activated in 3 minutes, directly from this site.',
+      steps: ['Business Type', 'Identity', 'Activation'],
+      step_prefix: 'STEP',
+      finish_button: 'Finish registration ✓',
+      business_resto: 'Restaurant / café',
+      business_resto_desc: 'Floor plan, tables, split bill, kitchen ticket included.',
+      business_retail: 'Retail',
+      business_retail_desc: 'Grocery, shop, pharmacy — fast checkout with inventory.',
+      business_services: 'Services',
+      business_services_desc: 'Hair salon, beauty, ride-hailing — appointments + payment.',
+      business_other: 'Other activity',
+      business_other_desc: 'Our team will recommend the best configuration for you.',
+      shop_name_label: 'Shop Name',
+      shop_name_placeholder: 'e.g. Café Atlas',
+      first_name_label: 'First Name',
+      first_name_placeholder: 'Rachid',
+      last_name_label: 'Last Name',
+      last_name_placeholder: 'Benhima',
+      phone_label: 'Moroccan Phone',
+      phone_placeholder: '+212 6 xx xx xx xx',
+      city_label: 'City',
+      city_placeholder: 'Casablanca',
+      kyc_notice: '🔒 Your data remains hosted in Morocco. Automatic KYC via your CIN in the next step.',
+      ready_title: 'Your Kiwi account is ready.',
+      ready_desc: 'You will receive your free PAX A920 terminal within 48 hours. In the meantime, start taking payments now on your phone.',
+      subscription_label: 'SUBSCRIPTION',
+      subscription_value: '399 MAD/month',
+      settlement_label: 'SETTLEMENT',
+      settlement_value: 'D+1 auto',
+      hardware_label: 'HARDWARE',
+      hardware_value: 'Free',
+      commitment_label: 'COMMITMENT',
+      commitment_value: 'None',
+      toast_success_title: 'Kiwi account created · Trade registry under review',
+      toast_success_desc: 'An advisor will contact you within 2 hours on WhatsApp.'
+    },
+    ar: {
+      tag: 'تسجيل',
+      title: 'لنبدأ بالتعرف عليك.',
+      desc: 'يتم تفعيل حسابك في كيوي في 3 دقائق، مباشرة من هذا الموقع.',
+      steps: ['نوع النشاط', 'الهوية', 'التفعيل'],
+      step_prefix: 'خطوة',
+      finish_button: 'إنهاء التسجيل ✓',
+      business_resto: 'مطعم / مقهى',
+      business_resto_desc: 'خطة القاعة، الطاولات، تقسيم الفاتورة، تذكرة المطبخ متضمنة.',
+      business_retail: 'تجارة التجزئة',
+      business_retail_desc: 'بقالة، متجر، صيدلية - دفع سريع مع إدارة المخزون.',
+      business_services: 'خدمات',
+      business_services_desc: 'صالون حلاقة، تجميل، سيارات الأجرة - حجز المواعيد + التحصيل.',
+      business_other: 'نشاط آخر',
+      business_other_desc: 'فريقنا سيوصيك بأفضل إعداد.',
+      shop_name_label: 'اسم المتجر',
+      shop_name_placeholder: 'مثال: مقهى أطلس',
+      first_name_label: 'الاسم الشخصي',
+      first_name_placeholder: 'رشيد',
+      last_name_label: 'الاسم العائلي',
+      last_name_placeholder: 'بن هيمة',
+      phone_label: 'الهاتف المغربي',
+      phone_placeholder: 'xx xx xx 6 212+',
+      city_label: 'المدينة',
+      city_placeholder: 'الدار البيضاء',
+      kyc_notice: '🔒 بياناتك تبقى مستضافة في المغرب. التحقق من الهوية تلقائي عبر بطاقتكم الوطنية في الخطوة التالية. /* AR: needs native review */',
+      ready_title: 'حسابك في كيوي جاهز.',
+      ready_desc: 'ستستلم جهاز PAX A920 مجانًا في غضون 48 ساعة. في هذه الأثناء، ابدأ في تحصيل المدفوعات الآن على هاتفك. /* AR: needs native review */',
+      subscription_label: 'الاشتراك',
+      subscription_value: '399 درهم/شهر',
+      settlement_label: 'التسوية',
+      settlement_value: 'ي+1 تلقائي',
+      hardware_label: 'الجهاز',
+      hardware_value: 'مجاني',
+      commitment_label: 'الالتزام',
+      commitment_value: 'لا يوجد',
+      toast_success_title: 'تم إنشاء حساب كيوي · السجل التجاري قيد المراجعة',
+      toast_success_desc: 'سيتصل بك مستشار في غضون ساعتين على WhatsApp. /* AR: needs native review */'
+    }
+  };
+
+  const LOGIN_STR = {
+    fr: {
+        title: 'Connexion',
+        desc: 'Accédez à votre tableau de bord Kiwi.',
+        email_label: 'Email',
+        password_label: 'Mot de passe',
+        remember_me: 'Se souvenir de moi',
+        forgot_password: 'Mot de passe oublié ?',
+        login_button: 'Se connecter',
+        no_account: 'Pas encore de compte ?',
+        create_account: 'Créez-en un'
+    },
+    en: {
+        title: 'Login',
+        desc: 'Access your Kiwi dashboard.',
+        email_label: 'Email',
+        password_label: 'Password',
+        remember_me: 'Remember me',
+        forgot_password: 'Forgot password?',
+        login_button: 'Log in',
+        no_account: 'No account yet?',
+        create_account: 'Create one'
+    },
+ar: {
+        title: 'تسجيل الدخول',
+        desc: 'الوصول إلى لوحة تحكم كيوي الخاصة بك.',
+        email_label: 'البريد الإلكتروني',
+        password_label: 'كلمة المرور',
+        remember_me: 'تذكرني',
+        forgot_password: 'هل نسيت كلمة المرور؟',
+        login_button: 'تسجيل الدخول',
+        no_account: 'ليس لديك حساب بعد؟',
+        create_account: 'أنشئ حسابًا'
+    }
+  };
+
+  const NOTIFICATIONS_STR = {
+      fr: {
+          title: 'Notifications',
+          subtitle: '3 non lues',
+          settlement_ready_title: 'Virement de 23 091 MAD prêt',
+          settlement_ready_desc: 'Votre règlement T+1 est prêt et sera viré demain à 9h.',
+          time_12_min: 'il y a 12 min',
+          terminal_offline_title: 'Terminal T2 hors ligne',
+          terminal_offline_desc: 'Le terminal de la terrasse semble déconnecté depuis 1 heure.',
+          time_1_hr: 'il y a 1 h',
+          ai_suggestion_title: 'Suggestion Kiwi AI',
+          ai_suggestion_desc: 'Le taux de pourboire du soir est 3x celui du midi. Pensez à activer un prompt +15% après 20h.',
+          time_2_hr: 'il y a 2 h',
+          yesterday_tx_title: 'Résumé transactions hier',
+          yesterday_tx_desc: 'Vous avez encaissé 45 310 MAD sur 251 transactions.',
+          time_yesterday_2345: 'Hier, 23:45',
+          fatima_signed_title: 'Fatima Khalki a signé son contrat',
+          fatima_signed_desc: 'Le document est disponible dans votre espace RH.',
+          time_yesterday_2100: 'Hier, 21:00',
+          mark_all_read: 'Marquer tout comme lu'
+      },
+      en: {
+          title: 'Notifications',
+          subtitle: '3 unread',
+          settlement_ready_title: 'Settlement of 23,091 MAD ready',
+          settlement_ready_desc: 'Your D+1 settlement is ready and will be transferred tomorrow at 9am.',
+          time_12_min: '12 min ago',
+          terminal_offline_title: 'Terminal T2 offline',
+          terminal_offline_desc: 'The terrace terminal seems to have been disconnected for 1 hour.',
+          time_1_hr: '1 hr ago',
+          ai_suggestion_title: 'Kiwi AI Suggestion',
+          ai_suggestion_desc: 'The evening tip rate is 3x the lunch rate. Consider activating a +15% prompt after 8pm.',
+          time_2_hr: '2 hr ago',
+          yesterday_tx_title: 'Yesterday\'s transaction summary',
+          yesterday_tx_desc: 'You collected 45,310 MAD from 251 transactions.',
+          time_yesterday_2345: 'Yesterday, 11:45 PM',
+          fatima_signed_title: 'Fatima Khalki signed her contract',
+          fatima_signed_desc: 'The document is available in your HR space.',
+          time_yesterday_2100: 'Yesterday, 9:00 PM',
+          mark_all_read: 'Mark all as read'
+      },
+      ar: {
+          title: 'الإشعارات',
+          subtitle: '3 غير مقروءة',
+          settlement_ready_title: 'تسوية بقيمة 23,091 درهم جاهزة',
+          settlement_ready_desc: 'تسوية ي+1 جاهزة وسيتم تحويلها غدًا الساعة 9 صباحًا.',
+          time_12_min: 'قبل 12 دقيقة',
+          terminal_offline_title: 'الجهاز T2 غير متصل',
+          terminal_offline_desc: 'يبدو أن جهاز التراس غير متصل منذ ساعة واحدة.',
+          time_1_hr: 'قبل ساعة',
+          ai_suggestion_title: 'اقتراح من ذكاء كيوي الاصطناعي',
+          ai_suggestion_desc: 'معدل الإكرامية المسائية هو 3 أضعاف معدل الغداء. فكر في تفعيل مطالبة +15% بعد الساعة 8 مساءً.',
+          time_2_hr: 'قبل ساعتين',
+          yesterday_tx_title: 'ملخص معاملات الأمس',
+          yesterday_tx_desc: 'لقد حصّلت 45,310 درهم من 251 معاملة.',
+          time_yesterday_2345: 'أمس، 23:45',
+          fatima_signed_title: 'فاطمة خالقي وقعت عقدها',
+          fatima_signed_desc: 'المستند متوفر في قسم الموارد البشرية الخاص بك.',
+          time_yesterday_2100: 'أمس، 21:00',
+          mark_all_read: 'وضع علامة على الكل كمقروء'
+      }
+  };
 
 
   /* ─────────── INJECTED STYLES ─────────── */
@@ -139,21 +393,21 @@
     overflow-y: auto;
     padding: 16px 20px;
     overscroll-behavior: contain;
-    /* Isolate this scroll container's painting so its scroll doesn't
+    /* Isolate this scroll container\'s painting so its scroll doesn\'t
      * invalidate the backdrop-filter sampling of the body behind it. */
     contain: layout style paint;
     -webkit-overflow-scrolling: touch;
   }
   /* Scroll-lock the underlying page while any drawer/modal is open.
-   * Counter-tracked (window.__kiwiScrollLocks) so nested layers don't
-   * unlock prematurely. We also pause the body's ambient-blob drift
-   * animation — without this, the drawer's backdrop-filter:blur has
+   * Counter-tracked (window.__kiwiScrollLocks) so nested layers don\'t
+   * unlock prematurely. We also pause the body\'s ambient-blob drift
+   * animation — without this, the drawer\'s backdrop-filter:blur has
    * to re-sample a moving target every frame, which Safari hates.
    *
    * IMPORTANT: lock ONLY <html> (the document scroller). Putting
    * overflow:hidden on <body> turns <body> into a scroll container,
    * which captures the position:sticky desktop sidebar — it then
-   * re-anchors to body's unscrolled scrollport and renders far up the
+   * re-anchors to body\'s unscrolled scrollport and renders far up the
    * page (only its lower portion stays visible). Locking the html
    * scroller alone freezes the page without breaking sticky children. */
   html.kiwi-locked { overflow: hidden; }
@@ -342,6 +596,7 @@
   function toast(title, {desc = '', type = 'success', duration = 3000, action = null} = {}) {
     const c = ensureToasts();
     const t = document.createElement('div');
+    const s = GENERAL_STR[kiwiLang()] || GENERAL_STR.fr;
     t.className = `kiwi-toast ${type}`;
     t.innerHTML = `
       <div class="ti">${I[type] || I.info}</div>
@@ -350,7 +605,7 @@
         ${desc ? `<div class="ts">${escape(desc)}</div>` : ''}
         ${action ? `<button class="ta">${escape(action.label)}</button>` : ''}
       </div>
-      <button class="tx" aria-label="Fermer">×</button>
+      <button class="tx" aria-label="${s.close}">×</button>
     `;
     c.appendChild(t);
     requestAnimationFrame(() => t.classList.add('in'));
@@ -363,10 +618,11 @@
   /* ═══════════════════════ MODAL ═══════════════════════ */
   function modal({title = '', tag = '', desc = '', body = '', foot = '', width = 540}) {
     const back = document.createElement('div');
+    const s = GENERAL_STR[kiwiLang()] || GENERAL_STR.fr;
     back.className = 'kiwi-backdrop';
     back.innerHTML = `
       <div class="kiwi-modal" style="max-width:${width}px;">
-        <button class="kiwi-modal-close" aria-label="Fermer">${I.close}</button>
+        <button class="kiwi-modal-close" aria-label="${s.close}">${I.close}</button>
         <div class="kiwi-modal-head">
           <div>
             ${tag ? `<div class="tag">${tag}</div>` : ''}
@@ -426,6 +682,7 @@
       else b.remove();
     });
     const back = document.createElement('div');
+    const s = GENERAL_STR[kiwiLang()] || GENERAL_STR.fr;
     back.className = 'kiwi-drawer-backdrop' + (fullpage ? ' kiwi-fullpage' : '');
     back.innerHTML = `
       <div class="kiwi-drawer"${fullpage ? '' : ` style="width:${width}px;"`}>
@@ -434,7 +691,7 @@
             <h3>${title}</h3>
             ${subtitle ? `<p>${subtitle}</p>` : ''}
           </div>
-          <button class="kiwi-drawer-close" aria-label="Fermer">${I.close}</button>
+          <button class="kiwi-drawer-close" aria-label="${s.close}">${I.close}</button>
         </div>
         <div class="kiwi-drawer-body">${body}</div>
         ${foot ? `<div class="kiwi-drawer-foot">${foot}</div>` : ''}
@@ -480,13 +737,13 @@
     m.className = 'kiwi-menu';
     m.innerHTML = items.map(it => it.head ? `<div class="kiwi-menu-head">${escape(it.head)}</div>` : it.sep ? `<div class="kiwi-menu-sep"></div>` : `<div class="kiwi-menu-item ${it.danger?'danger':''} ${it.active?'active':''}" data-idx="${items.indexOf(it)}">${it.icon || ''}<span>${escape(it.label)}</span></div>`).join('');
     document.body.appendChild(m);
-    /* The menu is position:fixed (see CSS) so it's placed in viewport
+    /* The menu is position:fixed (see CSS) so it\'s placed in viewport
      * coordinates straight from getBoundingClientRect — no scroll math.
      * This keeps it anchored correctly even though the sidebar is sticky. */
     const vh = window.innerHeight || document.documentElement.clientHeight || 0;
     const vw = window.innerWidth || document.documentElement.clientWidth || 0;
     const mh = m.offsetHeight;
-    /* Open downward by default, but flip above the anchor when there isn't
+    /* Open downward by default, but flip above the anchor when there isn\'t
      * room below — e.g. the sidebar profile menu, anchored near the bottom. */
     const flipUp = vh && (r.bottom + mh + 12 > vh) && (r.top - mh - 12 > 0);
     m.style.top = flipUp ? `${r.top - mh - 6}px` : `${r.bottom + 6}px`;
@@ -533,7 +790,7 @@
     fr: {
       sNav: 'NAVIGATION', sActions: 'ACTIONS RAPIDES', sResto: 'RESTAURATION', sHelp: 'AIDE', sAi: 'Kiwi AI', executed: 'exécuté',
       dash: 'Tableau de bord', dashSub: 'Vue principale',
-      orders: 'Commandes', ordersSub: "Aujourd'hui · live",
+      orders: 'Commandes', ordersSub: "Aujourd\'hui · live",
       team: 'Équipe', teamSub: '8 membres', teamToast: 'Page équipe',
       assistant: 'Assistant financier', assistantSub: 'Calculateur · prévisions · scénarios',
       newSale: 'Nouvelle vente', newSaleSub: 'Encaisser un montant',
@@ -774,11 +1031,13 @@
     'signup': () => {
       let step = 0;
       let business = 'resto';
-      const steps = ['Type de commerce', 'Identité', 'Activation'];
+      const s = SIGNUP_STR[kiwiLang()] || SIGNUP_STR.fr;
+      const gen = GENERAL_STR[kiwiLang()] || GENERAL_STR.fr;
+
       const m = modal({
-        tag: 'INSCRIPTION',
-        title: 'Commençons par vous connaître.',
-        desc: 'Votre compte Kiwi est activé en 3 minutes, directement depuis ce site.',
+        tag: s.tag,
+        title: s.title,
+        desc: s.desc,
         body: render(),
         width: 560,
       });
@@ -789,11 +1048,11 @@
             <div class="wiz-step ${step >= 1 ? 'active' : ''}"></div>
             <div class="wiz-step ${step >= 2 ? 'active' : ''}"></div>
           </div>
-          <div style="font-size:11px; color:var(--n-500); letter-spacing:0.08em; text-transform:uppercase; font-family:var(--mono); margin-bottom:10px;">ÉTAPE ${step + 1} / 3 · ${steps[step]}</div>
+          <div style="font-size:11px; color:var(--n-500); letter-spacing:0.08em; text-transform:uppercase; font-family:var(--mono); margin-bottom:10px;">${s.step_prefix} ${step + 1} / 3 · ${s.steps[step]}</div>
           ${step === 0 ? step0() : step === 1 ? step1() : step2()}
           <div style="display:flex; justify-content:space-between; margin-top:22px; gap:10px;">
-            <button class="kb ghost" data-prev ${step === 0 ? 'disabled style="opacity:0.4;"' : ''}>← Retour</button>
-            <button class="kb primary" data-next>${step === 2 ? 'Terminer l\'inscription ✓' : 'Continuer →'}</button>
+            <button class="kb ghost" data-prev ${step === 0 ? 'disabled style="opacity:0.4;"' : ''}>${gen.back}</button>
+            <button class="kb primary" data-next>${step === 2 ? s.finish_button : gen.continue}</button>
           </div>
         `;
       }
@@ -802,19 +1061,19 @@
           <div style="display:flex; flex-direction:column; gap:10px;">
             <div class="wiz-choice ${business==='resto'?'selected':''}" data-biz="resto">
               <div class="wc-ic">🍽️</div>
-              <div><div class="wc-t">Restaurant / café</div><div class="wc-d">Plan de salle, tables, split bill, ticket cuisine inclus.</div></div>
+              <div><div class="wc-t">${s.business_resto}</div><div class="wc-d">${s.business_resto_desc}</div></div>
             </div>
             <div class="wiz-choice ${business==='retail'?'selected':''}" data-biz="retail">
               <div class="wc-ic">🛒</div>
-              <div><div class="wc-t">Commerce de détail</div><div class="wc-d">Épicerie, boutique, pharmacie — caisse rapide avec inventaire.</div></div>
+              <div><div class="wc-t">${s.business_retail}</div><div class="wc-d">${s.business_retail_desc}</div></div>
             </div>
             <div class="wiz-choice ${business==='services'?'selected':''}" data-biz="services">
               <div class="wc-ic">✂️</div>
-              <div><div class="wc-t">Services</div><div class="wc-d">Salon de coiffure, beauté, VTC — prise de rdv + encaissement.</div></div>
+              <div><div class="wc-t">${s.business_services}</div><div class="wc-d">${s.business_services_desc}</div></div>
             </div>
             <div class="wiz-choice ${business==='other'?'selected':''}" data-biz="other">
               <div class="wc-ic">💼</div>
-              <div><div class="wc-t">Autre activité</div><div class="wc-d">Notre équipe vous recommande la meilleure configuration.</div></div>
+              <div><div class="wc-t">${s.business_other}</div><div class="wc-d">${s.business_other_desc}</div></div>
             </div>
           </div>
         `;
@@ -822,30 +1081,30 @@
       function step1() {
         return `
           <div class="kf-group">
-            <label class="kf-label">Nom de la boutique</label>
-            <input class="kf-input" placeholder="Ex. Café Atlas" value="Café Atlas" />
+            <label class="kf-label">${s.shop_name_label}</label>
+            <input class="kf-input" placeholder="${s.shop_name_placeholder}" value="Café Atlas" />
           </div>
           <div class="kf-row">
             <div class="kf-group">
-              <label class="kf-label">Prénom</label>
-              <input class="kf-input" placeholder="Rachid" value="Rachid" />
+              <label class="kf-label">${s.first_name_label}</label>
+              <input class="kf-input" placeholder="${s.first_name_placeholder}" value="Rachid" />
             </div>
             <div class="kf-group">
-              <label class="kf-label">Nom</label>
-              <input class="kf-input" placeholder="Benhima" value="Benhima" />
+              <label class="kf-label">${s.last_name_label}</label>
+              <input class="kf-input" placeholder="${s.last_name_placeholder}" value="Benhima" />
             </div>
           </div>
           <div class="kf-row">
             <div class="kf-group">
-              <label class="kf-label">Téléphone marocain</label>
-              <input class="kf-input" placeholder="+212 6 xx xx xx xx" />
+              <label class="kf-label">${s.phone_label}</label>
+              <input class="kf-input" placeholder="${s.phone_placeholder}" />
             </div>
             <div class="kf-group">
-              <label class="kf-label">Ville</label>
-              <input class="kf-input" placeholder="Casablanca" value="Casablanca" />
+              <label class="kf-label">${s.city_label}</label>
+              <input class="kf-input" placeholder="${s.city_placeholder}" value="Casablanca" />
             </div>
           </div>
-          <div class="kf-help">🔒 Vos données restent hébergées au Maroc. KYC automatique via votre CIN à l'étape suivante.</div>
+          <div class="kf-help">${s.kyc_notice}</div>
         `;
       }
       function step2() {
@@ -854,14 +1113,14 @@
             <div style="width:70px; height:70px; margin:0 auto 16px; border-radius:22px; background:var(--atlas); color:var(--mint); display:flex; align-items:center; justify-content:center;">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
             </div>
-            <h3 style="font-size:22px; font-weight:600; letter-spacing:-0.02em; margin:0 0 8px;">Votre compte Kiwi est prêt.</h3>
-            <p style="color:var(--n-600); font-size:14px; margin:0 auto; max-width:380px;">Vous recevez votre terminal PAX A920 gratuitement sous 48h. En attendant, commencez à encaisser dès maintenant sur votre téléphone.</p>
+            <h3 style="font-size:22px; font-weight:600; letter-spacing:-0.02em; margin:0 0 8px;">${s.ready_title}</h3>
+            <p style="color:var(--n-600); font-size:14px; margin:0 auto; max-width:380px;">${s.ready_desc}</p>
           </div>
           <div style="background:var(--paper-soft); border-radius:12px; padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px;">
-            <div><div style="color:var(--n-500); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-family:var(--mono);">ABONNEMENT</div><b style="font-size:18px;">399 MAD/mois</b></div>
-            <div><div style="color:var(--n-500); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-family:var(--mono);">RÈGLEMENT</div><b style="font-size:18px;">T+1 auto</b></div>
-            <div><div style="color:var(--n-500); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-family:var(--mono);">MATÉRIEL</div><b style="font-size:18px;">Offert</b></div>
-            <div><div style="color:var(--n-500); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-family:var(--mono);">ENGAGEMENT</div><b style="font-size:18px;">Aucun</b></div>
+            <div><div style="color:var(--n-500); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-family:var(--mono);">${s.subscription_label}</div><b style="font-size:18px;">${s.subscription_value}</b></div>
+            <div><div style="color:var(--n-500); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-family:var(--mono);">${s.settlement_label}</div><b style="font-size:18px;">${s.settlement_value}</b></div>
+            <div><div style="color:var(--n-500); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-family:var(--mono);">${s.hardware_label}</div><b style="font-size:18px;">${s.hardware_value}</b></div>
+            <div><div style="color:var(--n-500); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; font-family:var(--mono);">${s.commitment_label}</div><b style="font-size:18px;">${s.commitment_value}</b></div>
           </div>
         `;
       }
@@ -870,7 +1129,7 @@
         if (biz) { business = biz.dataset.biz; m.el.querySelector('.kiwi-modal-body').innerHTML = render(); }
         if (e.target.closest('[data-next]')) {
           if (step < 2) { step++; m.el.querySelector('.kiwi-modal-body').innerHTML = render(); }
-          else { m.close(); confetti(); toast('Compte Kiwi créé · RC en cours de vérification', {type: 'success', desc: 'Un conseiller vous contacte dans 2 heures sur WhatsApp.'}); }
+          else { m.close(); confetti(); toast(s.toast_success_title, {type: 'success', desc: s.toast_success_desc}); }
         }
         if (e.target.closest('[data-prev]')) {
           if (step > 0) { step--; m.el.querySelector('.kiwi-modal-body').innerHTML = render(); }
@@ -879,25 +1138,26 @@
     },
 
     'login': () => {
+      const s = (LOGIN_STR[kiwiLang()] || LOGIN_STR.fr);
       modal({
-        title: 'Se connecter à Kiwi',
-        desc: 'Accédez à votre tableau de bord commerçant.',
+        title: s.title,
+        desc: s.desc,
         width: 440,
         body: `
           <div class="kf-group">
-            <label class="kf-label">Email ou téléphone</label>
+            <label class="kf-label">${s.email_label}</label>
             <input class="kf-input" placeholder="rachid@cafeatlas.ma" />
           </div>
           <div class="kf-group">
-            <label class="kf-label">Mot de passe</label>
+            <label class="kf-label">${s.password_label}</label>
             <input class="kf-input" type="password" placeholder="••••••••" />
           </div>
           <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-top:8px;">
-            <label style="display:flex; gap:6px; color:var(--n-600);"><input type="checkbox" checked/> Se souvenir de moi</label>
-            <a href="#" style="color:var(--atlas); font-weight:500;">Mot de passe oublié ?</a>
+            <label style="display:flex; gap:6px; color:var(--n-600);"><input type="checkbox" checked/> ${s.remember_me}</label>
+            <a href="#" style="color:var(--atlas); font-weight:500;">${s.forgot_password}</a>
           </div>
-          <button class="kb primary" style="width:100%; justify-content:center; margin-top:18px; padding:12px;" data-login-go>Se connecter →</button>
-          <div style="text-align:center; margin-top:14px; font-size:13px; color:var(--n-500);">Pas encore de compte ? <a href="#" data-to-signup style="color:var(--atlas); font-weight:500;">Créer un compte Kiwi</a></div>
+          <button class="kb primary" style="width:100%; justify-content:center; margin-top:18px; padding:12px;" data-login-go>${s.login_button} →</button>
+          <div style="text-align:center; margin-top:14px; font-size:13px; color:var(--n-500);">${s.no_account} <a href="#" data-to-signup style="color:var(--atlas); font-weight:500;">${s.create_account}</a></div>
         `
       });
       const loginHandler = (e) => {
@@ -917,55 +1177,57 @@
 
     'search': () => commandPalette(),
 
-    'notifications': () => drawer({
-      title: 'Notifications',
-      subtitle: '3 non lues · 12 cette semaine',
+    'notifications': () => {
+      const s = (NOTIFICATIONS_STR[kiwiLang()] || NOTIFICATIONS_STR.fr);
+      drawer({
+      title: s.title,
+      subtitle: s.subtitle,
       body: `
         <div class="notif unread">
           <div class="n-ico" style="background:#E3F7EC; color:var(--atlas);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
           <div class="n-body">
-            <div class="n-title">Règlement prêt : 23 091 MAD</div>
-            <div class="n-desc">Votre règlement du 24 avril sera déposé demain matin à 9h00 sur BMCE ••3291.</div>
-            <div class="n-time">Il y a 12 min</div>
+            <div class="n-title">${s.settlement_ready_title}</div>
+            <div class="n-desc">${s.settlement_ready_desc}</div>
+            <div class="n-time">${s.time_12_min}</div>
           </div>
         </div>
         <div class="notif unread">
           <div class="n-ico" style="background:#FFF4DD; color:#8A6210;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
           <div class="n-body">
-            <div class="n-title">Terminal Terrasse hors-ligne</div>
-            <div class="n-desc">PAX A920 #2832 n'a pas de signal depuis 09:18. Vérifiez le Wi-Fi ou basculez en 4G.</div>
-            <div class="n-time">Il y a 1 h</div>
+            <div class="n-title">${s.terminal_offline_title}</div>
+            <div class="n-desc">${s.terminal_offline_desc}</div>
+            <div class="n-time">${s.time_1_hr}</div>
           </div>
         </div>
         <div class="notif unread">
           <div class="n-ico" style="background:#E3F0F7; color:var(--info);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg></div>
           <div class="n-body">
-            <div class="n-title">Kiwi AI · Suggestion</div>
-            <div class="n-desc">Votre pic samedi soir génère +34 % vs moyenne. Ajoutez un 2e serveur ?</div>
-            <div class="n-time">Il y a 2 h</div>
+            <div class="n-title">${s.ai_suggestion_title}</div>
+            <div class="n-desc">${s.ai_suggestion_desc}</div>
+            <div class="n-time">${s.time_2_hr}</div>
           </div>
         </div>
         <div class="notif">
           <div class="n-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/></svg></div>
           <div class="n-body">
-            <div class="n-title">182 transactions hier</div>
-            <div class="n-desc">Total 20 656 MAD · commission 246 MAD · pourboires 1 412 MAD.</div>
-            <div class="n-time">Hier, 23:45</div>
+            <div class="n-title">${s.yesterday_tx_title}</div>
+            <div class="n-desc">${s.yesterday_tx_desc}</div>
+            <div class="n-time">${s.time_yesterday_2345}</div>
           </div>
         </div>
         <div class="notif">
           <div class="n-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12l-2-2m-6 6l-6 6H4v-4l6-6m4-4l6-6 4 4-6 6-4-4z"/></svg></div>
           <div class="n-body">
-            <div class="n-title">Fatima Khalki a signé 14h de service</div>
-            <div class="n-desc">Bilan hebdo équipe prêt pour consultation.</div>
-            <div class="n-time">Hier, 21:00</div>
+            <div class="n-title">${s.fatima_signed_title}</div>
+            <div class="n-desc">${s.fatima_signed_desc}</div>
+            <div class="n-time">${s.time_yesterday_2100}</div>
           </div>
         </div>
       `,
       foot: `
-        <button class="kb ghost" style="width:100%; justify-content:center;" data-mark-read>Marquer tout comme lu</button>
+        <button class="kb ghost" style="width:100%; justify-content:center;" data-mark-read>${s.mark_all_read}</button>
       `
-    }),
+    })},
 
     'settings': () => drawer({
       title: 'Paramètres',
@@ -1070,7 +1332,7 @@
           <div style="background:var(--atlas); color:var(--paper); border-radius:14px; padding:22px; margin-bottom:18px;">
             <div style="font-size:11px; color:var(--mint); letter-spacing:0.1em; font-family:var(--mono);">VOUS ALLEZ RECEVOIR</div>
             <div style="font-size:42px; font-weight:600; letter-spacing:-0.035em; line-height:1; margin-top:6px; font-feature-settings:'tnum' 1;">23 089,50 <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-            <div style="font-size:13px; color:#c6ead4; margin-top:10px;">Sur BMCE ••3291 · d'ici 10 secondes</div>
+            <div style="font-size:13px; color:#c6ead4; margin-top:10px;">Sur BMCE ••3291 · d\'ici 10 secondes</div>
           </div>
           <div style="display:flex; flex-direction:column; gap:6px; font-size:13.5px;">
             <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--n-200);"><span style="color:var(--n-500);">Montant brut</span><span class="mono" style="font-family:var(--mono); font-weight:500;">23 091,00 MAD</span></div>
@@ -1170,7 +1432,7 @@
               <li>✓ Caisse complète · multi-vertical</li>
               <li>✓ Règlement T+1 garanti</li>
               <li>✓ Support WhatsApp</li>
-              <li>✓ Jusqu'à 8 membres d'équipe</li>
+              <li>✓ Jusqu\'à 8 membres d\'équipe</li>
               <li>✓ Multi-site (3 venues)</li>
             </ul>
           </div>
@@ -1193,7 +1455,7 @@
         </div>
         <div class="upgrade-tip">
           <div>💡</div>
-          <div style="flex:1;"><b>Pourquoi Ultra :</b> votre compte multi-venues (Café Atlas · Maison Mansour · Spa Bahia) tire déjà parti du multi-site. Ultra ajoute le multi-pays, l'API enterprise et l'account manager dédié — le palier qu'utilisent les groupes hôteliers et chaînes premium au Maroc.</div>
+          <div style="flex:1;"><b>Pourquoi Ultra :</b> votre compte multi-venues (Café Atlas · Maison Mansour · Spa Bahia) tire déjà parti du multi-site. Ultra ajoute le multi-pays, l\'API enterprise et l\'account manager dédié — le palier qu\'utilisent les groupes hôteliers et chaînes premium au Maroc.</div>
         </div>
       `,
       foot: `
@@ -1248,7 +1510,7 @@
             </div>
             <div style="flex:1;">
               <div style="font-weight:600; font-size:16px; letter-spacing:-0.015em;">Scannez avec votre iPhone ou Android.</div>
-              <div style="font-size:13px; color:var(--n-500); margin-top:8px; line-height:1.5;">L'app s'installe automatiquement. Votre Kiwi Wallet est prêt en 30 secondes.</div>
+              <div style="font-size:13px; color:var(--n-500); margin-top:8px; line-height:1.5;">L\'app s\'installe automatiquement. Votre Kiwi Wallet est prêt en 30 secondes.</div>
             </div>
           </div>
           <div style="padding-top:16px; border-top:1px solid var(--n-200);">
@@ -1295,7 +1557,7 @@
       setTimeout(() => {
         typing.classList.remove('ai-msg-typing');
         typing.className = 'msg';
-        typing.innerHTML = aiResponses[txt] || `<b>${(CP_STR[kiwiLang()] || CP_STR.fr).sAi} :</b> ${txt} — ${(CP_STR[kiwiLang()] || CP_STR.fr).executed}. Consultez les détails dans l'onglet correspondant.`;
+        typing.innerHTML = aiResponses[txt] || `<b>${(CP_STR[kiwiLang()] || CP_STR.fr).sAi} :</b> ${txt} — ${(CP_STR[kiwiLang()] || CP_STR.fr).executed}. Consultez les détails dans l\'onglet correspondant.`;
       }, 1200);
     },
 
@@ -1335,7 +1597,7 @@
         return;
       }
       // Generic detail view for personalised / derived KPIs — reads the
-      // clicked tile's live value + delta so it's never an empty drawer.
+      // clicked tile\'s live value + delta so it\'s never an empty drawer.
       const label = el?.querySelector('.l span, .l, .lbl')?.textContent?.trim() || 'Indicateur';
       const value = el?.querySelector('.v')?.textContent?.trim() || '—';
       const delta = el?.querySelector('.d')?.textContent?.trim() || '';
@@ -1439,15 +1701,456 @@
   const KPI_DESC = (KPI_DESC_STR[kiwiLang()] || KPI_DESC_STR.fr);
   const KPI_LONG = (KPI_LONG_STR[kiwiLang()] || KPI_LONG_STR.fr);
 
+  const KPI_DATA_STR = {
+    fr: {
+      tx_title: 'Transactions',
+      tx_subtitle: 'Vendredi 24 avril · service en cours',
+      tx_foot_close: 'Fermer',
+      tx_foot_journal: 'Voir le journal complet →',
+      tx_hero_pic: 'Pic à 13h00 · 24 transactions sur l\'heure',
+      tx_hero_delta: '↑ +24 vs hier (+15 %)',
+      tx_section_repartition: 'RÉPARTITION HORAIRE',
+      tx_section_server: 'PAR SERVEUR',
+      tx_server_sofia: 'Sofia Belkadi',
+      tx_server_sofia_role: 'barista · comptoir',
+      tx_server_fatima: 'Fatima Khalki',
+      tx_server_fatima_role: 'serveuse · salle',
+      tx_server_hamid: 'Hamid Jelloul',
+      tx_server_hamid_role: 'serveur · terrasse',
+      tx_server_youssef: 'Youssef Amrani',
+      tx_server_youssef_role: 'serveur · 17h-23h',
+      tx_server_auto: 'Auto-caisse',
+      tx_server_auto_role: 'sans contact',
+      tx_insight: '<b style="color:var(--mint);">Insight :</b> Sofia transforme 54 % de plus que la moyenne salle. Lui assigner les tables T1-T3 ce soir pourrait ajouter ~2 400 MAD au service.',
+      panier_title: 'Panier moyen',
+      panier_subtitle: '24 dernières heures · tous canaux',
+      panier_foot_ia: 'Activer recommandations IA →',
+      panier_hero_median: 'Médiane 95 MAD · max 1 240 MAD (anniversaire T8)',
+      panier_hero_delta: '≈ stable vs hier',
+      panier_section_distribution: 'DISTRIBUTION DES TICKETS',
+      panier_section_segmentation: 'SEGMENTATION',
+      panier_segment_regulars: 'Clients réguliers',
+      panier_segment_regulars_sub: '47 clients · ticket moyen',
+      panier_segment_occasional: 'Clients occasionnels',
+      panier_segment_occasional_sub: '108 clients · ticket moyen',
+      panier_segment_tourists: 'Touristes (carte étrangère)',
+      panier_segment_tourists_sub: '27 clients · ticket moyen',
+      panier_insight: '<b style="color:var(--mint);">Insight :</b> Vos réguliers dépensent <b>+45 %</b> vs occasionnels. Les recommandations IA en fin de commande (« +1 thé pour 12 MAD ») peuvent lever le ticket moyen de <b>~12 %</b>.',
+      tips_title: 'Pourboires',
+      tips_subtitle: 'Cumul du jour · à distribuer en fin de service',
+      tips_foot_distribute: 'Distribuer maintenant →',
+      tips_hero_avg: '7,6 % du chiffre encaissé · taux moyen 8,2 %',
+      tips_hero_delta: '↑ +32 % vs semaine',
+      tips_section_prompt: 'PROMPT POURBOIRE',
+      tips_prompt_auto: 'Prompt auto +10 %',
+      tips_prompt_auto_sub: 'Affiché sur 78 % des tickets aujourd\'hui · taux d\'acceptation 64 %',
+      tips_section_server: 'PAR SERVEUR',
+      tips_server_sofia: 'Sofia Belkadi',
+      tips_server_sofia_rate: 'taux 11,2 %',
+      tips_server_fatima: 'Fatima Khalki',
+      tips_server_fatima_rate: 'taux 8,8 %',
+      tips_server_hamid: 'Hamid Jelloul',
+      tips_server_hamid_rate: 'taux 7,4 %',
+      tips_server_youssef: 'Youssef Amrani',
+      tips_server_youssef_rate: 'taux 5,1 %',
+      tips_section_period: 'PAR PÉRIODE',
+      tips_period_breakfast: 'Petit-déj 8h-11h',
+      tips_period_breakfast_rate: '1,8 % de taux',
+      tips_period_lunch: 'Déjeuner 12h-15h',
+      tips_period_lunch_rate: '7,4 % de taux',
+      tips_period_snack: 'Goûter 15h-18h',
+      tips_period_snack_rate: '4,2 % de taux',
+      tips_period_dinner: 'Dîner 19h-23h',
+      tips_period_dinner_rate: '11,8 % de taux',
+      tips_insight: '<b style="color:var(--mint);">Insight :</b> Le taux du soir est <b>~3×</b> celui du midi. Activer un prompt « +15 % » spécifique après 20h pourrait ajouter <b>~280 MAD/soir</b>.',
+      marge_title: 'Marge brute',
+      marge_subtitle: 'Chiffre d\'affaires moins coût matière · 30 jours',
+      marge_foot_cogs: 'Voir le coût matière →',
+      marge_hero_cogs: 'Coût matière 28,6 % du CA · objectif ≤ 30 %',
+      marge_hero_delta: '↑ +1,8 pt vs 30 jours préc.',
+      marge_section_category: 'MARGE PAR CATÉGORIE',
+      marge_cat_hot_drinks: 'Boissons chaudes',
+      marge_cat_hot_drinks_sub: '28 % du CA',
+      marge_cat_cold_drinks: 'Boissons fraîches',
+      marge_cat_cold_drinks_sub: '17 % du CA',
+      marge_cat_pastries: 'Pâtisseries maison',
+      marge_cat_pastries_sub: '21 % du CA',
+      marge_cat_dishes: 'Plats & salades',
+      marge_cat_dishes_sub: '34 % du CA',
+      marge_section_watch: 'À SURVEILLER',
+      marge_watch_juice: 'Jus pressés',
+      marge_watch_juice_sub: 'coût matière en hausse · +6 pts',
+      marge_watch_lunch: 'Formule déjeuner',
+      marge_watch_lunch_sub: 'marge sous l\'objectif',
+      marge_insight: '<b style="color:var(--mint);">Insight :</b> Les boissons chaudes portent la marge — <b>+3 pts</b> possibles en déplaçant la mise en avant menu des plats vers le café et la pâtisserie.',
+      success_title: 'Taux de succès',
+      success_subtitle: 'Conformité réseau et passerelle Bank Al-Maghrib',
+      success_foot_failures: 'Voir les échecs →',
+      success_hero_attempts: '184 tentatives · 183 succès · 1 échec',
+      success_hero_delta: '↑ +0,2 pt vs hier',
+      success_section_benchmark: 'BENCHMARK MARCHÉ',
+      success_bench_you: 'Café Atlas (vous)',
+      success_bench_avg: 'Cafés Casa moyenne',
+      success_bench_cmi: 'CMI traditionnel',
+      success_bench_pci: 'Standard PCI-DSS',
+      success_section_failure: 'UNIQUE ÉCHEC AUJOURD\'HUI',
+      success_failure_card: 'Mastercard •• 7821 · 13:42',
+      success_failure_reason: 'Code 51 · fonds insuffisants · BNP Paribas FR',
+      success_failure_status: 'ÉCHEC',
+      success_failure_recovery: 'Client a réessayé avec une autre carte 18 secondes plus tard · succès. Aucune perte.',
+      success_section_health: 'SANTÉ TECHNIQUE',
+      success_health_latency: 'Latence moyenne autorisation',
+      success_health_latency_sub: 'p95 = 2,1 s',
+      success_health_gateway: 'Disponibilité passerelle',
+      success_health_gateway_sub: 'BAM + acquéreur',
+      success_health_terminals: 'Terminaux en ligne',
+      success_health_terminals_sub: '3 / 3 PAX A920',
+      success_health_4g: 'Connectivité 4G secours',
+      success_health_4g_sub: 'utilisée 0 fois',
+      ratio_title: 'Ratio carte / espèces',
+      ratio_subtitle: 'Mix de paiement · 24 dernières heures',
+      ratio_foot_disable_cash: 'Désactiver l\'espèces →',
+      ratio_hero_gain: 'Carte gagne 4 pts vs semaine dernière · +12 pts depuis lancement',
+      ratio_hero_delta: '↑ +4 pts carte',
+      ratio_section_means: 'DÉTAIL DES MOYENS',
+      ratio_means_cash: 'Espèces',
+      ratio_section_hidden_cost: 'COÛT CACHÉ DE L\'ESPÈCES',
+      ratio_cost_bank: 'Tournée banque hebdo',
+      ratio_cost_bank_sub: '~ 45 min de gérance · vendredi',
+      ratio_cost_errors: 'Erreurs de caisse moy.',
+      ratio_cost_errors_sub: '0,4 % du volume cash',
+      ratio_cost_risk: 'Risque vol / perte',
+      ratio_cost_risk_sub: 'absent en mode 100 % carte',
+      ratio_cost_total: 'Total annuel évitable',
+      ratio_cost_total_sub: '180 + 11 300 + risque',
+      ratio_insight: '<b style="color:var(--mint);">Insight :</b> Si vous passez à 80 % carte (vs 68 % aujourd\'hui) avec un prompt « payez par carte = café offert le 10ᵉ », vous économisez <b>~12 800 MAD/an</b> de manipulation cash.',
+      regulars_title: 'Clients réguliers',
+      regulars_subtitle: 'Identifiés par carte tokenisée ou Kiwi Wallet',
+      regulars_foot_loyalty: 'Lancer programme fidélité →',
+      regulars_hero_base: '26 % de la base · taux de rétention 30 jours = 72 %',
+      regulars_hero_delta: '↑ +9 nouveaux cette semaine',
+      regulars_section_top5: 'TOP 5 RÉGULIERS · CE MOIS',
+      regulars_top5_1_sub: '12 visites · 18 cafés · 6 tajines',
+      regulars_top5_2_sub: '10 visites · membre depuis 2024',
+      regulars_top5_3_sub: '9 visites · toujours T6',
+      regulars_top5_4: 'Nawal Khalifi',
+      regulars_top5_4_sub: '8 visites · payeur Kiwi Wallet',
+      regulars_top5_5: 'Youssef Amrani (employé)',
+      regulars_top5_5_sub: '8 visites · pause déj.',
+      regulars_section_cohorts: 'COHORTES DE FRÉQUENCE',
+      regulars_cohorts_1: '1ʳᵉ visite ce mois',
+      regulars_cohorts_2: '2-3 visites',
+      regulars_cohorts_3: '4-7 visites',
+      regulars_cohorts_4: '8+ visites (hard core)',
+      regulars_section_reactivate: 'CLIENTS À RÉACTIVER',
+      regulars_reactivate_text: '<b>14 réguliers</b> n\'ont pas commandé depuis 6 semaines. Un message WhatsApp « on vous a manqué · −15 % la semaine prochaine » a converti <b>43 %</b> des relances le mois dernier.',
+      regulars_insight: '<b style="color:var(--mint);">Insight :</b> Vos 19 hard-core représentent <b>34 % du chiffre</b> alors qu\'ils ne sont que 10 % de la base. Un programme de fidélité (10ᵉ café offert) coûterait <b>~280 MAD/mois</b> et garderait ce groupe à très haute valeur.',
+      default_title: 'Métrique',
+      default_body: '<p style="color:var(--n-600);">Analyse détaillée disponible ici.</p>'
+    },
+    en: {
+      tx_title: 'Transactions',
+      tx_subtitle: 'Friday, April 24 · service in progress',
+      tx_foot_close: 'Close',
+      tx_foot_journal: 'View full log →',
+      tx_hero_pic: 'Peak at 1pm · 24 transactions in the hour',
+      tx_hero_delta: '↑ +24 vs yesterday (+15%)',
+      tx_section_repartition: 'HOURLY BREAKDOWN',
+      tx_section_server: 'BY SERVER',
+      tx_server_sofia: 'Sofia Belkadi',
+      tx_server_sofia_role: 'barista · counter',
+      tx_server_fatima: 'Fatima Khalki',
+      tx_server_fatima_role: 'waitress · floor',
+      tx_server_hamid: 'Hamid Jelloul',
+      tx_server_hamid_role: 'waiter · terrace',
+      tx_server_youssef: 'Youssef Amrani',
+      tx_server_youssef_role: 'waiter · 5pm-11pm',
+      tx_server_auto: 'Self-service checkout',
+      tx_server_auto_role: 'contactless',
+      tx_insight: '<b style="color:var(--mint);">Insight:</b> Sofia converts 54% more than the floor average. Assigning her tables T1-T3 tonight could add ~2,400 MAD to the service.',
+      panier_title: 'Average Basket',
+      panier_subtitle: 'Last 24 hours · all channels',
+      panier_foot_ia: 'Activate AI recommendations →',
+      panier_hero_median: 'Median 95 MAD · max 1,240 MAD (birthday T8)',
+      panier_hero_delta: '≈ stable vs yesterday',
+      panier_section_distribution: 'TICKET DISTRIBUTION',
+      panier_section_segmentation: 'SEGMENTATION',
+      panier_segment_regulars: 'Regular customers',
+      panier_segment_regulars_sub: '47 customers · average ticket',
+      panier_segment_occasional: 'Occasional customers',
+      panier_segment_occasional_sub: '108 customers · average ticket',
+      panier_segment_tourists: 'Tourists (foreign card)',
+      panier_segment_tourists_sub: '27 customers · average ticket',
+      panier_insight: '<b style="color:var(--mint);">Insight:</b> Your regulars spend <b>+45%</b> vs occasional customers. End-of-order AI recommendations ("+1 tea for 12 MAD") can lift the average ticket by <b>~12%</b>.',
+      tips_title: 'Tips',
+      tips_subtitle: 'Today\'s total · to be distributed at end of service',
+      tips_foot_distribute: 'Distribute now →',
+      tips_hero_avg: '7.6% of cashed revenue · average rate 8.2%',
+      tips_hero_delta: '↑ +32% vs week',
+      tips_section_prompt: 'TIP PROMPT',
+      tips_prompt_auto: 'Auto prompt +10%',
+      tips_prompt_auto_sub: 'Shown on 78% of tickets today · 64% acceptance rate',
+      tips_section_server: 'BY SERVER',
+      tips_server_sofia: 'Sofia Belkadi',
+      tips_server_sofia_rate: '11.2% rate',
+      tips_server_fatima: 'Fatima Khalki',
+      tips_server_fatima_rate: '8.8% rate',
+      tips_server_hamid: 'Hamid Jelloul',
+      tips_server_hamid_rate: '7.4% rate',
+      tips_server_youssef: 'Youssef Amrani',
+      tips_server_youssef_rate: '5.1% rate',
+      tips_section_period: 'BY PERIOD',
+      tips_period_breakfast: 'Breakfast 8am-11am',
+      tips_period_breakfast_rate: '1.8% rate',
+      tips_period_lunch: 'Lunch 12pm-3pm',
+      tips_period_lunch_rate: '7.4% rate',
+      tips_period_snack: 'Afternoon 3pm-6pm',
+      tips_period_snack_rate: '4.2% rate',
+      tips_period_dinner: 'Dinner 7pm-11pm',
+      tips_period_dinner_rate: '11.8% rate',
+      tips_insight: '<b style="color:var(--mint);">Insight:</b> The evening rate is <b>~3×</b> the lunch rate. Activating a specific "+15%" prompt after 8pm could add <b>~280 MAD/evening</b>.',
+      marge_title: 'Gross Margin',
+      marge_subtitle: 'Revenue minus cost of goods · 30 days',
+      marge_foot_cogs: 'View cost of goods →',
+      marge_hero_cogs: 'Cost of goods 28.6% of revenue · target ≤ 30%',
+      marge_hero_delta: '↑ +1.8 pt vs previous 30 days',
+      marge_section_category: 'MARGIN BY CATEGORY',
+      marge_cat_hot_drinks: 'Hot drinks',
+      marge_cat_hot_drinks_sub: '28% of revenue',
+      marge_cat_cold_drinks: 'Cold drinks',
+      marge_cat_cold_drinks_sub: '17% of revenue',
+      marge_cat_pastries: 'House pastries',
+      marge_cat_pastries_sub: '21% of revenue',
+      marge_cat_dishes: 'Dishes & salads',
+      marge_cat_dishes_sub: '34% of revenue',
+      marge_section_watch: 'TO WATCH',
+      marge_watch_juice: 'Fresh juices',
+      marge_watch_juice_sub: 'cost of goods rising · +6 pts',
+      marge_watch_lunch: 'Lunch special',
+      marge_watch_lunch_sub: 'margin below target',
+      marge_insight: '<b style="color:var(--mint);">Insight:</b> Hot drinks are driving the margin — <b>+3 pts</b> possible by shifting menu promotion from dishes to coffee and pastry.',
+      success_title: 'Success Rate',
+      success_subtitle: 'Network compliance and Bank Al-Maghrib gateway',
+      success_foot_failures: 'View failures →',
+      success_hero_attempts: '184 attempts · 183 successes · 1 failure',
+      success_hero_delta: '↑ +0.2 pt vs yesterday',
+      success_section_benchmark: 'MARKET BENCHMARK',
+      success_bench_you: 'Café Atlas (you)',
+      success_bench_avg: 'Avg. Casablanca cafés',
+      success_bench_cmi: 'Traditional CMI',
+      success_bench_pci: 'PCI-DSS Standard',
+      success_section_failure: 'TODAY\'S ONLY FAILURE',
+      success_failure_card: 'Mastercard •• 7821 · 1:42pm',
+      success_failure_reason: 'Code 51 · insufficient funds · BNP Paribas FR',
+      success_failure_status: 'FAILED',
+      success_failure_recovery: 'Customer retried with another card 18 seconds later · success. No loss.',
+      success_section_health: 'TECHNICAL HEALTH',
+      success_health_latency: 'Average authorization latency',
+      success_health_latency_sub: 'p95 = 2.1 s',
+      success_health_gateway: 'Gateway availability',
+      success_health_gateway_sub: 'BAM + acquirer',
+      success_health_terminals: 'Terminals online',
+      success_health_terminals_sub: '3 / 3 PAX A920',
+      success_health_4g: '4G backup connectivity',
+      success_health_4g_sub: 'used 0 times',
+      ratio_title: 'Card / Cash Ratio',
+      ratio_subtitle: 'Payment mix · last 24 hours',
+      ratio_foot_disable_cash: 'Disable cash →',
+      ratio_hero_gain: 'Card gains 4 pts vs last week · +12 pts since launch',
+      ratio_hero_delta: '↑ +4 pts card',
+      ratio_section_means: 'MEANS OF PAYMENT DETAILS',
+      ratio_means_cash: 'Cash',
+      ratio_section_hidden_cost: 'HIDDEN COST OF CASH',
+      ratio_cost_bank: 'Weekly bank run',
+      ratio_cost_bank_sub: '~ 45 min of management time · Friday',
+      ratio_cost_errors: 'Avg. cash register errors',
+      ratio_cost_errors_sub: '0.4% of cash volume',
+      ratio_cost_risk: 'Theft / loss risk',
+      ratio_cost_risk_sub: 'absent in 100% card mode',
+      ratio_cost_total: 'Total avoidable annual cost',
+      ratio_cost_total_sub: '180 + 11,300 + risk',
+      ratio_insight: '<b style="color:var(--mint);">Insight:</b> If you move to 80% card (vs 68% today) with a "pay by card = 10th coffee free" prompt, you save <b>~12,800 MAD/year</b> in cash handling.',
+      regulars_title: 'Regular Customers',
+      regulars_subtitle: 'Identified by tokenized card or Kiwi Wallet',
+      regulars_foot_loyalty: 'Launch loyalty program →',
+      regulars_hero_base: '26% of customer base · 30-day retention rate = 72%',
+      regulars_hero_delta: '↑ +9 new this week',
+      regulars_section_top5: 'TOP 5 REGULARS · THIS MONTH',
+      regulars_top5_1_sub: '12 visits · 18 coffees · 6 tajines',
+      regulars_top5_2_sub: '10 visits · member since 2024',
+      regulars_top5_3_sub: '9 visits · always T6',
+      regulars_top5_4: 'Nawal Khalifi',
+      regulars_top5_4_sub: '8 visits · Kiwi Wallet payer',
+      regulars_top5_5: 'Youssef Amrani (employee)',
+      regulars_top5_5_sub: '8 visits · lunch break',
+      regulars_section_cohorts: 'FREQUENCY COHORTS',
+      regulars_cohorts_1: '1st visit this month',
+      regulars_cohorts_2: '2-3 visits',
+      regulars_cohorts_3: '4-7 visits',
+      regulars_cohorts_4: '8+ visits (hard core)',
+      regulars_section_reactivate: 'CUSTOMERS TO REACTIVATE',
+      regulars_reactivate_text: '<b>14 regulars</b> haven\'t ordered in 6 weeks. A WhatsApp message "we missed you · -15% next week" converted <b>43%</b> of reactivations last month.',
+      regulars_insight: '<b style="color:var(--mint);">Insight:</b> Your 19 hard-core regulars represent <b>34% of revenue</b> while being only 10% of the base. A loyalty program (10th coffee free) would cost <b>~280 MAD/month</b> and retain this high-value group.',
+      default_title: 'Metric',
+      default_body: '<p style="color:var(--n-600);">Detailed analysis available here.</p>'
+    },
+    ar: {
+      tx_title: 'المعاملات',
+      tx_subtitle: 'الجمعة 24 أبريل · الخدمة جارية',
+      tx_foot_close: 'إغلاق',
+      tx_foot_journal: 'عرض السجل الكامل →',
+      tx_hero_pic: 'ذروة في الساعة 13:00 · 24 معاملة في الساعة',
+      tx_hero_delta: '↑ +24 مقابل أمس (+15 %)',
+      tx_section_repartition: 'التوزيع بالساعة',
+      tx_section_server: 'حسب النادل',
+      tx_server_sofia: 'صوفيا بلقاضي',
+      tx_server_sofia_role: 'باريستا · الكاونتر',
+      tx_server_fatima: 'فاطمة خالقي',
+      tx_server_fatima_role: 'نادلة · الصالة',
+      tx_server_hamid: 'حميد جلول',
+      tx_server_hamid_role: 'نادل · التراس',
+      tx_server_youssef: 'يوسف العمراني',
+      tx_server_youssef_role: 'نادل · 17:00-23:00',
+      tx_server_auto: 'الدفع الذاتي',
+      tx_server_auto_role: 'بدون تلامس',
+      tx_insight: '<b style="color:var(--mint);">رؤية:</b> صوفيا تحول 54٪ أكثر من متوسط الصالة. تعيينها للطاولات T1-T3 هذا المساء قد يضيف ~2,400 درهم للخدمة. /* AR: needs native review */',
+      panier_title: 'متوسط السلة',
+      panier_subtitle: 'آخر 24 ساعة · جميع القنوات',
+      panier_foot_ia: 'تفعيل توصيات الذكاء الاصطناعي →',
+      panier_hero_median: 'الوسيط 95 درهم · الأقصى 1,240 درهم (عيد ميلاد T8)',
+      panier_hero_delta: '≈ مستقر مقابل أمس',
+      panier_section_distribution: 'توزيع التذاكر',
+      panier_section_segmentation: 'تجزئة',
+      panier_segment_regulars: 'العملاء المنتظمون',
+      panier_segment_regulars_sub: '47 عميل · متوسط التذكرة',
+      panier_segment_occasional: 'العملاء العرضيون',
+      panier_segment_occasional_sub: '108 عميل · متوسط التذكرة',
+      panier_segment_tourists: 'السياح (بطاقة أجنبية)',
+      panier_segment_tourists_sub: '27 عميل · متوسط التذكرة',
+      panier_insight: '<b style="color:var(--mint);">رؤية:</b> ينفق عملاؤك المنتظمون <b>+45%</b> أكثر من العملاء العرضيين. توصيات الذكاء الاصطناعي في نهاية الطلب ("+1 شاي مقابل 12 درهم") يمكن أن ترفع متوسط التذكرة بنسبة <b>~12%</b>. /* AR: needs native review */',
+      tips_title: 'الإكراميات',
+      tips_subtitle: 'الإجمالي اليومي · للتوزيع في نهاية الخدمة',
+      tips_foot_distribute: 'التوزيع الآن →',
+      tips_hero_avg: '7,6 % من الإيرادات المحصلة · متوسط المعدل 8,2 %',
+      tips_hero_delta: '↑ +32% مقابل الأسبوع',
+      tips_section_prompt: 'طلب الإكرامية',
+      tips_prompt_auto: 'طلب تلقائي +10 %',
+      tips_prompt_auto_sub: 'معروض على 78% من التذاكر اليوم · معدل القبول 64 %',
+      tips_section_server: 'حسب النادل',
+      tips_server_sofia: 'صوفيا بلقاضي',
+      tips_server_sofia_rate: 'معدل 11,2 %',
+      tips_server_fatima: 'فاطمة خالقي',
+      tips_server_fatima_rate: 'معدل 8,8 %',
+      tips_server_hamid: 'حميد جلول',
+      tips_server_hamid_rate: 'معدل 7,4 %',
+      tips_server_youssef: 'يوسف العمراني',
+      tips_server_youssef_rate: 'معدل 5,1 %',
+      tips_section_period: 'حسب الفترة',
+      tips_period_breakfast: 'الفطور 8ص-11ص',
+      tips_period_breakfast_rate: 'معدل 1,8 %',
+      tips_period_lunch: 'الغداء 12م-3م',
+      tips_period_lunch_rate: 'معدل 7,4 %',
+      tips_period_snack: 'العصر 3م-6م',
+      tips_period_snack_rate: 'معدل 4,2 %',
+      tips_period_dinner: 'العشاء 7م-11م',
+      tips_period_dinner_rate: 'معدل 11,8 %',
+      tips_insight: '<b style="color:var(--mint);">رؤية:</b> معدل المساء هو <b>~3 أضعاف</b> معدل الغداء. تفعيل طلب "+15%" خاص بعد الساعة 8 مساءً يمكن أن يضيف <b>~280 درهم/مساء</b>. /* AR: needs native review */',
+      marge_title: 'الهامش الإجمالي',
+      marge_subtitle: 'الإيرادات ناقص تكلفة المواد · 30 يومًا',
+      marge_foot_cogs: 'عرض تكلفة المواد →',
+      marge_hero_cogs: 'تكلفة المواد 28,6 % من الإيرادات · الهدف ≤ 30 %',
+      marge_hero_delta: '↑ +1,8 نقطة مقابل 30 يومًا سابقًا',
+      marge_section_category: 'الهامش حسب الفئة',
+      marge_cat_hot_drinks: 'المشروبات الساخنة',
+      marge_cat_hot_drinks_sub: '28 % من الإيرادات',
+      marge_cat_cold_drinks: 'المشروبات الباردة',
+      marge_cat_cold_drinks_sub: '17 % من الإيرادات',
+      marge_cat_pastries: 'المعجنات المنزلية',
+      marge_cat_pastries_sub: '21 % من الإيرادات',
+      marge_cat_dishes: 'الأطباق والسلطات',
+      marge_cat_dishes_sub: '34 % من الإيرادات',
+      marge_section_watch: 'للمراقبة',
+      marge_watch_juice: 'العصائر الطازجة',
+      marge_watch_juice_sub: 'ارتفاع تكلفة المواد · +6 نقاط',
+      marge_watch_lunch: 'وجبة الغداء',
+      marge_watch_lunch_sub: 'الهامش تحت الهدف',
+      marge_insight: '<b style="color:var(--mint);">رؤية:</b> المشروبات الساخنة تدعم الهامش - <b>+3 نقاط</b> ممكنة عن طريق تحويل التركيز في القائمة من الأطباق إلى القهوة والمعجنات. /* AR: needs native review */',
+      success_title: 'معدل النجاح',
+      success_subtitle: 'امتثال الشبكة وبوابة بنك المغرب',
+      success_foot_failures: 'عرض الإخفاقات →',
+      success_hero_attempts: '184 محاولة · 183 نجاح · 1 فشل',
+      success_hero_delta: '↑ +0,2 نقطة مقابل أمس',
+      success_section_benchmark: 'مقارنة بالسوق',
+      success_bench_you: 'مقهى أطلس (أنتم)',
+      success_bench_avg: 'متوسط مقاهي الدار البيضاء',
+      success_bench_cmi: 'CMI التقليدي',
+      success_bench_pci: 'معيار PCI-DSS',
+      success_section_failure: 'الفشل الوحيد اليوم',
+      success_failure_card: 'ماستركارد •• 7821 · 13:42',
+      success_failure_reason: 'الرمز 51 · أموال غير كافية · BNP Paribas FR',
+      success_failure_status: 'فشل',
+      success_failure_recovery: 'أعاد العميل المحاولة ببطاقة أخرى بعد 18 ثانية · نجاح. لا خسارة.',
+      success_section_health: 'الصحة التقنية',
+      success_health_latency: 'متوسط زمن استجابة التفويض',
+      success_health_latency_sub: 'p95 = 2,1 ث',
+      success_health_gateway: 'توفر البوابة',
+      success_health_gateway_sub: 'بنك المغرب + المستحوذ',
+      success_health_terminals: 'الأجهزة الطرفية متصلة',
+      success_health_terminals_sub: '3 / 3 PAX A920',
+      success_health_4g: 'اتصال 4G احتياطي',
+      success_health_4g_sub: 'استخدم 0 مرات',
+      ratio_title: 'نسبة البطاقة / النقد',
+      ratio_subtitle: 'مزيج الدفع · آخر 24 ساعة',
+      ratio_foot_disable_cash: 'تعطيل النقد →',
+      ratio_hero_gain: 'البطاقة تكسب 4 نقاط مقابل الأسبوع الماضي · +12 نقطة منذ الإطلاق',
+      ratio_hero_delta: '↑ +4 نقاط بطاقة',
+      ratio_section_means: 'تفاصيل وسائل الدفع',
+      ratio_means_cash: 'نقداً',
+      ratio_section_hidden_cost: 'التكلفة الخفية للنقد',
+      ratio_cost_bank: 'جولة البنك الأسبوعية',
+      ratio_cost_bank_sub: '~ 45 دقيقة من وقت المدير · الجمعة',
+      ratio_cost_errors: 'متوسط أخطاء الصندوق',
+      ratio_cost_errors_sub: '0,4 % من حجم النقد',
+      ratio_cost_risk: 'مخاطر السرقة / الخسارة',
+      ratio_cost_risk_sub: 'غير موجود في وضع البطاقة 100%',
+      ratio_cost_total: 'إجمالي التكلفة السنوية التي يمكن تجنبها',
+      ratio_cost_total_sub: '180 + 11 300 + المخاطر',
+      ratio_insight: '<b style="color:var(--mint);">رؤية:</b> إذا انتقلت إلى 80٪ بطاقة (مقابل 68٪ اليوم) مع طلب "ادفع بالبطاقة = قهوة مجانية في المرة العاشرة" ، فإنك توفر <b>~12,800 درهم/سنويًا</b> من التعامل النقدي. /* AR: needs native review */',
+      regulars_title: 'العملاء المنتظمون',
+      regulars_subtitle: 'مُعرَّفون بالبطاقة المرمزة أو محفظة كيوي',
+      regulars_foot_loyalty: 'إطلاق برنامج الولاء →',
+      regulars_hero_base: '26٪ من قاعدة العملاء · معدل الاحتفاظ لمدة 30 يومًا = 72٪',
+      regulars_hero_delta: '↑ +9 جدد هذا الأسبوع',
+      regulars_section_top5: 'أفضل 5 عملاء منتظمين · هذا الشهر',
+      regulars_top5_1_sub: '12 زيارة · 18 قهوة · 6 طواجن',
+      regulars_top5_2_sub: '10 زيارات · عضو منذ 2024',
+      regulars_top5_3_sub: '9 زيارات · دائما T6',
+      regulars_top5_4: 'نوال خليفي',
+      regulars_top5_4_sub: '8 زيارات · يدفع عبر محفظة كيوي',
+      regulars_top5_5: 'يوسف العمراني (موظف)',
+      regulars_top5_5_sub: '8 زيارات · استراحة الغداء',
+      regulars_section_cohorts: 'مجموعات التردد',
+      regulars_cohorts_1: 'الزيارة الأولى هذا الشهر',
+      regulars_cohorts_2: '2-3 زيارات',
+      regulars_cohorts_3: '4-7 زيارات',
+      regulars_cohorts_4: '8+ زيارات (أساسيون)',
+      regulars_section_reactivate: 'عملاء لإعادة التنشيط',
+      regulars_reactivate_text: '<b>14 عميلًا منتظمًا</b> لم يطلبوا منذ 6 أسابيع. رسالة واتساب "لقد اشتقنا إليك · -15٪ الأسبوع المقبل" حولت <b>43٪</b> من عمليات إعادة التنشيط الشهر الماضي.',
+      regulars_insight: '<b style="color:var(--mint);">رؤية:</b> يمثل عملاؤك الأساسيون الـ 19 نسبة <b>34٪ من الإيرادات</b> بينما يمثلون 10٪ فقط من القاعدة. سيكلف برنامج الولاء (القهوة العاشرة مجانًا) <b>~280 درهمًا/شهريًا</b> ويحتفظ بهذه المجموعة ذات القيمة العالية. /* AR: needs native review */',
+      default_title: 'مقياس',
+      default_body: '<p style="color:var(--n-600);">تحليل مفصل متاح هنا.</p>'
+    }
+  };
+
   const kpiData = {
     /* ════════ Transactions ════════ */
     'tx': {
-      title: 'Transactions',
-      subtitle: 'Vendredi 24 avril · service en cours',
-      foot: kpiFootBtns('Fermer', 'Voir le journal complet →'),
+      title: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_title,
+      subtitle: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_subtitle,
+      foot: kpiFootBtns((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_foot_close, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_foot_journal),
       body: `
-        ${kpiHero('182', 'Pic à 13h00 · 24 transactions sur l\'heure', '↑ +24 vs hier (+15 %)')}
-        ${kpiSection('RÉPARTITION HORAIRE', `
+        ${kpiHero('182', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_hero_pic, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_hero_delta)}
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_section_repartition, `
           <div style="background:var(--paper-soft); border-radius:12px; padding:14px 16px;">
             <div style="display:flex; align-items:end; gap:4px; height:80px;">
               ${[4,6,9,12,18,24,21,13,10,9,13,18,25].map(n => {
@@ -1460,25 +2163,25 @@
             </div>
           </div>
         `)}
-        ${kpiSection('PAR SERVEUR', [
-          ['Sofia Belkadi', 'barista · comptoir', '54 tx · 23 800 MAD'],
-          ['Fatima Khalki', 'serveuse · salle', '42 tx · 18 200 MAD'],
-          ['Hamid Jelloul', 'serveur · terrasse', '38 tx · 16 500 MAD'],
-          ['Youssef Amrani', 'serveur · 17h-23h', '25 tx · 11 200 MAD'],
-          ['Auto-caisse', 'sans contact', '23 tx · 4 800 MAD'],
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_section_server, [
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_sofia, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_sofia_role, '54 tx · 23 800 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_fatima, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_fatima_role, '42 tx · 18 200 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_hamid, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_hamid_role, '38 tx · 16 500 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_youssef, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_youssef_role, '25 tx · 11 200 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_auto, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_server_auto_role, '23 tx · 4 800 MAD'],
         ].map(([n, role, v]) => kpiRow(n, v, role)).join(''))}
-        ${kpiInsight(`<b style="color:var(--mint);">Insight :</b> Sofia transforme 54 % de plus que la moyenne salle. Lui assigner les tables T1-T3 ce soir pourrait ajouter ~2 400 MAD au service.`)}
+        ${kpiInsight((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_insight)}
       `
     },
 
     /* ════════ Panier moyen ════════ */
     'panier': {
-      title: 'Panier moyen',
-      subtitle: '24 dernières heures · tous canaux',
-      foot: kpiFootBtns('Fermer', 'Activer recommandations IA →'),
+      title: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_title,
+      subtitle: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_subtitle,
+      foot: kpiFootBtns((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_foot_close, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_foot_ia),
       body: `
-        ${kpiHero('134 <span style="font-size:18px; color:var(--n-500); font-weight:500;">MAD</span>', 'Médiane 95 MAD · max 1 240 MAD (anniversaire T8)', '≈ stable vs hier', 'neutral')}
-        ${kpiSection('DISTRIBUTION DES TICKETS', `
+        ${kpiHero('134 <span style="font-size:18px; color:var(--n-500); font-weight:500;">MAD</span>', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_hero_median, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_hero_delta, 'neutral')}
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_section_distribution, `
           <div style="background:var(--paper-soft); border-radius:12px; padding:14px 16px;">
             ${[
               ['< 50 MAD',   38, '#B9E5CC'],
@@ -1495,84 +2198,84 @@
             `).join('')}
           </div>
         `)}
-        ${kpiSection('SEGMENTATION', [
-          ['Clients réguliers', '47 clients · ticket moyen', '186 MAD'],
-          ['Clients occasionnels', '108 clients · ticket moyen', '128 MAD'],
-          ['Touristes (carte étrangère)', '27 clients · ticket moyen', '184 MAD'],
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_section_segmentation, [
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_segment_regulars, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_segment_regulars_sub, '186 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_segment_occasional, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_segment_occasional_sub, '128 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_segment_tourists, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_segment_tourists_sub, '184 MAD'],
         ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
-        ${kpiInsight(`<b style="color:var(--mint);">Insight :</b> Vos réguliers dépensent <b>+45 %</b> vs occasionnels. Les recommandations IA en fin de commande (« +1 thé pour 12 MAD ») peuvent lever le ticket moyen de <b>~12 %</b>.`)}
+        ${kpiInsight((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).panier_insight)}
       `
     },
 
     /* ════════ Pourboires ════════ */
     'tips': {
-      title: 'Pourboires',
-      subtitle: 'Cumul du jour · à distribuer en fin de service',
-      foot: kpiFootBtns('Fermer', 'Distribuer maintenant →'),
+      title: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_title,
+      subtitle: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_subtitle,
+      foot: kpiFootBtns((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_foot_close, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_foot_distribute),
       body: `
-        ${kpiHero('1 867 <span style="font-size:18px; color:var(--n-500); font-weight:500;">MAD</span>', '7,6 % du chiffre encaissé · taux moyen 8,2 %', '↑ +32 % vs semaine')}
-        ${kpiSection('PROMPT POURBOIRE', `
+        ${kpiHero('1 867 <span style="font-size:18px; color:var(--n-500); font-weight:500;">MAD</span>', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_hero_avg, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_hero_delta)}
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_section_prompt, `
           <div style="background:var(--paper-soft); border-radius:12px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:14px;">
             <div>
-              <div style="font-weight:500; font-size:13.5px;">Prompt auto +10 %</div>
-              <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">Affiché sur 78 % des tickets aujourd'hui · taux d'acceptation 64 %</div>
+              <div style="font-weight:500; font-size:13.5px;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_prompt_auto}</div>
+              <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_prompt_auto_sub}</div>
             </div>
             <div style="width:38px; height:22px; background:var(--atlas); border-radius:999px; position:relative;">
               <div style="position:absolute; top:2px; right:2px; width:18px; height:18px; background:#fff; border-radius:50%;"></div>
             </div>
           </div>
         `)}
-        ${kpiSection('PAR SERVEUR', [
-          ['Sofia Belkadi', 'taux 11,2 %', '+654 MAD'],
-          ['Fatima Khalki', 'taux 8,8 %', '+560 MAD'],
-          ['Hamid Jelloul', 'taux 7,4 %', '+467 MAD'],
-          ['Youssef Amrani', 'taux 5,1 %', '+186 MAD'],
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_section_server, [
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_server_sofia, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_server_sofia_rate, '+654 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_server_fatima, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_server_fatima_rate, '+560 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_server_hamid, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_server_hamid_rate, '+467 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_server_youssef, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_server_youssef_rate, '+186 MAD'],
         ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
-        ${kpiSection('PAR PÉRIODE', [
-          ['Petit-déj 8h-11h', '1,8 % de taux', '+120 MAD'],
-          ['Déjeuner 12h-15h', '7,4 % de taux', '+820 MAD'],
-          ['Goûter 15h-18h', '4,2 % de taux', '+92 MAD'],
-          ['Dîner 19h-23h', '11,8 % de taux', '+835 MAD'],
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_section_period, [
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_period_breakfast, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_period_breakfast_rate, '+120 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_period_lunch, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_period_lunch_rate, '+820 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_period_snack, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_period_snack_rate, '+92 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_period_dinner, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_period_dinner_rate, '+835 MAD'],
         ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
-        ${kpiInsight(`<b style="color:var(--mint);">Insight :</b> Le taux du soir est <b>~3×</b> celui du midi. Activer un prompt « +15 % » spécifique après 20h pourrait ajouter <b>~280 MAD/soir</b>.`)}
+        ${kpiInsight((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tips_insight)}
       `
     },
 
     /* ════════ Marge brute ════════ */
     'marge': {
-      title: 'Marge brute',
-      subtitle: 'Chiffre d\'affaires moins coût matière · 30 jours',
-      foot: kpiFootBtns('Fermer', 'Voir le coût matière →'),
+      title: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_title,
+      subtitle: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_subtitle,
+      foot: kpiFootBtns((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_foot_close, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_foot_cogs),
       body: `
-        ${kpiHero('71,4 <span style="font-size:18px; color:var(--n-500); font-weight:500;">%</span>', 'Coût matière 28,6 % du CA · objectif ≤ 30 %', '↑ +1,8 pt vs 30 jours préc.')}
-        ${kpiSection('MARGE PAR CATÉGORIE', [
-          ['Boissons chaudes', '28 % du CA', '82 %'],
-          ['Boissons fraîches', '17 % du CA', '74 %'],
-          ['Pâtisseries maison', '21 % du CA', '66 %'],
-          ['Plats & salades', '34 % du CA', '58 %'],
+        ${kpiHero('71,4 <span style="font-size:18px; color:var(--n-500); font-weight:500;">%</span>', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_hero_cogs, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_hero_delta)}
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_section_category, [
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_cat_hot_drinks, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_cat_hot_drinks_sub, '82 %'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_cat_cold_drinks, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_cat_cold_drinks_sub, '74 %'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_cat_pastries, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_cat_pastries_sub, '66 %'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_cat_dishes, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_cat_dishes_sub, '58 %'],
         ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
-        ${kpiSection('À SURVEILLER', [
-          ['Jus pressés', 'coût matière en hausse · +6 pts', '61 %'],
-          ['Formule déjeuner', 'marge sous l\'objectif', '54 %'],
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_section_watch, [
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_watch_juice, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_watch_juice_sub, '61 %'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_watch_lunch, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_watch_lunch_sub, '54 %'],
         ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
-        ${kpiInsight(`<b style="color:var(--mint);">Insight :</b> Les boissons chaudes portent la marge — <b>+3 pts</b> possibles en déplaçant la mise en avant menu des plats vers le café et la pâtisserie.`)}
+        ${kpiInsight((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).marge_insight)}
       `
     },
 
     /* ════════ Taux de succès ════════ */
     'success': {
-      title: 'Taux de succès',
-      subtitle: 'Conformité réseau et passerelle Bank Al-Maghrib',
-      foot: kpiFootBtns('Fermer', 'Voir les échecs →'),
+      title: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_title,
+      subtitle: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_subtitle,
+      foot: kpiFootBtns((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_foot_close, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_foot_failures),
       body: `
-        ${kpiHero('99,32 <span style="font-size:18px; color:var(--n-500); font-weight:500;">%</span>', '184 tentatives · 183 succès · 1 échec', '↑ +0,2 pt vs hier')}
-        ${kpiSection('BENCHMARK MARCHÉ', `
+        ${kpiHero('99,32 <span style="font-size:18px; color:var(--n-500); font-weight:500;">%</span>', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_hero_attempts, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_hero_delta)}
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_section_benchmark, `
           <div style="background:var(--paper-soft); border-radius:12px; padding:14px 16px;">
             ${[
-              ['Café Atlas (vous)',   99.32, 'var(--atlas)'],
-              ['Cafés Casa moyenne',  99.00, '#7FD4A4'],
-              ['CMI traditionnel',    98.10, '#A8A49A'],
-              ['Standard PCI-DSS',    97.50, 'var(--n-300)'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_bench_you,   99.32, 'var(--atlas)'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_bench_avg,  99.00, '#7FD4A4'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_bench_cmi,    98.10, '#A8A49A'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_bench_pci,    97.50, 'var(--n-300)'],
             ].map(([lbl, pct, c]) => `
               <div style="display:grid; grid-template-columns:160px 1fr 50px; gap:10px; align-items:center; padding:6px 0; font-size:12.5px;">
                 <div style="color:var(--n-600);">${lbl}</div>
@@ -1582,42 +2285,42 @@
             `).join('')}
           </div>
         `)}
-        ${kpiSection('UNIQUE ÉCHEC AUJOURD\'HUI', `
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_section_failure, `
           <div style="background:#FDE8E4; border:1px solid #F5C2B8; border-radius:12px; padding:14px 16px;">
             <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
               <div>
-                <div style="font-weight:500; font-size:13.5px;">Mastercard •• 7821 · 13:42</div>
-                <div style="font-size:11.5px; color:#9B2F22; margin-top:3px;">Code 51 · fonds insuffisants · BNP Paribas FR</div>
+                <div style="font-weight:500; font-size:13.5px;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_card}</div>
+                <div style="font-size:11.5px; color:#9B2F22; margin-top:3px;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_reason}</div>
               </div>
-              <span style="background:#fff; color:#9B2F22; padding:2px 8px; border-radius:999px; font-size:10.5px; font-family:var(--mono); font-weight:600;">ÉCHEC</span>
+              <span style="background:#fff; color:#9B2F22; padding:2px 8px; border-radius:999px; font-size:10.5px; font-family:var(--mono); font-weight:600;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_status}</span>
             </div>
-            <div style="font-size:12px; color:var(--n-700);">Client a réessayé avec une autre carte 18 secondes plus tard · succès. Aucune perte.</div>
+            <div style="font-size:12px; color:var(--n-700);">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_recovery}</div>
           </div>
         `)}
-        ${kpiSection('SANTÉ TECHNIQUE', [
-          ['Latence moyenne autorisation', 'p95 = 2,1 s', '1,4 s'],
-          ['Disponibilité passerelle', 'BAM + acquéreur', '100,00 %'],
-          ['Terminaux en ligne', '3 / 3 PAX A920', '✓'],
-          ['Connectivité 4G secours', 'utilisée 0 fois', '✓'],
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_section_health, [
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_health_latency, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_health_latency_sub, '1,4 s'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_health_gateway, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_health_gateway_sub, '100,00 %'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_health_terminals, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_health_terminals_sub, '✓'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_health_4g, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_health_4g_sub, '✓'],
         ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
       `
     },
 
     /* ════════ Ratio carte / cash ════════ */
     'ratio': {
-      title: 'Ratio carte / espèces',
-      subtitle: 'Mix de paiement · 24 dernières heures',
-      foot: kpiFootBtns('Fermer', 'Désactiver l\'espèces →'),
+      title: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_title,
+      subtitle: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_subtitle,
+      foot: kpiFootBtns((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_foot_close, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_foot_disable_cash),
       body: `
-        ${kpiHero('68 / 32 <span style="font-size:18px; color:var(--n-500); font-weight:500;">%</span>', 'Carte gagne 4 pts vs semaine dernière · +12 pts depuis lancement', '↑ +4 pts carte')}
-        ${kpiSection('DÉTAIL DES MOYENS', `
+        ${kpiHero('68 / 32 <span style="font-size:18px; color:var(--n-500); font-weight:500;">%</span>', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_hero_gain, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_hero_delta)}
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_section_means, `
           <div style="background:var(--paper-soft); border-radius:12px; padding:14px 16px;">
             ${[
               ['Visa',          48, 'var(--atlas)',  '11 700 MAD'],
               ['Mastercard',    24, '#7DF2B0',       '5 850 MAD'],
               ['Kiwi Tap',      18, 'var(--riad)',   '4 388 MAD'],
               ['Kiwi Wallet QR',10, '#D99A2B',       '2 438 MAD'],
-              ['Espèces',       32, '#A8A49A',       '7 800 MAD'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_means_cash,       32, '#A8A49A',       '7 800 MAD'],
             ].map(([lbl, pct, c, mad]) => `
               <div style="display:grid; grid-template-columns:120px 1fr 50px 100px; gap:10px; align-items:center; padding:6px 0; font-size:12.5px;">
                 <div style="display:flex; align-items:center; gap:8px; color:var(--n-700);"><i style="width:10px; height:10px; border-radius:3px; background:${c}; display:inline-block;"></i>${lbl}</div>
@@ -1628,37 +2331,37 @@
             `).join('')}
           </div>
         `)}
-        ${kpiSection('COÛT CACHÉ DE L\'ESPÈCES', [
-          ['Tournée banque hebdo', '~ 45 min de gérance · vendredi', '180 MAD/sem'],
-          ['Erreurs de caisse moy.', '0,4 % du volume cash', '~ 31 MAD/jour'],
-          ['Risque vol / perte', 'absent en mode 100 % carte', '—'],
-          ['Total annuel évitable', '180 + 11 300 + risque', '≈ 21 000 MAD'],
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_section_hidden_cost, [
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_cost_bank, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_cost_bank_sub, '180 MAD/sem'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_cost_errors, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_cost_errors_sub, '~ 31 MAD/jour'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_cost_risk, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_cost_risk_sub, '—'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_cost_total, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_cost_total_sub, '≈ 21 000 MAD'],
         ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
-        ${kpiInsight(`<b style="color:var(--mint);">Insight :</b> Si vous passez à 80 % carte (vs 68 % aujourd'hui) avec un prompt « payez par carte = café offert le 10ᵉ », vous économisez <b>~12 800 MAD/an</b> de manipulation cash.`)}
+        ${kpiInsight((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).ratio_insight)}
       `
     },
 
     /* ════════ Clients réguliers ════════ */
     'regulars': {
-      title: 'Clients réguliers',
-      subtitle: 'Identifiés par carte tokenisée ou Kiwi Wallet',
-      foot: kpiFootBtns('Fermer', 'Lancer programme fidélité →'),
+      title: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_title,
+      subtitle: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_subtitle,
+      foot: kpiFootBtns((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).tx_foot_close, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_foot_loyalty),
       body: `
-        ${kpiHero('47 <span style="font-size:18px; color:var(--n-500); font-weight:500;">/ 182</span>', '26 % de la base · taux de rétention 30 jours = 72 %', '↑ +9 nouveaux cette semaine')}
-        ${kpiSection('TOP 5 RÉGULIERS · CE MOIS', [
-          ['Karim Bensouda', '12 visites · 18 cafés · 6 tajines', '2 380 MAD'],
-          ['Sara Lahlou', '10 visites · membre depuis 2024', '1 920 MAD'],
-          ['Hicham Cherki', '9 visites · toujours T6', '1 740 MAD'],
-          ['Nawal Khalifi', '8 visites · payeur Kiwi Wallet', '1 480 MAD'],
-          ['Youssef Amrani (employé)', '8 visites · pause déj.', '420 MAD'],
+        ${kpiHero('47 <span style="font-size:18px; color:var(--n-500); font-weight:500;">/ 182</span>', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_hero_base, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_hero_delta)}
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_section_top5, [
+          ['Karim Bensouda', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_top5_1_sub, '2 380 MAD'],
+          ['Sara Lahlou', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_top5_2_sub, '1 920 MAD'],
+          ['Hicham Cherki', (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_top5_3_sub, '1 740 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_top5_4, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_top5_4_sub, '1 480 MAD'],
+          [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_top5_5, (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_top5_5_sub, '420 MAD'],
         ].map(([n, sub, v]) => kpiRow(n, v, sub)).join(''))}
-        ${kpiSection('COHORTES DE FRÉQUENCE', `
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_section_cohorts, `
           <div style="background:var(--paper-soft); border-radius:12px; padding:14px 16px;">
             ${[
-              ['1ʳᵉ visite ce mois',  68,  '#B9E5CC'],
-              ['2-3 visites',         42,  '#7FD4A4'],
-              ['4-7 visites',         28,  'var(--atlas)'],
-              ['8+ visites (hard core)', 19, 'var(--riad)'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_cohorts_1,  68,  '#B9E5CC'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_cohorts_2,         42,  '#7FD4A4'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_cohorts_3,         28,  'var(--atlas)'],
+              [(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_cohorts_4, 19, 'var(--riad)'],
             ].map(([lbl, n, c]) => `
               <div style="display:grid; grid-template-columns:160px 1fr 36px; gap:10px; align-items:center; padding:5px 0; font-size:12.5px;">
                 <div style="color:var(--n-700);">${lbl}</div>
@@ -1668,17 +2371,18 @@
             `).join('')}
           </div>
         `)}
-        ${kpiSection('CLIENTS À RÉACTIVER', `
+        ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_section_reactivate, `
           <div style="padding:14px 16px; background:#FFF4DD; border:1px solid #F4D89A; border-radius:12px; font-size:13px; color:#5C4310; line-height:1.5;">
-            <b>14 réguliers</b> n'ont pas commandé depuis 6 semaines. Un message WhatsApp « on vous a manqué · −15 % la semaine prochaine » a converti <b>43 %</b> des relances le mois dernier.
+            ${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_reactivate_text}
           </div>
         `)}
-        ${kpiInsight(`<b style="color:var(--mint);">Insight :</b> Vos 19 hard-core représentent <b>34 % du chiffre</b> alors qu'ils ne sont que 10 % de la base. Un programme de fidélité (10ᵉ café offert) coûterait <b>~280 MAD/mois</b> et garderait ce groupe à très haute valeur.`)}
+        ${kpiInsight((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_insight)}
       `
     },
 
-    'default': { title: 'Métrique', body: `<p style="color:var(--n-600);">Analyse détaillée disponible ici.</p>` }
+    'default': { title: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).default_title, body: (KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).default_body }
   };
+
 
   const aiResponses = (AI_RESPONSES_STR[kiwiLang()] || AI_RESPONSES_STR.fr);
 
