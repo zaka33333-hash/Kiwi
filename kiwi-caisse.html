@@ -2650,6 +2650,40 @@
       padding: 1px 6px; border-radius: 999px;
       flex: 0 0 auto;
     }
+
+    /* ---- Pourboire (tip) on card / cash payment modals ---- */
+    .pay-tip {
+      margin: 0 0 14px;
+    }
+    .pay-tip-label {
+      font-size: 11px; font-weight: 500; color: var(--ink-3);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+    }
+    .pay-tip-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .pay-tip-chip {
+      padding: 8px 14px; border-radius: 999px;
+      font-size: 13px; font-weight: 600;
+      background: var(--paper-mute); color: var(--ink-2);
+      transition: background 150ms, color 150ms;
+    }
+    .pay-tip-chip:hover { background: #ECEAE5; }
+    .pay-tip-chip.is-active { background: var(--forest); color: #fff; }
+    .pay-tip-custom { display: none; margin-top: 8px; }
+    .pay-tip-custom.is-visible { display: block; }
+    .pay-tip-input {
+      width: 100%; padding: 10px 14px;
+      font-size: 15px; font-weight: 600; color: var(--ink);
+      border: 1px solid var(--line); border-radius: var(--r-lg); background: #fff;
+      font-family: var(--mono); font-feature-settings: "tnum" 1;
+    }
+    .pay-tip-input:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 3px rgba(31,93,60,.1); }
+    .pay-tip-breakdown {
+      display: none; margin-top: 10px;
+      text-align: center; font-size: 12px; color: var(--ink-3);
+    }
+    .pay-tip-breakdown.is-visible { display: block; }
+    .pay-tip-breakdown .mono { color: var(--ink-2); font-weight: 600; }
+    .pay-tip-breakdown .pay-tip-sep { margin: 0 6px; color: var(--line); }
   </style>
 </head>
 
@@ -3113,6 +3147,14 @@
       <h3 class="modal-title" id="card-modal-title">Payer par carte</h3>
       <p class="modal-subtle" id="card-modal-sub">Mesa <span data-bind="table">T2</span> · <span data-bind="covers">2</span> couverts</p>
       <div class="modal-amount" id="card-amount">530,00 MAD</div>
+      <div class="pay-tip" id="card-tip">
+        <div class="pay-tip-label">Pourboire</div>
+        <div class="pay-tip-chips" id="card-tip-chips"></div>
+        <div class="pay-tip-custom" id="card-tip-custom">
+          <input class="pay-tip-input" id="card-tip-input" type="number" min="0" max="100" step="0.5" placeholder="Entrez un %" />
+        </div>
+        <div class="pay-tip-breakdown" id="card-tip-breakdown"></div>
+      </div>
       <div class="reader-stage">
         <div class="reader-disc is-pulsing" id="reader-disc">
           <i data-lucide="credit-card"></i>
@@ -3141,6 +3183,15 @@
       <h3 class="modal-title" id="cash-modal-title">Payer en espèces</h3>
       <p class="modal-subtle">Mesa <span data-bind="table">T2</span> · <span data-bind="covers">2</span> couverts</p>
       <div class="modal-amount size-md" id="cash-amount">530,00 MAD</div>
+
+      <div class="pay-tip" id="cash-tip">
+        <div class="pay-tip-label">Pourboire</div>
+        <div class="pay-tip-chips" id="cash-tip-chips"></div>
+        <div class="pay-tip-custom" id="cash-tip-custom">
+          <input class="pay-tip-input" id="cash-tip-input" type="number" min="0" max="100" step="0.5" placeholder="Entrez un %" />
+        </div>
+        <div class="pay-tip-breakdown" id="cash-tip-breakdown"></div>
+      </div>
 
       <div class="cash-grid" id="cash-step-input">
         <div class="cash-input-row">
@@ -4229,6 +4280,98 @@
     let cardSuccessTimer = null;
     let cardFootTimer = null;
 
+    /* ---------- Pourboire (tip) on regular card / cash payments ----------
+       Split parts keep their own tip (splitState) — this is only applied
+       when splitPayCallback is null. currentTotal() stays the base; the tip
+       is added on top wherever the customer-facing figure is shown/recorded. */
+    let payTipMode = '0';      // '0' | '5' | '10' | '15' | 'autre'
+    let payTipCustom = 0;      // custom % when mode === 'autre'
+
+    function payTipPct() {
+      if (splitPayCallback) return 0;        // split has its own tip
+      if (payTipMode === 'autre') return Math.max(0, payTipCustom || 0);
+      return parseFloat(payTipMode) || 0;
+    }
+    function payTipAmount() {
+      return Math.round(currentTotal() * payTipPct() / 100);
+    }
+    function resetPayTip() {
+      payTipMode = '0';
+      payTipCustom = 0;
+    }
+    /* Render the tip selector for whichever modal is open (card and/or cash). */
+    function renderPayTip() {
+      const opts = [
+        { label: 'Sans pourboire', val: '0'   },
+        { label: '5 %',            val: '5'   },
+        { label: '10 %',           val: '10'  },
+        { label: '15 %',           val: '15'  },
+        { label: 'Autre',          val: 'autre'},
+      ];
+      const isSplit = !!splitPayCallback;
+      ['card', 'cash'].forEach(which => {
+        const wrap = $('#' + which + '-tip');
+        if (!wrap) return;
+        // Hide the whole tip block while a split part is being paid.
+        wrap.style.display = isSplit ? 'none' : '';
+        if (isSplit) return;
+        $('#' + which + '-tip-chips').innerHTML = opts.map(o =>
+          `<button class="pay-tip-chip ${o.val === payTipMode ? 'is-active' : ''}" data-pay-tip="${o.val}">${o.label}</button>`
+        ).join('');
+        const customVisible = payTipMode === 'autre';
+        $('#' + which + '-tip-custom').classList.toggle('is-visible', customVisible);
+        if (customVisible) $('#' + which + '-tip-input').value = payTipCustom || '';
+        const bd = $('#' + which + '-tip-breakdown');
+        const tip = payTipAmount();
+        if (tip > 0) {
+          const base = currentTotal();
+          bd.innerHTML =
+            `Addition <span class="mono">${fmtMAD(base)}</span>`
+            + `<span class="pay-tip-sep">·</span>`
+            + `Pourboire <span class="mono">${fmtMAD(tip)}</span>`
+            + `<span class="pay-tip-sep">·</span>`
+            + `Total <span class="mono">${fmtMAD(base + tip)}</span>`;
+          bd.classList.add('is-visible');
+        } else {
+          bd.innerHTML = '';
+          bd.classList.remove('is-visible');
+        }
+      });
+    }
+    /* Tip changed — refresh the open modal's customer-facing figure. */
+    function applyPayTipChange() {
+      renderPayTip();
+      const base = currentTotal();
+      const tip  = payTipAmount();
+      if ($('#card-modal').classList.contains('is-open')) {
+        $('#card-amount').textContent = fmtMADcents(base + tip);
+      }
+      if ($('#cash-modal').classList.contains('is-open')) {
+        $('#cash-amount').textContent = fmtMADcents(base + tip);
+        const ci = $('#cash-received');
+        if (ci) ci.value = base + tip;
+        updateRendu();
+      }
+    }
+    // Tip chip clicks (both modals routed through one delegated listener).
+    document.addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-pay-tip]');
+      if (!chip) return;
+      payTipMode = chip.dataset.payTip;
+      if (payTipMode === 'autre') {
+        const open = $('#card-modal').classList.contains('is-open') ? 'card' : 'cash';
+        setTimeout(() => { const inp = $('#' + open + '-tip-input'); if (inp) inp.focus(); }, 60);
+      }
+      applyPayTipChange();
+    });
+    // Custom tip % input (both modals share one delegated listener).
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'card-tip-input' || e.target.id === 'cash-tip-input') {
+        payTipCustom = parseFloat(e.target.value) || 0;
+        applyPayTipChange();
+      }
+    });
+
     function openCardModal() {
       // Reset to pulsing state
       reader.disc.classList.remove('is-success', 'flash');
@@ -4241,7 +4384,11 @@
       reader.txn.textContent = '';
       reader.actions.classList.remove('is-visible');
       reader.foot.classList.remove('is-visible');
+      // Reset the tip so the figure opens on the base addition.
+      resetPayTip();
+      $('#card-amount').textContent = fmtMADcents(currentTotal());
       cardModal.classList.add('is-open');
+      renderPayTip();
       lucide.createIcons();
 
       cardSuccessTimer = setTimeout(triggerCardSuccess, 2000);
@@ -4266,7 +4413,7 @@
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'card', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'));
+      if (!splitPayCallback) recordSale(currentTotal(), 'card', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'), payTipAmount());
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -4314,7 +4461,8 @@
       return Math.max(0, gross - discountAmountFor(selectedId, gross));
     }
     function updateRendu() {
-      const total = currentTotal();
+      // The customer pays base + pourboire; rendu is computed off that.
+      const total = currentTotal() + payTipAmount();
       const got = parseFloat(cashInput.value) || 0;
       const diff = got - total;
       cashRendu.classList.remove('is-positive', 'is-short');
@@ -4333,18 +4481,21 @@
       cashStepInput.style.display = '';
       cashStepSuccess.hidden = true;
       cashStepSuccess.style.display = 'none';
+      // Reset the tip so the figure opens on the base addition.
+      resetPayTip();
       const total = currentTotal();
       cashInput.value = total;
       $('#cash-amount').textContent = fmtMADcents(total);
-      updateRendu();
       cashModal.classList.add('is-open');
+      renderPayTip();
+      updateRendu();
       setTimeout(() => cashInput.focus(), 60);
     }
     function closeCashModal({ paid = false } = {}) {
       cashAmountOverride = null;
       cashModal.classList.remove('is-open');
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'cash', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'));
+      if (!splitPayCallback) recordSale(currentTotal(), 'cash', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'), payTipAmount());
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -4367,7 +4518,8 @@
       });
     });
     cashConfirm.addEventListener('click', () => {
-      const total = currentTotal();
+      // Customer owes base + pourboire; rendu is the change off that.
+      const total = currentTotal() + payTipAmount();
       const got = parseFloat(cashInput.value) || 0;
       const change = got - total;
       cashStepInput.hidden = true;
@@ -5154,12 +5306,16 @@
 
     /* Roll up the ledger — single source of truth for revenue / tenders */
     function journalTotals() {
-      let revenue = 0, card = 0, cash = 0;
+      let revenue = 0, card = 0, cash = 0, tips = 0, cashTips = 0;
       for (const e of journal) {
         revenue += e.amount;
         if (e.method === 'cash') cash += e.amount; else card += e.amount;
+        const tip = e.tip || 0;
+        tips += tip;
+        if (e.method === 'cash') cashTips += tip;
       }
-      return { revenue: revenue, card: card, cash: cash, txns: journal.length };
+      return { revenue: revenue, card: card, cash: cash, txns: journal.length,
+               tips: tips, cashTips: cashTips };
     }
 
     /* Seed the ledger so the demo opens mid-service (~2h of transactions) */
@@ -5180,19 +5336,27 @@
           amount = 90 + Math.floor(Math.random() * 28) * 15;   // 90–495 MAD
           tablesDone++;
         }
+        // ~45% of tenders carry a small pourboire (rounded to 5 MAD, ~5–12%).
+        let tip = 0;
+        if (Math.random() < 0.45) {
+          const pct = 5 + Math.floor(Math.random() * 8);       // 5–12 %
+          tip = Math.max(5, Math.round(amount * pct / 100 / 5) * 5);
+        }
         journal.push({
           id: 'seed-' + i,
           time: new Date(openedMs + span * (i + 0.5) / N),
           label: label, amount: amount,
           method: Math.random() < 0.6 ? 'card' : 'cash',
+          tip: tip,
           ref: genRef(),
         });
       }
       shift.tablesPaid = tablesDone;
     }
 
-    /* Record one completed tender (table payment, vente rapida, or split part) */
-    function recordSale(amount, method, label) {
+    /* Record one completed tender (table payment, vente rapida, or split part).
+       `amount` stays the base addition; `tip` (pourboire) is recorded alongside. */
+    function recordSale(amount, method, label, tip) {
       amount = Math.round(amount || 0);
       if (amount <= 0) return;
       const entry = {
@@ -5200,6 +5364,7 @@
         time: new Date(),
         label: label || 'Vente',
         amount: amount, method: method, ref: genRef(),
+        tip: Math.round(tip) || 0,
       };
       journal.push(entry);
       lastSaleId = entry.id;
@@ -5345,6 +5510,7 @@
         ['Ticket moyen',     fmtMAD(tot.txns > 0 ? tot.revenue / tot.txns : 0),             true,  ''],
         ['Réductions accordées', fmtMAD(shift.discounts),                                   true,  ''],
       ];
+      if (tot.tips > 0)    rows.push(['Pourboires', fmtMAD(tot.tips), true, '']);
       if (shift.refunds > 0) rows.push(['Remboursements', fmtMAD(shift.refunds), true, '']);
       if (authorizations.length > 0) rows.push(['Autorisations manager', String(authorizations.length), false, '']);
 
@@ -5356,14 +5522,16 @@
              + `<span class="${vCls}">${r[1]}</span></div>`;
       }).join('');
 
-      // Tiroir-caisse — full reconciliation (float + cash sales ± movements)
+      // Tiroir-caisse — full reconciliation (float + cash sales + cash tips ± movements).
+      // Cash pourboires physically land in the till; card tips do not.
       let movesIn = 0, movesOut = 0;
       for (const m of cashMovements) { if (m.type === 'in') movesIn += m.amount; else movesOut += m.amount; }
-      clotureExpected = openingFloat + tot.cash + movesIn - movesOut;
+      clotureExpected = openingFloat + tot.cash + tot.cashTips + movesIn - movesOut;
       const dLines = [
         ["Fond d'ouverture",   fmtMAD(openingFloat),    ''],
         ['Espèces encaissées', '+ ' + fmtMAD(tot.cash), ''],
       ];
+      if (tot.cashTips > 0) dLines.push(['Pourboires espèces', '+ ' + fmtMAD(tot.cashTips), '']);
       if (movesIn  > 0) dLines.push(['Entrées de caisse', '+ ' + fmtMAD(movesIn),  '']);
       if (movesOut > 0) dLines.push(['Sorties de caisse', '− ' + fmtMAD(movesOut), '']);
       dLines.push(['Attendu en caisse', fmtMAD(clotureExpected), 'is-total']);
@@ -5445,11 +5613,13 @@
           : fmtMAD(e.amount);
         const refundedTag = e.refunded
           ? `<span class="jr-tag-refunded">remboursé</span>` : '';
+        const tipMeta = (!isRefund && e.tip > 0)
+          ? ` · pourboire ${fmtMAD(e.tip)}` : '';
         return `<button class="jr-entry${fresh}" data-jr-ref="${e.ref}">`
              + `<span class="jr-entry-ic jr-entry-ic--${icCls}"><i data-lucide="${icon}"></i></span>`
              + `<span class="jr-entry-main">`
              +   `<span class="jr-entry-label">${e.label}${refundedTag}</span>`
-             +   `<span class="jr-entry-meta">${hh}:${mm} · ${mLabel} · ${e.ref}</span>`
+             +   `<span class="jr-entry-meta">${hh}:${mm} · ${mLabel} · ${e.ref}${tipMeta}</span>`
              + `</span>`
              + `<span class="jr-entry-amount${isRefund ? ' is-refund' : ''}">${amtTxt}</span>`
              + `<span class="jr-entry-reprint"><i data-lucide="printer"></i></span>`
@@ -5484,11 +5654,12 @@
       renderJournal();
     });
 
-    /* ---- Fond de caisse — opening float + cash movements ---- */
+    /* ---- Fond de caisse — opening float + cash sales + cash tips + movements ---- */
     function drawerExpected() {
       let mv = 0;
       for (const m of cashMovements) mv += (m.type === 'in' ? m.amount : -m.amount);
-      return openingFloat + journalTotals().cash + mv;
+      const t = journalTotals();
+      return openingFloat + t.cash + t.cashTips + mv;
     }
 
     const CM_REASONS = {
@@ -6485,6 +6656,7 @@
         if (e.kind)            entry.kind     = e.kind;       // 'refund'
         if (e.refundOf)        entry.refundOf = e.refundOf;
         if (e.refunded)        entry.refunded = true;
+        if (e.tip)             entry.tip      = e.tip;        // pourboire
         journal.push(entry);
       });
       cashMovements.length = 0;
