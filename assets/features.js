@@ -12,6 +12,7 @@
   'use strict';
   if (!window.Kiwi) { console.warn('features.js loaded before interactive.js'); return; }
   const { toast, modal, drawer, handlers, confetti } = window.Kiwi;
+  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
 
   /* ─── Injected styles for feature-specific UI ─── */
   const CSS = `
@@ -117,79 +118,318 @@
   st.textContent = CSS;
   document.head.appendChild(st);
 
+  const PL_STR = {
+    fr: {
+      tag: 'LIENS DE PAIEMENT',
+      title: 'Créer un lien Kiwi',
+      desc: 'Pour paiements à distance — WhatsApp, email, SMS. Zéro terminal requis.',
+      amountLabel: 'Montant (MAD)',
+      amountPlaceholder: 'Ex. 250,00',
+      amountHelp: 'Laissez vide pour permettre au client de choisir.',
+      descLabel: 'Description',
+      descPlaceholder: 'Ce pour quoi le client paie',
+      expiryLabel: 'Expire dans',
+      expiry24h: '24 heures',
+      expiry7d: '7 jours',
+      expiry30d: '30 jours',
+      expiryNone: 'Jamais',
+      methodsLabel: 'Méthodes',
+      methodsAll: 'Carte + Wallet + QR',
+      methodsCard: 'Carte uniquement',
+      methodsWallet: 'Kiwi Wallet uniquement',
+      info: "Payment Links inclus dans l'abonnement Kiwi · règlement T+1 automatique.",
+      cancel: 'Annuler',
+      generate: 'Générer le lien →',
+      scanOrShare: 'Scannez ou partagez le lien',
+      copy: 'Copier',
+      amountResult: 'Montant',
+      amountFree: 'Libre',
+      descResult: 'Description',
+      expiryResult: 'Expire',
+      expiryValueNone: 'Jamais',
+      expiryValue24h: 'Dans 24 heures',
+      expiryValueDays: (d) => `Dans ${d} jours`,
+      shareWA: 'WhatsApp',
+      shareEmail: 'Email',
+      shareSMS: 'SMS',
+      close: 'Fermer',
+      newLink: 'Nouveau lien',
+      toastDesc: 'Ajoutez une description',
+      toastCopied: 'Lien copié',
+      toastWA: 'WhatsApp ouvert · prêt à partager',
+      toastEmail: 'Email prêt · client@example.com',
+      toastSMS: 'SMS envoyé',
+    },
+    en: {
+      tag: 'PAYMENT LINKS',
+      title: 'Create a Kiwi Link',
+      desc: 'For remote payments — WhatsApp, email, SMS. No terminal required.',
+      amountLabel: 'Amount (MAD)',
+      amountPlaceholder: 'E.g. 250.00',
+      amountHelp: 'Leave empty to let the customer choose.',
+      descLabel: 'Description',
+      descPlaceholder: 'What the customer is paying for',
+      expiryLabel: 'Expires in',
+      expiry24h: '24 hours',
+      expiry7d: '7 days',
+      expiry30d: '30 days',
+      expiryNone: 'Never',
+      methodsLabel: 'Methods',
+      methodsAll: 'Card + Wallet + QR',
+      methodsCard: 'Card only',
+      methodsWallet: 'Kiwi Wallet only',
+      info: 'Payment Links included in your Kiwi subscription · automatic T+1 settlement.',
+      cancel: 'Cancel',
+      generate: 'Generate Link →',
+      scanOrShare: 'Scan or share the link',
+      copy: 'Copy',
+      amountResult: 'Amount',
+      amountFree: 'Open',
+      descResult: 'Description',
+      expiryResult: 'Expires',
+      expiryValueNone: 'Never',
+      expiryValue24h: 'In 24 hours',
+      expiryValueDays: (d) => `In ${d} days`,
+      shareWA: 'WhatsApp',
+      shareEmail: 'Email',
+      shareSMS: 'SMS',
+      close: 'Close',
+      newLink: 'New Link',
+      toastDesc: 'Please add a description',
+      toastCopied: 'Link copied',
+      toastWA: 'WhatsApp opened · ready to share',
+      toastEmail: 'Email ready · customer@example.com',
+      toastSMS: 'SMS sent',
+    },
+    ar: {
+      tag: 'روابط الدفع',
+      title: 'إنشاء رابط كيوي',
+      desc: 'للمدفوعات عن بعد — واتساب، إيميل، رسائل نصية. لا يتطلب جهاز دفع.',
+      amountLabel: 'المبلغ (درهم)',
+      amountPlaceholder: 'مثال: 250,00',
+      amountHelp: 'اتركه فارغًا للسماح للعميل بالاختيار.',
+      descLabel: 'الوصف',
+      descPlaceholder: 'ما الذي يدفعه العميل مقابله',
+      expiryLabel: 'ينتهي في',
+      expiry24h: '24 ساعة',
+      expiry7d: '7 أيام',
+      expiry30d: '30 يومًا',
+      expiryNone: 'أبدًا',
+      methodsLabel: 'طرق الدفع',
+      methodsAll: 'بطاقة + محفظة + QR',
+      methodsCard: 'البطاقة فقط',
+      methodsWallet: 'محفظة كيوي فقط',
+      info: 'روابط الدفع مشمولة في اشتراك كيوي · تسوية آلية في اليوم الموالي.',
+      cancel: 'إلغاء',
+      generate: 'إنشاء الرابط →',
+      scanOrShare: 'امسح أو شارك الرابط',
+      copy: 'نسخ',
+      amountResult: 'المبلغ',
+      amountFree: 'مفتوح',
+      descResult: 'الوصف',
+      expiryResult: 'ينتهي',
+      expiryValueNone: 'أبدًا',
+      expiryValue24h: 'في 24 ساعة',
+      expiryValueDays: (d) => `في ${d} أيام`, /* AR: needs native review */
+      shareWA: 'واتساب',
+      shareEmail: 'الإيميل',
+      shareSMS: 'SMS',
+      close: 'إغلاق',
+      newLink: 'رابط جديد',
+      toastDesc: 'المرجو إضافة وصف',
+      toastCopied: 'تم نسخ الرابط',
+      toastWA: 'تم فتح واتساب · جاهز للمشاركة',
+      toastEmail: 'الإيميل جاهز · client@example.com',
+      toastSMS: 'تم إرسال SMS',
+    }
+  };
+
+  const ZK_STR = {
+    fr: {
+      tag: 'FINANCE ISLAMIQUE · زكاة',
+      title: 'Calculateur Zakat 2026',
+      desc: (nisab) => `Nisab silver actuel : ${nisab} MAD. Taux Zakat : 2,5 % sur les avoirs qualifiés.`,
+      zakatDue: 'ZAKAT DUE · 1447 AH',
+      qualifiedAssets: (total) => `Avoirs qualifiés : ${total} MAD (au-dessus du nisab).`,
+      belowNisab: 'Avoirs sous le nisab · aucune zakat due cette année.',
+      liquidity: 'LIQUIDITÉS',
+      cashHome: 'Espèces à la maison',
+      bankBalances: 'Soldes bancaires',
+      preciousMetals: 'MÉTAUX PRÉCIEUX',
+      gold: 'Or (grammes)',
+      silver: 'Argent (grammes)',
+      tradeAndDebts: 'COMMERCE & DETTES',
+      inventory: 'Stock marchand',
+      receivables: 'Créances',
+      debts: 'Dettes (à déduire)',
+      taxableTotal: 'Total taxable',
+      recipient: 'BÉNÉFICIAIRE (CNDH-AGRÉÉ)',
+      caritasName: 'Caritas Maroc',
+      caritasDesc: 'Aide aux familles démunies · 8 régions',
+      baytiName: 'Association Bayti',
+      baytiDesc: 'Enfants en situation de rue · Casablanca',
+      fondaName: 'Fondation Mohammed V',
+      fondaDesc: 'Solidarité nationale · présente partout',
+      otherRecipient: 'Autre bénéficiaire',
+      otherRecipientDesc: "Saisir le RIB / ICE d'une association",
+      close: 'Fermer',
+      payZakat: 'Verser la Zakat →',
+      chooseRecipient: 'Choisissez un bénéficiaire',
+      zakatPaid: 'Zakat versée · reçu envoyé par WhatsApp',
+      zakatAccepted: 'Que Dieu accepte votre aumône.',
+    },
+    en: {
+      tag: 'ISLAMIC FINANCE · Zakat',
+      title: 'Zakat Calculator 2026',
+      desc: (nisab) => `Current silver nisab: ${nisab} MAD. Zakat rate: 2.5% on qualifying assets.`,
+      zakatDue: 'ZAKAT DUE · 1447 AH',
+      qualifiedAssets: (total) => `Qualifying assets: ${total} MAD (above nisab).`,
+      belowNisab: 'Assets below nisab · no Zakat due this year.',
+      liquidity: 'LIQUIDITY',
+      cashHome: 'Cash at home',
+      bankBalances: 'Bank balances',
+      preciousMetals: 'PRECIOUS METALS',
+      gold: 'Gold (grams)',
+      silver: 'Silver (grams)',
+      tradeAndDebts: 'TRADE & DEBTS',
+      inventory: 'Inventory stock',
+      receivables: 'Receivables',
+      debts: 'Debts (to deduct)',
+      taxableTotal: 'Taxable total',
+      recipient: 'RECIPIENT (CNDH-ACCREDITED)',
+      caritasName: 'Caritas Maroc',
+      caritasDesc: 'Help for underprivileged families · 8 regions',
+      baytiName: 'Bayti Association',
+      baytiDesc: 'Children in street situations · Casablanca',
+      fondaName: 'Mohammed V Foundation',
+      fondaDesc: 'National solidarity · present everywhere',
+      otherRecipient: 'Other recipient',
+      otherRecipientDesc: 'Enter the IBAN / ICE of an association',
+      close: 'Close',
+      payZakat: 'Pay Zakat →',
+      chooseRecipient: 'Choose a recipient',
+      zakatPaid: 'Zakat paid · receipt sent via WhatsApp',
+      zakatAccepted: 'May God accept your charity.',
+    },
+    ar: {
+      tag: 'التمويل الإسلامي · زكاة',
+      title: 'حاسبة الزكاة 2026',
+      desc: (nisab) => `نصاب الفضة الحالي: ${nisab} درهم. نسبة الزكاة: 2.5% على الأصول المستوفية للشروط.`,
+      zakatDue: 'الزكاة المستحقة · 1447 هـ',
+      qualifiedAssets: (total) => `الأصول الخاضعة للزكاة: ${total} درهم (فوق النصاب).`,
+      belowNisab: 'الأصول تحت النصاب · لا زكاة مستحقة هذا العام.',
+      liquidity: 'السيولة',
+      cashHome: 'النقد في المنزل',
+      bankBalances: 'الأرصدة البنكية',
+      preciousMetals: 'المعادن الثمينة',
+      gold: 'الذهب (جرام)',
+      silver: 'الفضة (جرام)',
+      tradeAndDebts: 'التجارة والديون',
+      inventory: 'مخزون البضائع',
+      receivables: 'الديون المستحقة لك',
+      debts: 'الديون (للطرح)',
+      taxableTotal: 'المجموع الخاضع للزكاة',
+      recipient: 'المستفيد (معتمد من CNDH)',
+      caritasName: 'Caritas Maroc',
+      caritasDesc: 'مساعدة الأسر المعوزة · 8 جهات',
+      baytiName: 'جمعية بيتي',
+      baytiDesc: 'أطفال في وضعية الشارع · الدار البيضاء',
+      fondaName: 'مؤسسة محمد الخامس للتضامن',
+      fondaDesc: 'التضامن الوطني · حاضرة في كل مكان',
+      otherRecipient: 'مستفيد آخر',
+      otherRecipientDesc: 'أدخل RIB / ICE لجمعية',
+      close: 'إغلاق',
+      payZakat: 'أداء الزكاة →',
+      chooseRecipient: 'اختر مستفيدًا',
+      zakatPaid: 'تم أداء الزكاة · تم إرسال الإيصال عبر واتساب',
+      zakatAccepted: 'تقبل الله منكم.',
+    },
+  };
+
   /* ═══════════════════ PAYMENT LINK ═══════════════════ */
   handlers['payment-link'] = () => {
     let step = 'form';
     let data = { amount: '', desc: 'Commande Café Atlas', expiry: '7j', method: 'all' };
+    const T = PL_STR[trLang()] || PL_STR.fr;
+
     const m = modal({
-      tag: 'LIENS DE PAIEMENT',
-      title: 'Créer un lien Kiwi',
-      desc: 'Pour paiements à distance — WhatsApp, email, SMS. Zéro terminal requis.',
+      tag: T.tag,
+      title: T.title,
+      desc: T.desc,
       width: 520,
       body: form()
     });
     function form() {
       return `
         <div class="kf-group">
-          <label class="kf-label">Montant (MAD)</label>
-          <input class="kf-input" placeholder="Ex. 250,00" data-f="amount" value="${data.amount}" style="font-size:18px; font-family: var(--mono); font-weight:500;" />
-          <div class="kf-help">Laissez vide pour permettre au client de choisir.</div>
+          <label class="kf-label">${T.amountLabel}</label>
+          <input class="kf-input" placeholder="${T.amountPlaceholder}" data-f="amount" value="${data.amount}" style="font-size:18px; font-family: var(--mono); font-weight:500;" />
+          <div class="kf-help">${T.amountHelp}</div>
         </div>
         <div class="kf-group">
-          <label class="kf-label">Description</label>
-          <input class="kf-input" placeholder="Ce pour quoi le client paie" data-f="desc" value="${data.desc}" />
+          <label class="kf-label">${T.descLabel}</label>
+          <input class="kf-input" placeholder="${T.descPlaceholder}" data-f="desc" value="${data.desc}" />
         </div>
         <div class="kf-row">
           <div class="kf-group">
-            <label class="kf-label">Expire dans</label>
+            <label class="kf-label">${T.expiryLabel}</label>
             <select class="kf-input" data-f="expiry">
-              <option value="24h" ${data.expiry==='24h'?'selected':''}>24 heures</option>
-              <option value="7j" ${data.expiry==='7j'?'selected':''}>7 jours</option>
-              <option value="30j" ${data.expiry==='30j'?'selected':''}>30 jours</option>
-              <option value="none" ${data.expiry==='none'?'selected':''}>Jamais</option>
+              <option value="24h" ${data.expiry==='24h'?'selected':''}>${T.expiry24h}</option>
+              <option value="7j" ${data.expiry==='7j'?'selected':''}>${T.expiry7d}</option>
+              <option value="30j" ${data.expiry==='30j'?'selected':''}>${T.expiry30d}</option>
+              <option value="none" ${data.expiry==='none'?'selected':''}>${T.expiryNone}</option>
             </select>
           </div>
           <div class="kf-group">
-            <label class="kf-label">Méthodes</label>
+            <label class="kf-label">${T.methodsLabel}</label>
             <select class="kf-input" data-f="method">
-              <option value="all">Carte + Wallet + QR</option>
-              <option value="card">Carte uniquement</option>
-              <option value="wallet">Kiwi Wallet uniquement</option>
+              <option value="all">${T.methodsAll}</option>
+              <option value="card">${T.methodsCard}</option>
+              <option value="wallet">${T.methodsWallet}</option>
             </select>
           </div>
         </div>
         <div style="margin-top:6px; padding:12px 14px; background: var(--paper-soft); border-radius: 10px; font-size: 12.5px; color: var(--n-600); display:flex; gap:10px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          Payment Links inclus dans l'abonnement Kiwi · règlement T+1 automatique.
+          ${T.info}
         </div>
         <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-          <button class="kb ghost" data-close>Annuler</button>
-          <button class="kb atlas" data-gen>Générer le lien →</button>
+          <button class="kb ghost" data-close>${T.cancel}</button>
+          <button class="kb atlas" data-gen>${T.generate}</button>
         </div>
       `;
     }
     function result() {
       const slug = Math.random().toString(36).slice(2, 9);
       const link = `kiwi.ma/p/${slug}`;
+      let expiryText;
+      switch(data.expiry) {
+        case 'none': expiryText = T.expiryValueNone; break;
+        case '24h': expiryText = T.expiryValue24h; break;
+        case '7j': expiryText = T.expiryValueDays(7); break;
+        case '30j': expiryText = T.expiryValueDays(30); break;
+        default: expiryText = T.expiryValueDays(data.expiry.replace('j',''));
+      }
+
       return `
         <div class="pl-preview">
           <div class="pl-qr"></div>
-          <div style="margin-top: 14px; font-size: 13px; color: var(--n-500);">Scannez ou partagez le lien</div>
-          <div class="pl-link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2"><path d="M10 14a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 10a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>${link}<span class="copy" data-copy="${link}">Copier</span></div>
+          <div style="margin-top: 14px; font-size: 13px; color: var(--n-500);">${T.scanOrShare}</div>
+          <div class="pl-link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2"><path d="M10 14a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 10a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>${link}<span class="copy" data-copy="${link}">${T.copy}</span></div>
         </div>
         <div style="margin-top: 14px; padding: 14px; background: var(--paper-soft); border-radius: 10px; font-size: 13px;">
-          <div style="display:flex; justify-content:space-between; padding: 3px 0;"><span style="color:var(--n-500);">Montant</span><b>${data.amount||'Libre'} ${data.amount?'MAD':''}</b></div>
-          <div style="display:flex; justify-content:space-between; padding: 3px 0;"><span style="color:var(--n-500);">Description</span><b>${data.desc}</b></div>
-          <div style="display:flex; justify-content:space-between; padding: 3px 0;"><span style="color:var(--n-500);">Expire</span><b>${data.expiry === 'none' ? 'Jamais' : data.expiry === '24h' ? 'Dans 24 heures' : 'Dans '+data.expiry.replace('j',' jours')}</b></div>
+          <div style="display:flex; justify-content:space-between; padding: 3px 0;"><span style="color:var(--n-500);">${T.amountResult}</span><b>${data.amount||T.amountFree} ${data.amount?'MAD':''}</b></div>
+          <div style="display:flex; justify-content:space-between; padding: 3px 0;"><span style="color:var(--n-500);">${T.descResult}</span><b>${data.desc}</b></div>
+          <div style="display:flex; justify-content:space-between; padding: 3px 0;"><span style="color:var(--n-500);">${T.expiryResult}</span><b>${expiryText}</b></div>
         </div>
         <div class="pl-share">
-          <button data-share="whatsapp"><svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</button>
-          <button data-share="email"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>Email</button>
-          <button data-share="sms"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>SMS</button>
+          <button data-share="whatsapp"><svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>${T.shareWA}</button>
+          <button data-share="email"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>${T.shareEmail}</button>
+          <button data-share="sms"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>${T.shareSMS}</button>
         </div>
         <div style="margin-top: 16px; display:flex; justify-content: space-between;">
-          <button class="kb ghost" data-close>Fermer</button>
-          <button class="kb atlas" data-new>Nouveau lien</button>
+          <button class="kb ghost" data-close>${T.close}</button>
+          <button class="kb atlas" data-new>${T.newLink}</button>
         </div>
       `;
     }
@@ -200,7 +440,7 @@
     m.el.addEventListener('click', (e) => {
       if (e.target.closest('[data-close]')) m.close();
       if (e.target.closest('[data-gen]')) {
-        if (!data.desc) { toast('Ajoutez une description', {type: 'warn'}); return; }
+        if (!data.desc) { toast(T.toastDesc, {type: 'warn'}); return; }
         step = 'result';
         m.el.querySelector('.kiwi-modal-body').innerHTML = result();
         confetti();
@@ -210,11 +450,11 @@
         m.el.querySelector('.kiwi-modal-body').innerHTML = form();
       }
       const copy = e.target.closest('[data-copy]');
-      if (copy) { navigator.clipboard?.writeText('https://' + copy.dataset.copy); toast('Lien copié', {type: 'success', desc: copy.dataset.copy}); }
+      if (copy) { navigator.clipboard?.writeText('https://' + copy.dataset.copy); toast(T.toastCopied, {type: 'success', desc: copy.dataset.copy}); }
       const share = e.target.closest('[data-share]');
       if (share) {
         const ch = share.dataset.share;
-        toast(ch === 'whatsapp' ? 'WhatsApp ouvert · prêt à partager' : ch === 'email' ? 'Email prêt · client@example.com' : 'SMS envoyé', {type: 'success'});
+        toast(ch === 'whatsapp' ? T.toastWA : ch === 'email' ? T.toastEmail : T.toastSMS, {type: 'success'});
       }
     });
   };
@@ -224,10 +464,12 @@
     const nisab = 7438; // MAD (silver nisab as of 2026)
     let v = { cash: 0, bank: 0, gold: 0, silver: 0, inventory: 0, receivables: 0, debts: 0 };
     let recipient = null;
+    const T = ZK_STR[trLang()] || ZK_STR.fr;
+
     const m = modal({
-      tag: 'FINANCE ISLAMIQUE · زكاة',
-      title: 'Calculateur Zakat 2026',
-      desc: 'Nisab silver actuel : 7 438 MAD. Taux Zakat : 2,5 % sur les avoirs qualifiés.',
+      tag: T.tag,
+      title: T.title,
+      desc: T.desc(nisab.toLocaleString('fr-FR')),
       width: 560,
       body: render()
     });
@@ -240,54 +482,57 @@
     function render() {
       const tot = total();
       const due = tot >= nisab ? tot * 0.025 : 0;
+      const lang = trLang();
+      const numLocale = lang === 'ar' ? 'ar-MA' : 'fr-FR';
+
       return `
         <div class="zk-hero">
-          <div style="font-size:11px; letter-spacing:0.1em; color: #c6ead4; font-family: var(--mono);">ZAKAT DUE · 1447 AH</div>
-          <div class="big">${due.toLocaleString('fr-FR', {maximumFractionDigits: 2})} <span style="font-size:16px; opacity:0.7;">MAD</span></div>
-          <div class="sub">${tot >= nisab ? `Avoirs qualifiés : ${tot.toLocaleString('fr-FR',{maximumFractionDigits:0})} MAD (au-dessus du nisab).` : `Avoirs sous le nisab · aucune zakat due cette année.`}</div>
+          <div style="font-size:11px; letter-spacing:0.1em; color: #c6ead4; font-family: var(--mono);">${T.zakatDue}</div>
+          <div class="big">${due.toLocaleString(numLocale, {maximumFractionDigits: 2})} <span style="font-size:16px; opacity:0.7;">MAD</span></div>
+          <div class="sub">${tot >= nisab ? T.qualifiedAssets(tot.toLocaleString(numLocale,{maximumFractionDigits:0})) : T.belowNisab}</div>
         </div>
         <div style="margin-bottom:8px;">
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:6px;">LIQUIDITÉS</div>
-          <div class="zk-field"><span class="l">Espèces à la maison</span><span><input type="number" data-f="cash" value="${v.cash||''}" placeholder="0" /> MAD</span></div>
-          <div class="zk-field"><span class="l">Soldes bancaires</span><span><input type="number" data-f="bank" value="${v.bank||''}" placeholder="0" /> MAD</span></div>
+          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:6px;">${T.liquidity}</div>
+          <div class="zk-field"><span class="l">${T.cashHome}</span><span><input type="number" data-f="cash" value="${v.cash||''}" placeholder="0" /> MAD</span></div>
+          <div class="zk-field"><span class="l">${T.bankBalances}</span><span><input type="number" data-f="bank" value="${v.bank||''}" placeholder="0" /> MAD</span></div>
         </div>
         <div style="margin-top:16px;">
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:6px;">MÉTAUX PRÉCIEUX</div>
-          <div class="zk-field"><span class="l">Or (grammes)</span><span><input type="number" data-f="gold" value="${v.gold||''}" placeholder="0" /> g</span></div>
-          <div class="zk-field"><span class="l">Argent (grammes)</span><span><input type="number" data-f="silver" value="${v.silver||''}" placeholder="0" /> g</span></div>
+          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:6px;">${T.preciousMetals}</div>
+          <div class="zk-field"><span class="l">${T.gold}</span><span><input type="number" data-f="gold" value="${v.gold||''}" placeholder="0" /> g</span></div>
+          <div class="zk-field"><span class="l">${T.silver}</span><span><input type="number" data-f="silver" value="${v.silver||''}" placeholder="0" /> g</span></div>
         </div>
         <div style="margin-top:16px;">
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:6px;">COMMERCE & DETTES</div>
-          <div class="zk-field"><span class="l">Stock marchand</span><span><input type="number" data-f="inventory" value="${v.inventory||''}" placeholder="0" /> MAD</span></div>
-          <div class="zk-field"><span class="l">Créances</span><span><input type="number" data-f="receivables" value="${v.receivables||''}" placeholder="0" /> MAD</span></div>
-          <div class="zk-field"><span class="l">Dettes (à déduire)</span><span><input type="number" data-f="debts" value="${v.debts||''}" placeholder="0" /> MAD</span></div>
-          <div class="zk-total"><span>Total taxable</span><span>${tot.toLocaleString('fr-FR',{maximumFractionDigits:0})} MAD</span></div>
+          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:6px;">${T.tradeAndDebts}</div>
+          <div class="zk-field"><span class="l">${T.inventory}</span><span><input type="number" data-f="inventory" value="${v.inventory||''}" placeholder="0" /> MAD</span></div>
+          <div class="zk-field"><span class="l">${T.receivables}</span><span><input type="number" data-f="receivables" value="${v.receivables||''}" placeholder="0" /> MAD</span></div>
+          <div class="zk-field"><span class="l">${T.debts}</span><span><input type="number" data-f="debts" value="${v.debts||''}" placeholder="0" /> MAD</span></div>
+          <div class="zk-total"><span>${T.taxableTotal}</span><span>${tot.toLocaleString(numLocale,{maximumFractionDigits:0})} MAD</span></div>
         </div>
         ${due > 0 ? `
         <div style="margin-top:20px;">
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:10px;">BÉNÉFICIAIRE (CNDH-AGRÉÉ)</div>
+          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:10px;">${T.recipient}</div>
           <div class="zk-recipients">
             <div class="zk-recipient ${recipient==='amc'?'selected':''}" data-r="amc">
-              <div class="n">Caritas Maroc</div>
-              <div class="d">Aide aux familles démunies · 8 régions</div>
+              <div class="n">${T.caritasName}</div>
+              <div class="d">${T.caritasDesc}</div>
             </div>
             <div class="zk-recipient ${recipient==='beni'?'selected':''}" data-r="beni">
-              <div class="n">Association Bayti</div>
-              <div class="d">Enfants en situation de rue · Casablanca</div>
+              <div class="n">${T.baytiName}</div>
+              <div class="d">${T.baytiDesc}</div>
             </div>
             <div class="zk-recipient ${recipient==='fond'?'selected':''}" data-r="fond">
-              <div class="n">Fondation Mohammed V</div>
-              <div class="d">Solidarité nationale · présente partout</div>
+              <div class="n">${T.fondaName}</div>
+              <div class="d">${T.fondaDesc}</div>
             </div>
             <div class="zk-recipient ${recipient==='custom'?'selected':''}" data-r="custom">
-              <div class="n">Autre bénéficiaire</div>
-              <div class="d">Saisir le RIB / ICE d'une association</div>
+              <div class="n">${T.otherRecipient}</div>
+              <div class="d">${T.otherRecipientDesc}</div>
             </div>
           </div>
         </div>` : ''}
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
-          <button class="kb ghost" data-close>Fermer</button>
-          ${due > 0 ? '<button class="kb atlas" data-pay>Verser la Zakat →</button>' : ''}
+          <button class="kb ghost" data-close>${T.close}</button>
+          ${due > 0 ? `<button class="kb atlas" data-pay>${T.payZakat}</button>` : ''}
         </div>
       `;
     }
@@ -300,24 +545,98 @@
       if (r) { recipient = r.dataset.r; m.el.querySelector('.kiwi-modal-body').innerHTML = render(); }
       if (e.target.closest('[data-close]')) m.close();
       if (e.target.closest('[data-pay]')) {
-        if (!recipient) { toast('Choisissez un bénéficiaire', {type: 'warn'}); return; }
+        if (!recipient) { toast(T.chooseRecipient, {type: 'warn'}); return; }
         m.close();
         confetti();
-        toast('Zakat versée · reçu envoyé par WhatsApp', {type: 'success', desc: 'Que Dieu accepte votre aumône.'});
+        toast(T.zakatPaid, {type: 'success', desc: T.zakatAccepted});
       }
     });
   };
 
   /* ═══════════════════ SADAQA ROUND-UP ═══════════════════ */
+  const SADAQA_STR = {
+    fr: {
+      tag: 'ARRONDIS SOLIDAIRES · صدقة',
+      title: 'Sadaqa Round-Up',
+      desc: 'Arrondissez chaque achat à la valeur supérieure et reversez la différence à une association.',
+      roundupEnabled: 'Arrondis activés',
+      roundupDesc: 'Chaque paiement Kiwi Card est arrondi et la différence est reversée.',
+      roundToLabel: 'Arrondir au multiple de',
+      monthlyCapLabel: (cap) => `Plafond mensuel · ${cap} MAD`,
+      capHelp: 'Protégez-vous contre les mois à gros volume.',
+      recipientLabel: 'Bénéficiaire',
+      recipientAmc: 'AMC · Aide aux familles démunies',
+      recipientBeni: 'Bayti · Enfants de la rue',
+      recipientFond: 'Fondation Mohammed V · Solidarité nationale',
+      recipientRotation: 'Rotation mensuelle (toutes)',
+      example: 'Exemple :',
+      exampleText: 'achat de 137,60 MAD arrondi à 140 MAD → 2,40 MAD de sadaqa.',
+      estimation: 'Estimation :',
+      estimationText: '~47 MAD de sadaqa ce mois-ci selon votre activité.',
+      cancel: 'Annuler',
+      save: 'Enregistrer',
+      toastTitle: 'Arrondis solidaires activés',
+      toastDesc: (roundTo, cap) => `Règle : ${roundTo} MAD · ${cap} MAD/mois max`,
+    },
+    en: {
+      tag: 'SOLIDARITY ROUND-UP · Sadaqa',
+      title: 'Sadaqa Round-Up',
+      desc: 'Round up each purchase to the next whole amount and donate the difference to a charity.',
+      roundupEnabled: 'Round-up enabled',
+      roundupDesc: 'Each Kiwi Card payment is rounded up and the difference is donated.',
+      roundToLabel: 'Round up to the nearest',
+      monthlyCapLabel: (cap) => `Monthly cap · ${cap} MAD`,
+      capHelp: 'Protect yourself against high-volume months.',
+      recipientLabel: 'Recipient',
+      recipientAmc: 'AMC · Help for underprivileged families',
+      recipientBeni: 'Bayti · Children in street situations',
+      recipientFond: 'Mohammed V Foundation · National solidarity',
+      recipientRotation: 'Monthly rotation (all)',
+      example: 'Example:',
+      exampleText: 'a 137.60 MAD purchase is rounded up to 140 MAD → 2.40 MAD in sadaqa.',
+      estimation: 'Estimation:',
+      estimationText: '~47 MAD in sadaqa this month based on your activity.',
+      cancel: 'Cancel',
+      save: 'Save',
+      toastTitle: 'Solidarity round-up activated',
+      toastDesc: (roundTo, cap) => `Rule: ${roundTo} MAD · ${cap} MAD/month max`,
+    },
+    ar: {
+      tag: 'الأرصدة التضامنية · صدقة',
+      title: 'صدقة Round-Up',
+      desc: 'قرّب كل عملية شراء إلى القيمة الأعلى وتبرع بالفرق لجمعية خيرية.',
+      roundupEnabled: 'التبرع مفعل',
+      roundupDesc: 'يتم تقريب كل دفعة ببطاقة كيوي ويتم التبرع بالفرق.',
+      roundToLabel: 'التقريب إلى مضاعف',
+      monthlyCapLabel: (cap) => `الحد الأقصى الشهري · ${cap} درهم`,
+      capHelp: 'احمِ نفسك من الأشهر ذات الحجم الكبير.',
+      recipientLabel: 'المستفيد',
+      recipientAmc: 'AMC · مساعدة الأسر المعوزة',
+      recipientBeni: 'بيتي · أطفال الشوارع',
+      recipientFond: 'مؤسسة محمد الخامس · التضامن الوطني',
+      recipientRotation: 'تناوب شهري (الكل)',
+      example: 'مثال:',
+      exampleText: 'شراء بقيمة 137,60 درهم يتم تقريبه إلى 140 درهم ← 2,40 درهم صدقة.',
+      estimation: 'تقدير:',
+      estimationText: 'حوالي 47 درهمًا من الصدقة هذا الشهر بناءً على نشاطك.',
+      cancel: 'إلغاء',
+      save: 'حفظ',
+      toastTitle: 'تم تفعيل الأرصدة التضامنية',
+      toastDesc: (roundTo, cap) => `القاعدة: ${roundTo} درهم · ${cap} درهم/شهر كحد أقصى`,
+    }
+  };
+
   handlers['sadaqa'] = () => {
     let enabled = true;
     let roundTo = 5;
     let cap = 100;
     let recipient = 'amc';
+    const T = SADAQA_STR[trLang()] || SADAQA_STR.fr;
+
     const m = modal({
-      tag: 'ARRONDIS SOLIDAIRES · صدقة',
-      title: 'Sadaqa round-up',
-      desc: 'Arrondissez chaque achat à la valeur supérieure et reversez la différence à une association.',
+      tag: T.tag,
+      title: T.title,
+      desc: T.desc,
       width: 500,
       body: render()
     });
@@ -330,37 +649,37 @@
             <span style="position:absolute; top:3px; left:${enabled?'23px':'3px'}; width:22px; height:22px; background:#fff; border-radius:50%; transition: left 200ms;"></span>
           </label>
           <div style="flex:1;">
-            <div style="font-weight:500;">Arrondis activés</div>
-            <div style="font-size:12.5px; color: var(--n-500); margin-top:2px;">Chaque paiement Kiwi Card est arrondi et la différence est reversée.</div>
+            <div style="font-weight:500;">${T.roundupEnabled}</div>
+            <div style="font-size:12.5px; color: var(--n-500); margin-top:2px;">${T.roundupDesc}</div>
           </div>
         </div>
         <div class="kf-group">
-          <label class="kf-label">Arrondir au multiple de</label>
+          <label class="kf-label">${T.roundToLabel}</label>
           <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
             ${[1,5,10].map(n => `<button class="kb ${roundTo===n?'atlas':'ghost'}" data-r="${n}" style="justify-content:center;">${n} MAD</button>`).join('')}
           </div>
         </div>
         <div class="kf-group">
-          <label class="kf-label">Plafond mensuel · ${cap} MAD</label>
+          <label class="kf-label">${T.monthlyCapLabel(cap)}</label>
           <input type="range" min="20" max="500" step="10" value="${cap}" data-cap style="width:100%; accent-color: var(--atlas);" />
-          <div class="kf-help">Protégez-vous contre les mois à gros volume.</div>
+          <div class="kf-help">${T.capHelp}</div>
         </div>
         <div class="kf-group">
-          <label class="kf-label">Bénéficiaire</label>
+          <label class="kf-label">${T.recipientLabel}</label>
           <select class="kf-input" data-rec>
-            <option value="amc" ${recipient==='amc'?'selected':''}>AMC · Aide aux familles démunies</option>
-            <option value="beni" ${recipient==='beni'?'selected':''}>Bayti · Enfants de la rue</option>
-            <option value="fond" ${recipient==='fond'?'selected':''}>Fondation Mohammed V · Solidarité nationale</option>
-            <option value="rotation" ${recipient==='rotation'?'selected':''}>Rotation mensuelle (toutes)</option>
+            <option value="amc" ${recipient==='amc'?'selected':''}>${T.recipientAmc}</option>
+            <option value="beni" ${recipient==='beni'?'selected':''}>${T.recipientBeni}</option>
+            <option value="fond" ${recipient==='fond'?'selected':''}>${T.recipientFond}</option>
+            <option value="rotation" ${recipient==='rotation'?'selected':''}>${T.recipientRotation}</option>
           </select>
         </div>
         <div style="margin-top:18px; padding:14px 16px; background: var(--mint-soft); border-radius: 10px; font-size: 13px; color: var(--riad);">
-          <b>Exemple :</b> achat de 137,60 MAD arrondi à 140 MAD → 2,40 MAD de sadaqa.<br/>
-          <b>Estimation :</b> ~47 MAD de sadaqa ce mois-ci selon votre activité.
+          <b>${T.example}</b> ${T.exampleText}<br/>
+          <b>${T.estimation}</b> ${T.estimationText}
         </div>
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-          <button class="kb ghost" data-close>Annuler</button>
-          <button class="kb atlas" data-save>Enregistrer</button>
+          <button class="kb ghost" data-close>${T.cancel}</button>
+          <button class="kb atlas" data-save>${T.save}</button>
         </div>
       `;
     }
@@ -369,7 +688,7 @@
       if (r) { roundTo = Number(r.dataset.r); m.el.querySelector('.kiwi-modal-body').innerHTML = render(); }
       if (e.target.matches('[data-en]')) { enabled = e.target.checked; m.el.querySelector('.kiwi-modal-body').innerHTML = render(); }
       if (e.target.closest('[data-close]')) m.close();
-      if (e.target.closest('[data-save]')) { m.close(); toast('Arrondis solidaires activés', {type:'success', desc:`Rôle : ${roundTo} MAD · ${cap} MAD/mois max`}); }
+      if (e.target.closest('[data-save]')) { m.close(); toast(T.toastTitle, {type:'success', desc: T.toastDesc(roundTo, cap)}); }
     });
     m.el.addEventListener('input', (e) => {
       if (e.target.matches('[data-cap]')) { cap = Number(e.target.value); m.el.querySelector('.kiwi-modal-body').innerHTML = render(); }
@@ -378,6 +697,33 @@
   };
 
   /* ═══════════════════ RAMADAN MODE ═══════════════════ */
+  const RAMADAN_STR = {
+    fr: {
+      bannerText: "<b>Mode Ramadan activé</b> · horaires iftar, scheduling staff adapté, prompts pourboire activés 19h-21h",
+      countdown: (time) => `Iftar dans ${time} · 18:49`,
+      toastEnabled: 'Mode Ramadan activé',
+      toastEnabledDesc: 'Horaires iftar, staff Ramadan, prompts pourboire soir activés',
+      toastDisabled: 'Mode Ramadan désactivé',
+      toastDisabledDesc: 'Retour aux paramètres standards',
+    },
+    en: {
+      bannerText: "<b>Ramadan Mode enabled</b> · Iftar times, adapted staff scheduling, evening tip prompts enabled 7-9pm",
+      countdown: (time) => `Iftar in ${time} · 18:49`,
+      toastEnabled: 'Ramadan Mode enabled',
+      toastEnabledDesc: 'Iftar times, Ramadan staff, evening tip prompts enabled',
+      toastDisabled: 'Ramadan Mode disabled',
+      toastDisabledDesc: 'Returning to standard settings',
+    },
+    ar: {
+      bannerText: "<b>وضع رمضان مفعل</b> · أوقات الإفطار، جدولة الموظفين مكيفة، تفعيل تنبيهات الإكراميات المسائية 7-9 مساءً",
+      countdown: (time) => `الإفطار بعد ${time} · 18:49`,
+      toastEnabled: 'وضع رمضان مفعل',
+      toastEnabledDesc: 'تفعيل أوقات الإفطار، موظفي رمضان، تنبيهات الإكراميات المسائية',
+      toastDisabled: 'وضع رمضان معطل',
+      toastDisabledDesc: 'العودة إلى الإعدادات القياسية',
+    }
+  };
+
   let ramadanActive = localStorage.getItem('kiwiRamadan') === '1';
   function renderRamadanBanner() {
     let b = document.querySelector('.ramadan-banner');
@@ -387,15 +733,16 @@
       b.className = 'ramadan-banner';
       const isDash = !!document.querySelector('.app .sidebar');
       if (isDash) document.querySelector('.app').appendChild(b);
+      const T = RAMADAN_STR[trLang()] || RAMADAN_STR.fr;
       b.innerHTML = `
         <div class="left-s">
           <div class="moon"></div>
           <div>
-            <b>Mode Ramadan activé</b> · horaires iftar, scheduling staff adapté, prompts pourboire activés 19h-21h
+            ${T.bannerText}
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
-          <div class="countdown" data-iftar>Iftar dans 04h 12m · 18:49</div>
+          <div class="countdown" data-iftar>${T.countdown('04h 12m')}</div>
           <button class="close" data-close-ramadan>×</button>
         </div>
       `;
@@ -406,9 +753,10 @@
     ramadanActive = !ramadanActive;
     localStorage.setItem('kiwiRamadan', ramadanActive ? '1' : '0');
     renderRamadanBanner();
-    toast(ramadanActive ? 'Mode Ramadan activé' : 'Mode Ramadan désactivé', {
+    const T = RAMADAN_STR[trLang()] || RAMADAN_STR.fr;
+    toast(ramadanActive ? T.toastEnabled : T.toastDisabled, {
       type: 'info',
-      desc: ramadanActive ? 'Horaires iftar, staff Ramadan, prompts pourboire soir activés' : 'Retour aux paramètres standards'
+      desc: ramadanActive ? T.toastEnabledDesc : T.toastDisabledDesc
     });
   };
   document.addEventListener('click', (e) => {
@@ -421,10 +769,95 @@
   if (ramadanActive) setTimeout(renderRamadanBanner, 300);
 
   /* ═══════════════════ KIWI COMPTE (Business account) ═══════════════════ */
-  handlers['kiwi-compte'] = () => {
-    drawer({
+  const KC_STR = {
+    fr: {
       title: 'Kiwi Compte',
       subtitle: 'Compte pro · IBAN marocain · carte commerçant',
+      balance: 'SOLDE',
+      iban: 'IBAN',
+      thisMonth: 'Ce mois',
+      expenses: 'Dépenses',
+      net: 'Net',
+      quickActions: 'ACTIONS RAPIDES',
+      transfer: 'Virer vers IBAN',
+      addCard: 'Ajouter une carte',
+      freezeCard: 'Geler la carte',
+      payCnss: 'Payer CNSS',
+      latestTransactions: 'DERNIERS MOUVEMENTS',
+      txKiwi: 'Règlement Kiwi POS',
+      txToday: "Aujourd'hui 09:00",
+      txSupplier: 'Facture Mercado Supplier',
+      txYesterday: 'Hier',
+      txSalary: 'Salaire Fatima K.',
+      txApril15: '15 avril',
+      txIgr: 'IGR 2e trimestre',
+      txApril10: '10 avril',
+      txMonday: 'Lundi',
+      requestAdvance: 'Demander une avance de trésorerie →'
+    },
+    en: {
+      title: 'Kiwi Account',
+      subtitle: 'Business account · Moroccan IBAN · merchant card',
+      balance: 'BALANCE',
+      iban: 'IBAN',
+      thisMonth: 'This month',
+      expenses: 'Expenses',
+      net: 'Net',
+      quickActions: 'QUICK ACTIONS',
+      transfer: 'Transfer to IBAN',
+      addCard: 'Add a card',
+      freezeCard: 'Freeze card',
+      payCnss: 'Pay CNSS',
+      latestTransactions: 'LATEST TRANSACTIONS',
+      txKiwi: 'Kiwi POS Settlement',
+      txToday: 'Today 09:00',
+      txSupplier: 'Mercado Supplier Invoice',
+      txYesterday: 'Yesterday',
+      txSalary: 'Fatima K. Salary',
+      txApril15: 'April 15',
+      txIgr: 'IGR 2nd quarter',
+      txApril10: 'April 10',
+      txMonday: 'Monday',
+      requestAdvance: 'Request a cash advance →'
+    },
+    ar: {
+      title: 'حساب كيوي',
+      subtitle: 'حساب مهني · IBAN مغربي · بطاقة التاجر',
+      balance: 'الرصيد',
+      iban: 'IBAN',
+      thisMonth: 'هذا الشهر',
+      expenses: 'المصاريف',
+      net: 'الصافي',
+      quickActions: 'إجراءات سريعة',
+      transfer: 'تحويل إلى IBAN',
+      addCard: 'إضافة بطاقة',
+      freezeCard: 'تجميد البطاقة',
+      payCnss: 'دفع CNSS',
+      latestTransactions: 'آخر الحركات',
+      txKiwi: 'تسوية Kiwi POS',
+      txToday: 'اليوم 09:00',
+      txSupplier: 'فاتورة مورد',
+      txYesterday: 'أمس',
+      txSalary: 'راتب فاطمة خ.',
+      txApril15: '15 أبريل',
+      txIgr: 'IGR الربع الثاني',
+      txApril10: '10 أبريل',
+      txMonday: 'الاثنين',
+      requestAdvance: 'طلب سلفة نقدية →'
+    }
+  };
+  handlers['kiwi-compte'] = () => {
+    const T = KC_STR[trLang()] || KC_STR.fr;
+    const transactions = [
+      [T.txKiwi, T.txToday, '+23 091,50', 'success'],
+      [T.txSupplier, T.txYesterday, '−4 280,00', ''],
+      [T.txSalary, T.txApril15, '−6 800,00', ''],
+      [T.txIgr, T.txApril10, '−12 400,00', ''],
+      [T.txKiwi, T.txMonday, '+21 445,00', 'success']
+    ];
+    drawer({
+      title: T.title,
+      subtitle: T.subtitle,
       width: 480,
       body: `
         <div class="kc-card">
@@ -433,30 +866,30 @@
           <div class="num">4982 •••• •••• 3291</div>
           <div class="row">
             <div>
-              <div class="t">SOLDE</div>
+              <div class="t">${T.balance}</div>
               <div class="v">47 281,90 MAD</div>
             </div>
             <div>
-              <div class="t">IBAN</div>
+              <div class="t">${T.iban}</div>
               <div class="v">MA64 0071 ••••</div>
             </div>
           </div>
         </div>
         <div class="kc-stats">
-          <div class="kc-stat"><div class="l">Ce mois</div><div class="v">+186 k</div></div>
-          <div class="kc-stat"><div class="l">Dépenses</div><div class="v">−138 k</div></div>
-          <div class="kc-stat"><div class="l">Net</div><div class="v" style="color:var(--atlas);">+48 k</div></div>
+          <div class="kc-stat"><div class="l">${T.thisMonth}</div><div class="v">+186 k</div></div>
+          <div class="kc-stat"><div class="l">${T.expenses}</div><div class="v">−138 k</div></div>
+          <div class="kc-stat"><div class="l">${T.net}</div><div class="v" style="color:var(--atlas);">+48 k</div></div>
         </div>
-        <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:10px;">ACTIONS RAPIDES</div>
+        <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:10px;">${T.quickActions}</div>
         <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom: 18px;">
-          <button class="kb ghost" style="justify-content:flex-start; padding:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>Virer vers IBAN</button>
-          <button class="kb ghost" style="justify-content:flex-start; padding:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Ajouter une carte</button>
-          <button class="kb ghost" style="justify-content:flex-start; padding:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Geler la carte</button>
-          <button class="kb ghost" style="justify-content:flex-start; padding:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Payer CNSS</button>
+          <button class="kb ghost" style="justify-content:flex-start; padding:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>${T.transfer}</button>
+          <button class="kb ghost" style="justify-content:flex-start; padding:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>${T.addCard}</button>
+          <button class="kb ghost" style="justify-content:flex-start; padding:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>${T.freezeCard}</button>
+          <button class="kb ghost" style="justify-content:flex-start; padding:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>${T.payCnss}</button>
         </div>
-        <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:10px;">DERNIERS MOUVEMENTS</div>
+        <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-bottom:10px;">${T.latestTransactions}</div>
         <div style="display:flex; flex-direction:column; gap:2px; font-size:13px;">
-          ${[['Règlement Kiwi POS','Aujourd\'hui 09:00','+23 091,50','success'],['Facture Mercado Supplier','Hier','−4 280,00',''],['Salaire Fatima K.','15 avril','−6 800,00',''],['IGR 2e trimestre','10 avril','−12 400,00',''],['Règlement Kiwi POS','Lundi','+21 445,00','success']].map(([n,d,a,s]) => `
+          ${transactions.map(([n,d,a,s]) => `
             <div style="display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--n-200); align-items:center;">
               <div style="width:32px; height:32px; background:var(--paper-soft); border-radius:10px; display:flex; align-items:center; justify-content:center; color:var(--n-500); flex-shrink:0;">${s==='success'?'↓':'↑'}</div>
               <div style="flex:1; min-width:0;"><div style="font-weight:500;">${n}</div><div style="font-size:11.5px; color:var(--n-500); margin-top:1px;">${d}</div></div>
@@ -466,20 +899,81 @@
         </div>
       `,
       foot: `
-        <button class="kb atlas" style="flex:1; justify-content:center;" data-action="capital">Demander une avance de trésorerie →</button>
+        <button class="kb atlas" style="flex:1; justify-content:center;" data-action="capital">${T.requestAdvance}</button>
       `
     });
   };
 
   /* ═══════════════════ CAPITAL / CASH ADVANCE ═══════════════════ */
+  const CAPITAL_STR = {
+    fr: {
+      tag: 'KIWI CAPITAL · AVANCE DE TRÉSORERIE',
+      title: 'Financement basé sur vos ventes',
+      desc: 'Remboursement automatique via 8 % de vos encaissements quotidiens. Sans dossier bancaire.',
+      prequalified: (max) => `Pré-qualifié jusqu'à ${max} MAD`,
+      amountReceived: 'Montant reçu',
+      fixedFee: 'Frais fixes (6 %)',
+      totalToRepay: 'Total à rembourser',
+      dailyDeduction: 'Prélèvement quotidien',
+      estimatedDuration: 'Durée estimée',
+      durationDays: (days) => `~${days} jours`,
+      durationMonths: (months, days) => `~${months} mois (${days} jours)`,
+      murabaha: 'Conforme Murabaha :',
+      murabahaDesc: 'frais fixes non-usuraires, pas de taux variable. Agréé AAOIFI.',
+      close: 'Fermer',
+      confirm: "Confirmer · fonds d'ici 24h →",
+      toastTitle: 'Kiwi Capital · demande acceptée',
+      toastDesc: (amount) => `${amount} MAD seront crédités sur votre Kiwi Compte d'ici 24h`,
+    },
+    en: {
+      tag: 'KIWI CAPITAL · CASH ADVANCE',
+      title: 'Financing based on your sales',
+      desc: 'Automatic repayment via 8% of your daily sales. No bank application.',
+      prequalified: (max) => `Pre-qualified up to ${max} MAD`,
+      amountReceived: 'Amount received',
+      fixedFee: 'Fixed fee (6%)',
+      totalToRepay: 'Total to repay',
+      dailyDeduction: 'Daily deduction',
+      estimatedDuration: 'Estimated duration',
+      durationDays: (days) => `~${days} days`,
+      durationMonths: (months, days) => `~${months} months (${days} days)`,
+      murabaha: 'Murabaha compliant:',
+      murabahaDesc: 'non-usurious fixed fees, no variable rate. AAOIFI approved.',
+      close: 'Close',
+      confirm: 'Confirm · funds within 24h →',
+      toastTitle: 'Kiwi Capital · request accepted',
+      toastDesc: (amount) => `${amount} MAD will be credited to your Kiwi Account within 24h`,
+    },
+    ar: {
+      tag: 'كيوي كابيتال · سلفة نقدية',
+      title: 'تمويل بناءً على مبيعاتك',
+      desc: 'سداد تلقائي عبر 8% من إيراداتك اليومية. بدون ملف بنكي.',
+      prequalified: (max) => `مؤهل مسبقًا حتى ${max} درهم`,
+      amountReceived: 'المبلغ المستلم',
+      fixedFee: 'رسوم ثابتة (6%)',
+      totalToRepay: 'المجموع للسداد',
+      dailyDeduction: 'الخصم اليومي',
+      estimatedDuration: 'المدة المقدرة',
+      durationDays: (days) => `~${days} يومًا`,
+      durationMonths: (months, days) => `~${months} أشهر (${days} يومًا)`,
+      murabaha: 'متوافق مع المرابحة:',
+      murabahaDesc: 'رسوم ثابتة غير ربوية، بدون سعر فائدة متغير. معتمد من AAOIFI.',
+      close: 'إغلاق',
+      confirm: 'تأكيد · الأموال في غضون 24 ساعة →',
+      toastTitle: 'كيوي كابيتال · تم قبول الطلب',
+      toastDesc: (amount) => `سيتم إضافة ${amount} درهم إلى حساب كيوي الخاص بك في غضون 24 ساعة`,
+    }
+  };
   handlers['capital'] = () => {
     let amount = 45000;
     const max = 120000;
     const min = 5000;
+    const T = CAPITAL_STR[trLang()] || CAPITAL_STR.fr;
+
     const m = modal({
-      tag: 'KIWI CAPITAL · AVANCE DE TRÉSORERIE',
-      title: 'Financement basé sur vos ventes',
-      desc: 'Remboursement automatique via 8 % de vos encaissements quotidiens. Sans dossier bancaire.',
+      tag: T.tag,
+      title: T.title,
+      desc: T.desc,
       width: 540,
       body: render()
     });
@@ -488,27 +982,30 @@
       const dailyPct = 8;
       const daily = 6900; // avg daily take MAD (matches ~200k MAD/mois demo)
       const days = Math.ceil((amount + fee) / (daily * dailyPct / 100));
-      const durationLabel = days < 45 ? `~${days} jours` : `~${Math.ceil(days / 30)} mois (${days} jours)`;
+      const durationLabel = days < 45 ? T.durationDays(days) : T.durationMonths(Math.ceil(days / 30), days);
+      const lang = trLang();
+      const numLocale = lang === 'ar' ? 'ar-MA' : 'fr-FR';
+
       return `
         <div class="cap-slider">
-          <div class="cap-amount"><span style="color:var(--atlas); font-weight:700;">${amount.toLocaleString('fr-FR')}</span> <span style="font-size:16px; color:var(--n-500);">MAD</span></div>
+          <div class="cap-amount"><span style="color:var(--atlas); font-weight:700;">${amount.toLocaleString(numLocale)}</span> <span style="font-size:16px; color:var(--n-500);">MAD</span></div>
           <input type="range" min="${min}" max="${max}" step="1000" value="${amount}" data-amt />
-          <div class="cap-range"><span>${min.toLocaleString('fr-FR')} MAD</span><span>Pré-qualifié jusqu'à ${max.toLocaleString('fr-FR')} MAD</span></div>
+          <div class="cap-range"><span>${min.toLocaleString(numLocale)} MAD</span><span>${T.prequalified(max.toLocaleString(numLocale))}</span></div>
         </div>
         <div style="background: var(--paper-soft); border-radius: 12px; padding: 16px 20px;">
-          <div class="cap-metric"><span style="color: var(--n-600);">Montant reçu</span><span class="v">${amount.toLocaleString('fr-FR')} MAD</span></div>
-          <div class="cap-metric"><span style="color: var(--n-600);">Frais fixes (6 %)</span><span class="v">${fee.toLocaleString('fr-FR',{maximumFractionDigits:0})} MAD</span></div>
-          <div class="cap-metric"><span style="color: var(--n-600);">Total à rembourser</span><span class="v">${(amount+fee).toLocaleString('fr-FR',{maximumFractionDigits:0})} MAD</span></div>
-          <div class="cap-metric"><span style="color: var(--n-600);">Prélèvement quotidien</span><span class="v">${dailyPct} % des ventes carte</span></div>
-          <div class="cap-metric"><span style="color: var(--n-600);">Durée estimée</span><span class="v" style="color: var(--atlas);">${durationLabel}</span></div>
+          <div class="cap-metric"><span style="color: var(--n-600);">${T.amountReceived}</span><span class="v">${amount.toLocaleString(numLocale)} MAD</span></div>
+          <div class="cap-metric"><span style="color: var(--n-600);">${T.fixedFee}</span><span class="v">${fee.toLocaleString(numLocale,{maximumFractionDigits:0})} MAD</span></div>
+          <div class="cap-metric"><span style="color: var(--n-600);">${T.totalToRepay}</span><span class="v">${(amount+fee).toLocaleString(numLocale,{maximumFractionDigits:0})} MAD</span></div>
+          <div class="cap-metric"><span style="color: var(--n-600);">${T.dailyDeduction}</span><span class="v">${dailyPct} % des ventes carte</span></div>
+          <div class="cap-metric"><span style="color: var(--n-600);">${T.estimatedDuration}</span><span class="v" style="color: var(--atlas);">${durationLabel}</span></div>
         </div>
         <div style="margin-top:18px; padding: 14px 16px; background: var(--mint-soft); border-radius: 10px; font-size: 12.5px; color: var(--riad); display:flex; gap:10px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-          <div><b>Conforme Murabaha :</b> frais fixes non-usuraires, pas de taux variable. Agréé AAOIFI.</div>
+          <div><b>${T.murabaha}</b> ${T.murabahaDesc}</div>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
-          <button class="kb ghost" data-close>Fermer</button>
-          <button class="kb atlas" data-confirm>Confirmer · fonds d'ici 24h →</button>
+          <button class="kb ghost" data-close>${T.close}</button>
+          <button class="kb atlas" data-confirm>${T.confirm}</button>
         </div>
       `;
     }
@@ -520,21 +1017,93 @@
       if (e.target.closest('[data-confirm]')) {
         m.close();
         confetti();
-        toast('Kiwi Capital · demande acceptée', {type:'success', desc:`${amount.toLocaleString('fr-FR')} MAD seront crédités sur votre Kiwi Compte d'ici 24h`});
+        const lang = trLang();
+        const numLocale = lang === 'ar' ? 'ar-MA' : 'fr-FR';
+        toast(T.toastTitle, {type:'success', desc: T.toastDesc(amount.toLocaleString(numLocale))});
       }
     });
   };
 
   /* ═══════════════════ DIASPORA FX ═══════════════════ */
+  const DIASPORA_STR = {
+    fr: {
+      tag: 'TRANSFERT DIASPORA · FRANCE → MAROC',
+      title: 'Au taux interbancaire, ou presque.',
+      desc: 'Taux EUR/MAD en temps réel · frais fixes transparents · livraison en 10 secondes.',
+      youSend: 'VOUS ENVOYEZ DE',
+      recipientReceives: 'RÉCIPIENT REÇOIT',
+      comparison: (kiwi, kiwiRate, wafa, wise) => `<b>Kiwi :</b> ${kiwi} MAD (${kiwiRate}) · <b>Wafacash :</b> ${wafa} MAD · <b>Wise :</b> ${wise} MAD`,
+      deliveryMethod: 'MÉTHODE DE LIVRAISON',
+      wallet: 'Kiwi Wallet',
+      walletTime: '~10 sec',
+      iban: 'Sur IBAN',
+      ibanTime: 'T+1',
+      cash: 'Cash · 4 000 agences',
+      cashTime: '30 min',
+      kiwiFee: 'Frais Kiwi',
+      cancel: 'Annuler',
+      send: (amount) => `Envoyer ${amount} EUR →`,
+      toastTitle: (amount) => `Transfert initié · ${amount} EUR`,
+      toastWallet: 'Arrivée attendue dans 10 secondes',
+      toastIban: 'IBAN crédité demain matin',
+      toastCash: 'Disponible en agence dans 30 min',
+    },
+    en: {
+      tag: 'DIASPORA TRANSFER · FRANCE → MOROCCO',
+      title: 'At the interbank rate, almost.',
+      desc: 'Real-time EUR/MAD rate · transparent fixed fees · 10-second delivery.',
+      youSend: 'YOU SEND FROM',
+      recipientReceives: 'RECIPIENT RECEIVES',
+      comparison: (kiwi, kiwiRate, wafa, wise) => `<b>Kiwi:</b> ${kiwi} MAD (${kiwiRate}) · <b>Wafacash:</b> ${wafa} MAD · <b>Wise:</b> ${wise} MAD`,
+      deliveryMethod: 'DELIVERY METHOD',
+      wallet: 'Kiwi Wallet',
+      walletTime: '~10 sec',
+      iban: 'To IBAN',
+      ibanTime: 'D+1',
+      cash: 'Cash · 4,000 agencies',
+      cashTime: '30 min',
+      kiwiFee: 'Kiwi Fee',
+      cancel: 'Cancel',
+      send: (amount) => `Send ${amount} EUR →`,
+      toastTitle: (amount) => `Transfer initiated · ${amount} EUR`,
+      toastWallet: 'Expected arrival in 10 seconds',
+      toastIban: 'IBAN credited tomorrow morning',
+      toastCash: 'Available at agency in 30 min',
+    },
+    ar: {
+      tag: 'تحويلات المغاربة المقيمين بالخارج · فرنسا → المغرب',
+      title: 'بسعر الصرف بين البنوك، تقريبًا.',
+      desc: 'سعر اليورو/الدرهم في الوقت الفعلي · رسوم ثابتة وشفافة · توصيل في 10 ثوانٍ.',
+      youSend: 'أنت ترسل من',
+      recipientReceives: 'المستلم يتلقى',
+      comparison: (kiwi, kiwiRate, wafa, wise) => `<b>كيوي:</b> ${kiwi} درهم (${kiwiRate}) · <b>وفاكاش:</b> ${wafa} درهم · <b>وايز:</b> ${wise} درهم`,
+      deliveryMethod: 'طريقة التوصيل',
+      wallet: 'محفظة كيوي',
+      walletTime: '~10 ثوانٍ',
+      iban: 'على IBAN',
+      ibanTime: 'يوم العمل التالي',
+      cash: 'نقدًا · 4000 وكالة',
+      cashTime: '30 دقيقة',
+      kiwiFee: 'رسوم كيوي',
+      cancel: 'إلغاء',
+      send: (amount) => `إرسال ${amount} يورو →`,
+      toastTitle: (amount) => `تم بدء التحويل · ${amount} يورو`,
+      toastWallet: 'الوصول المتوقع في 10 ثوانٍ',
+      toastIban: 'سيتم إضافة المبلغ إلى IBAN صباح الغد',
+      toastCash: 'متوفر في الوكالة في غضون 30 دقيقة',
+    }
+  };
   handlers['diaspora'] = () => {
     let from = 100;
     const rate = 10.812; // live-ish interbank
     const kiwiRate = rate * (1 - 0.005); // 0.5% markup
     let method = 'wallet';
+    const T = DIASPORA_STR[trLang()] || DIASPORA_STR.fr;
+
     const m = modal({
-      tag: 'TRANSFERT DIASPORA · FRANCE → MAROC',
-      title: 'Au taux interbancaire, ou presque.',
-      desc: 'Taux EUR/MAD en temps réel · frais fixes transparents · livraison en 10 secondes.',
+      tag: T.tag,
+      title: T.title,
+      desc: T.desc,
       width: 560,
       body: render()
     });
@@ -542,11 +1111,14 @@
       const received = from * kiwiRate;
       const wiseReceived = from * rate * (1 - 0.008);
       const wafacashReceived = from * rate * (1 - 0.028);
+      const lang = trLang();
+      const numLocale = lang === 'ar' ? 'ar-MA' : 'fr-FR';
+
       return `
         <div class="dx-row">
           <div class="flag fr"></div>
           <div class="info">
-            <div class="l">VOUS ENVOYEZ DE</div>
+            <div class="l">${T.youSend}</div>
             <div style="display:flex; align-items:baseline; gap:8px;"><input type="number" value="${from}" data-from /><span style="font-size:13px; color: var(--n-500);">EUR</span></div>
           </div>
         </div>
@@ -554,38 +1126,38 @@
         <div class="dx-row">
           <div class="flag ma"></div>
           <div class="info">
-            <div class="l">RÉCIPIENT REÇOIT</div>
-            <div class="amount">${received.toLocaleString('fr-FR',{maximumFractionDigits:2})} <span class="u">MAD</span></div>
+            <div class="l">${T.recipientReceives}</div>
+            <div class="amount">${received.toLocaleString(numLocale,{maximumFractionDigits:2})} <span class="u">MAD</span></div>
           </div>
         </div>
         <div class="dx-cmp">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg>
-          <div><b>Kiwi :</b> ${received.toLocaleString('fr-FR',{maximumFractionDigits:0})} MAD (${kiwiRate.toFixed(3)}) · <b>Wafacash :</b> ${wafacashReceived.toLocaleString('fr-FR',{maximumFractionDigits:0})} MAD · <b>Wise :</b> ${wiseReceived.toLocaleString('fr-FR',{maximumFractionDigits:0})} MAD</div>
+          <div>${T.comparison(received.toLocaleString(numLocale,{maximumFractionDigits:0}), kiwiRate.toFixed(3), wafacashReceived.toLocaleString(numLocale,{maximumFractionDigits:0}), wiseReceived.toLocaleString(numLocale,{maximumFractionDigits:0}))}</div>
         </div>
-        <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-top:18px; margin-bottom:8px;">MÉTHODE DE LIVRAISON</div>
+        <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-top:18px; margin-bottom:8px;">${T.deliveryMethod}</div>
         <div class="dx-methods">
           <div class="dx-method ${method==='wallet'?'selected':''}" data-m="wallet">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="margin:0 auto;"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
-            <strong>Kiwi Wallet</strong>
-            <div class="time">~10 sec</div>
+            <strong>${T.wallet}</strong>
+            <div class="time">${T.walletTime}</div>
           </div>
           <div class="dx-method ${method==='iban'?'selected':''}" data-m="iban">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="margin:0 auto;"><path d="M3 3v18h18M7 14l4-4 4 4 5-5"/></svg>
-            <strong>Sur IBAN</strong>
-            <div class="time">T+1</div>
+            <strong>${T.iban}</strong>
+            <div class="time">${T.ibanTime}</div>
           </div>
           <div class="dx-method ${method==='cash'?'selected':''}" data-m="cash">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="margin:0 auto;"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
-            <strong>Cash · 4 000 agences</strong>
-            <div class="time">30 min</div>
+            <strong>${T.cash}</strong>
+            <div class="time">${T.cashTime}</div>
           </div>
         </div>
         <div style="margin-top:18px; padding: 12px 14px; background: var(--paper-soft); border-radius: 10px; font-size: 12.5px; color: var(--n-600); display:flex; justify-content:space-between;">
-          <span>Frais Kiwi</span><b>0,50 EUR</b>
+          <span>${T.kiwiFee}</span><b>0,50 EUR</b>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
-          <button class="kb ghost" data-close>Annuler</button>
-          <button class="kb atlas" data-send>Envoyer ${from.toLocaleString('fr-FR')} EUR →</button>
+          <button class="kb ghost" data-close>${T.cancel}</button>
+          <button class="kb atlas" data-send>${T.send(from.toLocaleString(numLocale))}</button>
         </div>
       `;
     }
@@ -599,107 +1171,270 @@
       if (e.target.closest('[data-send]')) {
         m.close();
         confetti();
-        toast('Transfert initié · ' + from + ' EUR', {type:'success', desc: method === 'wallet' ? 'Arrivée attendue dans 10 secondes' : method === 'iban' ? 'IBAN crédité demain matin' : 'Disponible en agence dans 30 min'});
+        toast(T.toastTitle(from), {type:'success', desc: method === 'wallet' ? T.toastWallet : method === 'iban' ? T.toastIban : T.toastCash});
       }
     });
   };
 
   /* ═══════════════════ LOYALTY ═══════════════════ */
-  handlers['loyalty'] = () => {
-    const m = modal({
+  const LOYALTY_STR = {
+    fr: {
       tag: 'FIDÉLITÉ · KIWI LOYALTY',
       title: 'Remplacez la carte de fidélité papier.',
-      desc: 'Vos clients s\'inscrivent avec leur numéro. 10 visites = 1 offert. Ou adaptez la mécanique à votre commerce.',
+      desc: "Vos clients s'inscrivent avec leur numéro. 10 visites = 1 offert. Ou adaptez la mécanique à votre commerce.",
+      previewProgram: 'PROGRAMME FIDÉLITÉ · CAFÉ ATLAS',
+      previewReward: '10 cafés achetés = 1 offert',
+      previewStats: '456 clients inscrits · 24 % reviennent dans la semaine · +18 % de fréquentation',
+      modelTitle: 'MODÈLE DE FIDÉLITÉ',
+      byVisit: 'Par visite',
+      byVisitDesc: 'X visites = Y offert · idéal café/salon',
+      byAmount: 'Par montant dépensé',
+      byAmountDesc: '1 point par MAD · conversion à 100 pts',
+      byProduct: 'Par produit',
+      byProductDesc: 'Stamp sur un item spécifique · idéal restaurant',
+      close: 'Fermer',
+      activate: 'Activer le programme →',
+      toastTitle: 'Programme fidélité activé',
+      toastDesc: "Vos prochains clients verront le prompt d'inscription sur le reçu."
+    },
+    en: {
+      tag: 'LOYALTY · KIWI LOYALTY',
+      title: 'Replace the paper loyalty card.',
+      desc: "Your customers sign up with their number. 10 visits = 1 free. Or adapt the mechanics to your business.",
+      previewProgram: 'LOYALTY PROGRAM · CAFÉ ATLAS',
+      previewReward: '10 coffees bought = 1 free',
+      previewStats: '456 customers enrolled · 24% return within a week · +18% frequency',
+      modelTitle: 'LOYALTY MODEL',
+      byVisit: 'By visit',
+      byVisitDesc: 'X visits = Y free · ideal for cafés/salons',
+      byAmount: 'By amount spent',
+      byAmountDesc: '1 point per MAD · conversion at 100 pts',
+      byProduct: 'By product',
+      byProductDesc: 'Stamp on a specific item · ideal for restaurants',
+      close: 'Close',
+      activate: 'Activate Program →',
+      toastTitle: 'Loyalty program activated',
+      toastDesc: 'Your next customers will see the sign-up prompt on their receipt.'
+    },
+    ar: {
+      tag: 'الوفاء · KIWI LOYALTY',
+      title: 'استبدل بطاقة الوفاء الورقية.',
+      desc: 'يسجل عملاؤك برقمهم. 10 زيارات = 1 مجانًا. أو قم بتكييف الآلية مع تجارتك.',
+      previewProgram: 'برنامج الوفاء · مقهى أطلس',
+      previewReward: '10 قهوات مشتراة = 1 مجانًا',
+      previewStats: '456 عميلًا مسجلًا · 24% يعودون في غضون أسبوع · +18% تردد',
+      modelTitle: 'نموذج الوفاء',
+      byVisit: 'حسب الزيارة',
+      byVisitDesc: 'X زيارات = Y مجانًا · مثالي للمقاهي/الصالونات',
+      byAmount: 'حسب المبلغ المنفق',
+      byAmountDesc: 'نقطة واحدة لكل درهم · تحويل عند 100 نقطة',
+      byProduct: 'حسب المنتج',
+      byProductDesc: 'ختم على عنصر معين · مثالي للمطاعم',
+      close: 'إغلاق',
+      activate: 'تفعيل البرنامج →',
+      toastTitle: 'تم تفعيل برنامج الوفاء',
+      toastDesc: 'سيرى عملاؤك القادمون موجه التسجيل على إيصالهم.'
+    }
+  };
+  handlers['loyalty'] = () => {
+    const T = LOYALTY_STR[trLang()] || LOYALTY_STR.fr;
+    const m = modal({
+      tag: T.tag,
+      title: T.title,
+      desc: T.desc,
       width: 540,
       body: `
         <div class="loy-preview">
-          <div style="font-size:11px; letter-spacing:0.1em; font-family:var(--mono); color:var(--mint);">PROGRAMME FIDÉLITÉ · CAFÉ ATLAS</div>
-          <div style="font-size:22px; font-weight:600; margin-top:6px; letter-spacing:-0.02em;">10 cafés achetés = 1 offert</div>
+          <div style="font-size:11px; letter-spacing:0.1em; font-family:var(--mono); color:var(--mint);">${T.previewProgram}</div>
+          <div style="font-size:22px; font-weight:600; margin-top:6px; letter-spacing:-0.02em;">${T.previewReward}</div>
           <div class="loy-dots">
             <i class="active">✓</i><i class="active">✓</i><i class="active">✓</i><i class="active">✓</i><i class="current">5</i><i>6</i><i>7</i><i>8</i><i>9</i><i>🎁</i>
           </div>
-          <div style="margin-top:14px; font-size:12.5px; color:#d0eed9;">456 clients inscrits · 24 % reviennent dans la semaine · +18 % de fréquentation</div>
+          <div style="margin-top:14px; font-size:12.5px; color:#d0eed9;">${T.previewStats}</div>
         </div>
-        <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-top:18px; margin-bottom:10px;">MODÈLE DE FIDÉLITÉ</div>
+        <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-top:18px; margin-bottom:10px;">${T.modelTitle}</div>
         <div style="display:flex; flex-direction:column; gap:8px;">
-          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--atlas); background: var(--mint-soft); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" checked /><div><b>Par visite</b><div style="font-size:12px; color:var(--n-600); margin-top:2px;">X visites = Y offert · idéal café/salon</div></div></label>
-          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--n-200); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" /><div><b>Par montant dépensé</b><div style="font-size:12px; color:var(--n-500); margin-top:2px;">1 point par MAD · conversion à 100 pts</div></div></label>
-          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--n-200); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" /><div><b>Par produit</b><div style="font-size:12px; color:var(--n-500); margin-top:2px;">Stamp sur un item spécifique · idéal restaurant</div></div></label>
+          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--atlas); background: var(--mint-soft); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" checked /><div><b>${T.byVisit}</b><div style="font-size:12px; color:var(--n-600); margin-top:2px;">${T.byVisitDesc}</div></div></label>
+          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--n-200); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" /><div><b>${T.byAmount}</b><div style="font-size:12px; color:var(--n-500); margin-top:2px;">${T.byAmountDesc}</div></div></label>
+          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--n-200); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" /><div><b>${T.byProduct}</b><div style="font-size:12px; color:var(--n-500); margin-top:2px;">${T.byProductDesc}</div></div></label>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
-          <button class="kb ghost" data-close>Fermer</button>
-          <button class="kb atlas" data-activate>Activer le programme →</button>
+          <button class="kb ghost" data-close>${T.close}</button>
+          <button class="kb atlas" data-activate>${T.activate}</button>
         </div>
       `
     });
     m.el.addEventListener('click', (e) => {
       if (e.target.closest('[data-close]')) m.close();
-      if (e.target.closest('[data-activate]')) { m.close(); toast('Programme fidélité activé', {type:'success', desc:'Vos prochains clients verront le prompt d\'inscription sur le reçu.'}); }
+      if (e.target.closest('[data-activate]')) { m.close(); toast(T.toastTitle, {type:'success', desc: T.toastDesc}); }
     });
   };
 
   /* ═══════════════════ AGENT MODE (enhanced AI) ═══════════════════ */
-  handlers['agent-mode'] = () => {
-    drawer({
+  const AGENT_STR = {
+    fr: {
       title: 'Kiwi AI · mode agent',
       subtitle: 'Actions proposées · validation requise',
+      unpaidTitle: 'Relancer 5 impayés > 500 MAD',
+      unpaidDesc: 'Total bloqué : 3 280 MAD. Brouillon WhatsApp prêt pour chaque client.',
+      unpaidTime: 'DÉTECTÉ · IL Y A 4 MIN',
+      approve: 'Approuver',
+      ignore: 'Ignorer',
+      cnssTitle: 'Régler la CNSS · 4 280 MAD',
+      cnssDesc: 'Échéance dans 3 jours. Avance via Kiwi Capital disponible si besoin.',
+      cnssTime: 'ÉCHÉANCE PROCHE',
+      payNow: 'Payer maintenant',
+      schedule: 'Planifier',
+      tipTitle: 'Activer prompt pourboire +10 % après 20h',
+      tipDesc: 'Gain estimé : +380 MAD/soir selon votre historique.',
+      tipTime: 'RECOMMANDATION',
+      activate: 'Activer',
+      orderTitle: 'Commander 30 kg tomates · fournisseur habituel',
+      orderDesc: 'Stock bas détecté · livraison demain 7h si confirmé avant 17h.',
+      orderTime: 'INVENTAIRE · STOCK BAS',
+      confirmOrder: 'Confirmer commande',
+      chooseSupplier: 'Choisir autre fournisseur',
+      reviewsTitle: 'Répondre à 2 avis Google négatifs',
+      reviewsDesc: 'Brouillons de réponse professionnelle générés · ton mesuré.',
+      reviewsTime: 'RÉPUTATION',
+      reviewAndSend: 'Relire et envoyer',
+      doItMyself: 'Traiter moi-même',
+      runAll: 'Exécuter toutes les actions approuvées →',
+      approved: 'Approuvé ✓',
+      actionApproved: 'Action approuvée',
+      agentRun: 'Agent Kiwi · 5 actions exécutées',
+      agentRunDesc: "Consultez les détails dans l'historique."
+    },
+    en: {
+      title: 'Kiwi AI · Agent Mode',
+      subtitle: 'Proposed actions · validation required',
+      unpaidTitle: 'Follow up on 5 unpaid invoices > 500 MAD',
+      unpaidDesc: 'Total blocked: 3,280 MAD. WhatsApp draft ready for each client.',
+      unpaidTime: 'DETECTED · 4 MIN AGO',
+      approve: 'Approve',
+      ignore: 'Ignore',
+      cnssTitle: 'Pay CNSS · 4,280 MAD',
+      cnssDesc: 'Due in 3 days. Advance via Kiwi Capital available if needed.',
+      cnssTime: 'DUE SOON',
+      payNow: 'Pay now',
+      schedule: 'Schedule',
+      tipTitle: 'Enable +10% tip prompt after 8pm',
+      tipDesc: 'Estimated gain: +380 MAD/evening based on your history.',
+      tipTime: 'RECOMMENDATION',
+      activate: 'Activate',
+      orderTitle: 'Order 30kg tomatoes · usual supplier',
+      orderDesc: 'Low stock detected · delivery tomorrow 7am if confirmed before 5pm.',
+      orderTime: 'INVENTORY · LOW STOCK',
+      confirmOrder: 'Confirm order',
+      chooseSupplier: 'Choose another supplier',
+      reviewsTitle: 'Reply to 2 negative Google reviews',
+      reviewsDesc: 'Professional response drafts generated · measured tone.',
+      reviewsTime: 'REPUTATION',
+      reviewAndSend: 'Review and send',
+      doItMyself: 'Handle it myself',
+      runAll: 'Run all approved actions →',
+      approved: 'Approved ✓',
+      actionApproved: 'Action approved',
+      agentRun: 'Kiwi Agent · 5 actions executed',
+      agentRunDesc: 'Check the history for details.'
+    },
+    ar: {
+      title: 'Kiwi AI · وضع الوكيل',
+      subtitle: 'إجراءات مقترحة · تتطلب المصادقة',
+      unpaidTitle: 'متابعة 5 فواتير غير مدفوعة > 500 درهم',
+      unpaidDesc: 'المجموع المحجوز: 3,280 درهم. مسودة واتساب جاهزة لكل عميل.',
+      unpaidTime: 'تم الكشف · قبل 4 دقائق',
+      approve: 'الموافقة',
+      ignore: 'تجاهل',
+      cnssTitle: 'دفع CNSS · 4,280 درهم',
+      cnssDesc: 'يستحق في 3 أيام. سلفة عبر Kiwi Capital متاحة عند الحاجة.',
+      cnssTime: 'يقترب الاستحقاق',
+      payNow: 'ادفع الآن',
+      schedule: 'جدولة',
+      tipTitle: 'تفعيل تنبيه الإكرامية +10% بعد الساعة 8 مساءً',
+      tipDesc: 'الربح المقدر: +380 درهم/مساء بناءً على سجلك.',
+      tipTime: 'توصية',
+      activate: 'تفعيل',
+      orderTitle: 'طلب 30 كجم طماطم · المورد المعتاد',
+      orderDesc: 'تم الكشف عن انخفاض المخزون · التسليم غدًا الساعة 7 صباحًا إذا تم التأكيد قبل 5 مساءً.',
+      orderTime: 'المخزون · مخزون منخفض',
+      confirmOrder: 'تأكيد الطلب',
+      chooseSupplier: 'اختيار مورد آخر',
+      reviewsTitle: 'الرد على تقييمين سلبيين في Google',
+      reviewsDesc: 'تم إنشاء مسودات رد احترافية · لهجة موزونة.',
+      reviewsTime: 'السمعة',
+      reviewAndSend: 'مراجعة وإرسال',
+      doItMyself: 'سأتعامل معها بنفسي',
+      runAll: 'تنفيذ جميع الإجراءات المعتمدة →',
+      approved: 'تمت الموافقة ✓',
+      actionApproved: 'تمت الموافقة على الإجراء',
+      agentRun: 'وكيل كيوي · 5 إجراءات منفذة',
+      agentRunDesc: 'تحقق من السجل للحصول على التفاصيل.'
+    }
+  };
+  handlers['agent-mode'] = () => {
+    const T = AGENT_STR[trLang()] || AGENT_STR.fr;
+    drawer({
+      title: T.title,
+      subtitle: T.subtitle,
       width: 460,
       body: `
         <div class="agent-action">
           <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
           <div class="b">
-            <div class="n">Relancer 5 impayés &gt; 500 MAD</div>
-            <div class="d">Total bloqué : 3 280 MAD. Brouillon WhatsApp prêt pour chaque client.</div>
-            <div class="t">DÉTECTÉ · IL Y A 4 MIN</div>
-            <div class="acts"><button class="approve" data-agent-approve>Approuver</button><button class="dismiss" data-agent-dismiss>Ignorer</button></div>
+            <div class="n">${T.unpaidTitle}</div>
+            <div class="d">${T.unpaidDesc}</div>
+            <div class="t">${T.unpaidTime}</div>
+            <div class="acts"><button class="approve" data-agent-approve>${T.approve}</button><button class="dismiss" data-agent-dismiss>${T.ignore}</button></div>
           </div>
         </div>
         <div class="agent-action">
           <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/></svg></div>
           <div class="b">
-            <div class="n">Régler la CNSS · 4 280 MAD</div>
-            <div class="d">Échéance dans 3 jours. Avance via Kiwi Capital disponible si besoin.</div>
-            <div class="t">ÉCHÉANCE PROCHE</div>
-            <div class="acts"><button class="approve" data-agent-approve>Payer maintenant</button><button class="dismiss" data-agent-dismiss>Planifier</button></div>
+            <div class="n">${T.cnssTitle}</div>
+            <div class="d">${T.cnssDesc}</div>
+            <div class="t">${T.cnssTime}</div>
+            <div class="acts"><button class="approve" data-agent-approve>${T.payNow}</button><button class="dismiss" data-agent-dismiss>${T.schedule}</button></div>
           </div>
         </div>
         <div class="agent-action">
           <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg></div>
           <div class="b">
-            <div class="n">Activer prompt pourboire +10 % après 20h</div>
-            <div class="d">Gain estimé : +380 MAD/soir selon votre historique.</div>
-            <div class="t">RECOMMANDATION</div>
-            <div class="acts"><button class="approve" data-agent-approve>Activer</button><button class="dismiss" data-agent-dismiss>Ignorer</button></div>
+            <div class="n">${T.tipTitle}</div>
+            <div class="d">${T.tipDesc}</div>
+            <div class="t">${T.tipTime}</div>
+            <div class="acts"><button class="approve" data-agent-approve>${T.activate}</button><button class="dismiss" data-agent-dismiss>${T.ignore}</button></div>
           </div>
         </div>
         <div class="agent-action">
           <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h10"/></svg></div>
           <div class="b">
-            <div class="n">Commander 30 kg tomates · fournisseur habituel</div>
-            <div class="d">Stock bas détecté · livraison demain 7h si confirmé avant 17h.</div>
-            <div class="t">INVENTAIRE · STOCK BAS</div>
-            <div class="acts"><button class="approve" data-agent-approve>Confirmer commande</button><button class="dismiss" data-agent-dismiss>Choisir autre fournisseur</button></div>
+            <div class="n">${T.orderTitle}</div>
+            <div class="d">${T.orderDesc}</div>
+            <div class="t">${T.orderTime}</div>
+            <div class="acts"><button class="approve" data-agent-approve>${T.confirmOrder}</button><button class="dismiss" data-agent-dismiss>${T.chooseSupplier}</button></div>
           </div>
         </div>
         <div class="agent-action">
           <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/><circle cx="12" cy="12" r="10"/></svg></div>
           <div class="b">
-            <div class="n">Répondre à 2 avis Google négatifs</div>
-            <div class="d">Brouillons de réponse professionnelle générés · ton mesuré.</div>
-            <div class="t">RÉPUTATION</div>
-            <div class="acts"><button class="approve" data-agent-approve>Relire et envoyer</button><button class="dismiss" data-agent-dismiss>Traiter moi-même</button></div>
+            <div class="n">${T.reviewsTitle}</div>
+            <div class="d">${T.reviewsDesc}</div>
+            <div class="t">${T.reviewsTime}</div>
+            <div class="acts"><button class="approve" data-agent-approve>${T.reviewAndSend}</button><button class="dismiss" data-agent-dismiss>${T.doItMyself}</button></div>
           </div>
         </div>
       `,
-      foot: `<button class="kb atlas" style="flex:1; justify-content:center;" data-agent-run-all>Exécuter toutes les actions approuvées →</button>`
+      foot: `<button class="kb atlas" style="flex:1; justify-content:center;" data-agent-run-all>${T.runAll}</button>`
     });
     const agentHandler = (e) => {
       const a = e.target.closest('[data-agent-approve]');
       const d = e.target.closest('[data-agent-dismiss]');
       const r = e.target.closest('[data-agent-run-all]');
-      if (a) { a.textContent = 'Approuvé ✓'; a.disabled = true; a.style.opacity = '0.6'; toast('Action approuvée', {type:'success', duration:1400}); }
+      const T = AGENT_STR[trLang()] || AGENT_STR.fr;
+      if (a) { a.textContent = T.approved; a.disabled = true; a.style.opacity = '0.6'; toast(T.actionApproved, {type:'success', duration:1400}); }
       if (d) { const card = d.closest('.agent-action'); card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
-      if (r) { document.querySelector('.kiwi-drawer-close')?.click(); setTimeout(()=> { toast('Agent Kiwi · 5 actions exécutées', {type:'success', desc:'Consultez les détails dans l\'historique.'}); confetti(); }, 300); }
+      if (r) { document.querySelector('.kiwi-drawer-close')?.click(); setTimeout(()=> { toast(T.agentRun, {type:'success', desc:T.agentRunDesc}); confetti(); }, 300); }
     };
     // Cleanup prior listener, then attach fresh one bound to this drawer instance
     if (window._kiwiAgentHandler) document.body.removeEventListener('click', window._kiwiAgentHandler);
