@@ -598,7 +598,10 @@
     opacity: 0; transform: translateY(16px) scale(0.985); pointer-events: none;
   }
   /* Chart fills all space left between its header and the legend */
-  .hero-left-chart .chart-wrap { height: auto; flex: 1 1 auto; min-height: 168px; }
+  /* flex-basis:0 — the SVG's intrinsic (width × viewBox-aspect) height must
+   * NOT count toward the chart column's natural height, or it inflates the
+   * whole card. The chart grows from a 150px floor to fill, nothing more. */
+  .hero-left-chart .chart-wrap { height: auto; flex: 1 1 0; min-height: 150px; }
   .hero-left-chart .chart-legend { margin-top: 12px; }
   .hero-today.chart-view .hero-left-today {
     opacity: 0; transform: translateY(-16px) scale(0.985); pointer-events: none;
