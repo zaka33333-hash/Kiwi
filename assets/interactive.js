@@ -1514,8 +1514,20 @@ ar: {
         const met = e.target.closest('[data-method]');
         if (met) {
           if (!amount) { toast('Saisissez un montant', {type: 'warn'}); return; }
-          m.close();
           const method = met.dataset.method;
+          // On a user-created venue, a sale is REAL — persist it and let the
+          // dashboard (hero · KPIs · feed) recompute from the sales store.
+          const KV = window.KiwiVenue;
+          if (KV && KV.isCustom && KV.isCustom() && window.KiwiSales) {
+            const num = parseFloat(String(amount).replace(',', '.')) || 0;
+            if (num <= 0) { toast('Montant invalide', { type: 'pend', force: true }); return; }
+            m.close();
+            window.KiwiSales.add(KV.getVenue(), { amount: num, method });
+            const ML = { card: 'carte', qr: 'QR Wallet', link: 'lien de paiement' };
+            toast('Vente enregistrée', { type: 'success', force: true, desc: `${amount} MAD · ${ML[method] || method}` });
+            return;
+          }
+          m.close();
           if (method === 'card') toast(`En attente de la carte · ${amount} MAD`, {type: 'info', desc: 'Présentez la carte au terminal ou téléphone'});
           if (method === 'qr') toast(`QR généré · ${amount} MAD`, {type: 'info', desc: 'Client scanne depuis Kiwi Wallet'});
           if (method === 'link') toast('Lien de paiement copié', {type: 'success', desc: 'Envoyez-le par WhatsApp à votre client'});

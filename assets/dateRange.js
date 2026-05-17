@@ -1522,6 +1522,11 @@
         data = { ...data, amount: sim.cumRevenue, netAfterKiwi: Math.round(sim.cumRevenue * 0.839) };
       }
     }
+    // User-created venue — hero figures come from the merchant's real sales.
+    if (window.KiwiVenue?.isCustom?.() && window.KiwiSales) {
+      const t = window.KiwiSales.totals(getCurrentVenue());
+      data = { ...data, amount: t.revenue, netAfterKiwi: Math.round(t.revenue * 0.839) };
+    }
 
     const labelEl = document.querySelector('[data-hero-label]');
     if (labelEl) labelEl.textContent = HERO_LABEL[lang]?.[effective] || HERO_LABEL.fr[effective];
@@ -1839,6 +1844,16 @@
           // success / ratio / tauxRetour stay at their static daily values
         };
       }
+    }
+    // User-created venue — tx / panier (and the revenue derived from them)
+    // come from the merchant's recorded sales.
+    if (window.KiwiVenue?.isCustom?.() && window.KiwiSales) {
+      const t = window.KiwiSales.totals(getCurrentVenue());
+      data = {
+        ...data,
+        tx:     { ...(data.tx || {}),     value: t.count,              delta: 0 },
+        panier: { ...(data.panier || {}), value: Math.round(t.basket), delta: 0 },
+      };
     }
 
     // Resolve which 6 KPI keys to render — owner's saved layout, or the
@@ -2760,15 +2775,39 @@
     return out;
   }
 
+  // Feed rows for a user-created venue — newest 8 of the merchant's sales.
+  function buildCustomFeed(venue) {
+    const sales = (window.KiwiSales?.list?.(venue) || []).slice(-8).reverse();
+    const lang = getLang();
+    const ML = {
+      fr: { card: 'Carte bancaire', qr: 'QR Kiwi Wallet', link: 'Lien de paiement', sub: 'Vente encaissée' },
+      en: { card: 'Bank card', qr: 'QR Kiwi Wallet', link: 'Payment link', sub: 'Sale recorded' },
+      ar: { card: 'بطاقة بنكية', qr: 'QR Kiwi Wallet', link: 'رابط الدفع', sub: 'عملية بيع مسجّلة' },
+    };
+    const L = ML[lang] || ML.fr;
+    return sales.map((s, i) => {
+      const d = new Date(s.ts);
+      const t = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      return {
+        t,
+        method: (s.method === 'qr' || s.method === 'link') ? 'qr' : 'tap',
+        primary: L[s.method] || L.card,
+        sub: L.sub, flag: '', ctx: '',
+        amt: (s.amount || 0).toFixed(2).replace('.', ',') + ' MAD',
+        tip: '—', neg: false, isNew: i === 0,
+      };
+    });
+  }
+
   function renderFeed() {
     const lang = getLang();
     const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
     const isLive = effective === 'aujourdhui';
 
     const venue = window.KiwiVenue?.getVenue?.() || 'cafeAtlas';
-    // A user-created venue has no order history — show the empty state, not
-    // zeroed demo rows.
-    const rows = window.KiwiVenue?.isCustom?.(venue) ? []
+    // A user-created venue's feed is built from the merchant's own recorded
+    // sales — empty state until the first one is rung up.
+    const rows = window.KiwiVenue?.isCustom?.(venue) ? buildCustomFeed(venue)
       : isLive ? buildLiveFeed(venue) : vData(FEED_BY_VENUE, currentRange);
     const wrap = document.querySelector('[data-feed]');
 
@@ -3140,6 +3179,22 @@
       setTimeout(subDemo, 30);
     };
     subDemo();
+
+    // Subscribe to the sales store — when the merchant rings up a sale on a
+    // user-created venue, the hero / KPI band / feed recompute live.
+    const subSales = () => {
+      if (window.KiwiSales?.subscribe) {
+        window.KiwiSales.subscribe(() => {
+          renderHero();
+          renderGoal();
+          renderKpiBand();
+          renderFeed();
+        });
+        return;
+      }
+      setTimeout(subSales, 30);
+    };
+    subSales();
 
     // Re-fit hero amount + re-flow chart on viewport resize
     let resizeTimer = null;

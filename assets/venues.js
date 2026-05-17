@@ -849,8 +849,10 @@
       // with the dashboard's Commandes KPI tile. If the clock isn't running yet
       // (initial paint before the simulator's first tick), fall back to the
       // venue's end-of-day target so the badge isn't empty.
-      // A user-created venue has no demo clock — its badge stays at 0.
-      const live = isCustom(currentVenue) ? 0 : window.KiwiDemoClock?.getSimState?.()?.cumTx;
+      // User-created venue → count its recorded sales; demo venue → demo clock.
+      const live = isCustom(currentVenue)
+        ? ((window.KiwiSales && window.KiwiSales.totals(currentVenue).count) || 0)
+        : window.KiwiDemoClock?.getSimState?.()?.cumTx;
       txCountEl.textContent = String(live != null ? live : (VENUES[currentVenue].txCount || 0));
     }
     const staffCountEl = document.querySelector('a[data-nav="equipe"] .count');
@@ -4292,6 +4294,40 @@
   /* ═══════════════ INIT (deferred to here so STAFF is defined) ═══════════════ */
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+
+  /* ═══════════════ SALES STORE (user-created venues) ═══════════════
+   * A custom venue starts empty; the merchant rings up real sales via the
+   * "Nouvelle vente" keypad. Each sale is persisted per-venue and the
+   * dashboard (hero / KPI band / feed) recomputes from this store. */
+  const salesSubs = new Set();
+  const SALES_KEY = id => 'kiwiSales:' + id;
+  function salesList(id) {
+    try { const a = JSON.parse(localStorage.getItem(SALES_KEY(id || currentVenue)) || '[]'); return Array.isArray(a) ? a : []; }
+    catch (_) { return []; }
+  }
+  function salesAdd(id, sale) {
+    id = id || currentVenue;
+    const list = salesList(id);
+    const entry = { ts: Date.now(), amount: Math.max(0, +(sale && sale.amount) || 0), method: (sale && sale.method) || 'card' };
+    list.push(entry);
+    try { localStorage.setItem(SALES_KEY(id), JSON.stringify(list)); } catch (_) {}
+    salesSubs.forEach(fn => { try { fn(id); } catch (_) {} });
+    return entry;
+  }
+  function salesTotals(id) {
+    const list = salesList(id);
+    const revenue = list.reduce((s, x) => s + (x.amount || 0), 0);
+    const count = list.length;
+    return { revenue, count, basket: count ? revenue / count : 0 };
+  }
+  window.KiwiSales = {
+    add: salesAdd,
+    list: salesList,
+    totals: salesTotals,
+    subscribe: fn => { salesSubs.add(fn); return () => salesSubs.delete(fn); },
+  };
+  // Keep the sidebar "Commandes" badge in lockstep with recorded sales.
+  salesSubs.add(() => renderSidebarCounts());
 
   /* ═══════════════ PUBLIC API ═══════════════ */
 
