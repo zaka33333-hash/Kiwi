@@ -57,6 +57,11 @@
     .rev-live-ring { animation: none !important; }
     .rev-line, .rev-area, .rev-line-halo { stroke-dashoffset: 0 !important; opacity: 1 !important; }
     .kiwi-confetti { display: none !important; }
+    /* Ambient "live" pulses and the goal-bar shimmer — decorative loops
+     * sitting on elements that stay fully visible without them. */
+    .demo-bar .live-dot, .venue-row-status i, .hero-left .live-badge .dot,
+    .block-head .t .pulse-dot, .hero-goal .g-fill::after, .eq-live .dot,
+    .eq-status .sd, .mi-86-status .pdot, .fs-live-pill .dot { animation: none !important; }
   }
 
   /* Demo banner */
