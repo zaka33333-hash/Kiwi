@@ -140,11 +140,11 @@
   .kw-tab-ai .kw-tab-l { margin-top: 1px; }
 
   /* ─────────────── HOME · PAGE HEAD + DATE RANGE ─────────────── */
-  .page-head { margin-bottom: 16px; }
-  .quick-acts { width: 100%; }
+  .page-head { margin-bottom: 24px; }
+  .quick-acts { width: 100%; gap: 10px; }
   .quick-acts .btn-slim { flex: 1; justify-content: center; }
 
-  .dash-date-range { gap: 14px; margin: 4px 0 20px; }
+  .dash-date-range { gap: 14px; margin: 12px 0 26px; }
   .dash-date-range .dr-label { font-size: 27px; letter-spacing: -0.03em; }
   .dash-date-range .dr-sub { font-size: 12.5px; margin-top: 5px; }
   .dr-pills {
@@ -156,28 +156,35 @@
   .dr-pill { white-space: nowrap; flex-shrink: 0; }
 
   /* ─────────────── HOME · HERO ─────────────── */
-  .hero-today { padding: 50px 20px 26px; border-radius: 18px; margin-bottom: 14px; }
-  .hero-grid { gap: 24px; }
+  .hero-today { padding: 52px 22px 30px; border-radius: 22px; }
+  .hero-grid { gap: 28px; }
   /* 4 deltas across is too tight on a phone — lay them out 2×2 */
-  .hero-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 16px; }
+  .hero-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 16px; }
   .hero-breakdown .b .v { font-size: 16px; }
 
   /* ─────────────── HOME · KPI BAND ─────────────── */
-  .kpi-band { grid-template-columns: 1fr 1fr; gap: 9px; }
-  .kpi-band-head { margin-bottom: 10px; }
-  .kpi-m, .kpi-c { padding: 13px 14px; }
+  .kpi-band { grid-template-columns: 1fr 1fr; gap: 13px; }
+  .kpi-band-head { margin-bottom: 12px; }
 
   /* ─────────────── HOME · ROWS + BLOCKS ─────────────── */
   .row,
   .row.r-2-1, .row.r-1-1, .row.r-3, .row.r-65-35 {
     grid-template-columns: 1fr !important;
-    gap: 12px;
+    gap: 16px;
   }
-  .block { padding: 17px 16px; border-radius: 13px; }
   .block-head { flex-wrap: wrap; gap: 8px; }
+
+  /* Consistent vertical rhythm — every top-level section gets the same
+   * generous gap so nothing reads as stuffed. */
+  .dash-standard > * { margin-bottom: 18px; }
+  .dash-standard > .kpi-band-head { margin-bottom: 12px; }
 
   /* Integration cards — 1 column so each stays tappable */
   .integ-grid { grid-template-columns: 1fr !important; }
+
+  /* Heatmap hour bars must shrink to the card width, not force overflow */
+  .hh-row { gap: 3px !important; }
+  .hh-row > * { flex: 1 1 0 !important; min-width: 0 !important; }
 
   /* ─── Data tables ─── */
   /* Generic tables stay scrollable with a pinned first column … */
@@ -307,15 +314,18 @@
     box-shadow: 0 1px 2px rgba(10, 15, 13, 0.05),
                 0 16px 32px -22px rgba(10, 15, 13, 0.24) !important;
   }
-  .block { padding: 20px 17px !important; }
+  .block { padding: 22px 18px !important; }
   .kpi-m, .kpi-c {
     border: 0 !important;
     border-radius: 18px !important;
     box-shadow: 0 1px 2px rgba(10, 15, 13, 0.05),
                 0 12px 24px -20px rgba(10, 15, 13, 0.22) !important;
-    padding: 16px 15px !important;
+    padding: 18px 16px !important;
     transition: transform 130ms cubic-bezier(0.32, 0.72, 0, 1);
   }
+  /* breathing room inside cards: header clear of its content */
+  .block-head { margin-bottom: 14px; }
+  .block > .t { margin-bottom: 14px; }
 
   /* ── Press feedback — the app responds to touch ── */
   .kpi-m:active, .kpi-c:active, .integ-card:active { transform: scale(0.975); }
