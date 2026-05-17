@@ -230,7 +230,7 @@
       expiryResult: 'ينتهي',
       expiryValueNone: 'أبدًا',
       expiryValue24h: 'في 24 ساعة',
-      expiryValueDays: (d) => `في ${d} أيام`, /* AR: needs native review */
+      expiryValueDays: (d) => `في ${d} أيام`,
       shareWA: 'واتساب',
       shareEmail: 'الإيميل',
       shareSMS: 'SMS',

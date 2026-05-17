@@ -381,8 +381,9 @@
   .hero-breakdown { display: flex; gap: 28px; margin-top: 18px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
   .hero-breakdown .b { font-size: 13px; }
   .hero-breakdown .b .l { font-family: var(--mono); font-size: 10.5px; color: #A8B0C8; letter-spacing: 0.1em; }
-  .hero-breakdown .b .v { font-size: 17px; font-weight: 500; margin-top: 3px; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
-  .hero-breakdown .b .v .d { font-size: 11.5px; color: var(--mint); margin-left: 6px; font-weight: 500; }
+  .hero-breakdown .b .v { font-size: 17px; font-weight: 500; margin-top: 3px; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; white-space: nowrap; }
+  .hero-breakdown .b .v .d { font-size: 11.5px; color: var(--mint); margin-left: 5px; font-weight: 500; }
+  .hero-breakdown .b .v .d svg { display: inline-block; vertical-align: -1px; }
   .hero-breakdown .b .v .d.dn { color: #F29B8F; }
 
   /* Kiwi AI panel embedded in green hero */
@@ -3630,7 +3631,7 @@
                   <div style="font-weight: 500;">M. Tazi · T3</div>
                   <div style="font-size: 11.5px; color: #A8B0C8; margin-top: 1px;" data-i18n="dash.evening.guest3.note">2 couverts · 1ʳᵉ visite</div>
                 </div>
-                <span style="font-size: 10.5px; background: rgba(255,255,255,0.10); color: #c6ead4; padding: 3px 8px; border-radius: 999px; font-family: var(--mono); letter-spacing: 0.05em;" data-i18n="dash.evening.new">NEW</span>
+                <span style="font-size: 10.5px; background: rgba(255,255,255,0.10); color: #c6ead4; padding: 3px 8px; border-radius: 999px; font-family: var(--mono); letter-spacing: 0.05em;" data-i18n="dash.evening.new">NOUVEAU</span>
               </div>
             </div>
             <div class="instant" data-action="nav-reservations">
@@ -3741,19 +3742,19 @@
             <ul class="health-check">
               <li>
                 <span data-i18n="dash.health.successRate">Taux succès commandes</span>
-                <span class="status good">99,34 % ✓</span>
+                <span class="status good">99,34 %<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;margin-inline-start:4px;"><path d="M5 13l4 5L19 7"/></svg></span>
               </li>
               <li>
                 <span data-i18n="dash.health.teamOnboarding">Onboarding équipe complet</span>
-                <span class="status good">8/8 ✓</span>
+                <span class="status good">8/8<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;margin-inline-start:4px;"><path d="M5 13l4 5L19 7"/></svg></span>
               </li>
               <li>
                 <span data-i18n="dash.health.kycCurrent">KYC à jour</span>
-                <span class="status good" data-i18n="dash.health.kycValid">Valide 2027 ✓</span>
+                <span class="status good"><span data-i18n="dash.health.kycValid">Valide 2027</span><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;margin-inline-start:4px;"><path d="M5 13l4 5L19 7"/></svg></span>
               </li>
               <li>
                 <span data-i18n="dash.health.customerRetention">Rétention clientèle</span>
-                <span class="status good">72 % ✓</span>
+                <span class="status good">72 %<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;margin-inline-start:4px;"><path d="M5 13l4 5L19 7"/></svg></span>
               </li>
               <li>
                 <span data-i18n="dash.health.avgTip">Pourboire moyen</span>
@@ -3761,7 +3762,7 @@
               </li>
               <li>
                 <span data-i18n="dash.health.paymentDiversification">Diversification paiement</span>
-                <span class="status good" data-i18n="dash.health.paymentMethods">4 méthodes ✓</span>
+                <span class="status good"><span data-i18n="dash.health.paymentMethods">4 méthodes</span><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;margin-inline-start:4px;"><path d="M5 13l4 5L19 7"/></svg></span>
               </li>
             </ul>
           </div>

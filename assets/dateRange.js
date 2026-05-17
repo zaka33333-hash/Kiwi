@@ -1576,7 +1576,7 @@
         const from = existing[it.key] ?? 0;
         animateNumber(valEl, from, it.value, {
           duration: 600,
-          format: v => `${fmtPct(v)} <span class="d${v < 0 ? ' dn' : ''}">${v < 0 ? '↓' : '↑'}</span>`,
+          format: v => `${fmtPct(v)} <span class="d${v < 0 ? ' dn' : ''}">${arrowSvg(v >= 0)}</span>`,
         });
       });
 

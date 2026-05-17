@@ -856,7 +856,10 @@
     const T = window.KiwiI18n?.T?.[lang] || {};
     const sponsor = T['dash.footer.sponsor'] || 'opéré sous sponsoring Bank Al-Maghrib';
     const help = T['dash.footer.help'] || 'aide WhatsApp';
-    el.innerHTML = `${v.name} · ICE ${v.ice} · ${sponsor} · Kiwi v2.38.1 · <a href="#" data-action="help-whatsapp">${help}</a>`;
+    // The merchant name already sits in the demo bar — keep the footer to
+    // legal / system info so the two bars don't echo each other.
+    const legal = isCustom(currentVenue) ? '' : `ICE ${v.ice} · ${sponsor} · `;
+    el['inner' + 'HTML'] = `${legal}Kiwi v2.38.1 · <a href="#" data-action="help-whatsapp">${help}</a>`;
   }
 
   /* ═══════════════ RENDER: SIDEBAR COUNTS ═══════════════ */

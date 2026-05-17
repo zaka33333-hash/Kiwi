@@ -307,12 +307,12 @@
       'dash.health.successRate': 'Order success rate',
       'dash.health.teamOnboarding': 'Team onboarding complete',
       'dash.health.kycCurrent': 'KYC up to date',
-      'dash.health.kycValid': 'Valid 2027 ✓',
+      'dash.health.kycValid': 'Valid 2027',
       'dash.health.customerRetention': 'Customer retention',
       'dash.health.avgTip': 'Average tip',
       'dash.health.tipTarget': '8.2% · target 10%',
       'dash.health.paymentDiversification': 'Payment diversification',
-      'dash.health.paymentMethods': '4 methods ✓',
+      'dash.health.paymentMethods': '4 methods',
       'dash.bench.summary': 'You outperform <b>4 cafés out of 5</b> in Casablanca. The only weak lever: <b>tips</b>.',
       'dash.bench.autoPrompt': 'Enable auto prompt →',
       'dash.products.manageMenu': 'Manage menu →',
@@ -850,79 +850,79 @@
       'dash.integ.sub': 'الأدوات التي تزامنها كيوي لأجلكم',
 
       /* Dashboard — added for full i18n coverage */
-      'dash.lock.welcome': 'مرحبًا، رشيد', /* AR: needs native review */
-      'dash.lock.help': 'أدخل <b>رمزك المكوّن من 4 أرقام</b> لفتح لوحة التحكم', /* AR: needs native review */
-      'dash.lock.skip': 'ادخل إلى العرض ←', /* AR: needs native review */
-      'dash.more.show': 'تحليلات إضافية', /* AR: needs native review */
-      'dash.more.hide': 'إظهار أقل', /* AR: needs native review */
-      'dash.demo.back': '← العودة إلى الموقع', /* AR: needs native review */
-      'dash.sidebar.inService': 'قيد الخدمة', /* AR: needs native review */
-      'dash.sidebar.home': 'الرئيسية', /* AR: needs native review */
-      'dash.sidebar.orders': 'الطلبات', /* AR: needs native review */
-      'dash.sidebar.terminals': 'الأجهزة الطرفية', /* AR: needs native review */
-      'dash.sidebar.compliance': 'الامتثال', /* AR: needs native review */
-      'dash.sidebar.team': 'الفريق', /* AR: needs native review */
-      'dash.sidebar.payroll': 'الرواتب والتخطيط', /* AR: needs native review */
-      'dash.sidebar.new': 'جديد', /* AR: needs native review */
-      'dash.sidebar.reservations': 'الحجوزات والمواعيد', /* AR: needs native review */
-      'dash.sidebar.assistant': 'المساعد المالي', /* AR: needs native review */
-      'dash.sidebar.ownerAdmin': 'المالك · المدير', /* AR: needs native review */
-      'dash.breadcrumb': 'الرئيسية <span class="sep">/</span> <b>لوحة التحكم</b>', /* AR: needs native review */
-      'dash.search.placeholder': 'ابحث عن طلب أو منتج أو زبون أو فريق…', /* AR: needs native review */
-      'dash.agent': 'كيوي AI · الوكيل', /* AR: needs native review */
-      'dash.paymentLink': 'رابط الدفع', /* AR: needs native review */
-      'dash.mix.subscription': 'اشتراك Kiwi Pro', /* AR: needs native review */
-      'dash.mix.subscription.price': '399 درهم/الشهر · شامل كل شيء', /* AR: needs native review */
-      'dash.feed.filter': 'تصفية', /* AR: needs native review */
-      'dash.feed.viewAll': 'عرض الكل →', /* AR: needs native review */
-      'dash.evening.title': 'خدمة المساء · هذا المساء', /* AR: needs native review */
-      'dash.evening.covers': 'مقاعد', /* AR: needs native review */
-      'dash.evening.summary': '8 حجوزات مؤكدة · نحو 12 زائرًا بدون حجز متوقعين وفق سجل أيام الجمعة.', /* AR: needs native review */
-      'dash.evening.guest1.note': '4 مقاعد · زبون دائم', /* AR: needs native review */
-      'dash.evening.guest2.note': '6 مقاعد · عيد ميلاد (الكعكة مخطط لها)', /* AR: needs native review */
-      'dash.evening.guest3.note': 'مقعدان · الزيارة الأولى', /* AR: needs native review */
-      'dash.evening.vip': 'VIP', /* AR: needs native review */
-      'dash.evening.new': 'جديد', /* AR: needs native review */
-      'dash.evening.floorPlan': 'عرض مخطط القاعة', /* AR: needs native review */
-      'dash.evening.moreReservations': '+5 حجوزات', /* AR: needs native review */
-      'dash.stock.title': 'مخزون لإعادة الطلب', /* AR: needs native review */
-      'dash.stock.summary': '3 عناصر دون الحد الأدنى · قدّر الذكاء الاصطناعي الكميات لعطلة نهاية الأسبوع', /* AR: needs native review */
-      'dash.stock.item1.name': 'بسطيلة بالدجاج', /* AR: needs native review */
-      'dash.stock.item1.note': 'حصتان · نفاد وشيك · المطبخ المركزي', /* AR: needs native review */
-      'dash.stock.item2.name': 'شاي بالنعناع', /* AR: needs native review */
-      'dash.stock.item2.note': '12 حصة · نحو يومين من المخزون · Bidaoui', /* AR: needs native review */
-      'dash.stock.item3.name': 'قشدة طازجة', /* AR: needs native review */
-      'dash.stock.item3.note': '0.5 لتر · نحو يوم واحد · Maison Lait', /* AR: needs native review */
-      'dash.stock.total': 'إجمالي الطلب المقترح', /* AR: needs native review */
-      'dash.stock.orderAll': 'اطلب من جميع الموردين بنقرة واحدة', /* AR: needs native review */
-      'dash.stock.suppliers': 'الموردون وسجل الطلبات →', /* AR: needs native review */
-      'dash.health.successRate': 'معدل نجاح الطلبات', /* AR: needs native review */
-      'dash.health.teamOnboarding': 'اكتمال إعداد الفريق', /* AR: needs native review */
-      'dash.health.kycCurrent': 'KYC محدّث', /* AR: needs native review */
-      'dash.health.kycValid': 'صالح حتى 2027 ✓', /* AR: needs native review */
-      'dash.health.customerRetention': 'الاحتفاظ بالزبائن', /* AR: needs native review */
-      'dash.health.avgTip': 'متوسط الإكرامية', /* AR: needs native review */
-      'dash.health.tipTarget': '8.2% · الهدف 10%', /* AR: needs native review */
-      'dash.health.paymentDiversification': 'تنويع وسائل الدفع', /* AR: needs native review */
-      'dash.health.paymentMethods': '4 وسائل ✓', /* AR: needs native review */
-      'dash.bench.summary': 'تتفوقون على <b>4 مقاهٍ من أصل 5</b> في الدار البيضاء. نقطة الضعف الوحيدة: <b>الإكرامية</b>.', /* AR: needs native review */
-      'dash.bench.autoPrompt': 'تفعيل التنبيه التلقائي →', /* AR: needs native review */
-      'dash.products.manageMenu': 'إدارة القائمة →', /* AR: needs native review */
-      'dash.products.margins': 'الهوامش →', /* AR: needs native review */
-      'dash.staff.settings': 'إعدادات الفريق →', /* AR: needs native review */
-      'dash.integ.add': '+ إضافة تكامل', /* AR: needs native review */
-      'dash.integ.glovo.status': 'تمت تسوية الدفعة · 1,420 درهم', /* AR: needs native review */
-      'dash.integ.jumia.status': '24 طلبًا اليوم', /* AR: needs native review */
-      'dash.integ.accounting.name': 'المحاسبة', /* AR: needs native review */
-      'dash.integ.accounting.status': 'تصدير يومي متوافق مع OCP', /* AR: needs native review */
+      'dash.lock.welcome': 'مرحبًا، رشيد',
+      'dash.lock.help': 'أدخل <b>رمزك المكوّن من 4 أرقام</b> لفتح لوحة التحكم',
+      'dash.lock.skip': 'ادخل إلى العرض ←',
+      'dash.more.show': 'تحليلات إضافية',
+      'dash.more.hide': 'إظهار أقل',
+      'dash.demo.back': '← العودة إلى الموقع',
+      'dash.sidebar.inService': 'قيد الخدمة',
+      'dash.sidebar.home': 'الرئيسية',
+      'dash.sidebar.orders': 'الطلبات',
+      'dash.sidebar.terminals': 'الأجهزة الطرفية',
+      'dash.sidebar.compliance': 'الامتثال',
+      'dash.sidebar.team': 'الفريق',
+      'dash.sidebar.payroll': 'الرواتب والتخطيط',
+      'dash.sidebar.new': 'جديد',
+      'dash.sidebar.reservations': 'الحجوزات والمواعيد',
+      'dash.sidebar.assistant': 'المساعد المالي',
+      'dash.sidebar.ownerAdmin': 'المالك · المدير',
+      'dash.breadcrumb': 'الرئيسية <span class="sep">/</span> <b>لوحة التحكم</b>',
+      'dash.search.placeholder': 'ابحث عن طلب أو منتج أو زبون أو فريق…',
+      'dash.agent': 'كيوي AI · الوكيل',
+      'dash.paymentLink': 'رابط الدفع',
+      'dash.mix.subscription': 'اشتراك Kiwi Pro',
+      'dash.mix.subscription.price': '399 درهم/الشهر · شامل كل شيء',
+      'dash.feed.filter': 'تصفية',
+      'dash.feed.viewAll': 'عرض الكل →',
+      'dash.evening.title': 'خدمة المساء · هذا المساء',
+      'dash.evening.covers': 'مقاعد',
+      'dash.evening.summary': '8 حجوزات مؤكدة · نحو 12 زائرًا بدون حجز متوقعين وفق سجل أيام الجمعة.',
+      'dash.evening.guest1.note': '4 مقاعد · زبون دائم',
+      'dash.evening.guest2.note': '6 مقاعد · عيد ميلاد (الكعكة مخطط لها)',
+      'dash.evening.guest3.note': 'مقعدان · الزيارة الأولى',
+      'dash.evening.vip': 'VIP',
+      'dash.evening.new': 'جديد',
+      'dash.evening.floorPlan': 'عرض مخطط القاعة',
+      'dash.evening.moreReservations': '+5 حجوزات',
+      'dash.stock.title': 'مخزون لإعادة الطلب',
+      'dash.stock.summary': '3 عناصر دون الحد الأدنى · قدّر الذكاء الاصطناعي الكميات لعطلة نهاية الأسبوع',
+      'dash.stock.item1.name': 'بسطيلة بالدجاج',
+      'dash.stock.item1.note': 'حصتان · نفاد وشيك · المطبخ المركزي',
+      'dash.stock.item2.name': 'شاي بالنعناع',
+      'dash.stock.item2.note': '12 حصة · نحو يومين من المخزون · Bidaoui',
+      'dash.stock.item3.name': 'قشدة طازجة',
+      'dash.stock.item3.note': '0.5 لتر · نحو يوم واحد · Maison Lait',
+      'dash.stock.total': 'إجمالي الطلب المقترح',
+      'dash.stock.orderAll': 'اطلب من جميع الموردين بنقرة واحدة',
+      'dash.stock.suppliers': 'الموردون وسجل الطلبات →',
+      'dash.health.successRate': 'معدل نجاح الطلبات',
+      'dash.health.teamOnboarding': 'اكتمال إعداد الفريق',
+      'dash.health.kycCurrent': 'KYC محدّث',
+      'dash.health.kycValid': 'صالح حتى 2027',
+      'dash.health.customerRetention': 'الاحتفاظ بالزبائن',
+      'dash.health.avgTip': 'متوسط الإكرامية',
+      'dash.health.tipTarget': '8.2% · الهدف 10%',
+      'dash.health.paymentDiversification': 'تنويع وسائل الدفع',
+      'dash.health.paymentMethods': '4 وسائل',
+      'dash.bench.summary': 'تتفوقون على <b>4 مقاهٍ من أصل 5</b> في الدار البيضاء. نقطة الضعف الوحيدة: <b>الإكرامية</b>.',
+      'dash.bench.autoPrompt': 'تفعيل التنبيه التلقائي →',
+      'dash.products.manageMenu': 'إدارة القائمة →',
+      'dash.products.margins': 'الهوامش →',
+      'dash.staff.settings': 'إعدادات الفريق →',
+      'dash.integ.add': '+ إضافة تكامل',
+      'dash.integ.glovo.status': 'تمت تسوية الدفعة · 1,420 درهم',
+      'dash.integ.jumia.status': '24 طلبًا اليوم',
+      'dash.integ.accounting.name': 'المحاسبة',
+      'dash.integ.accounting.status': 'تصدير يومي متوافق مع OCP',
       'dash.integ.bank.name': 'Bank of Africa',
-      'dash.integ.bank.status': 'تم التحقق من IBAN · 3291', /* AR: needs native review */
-      'dash.fusion.ai.eyebrow': 'كيوي AI', /* AR: needs native review */
-      'dash.fusion.ai.title': 'توصيات المحفظة', /* AR: needs native review */
-      'dash.fusion.kpis.title': 'مؤشرات المحفظة', /* AR: needs native review */
-      'dash.fusion.venues.title': 'الأداء حسب الموقع', /* AR: needs native review */
-      'dash.fusion.intel.title': 'ذكاء المواقع المتعددة', /* AR: needs native review */
-      'dash.status.operational': 'تشغيلي · لا حوادث · حالة كيوي: 99.99%', /* AR: needs native review */
+      'dash.integ.bank.status': 'تم التحقق من IBAN · 3291',
+      'dash.fusion.ai.eyebrow': 'كيوي AI',
+      'dash.fusion.ai.title': 'توصيات المحفظة',
+      'dash.fusion.kpis.title': 'مؤشرات المحفظة',
+      'dash.fusion.venues.title': 'الأداء حسب الموقع',
+      'dash.fusion.intel.title': 'ذكاء المواقع المتعددة',
+      'dash.status.operational': 'تشغيلي · لا حوادث · حالة كيوي: 99.99%',
 
       /* Wallet */
       'wal.pill': 'كيوي Wallet · متاحة Q3 2026',
