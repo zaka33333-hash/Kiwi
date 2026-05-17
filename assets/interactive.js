@@ -1259,6 +1259,22 @@ ar: {
 
     'notifications': () => {
       const s = (NOTIFICATIONS_STR[kiwiLang()] || NOTIFICATIONS_STR.fr);
+      const NOTIF_EMPTY = {
+        fr: { head: 'Aucune notification', msg: 'Les alertes de règlement, de terminaux et les suggestions Kiwi AI apparaîtront ici.' },
+        en: { head: 'No notifications', msg: 'Settlement, terminal alerts and Kiwi AI suggestions will appear here.' },
+        ar: { head: 'لا إشعارات', msg: 'ستظهر هنا تنبيهات التسوية والأجهزة واقتراحات Kiwi AI.' },
+      };
+      if (window.KiwiVenue?.isCustom?.()) {
+        const e = NOTIF_EMPTY[kiwiLang()] || NOTIF_EMPTY.fr;
+        return drawer({
+          title: s.title,
+          subtitle: '',
+          body: `<div style="text-align:center;padding:52px 16px;">` +
+            `<div style="font-size:14px;font-weight:600;color:var(--ink);">${e.head}</div>` +
+            `<div style="font-size:12.5px;color:var(--n-500);margin-top:6px;line-height:1.5;">${e.msg}</div>` +
+            `</div>`,
+        });
+      }
       drawer({
       title: s.title,
       subtitle: s.subtitle,

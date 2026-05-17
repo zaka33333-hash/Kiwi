@@ -3365,7 +3365,7 @@
       </div>
       <button class="icon-btn" aria-label="Notifications">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21a2 2 0 004 0"/></svg>
-        <span class="badge">3</span>
+        <span class="badge" data-notif-badge>3</span>
       </button>
       <button class="icon-btn" aria-label="Paramètres">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -3570,7 +3570,7 @@
             <div style="color: var(--n-500);" data-i18n="dash.mix.subscription">Abonnement Kiwi Pro</div>
             <div style="font-family: var(--mono); font-weight: 500; color: var(--atlas);" data-i18n="dash.mix.subscription.price">399 MAD/mois · tout inclus</div>
           </div>
-          <div style="margin-top: 16px; padding: 14px 16px; background: var(--paper-soft); border-radius: 10px; display: flex; gap: 12px; align-items: flex-start;">
+          <div data-mix-savings-row style="margin-top: 16px; padding: 14px 16px; background: var(--paper-soft); border-radius: 10px; display: flex; gap: 12px; align-items: flex-start;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
             <div style="font-size: 12.5px; color: var(--n-700); line-height: 1.45;">
               <b data-i18n="dash.mix.savings.label">Économie vs CMI :</b> <span data-mix-savings>~3 900 MAD ce mois</span>. <a href="#" data-action="cmi-year" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.mix.savings.year">Voir l'année</a>
@@ -3722,7 +3722,7 @@
       <!-- ═══ HEALTH + BENCHMARK ═══ -->
       <div class="row r-1-1">
         <!-- Health score -->
-        <div class="block">
+        <div class="block" data-health-card>
           <div class="block-head">
             <div>
               <div class="t" data-i18n="dash.health.title">Score de santé Kiwi</div>
@@ -3771,7 +3771,7 @@
         </div>
 
         <!-- Benchmark -->
-        <div class="block">
+        <div class="block" data-bench-card>
           <div class="block-head">
             <div>
               <div class="t" data-bench-title>Vous vs cafés similaires</div>
@@ -3820,7 +3820,7 @@
       </div>
 
       <!-- ═══ INTEGRATIONS ═══ -->
-      <div class="block">
+      <div class="block" data-integ-card>
         <div class="block-head">
           <div>
             <div class="t" data-i18n="dash.integ.title">Intégrations actives</div>
@@ -3847,13 +3847,13 @@
             <div class="logo" style="background: #1D3F6B;">A</div>
             <div class="info">
               <div class="n" data-i18n="dash.integ.accounting.name">Comptabilité</div>
-              <div class="s"><span class="dot"></span><span data-i18n="dash.integ.accounting.status">Export quotidien OCP-compliant</span></div>
+              <div class="s"><span class="dot"></span><span data-i18n="dash.integ.accounting.status">Export comptable quotidien</span></div>
             </div>
           </div>
           <div class="integ-card">
             <div class="logo" style="background: #00613E;">B</div>
             <div class="info">
-              <div class="n" data-i18n="dash.integ.bank.name">BMCE · Banque</div>
+              <div class="n" data-i18n="dash.integ.bank.name">Bank of Africa</div>
               <div class="s"><span class="dot"></span><span data-i18n="dash.integ.bank.status">IBAN vérifié · 3291</span></div>
             </div>
           </div>

@@ -2665,6 +2665,9 @@
     // Per-venue CMI savings line under the donut
     const savingsEl = document.querySelector('[data-mix-savings]');
     if (savingsEl) savingsEl.textContent = window.KiwiVenue?.getMixCmiSavings?.() || '~3 900 MAD ce mois';
+    // CMI-savings line is meaningless before any revenue — hide on custom venues.
+    const savingsRow = document.querySelector('[data-mix-savings-row]');
+    if (savingsRow) savingsRow.style.display = window.KiwiVenue?.isCustom?.() ? 'none' : '';
 
     const sub = document.querySelector('[data-mix-sub]');
     if (sub) sub.textContent = RANGE_STR[lang]?.[currentRange] || RANGE_STR.fr[currentRange];
@@ -2934,6 +2937,89 @@
           msg: 'بمجرد تتبّع مكوّناتك، يقدّر Kiwi AI الكميات الواجب طلبها.' },
   };
 
+  const HEALTH_EMPTY = {
+    fr: { title: 'Score de santé Kiwi', head: 'Votre score se construit', msg: 'Le score de santé Kiwi s’affiche après vos premières semaines d’activité — succès des paiements, conformité, fidélité.' },
+    en: { title: 'Kiwi health score', head: 'Your score is building', msg: 'Your Kiwi health score appears after your first weeks of activity — payment success, compliance, loyalty.' },
+    ar: { title: 'نقاط صحة Kiwi', head: 'يُبنى مؤشّرك', msg: 'تظهر نقاط صحة Kiwi بعد أسابيعك الأولى من النشاط — نجاح المدفوعات والامتثال والولاء.' },
+  };
+  const BENCH_EMPTY = {
+    fr: { title: 'Vous vs établissements similaires', head: 'Comparaison à venir', msg: 'Dès que vous accumulez de l’activité, comparez vos performances aux établissements similaires près de chez vous.' },
+    en: { title: 'You vs similar venues', head: 'Benchmark coming soon', msg: 'Once you build up activity, compare your performance against similar venues near you.' },
+    ar: { title: 'أنت مقابل منشآت مماثلة', head: 'المقارنة قريبًا', msg: 'بمجرد تجميع نشاطك، قارن أداءك بالمنشآت المماثلة القريبة منك.' },
+  };
+  const PRODUCTS_EMPTY = {
+    fr: { sub: 'Aucune vente enregistrée', msg: 'Vos meilleures ventes s’afficheront ici dès la première commande.' },
+    en: { sub: 'No sales recorded', msg: 'Your best sellers will appear here after the first order.' },
+    ar: { sub: 'لا مبيعات مسجّلة', msg: 'ستظهر أفضل مبيعاتك هنا بعد أوّل طلب.' },
+  };
+  const STAFF_EMPTY = {
+    fr: { sub: 'Aucun membre d’équipe', msg: 'Ajoutez votre équipe pour suivre les performances par personne.' },
+    en: { sub: 'No team members', msg: 'Add your team to track performance per person.' },
+    ar: { sub: 'لا أعضاء فريق', msg: 'أضِف فريقك لتتبّع الأداء لكل شخص.' },
+  };
+  const INTEG_TITLE = { fr: 'Intégrations actives', en: 'Active integrations', ar: 'عمليات الدمج النشطة' };
+  const INTEG_SUB = {
+    fr: 'Connectez vos outils pour synchroniser ventes et paiements',
+    en: 'Connect your tools to sync sales and payments',
+    ar: 'اربط أدواتك لمزامنة المبيعات والمدفوعات',
+  };
+  const INTEG_NOTCONN = { fr: 'Non connecté', en: 'Not connected', ar: 'غير متّصل' };
+  const INTEG_LIST = [
+    { n: 'Glovo', logo: 'G', bg: '#F29137' },
+    { n: 'Jumia Food', logo: 'J', bg: '#E7611A' },
+    { n: 'Comptabilité', logo: 'A', bg: '#1D3F6B' },
+    { n: 'Bank of Africa', logo: 'B', bg: '#00613E' },
+  ];
+
+  /* Standard padded empty-state body for a light .block card. */
+  function emptyBlockBody(head, msg) {
+    return `<div style="padding:26px 8px 14px;text-align:center;">` +
+      `<div style="font-size:14px;font-weight:600;color:var(--ink);">${head}</div>` +
+      `<div style="font-size:12.5px;color:var(--n-500);margin-top:6px;line-height:1.5;max-width:340px;margin-inline:auto;">${msg}</div>` +
+      `</div>`;
+  }
+  /* Message-only empty body — for cards whose header already labels them. */
+  function emptyListBody(msg) {
+    return `<div style="padding:30px 8px 20px;text-align:center;font-size:12.5px;` +
+      `color:var(--n-500);line-height:1.5;max-width:320px;margin-inline:auto;">${msg}</div>`;
+  }
+
+  let _healthOrig = null, _benchOrig = null, _integOrig = null;
+
+  /* Integrations — for custom venues, show the tools as available-to-connect
+   * rather than leaking Café Atlas's live sync figures. */
+  function renderInteg() {
+    const card = document.querySelector('[data-integ-card]');
+    if (!card) return;
+    if (_integOrig == null) _integOrig = card['inner' + 'HTML'];
+    if (window.KiwiVenue?.isCustom?.()) {
+      const lang = getLang();
+      const notConn = INTEG_NOTCONN[lang] || INTEG_NOTCONN.fr;
+      const addLbl = (window.KiwiI18n?.t?.('dash.integ.add')) || '+ Ajouter une intégration';
+      const cards = INTEG_LIST.map(it =>
+        `<div class="integ-card" data-action="add-integration">` +
+        `<div class="logo" style="background:${it.bg};opacity:.55;">${it.logo}</div>` +
+        `<div class="info"><div class="n">${it.n}</div>` +
+        `<div class="s"><span class="dot warn"></span><span>${notConn}</span></div></div></div>`
+      ).join('');
+      card['inner' + 'HTML'] =
+        `<div class="block-head"><div>` +
+        `<div class="t">${INTEG_TITLE[lang] || INTEG_TITLE.fr}</div>` +
+        `<div class="s">${INTEG_SUB[lang] || INTEG_SUB.fr}</div></div>` +
+        `<a href="#" data-action="add-integration" style="font-size:13px;color:var(--atlas);font-weight:500;">${addLbl}</a>` +
+        `</div><div class="integ-grid">${cards}</div>`;
+    } else if (_integOrig != null && card['inner' + 'HTML'] !== _integOrig) {
+      card['inner' + 'HTML'] = _integOrig;
+    }
+  }
+
+  /* Notification badge — no fake alerts on a fresh custom venue. */
+  function renderNotifBadge() {
+    const b = document.querySelector('[data-notif-badge]');
+    if (!b) return;
+    b.style.display = window.KiwiVenue?.isCustom?.() ? 'none' : '';
+  }
+
   function renderEvening() {
     const el = document.querySelector('[data-evening-card]');
     if (!el) return;
@@ -2982,6 +3068,20 @@
 
   function renderHealth() {
     const lang = getLang();
+    const card = document.querySelector('[data-health-card]');
+    if (card && _healthOrig == null) _healthOrig = card['inner' + 'HTML'];
+    if (window.KiwiVenue?.isCustom?.()) {
+      if (card) {
+        const t = HEALTH_EMPTY[lang] || HEALTH_EMPTY.fr;
+        card['inner' + 'HTML'] =
+          `<div class="block-head"><div><div class="t">${t.title}</div></div></div>` +
+          emptyBlockBody(t.head, t.msg);
+      }
+      return;
+    }
+    if (card && _healthOrig != null && card['inner' + 'HTML'] !== _healthOrig) {
+      card['inner' + 'HTML'] = _healthOrig;
+    }
     const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
     const data = vData(healthByVenue, currentRange);
     if (!data) return;
@@ -3003,6 +3103,20 @@
 
   function renderBench() {
     const lang = getLang();
+    const card = document.querySelector('[data-bench-card]');
+    if (card && _benchOrig == null) _benchOrig = card['inner' + 'HTML'];
+    if (window.KiwiVenue?.isCustom?.()) {
+      if (card) {
+        const t = BENCH_EMPTY[lang] || BENCH_EMPTY.fr;
+        card['inner' + 'HTML'] =
+          `<div class="block-head"><div><div class="t">${t.title}</div></div></div>` +
+          emptyBlockBody(t.head, t.msg);
+      }
+      return;
+    }
+    if (card && _benchOrig != null && card['inner' + 'HTML'] !== _benchOrig) {
+      card['inner' + 'HTML'] = _benchOrig;
+    }
     const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
     const data = vData(benchByVenue, currentRange);
     if (!data) return;
@@ -3044,9 +3158,12 @@
   function renderProducts() {
     const lang = getLang();
     const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
-    const data = window.KiwiVenue?.isCustom?.() ? [] : vData(productsByVenue, currentRange);
+    const isCustom = !!window.KiwiVenue?.isCustom?.();
+    const data = isCustom ? [] : vData(productsByVenue, currentRange);
     const list = document.querySelector('[data-products-list]');
-    if (list && data) {
+    if (list && isCustom) {
+      list.innerHTML = emptyListBody((PRODUCTS_EMPTY[lang] || PRODUCTS_EMPTY.fr).msg);
+    } else if (list && data) {
       list.innerHTML = data.map((p, i) => `
         <div class="prod-row">
           <div class="rank${i === 0 ? ' top' : ''}">${p.rank}</div>
@@ -3060,7 +3177,9 @@
       `).join('');
     }
     const sub = document.querySelector('[data-products-sub]');
-    if (sub) sub.textContent = PRODUCTS_SUB[lang]?.[currentRange] || PRODUCTS_SUB.fr[currentRange];
+    if (sub) sub.textContent = isCustom
+      ? (PRODUCTS_EMPTY[lang] || PRODUCTS_EMPTY.fr).sub
+      : (PRODUCTS_SUB[lang]?.[currentRange] || PRODUCTS_SUB.fr[currentRange]);
   }
 
   /* ═══════════════ RENDER: STAFF ═══════════════ */
@@ -3068,9 +3187,12 @@
   function renderStaff() {
     const lang = getLang();
     const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
-    const data = window.KiwiVenue?.isCustom?.() ? [] : vData(staffByVenue, currentRange);
+    const isCustom = !!window.KiwiVenue?.isCustom?.();
+    const data = isCustom ? [] : vData(staffByVenue, currentRange);
     const list = document.querySelector('[data-staff-list]');
-    if (list && data) {
+    if (list && isCustom) {
+      list.innerHTML = emptyListBody((STAFF_EMPTY[lang] || STAFF_EMPTY.fr).msg);
+    } else if (list && data) {
       list.innerHTML = data.map(s => `
         <div class="staff-row">
           <div class="av ${s.cls}"${s.cls === 'offline' ? ' style="background: var(--n-400);"' : ''}>${s.av}</div>
@@ -3084,7 +3206,9 @@
       `).join('');
     }
     const sub = document.querySelector('[data-staff-sub]');
-    if (sub) sub.textContent = STAFF_SUB[lang]?.[currentRange] || STAFF_SUB.fr[currentRange];
+    if (sub) sub.textContent = isCustom
+      ? (STAFF_EMPTY[lang] || STAFF_EMPTY.fr).sub
+      : (STAFF_SUB[lang]?.[currentRange] || STAFF_SUB.fr[currentRange]);
   }
 
   /* ═══════════════ ACTION HANDLER + I18N HOOK ═══════════════ */
@@ -3116,6 +3240,7 @@
       renderStock();
       renderHealth();
       renderBench();
+      renderInteg();
       renderProducts();
       renderStaff();
       return r;
@@ -3203,6 +3328,8 @@
     subscribe(renderTimeline);
     subscribe(renderHealth);
     subscribe(renderBench);
+    subscribe(renderInteg);
+    subscribe(renderNotifBadge);
     subscribe(renderProducts);
     subscribe(renderStaff);
 
@@ -3226,6 +3353,8 @@
           renderTimeline();
           renderHealth();
           renderBench();
+          renderInteg();
+          renderNotifBadge();
           renderProducts();
           renderStaff();
         });
@@ -3311,6 +3440,8 @@
     renderTimeline();
     renderHealth();
     renderBench();
+    renderInteg();
+    renderNotifBadge();
     renderProducts();
     renderStaff();
   }
