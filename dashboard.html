@@ -450,7 +450,18 @@
   .kpi-m:hover { border-color: var(--n-400); }
   /* Keyboard focus ring for the div-based interactive tiles/rows */
   .kpi-m:focus-visible, .kpi-c:focus-visible, .feed-row:focus-visible {
-    outline: 2px solid var(--atlas); outline-offset: 2px; border-radius: 10px;
+    outline: 2px solid var(--atlas); outline-offset: 2px;
+  }
+  /* Adaptive focus — the Atlas-green ring (tokens.css) is near-invisible
+     against Kiwi's dark surfaces: the sidebar, the demo bar, the green
+     hero and the lock screen. Keyboard focus there switches to bright
+     mint so it always reads. Carbon's principle: a focus indicator must
+     stay clearly visible on every surface it can land on. */
+  .sidebar :focus-visible,
+  .demo-bar :focus-visible,
+  .hero-today :focus-visible,
+  .kiwi-lock :focus-visible {
+    outline: 2px solid var(--mint); outline-offset: 3px;
   }
   .kpi-m .l { font-size: 10.5px; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
   .kpi-m .l .ico { width: 24px; height: 24px; border-radius: 6px; background: var(--paper-soft); color: var(--atlas); display: flex; align-items: center; justify-content: center; }

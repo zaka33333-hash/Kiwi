@@ -74,8 +74,9 @@ a[data-action]:hover { opacity: 0.7; }
 .icon-btn:hover { background: var(--paper-soft); }
 .icon-btn:active { transform: scale(0.92); }
 
-/* ─── Focus — refined, on-brand, never clipped ─── */
-:focus-visible { outline: 2px solid var(--atlas); outline-offset: 2px; border-radius: 6px; }
+/* ─── Focus — the single global ring is owned by tokens.css; this
+   layer only carries per-component offset tweaks (was a duplicate
+   global :focus-visible rule that silently overrode the token). ─── */
 .kpi-m:focus-visible, .kpi-c:focus-visible, .integ-card:focus-visible { outline-offset: 3px; }
 
 /* ─── Drawer & menu close buttons — consistent press ─── */
