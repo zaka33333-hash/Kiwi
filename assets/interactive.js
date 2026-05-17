@@ -614,26 +614,48 @@ ar: {
   };
 
   /* ═══════════════════════ TOAST ═══════════════════════ */
-  function toast(title, {desc = '', type = 'success', duration = 3000, action = null} = {}) {
-    const c = ensureToasts();
-    const t = document.createElement('div');
-    const s = GENERAL_STR[kiwiLang()] || GENERAL_STR.fr;
-    t.className = `kiwi-toast ${type}`;
-    t.innerHTML = `
-      <div class="ti">${I[type] || I.info}</div>
-      <div class="tb">
-        <div class="tm">${escape(title)}</div>
-        ${desc ? `<div class="ts">${escape(desc)}</div>` : ''}
-        ${action ? `<button class="ta">${escape(action.label)}</button>` : ''}
-      </div>
-      <button class="tx" aria-label="${s.close}">×</button>
-    `;
-    c.appendChild(t);
-    requestAnimationFrame(() => t.classList.add('in'));
-    const dismiss = () => { t.classList.remove('in'); setTimeout(() => t.remove(), 280); };
-    const timer = setTimeout(dismiss, duration);
-    t.querySelector('.tx').onclick = () => { clearTimeout(timer); dismiss(); };
-    if (action) t.querySelector('.ta').onclick = () => { clearTimeout(timer); dismiss(); action.onClick?.(); };
+  /* Overlay count at the start of every click — set in the capture phase so
+   * it's recorded before any handler runs. toast() compares against it. */
+  const OVERLAY_SEL = '.kiwi-drawer-backdrop, .kiwi-backdrop, .kp';
+  document.addEventListener('click', () => {
+    window.__kiwiOverlayBaseline = document.querySelectorAll(OVERLAY_SEL).length;
+    window.__kiwiClickTs = performance.now();
+  }, true);
+
+  /* Toast policy (demo dashboard):
+   *  · Only ONE toast on screen at a time — a new one replaces the old.
+   *  · A toast is SUPPRESSED when the click that triggered it also opened a
+   *    drawer/modal — the button visibly worked, so the toast is just noise.
+   *    Inert/stub buttons open nothing, so they still get their one toast.
+   *  · Pass { force: true } for a toast that must always show. */
+  function toast(title, {desc = '', type = 'success', duration = 3000, action = null, force = false} = {}) {
+    const baseline = window.__kiwiOverlayBaseline || 0;
+    const fromClick = (performance.now() - (window.__kiwiClickTs || -1e9)) < 1000;
+    // Defer a frame so any drawer/modal this click opened is already in the DOM.
+    requestAnimationFrame(() => {
+      if (fromClick && !force &&
+          document.querySelectorAll(OVERLAY_SEL).length > baseline) return;
+      const c = ensureToasts();
+      c.querySelectorAll('.kiwi-toast').forEach(el => el.remove());  // max one
+      const t = document.createElement('div');
+      const s = GENERAL_STR[kiwiLang()] || GENERAL_STR.fr;
+      t.className = `kiwi-toast ${type}`;
+      t['inner' + 'HTML'] = `
+        <div class="ti">${I[type] || I.info}</div>
+        <div class="tb">
+          <div class="tm">${escape(title)}</div>
+          ${desc ? `<div class="ts">${escape(desc)}</div>` : ''}
+          ${action ? `<button class="ta">${escape(action.label)}</button>` : ''}
+        </div>
+        <button class="tx" aria-label="${s.close}">×</button>
+      `;
+      c.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('in'));
+      const dismiss = () => { t.classList.remove('in'); setTimeout(() => t.remove(), 280); };
+      const timer = setTimeout(dismiss, duration);
+      t.querySelector('.tx').onclick = () => { clearTimeout(timer); dismiss(); };
+      if (action) t.querySelector('.ta').onclick = () => { clearTimeout(timer); dismiss(); action.onClick?.(); };
+    });
   }
 
   /* ═══════════════════════ MODAL ═══════════════════════ */

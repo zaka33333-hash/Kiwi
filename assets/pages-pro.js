@@ -507,7 +507,7 @@ handlers['nav-transactions'] = () => {
     ]);
   };
   handlers['tx-show-all'] = () => { expanded = true; render(); };
-  handlers['tx-detail']   = (_el, id) => toast(`${T.title} ${id || ''} · ${T.details}`, { type: 'info', duration: 1500 });
+  handlers['tx-detail']   = (_el, id) => toast(`${T.title} · ${id || ''}`, { type: 'info', duration: 1500 });
   if (!handlers['fra-investigate']) handlers['fra-investigate'] = () => toast(T.dossierOuvert, { type: 'info', duration: 1800 });
   if (!handlers['fra-allow'])       handlers['fra-allow']       = () => toast(T.marqueLegitime, { type: 'success', duration: 1600 });
   if (!handlers['fra-block'])       handlers['fra-block']       = () => toast(T.carteBloquee, { type: 'success', duration: 1800 });
