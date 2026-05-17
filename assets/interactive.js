@@ -8,6 +8,92 @@
   /* i18n — current locale (fr default); window.KiwiI18n owns the master dict. */
   const kiwiLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
 
+  const AI_RESPONSES_STR = {
+    fr: {
+      'Envoyer le résumé de midi sur WhatsApp': '<b>Kiwi AI :</b> Résumé envoyé à <b>+212 6 xx xx xx xx</b>. Contenu : 24 380 MAD · 182 transactions · pic 13h · top serveuse Sofia (54 tx).',
+      'Préparer la relance des 5 impayés à > 500 MAD': '<b>Kiwi AI :</b> Brouillon créé pour 5 clients totalisant <b>3 280 MAD</b>. Envoi WhatsApp prêt, validation humaine requise.',
+      'Activer le prompt pourboire +10 % après 20h': '<b>Kiwi AI :</b> Activé. Le prompt s\'affichera après 20h sur toutes les tables. Estimation de gain : <b>+380 MAD/soir</b>.',
+    },
+    en: {
+      'Envoyer le résumé de midi sur WhatsApp': '<b>Kiwi AI:</b> Lunch summary sent to <b>+212 6 xx xx xx xx</b>. Content: 24,380 MAD · 182 transactions · 1pm peak · top waitress Sofia (54 tx).',
+      'Préparer la relance des 5 impayés à > 500 MAD': '<b>Kiwi AI:</b> Draft created for 5 clients totaling <b>3,280 MAD</b>. WhatsApp dispatch ready, human validation required.',
+      'Activer le prompt pourboire +10 % après 20h': '<b>Kiwi AI:</b> Activated. The prompt will be displayed after 8pm on all tables. Estimated gain: <b>+380 MAD/evening</b>.',
+    },
+    ar: {
+      'Envoyer le résumé de midi sur WhatsApp': '<b>Kiwi AI :</b> تم إرسال ملخص الظهيرة إلى <b>+212 6 xx xx xx xx</b>. المحتوى: 24 380 درهم · 182 معاملة · ذروة 13:00 · أفضل نادلة صوفيا (54 معاملة). /* AR: needs native review */',
+      'Préparer la relance des 5 impayés à > 500 MAD': '<b>Kiwi AI :</b> تم إنشاء مسودة لـ 5 عملاء بمجموع <b>3 280 درهم</b>. إرسال WhatsApp جاهز، يتطلب التحقق البشري. /* AR: needs native review */',
+      'Activer le prompt pourboire +10 % après 20h': '<b>Kiwi AI :</b> تم التفعيل. سيتم عرض الطلب بعد الساعة 8 مساءً على جميع الطاولات. الربح المقدر: <b>+380 درهم/مساء</b>. /* AR: needs native review */',
+    }
+  };
+
+  const KPI_DESC_STR = {
+    fr: {
+      revenue:    'Total encaissé sur la période.',
+      revPerDay:  'Chiffre d\'affaires moyen par jour.',
+      profit:     'Ce qu\'il reste après le coût matière.',
+      cogs:       'Dépense en matières premières.',
+      tips:       'Pourboires estimés encaissés.',
+      retention:  'Part de clients réguliers parmi vos ventes.',
+      newClients: 'Premières visites estimées sur la période.',
+      txPerDay:   'Nombre de ventes moyen par jour.',
+    },
+    en: {
+      revenue:    'Total cashed in over the period.',
+      revPerDay:  'Average daily revenue.',
+      profit:     'What remains after cost of goods.',
+      cogs:       'Expenditure on raw materials.',
+      tips:       'Estimated tips collected.',
+      retention:  'Share of regular customers among your sales.',
+      newClients: 'Estimated first visits over the period.',
+      txPerDay:   'Average number of sales per day.',
+    },
+    ar: {
+      revenue:    'إجمالي المقبوضات خلال الفترة.',
+      revPerDay:  'متوسط الإيرادات اليومية.',
+      profit:     'ما يتبقى بعد تكلفة المواد.',
+      cogs:       'الإنفاق على المواد الأولية.',
+      tips:       'الإكراميات المقدرة المحصلة.',
+      retention:  'حصة العملاء المنتظمين من مبيعاتك.',
+      newClients: 'الزيارات الأولى المقدرة خلال الفترة.',
+      txPerDay:   'متوسط عدد المبيعات في اليوم.',
+    }
+  };
+
+  const KPI_LONG_STR = {
+    fr: {
+      revenue:    'Le chiffre d\'affaires additionne toutes vos ventes encaissées — espèces, carte et mobile — sur la période choisie. C\'est le point de départ de tous vos calculs de marge et de rentabilité.',
+      revPerDay:  'Le chiffre d\'affaires divisé par le nombre de jours d\'ouverture. Utile pour comparer des périodes de longueurs différentes et repérer vos meilleurs jours.',
+      profit:     'Le bénéfice brut, c\'est le chiffre d\'affaires moins le coût des matières premières. Il ne tient pas encore compte des charges fixes — loyer, salaires, énergie.',
+      cogs:       'Le coût matière regroupe tout ce que vous achetez pour produire vos ventes : ingrédients, boissons, consommables. Le surveiller protège directement votre marge.',
+      tips:       'Estimation des pourboires encaissés sur la période, calculée à partir de votre volume de ventes. Ils reviennent à l\'équipe et n\'entrent pas dans votre chiffre d\'affaires.',
+      retention:  'La part de vos ventes réalisées avec des clients déjà venus. Un taux élevé signale une clientèle fidèle — bien moins coûteuse à servir qu\'à conquérir.',
+      newClients: 'Estimation du nombre de premières visites sur la période. C\'est votre rythme d\'acquisition de nouveaux clients.',
+      txPerDay:   'Le nombre de ventes moyen par jour d\'ouverture — un bon indicateur de fréquentation, indépendant du montant dépensé.',
+    },
+    en: {
+      revenue:    'Revenue is the sum of all your collected sales — cash, card, and mobile — over the chosen period. It\'s the starting point for all your margin and profitability calculations.',
+      revPerDay:  'Revenue divided by the number of opening days. Useful for comparing periods of different lengths and identifying your best days.',
+      profit:     'Gross profit is revenue minus the cost of raw materials. It does not yet account for fixed costs — rent, salaries, energy.',
+      cogs:       'Cost of goods sold includes everything you buy to produce your sales: ingredients, drinks, consumables. Monitoring it directly protects your margin.',
+      tips:       'Estimated tips collected over the period, calculated from your sales volume. They belong to the team and are not included in your revenue.',
+      retention:  'The share of your sales made with returning customers. A high rate signals a loyal customer base — much cheaper to serve than to acquire.',
+      newClients: 'Estimated number of first visits over the period. This is your new customer acquisition rate.',
+      txPerDay:   'The average number of sales per opening day — a good indicator of footfall, independent of the amount spent.',
+    },
+    ar: {
+      revenue:    'الإيرادات هي مجموع كل مبيعاتك المحصلة - نقدًا، بالبطاقة، وعبر الهاتف المحمول - خلال الفترة المختارة. إنها نقطة الانطلاق لجميع حسابات الهامش والربحية. /* AR: needs native review */',
+      revPerDay:  'الإيرادات مقسومة على عدد أيام العمل. مفيد لمقارنة فترات مختلفة الطول وتحديد أفضل أيامك. /* AR: needs native review */',
+      profit:     'الربح الإجمالي هو الإيرادات مطروحًا منها تكلفة المواد الأولية. لا يأخذ في الاعتبار بعد التكاليف الثابتة - الإيجار والرواتب والطاقة. /* AR: needs native review */',
+      cogs:       'تكلفة المواد المباعة تشمل كل ما تشتريه لإنتاج مبيعاتك: المكونات والمشروبات والمواد الاستهلاكية. مراقبتها تحمي هامشك مباشرة. /* AR: needs native review */',
+      tips:       'تقدير للإكراميات المحصلة خلال الفترة، محسوبة من حجم مبيعاتك. تعود للفريق ولا يتم تضمينها في إيراداتك. /* AR: needs native review */',
+      retention:  'حصة مبيعاتك التي تمت مع عملاء عائدين. يشير المعدل المرتفع إلى قاعدة عملاء مخلصين - خدمتهم أرخص بكثير من اكتساب عملاء جدد. /* AR: needs native review */',
+      newClients: 'العدد التقديري للزيارات الأولى خلال الفترة. هذا هو معدل اكتساب العملاء الجدد. /* AR: needs native review */',
+      txPerDay:   'متوسط عدد المبيعات في كل يوم عمل - مؤشر جيد على الإقبال، بغض النظر عن المبلغ الذي تم إنفاقه. /* AR: needs native review */',
+    }
+  };
+
+
+
   /* ─────────── INJECTED STYLES ─────────── */
   const CSS = `
   /* Toasts */
@@ -62,8 +148,15 @@
    * Counter-tracked (window.__kiwiScrollLocks) so nested layers don't
    * unlock prematurely. We also pause the body's ambient-blob drift
    * animation — without this, the drawer's backdrop-filter:blur has
-   * to re-sample a moving target every frame, which Safari hates. */
-  html.kiwi-locked, html.kiwi-locked body { overflow: hidden; }
+   * to re-sample a moving target every frame, which Safari hates.
+   *
+   * IMPORTANT: lock ONLY <html> (the document scroller). Putting
+   * overflow:hidden on <body> turns <body> into a scroll container,
+   * which captures the position:sticky desktop sidebar — it then
+   * re-anchors to body's unscrolled scrollport and renders far up the
+   * page (only its lower portion stays visible). Locking the html
+   * scroller alone freezes the page without breaking sticky children. */
+  html.kiwi-locked { overflow: hidden; }
   html.kiwi-locked body { animation-play-state: paused; }
   .kiwi-drawer-foot { padding: 16px 24px; border-top: 1px solid var(--n-200); }
   .kiwi-drawer-close { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; }
@@ -438,7 +531,7 @@
   /* ═══════════════════════ COMMAND PALETTE ═══════════════════════ */
   const CP_STR = {
     fr: {
-      sNav: 'NAVIGATION', sActions: 'ACTIONS RAPIDES', sResto: 'RESTAURATION', sHelp: 'AIDE',
+      sNav: 'NAVIGATION', sActions: 'ACTIONS RAPIDES', sResto: 'RESTAURATION', sHelp: 'AIDE', sAi: 'Kiwi AI', executed: 'exécuté',
       dash: 'Tableau de bord', dashSub: 'Vue principale',
       orders: 'Commandes', ordersSub: "Aujourd'hui · live",
       team: 'Équipe', teamSub: '8 membres', teamToast: 'Page équipe',
@@ -455,9 +548,16 @@
       docs: 'Documentation', docsToast: 'docs.kiwi.ma',
       placeholder: 'Rechercher transactions, produits, équipe, actions…',
       navigate: 'naviguer', select: 'sélectionner', noResult: 'Aucun résultat',
+      kpiDefaultDesc: 'Indicateur de votre tableau de bord personnalisé.',
+      kpiDefaultLong: 'Cet indicateur fait partie de votre bande personnalisée. Il se recalcule automatiquement pour chaque période sélectionnée.',
+      kpiSubtitle: 'Indicateur personnalisé · période en cours',
+      kpiHowToRead: 'COMMENT LIRE CET INDICATEUR',
+      kpiInsight: '<b style="color:var(--mint);">Astuce :</b> demandez à Kiwi AI d\'analyser cet indicateur — il croisera vos chiffres et vous dira quoi en faire.',
+      close: 'Fermer',
+      analyzeWithKiwiAI: 'Analyser avec Kiwi AI',
     },
     en: {
-      sNav: 'NAVIGATION', sActions: 'QUICK ACTIONS', sResto: 'RESTAURANT', sHelp: 'HELP',
+      sNav: 'NAVIGATION', sActions: 'QUICK ACTIONS', sResto: 'RESTAURANT', sHelp: 'HELP', sAi: 'Kiwi AI', executed: 'executed',
       dash: 'Dashboard', dashSub: 'Main view',
       orders: 'Orders', ordersSub: 'Today · live',
       team: 'Team', teamSub: '8 members', teamToast: 'Team page',
@@ -474,9 +574,16 @@
       docs: 'Documentation', docsToast: 'docs.kiwi.ma',
       placeholder: 'Search transactions, products, team, actions…',
       navigate: 'navigate', select: 'select', noResult: 'No results',
+      kpiDefaultDesc: 'Indicator from your personalized dashboard.',
+      kpiDefaultLong: 'This indicator is part of your custom band. It recalculates automatically for each selected period.',
+      kpiSubtitle: 'Custom indicator · current period',
+      kpiHowToRead: 'HOW TO READ THIS INDICATOR',
+      kpiInsight: '<b style="color:var(--mint);">Tip:</b> ask Kiwi AI to analyze this indicator — it will cross-reference your numbers and tell you what to do.',
+      close: 'Close',
+      analyzeWithKiwiAI: 'Analyze with Kiwi AI',
     },
     ar: {
-      sNav: 'التنقّل', sActions: 'إجراءات سريعة', sResto: 'المطعم', sHelp: 'المساعدة',
+      sNav: 'التنقّل', sActions: 'إجراءات سريعة', sResto: 'المطعم', sHelp: 'المساعدة', sAi: 'Kiwi AI', executed: 'تم التنفيذ',
       dash: 'لوحة التحكم', dashSub: 'العرض الرئيسي',
       orders: 'الطلبات', ordersSub: 'اليوم · مباشر',
       team: 'الفريق', teamSub: '8 أعضاء', teamToast: 'صفحة الفريق',
@@ -493,6 +600,13 @@
       docs: 'التوثيق', docsToast: 'docs.kiwi.ma',
       placeholder: 'ابحث عن معاملات، منتجات، فريق، إجراءات…',
       navigate: 'تنقّل', select: 'اختيار', noResult: 'لا نتائج',
+      kpiDefaultDesc: 'مؤشر من لوحة التحكم المخصصة لك.',
+      kpiDefaultLong: 'هذا المؤشر جزء من الشريط المخصص لك. يتم إعادة حسابه تلقائيًا لكل فترة محددة.',
+      kpiSubtitle: 'مؤشر مخصص · الفترة الحالية',
+      kpiHowToRead: 'كيفية قراءة هذا المؤشر',
+      kpiInsight: '<b style="color:var(--mint);">نصيحة:</b> اطلب من Kiwi AI تحليل هذا المؤشر - سيقوم بمقارنة أرقامك ويخبرك بما يجب فعله.',
+      close: 'إغلاق',
+      analyzeWithKiwiAI: 'تحليل بواسطة Kiwi AI',
     },
   };
   function commandPalette() {
@@ -1181,7 +1295,7 @@
       setTimeout(() => {
         typing.classList.remove('ai-msg-typing');
         typing.className = 'msg';
-        typing.innerHTML = aiResponses[txt] || `<b>Kiwi AI :</b> ${txt} — exécuté. Consultez les détails dans l'onglet correspondant.`;
+        typing.innerHTML = aiResponses[txt] || `<b>${(CP_STR[kiwiLang()] || CP_STR.fr).sAi} :</b> ${txt} — ${(CP_STR[kiwiLang()] || CP_STR.fr).executed}. Consultez les détails dans l'onglet correspondant.`;
       }, 1200);
     },
 
@@ -1225,18 +1339,18 @@
       const label = el?.querySelector('.l span, .l, .lbl')?.textContent?.trim() || 'Indicateur';
       const value = el?.querySelector('.v')?.textContent?.trim() || '—';
       const delta = el?.querySelector('.d')?.textContent?.trim() || '';
-      const desc = KPI_DESC[arg] || 'Indicateur de votre tableau de bord personnalisé.';
-      const long = KPI_LONG[arg] || 'Cet indicateur fait partie de votre bande personnalisée. Il se recalcule automatiquement pour chaque période sélectionnée.';
+      const desc = KPI_DESC[arg] || (CP_STR[kiwiLang()] || CP_STR.fr).kpiDefaultDesc;
+      const long = KPI_LONG[arg] || (CP_STR[kiwiLang()] || CP_STR.fr).kpiDefaultLong;
       drawer({
         title: label,
-        subtitle: 'Indicateur personnalisé · période en cours',
+        subtitle: (CP_STR[kiwiLang()] || CP_STR.fr).kpiSubtitle,
         width: 460,
         body: `
           ${kpiHero(value, desc, delta)}
-          ${kpiSection('COMMENT LIRE CET INDICATEUR', `<div style="font-size:13px; color:var(--n-600); line-height:1.62;">${long}</div>`)}
-          ${kpiInsight('<b style="color:var(--mint);">Astuce :</b> demandez à Kiwi AI d\'analyser cet indicateur — il croisera vos chiffres et vous dira quoi en faire.')}
+          ${kpiSection((CP_STR[kiwiLang()] || CP_STR.fr).kpiHowToRead, `<div style="font-size:13px; color:var(--n-600); line-height:1.62;">${long}</div>`)}
+          ${kpiInsight((CP_STR[kiwiLang()] || CP_STR.fr).kpiInsight)}
         `,
-        foot: `<button class="kb ghost" data-dismiss style="flex:1; justify-content:center;">Fermer</button><button class="kb atlas" data-action="open-assistant" style="flex:1; justify-content:center;">Analyser avec Kiwi AI →</button>`,
+        foot: `<button class="kb ghost" data-dismiss style="flex:1; justify-content:center;">${(CP_STR[kiwiLang()] || CP_STR.fr).close}</button><button class="kb atlas" data-action="open-assistant" style="flex:1; justify-content:center;">${(CP_STR[kiwiLang()] || CP_STR.fr).analyzeWithKiwiAI} →</button>`,
       });
     },
 
@@ -1322,26 +1436,8 @@
 
   /* Short + long descriptions for personalised KPIs that have no hand-authored
      detail view — used to build a clean generic drawer on click. */
-  const KPI_DESC = {
-    revenue:    'Total encaissé sur la période.',
-    revPerDay:  'Chiffre d\'affaires moyen par jour.',
-    profit:     'Ce qu\'il reste après le coût matière.',
-    cogs:       'Dépense en matières premières.',
-    tips:       'Pourboires estimés encaissés.',
-    retention:  'Part de clients réguliers parmi vos ventes.',
-    newClients: 'Premières visites estimées sur la période.',
-    txPerDay:   'Nombre de ventes moyen par jour.',
-  };
-  const KPI_LONG = {
-    revenue:    'Le chiffre d\'affaires additionne toutes vos ventes encaissées — espèces, carte et mobile — sur la période choisie. C\'est le point de départ de tous vos calculs de marge et de rentabilité.',
-    revPerDay:  'Le chiffre d\'affaires divisé par le nombre de jours d\'ouverture. Utile pour comparer des périodes de longueurs différentes et repérer vos meilleurs jours.',
-    profit:     'Le bénéfice brut, c\'est le chiffre d\'affaires moins le coût des matières premières. Il ne tient pas encore compte des charges fixes — loyer, salaires, énergie.',
-    cogs:       'Le coût matière regroupe tout ce que vous achetez pour produire vos ventes : ingrédients, boissons, consommables. Le surveiller protège directement votre marge.',
-    tips:       'Estimation des pourboires encaissés sur la période, calculée à partir de votre volume de ventes. Ils reviennent à l\'équipe et n\'entrent pas dans votre chiffre d\'affaires.',
-    retention:  'La part de vos ventes réalisées avec des clients déjà venus. Un taux élevé signale une clientèle fidèle — bien moins coûteuse à servir qu\'à conquérir.',
-    newClients: 'Estimation du nombre de premières visites sur la période. C\'est votre rythme d\'acquisition de nouveaux clients.',
-    txPerDay:   'Le nombre de ventes moyen par jour d\'ouverture — un bon indicateur de fréquentation, indépendant du montant dépensé.',
-  };
+  const KPI_DESC = (KPI_DESC_STR[kiwiLang()] || KPI_DESC_STR.fr);
+  const KPI_LONG = (KPI_LONG_STR[kiwiLang()] || KPI_LONG_STR.fr);
 
   const kpiData = {
     /* ════════ Transactions ════════ */
@@ -1584,11 +1680,7 @@
     'default': { title: 'Métrique', body: `<p style="color:var(--n-600);">Analyse détaillée disponible ici.</p>` }
   };
 
-  const aiResponses = {
-    'Envoyer le résumé de midi sur WhatsApp': '<b>Kiwi AI :</b> Résumé envoyé à <b>+212 6 xx xx xx xx</b>. Contenu : 24 380 MAD · 182 transactions · pic 13h · top serveuse Sofia (54 tx).',
-    'Préparer la relance des 5 impayés à > 500 MAD': '<b>Kiwi AI :</b> Brouillon créé pour 5 clients totalisant <b>3 280 MAD</b>. Envoi WhatsApp prêt, validation humaine requise.',
-    'Activer le prompt pourboire +10 % après 20h': '<b>Kiwi AI :</b> Activé. Le prompt s\'affichera après 20h sur toutes les tables. Estimation de gain : <b>+380 MAD/soir</b>.',
-  };
+  const aiResponses = (AI_RESPONSES_STR[kiwiLang()] || AI_RESPONSES_STR.fr);
 
   /* ═══════════════════════ UNIVERSAL ROUTER ═══════════════════════ */
   /* Elements that OWN their own click handling — the fallback must not touch them */
