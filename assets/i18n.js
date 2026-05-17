@@ -261,6 +261,8 @@
       'dash.lock.welcome': 'Welcome, Rachid',
       'dash.lock.help': 'Enter your <b>4-digit code</b> to open the dashboard',
       'dash.lock.skip': 'Enter the demo →',
+      'dash.more.show': 'More analytics',
+      'dash.more.hide': 'Show less',
       'dash.demo.back': '← Back to site',
       'dash.sidebar.inService': 'IN SERVICE',
       'dash.sidebar.home': 'Home',
@@ -851,6 +853,8 @@
       'dash.lock.welcome': 'مرحبًا، رشيد', /* AR: needs native review */
       'dash.lock.help': 'أدخل <b>رمزك المكوّن من 4 أرقام</b> لفتح لوحة التحكم', /* AR: needs native review */
       'dash.lock.skip': 'ادخل إلى العرض ←', /* AR: needs native review */
+      'dash.more.show': 'تحليلات إضافية', /* AR: needs native review */
+      'dash.more.hide': 'إظهار أقل', /* AR: needs native review */
       'dash.demo.back': '← العودة إلى الموقع', /* AR: needs native review */
       'dash.sidebar.inService': 'قيد الخدمة', /* AR: needs native review */
       'dash.sidebar.home': 'الرئيسية', /* AR: needs native review */

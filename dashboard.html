@@ -499,6 +499,33 @@
   .row.r-65-35 { grid-template-columns: 1.85fr 1fr; }
   @media (max-width: 1100px) { .row.r-2-1, .row.r-1-1, .row.r-3, .row.r-65-35 { grid-template-columns: 1fr; } }
 
+  /* ─────────── SECONDARY-ANALYSIS DISCLOSURE ───────────
+   * The default dashboard leads with the day's decisions; deeper
+   * analysis (health, benchmark, products, staff, integrations) sits
+   * behind this toggle so the first screen stays focused. */
+  .dash-more-toggle {
+    width: 100%; margin: 6px 0 18px;
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    padding: 13px 18px; border-radius: 14px;
+    background: var(--paper); border: 1px solid var(--n-200);
+    font-family: var(--sans); font-size: 13.5px; font-weight: 500;
+    color: var(--n-500); cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+  }
+  .dash-more-toggle:hover { background: #fff; border-color: var(--n-400); color: var(--ink); }
+  .dash-more-toggle:focus-visible { outline: 2px solid var(--atlas); outline-offset: 2px; }
+  .dash-more-toggle .dmt-chev { width: 17px; height: 17px; flex-shrink: 0; transition: transform 220ms cubic-bezier(0.32,0.72,0,1); }
+  .dash-more-toggle[aria-expanded="true"] .dmt-chev { transform: rotate(180deg); }
+  .dash-more-toggle .dmt-hide { display: none; }
+  .dash-more-toggle[aria-expanded="true"] .dmt-show { display: none; }
+  .dash-more-toggle[aria-expanded="true"] .dmt-hide { display: inline; }
+  .dash-more--in { animation: dash-more-in 440ms cubic-bezier(0.32,0.72,0,1) both; }
+  @keyframes dash-more-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .dash-more-toggle .dmt-chev { transition: none; }
+    .dash-more--in { animation: none; }
+  }
+
   /* ─────────────── REVENUE CHART ─────────────── */
   .chart-wrap { height: 280px; display: block; }
   .chart-legend { display: inline-flex; gap: 18px; font-size: 12px; color: var(--n-500); font-weight: 500; margin-top: 14px; flex-wrap: wrap; }
@@ -3573,6 +3600,17 @@
         </div>
       </div>
 
+      <!-- ═══ SECONDARY ANALYSIS — collapsed by default (Codex roast:
+       *   keep the first screen on the day's decisions, deeper analysis
+       *   one click away) ═══ -->
+      <button class="dash-more-toggle" type="button" data-dash-more-toggle
+              aria-expanded="false" aria-controls="dash-more">
+        <span class="dmt-label dmt-show" data-i18n="dash.more.show">Plus d'analyses</span>
+        <span class="dmt-label dmt-hide" data-i18n="dash.more.hide">Réduire les analyses</span>
+        <svg class="dmt-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="dash-more" id="dash-more" data-dash-more hidden>
+
       <!-- ═══ HEALTH + BENCHMARK ═══ -->
       <div class="row r-1-1">
         <!-- Health score -->
@@ -3713,6 +3751,8 @@
           </div>
         </div>
       </div>
+
+      </div><!-- /.dash-more -->
 
       </div><!-- /.dash-standard -->
 
@@ -4027,6 +4067,31 @@
      lives in venues.js so the choreography stays in lockstep with the
      state machine. This placeholder is left empty intentionally. -->
 <div class="fusion-overlay" data-fusion-overlay aria-hidden="true"></div>
+
+<!-- Secondary-analysis disclosure toggle -->
+<script>
+(function () {
+  'use strict';
+  const btn  = document.querySelector('[data-dash-more-toggle]');
+  const more = document.querySelector('[data-dash-more]');
+  if (!btn || !more) return;
+  btn.addEventListener('click', (e) => {
+    /* stop the click reaching the global delegation fallback toast */
+    e.stopPropagation();
+    if (more.hasAttribute('hidden')) {
+      more.removeAttribute('hidden');
+      more.classList.add('dash-more--in');
+      btn.setAttribute('aria-expanded', 'true');
+      /* let any layout-measured charts in the revealed blocks recompute */
+      window.dispatchEvent(new Event('resize'));
+    } else {
+      more.setAttribute('hidden', '');
+      more.classList.remove('dash-more--in');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
