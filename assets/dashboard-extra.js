@@ -17,6 +17,8 @@
   const drawer = Kiwi.drawer;
   const toast = Kiwi.toast;
 
+  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+
   const money = (n) => n.toLocaleString('fr-FR') + ' MAD';
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -39,51 +41,129 @@
     { id: 'BC-2026-0137', sup: 'Métro Cash & Carry', date: '4 mai', amount: 5210, status: 'received' },
     { id: 'BC-2026-0135', sup: 'Cuisine Centrale', date: '2 mai',   amount: 4070, status: 'received' },
   ];
+
+  const SUPPLIER_STR = {
+    fr: {
+      title: 'Fournisseurs & commandes',
+      subtitle: (s, o, m) => `${s} fournisseurs · ${o} commandes en cours · ${money(m)} ce mois`,
+      heroTitle: 'Approvisionnement · Café Atlas',
+      heroSubtitle: (po, open) => `${po} bons de commande ce mois · ${open} en attente de réception`,
+      sectionTitle: 'Fournisseurs',
+      newPo: '+ Nouveau bon de commande',
+      inProgress: 'en cours',
+      leadTime: 'délai',
+      lastOrder: 'dernière commande',
+      reliability: 'fiabilité',
+      poHistory: 'Historique des bons de commande',
+      ref: 'Réf.',
+      supplier: 'Fournisseur',
+      date: 'Date',
+      amount: 'Montant',
+      status: 'Statut',
+      draft: 'Brouillon',
+      transit: 'En transit',
+      received: 'Reçu',
+      newPoToastT: 'Nouveau bon de commande',
+      newPoToastD: 'Sélection du fournisseur et des articles',
+      poDetailToastD: 'Détail des articles et suivi de livraison'
+    },
+    en: {
+      title: 'Suppliers & Orders',
+      subtitle: (s, o, m) => `${s} suppliers · ${o} open orders · ${money(m)} this month`,
+      heroTitle: 'Procurement · Café Atlas',
+      heroSubtitle: (po, open) => `${po} purchase orders this month · ${open} pending receipt`,
+      sectionTitle: 'Suppliers',
+      newPo: '+ New Purchase Order',
+      inProgress: 'in progress',
+      leadTime: 'lead time',
+      lastOrder: 'last order',
+      reliability: 'reliability',
+      poHistory: 'Purchase Order History',
+      ref: 'Ref.',
+      supplier: 'Supplier',
+      date: 'Date',
+      amount: 'Amount',
+      status: 'Status',
+      draft: 'Draft',
+      transit: 'In Transit',
+      received: 'Received',
+      newPoToastT: 'New Purchase Order',
+      newPoToastD: 'Select supplier and items',
+      poDetailToastD: 'Item details and delivery tracking'
+    },
+    ar: {
+      title: 'الموردون والطلبات',
+      subtitle: (s, o, m) => `${s} موردون · ${o} طلبات جارية · ${money(m)} هذا الشهر`,
+      heroTitle: 'التوريد · مقهى أطلس',
+      heroSubtitle: (po, open) => `${po} طلب شراء هذا الشهر · ${open} في انتظار الاستلام`,
+      sectionTitle: 'الموردون',
+      newPo: '+ طلب شراء جديد',
+      inProgress: 'جاري',
+      leadTime: 'مهلة',
+      lastOrder: 'آخر طلب',
+      reliability: 'الموثوقية',
+      poHistory: 'سجل طلبات الشراء',
+      ref: 'المرجع',
+      supplier: 'المورد',
+      date: 'التاريخ',
+      amount: 'المبلغ',
+      status: 'الحالة',
+      draft: 'مسودة',
+      transit: 'قيد النقل',
+      received: 'تم الاستلام',
+      newPoToastT: 'طلب شراء جديد',
+      newPoToastD: 'اختيار المورد والأصناف',
+      poDetailToastD: 'تفاصيل الأصناف وتتبع التسليم' /* AR: needs native review */
+    }
+  };
+
   const PO_STATUS = {
-    draft:    { cls: 'pend',    label: 'Brouillon' },
-    transit:  { cls: 'info-soft', label: 'En transit' },
-    received: { cls: 'ok',      label: 'Reçu' },
+    draft:    { cls: 'pend',    i18nKey: 'draft' },
+    transit:  { cls: 'info-soft', i18nKey: 'transit' },
+    received: { cls: 'ok',      i18nKey: 'received' },
   };
 
   handlers['view-suppliers'] = () => {
+    const lang = trLang();
+    const str = SUPPLIER_STR[lang] || SUPPLIER_STR.fr;
 
     const openPo = PURCHASE_ORDERS.filter((p) => p.status !== 'received').length;
     const monthSpend = PURCHASE_ORDERS.reduce((s, p) => s + p.amount, 0);
 
     drawer({
-      title: 'Fournisseurs & commandes',
-      subtitle: `${SUPPLIERS.length} fournisseurs · ${openPo} commandes en cours · ${money(monthSpend)} ce mois`,
+      title: str.title,
+      subtitle: str.subtitle(SUPPLIERS.length, openPo, monthSpend),
       width: 840,
       body: `
         <div class="p-hero">
-          <div class="l">Approvisionnement · Café Atlas</div>
+          <div class="l">${str.heroTitle}</div>
           <div class="big">${money(monthSpend)}</div>
-          <div class="sub">${PURCHASE_ORDERS.length} bons de commande ce mois · ${openPo} en attente de réception</div>
+          <div class="sub">${str.heroSubtitle(PURCHASE_ORDERS.length, openPo)}</div>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin:4px 0 10px;">
-          <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase;">Fournisseurs</div>
-          <button class="kb atlas xs" data-action="supplier-new-po">+ Nouveau bon de commande</button>
+          <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase;">${str.sectionTitle}</div>
+          <button class="kb atlas xs" data-action="supplier-new-po">${str.newPo}</button>
         </div>
 
         ${SUPPLIERS.map((s) => `
           <div class="p-card" style="margin-bottom:8px;">
             <div style="display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center;">
               <div>
-                <div style="font-weight:600; font-size:14.5px;">${s.name}${s.openPo ? ` <span class="chip info-soft" style="font-size:10px; padding:1px 7px;">${s.openPo} en cours</span>` : ''}</div>
-                <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">${s.cat} · délai ${s.lead} · dernière commande ${s.last}</div>
+                <div style="font-weight:600; font-size:14.5px;">${s.name}${s.openPo ? ` <span class="chip info-soft" style="font-size:10px; padding:1px 7px;">${s.openPo} ${str.inProgress}</span>` : ''}</div>
+                <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">${s.cat} · ${str.leadTime} ${s.lead} · ${str.lastOrder} ${s.last}</div>
               </div>
               <div style="text-align:right;">
                 <div style="font-family:var(--mono); font-size:13px; font-weight:600; color:${s.reliab >= 95 ? 'var(--success)' : 'var(--warning)'};">${s.reliab}%</div>
-                <div style="font-family:var(--mono); font-size:10px; color:var(--n-500);">fiabilité</div>
+                <div style="font-family:var(--mono); font-size:10px; color:var(--n-500);">${str.reliability}</div>
               </div>
             </div>
           </div>
         `).join('')}
 
-        <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:18px 0 8px;">Historique des bons de commande</div>
+        <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:18px 0 8px;">${str.poHistory}</div>
         <table class="p-table">
-          <thead><tr><th>Réf.</th><th>Fournisseur</th><th>Date</th><th class="right">Montant</th><th>Statut</th></tr></thead>
+          <thead><tr><th>${str.ref}</th><th>${str.supplier}</th><th>${str.date}</th><th class="right">${str.amount}</th><th>${str.status}</th></tr></thead>
           <tbody>
             ${PURCHASE_ORDERS.map((p) => `
               <tr data-action="supplier-po-detail" data-arg="${p.id}">
@@ -91,7 +171,7 @@
                 <td>${p.sup}</td>
                 <td>${p.date}</td>
                 <td class="mono right">${money(p.amount)}</td>
-                <td><span class="chip ${PO_STATUS[p.status].cls}">${PO_STATUS[p.status].label}</span></td>
+                <td><span class="chip ${PO_STATUS[p.status].cls}">${str[PO_STATUS[p.status].i18nKey]}</span></td>
               </tr>
             `).join('')}
           </tbody>
@@ -100,10 +180,14 @@
     });
   };
 
-  handlers['supplier-new-po'] = () =>
-    toast('Nouveau bon de commande', { type: 'info', desc: 'Sélection du fournisseur et des articles' });
-  handlers['supplier-po-detail'] = (_el, arg) =>
-    toast(`Bon de commande ${arg || ''}`.trim(), { type: 'info', desc: 'Détail des articles et suivi de livraison' });
+  handlers['supplier-new-po'] = () => {
+    const str = SUPPLIER_STR[trLang()] || SUPPLIER_STR.fr;
+    toast(str.newPoToastT, { type: 'info', desc: str.newPoToastD });
+  }
+  handlers['supplier-po-detail'] = (_el, arg) => {
+    const str = SUPPLIER_STR[trLang()] || SUPPLIER_STR.fr;
+    toast(`Bon de commande ${arg || ''}`.trim(), { type: 'info', desc: str.poDetailToastD });
+  }
 
   /* ═══════════════════════════════════════════════════════════════════════
    * 2 · MARGES & RENTABILITÉ
@@ -121,7 +205,76 @@
     { name: 'Couscous vendredi',  price: 90, cost: 47.0, sold: 12 },
   ];
 
+  const MARGINS_STR = {
+    fr: {
+      title: 'Marges & rentabilité',
+      subtitle: (margin, profit) => `Marge moyenne ${margin}% · profit brut ${money(profit)} aujourd'hui`,
+      heroTitle: "Profit brut · aujourd'hui",
+      heroSubtitle: (sales, margin) => `Sur ${money(sales)} de ventes · marge moyenne pondérée ${margin}%`,
+      bestContributor: 'MEILLEUR CONTRIBUTEUR',
+      lowestMargin: 'MARGE LA PLUS FAIBLE',
+      margin: 'marge',
+      reviewWarning: 'à revoir le prix ou le coût',
+      productDetail: 'Détail par produit',
+      exportCsv: 'Exporter en CSV',
+      product: 'Produit',
+      price: 'Prix',
+      cost: 'Coût',
+      marginHeader: 'Marge',
+      marginPctHeader: 'Marge %',
+      sold: 'Vendus',
+      contribution: 'Contribution',
+      footnote: "Coût des marchandises (CMV) estimé à partir des fiches recette et des derniers prix fournisseurs. Mettez à jour les coûts depuis l'écran Fournisseurs.",
+      exportToast: 'Export CSV téléchargé'
+    },
+    en: {
+      title: 'Margins & Profitability',
+      subtitle: (margin, profit) => `Average margin ${margin}% · gross profit ${money(profit)} today`,
+      heroTitle: 'Gross Profit · Today',
+      heroSubtitle: (sales, margin) => `On ${money(sales)} in sales · weighted average margin ${margin}%`,
+      bestContributor: 'TOP CONTRIBUTOR',
+      lowestMargin: 'LOWEST MARGIN',
+      margin: 'margin',
+      reviewWarning: 'review price or cost',
+      productDetail: 'By-product detail',
+      exportCsv: 'Export to CSV',
+      product: 'Product',
+      price: 'Price',
+      cost: 'Cost',
+      marginHeader: 'Margin',
+      marginPctHeader: 'Margin %',
+      sold: 'Sold',
+      contribution: 'Contribution',
+      footnote: 'Cost of Goods Sold (COGS) estimated from recipe cards and latest supplier prices. Update costs from the Suppliers screen.',
+      exportToast: 'CSV Export downloaded'
+    },
+    ar: {
+      title: 'الهوامش والربحية',
+      subtitle: (margin, profit) => `متوسط الهامش ${margin}% · الربح الإجمالي ${money(profit)} اليوم`,
+      heroTitle: 'الربح الإجمالي · اليوم',
+      heroSubtitle: (sales, margin) => `على ${money(sales)} من المبيعات · متوسط الهامش المرجح ${margin}%`,
+      bestContributor: 'أفضل مساهم',
+      lowestMargin: 'الهامش الأدنى',
+      margin: 'هامش',
+      reviewWarning: 'مراجعة السعر أو التكلفة',
+      productDetail: 'التفاصيل حسب المنتج',
+      exportCsv: 'تصدير إلى CSV',
+      product: 'المنتج',
+      price: 'السعر',
+      cost: 'التكلفة',
+      marginHeader: 'الهامش',
+      marginPctHeader: 'الهامش %',
+      sold: 'المبيعات',
+      contribution: 'المساهمة',
+      footnote: 'تكلفة البضائع المباعة (CMV) مقدرة من بطاقات الوصفات وآخر أسعار الموردين. حدّث التكاليف من شاشة الموردين.', /* AR: needs native review */
+      exportToast: 'تم تنزيل تصدير CSV'
+    }
+  };
+
+
   handlers['view-margins'] = () => {
+    const lang = trLang();
+    const str = MARGINS_STR[lang] || MARGINS_STR.fr;
 
     const rows = PRODUCTS.map((p) => {
       const marginMad = p.price - p.cost;
@@ -137,38 +290,38 @@
     const worst = [...rows].sort((a, b) => a.marginPct - b.marginPct)[0];
 
     drawer({
-      title: 'Marges & rentabilité',
-      subtitle: `Marge moyenne ${avgMargin}% · profit brut ${money(grossProfit)} aujourd'hui`,
+      title: str.title,
+      subtitle: str.subtitle(avgMargin, grossProfit),
       width: 860,
       body: `
         <div class="p-hero">
-          <div class="l">Profit brut · aujourd'hui</div>
+          <div class="l">${str.heroTitle}</div>
           <div class="big">${money(grossProfit)}</div>
-          <div class="sub">Sur ${money(revenue)} de ventes · marge moyenne pondérée ${avgMargin}%</div>
+          <div class="sub">${str.heroSubtitle(revenue, avgMargin)}</div>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
           <div class="p-card" style="margin:0;">
-            <div style="font-size:11px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em;">MEILLEUR CONTRIBUTEUR</div>
+            <div style="font-size:11px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em;">${str.bestContributor}</div>
             <div style="font-weight:600; font-size:15px; margin-top:6px;">${best.name}</div>
-            <div style="font-size:12px; color:var(--success); margin-top:2px;">${money(Math.round(best.contribution))} · marge ${best.marginPct}%</div>
+            <div style="font-size:12px; color:var(--success); margin-top:2px;">${money(Math.round(best.contribution))} · ${str.margin} ${best.marginPct}%</div>
           </div>
           <div class="p-card" style="margin:0;">
-            <div style="font-size:11px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em;">MARGE LA PLUS FAIBLE</div>
+            <div style="font-size:11px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em;">${str.lowestMargin}</div>
             <div style="font-weight:600; font-size:15px; margin-top:6px;">${worst.name}</div>
-            <div style="font-size:12px; color:var(--warning); margin-top:2px;">marge ${worst.marginPct}% · à revoir le prix ou le coût</div>
+            <div style="font-size:12px; color:var(--warning); margin-top:2px;">${str.margin} ${worst.marginPct}% · ${str.reviewWarning}</div>
           </div>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase;">Détail par produit</div>
-          <button class="kb ghost xs" data-action="margin-export">Exporter en CSV</button>
+          <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase;">${str.productDetail}</div>
+          <button class="kb ghost xs" data-action="margin-export">${str.exportCsv}</button>
         </div>
         <table class="p-table">
           <thead><tr>
-            <th>Produit</th><th class="right">Prix</th><th class="right">Coût</th>
-            <th class="right">Marge</th><th class="right">Marge %</th>
-            <th class="right">Vendus</th><th class="right">Contribution</th>
+            <th>${str.product}</th><th class="right">${str.price}</th><th class="right">${str.cost}</th>
+            <th class="right">${str.marginHeader}</th><th class="right">${str.marginPctHeader}</th>
+            <th class="right">${str.sold}</th><th class="right">${str.contribution}</th>
           </tr></thead>
           <tbody>
             ${rows.map((r) => `
@@ -185,14 +338,15 @@
           </tbody>
         </table>
         <div style="font-size:11.5px; color:var(--n-500); margin-top:12px;">
-          Coût des marchandises (CMV) estimé à partir des fiches recette et des derniers prix fournisseurs. Mettez à jour les coûts depuis l'écran Fournisseurs.
+          ${str.footnote}
         </div>
       `,
     });
   };
 
   handlers['margin-export'] = () => {
-    const header = 'Produit,Prix,Cout,Marge,Marge%,Vendus\n';
+    const str = MARGINS_STR[trLang()] || MARGINS_STR.fr;
+    const header = `${str.product},${str.price},${str.cost},${str.marginHeader},${str.marginPctHeader},${str.sold}\n`;
     const lines = PRODUCTS.map((p) => {
       const m = (p.price - p.cost).toFixed(2);
       const pct = Math.round(((p.price - p.cost) / p.price) * 100);
@@ -204,7 +358,7 @@
     a.download = 'kiwi-marges.csv';
     a.click();
     URL.revokeObjectURL(a.href);
-    toast('Export CSV téléchargé', { type: 'success' });
+    toast(str.exportToast, { type: 'success' });
   };
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -213,57 +367,134 @@
    *   "+ Ajouter une intégration" link (data-action="add-integration").
    * ═══════════════════════════════════════════════════════════════════════ */
   const INTEGRATIONS_ON = [
-    { name: 'Glovo',         color: '#F29137', tag: 'G', desc: 'Commandes & payouts livraison', sync: 'il y a 4 min' },
-    { name: 'Jumia Food',    color: '#E7611A', tag: 'J', desc: 'Commandes livraison',            sync: 'il y a 9 min' },
-    { name: 'Comptabilité',  color: '#1D3F6B', tag: 'A', desc: 'Export quotidien OCP-compliant', sync: 'hier 23:00' },
-    { name: 'BMCE · Banque', color: '#00613E', tag: 'B', desc: 'Rapprochement IBAN ···3291',     sync: 'il y a 1 h' },
+    { name: 'Glovo',         color: '#F29137', tag: 'G', i18nDesc: 'integ.glovo.desc', sync: 'il y a 4 min' },
+    { name: 'Jumia Food',    color: '#E7611A', tag: 'J', i18nDesc: 'integ.jumia.desc', sync: 'il y a 9 min' },
+    { name: 'Comptabilité',  color: '#1D3F6B', tag: 'A', i18nDesc: 'integ.compta.desc', sync: 'hier 23:00' },
+    { name: 'BMCE · Banque', color: '#00613E', tag: 'B', i18nDesc: 'integ.bmce.desc', sync: 'il y a 1 h' },
   ];
   const INTEGRATIONS_OFF = [
-    { name: 'Kaalix',          color: '#7A3FF2', tag: 'K', desc: 'Livraison · régions Casa & Rabat' },
-    { name: 'WhatsApp Business', color: '#1FB574', tag: 'W', desc: 'Reçus & liens de paiement clients' },
-    { name: 'Export CSV / Excel', color: '#3A6FB8', tag: 'X', desc: 'Sortie comptable sur mesure' },
+    { name: 'Kaalix',          color: '#7A3FF2', tag: 'K', i18nDesc: 'integ.kaalix.desc' },
+    { name: 'WhatsApp Business', color: '#1FB574', tag: 'W', i18nDesc: 'integ.whatsapp.desc' },
+    { name: 'Export CSV / Excel', color: '#3A6FB8', tag: 'X', i18nDesc: 'integ.export.desc' },
   ];
+  
+  const INTEG_STR = {
+      fr: {
+        title: 'Intégrations',
+        subtitle: (on, off) => `${on} connectées · ${off} disponibles`,
+        heroTitle: 'Connecteurs · Café Atlas',
+        heroSubtitle: (on) => `${on} actives`,
+        heroDesc: 'Kiwi synchronise commandes, payouts et comptabilité automatiquement',
+        connected: 'Connectées',
+        available: 'Disponibles',
+        syncPrefix: 'sync',
+        connectedChip: 'Connecté',
+        configure: 'Configurer',
+        connect: 'Connecter',
+        toastConfigT: 'Configuration',
+        toastConfigD: 'Champs de synchronisation et fréquence',
+        toastConnectT: (name) => `${name} connectée`,
+        toastConnectD: 'Synchronisation initiale en cours',
+        'integ.glovo.desc': 'Commandes & payouts livraison',
+        'integ.jumia.desc': 'Commandes livraison',
+        'integ.compta.desc': 'Export quotidien OCP-compliant',
+        'integ.bmce.desc': 'Rapprochement IBAN ···3291',
+        'integ.kaalix.desc': 'Livraison · régions Casa & Rabat',
+        'integ.whatsapp.desc': 'Reçus & liens de paiement clients',
+        'integ.export.desc': 'Sortie comptable sur mesure'
+      },
+      en: {
+        title: 'Integrations',
+        subtitle: (on, off) => `${on} connected · ${off} available`,
+        heroTitle: 'Connectors · Café Atlas',
+        heroSubtitle: (on) => `${on} active`,
+        heroDesc: 'Kiwi automatically syncs orders, payouts, and accounting',
+        connected: 'Connected',
+        available: 'Available',
+        syncPrefix: 'sync',
+        connectedChip: 'Connected',
+        configure: 'Configure',
+        connect: 'Connect',
+        toastConfigT: 'Configuration',
+        toastConfigD: 'Sync fields and frequency',
+        toastConnectT: (name) => `${name} connected`,
+        toastConnectD: 'Initial synchronization in progress',
+        'integ.glovo.desc': 'Delivery orders & payouts',
+        'integ.jumia.desc': 'Delivery orders',
+        'integ.compta.desc': 'Daily OCP-compliant export',
+        'integ.bmce.desc': 'IBAN reconciliation ···3291',
+        'integ.kaalix.desc': 'Delivery · Casa & Rabat regions',
+        'integ.whatsapp.desc': 'Customer receipts & payment links',
+        'integ.export.desc': 'Custom accounting output'
+      },
+      ar: {
+        title: 'التكاملات',
+        subtitle: (on, off) => `${on} متصلة · ${off} متاحة`,
+        heroTitle: 'الموصلات · مقهى أطلس',
+        heroSubtitle: (on) => `${on} نشطة`,
+        heroDesc: 'كيوي تزامن الطلبات والتحويلات والمحاسبة تلقائيًا',
+        connected: 'متصلة',
+        available: 'متاحة',
+        syncPrefix: 'مزامنة',
+        connectedChip: 'متصل',
+        configure: 'إعداد',
+        connect: 'اتصال',
+        toastConfigT: 'الإعداد',
+        toastConfigD: 'حقول المزامنة والتردد',
+        toastConnectT: (name) => `${name} متصلة`,
+        toastConnectD: 'المزامنة الأولية جارية',
+        'integ.glovo.desc': 'طلبات وت payouts التوصيل',
+        'integ.jumia.desc': 'طلبات التوصيل',
+        'integ.compta.desc': 'تصدير يومي متوافق مع OCP',
+        'integ.bmce.desc': 'تسوية IBAN ···3291',
+        'integ.kaalix.desc': 'التوصيل · مناطق الدار البيضاء والرباط',
+        'integ.whatsapp.desc': 'إيصالات العملاء وروابط الدفع',
+        'integ.export.desc': 'مخرجات محاسبية مخصصة'
+      }
+  };
 
   handlers['add-integration'] = () => {
+    const lang = trLang();
+    const str = INTEG_STR[lang] || INTEG_STR.fr;
 
     drawer({
-      title: 'Intégrations',
-      subtitle: `${INTEGRATIONS_ON.length} connectées · ${INTEGRATIONS_OFF.length} disponibles`,
+      title: str.title,
+      subtitle: str.subtitle(INTEGRATIONS_ON.length, INTEGRATIONS_OFF.length),
       width: 720,
       body: `
         <div class="p-hero">
-          <div class="l">Connecteurs · Café Atlas</div>
-          <div class="big">${INTEGRATIONS_ON.length} actives</div>
-          <div class="sub">Kiwi synchronise commandes, payouts et comptabilité automatiquement</div>
+          <div class="l">${str.heroTitle}</div>
+          <div class="big">${str.heroSubtitle(INTEGRATIONS_ON.length)}</div>
+          <div class="sub">${str.heroDesc}</div>
         </div>
 
-        <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:4px 0 8px;">Connectées</div>
+        <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:4px 0 8px;">${str.connected}</div>
         ${INTEGRATIONS_ON.map((i) => `
           <div class="p-card" style="margin-bottom:8px;">
             <div style="display:grid; grid-template-columns:38px 1fr auto; gap:12px; align-items:center;">
               <div style="width:38px; height:38px; border-radius:9px; background:${i.color}; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;">${i.tag}</div>
               <div>
                 <div style="font-weight:600; font-size:14px;">${i.name}</div>
-                <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">${i.desc} · sync ${i.sync}</div>
+                <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">${str[i.i18nDesc]} · ${str.syncPrefix} ${i.sync}</div>
               </div>
               <div style="display:flex; gap:6px; align-items:center;">
-                <span class="chip ok">Connecté</span>
-                <button class="kb ghost xs" data-action="integration-configure" data-arg="${i.name}">Configurer</button>
+                <span class="chip ok">${str.connectedChip}</span>
+                <button class="kb ghost xs" data-action="integration-configure" data-arg="${i.name}">${str.configure}</button>
               </div>
             </div>
           </div>
         `).join('')}
 
-        <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:18px 0 8px;">Disponibles</div>
+        <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:18px 0 8px;">${str.available}</div>
         ${INTEGRATIONS_OFF.map((i) => `
           <div class="p-card" style="margin-bottom:8px;">
             <div style="display:grid; grid-template-columns:38px 1fr auto; gap:12px; align-items:center;">
               <div style="width:38px; height:38px; border-radius:9px; background:${i.color}; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; opacity:0.85;">${i.tag}</div>
               <div>
                 <div style="font-weight:600; font-size:14px;">${i.name}</div>
-                <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">${i.desc}</div>
+                <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">${str[i.i18nDesc]}</div>
               </div>
-              <button class="kb atlas xs" data-action="integration-connect" data-arg="${i.name}">Connecter</button>
+              <button class="kb atlas xs" data-action="integration-connect" data-arg="${i.name}">${str.connect}</button>
             </div>
           </div>
         `).join('')}
@@ -271,10 +502,13 @@
     });
   };
 
-  handlers['integration-configure'] = (_el, arg) =>
-    toast(`Configuration · ${arg || 'intégration'}`, { type: 'info', desc: 'Champs de synchronisation et fréquence' });
+  handlers['integration-configure'] = (_el, arg) => {
+    const str = INTEG_STR[trLang()] || INTEG_STR.fr;
+    toast(`${str.toastConfigT} · ${arg || 'intégration'}`, { type: 'info', desc: str.toastConfigD });
+  }
   handlers['integration-connect'] = (_el, arg) => {
-    toast(`${arg || 'Intégration'} connectée`, { type: 'success', desc: 'Synchronisation initiale en cours' });
+    const str = INTEG_STR[trLang()] || INTEG_STR.fr;
+    toast(str.toastConnectT(arg || 'Intégration'), { type: 'success', desc: str.toastConnectD });
     Kiwi.confetti?.();
   };
 })();
@@ -293,6 +527,7 @@
   "use strict";
   if (!window.Kiwi) return;
   const toast = window.Kiwi.toast;
+  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
 
   /* ── styles (injected once) ── */
   if (!document.getElementById('kdr-styles')) {
@@ -370,7 +605,12 @@
   const dmy = (d) => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
   const dm = (d) => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}`;
   const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+  const getMonths = (lang) => {
+    if (lang === 'ar') return ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    if (lang === 'en') return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  };
 
   function presetSubs() {
     const t = new Date();
@@ -379,6 +619,8 @@
     const thirtyAgo = new Date(t); thirtyAgo.setDate(t.getDate() - 29);
     const lastMonth = new Date(t.getFullYear(), t.getMonth() - 1, 1);
     const quarterStart = new Date(t.getFullYear(), Math.floor(t.getMonth() / 3) * 3, 1);
+    const lang = trLang();
+    const MONTHS = getMonths(lang);
     const capMonth = (d) => MONTHS[d.getMonth()].replace(/^./, (c) => c.toUpperCase());
     return {
       hier: dmy(yest),
@@ -390,16 +632,46 @@
     };
   }
 
-  /* preset id → underlying KiwiDateRange range. Each preset maps to a
-   * DISTINCT dataset the demo actually has, so every choice visibly changes
-   * the whole dashboard — no two options ever show identical numbers. */
-  const PRESETS = [
-    { id: 'hier', n: 'Hier',              range: 'hier' },
-    { id: 'sept', n: '7 derniers jours',  range: 'septJours' },
-    { id: 'mois', n: '30 derniers jours', range: 'trenteJours' },
-    { id: 'moisDernier', n: 'Mois dernier', range: 'moisDernier' },
-    { id: 'trimestre',   n: 'Ce trimestre', range: 'trimestre' },
-    { id: 'annee',       n: 'Cette année',  range: 'annee' },
+  const DATE_STR = {
+      fr: {
+          header: 'Choisir une période',
+          customHeader: 'Plage de dates',
+          from: 'Du',
+          to: 'Au',
+          apply: 'Appliquer la plage',
+          toast1: 'Choisis une date de début et de fin',
+          toast2: 'La date de début doit précéder la date de fin',
+          customLabel: 'Période personnalisée'
+      },
+      en: {
+          header: 'Choose a period',
+          customHeader: 'Date range',
+          from: 'From',
+          to: 'To',
+          apply: 'Apply range',
+          toast1: 'Choose a start and end date',
+          toast2: 'Start date must be before end date',
+          customLabel: 'Custom period'
+      },
+      ar: {
+          header: 'اختر فترة',
+          customHeader: 'نطاق التاريخ',
+          from: 'من',
+          to: 'إلى',
+          apply: 'تطبيق النطاق',
+          toast1: 'اختر تاريخ بداية ونهاية',
+          toast2: 'يجب أن يكون تاريخ البدء قبل تاريخ الانتهاء',
+          customLabel: 'فترة مخصصة'
+      }
+  };
+
+  const getPresets = (lang) => [
+    { id: 'hier', range: 'hier', i18nKey: 'hier' },
+    { id: 'sept', range: 'septJours', i18nKey: 'septJours' },
+    { id: 'mois', range: 'trenteJours', i18nKey: 'trenteJours' },
+    { id: 'moisDernier', range: 'moisDernier', i18nKey: 'moisDernier' },
+    { id: 'trimestre', range: 'trimestre', i18nKey: 'trimestre' },
+    { id: 'annee', range: 'annee', i18nKey: 'annee' },
   ];
 
   let pop = null;          // open dropdown element
@@ -441,23 +713,25 @@
     closePop();
   }
 
-  function buildOption(p, subs) {
+  function buildOption(p, subs, lang) {
+    const rangeStr = (window.KiwiI18n?.T?.[lang]?.['dash.range.pill.' + p.id] || p.n);
     const row = el('div', 'kdr-opt' + (selectedId === p.id ? ' sel' : ''));
     row.dataset.preset = p.id;
     const ic = el('div', 'ic'); ic.appendChild(calIcon());
     const tx = el('div', 'tx');
-    tx.appendChild(el('div', 'n', p.n));
+    tx.appendChild(el('div', 'n', (window.KiwiDateRange?.RANGE_STR?.[lang]?.[p.range] || p.range)));
     tx.appendChild(el('div', 's', subs[p.id]));
     row.append(ic, tx, checkIcon());
-    row.addEventListener('click', () => applyRange(p.range, p.n, presetSubs()[p.id], p.id));
+    row.addEventListener('click', () => applyRange(p.range, (window.KiwiDateRange?.RANGE_STR?.[lang]?.[p.range] || p.range), presetSubs()[p.id], p.id));
     return row;
   }
 
-  function buildCustom() {
+  function buildCustom(lang) {
+    const str = DATE_STR[lang] || DATE_STR.fr;
     const today = new Date();
     const start = new Date(); start.setDate(today.getDate() - 6);
     const wrap = el('div', 'kdr-custom');
-    wrap.appendChild(el('div', 'lbl', 'Plage de dates'));
+    wrap.appendChild(el('div', 'lbl', str.customHeader));
 
     const dates = el('div', 'kdr-dates');
     const mkField = (labelTxt, mark, val) => {
@@ -469,21 +743,19 @@
       f.appendChild(inp);
       return f;
     };
-    dates.append(mkField('Du', 'kdrFrom', iso(start)), mkField('Au', 'kdrTo', iso(today)));
+    dates.append(mkField(str.from, 'kdrFrom', iso(start)), mkField(str.to, 'kdrTo', iso(today)));
     wrap.appendChild(dates);
 
-    const apply = el('button', 'kdr-apply', 'Appliquer la plage');
+    const apply = el('button', 'kdr-apply', str.apply);
     apply.addEventListener('click', () => {
       const from = wrap.querySelector('[data-kdr-from]').value;
       const to = wrap.querySelector('[data-kdr-to]').value;
-      if (!from || !to) { if (toast) toast('Choisis une date de début et de fin', { type: 'warning' }); return; }
+      if (!from || !to) { if (toast) toast(str.toast1, { type: 'warning' }); return; }
       const df = new Date(from), dt = new Date(to);
-      if (df > dt) { if (toast) toast('La date de début doit précéder la date de fin', { type: 'warning' }); return; }
-      // Map the chosen span onto the closest dataset the demo has, so the
-      // dashboard genuinely reflects a short vs. long custom range.
+      if (df > dt) { if (toast) toast(str.toast2, { type: 'warning' }); return; }
       const spanDays = Math.round((dt - df) / 86400000) + 1;
       const mapped = spanDays <= 2 ? 'hier' : spanDays <= 10 ? 'septJours' : 'trenteJours';
-      applyRange(mapped, 'Période personnalisée', `${dmy(df)} – ${dmy(dt)}`, 'custom');
+      applyRange(mapped, str.customLabel, `${dmy(df)} – ${dmy(dt)}`, 'custom');
     });
     wrap.appendChild(apply);
     return wrap;
@@ -491,21 +763,22 @@
 
   function openPop(anchor) {
     closePop();
+    const lang = trLang();
+    const str = DATE_STR[lang] || DATE_STR.fr;
     const subs = presetSubs();
     pop = el('div', 'kdr-pop');
-    pop.appendChild(el('div', 'kdr-hd', 'Choisir une période'));
-    PRESETS.forEach((p) => pop.appendChild(buildOption(p, subs)));
+    pop.appendChild(el('div', 'kdr-hd', str.header));
+    getPresets(lang).forEach((p) => pop.appendChild(buildOption(p, subs, lang)));
     pop.appendChild(el('div', 'kdr-sep'));
-    pop.appendChild(buildCustom());
+    pop.appendChild(buildCustom(lang));
     document.body.appendChild(pop);
 
-    /* position under the anchor, right-aligned, clamped to viewport */
     const r = anchor.getBoundingClientRect();
     const w = 308;
     const vw = window.innerWidth || document.documentElement.clientWidth || 0;
     let left = r.right - w;
-    if (vw && left + w > vw - 8) left = vw - 8 - w; // keep inside the right edge
-    if (left < 8) left = 8;                          // never past the left edge
+    if (vw && left + w > vw - 8) left = vw - 8 - w;
+    if (left < 8) left = 8;
     pop.style.left = `${left}px`;
     pop.style.top = `${r.bottom + 8}px`;
     setTimeout(() => { if (pop) pop.classList.add('in'); }, 10);
@@ -513,14 +786,9 @@
     document.addEventListener('keydown', onKey, true);
     setTimeout(() => document.addEventListener('click', onOutside, true), 0);
     window.addEventListener('resize', closePop);
-    // The dropdown is position:fixed and anchored to the pill — once the page
-    // scrolls it would detach and "float", so close it on scroll.
     window.addEventListener('scroll', closePop, { passive: true });
   }
 
-  /* Keep the checkmark honest: if the range changes through anything other
-   * than this dropdown (a native pill), drop the remembered selection so the
-   * dropdown never shows a tick for a period that isn't actually active. */
   (function syncSelection() {
     const api = window.KiwiDateRange;
     if (api && api.subscribe) {
@@ -530,8 +798,6 @@
     }
   })();
 
-  /* Intercept the Personnalisé pill in the capture phase, before the default
-   * date-range handler runs, so it opens the dropdown instead of selecting. */
   document.addEventListener('click', (e) => {
     const pill = e.target.closest('[data-action="date-range"][data-range="personnalise"]');
     if (!pill) return;
@@ -552,9 +818,51 @@
   if (!window.Kiwi || !window.Kiwi.handlers) return;
   const handlers = window.Kiwi.handlers;
   const toast = window.Kiwi.toast;
+  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+
+  const MISC_STR = {
+    fr: {
+        exportToastD: 'kiwi-tableau-de-bord.csv',
+        menuToastT: 'Éditeur de menu',
+        menuToastD: 'Catégories, plats, prix et modificateurs',
+        tipToastT: 'Prompt pourboire activé',
+        tipToastD: '+10 % suggéré après 20h sur toutes les tables',
+        cmiToastT: 'Économie vs CMI',
+        cmiToastD: '~46 800 MAD projetés sur 12 mois au rythme actuel',
+        helpToastT: 'Support Kiwi',
+        helpToastD: 'WhatsApp +212 5 20 80 80 80 · 7j/7'
+    },
+    en: {
+        exportToastD: 'kiwi-dashboard.csv',
+        menuToastT: 'Menu Editor',
+        menuToastD: 'Categories, dishes, prices, and modifiers',
+        tipToastT: 'Tip prompt enabled',
+        tipToastD: '+10% suggested after 8pm on all tables',
+        cmiToastT: 'Savings vs CMI',
+        cmiToastD: '~46,800 MAD projected over 12 months at current rate',
+        helpToastT: 'Kiwi Support',
+        helpToastD: 'WhatsApp +212 5 20 80 80 80 · 7/7'
+    },
+    ar: {
+        exportToastD: 'kiwi-dashboard.csv', /* AR: file name should not be translated */
+        menuToastT: 'محرر القائمة',
+        menuToastD: 'الفئات، الأطباق، الأسعار، والمعدلات',
+        tipToastT: 'تم تفعيل موجه الإكرامية',
+        tipToastD: 'مقترح +10% بعد الساعة 8 مساءً على جميع الطاولات',
+        cmiToastT: 'التوفير مقابل CMI',
+        cmiToastD: 'تقدير ~46,800 درهم على 12 شهرًا بالمعدل الحالي', /* AR: needs native review */
+        helpToastT: 'دعم كيوي',
+        helpToastD: 'واتساب +212 5 20 80 80 80 · 7/7'
+    }
+  };
+
 
   /* Export — download a real CSV summary of the dashboard's current period. */
   handlers['export'] = () => {
+    const lang = trLang();
+    const str = MARGINS_STR[lang] || MARGINS_STR.fr;
+    const miscStr = MISC_STR[lang] || MISC_STR.fr;
+
     const txt = (sel) => ((document.querySelector(sel) || {}).textContent || '').replace(/\s+/g, ' ').trim();
     const rows = [
       ['Kiwi — Tableau de bord · Café Atlas'],
@@ -572,10 +880,10 @@
     const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
-    a.download = 'kiwi-tableau-de-bord.csv';
+    a.download = miscStr.exportToastD;
     a.click();
     URL.revokeObjectURL(a.href);
-    if (toast) toast('Export téléchargé', { type: 'success', desc: 'kiwi-tableau-de-bord.csv' });
+    if (toast) toast(str.exportToast, { type: 'success', desc: miscStr.exportToastD });
   };
 
   /* Live-feed "Filtrer" + "Tout voir" → open the full Commandes drawer, which
@@ -588,12 +896,20 @@
   handlers['team-settings'] = () => handlers['nav-equipe'] && handlers['nav-equipe']();
 
   /* Soft links — honest, specific info toasts (no fake "success"). */
-  handlers['menu-edit'] = () =>
-    toast && toast('Éditeur de menu', { type: 'info', desc: 'Catégories, plats, prix et modificateurs' });
-  handlers['tip-prompt'] = () =>
-    toast && toast('Prompt pourboire activé', { type: 'success', desc: '+10 % suggéré après 20h sur toutes les tables' });
-  handlers['cmi-year'] = () =>
-    toast && toast('Économie vs CMI', { type: 'info', desc: '~46 800 MAD projetés sur 12 mois au rythme actuel' });
-  handlers['help-whatsapp'] = () =>
-    toast && toast('Support Kiwi', { type: 'info', desc: 'WhatsApp +212 5 20 80 80 80 · 7j/7' });
+  handlers['menu-edit'] = () => {
+      const str = MISC_STR[trLang()] || MISC_STR.fr;
+      toast && toast(str.menuToastT, { type: 'info', desc: str.menuToastD });
+  }
+  handlers['tip-prompt'] = () => {
+    const str = MISC_STR[trLang()] || MISC_STR.fr;
+    toast && toast(str.tipToastT, { type: 'success', desc: str.tipToastD });
+  }
+  handlers['cmi-year'] = () => {
+    const str = MISC_STR[trLang()] || MISC_STR.fr;
+    toast && toast(str.cmiToastT, { type: 'info', desc: str.cmiToastD });
+  }
+  handlers['help-whatsapp'] = () => {
+    const str = MISC_STR[trLang()] || MISC_STR.fr;
+    toast && toast(str.helpToastT, { type: 'info', desc: str.helpToastD });
+  }
 })();
