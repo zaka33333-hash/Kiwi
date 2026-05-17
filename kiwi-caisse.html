@@ -259,6 +259,7 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 18px 24px 14px;
     }
+    .main-head[hidden] { display: none; }
     .main-title { font-size: 16px; font-weight: 600; color: var(--ink); }
     .main-title em { font-family: var(--serif); font-style: italic; color: var(--ink-3); font-weight: 400; margin-left: 6px; font-size: 14px; }
 
@@ -1595,6 +1596,170 @@
     body.is-unlocked .view-salle .zone:nth-of-type(3) { animation-delay: 420ms; }
 
     /* ===========================================================
+       === Shift lifecycle ===  (clock-in screen · Clôture de caisse)
+       =========================================================== */
+    .clockin-screen {
+      position: fixed; inset: 0;
+      background: linear-gradient(180deg, #0A0F0D 0%, #102018 60%, #1F5D3C 100%);
+      z-index: 480;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 44px;
+      padding: 56px 32px;
+      color: #fff;
+      opacity: 0; pointer-events: none;
+    }
+    .clockin-screen.is-visible {
+      opacity: 1; pointer-events: auto;
+      animation: clockin-in 460ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    @keyframes clockin-in {
+      from { opacity: 0; transform: scale(1.02); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .clockin-screen.is-leaving {
+      animation: clockin-out 480ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+    @keyframes clockin-out {
+      0%   { opacity: 1; transform: scale(1);    filter: blur(0); }
+      100% { opacity: 0; transform: scale(0.98); filter: blur(6px); }
+    }
+    .clockin-top { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .clockin-brand {
+      font-size: 30px; font-weight: 700; letter-spacing: -0.05em;
+      display: inline-flex; align-items: baseline; gap: 5px;
+      color: var(--paper-cream);
+    }
+    .clockin-brand i { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; display: inline-block; }
+    .clockin-tagline { font-family: var(--serif); font-style: italic; font-size: 15px; color: rgba(255,255,255,0.5); }
+    .clockin-mid { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .clockin-greet { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+    .clockin-greet em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--mint); }
+    .clockin-role { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 6px; letter-spacing: 0.04em; }
+    .clockin-clock {
+      font-family: var(--mono); font-size: 88px; font-weight: 700;
+      letter-spacing: -0.04em; line-height: 1; margin-top: 26px;
+      font-feature-settings: "tnum" 1;
+    }
+    .clockin-date { font-size: 14px; color: rgba(255,255,255,0.55); margin-top: 8px; }
+    .clockin-float {
+      margin-top: 26px;
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 11px 18px; border-radius: 999px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    }
+    .clockin-float-label { font-size: 12px; color: rgba(255,255,255,0.55); letter-spacing: 0.03em; }
+    .clockin-float-val { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--mint); }
+    .clockin-bottom { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; max-width: 420px; }
+    .clockin-btn {
+      width: 100%; height: 64px; border-radius: 18px;
+      background: var(--gradient); color: #fff;
+      font-size: 17px; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 16px 40px rgba(31,93,60,0.4);
+      transition: transform 120ms, box-shadow 200ms;
+    }
+    .clockin-btn:hover { transform: translateY(-1px); }
+    .clockin-btn:active { transform: scale(0.99); }
+    .clockin-btn svg { width: 19px; height: 19px; }
+    .clockin-btn.is-confirmed { background: var(--forest); pointer-events: none; }
+    .clockin-btn .clockin-btn-check { display: none; }
+    .clockin-btn.is-confirmed .clockin-btn-ic,
+    .clockin-btn.is-confirmed .clockin-btn-label { display: none; }
+    .clockin-btn.is-confirmed .clockin-btn-check {
+      display: inline-flex; animation: pop-check 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clockin-foot { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* Clôture de caisse — end-of-service report */
+    .cloture-veil {
+      position: fixed; inset: 0;
+      background: rgba(6, 10, 8, 0.74);
+      display: none; align-items: center; justify-content: center;
+      z-index: 300; padding: 20px;
+      animation: fade-in 220ms ease-out;
+    }
+    .cloture-veil.is-open { display: flex; }
+    .cloture-card {
+      width: 520px; max-width: calc(100vw - 64px);
+      max-height: calc(100vh - 64px); overflow-y: auto;
+      background: var(--ink-bg);
+      border-radius: var(--r-2xl);
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 40px 90px rgba(0,0,0,0.6);
+      padding: 24px 30px 20px;
+      color: var(--paper-cream);
+      animation: pop-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .clo-eyebrow { font-size: 11px; font-weight: 600; color: var(--mint); text-transform: uppercase; letter-spacing: 0.14em; }
+    .clo-title {
+      font-family: var(--serif); font-style: italic; font-weight: 400;
+      font-size: 33px; line-height: 1; color: #fff; margin-top: 8px;
+    }
+    .clo-meta { font-size: 12px; color: rgba(247,245,240,0.5); margin-top: 7px; }
+    .clo-rows { margin-top: 15px; }
+    .clo-row {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(247,245,240,0.08);
+      opacity: 0; transform: translateY(8px);
+      animation: clo-row-in 380ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    @keyframes clo-row-in { to { opacity: 1; transform: translateY(0); } }
+    .clo-row.is-sub .clo-row-label { padding-left: 14px; color: rgba(247,245,240,0.42); }
+    .clo-row.is-sub .clo-row-value { color: rgba(247,245,240,0.78); font-weight: 500; }
+    .clo-row-label { font-size: 13px; color: rgba(247,245,240,0.62); }
+    .clo-row-value { font-size: 16px; font-weight: 700; color: #fff; font-feature-settings: "tnum" 1; }
+    .clo-row-value.mono { font-family: var(--mono); font-weight: 500; }
+    .clo-row.is-total { border-bottom: 0; padding-top: 14px; }
+    .clo-row.is-total .clo-row-label { font-size: 14px; color: #fff; font-weight: 600; }
+    .clo-row.is-total .clo-row-value { font-size: 22px; color: var(--mint); }
+    .clo-drawer-box {
+      margin-top: 12px; padding: 12px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      opacity: 0; animation: clo-row-in 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    .clo-drawer-title { font-size: 10px; font-weight: 600; color: rgba(247,245,240,0.45); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .clo-drawer-line { display: flex; justify-content: space-between; font-size: 13px; color: rgba(247,245,240,0.62); padding: 4px 0; }
+    .clo-drawer-line .mono { font-family: var(--mono); color: var(--paper-cream); }
+    .clo-drawer-line.is-total { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 6px; padding-top: 9px; }
+    .clo-drawer-line.is-total span:first-child { font-weight: 600; color: #fff; }
+    .clo-drawer-line.is-total .mono { font-weight: 700; color: var(--mint); font-size: 15px; }
+    .clo-highlight {
+      margin-top: 12px; padding: 12px 16px;
+      background: linear-gradient(135deg, rgba(63,182,122,0.2), rgba(125,242,176,0.08));
+      border: 1px solid rgba(125,242,176,0.25);
+      border-radius: 14px;
+      display: flex; gap: 12px; align-items: center;
+      opacity: 0; animation: clo-row-in 460ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    .clo-highlight-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--emerald); color: #06281A;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 32px;
+    }
+    .clo-highlight-icon svg { width: 16px; height: 16px; }
+    .clo-highlight-text { font-size: 13.5px; color: #fff; line-height: 1.4; }
+    .clo-highlight-text em { font-family: var(--serif); font-style: italic; }
+    .clo-actions { margin-top: 16px; display: flex; gap: 9px; }
+    .clo-btn {
+      flex: 1; height: 46px; border-radius: 14px;
+      font-size: 14.5px; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 80ms ease, background 150ms ease;
+    }
+    .clo-btn:active { transform: scale(0.985); }
+    .clo-btn svg { width: 16px; height: 16px; }
+    .clo-btn.primary { background: var(--emerald); color: #06281A; }
+    .clo-btn.secondary { background: rgba(255,255,255,0.07); color: var(--paper-cream); border: 1px solid rgba(255,255,255,0.1); }
+    .clo-btn.secondary:hover { background: rgba(255,255,255,0.11); }
+    .clo-foot { text-align: center; margin-top: 9px; }
+    .clo-foot button { font-size: 12px; color: rgba(247,245,240,0.45); transition: color 150ms; }
+    .clo-foot button:hover { color: var(--paper-cream); }
+
+    /* ===========================================================
        SERVER AVATARS ON TABLE CARDS
        =========================================================== */
     .tbl-server {
@@ -2069,6 +2234,32 @@
     <div class="pin-foot">Démo · n'importe quel code accepté</div>
   </div>
 
+  <!-- ============ CLOCK-IN SCREEN (post-PIN — ouverture de caisse) ============ -->
+  <div class="clockin-screen" id="clockin-screen" aria-hidden="true">
+    <div class="clockin-top">
+      <div class="clockin-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
+      <div class="clockin-tagline">— version commerçant</div>
+    </div>
+    <div class="clockin-mid">
+      <div class="clockin-greet">Sba7 lkhir <em>Rachid</em></div>
+      <div class="clockin-role">Caissier · Café Atlas</div>
+      <div class="clockin-clock" id="ci-time">14:32</div>
+      <div class="clockin-date" id="ci-date">Ljm3a 24 April</div>
+      <div class="clockin-float">
+        <span class="clockin-float-label">Fond d'ouverture</span>
+        <span class="clockin-float-val" id="ci-float">500,00 MAD</span>
+      </div>
+    </div>
+    <div class="clockin-bottom">
+      <button class="clockin-btn" id="clockin-btn">
+        <i data-lucide="unlock" class="clockin-btn-ic"></i>
+        <span class="clockin-btn-label">Ouvrir la caisse</span>
+        <span class="clockin-btn-check" aria-hidden="true"><i data-lucide="check"></i></span>
+      </button>
+      <div class="clockin-foot">Maarif · Casablanca</div>
+    </div>
+  </div>
+
   <!-- ============ GREETING FLASH (post-PIN, pre-shell) ============ -->
   <div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
     <div class="kiwi-greet-inner">
@@ -2139,22 +2330,22 @@
       <div class="stats-section" aria-label="Stats du shift">
         <div class="stat-card">
           <div class="stat-label">Flous d'lyoum</div>
-          <div class="stat-value">27 512 MAD</div>
-          <div class="stat-delta">+3,2%</div>
+          <div class="stat-value" id="stat-revenue">7 140 MAD</div>
+          <div class="stat-delta" id="stat-revenue-delta">40% de l'objectif</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Transactions</div>
-          <div class="stat-value">211</div>
-          <div class="stat-delta">+24 mn l7it</div>
+          <div class="stat-value" id="stat-txns">53</div>
+          <div class="stat-delta" id="stat-txns-delta">Carte 63% · Cash 37%</div>
         </div>
         <div class="stat-row">
           <div class="stat-card compact">
             <div class="stat-label">Moyenn tabla</div>
-            <div class="stat-value">130 MAD</div>
+            <div class="stat-value" id="stat-avg">135 MAD</div>
           </div>
           <div class="stat-card compact">
-            <div class="stat-label">Tables khlass</div>
-            <div class="stat-value">18 / 21</div>
+            <div class="stat-label">Tables réglées</div>
+            <div class="stat-value" id="stat-tables">14</div>
           </div>
         </div>
       </div>
@@ -2536,6 +2727,37 @@
     </div>
   </div>
 
+  <!-- ============ CLÔTURE DE CAISSE (end-of-service report) ============ -->
+  <div class="cloture-veil" id="cloture-modal" role="dialog" aria-modal="true" aria-labelledby="clo-title">
+    <div class="cloture-card">
+      <div class="clo-eyebrow">Fin de service</div>
+      <div class="clo-title" id="clo-title">Clôture de caisse</div>
+      <div class="clo-meta" id="clo-meta">Café Atlas · Rachid B.</div>
+      <div class="clo-rows" id="clo-rows"><!-- stat rows injected --></div>
+      <div class="clo-drawer-box" id="clo-drawer-box">
+        <div class="clo-drawer-title">Tiroir-caisse</div>
+        <div class="clo-drawer-line"><span>Fond d'ouverture</span><span class="mono" id="clo-float">500 MAD</span></div>
+        <div class="clo-drawer-line"><span>Espèces encaissées</span><span class="mono" id="clo-cash-in">0 MAD</span></div>
+        <div class="clo-drawer-line is-total"><span>À compter en caisse</span><span class="mono" id="clo-drawer">500 MAD</span></div>
+      </div>
+      <div class="clo-highlight" id="clo-highlight">
+        <div class="clo-highlight-icon"><i data-lucide="target"></i></div>
+        <div class="clo-highlight-text" id="clo-highlight-text"></div>
+      </div>
+      <div class="clo-actions">
+        <button class="clo-btn secondary" id="clo-print">
+          <i data-lucide="printer"></i><span>Imprimer le rapport Z</span>
+        </button>
+        <button class="clo-btn primary" id="clo-close">
+          <i data-lucide="lock"></i><span>Fermer la caisse</span>
+        </button>
+      </div>
+      <div class="clo-foot">
+        <button id="clo-continue">Continuer le service</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ TEAM DRAWER ============ -->
   <div class="drawer-veil" id="team-drawer" role="dialog" aria-modal="true" aria-labelledby="team-drawer-title">
     <aside class="drawer" aria-label="Équipe">
@@ -2619,9 +2841,12 @@
       const hh = String(now.getHours()).padStart(2, '0');
       const mm = String(now.getMinutes()).padStart(2, '0');
       const t = `${hh}:${mm}`;
+      const dateStr = `${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
       $('#clock-time').textContent = t;
       $('#topbar-clock').textContent = t;
-      $('#clock-date').textContent = `${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
+      $('#clock-date').textContent = dateStr;
+      const ciT = $('#ci-time'); if (ciT) ciT.textContent = t;
+      const ciD = $('#ci-date'); if (ciD) ciD.textContent = dateStr;
     }
     tickClock();
     setInterval(tickClock, 1000);
@@ -3006,6 +3231,8 @@
       t.status = 'khlass';
       t.elapsed = 0;
       refreshTableNode(id);
+      shift.tablesPaid += 1;
+      renderShiftStats();
       // Fade to khawya after 3s
       setTimeout(() => {
         if (tables[id] && tables[id].status === 'khlass') {
@@ -3331,7 +3558,7 @@
       btn.addEventListener('click', () => {
         const a = btn.dataset.action;
         if (a === 'remboursement')   toast('Remboursement · choisis transaction');
-        else if (a === 'fin-service') toast("Fin d'service · vérifier la caisse");
+        else if (a === 'fin-service') openCloture();
       });
     });
 
@@ -3385,6 +3612,7 @@
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
       if (!paid) return;
+      if (!splitPayCallback) recordSale(currentTotal(), 'card');
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -3460,6 +3688,7 @@
       cashAmountOverride = null;
       cashModal.classList.remove('is-open');
       if (!paid) return;
+      if (!splitPayCallback) recordSale(currentTotal(), 'cash');
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -4102,6 +4331,7 @@
 
     function markSplitPartPaid(partIdx, method) {
       const p = splitState.flow.parts[partIdx];
+      recordSale(p.amount, method === 'carte' ? 'card' : 'cash');
       p.paid = true;
       p.payMethod = method;
       splitState.flow.paidCount++;
@@ -4224,14 +4454,88 @@
     }
 
     function unlockApp() {
-      /* Sequence — mirrors the dashboard entry exactly:
-       *   0       PIN fades out + greeting backdrop fades in (cross-fade)
-       *   ~480    PIN removed from DOM; greeting h1 has slid into place
-       *   1400    typewriter italic begins (max-width 0 → measured)
-       *   2400    caret drops, sentence reads clean
-       *   3200    greeting fades + shell dives in (iOS zoom + sidebar stagger)
-       *   4000    greeting removed from DOM
-       */
+      /* PIN accepted — cross-fade the PIN into the clock-in screen
+       * (ouverture de caisse). The greeting flash + shell dive-in now
+       * run from openService(), once the cashier opens the register. */
+      const clockinEl = document.getElementById('clockin-screen');
+
+      // t=0..210: success pop on the 4 dots, staggered left → right.
+      $$('#pin-dots .pin-dot').forEach((d, i) => {
+        setTimeout(() => d.classList.add('is-success'), i * 70);
+      });
+
+      // t=460: cross-fade — PIN out, clock-in screen in.
+      setTimeout(() => {
+        pinScreen.classList.add('is-leaving');
+        if (clockinEl) {
+          clockinEl.classList.add('is-visible');
+          clockinEl.setAttribute('aria-hidden', 'false');
+        }
+      }, 460);
+
+      // t=940: PIN gone.
+      setTimeout(() => { pinScreen.style.display = 'none'; }, 940);
+    }
+
+    /* ===========================================================
+       === Shift lifecycle ===  (clock-in · live stats · Clôture)
+       =========================================================== */
+    const OPENING_FLOAT  = 500;     // fond de caisse — MAD
+    const DAILY_OBJECTIF = 18000;   // objectif d'lyoum — MAD
+
+    /* Cashier shift ledger. Seeded so the demo opens mid-service;
+       every payment processed adds to it live via recordSale(). */
+    const shift = {
+      revenue: 7140, txns: 53, card: 4490, cash: 2650,
+      discounts: 95, refunds: 0, tablesPaid: 14,
+    };
+    let shiftOpenedAt = null;
+
+    /* Record one completed tender (table payment, vente rapida, or split part) */
+    function recordSale(amount, method) {
+      amount = Math.round(amount || 0);
+      if (amount <= 0) return;
+      shift.txns    += 1;
+      shift.revenue += amount;
+      if (method === 'cash') shift.cash += amount;
+      else                   shift.card += amount;
+      renderShiftStats();
+    }
+
+    /* Live sidebar stats — replaces the old hardcoded values */
+    function renderShiftStats() {
+      const pct     = Math.min(100, Math.round(shift.revenue / DAILY_OBJECTIF * 100));
+      const cardPct = shift.revenue > 0 ? Math.round(shift.card / shift.revenue * 100) : 0;
+      const set = (id, txt) => { const el = $(id); if (el) el.textContent = txt; };
+      set('#stat-revenue',       fmtMAD(shift.revenue));
+      set('#stat-revenue-delta', `${pct}% de l'objectif`);
+      set('#stat-txns',          String(shift.txns));
+      set('#stat-txns-delta',    `Carte ${cardPct}% · Cash ${100 - cardPct}%`);
+      set('#stat-avg',           fmtMAD(shift.txns > 0 ? shift.revenue / shift.txns : 0));
+      set('#stat-tables',        String(shift.tablesPaid));
+    }
+
+    function fmtDur(min) {
+      const h = Math.floor(min / 60), m = min % 60;
+      return h > 0 ? `${h}h ${String(m).padStart(2, '0')}` : `${m} mn`;
+    }
+
+    /* ---- Ouverture de caisse — clock-in button ---- */
+    function openService() {
+      const btn       = document.getElementById('clockin-btn');
+      const clockinEl = document.getElementById('clockin-screen');
+      if (btn) btn.classList.add('is-confirmed');
+      if (window.lucide) lucide.createIcons();
+
+      // Open the cashier's shift — seeded to feel mid-service.
+      shiftOpenedAt = new Date(Date.now() - 128 * 60 * 1000);  // ~2h08 ago
+      renderShiftStats();
+
+      setTimeout(() => runEntrySequence(clockinEl), 540);
+    }
+
+    /* Greeting flash + iOS shell dive-in — runs after the register opens */
+    function runEntrySequence(clockinEl) {
       const shellEl  = document.querySelector('.shell');
       const topbarEl = document.querySelector('.topbar');
       const greetEl  = document.querySelector('[data-kiwi-greet]');
@@ -4254,7 +4558,6 @@
         const greetH1 = greetEl.querySelector('h1');
         const greetEm = greetH1 && greetH1.querySelector('em');
         if (greetEm && !greetEm.parentNode.classList.contains('em-clip')) {
-          // Force layout to get true width — em is plain inline so rect.width is the text width.
           const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 6;
           emClip = document.createElement('span');
           emClip.className = 'em-clip';
@@ -4264,31 +4567,20 @@
         }
       }
 
-      // t=0..210: success pop on the 4 dots, staggered left → right.
-      const dots = $$('#pin-dots .pin-dot');
-      dots.forEach((d, i) => {
-        setTimeout(() => d.classList.add('is-success'), i * 70);
-      });
+      // t=0: clock-in screen leaves, greeting fades in over it.
+      if (clockinEl) clockinEl.classList.add('is-leaving');
+      if (greetEl) {
+        greetEl.classList.add('is-visible');
+        greetEl.setAttribute('aria-hidden', 'false');
+      }
+      setTimeout(() => { if (clockinEl) clockinEl.style.display = 'none'; }, 520);
 
-      // t=460: cross-fade — PIN out, greeting in (after the pop has played)
-      setTimeout(() => {
-        pinScreen.classList.add('is-leaving');
-        if (greetEl) {
-          greetEl.classList.add('is-visible');
-          greetEl.setAttribute('aria-hidden', 'false');
-        }
-      }, 460);
+      // t=1400: typewriter starts
+      setTimeout(() => emClip && emClip.classList.add('is-revealed', 'is-typing'), 1400);
+      // t=2400: caret drops
+      setTimeout(() => emClip && emClip.classList.remove('is-typing'), 2400);
 
-      // t=940: PIN gone
-      setTimeout(() => { pinScreen.style.display = 'none'; }, 940);
-
-      // t=1860: typewriter starts
-      setTimeout(() => emClip && emClip.classList.add('is-revealed', 'is-typing'), 1860);
-
-      // t=2860: caret drops
-      setTimeout(() => emClip && emClip.classList.remove('is-typing'), 2860);
-
-      // t=3660: greeting fades + dashboard dives in (existing iOS zoom + sidebar stagger)
+      // t=3200: greeting fades + shell dives in (iOS zoom + sidebar stagger)
       setTimeout(() => {
         if (greetEl) {
           greetEl.classList.remove('is-visible');
@@ -4297,16 +4589,90 @@
         document.body.classList.add('is-unlocked');
         if (shellEl)  shellEl.classList.add('is-entering');
         if (topbarEl) topbarEl.classList.add('is-entering');
-        // Clean up entering classes after the zoom-in finishes
         setTimeout(() => {
           if (shellEl)  shellEl.classList.remove('is-entering');
           if (topbarEl) topbarEl.classList.remove('is-entering');
         }, 760);
-      }, 3660);
+      }, 3200);
 
-      // t=4460: greeting removed
-      setTimeout(() => { if (greetEl && greetEl.parentNode) greetEl.remove(); }, 4460);
+      // t=4000: greeting removed
+      setTimeout(() => { if (greetEl && greetEl.parentNode) greetEl.remove(); }, 4000);
     }
+
+    /* ---- Clôture de caisse — end-of-service report ---- */
+    function openCloture() {
+      renderCloture();
+      $('#cloture-modal').classList.add('is-open');
+      if (window.lucide) lucide.createIcons();
+    }
+    function renderCloture() {
+      const now      = new Date();
+      const openedAt = shiftOpenedAt || now;
+      const durMin   = Math.max(0, Math.floor((now - openedAt) / 60000));
+      const pad2     = n => String(n).padStart(2, '0');
+
+      $('#clo-meta').textContent =
+        `Café Atlas · Rachid B. · ${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
+
+      const rows = [
+        ['Service ouvert à', `${pad2(openedAt.getHours())}:${pad2(openedAt.getMinutes())}`, false, ''],
+        ['Durée du service', fmtDur(durMin),                                               false, ''],
+        ['Transactions',     String(shift.txns),                                           false, ''],
+        ['Tables réglées',   String(shift.tablesPaid),                                      false, ''],
+        ['Total encaissé',   fmtMAD(shift.revenue),                                         true,  'total'],
+        ['dont Carte',       fmtMAD(shift.card),                                            true,  'sub'],
+        ['dont Espèces',     fmtMAD(shift.cash),                                            true,  'sub'],
+        ['Ticket moyen',     fmtMAD(shift.txns > 0 ? shift.revenue / shift.txns : 0),        true,  ''],
+        ['Réductions accordées', fmtMAD(shift.discounts),                                   true,  ''],
+      ];
+      if (shift.refunds > 0) rows.push(['Remboursements', fmtMAD(shift.refunds), true, '']);
+
+      $('#clo-rows').innerHTML = rows.map((r, i) => {
+        const cls  = 'clo-row' + (r[3] === 'total' ? ' is-total' : (r[3] === 'sub' ? ' is-sub' : ''));
+        const vCls = 'clo-row-value' + (r[2] ? ' mono' : '');
+        return `<div class="${cls}" style="animation-delay:${i * 70}ms">`
+             + `<span class="clo-row-label">${r[0]}</span>`
+             + `<span class="${vCls}">${r[1]}</span></div>`;
+      }).join('');
+
+      // Tiroir-caisse reconciliation
+      $('#clo-float').textContent   = fmtMAD(OPENING_FLOAT);
+      $('#clo-cash-in').textContent = fmtMAD(shift.cash);
+      $('#clo-drawer').textContent  = fmtMAD(OPENING_FLOAT + shift.cash - shift.refunds);
+
+      // Highlight — objectif d'lyoum progress
+      const pct    = Math.round(shift.revenue / DAILY_OBJECTIF * 100);
+      const hlIcon = $('#cloture-modal .clo-highlight-icon');
+      const hlText = $('#clo-highlight-text');
+      if (shift.revenue >= DAILY_OBJECTIF) {
+        if (hlIcon) hlIcon.innerHTML = '<i data-lucide="trophy"></i>';
+        if (hlText) hlText.innerHTML = `Objectif d'lyoum dépassé — <em>${fmtMAD(shift.revenue)}</em> encaissés. Beau service.`;
+      } else {
+        if (hlIcon) hlIcon.innerHTML = '<i data-lucide="target"></i>';
+        if (hlText) hlText.innerHTML = `À <em>${pct}%</em> de l'objectif d'lyoum — ${fmtMAD(DAILY_OBJECTIF - shift.revenue)} restants.`;
+      }
+      // Re-trigger the entrance animation on the static blocks
+      [['#clo-drawer-box', rows.length * 70 + 30], ['#clo-highlight', rows.length * 70 + 60]].forEach(([sel, delay]) => {
+        const el = $(sel);
+        if (!el) return;
+        el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+        el.style.animationDelay = delay + 'ms';
+      });
+    }
+    function closeRegister() {
+      $('#cloture-modal').classList.remove('is-open');
+      toast('Caisse fermée · à bientôt Rachid');
+      setTimeout(() => location.reload(), 720);
+    }
+
+    const clockinBtn = document.getElementById('clockin-btn');
+    if (clockinBtn) clockinBtn.addEventListener('click', openService);
+    $('#clo-print').addEventListener('click', () => toast("Rapport Z envoyé à l'imprimante"));
+    $('#clo-close').addEventListener('click', closeRegister);
+    $('#clo-continue').addEventListener('click', () => $('#cloture-modal').classList.remove('is-open'));
+    $('#cloture-modal').addEventListener('click', (e) => {
+      if (e.target === $('#cloture-modal')) $('#cloture-modal').classList.remove('is-open');
+    });
 
     $('#pin-pad').addEventListener('click', (e) => {
       const key = e.target.closest('.pin-key');
