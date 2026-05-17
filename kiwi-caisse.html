@@ -675,6 +675,17 @@
     .rp-item-name { color: var(--ink); }
     .rp-item-price { font-weight: 600; color: var(--ink); font-feature-settings: "tnum" 1; }
 
+    /* Remise line — negative discount inside the addition */
+    .rp-item--discount .rp-item-qty {
+      background: var(--mint-tint);
+      color: var(--forest);
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 4px;
+    }
+    .rp-item--discount .rp-item-qty svg { width: 13px; height: 13px; }
+    .rp-item--discount .rp-item-name { color: var(--forest); font-weight: 500; }
+    .rp-item--discount .rp-item-price { color: var(--forest); }
+
     /* Cart line (vente rapida) — adds qty +/- controls */
     .rp-item--cart {
       grid-template-columns: auto 1fr auto;
@@ -2387,6 +2398,9 @@
        access-PIN visual language with its own scoped classes so it
        is never caught by the #pin-pad listener.
        =========================================================== */
+    /* The gate can open over any other modal (.modal-veil = 100,
+       .cloture-veil = 300) — keep it above all of them. */
+    #manager-modal { z-index: 400; }
     .mgr-dots {
       display: flex; gap: 14px;
       justify-content: center;
@@ -2443,6 +2457,64 @@
       font-size: 10.5px; color: var(--ink-4);
       letter-spacing: 0.06em; text-transform: uppercase;
     }
+
+    /* ===========================================================
+       === Remise (discount on a table addition) ===
+       =========================================================== */
+    .rm-type { display: flex; gap: 8px; margin-bottom: 14px; }
+    .rm-type-btn {
+      flex: 1; height: 44px; border-radius: var(--r-lg);
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      font-size: 13.5px; font-weight: 600;
+      background: var(--paper-mute); color: var(--ink-3);
+      transition: background 150ms, color 150ms;
+    }
+    .rm-type-btn svg { width: 15px; height: 15px; }
+    .rm-type-btn.is-active { background: var(--ink-bg); color: #fff; }
+    .rm-section-label {
+      font-size: 10.5px; color: var(--ink-4);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin: 0 0 8px;
+    }
+    .rm-pct-chips { display: flex; gap: 8px; margin-bottom: 4px; }
+    .rm-pct-chip {
+      flex: 1; height: 46px; border-radius: var(--r-lg);
+      font-size: 15px; font-weight: 700;
+      background: var(--paper-mute); color: var(--ink-2);
+      font-feature-settings: "tnum" 1;
+      transition: background 150ms, color 150ms;
+    }
+    .rm-pct-chip:hover { background: var(--line-soft); }
+    .rm-pct-chip.is-active { background: var(--forest); color: #fff; }
+    .rm-reasons { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rm-reason {
+      padding: 7px 13px; border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      background: var(--paper-mute); color: var(--ink-3);
+      transition: background 150ms, color 150ms;
+    }
+    .rm-reason:hover { background: var(--line-soft); }
+    .rm-reason.is-active { background: var(--forest); color: #fff; }
+    .rm-preview {
+      margin: 16px 0 4px;
+      padding: 13px 15px;
+      border-radius: var(--r-lg);
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+      display: flex; align-items: baseline; gap: 8px;
+      flex-wrap: wrap;
+      font-size: 13.5px; color: var(--ink-2);
+    }
+    .rm-preview .rm-pv-from { color: var(--ink-3); }
+    .rm-preview .rm-pv-arrow { color: var(--ink-4); }
+    .rm-preview .rm-pv-to { font-weight: 700; color: var(--forest); }
+    .rm-preview .rm-pv-cut { margin-left: auto; font-weight: 700; color: var(--forest); }
+    .rm-preview.is-empty {
+      background: var(--paper-mute);
+      border-color: var(--line-soft);
+      color: var(--ink-4);
+    }
+    .rm-block { margin-bottom: 16px; }
   </style>
 </head>
 
@@ -3127,6 +3199,47 @@
     </div>
   </div>
 
+  <!-- ============ REMISE (DISCOUNT) MODAL ============ -->
+  <div class="modal-veil" id="remise-modal" role="dialog" aria-modal="true" aria-labelledby="rm-title">
+    <div class="modal">
+      <h3 class="modal-title" id="rm-title">Réduction</h3>
+      <p class="modal-subtle" id="rm-subtle">Mesa · addition <span class="mono">— MAD</span></p>
+      <div class="rm-type" id="rm-type">
+        <button class="rm-type-btn is-active" data-rm-type="pct"><i data-lucide="percent"></i> Pourcentage</button>
+        <button class="rm-type-btn" data-rm-type="amount"><i data-lucide="coins"></i> Montant</button>
+      </div>
+      <div class="rm-block" id="rm-pct-block">
+        <div class="rm-section-label">Pourcentage de remise</div>
+        <div class="rm-pct-chips" id="rm-pct-chips">
+          <button class="rm-pct-chip" data-rm-pct="5">5 %</button>
+          <button class="rm-pct-chip" data-rm-pct="10">10 %</button>
+          <button class="rm-pct-chip" data-rm-pct="15">15 %</button>
+          <button class="rm-pct-chip" data-rm-pct="20">20 %</button>
+        </div>
+      </div>
+      <div class="rm-block" id="rm-amount-block" hidden>
+        <div class="cash-input-row">
+          <label class="cash-input-label" for="rm-amount">Montant de la remise</label>
+          <input class="cash-input mono" id="rm-amount" type="number" inputmode="numeric" min="0" step="10" placeholder="0" />
+        </div>
+      </div>
+      <div class="rm-block">
+        <div class="rm-section-label">Motif</div>
+        <div class="rm-reasons" id="rm-reasons">
+          <button class="rm-reason is-active" data-rm-reason="Geste commercial">Geste commercial</button>
+          <button class="rm-reason" data-rm-reason="Client habitué">Client habitué</button>
+          <button class="rm-reason" data-rm-reason="Erreur cuisine">Erreur cuisine</button>
+          <button class="rm-reason" data-rm-reason="Autre">Autre</button>
+        </div>
+      </div>
+      <div class="rm-preview is-empty" id="rm-preview">Choisis une remise pour voir l'aperçu.</div>
+      <div class="modal-actions is-visible">
+        <button class="ma-btn secondary" id="rm-cancel" style="flex:1;">Annuler</button>
+        <button class="ma-btn primary" id="rm-confirm" style="flex:2;"><i data-lucide="badge-percent"></i><span>Appliquer la remise</span></button>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ MESSAGE COMPOSER MODAL ============ -->
   <div class="modal-veil" id="msg-modal" role="dialog" aria-modal="true" aria-labelledby="msg-title">
     <div class="modal modal-msg">
@@ -3483,23 +3596,38 @@
       // Split-in-progress card
       renderRpSplitCard(id);
 
-      $('#rp-items').innerHTML = lines.map(l => `
+      // Remise — recompute the discount amount against the current gross
+      const discAmt = discountAmountFor(id, total);
+      const net = Math.max(0, total - discAmt);
+
+      let itemsHTML = lines.map(l => `
         <div class="rp-item">
           <span class="rp-item-qty">${l.qty}×</span>
           <span class="rp-item-name">${l.name}</span>
           <span class="rp-item-price mono">${fmtMAD(l.total)}</span>
         </div>
       `).join('');
+      if (discAmt > 0) {
+        const d = t.discount;
+        const tag = d.kind === 'pct' ? `Remise ${d.value} %` : 'Remise';
+        itemsHTML += `
+        <div class="rp-item rp-item--discount">
+          <span class="rp-item-qty"><i data-lucide="badge-percent"></i></span>
+          <span class="rp-item-name">${tag}${d.reason ? ' · ' + d.reason : ''}</span>
+          <span class="rp-item-price mono">−${fmtMAD(discAmt)}</span>
+        </div>`;
+      }
+      $('#rp-items').innerHTML = itemsHTML;
 
       $('#rp-subtotal').textContent = fmtMAD(total);
-      $('#rp-total').textContent = fmtMAD(total);
+      $('#rp-total').textContent = fmtMAD(net);
 
       // Sync modal labels too
       $$('[data-bind="table"]').forEach(el => el.textContent = id);
       $$('[data-bind="covers"]').forEach(el => el.textContent = t.covers);
-      $('#card-amount').textContent = fmtMADcents(total);
-      $('#cash-amount').textContent = fmtMADcents(total);
-      $('#cash-received').value = total;
+      $('#card-amount').textContent = fmtMADcents(net);
+      $('#cash-amount').textContent = fmtMADcents(net);
+      $('#cash-received').value = net;
       updateRendu();
       showPayButtons(false);
     }
@@ -3581,6 +3709,7 @@
         if (tables[id] && tables[id].status === 'khlass') {
           tables[id].status = 'khawya';
           delete orders[id]; // clear order
+          delete tables[id].discount; // clear remise — table reset
           refreshTableNode(id);
         }
       }, 3000);
@@ -3878,8 +4007,8 @@
     $$('.meta-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const a = btn.dataset.action;
-        if (a === 'discount')      toast('Réduction · code PIN sera demandé');
-        else if (a === 'print-bill') toast('Imprimante en cours…');
+        // 'discount' is handled by the [data-action] delegation listener below.
+        if (a === 'print-bill') toast('Imprimante en cours…');
         else if (a === 'cancel-table') {
           if (mode === 'vrap') {
             clearCart();
@@ -3889,6 +4018,7 @@
           if (selectedId) {
             const t = tables[selectedId];
             t.status = 'ka-yaklo';
+            delete t.discount; // clear remise — mesa rétablie
             refreshTableNode(selectedId);
             closeRightPanel();
             toast('Mesa rétablie · service en cours');
@@ -3999,7 +4129,9 @@
       }
       if (!selectedId) return 0;
       const lines = generateOrder(selectedId, tables[selectedId]);
-      return lines.reduce((s, l) => s + l.total, 0);
+      const gross = lines.reduce((s, l) => s + l.total, 0);
+      // Net of any manager-approved remise on this table.
+      return Math.max(0, gross - discountAmountFor(selectedId, gross));
     }
     function updateRendu() {
       const total = currentTotal();
@@ -5748,6 +5880,153 @@
     }, true);
 
     /* ===========================================================
+       REMISE — manager-gated discount on a table addition
+       -----------------------------------------------------------
+       Data model, on the table:
+         tables[id].discount = {
+           kind:   'pct' | 'amount',
+           value:  number,   // % when pct, MAD when amount
+           amount: number,   // computed MAD cut, rounded, clamped <= gross
+           reason: string,
+         }
+       discountAmountFor(id, gross) recomputes the live cut against the
+       current gross so the figure stays correct if the order changes.
+       =========================================================== */
+    function discountAmountFor(id, gross) {
+      const d = tables[id] && tables[id].discount;
+      if (!d) return 0;
+      let amt = d.kind === 'pct'
+        ? Math.round(gross * (d.value || 0) / 100)
+        : Math.round(d.value || 0);
+      return Math.max(0, Math.min(amt, Math.round(gross)));
+    }
+
+    const remiseModal = $('#remise-modal');
+    const remiseState = { tableId: null, gross: 0, kind: 'pct', value: 0, reason: 'Geste commercial' };
+
+    function remiseCutPreview() {
+      const g = remiseState.gross;
+      let cut = remiseState.kind === 'pct'
+        ? Math.round(g * (remiseState.value || 0) / 100)
+        : Math.round(remiseState.value || 0);
+      return Math.max(0, Math.min(cut, g));
+    }
+    function renderRemisePreview() {
+      const pv = $('#rm-preview');
+      const cut = remiseCutPreview();
+      if (cut <= 0) {
+        pv.classList.add('is-empty');
+        pv.textContent = "Choisis une remise pour voir l'aperçu.";
+        return;
+      }
+      pv.classList.remove('is-empty');
+      const net = remiseState.gross - cut;
+      pv.innerHTML =
+        `<span class="rm-pv-from mono">Addition ${fmtMAD(remiseState.gross)}</span>`
+        + `<span class="rm-pv-arrow">→</span>`
+        + `<span class="rm-pv-to mono">${fmtMAD(net)}</span>`
+        + `<span class="rm-pv-cut mono">−${fmtMAD(cut)}</span>`;
+    }
+    function syncRemiseType() {
+      $$('#rm-type .rm-type-btn').forEach(b =>
+        b.classList.toggle('is-active', b.dataset.rmType === remiseState.kind));
+      $('#rm-pct-block').hidden    = remiseState.kind !== 'pct';
+      $('#rm-amount-block').hidden = remiseState.kind !== 'amount';
+    }
+    function openRemiseModal(id) {
+      // A split in progress locks the addition — finish it first.
+      if (typeof tableSplits !== 'undefined' && tableSplits.has(id)) {
+        toast("Termine le split d'abord");
+        return;
+      }
+      const lines = generateOrder(id, tables[id]);
+      const gross = lines.reduce((s, l) => s + l.total, 0);
+      remiseState.tableId = id;
+      remiseState.gross   = gross;
+      remiseState.kind    = 'pct';
+      remiseState.value   = 0;
+      remiseState.reason  = 'Geste commercial';
+      $('#rm-subtle').innerHTML = `${id} · addition <span class="mono">${fmtMAD(gross)}</span>`;
+      $('#rm-amount').value = '';
+      $$('#rm-pct-chips .rm-pct-chip').forEach(c => c.classList.remove('is-active'));
+      $$('#rm-reasons .rm-reason').forEach(b =>
+        b.classList.toggle('is-active', b.dataset.rmReason === 'Geste commercial'));
+      syncRemiseType();
+      renderRemisePreview();
+      remiseModal.classList.add('is-open');
+      if (window.lucide) lucide.createIcons();
+    }
+    function closeRemiseModal() { remiseModal.classList.remove('is-open'); }
+
+    function applyRemise() {
+      const id = remiseState.tableId;
+      if (!id || !tables[id]) { closeRemiseModal(); return; }
+      const cut = remiseCutPreview();
+      if (cut <= 0) { toast('Choisis une remise'); return; }
+      requireManager("Remise sur l'addition", () => {
+        const t = tables[id];
+        if (!t) return;
+        // Re-clamp against the live gross at approval time.
+        const lines = generateOrder(id, t);
+        const gross = lines.reduce((s, l) => s + l.total, 0);
+        let amount = remiseState.kind === 'pct'
+          ? Math.round(gross * (remiseState.value || 0) / 100)
+          : Math.round(remiseState.value || 0);
+        amount = Math.max(0, Math.min(amount, Math.round(gross)));
+        if (amount <= 0) { toast('Remise sans effet'); return; }
+        t.discount = {
+          kind:   remiseState.kind,
+          value:  remiseState.value,
+          amount: amount,
+          reason: remiseState.reason,
+        };
+        shift.discounts += amount;
+        closeRemiseModal();
+        if (selectedId === id) renderRightPanel(id);
+        toast(`Remise appliquée · −${fmtMAD(amount)}`);
+      });
+    }
+
+    remiseModal.addEventListener('click', (e) => {
+      if (e.target === remiseModal) { closeRemiseModal(); return; }
+      const typeBtn = e.target.closest('[data-rm-type]');
+      if (typeBtn) {
+        remiseState.kind = typeBtn.dataset.rmType;
+        // Reset the value when switching modes so stale figures don't carry over.
+        if (remiseState.kind === 'pct') {
+          remiseState.value = 0;
+          $$('#rm-pct-chips .rm-pct-chip').forEach(c => c.classList.remove('is-active'));
+        } else {
+          remiseState.value = parseFloat($('#rm-amount').value) || 0;
+        }
+        syncRemiseType();
+        renderRemisePreview();
+        return;
+      }
+      const pctChip = e.target.closest('[data-rm-pct]');
+      if (pctChip) {
+        remiseState.value = parseFloat(pctChip.dataset.rmPct) || 0;
+        $$('#rm-pct-chips .rm-pct-chip').forEach(c => c.classList.toggle('is-active', c === pctChip));
+        renderRemisePreview();
+        return;
+      }
+      const reasonBtn = e.target.closest('[data-rm-reason]');
+      if (reasonBtn) {
+        remiseState.reason = reasonBtn.dataset.rmReason;
+        $$('#rm-reasons .rm-reason').forEach(b => b.classList.toggle('is-active', b === reasonBtn));
+        return;
+      }
+      if (e.target.closest('#rm-cancel'))  { closeRemiseModal(); return; }
+      if (e.target.closest('#rm-confirm')) { applyRemise(); return; }
+    });
+    $('#rm-amount').addEventListener('input', () => {
+      if (remiseState.kind === 'amount') {
+        remiseState.value = parseFloat($('#rm-amount').value) || 0;
+        renderRemisePreview();
+      }
+    });
+
+    /* ===========================================================
        RP actions: reassign + split resume/cancel
        =========================================================== */
     document.addEventListener('click', (e) => {
@@ -5756,6 +6035,8 @@
       const name = act.dataset.action;
       if (name === 'reassign-server' && selectedId) {
         openReassignModal(selectedId);
+      } else if (name === 'discount' && selectedId) {
+        openRemiseModal(selectedId);
       } else if (name === 'resume-split' && selectedId) {
         openSplitModal(selectedId);
       } else if (name === 'cancel-split' && selectedId) {
