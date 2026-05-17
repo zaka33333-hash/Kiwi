@@ -432,7 +432,7 @@
     fr: {
       cafeAtlas: {
         title: 'Lancer un combo livraison Glovo pour 15h–17h',
-        obs: "Pendant cette fenêtre creuse, votre salle tourne à 22 % de capacité mais l'équipe reste disponible. Un combo Tajine kefta + thé à la menthe à 75 MAD sur Glovo capte typiquement 8–12 commandes par après-midi dans les cafés similaires de Maarif.",
+        obs: "Pendant cette fenêtre creuse, votre salle tourne à 22 % de capacité mais l'équipe reste disponible. Un combo Tajine kefta + thé à la menthe à 75 MAD sur Glovo capte typiquement 8–12 commandes par après-midi dans des cafés similaires de votre quartier.",
         cta: '→ Configurer le combo Glovo',
       },
       maisonMansour: {
@@ -826,8 +826,27 @@
   /* ═══════════════ RENDER: DEMO BAR + FOOTER ═══════════════ */
 
   function renderDemoBar() {
-    const el = document.querySelector('[data-demo-account]');
-    if (el) el.textContent = VENUES[currentVenue].name;
+    const line = document.querySelector('[data-demo-line]');
+    if (!line) {
+      const el = document.querySelector('[data-demo-account]');
+      if (el) el.textContent = VENUES[currentVenue].name;
+      return;
+    }
+    const name = VENUES[currentVenue].name;
+    line.textContent = '';
+    const b = document.createElement('b');
+    b.style.color = 'var(--paper)';
+    b.textContent = name;
+    if (isCustom(currentVenue)) {
+      // A user-created venue isn't the synthetic demo account.
+      line.appendChild(document.createTextNode('Votre tableau de bord · '));
+      line.appendChild(b);
+    } else {
+      b.setAttribute('data-demo-account', '');
+      line.appendChild(document.createTextNode('Démo live · compte '));
+      line.appendChild(b);
+      line.appendChild(document.createTextNode(' · données de démonstration mises à jour en temps réel'));
+    }
   }
   function renderFooter() {
     const el = document.querySelector('[data-footer-line]');
@@ -855,6 +874,12 @@
         : window.KiwiDemoClock?.getSimState?.()?.cumTx;
       txCountEl.textContent = String(live != null ? live : (VENUES[currentVenue].txCount || 0));
     }
+    // Terminals + compliance badges — a brand-new venue has neither yet.
+    const cv = isCustom(currentVenue);
+    const termEl = document.querySelector('a[data-nav="terminaux"] .count');
+    if (termEl) termEl.textContent = cv ? '0' : '3';
+    const confEl = document.querySelector('a[data-nav="conformite"] .tag');
+    if (confEl) confEl.textContent = cv ? '—' : 'AAA';
     const staffCountEl = document.querySelector('a[data-nav="equipe"] .count');
     // Sidebar "Équipe" badge → number of staff currently clocked in (present),
     // scoped to the active venue (all 3 venues in fusion). See STAFF below.

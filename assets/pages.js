@@ -1450,7 +1450,7 @@
 
         <div class="menu-cat">
           <div class="menu-cat-head">
-            <h4>🥗 ${T.menuCategoryEntrees} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 8 ${T.menuItems}</span></h4>
+            <h4>${T.menuCategoryEntrees} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 8 ${T.menuItems}</span></h4>
             <div class="count">${T.menuAvg} : 28 MAD</div>
           </div>
           ${[[`Salade marocaine`, `Tomate, concombre, oignon, huile d'olive`, '32,00', 'ok', T.menuStock(87)],[`Bissara`, `Fèves moulues, cumin, huile d'olive`, '22,00', 'ok', T.menuUnlimited],[`Zaalouk`, `Aubergine fumée, tomate, ail`, '28,00', 'low', T.menuPortions(6)],[`Briouates à la viande`, `Triangles croustillants, boeuf mijoté`, '45,00', 'ok', T.menuPortions(32)],[`Caviar d'aubergine`, `Mezze traditionnel marocain`, '35,00', 'ok', T.menuPortions(24)]].map(([n, d, p, st, stock]) => `

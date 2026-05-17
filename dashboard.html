@@ -776,7 +776,7 @@
   /* ─────────────── LIVE TX FEED ─────────────── */
   .feed-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
   .feed { display: flex; flex-direction: column; gap: 2px; }
-  .feed-row { display: grid; grid-template-columns: 56px 1.3fr 1fr 1fr 90px 26px; padding: 11px 0; font-size: 13px; align-items: center; border-bottom: 1px solid var(--n-200); transition: background 120ms; gap: 12px; }
+  .feed-row { display: grid; grid-template-columns: 56px 1.3fr 1fr 1fr 90px 26px; padding: 11px 0; font-size: 13px; align-items: center; border-bottom: 1px solid var(--n-200); transition: background 120ms; gap: 12px; cursor: pointer; }
   .feed-row:last-child { border-bottom: 0; }
   .feed-row:hover { background: var(--n-50); }
   .feed-row.new { animation: slide-in 500ms cubic-bezier(0.32, 0.72, 0, 1); }
@@ -888,7 +888,7 @@
   /* ─────────────── INTEGRATIONS ─────────────── */
   .integ-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 4px; }
   @media (max-width: 1000px) { .integ-grid { grid-template-columns: 1fr 1fr; } }
-  .integ-card { background: #fff; border: 1px solid var(--n-200); border-radius: 12px; padding: 16px 18px; display: flex; align-items: center; gap: 12px; transition: border-color 150ms; }
+  .integ-card { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 12px; transition: border-color 150ms; cursor: pointer; }
   .integ-card:hover { border-color: var(--n-400); }
   .integ-card .logo { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; letter-spacing: -0.04em; color: #fff; flex-shrink: 0; font-size: 15px; }
   .integ-card .info { flex: 1; min-width: 0; }
@@ -918,7 +918,7 @@
     color: var(--atlas);
   }
   .quick-acts { display: flex; gap: 8px; align-items: center; }
-  .btn-slim { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); background: #fff; color: var(--ink); transition: all 150ms; }
+  .btn-slim { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); background: #fff; color: var(--ink); transition: border-color 150ms, background 150ms, color 150ms; }
   .btn-slim:hover { border-color: var(--n-400); }
   .btn-slim.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   .btn-slim.primary:hover { background: var(--atlas); border-color: var(--atlas); }
@@ -3260,7 +3260,7 @@
 <div class="demo-bar">
   <div class="left">
     <span class="live-dot"></span>
-    <span>Démo live · compte <b style="color:var(--paper);" data-demo-account>Café Atlas</b> · données synthétiques mises à jour en temps réel</span>
+    <span data-demo-line>Démo live · compte <b style="color:var(--paper);" data-demo-account>Café Atlas</b> · données de démonstration mises à jour en temps réel</span>
   </div>
   <div><a href="index.html" data-i18n="dash.demo.back">← Retour au site</a></div>
 </div>
@@ -3538,7 +3538,7 @@
             <div class="hh-ai-body">
               <div class="hh-ai-eyebrow" data-i18n="dash.hh.ai.eyebrow">KIWI AI · OPPORTUNITÉ</div>
               <div class="hh-ai-title" data-i18n="dash.hh.ai.title">Lancer un combo livraison Glovo pour 15h–17h</div>
-              <div class="hh-ai-obs" data-i18n="dash.hh.ai.obs">Pendant cette fenêtre creuse, votre salle tourne à 22 % de capacité mais l'équipe reste disponible. Un combo Tajine kefta + thé à la menthe à 75 MAD sur Glovo capte typiquement 8–12 commandes par après-midi dans les cafés similaires de Maarif.</div>
+              <div class="hh-ai-obs" data-i18n="dash.hh.ai.obs">Pendant cette fenêtre creuse, votre salle tourne à 22 % de capacité mais l'équipe reste disponible. Un combo Tajine kefta + thé à la menthe à 75 MAD sur Glovo capte typiquement 8–12 commandes par après-midi dans des cafés similaires de votre quartier.</div>
               <a href="#" class="hh-ai-cta" data-action="hh-ai-glovo" data-i18n="dash.hh.ai.cta">→ Configurer le combo Glovo</a>
             </div>
           </div>
@@ -3570,7 +3570,7 @@
           <div style="margin-top: 16px; padding: 14px 16px; background: var(--paper-soft); border-radius: 10px; display: flex; gap: 12px; align-items: flex-start;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2" style="margin-top: 2px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
             <div style="font-size: 12.5px; color: var(--n-700); line-height: 1.45;">
-              <b data-i18n="dash.mix.savings.label">Économie vs CMI :</b> <span data-mix-savings>~3 900 MAD ce mois</span>. <a href="#" data-action="cmi-year" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.mix.savings.year">Voir l'an</a>
+              <b data-i18n="dash.mix.savings.label">Économie vs CMI :</b> <span data-mix-savings>~3 900 MAD ce mois</span>. <a href="#" data-action="cmi-year" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.mix.savings.year">Voir l'année</a>
             </div>
           </div>
         </div>
@@ -3757,7 +3757,7 @@
               </li>
               <li>
                 <span data-i18n="dash.health.avgTip">Pourboire moyen</span>
-                <span class="status warn" data-i18n="dash.health.tipTarget">8,2 % · cible 10%</span>
+                <span class="status warn" data-i18n="dash.health.tipTarget">8,2 % · cible 10 %</span>
               </li>
               <li>
                 <span data-i18n="dash.health.paymentDiversification">Diversification paiement</span>

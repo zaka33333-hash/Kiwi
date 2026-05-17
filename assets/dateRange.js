@@ -1853,6 +1853,9 @@
         ...data,
         tx:     { ...(data.tx || {}),     value: t.count,              delta: 0 },
         panier: { ...(data.panier || {}), value: Math.round(t.basket), delta: 0 },
+        // Blank the string-valued KPIs zeroClone can't zero (text / unit).
+        ratio:    data.ratio    ? { ...data.ratio,    text: '—', delta: 0 } : data.ratio,
+        regulars: data.regulars ? { ...data.regulars, value: 0, unit: '', delta: 0 } : data.regulars,
       };
     }
 

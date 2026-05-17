@@ -1495,6 +1495,9 @@ ar: {
           if (!id) { toast('Création impossible', { type: 'pend', force: true }); return; }
           m.close();
           try { window.KiwiVenue.setVenue(id); } catch (_) {}
+          // A brand-new venue should land on "Aujourd'hui", not a stale range.
+          const todayPill = document.querySelector('[data-action="date-range"][data-range="aujourdhui"]');
+          if (todayPill && !todayPill.classList.contains('on')) todayPill.click();
           confetti();
           toast('Votre tableau de bord est prêt', { type: 'success', force: true,
             desc: `${name} — enregistrez votre première vente pour le voir prendre vie.` });

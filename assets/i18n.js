@@ -323,7 +323,7 @@
       'dash.integ.jumia.status': '24 orders today',
       'dash.integ.accounting.name': 'Accounting',
       'dash.integ.accounting.status': 'Daily OCP-compliant export',
-      'dash.integ.bank.name': 'BMCE · Bank',
+      'dash.integ.bank.name': 'Bank of Africa',
       'dash.integ.bank.status': 'IBAN verified · 3291',
       'dash.fusion.ai.eyebrow': 'KIWI AI',
       'dash.fusion.ai.title': 'Portfolio recommendations',
@@ -915,7 +915,7 @@
       'dash.integ.jumia.status': '24 طلبًا اليوم', /* AR: needs native review */
       'dash.integ.accounting.name': 'المحاسبة', /* AR: needs native review */
       'dash.integ.accounting.status': 'تصدير يومي متوافق مع OCP', /* AR: needs native review */
-      'dash.integ.bank.name': 'BMCE · بنك', /* AR: needs native review */
+      'dash.integ.bank.name': 'Bank of Africa',
       'dash.integ.bank.status': 'تم التحقق من IBAN · 3291', /* AR: needs native review */
       'dash.fusion.ai.eyebrow': 'كيوي AI', /* AR: needs native review */
       'dash.fusion.ai.title': 'توصيات المحفظة', /* AR: needs native review */
