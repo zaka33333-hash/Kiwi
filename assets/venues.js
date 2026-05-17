@@ -2158,14 +2158,29 @@
 
   /* ── Section 3 · Payroll summary ──────────────────────────────────────── */
   function eqDonut(segs) {
-    const r = 52, C = 2 * Math.PI * r;
-    let off = 0;
-    const rings = segs.map(g => {
-      const len = g.pct / 100 * C;
-      const ring = `<circle cx="75" cy="75" r="${r}" fill="none" stroke="${g.color}" stroke-width="20" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 75 75)"/>`;
-      off += len; return ring;
+    // pathLength=100 → dash/offset are exact percentages (no circumference
+    // math, no rotate() hack). A hairline GAP separates segments; each wipes
+    // in clockwise from 12 o'clock, staggered, via the CSS keyframe below.
+    const GAP = 2.5;   // gap between segments, in %
+    const SW = 15;     // stroke width
+    let acc = 0;
+    const track = `<circle cx="75" cy="75" r="52" fill="none" stroke="var(--n-200)" stroke-width="${SW}" pathLength="100"/>`;
+    const rings = segs.map((g, i) => {
+      const pct = g.pct || 0;
+      const dash = Math.max(0.01, pct - GAP);
+      const offset = 25 - acc;
+      acc += pct;
+      return `<circle class="eq-donseg" cx="75" cy="75" r="52" fill="none" stroke="${g.color}" `
+        + `stroke-width="${SW}" pathLength="100" stroke-linecap="butt" `
+        + `stroke-dasharray="${dash.toFixed(2)} ${(100 - dash).toFixed(2)}" `
+        + `stroke-dashoffset="${offset.toFixed(2)}" style="animation-delay:${80 + i * 110}ms"/>`;
     }).join('');
-    return `<svg viewBox="0 0 150 150" width="150" height="150">${rings}</svg>`;
+    return `<svg viewBox="0 0 150 150" width="150" height="150" class="eq-donut-svg">`
+      + `<style>`
+      + `.eq-donseg{animation:eq-donseg-grow 720ms cubic-bezier(0.16,1,0.3,1) both;}`
+      + `@keyframes eq-donseg-grow{from{stroke-dasharray:0 100;}}`
+      + `@media (prefers-reduced-motion:reduce){.eq-donseg{animation:none;}}`
+      + `</style>${track}${rings}</svg>`;
   }
   function eqPayrollSectionHtml() {
     const list = eqScopedStaff();   // payroll summary is always venue-scoped

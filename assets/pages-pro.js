@@ -2444,11 +2444,11 @@ handlers['nav-reservations'] = () => {
           </div>
           <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px;">
             <svg viewBox="0 0 80 80" style="width:90px; height:90px; flex-shrink:0;">
-              <circle cx="40" cy="40" r="32" fill="none" stroke="var(--n-200)" stroke-width="14"/>
-              <circle cx="40" cy="40" r="32" fill="none" stroke="var(--atlas)"   stroke-width="14" stroke-dasharray="84 201" stroke-dashoffset="0" transform="rotate(-90 40 40)"/>
-              <circle cx="40" cy="40" r="32" fill="none" stroke="#7DF2B0"        stroke-width="14" stroke-dasharray="60 201" stroke-dashoffset="-84" transform="rotate(-90 40 40)"/>
-              <circle cx="40" cy="40" r="32" fill="none" stroke="#D99A2B"        stroke-width="14" stroke-dasharray="40 201" stroke-dashoffset="-144" transform="rotate(-90 40 40)"/>
-              <circle cx="40" cy="40" r="32" fill="none" stroke="var(--riad)"    stroke-width="14" stroke-dasharray="17 201" stroke-dashoffset="-184" transform="rotate(-90 40 40)"/>
+              <circle cx="40" cy="40" r="32" fill="none" stroke="var(--n-200)" stroke-width="11" pathLength="100"/>
+              <circle cx="40" cy="40" r="32" fill="none" stroke="var(--atlas)" stroke-width="11" pathLength="100" stroke-linecap="butt" stroke-dasharray="39.29 60.71" stroke-dashoffset="25"/>
+              <circle cx="40" cy="40" r="32" fill="none" stroke="#7DF2B0"      stroke-width="11" pathLength="100" stroke-linecap="butt" stroke-dasharray="27.35 72.65" stroke-dashoffset="-16.79"/>
+              <circle cx="40" cy="40" r="32" fill="none" stroke="#D99A2B"      stroke-width="11" pathLength="100" stroke-linecap="butt" stroke-dasharray="17.40 82.60" stroke-dashoffset="-46.64"/>
+              <circle cx="40" cy="40" r="32" fill="none" stroke="var(--riad)"  stroke-width="11" pathLength="100" stroke-linecap="butt" stroke-dasharray="5.96 94.04" stroke-dashoffset="-66.54"/>
             </svg>
             <div style="flex:1; display:flex; flex-direction:column; gap:6px; font-size:12px;">
               ${[
