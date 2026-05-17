@@ -853,11 +853,13 @@
 
   /* ═══════════════ FUSION MODE — sci-fi transition + state swap ═══════════════ */
 
-  // Build the overlay's internal markup the first time we activate. We keep
-  // the orbs/sigil/particles as raw DOM so the choreography is idempotent
-  // (re-trigger by toggling .active off → animation reflows on next entry).
+  // Build the overlay's internal markup fresh on each activation so the CRT
+  // screen-open animation replays from t=0 (toggling .active reflows it).
   function buildOverlayMarkup(overlay) {
     overlay.innerHTML = `
+      <div class="fo-crt-seed"></div>
+      <div class="fo-crt-line top"></div>
+      <div class="fo-crt-line bot"></div>
       <div class="fo-label">
         GO ULTRA
         <span class="fo-label-sub">3 emplacements · vue consolidée</span>
@@ -891,11 +893,12 @@
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
 
-    /* Quick theme fade (matches the .fusion-overlay CSS timing):
-     *   t=0.00  dark wash fades in over the dashboard
-     *   t=0.32  palette + data swap UNDER the wash (Go Ultra engaged)
-     *   t=0.64  wash fades back out, Go Ultra dashboard revealed
-     *   t=1.10  cleanup
+    /* Smart-TV screen-open (matches the .fo-crt CSS timing):
+     *   t=0.00  dark wash fades in, CRT scanline ignites at centre
+     *   t=0.55  the screen "opens" — two bright lines split apart
+     *   t=1.20  palette + data swap UNDER the wash (Go Ultra engaged)
+     *   t=1.70  wash fades out, Go Ultra dashboard revealed
+     *   t=2.25  cleanup
      */
     setTimeout(() => {
       document.body.classList.add('fusion-mode');
@@ -907,19 +910,19 @@
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
-    }, 320);
+    }, 1200);
 
     // Fade overlay back out, then clear markup.
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 640);
+    }, 1700);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 1100);
+    }, 2250);
   }
 
   function exitFusion(opts = {}) {
@@ -943,19 +946,25 @@
 
     fusionAnimating = true;
 
-    // Quick theme fade back to the single-venue view — a dark wash covers
-    // the dashboard while the palette reverts underneath.
+    // Smart-TV screen-close back to the single-venue view — the screen
+    // collapses CRT-style while the palette reverts underneath.
     overlay.classList.remove('exiting');
-    overlay.innerHTML = '';
-    overlay.offsetHeight; // reflow → fade replays
+    overlay.innerHTML = `
+      <div class="fo-crt-line top-exit"></div>
+      <div class="fo-crt-line bot-exit"></div>
+      <div class="fo-crt-seed exit"></div>
+    `;
+    overlay.offsetHeight; // reflow → animations replay
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
 
-    /* Quick theme fade:
+    /* Smart-TV screen-close (matches the .fo-crt exit CSS timing):
      *   t=0.00  dark wash fades in over the Go Ultra dashboard
-     *   t=0.32  palette + data revert UNDER the wash
-     *   t=0.64  wash fades out, single-venue dashboard revealed
-     *   t=1.10  cleanup
+     *   t=0.10  two CRT lines slide IN from the edges → meet at centre
+     *   t=0.80  the centre scanline ignites, then collapses to a point
+     *   t=1.05  palette + data revert UNDER the wash
+     *   t=1.55  wash fades out, single-venue dashboard revealed
+     *   t=2.10  cleanup
      */
     setTimeout(() => {
       document.body.classList.remove('fusion-mode');
@@ -964,18 +973,18 @@
       try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
-    }, 320);
+    }, 1050);
 
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 640);
+    }, 1550);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 1100);
+    }, 2100);
   }
 
   function registerHandlers() {
