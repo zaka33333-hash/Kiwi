@@ -2797,3 +2797,53 @@ ar: {
   window.Kiwi = { toast, modal, drawer, fullpage, menu, commandPalette, confetti, handlers };
 
 })();
+
+/* ═══════════════════════ KEYBOARD ACCESSIBILITY ═══════════════════════
+ * The UI routes interaction through [data-action] on plain div/span
+ * elements. Native <button>/<a> already handle the keyboard; this layer
+ * makes the non-native [data-action] controls focusable and Enter/Space-
+ * activatable, and gives keyboard-focused controls a visible focus ring.
+ * Additive and self-contained — it never touches the click router. */
+(() => {
+  'use strict';
+  const NATIVE = { A: 1, BUTTON: 1, INPUT: 1, SELECT: 1, TEXTAREA: 1 };
+
+  function enhance(el) {
+    if (NATIVE[el.tagName] || el.dataset.kbReady) return;
+    el.dataset.kbReady = '1';
+    if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+  }
+  function scan(node) {
+    if (!node || (node.nodeType !== 1 && node.nodeType !== 9)) return;
+    if (node.matches && node.matches('[data-action]')) enhance(node);
+    if (node.querySelectorAll) node.querySelectorAll('[data-action]').forEach(enhance);
+  }
+
+  // Enter / Space on a focused non-native [data-action] → synthesize a click,
+  // which the existing click router handles unchanged.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const el = e.target.closest && e.target.closest('[data-action]');
+    if (!el || NATIVE[el.tagName]) return;
+    e.preventDefault();
+    el.click();
+  });
+
+  function init() {
+    const st = document.createElement('style');
+    st.textContent =
+      '[data-action]:focus-visible,[data-nav]:focus-visible,.kpi-m:focus-visible,' +
+      '.lang span:focus-visible{outline:2px solid var(--atlas,#0B6E4F);' +
+      'outline-offset:2px;border-radius:6px}';
+    document.head.appendChild(st);
+    scan(document);
+    if (document.body) {
+      new MutationObserver((muts) => {
+        muts.forEach((m) => m.addedNodes.forEach(scan));
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
