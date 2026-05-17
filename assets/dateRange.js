@@ -2911,6 +2911,64 @@
     }
   }
 
+  /* ═══════════════ RENDER: EVENING SERVICE + STOCK (custom-venue aware) ═══
+   * These two right-rail cards are static Café Atlas markup. On a user-created
+   * venue they would otherwise leak Café Atlas reservations / stock alerts, so
+   * we capture the original HTML once and swap in a clean empty state. */
+  let _eveningOrig = null, _stockOrig = null;
+
+  const EVENING_EMPTY = {
+    fr: { lbl: 'SERVICE DU SOIR · CE SOIR', head: 'Aucune réservation',
+          msg: 'Vos réservations du soir s’afficheront ici dès qu’un client réserve une table.' },
+    en: { lbl: 'EVENING SERVICE · TONIGHT', head: 'No reservations',
+          msg: 'Your evening reservations will appear here as soon as a guest books a table.' },
+    ar: { lbl: 'خدمة المساء · الليلة', head: 'لا توجد حجوزات',
+          msg: 'ستظهر حجوزات المساء هنا بمجرد أن يحجز أحد الزبائن طاولة.' },
+  };
+  const STOCK_EMPTY = {
+    fr: { title: 'Stock à recommander', head: 'Aucune alerte de stock',
+          msg: 'Dès que vous suivez vos ingrédients, Kiwi AI estime les quantités à recommander.' },
+    en: { title: 'Stock to reorder', head: 'No stock alerts',
+          msg: 'Once you track your ingredients, Kiwi AI estimates the quantities to reorder.' },
+    ar: { title: 'مخزون للطلب', head: 'لا توجد تنبيهات مخزون',
+          msg: 'بمجرد تتبّع مكوّناتك، يقدّر Kiwi AI الكميات الواجب طلبها.' },
+  };
+
+  function renderEvening() {
+    const el = document.querySelector('[data-evening-card]');
+    if (!el) return;
+    if (_eveningOrig == null) _eveningOrig = el['inner' + 'HTML'];
+    if (window.KiwiVenue?.isCustom?.()) {
+      const t = EVENING_EMPTY[getLang()] || EVENING_EMPTY.fr;
+      el['inner' + 'HTML'] =
+        `<div class="lbl">${t.lbl}</div>` +
+        `<div style="padding:28px 4px 8px;text-align:center;">` +
+        `<div style="font-size:14px;font-weight:600;color:var(--paper);">${t.head}</div>` +
+        `<div style="font-size:12px;color:#A8B0C8;margin-top:6px;line-height:1.5;">${t.msg}</div>` +
+        `</div>`;
+    } else if (el['inner' + 'HTML'] !== _eveningOrig) {
+      el['inner' + 'HTML'] = _eveningOrig;
+    }
+  }
+
+  function renderStock() {
+    const el = document.querySelector('[data-stock-card]');
+    if (!el) return;
+    if (_stockOrig == null) _stockOrig = el['inner' + 'HTML'];
+    if (window.KiwiVenue?.isCustom?.()) {
+      const t = STOCK_EMPTY[getLang()] || STOCK_EMPTY.fr;
+      el['inner' + 'HTML'] =
+        `<div class="block-head" style="margin-bottom:14px;"><div>` +
+        `<div class="t">${t.title}</div></div></div>` +
+        `<div style="padding:20px 4px 8px;text-align:center;">` +
+        `<div style="font-size:13.5px;font-weight:600;color:var(--ink);">${t.head}</div>` +
+        `<div style="font-size:12px;color:var(--n-500);margin-top:6px;line-height:1.5;">${t.msg}</div>` +
+        `</div>`;
+    } else if (el['inner' + 'HTML'] !== _stockOrig) {
+      el['inner' + 'HTML'] = _stockOrig;
+    }
+  }
+
   /* ═══════════════ RENDER: TIMELINE WEEK TOTAL ═══════════════ */
 
   function renderTimeline() {
@@ -3054,6 +3112,8 @@
       renderMix();
       renderFeed();
       renderSettle();
+      renderEvening();
+      renderStock();
       renderHealth();
       renderBench();
       renderProducts();
@@ -3138,6 +3198,8 @@
     subscribe(renderMix);
     subscribe(renderFeed);
     subscribe(renderSettle);
+    subscribe(renderEvening);
+    subscribe(renderStock);
     subscribe(renderTimeline);
     subscribe(renderHealth);
     subscribe(renderBench);
@@ -3159,6 +3221,8 @@
           renderMix();
           renderFeed();
           renderSettle();
+          renderEvening();
+          renderStock();
           renderTimeline();
           renderHealth();
           renderBench();
@@ -3242,6 +3306,8 @@
     renderMix();
     renderFeed();
     renderSettle();
+    renderEvening();
+    renderStock();
     renderTimeline();
     renderHealth();
     renderBench();
