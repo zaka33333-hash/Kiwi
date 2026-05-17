@@ -6123,12 +6123,31 @@ footer {
 .lang span{padding:4px 6px;cursor:pointer;color:var(--n-500);border-radius:6px;transition:color .15s ease,background .15s ease}
 .lang span:hover{color:var(--ink)}
 .lang span.on{color:var(--atlas);font-weight:600;background:rgba(11,110,79,.08)}
-html[dir=rtl] body{text-align:right}
-html[dir=rtl] .wrap,html[dir=rtl] .s-head,html[dir=rtl] .hero-lede,html[dir=rtl] .lede{text-align:right}
-html[dir=rtl] .nav-inner,html[dir=rtl] .hero-ctas,html[dir=rtl] .trust-row,html[dir=rtl] .hero-kpis{direction:rtl}
 html[dir=rtl] .lang{direction:ltr}
-html[dir=rtl] .feat-grid,html[dir=rtl] .trans-manifesto,html[dir=rtl] .story-grid,html[dir=rtl] .foot-grid{direction:rtl}
-html[dir=rtl] [lang=ar][dir=rtl]{direction:rtl}
+/* ─── RTL · Arabic ───────────────────────────────────────────────
+   dir="rtl" (set by i18n.js) already flips text flow and every
+   flex/grid main-axis. These override the handful of physical
+   (left/right) properties the landing CSS uses, so the layout
+   mirrors cleanly instead of half-flipping. */
+html[dir=rtl] body{text-align:right}
+html[dir=rtl] .cmp thead th,
+html[dir=rtl] .faq-nav-item,
+html[dir=rtl] .lead-form,
+html[dir=rtl] .t1-to{text-align:right}
+/* lead-form input — field icon moves to the right edge */
+html[dir=rtl] .lead-input-wrap input{padding-left:14px !important;padding-right:44px !important}
+html[dir=rtl] .lead-input-icon{left:auto;right:14px}
+/* FAQ nav — active-item accent rail on the right */
+html[dir=rtl] .faq-nav-item::before{left:auto;right:0}
+/* why-now timeline — mirror rail, progress fill, dot and gutters */
+html[dir=rtl] .why-event{padding-left:0;padding-right:32px}
+html[dir=rtl] .why-event-date{padding-right:0;padding-left:var(--s-5);text-align:left}
+html[dir=rtl] .why-event-quote{padding-left:0;padding-right:14px}
+html[dir=rtl] .why-timeline::before{left:auto;right:calc(var(--rail-x) - var(--rail-w) / 2)}
+html[dir=rtl] .why-timeline::after{left:auto;right:calc(var(--rail-x) - var(--rail-progress-w) / 2)}
+html[dir=rtl] .why-event-date::after{left:auto;right:calc(var(--rail-x) - var(--dot) / 2)}
+/* directional → arrows in CTAs flip to point with the text */
+html[dir=rtl] .btn svg{transform:scaleX(-1)}
 </style>
 <script defer src="assets/i18n.js"></script>
 <script src="assets/landing/motion.min.js" defer></script>
