@@ -1405,6 +1405,74 @@ ar: {
 
     'settings-soon': () => {},
 
+    /* ─── Onboarding wizard — create the merchant's own (blank) dashboard.
+     * Reached by entering PIN 0000 at the lock screen. ─── */
+    'onboard': () => {
+      let picked = 'restaurant';
+      const TYPES = [
+        { k: 'restaurant', label: 'Restaurant / Café', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2v7c0 1.1.9 2 2 2h2v11M11 2v20M11 11h8a3 3 0 003-3V4M19 4v17"/></svg>' },
+        { k: 'boutique',   label: 'Boutique',          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>' },
+        { k: 'spa',        label: 'Spa / Bien-être',   icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2 6h6l-5 4 2 7-5-4-5 4 2-7-5-4h6z"/></svg>' },
+      ];
+      const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;';
+      const lbl = 'display:block;font-size:12px;font-weight:500;color:var(--n-600);margin:16px 0 6px;';
+      const m = modal({
+        tag: 'BIENVENUE SUR KIWI',
+        title: 'Configurez votre tableau de bord',
+        desc: 'Une minute pour créer le vôtre — vide, prêt à se remplir avec vos vraies ventes.',
+        width: 520,
+        body: `
+          <style>
+            .ob-type{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 8px;
+              border:1px solid var(--n-200);border-radius:12px;background:#fff;cursor:pointer;
+              font-family:var(--sans);font-size:12px;font-weight:500;color:var(--n-600);
+              transition:border-color 140ms,background 140ms,color 140ms;}
+            .ob-type svg{width:22px;height:22px;}
+            .ob-type:hover{border-color:var(--n-400);}
+            .ob-type.sel{border-color:var(--atlas);background:rgba(11,110,79,0.05);color:var(--atlas);}
+            .ob-field:focus{border-color:var(--atlas)!important;}
+          </style>
+          <label style="${lbl}margin-top:4px;">Type d'activité</label>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            ${TYPES.map((t, i) => `<button type="button" class="ob-type${i === 0 ? ' sel' : ''}" data-ob-type="${t.k}">${t.icon}<span>${t.label}</span></button>`).join('')}
+          </div>
+          <label style="${lbl}">Nom de l'activité</label>
+          <input class="ob-field" data-ob-name placeholder="Ex. Café des Oudayas" style="${fld}" maxlength="40"/>
+          <label style="${lbl}">Ville</label>
+          <input class="ob-field" data-ob-city placeholder="Ex. Rabat" style="${fld}" maxlength="30"/>
+          <label style="${lbl}">Objectif de chiffre d'affaires par jour <span style="color:var(--n-400);font-weight:400;">· optionnel</span></label>
+          <input class="ob-field" data-ob-goal type="number" inputmode="numeric" placeholder="Ex. 5000 MAD" style="${fld}" min="0"/>
+        `,
+        foot: `<button class="kb atlas" data-ob-create type="button" style="width:100%;just-content:center;justify-content:center;padding:13px;font-size:15px;">Créer mon tableau de bord →</button>`,
+      });
+      const nameInput = m.el.querySelector('[data-ob-name]');
+      setTimeout(() => nameInput && nameInput.focus(), 320);
+      // Make sure the visible selection matches `picked` on open.
+      m.el.querySelectorAll('[data-ob-type]').forEach((x) => x.classList.toggle('sel', x.dataset.obType === picked));
+      m.el.addEventListener('click', (e) => {
+        const t = e.target.closest('[data-ob-type]');
+        if (t) {
+          picked = t.dataset.obType;
+          m.el.querySelectorAll('[data-ob-type]').forEach((x) => x.classList.toggle('sel', x === t));
+          return;
+        }
+        if (e.target.closest('[data-ob-create]')) {
+          const name = (nameInput.value || '').trim();
+          if (!name) { toast('Donnez un nom à votre activité', { type: 'pend', force: true }); nameInput.focus(); return; }
+          const city = (m.el.querySelector('[data-ob-city]').value || '').trim();
+          const goal = +(m.el.querySelector('[data-ob-goal]').value) || 0;
+          let id = null;
+          try { id = window.KiwiVenue?.createVenue?.({ type: picked, name, location: city, goal }); } catch (_) {}
+          if (!id) { toast('Création impossible', { type: 'pend', force: true }); return; }
+          m.close();
+          try { window.KiwiVenue.setVenue(id); } catch (_) {}
+          confetti();
+          toast('Votre tableau de bord est prêt', { type: 'success', force: true,
+            desc: `${name} — enregistrez votre première vente pour le voir prendre vie.` });
+        }
+      });
+    },
+
     'export': () => {
       toast('Préparation de l\'export…', { type: 'info', duration: 1600 });
       setTimeout(() => {

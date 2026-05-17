@@ -31,6 +31,11 @@ html[data-theme="dark"] {
   --mint: #7DF2B0;
   --mint-soft: rgba(125,242,176,0.12);
 
+  /* Portfolio chart series — one brand green + warm neutrals (dark) */
+  --fs-bahia:   #1F9069;
+  --fs-mansour: #7C7259;
+  --fs-atlas:   #CFC5AC;
+
   color-scheme: dark;
 }
 

@@ -849,8 +849,9 @@
       // with the dashboard's Commandes KPI tile. If the clock isn't running yet
       // (initial paint before the simulator's first tick), fall back to the
       // venue's end-of-day target so the badge isn't empty.
-      const live = window.KiwiDemoClock?.getSimState?.()?.cumTx;
-      txCountEl.textContent = String(live != null ? live : VENUES[currentVenue].txCount);
+      // A user-created venue has no demo clock — its badge stays at 0.
+      const live = isCustom(currentVenue) ? 0 : window.KiwiDemoClock?.getSimState?.()?.cumTx;
+      txCountEl.textContent = String(live != null ? live : (VENUES[currentVenue].txCount || 0));
     }
     const staffCountEl = document.querySelector('a[data-nav="equipe"] .count');
     // Sidebar "Équipe" badge → number of staff currently clocked in (present),
@@ -1306,9 +1307,9 @@
         <div class="fs-chart-plot">
           <svg class="fs-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
             ${gridSvg}
-            <path d="${pathSpa}"     fill="var(--mint)"      opacity="0.40"/>
-            <path d="${pathMansour}" fill="var(--atlas-600)" opacity="0.50"/>
-            <path d="${pathAtlas}"   fill="var(--atlas)"     opacity="0.60"/>
+            <path d="${pathSpa}"     fill="var(--fs-bahia)"   opacity="0.92"/>
+            <path d="${pathMansour}" fill="var(--fs-mansour)" opacity="0.92"/>
+            <path d="${pathAtlas}"   fill="var(--fs-atlas)"   opacity="0.92"/>
           </svg>
         </div>
         <div class="fs-chart-x-axis">${xHtml}</div>
@@ -1518,9 +1519,9 @@
           bodyEl.innerHTML = fusionIntradayBuffer.length > 0
             ? fusionStackedAreaSvg(fusionIntradayBuffer, { showXEvery: 1, minMax: FUSION_PORTFOLIO_GOAL * 0.4 })
               + `<div class="fs-chart-legend">
-                  <span><i style="background:var(--atlas)"></i> Café Atlas</span>
-                  <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
-                  <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+                  <span><i style="background:var(--fs-atlas)"></i> Café Atlas</span>
+                  <span><i style="background:var(--fs-mansour)"></i> Maison Mansour</span>
+                  <span><i style="background:var(--fs-bahia)"></i> Spa Bahia</span>
                 </div>`
             : `<div class="fs-chart-empty">En attente du premier tick du démo-clock…</div>`;
         }
@@ -1541,9 +1542,9 @@
         if (subEl)   subEl.textContent   = '3 enseignes empilées · CA quotidien';
         if (bodyEl)  bodyEl.innerHTML    = fusionStackedAreaSvg(points, { showXEvery: range === 'septJours' ? 1 : 5 })
           + `<div class="fs-chart-legend">
-              <span><i style="background:var(--atlas)"></i> Café Atlas</span>
-              <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
-              <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+              <span><i style="background:var(--fs-atlas)"></i> Café Atlas</span>
+              <span><i style="background:var(--fs-mansour)"></i> Maison Mansour</span>
+              <span><i style="background:var(--fs-bahia)"></i> Spa Bahia</span>
             </div>`;
       }
     }
@@ -1697,9 +1698,9 @@
     if (chartBody && fusionIntradayBuffer.length > 0) {
       chartBody.innerHTML = fusionStackedAreaSvg(fusionIntradayBuffer, { showXEvery: 1, minMax: FUSION_PORTFOLIO_GOAL * 0.4 })
         + `<div class="fs-chart-legend">
-            <span><i style="background:var(--atlas)"></i> Café Atlas</span>
-            <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
-            <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+            <span><i style="background:var(--fs-atlas)"></i> Café Atlas</span>
+            <span><i style="background:var(--fs-mansour)"></i> Maison Mansour</span>
+            <span><i style="background:var(--fs-bahia)"></i> Spa Bahia</span>
           </div>`;
     }
   }
@@ -1915,7 +1916,7 @@
   function eqShowPage() {
     eqCurrentPage = 'equipe';
     /* Clear any sibling full-page view so two page-* classes never coexist. */
-    document.body.classList.remove('page-menu');
+    document.body.classList.remove('page-menu', 'page-payroll');
     document.body.classList.add('page-equipe');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Équipe</b>';
@@ -2925,7 +2926,7 @@
      * also reset the Équipe module's page flag so its clock/venue
      * subscribers don't keep re-rendering a now-hidden section. */
     eqCurrentPage = 'dashboard';
-    document.body.classList.remove('page-equipe');
+    document.body.classList.remove('page-equipe', 'page-payroll');
     document.body.classList.add('page-menu');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Menu &amp; modificateurs</b>';
@@ -3939,21 +3940,352 @@
 
   miWireHandlers();
 
-  /* The Équipe + Menu pages override Kiwi.handlers['nav-equipe'] / ['nav-menu']
-   * so the sidebar opens the full-page views, not pages-pro.js's legacy drawers.
+  /* ═══════════════════════════════════════════════════════════════════════
+   * PAIE & PLANNING — full-page payroll + scheduling view
+   * Reachable from the sidebar "Paie & planning" item (overrides pages.js'
+   * nav-payroll drawer). Single venue → that venue's staff; Go Ultra → all
+   * three. Built from the STAFF roster; the weekly schedule is generated
+   * once, then mutable in-memory — click any shift cell to edit it.
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  let payCurrentPage = 'dashboard';
+  let paySort = 'salary';                 // 'salary' | 'name' | 'hours'
+  let paySchedule = null;                 // { staffId: [day0..day6] }, lazy-built
+
+  const PAY_DOW      = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  const PAY_DOW_LONG = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  const PAY_CNSS_RATE = 0.2109;           // employer social charges (CNSS + AMO + formation)
+
+  function payEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g,
+      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+  function payNum(n) { return Math.round(n || 0).toLocaleString('fr-FR').replace(/[ ,]/g, ' '); }
+  function payMad(n) { return payNum(n) + ' MAD'; }
+
+  function payStaffAll() { return [].concat(STAFF.cafeAtlas, STAFF.maisonMansour, STAFF.spaBahia); }
+  /* Staff in scope: the active venue, or all three under Go Ultra. */
+  function payStaff() {
+    if (currentVenue === 'fusion') return payStaffAll();
+    return (STAFF[currentVenue] || STAFF.cafeAtlas).slice();
+  }
+  /* Gross monthly pay — same basis as the Équipe page (hours × rate). */
+  function payGross(s) { return s.hoursThisMonth * s.hourlyRate; }
+
+  /* ── Weekly schedule — generated once per staff, then editable ──────────
+   * Each staff → 7 entries; null = repos, else { s:'HH:MM', e:'HH:MM' }. */
+  const PAY_SHIFT_BY_DEPT = {
+    cuisine:    { s: '07:00', e: '15:00' },
+    salle:      { s: '11:00', e: '19:00' },
+    caisse:     { s: '08:00', e: '16:00' },
+    accueil:    { s: '09:00', e: '17:00' },
+    support:    { s: '07:30', e: '15:30' },
+    management: { s: '09:00', e: '18:00' },
+    soin:       { s: '10:00', e: '18:00' },
+    vente:      { s: '10:00', e: '19:00' },
+  };
+  function payBuildSchedule() {
+    paySchedule = {};
+    payStaffAll().forEach((s, idx) => {
+      let base = PAY_SHIFT_BY_DEPT[s.department] || { s: '09:00', e: '17:00' };
+      if (s.department === 'salle' && /senior/i.test(s.role)) base = { s: '16:00', e: '24:00' };
+      const off1 = idx % 7;                 // two rest days, staggered so coverage rotates
+      const off2 = (idx + 3) % 7;
+      paySchedule[s.id] = PAY_DOW.map((_, d) =>
+        (d === off1 || d === off2) ? null : { s: base.s, e: base.e });
+    });
+  }
+  function paySched() { if (!paySchedule) payBuildSchedule(); return paySchedule; }
+  function payShiftHours(sh) {
+    if (!sh) return 0;
+    const a = +sh.s.slice(0, 2) + (+sh.s.slice(3)) / 60;
+    let b = +sh.e.slice(0, 2) + (+sh.e.slice(3)) / 60;
+    if (b <= a) b += 24;
+    return b - a;
+  }
+  function payShiftKind(sh) {
+    if (!sh) return 'off';
+    const h = +sh.s.slice(0, 2);
+    return h < 10 ? 'morning' : h < 16 ? 'day' : 'evening';
+  }
+
+  /* ═══════════ NAVIGATION ═══════════ */
+
+  function payShowPage() {
+    payCurrentPage = 'payroll';
+    document.body.classList.remove('page-equipe', 'page-menu');
+    document.body.classList.add('page-payroll');
+    const bc = document.querySelector('.breadcrumb');
+    if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Paie &amp; Planning</b>';
+    document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+    document.querySelector('.sidebar nav a[data-nav="payroll"]')?.classList.add('active');
+    window.scrollTo({ top: 0 });
+    renderPayroll();
+  }
+  function payShowDashboard() {
+    if (payCurrentPage !== 'payroll') return;
+    payCurrentPage = 'dashboard';
+    document.body.classList.remove('page-payroll');
+    const bc = document.querySelector('.breadcrumb');
+    if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+  }
+
+  /* ═══════════ RENDER ═══════════ */
+
+  function renderPayroll() {
+    const root = document.querySelector('[data-payroll-root]');
+    if (!root) return;
+    const staff = payStaff();
+    root.innerHTML =
+      payHeadHtml(staff) +
+      payHeroHtml(staff) +
+      payDeptHtml(staff) +
+      payTableHtml(staff) +
+      payPlanningHtml(staff);
+    requestAnimationFrame(() => {
+      root.querySelectorAll('[data-pay-bar]').forEach(b => { b.style.width = b.dataset.payBar + '%'; });
+    });
+  }
+
+  function payHeadHtml(staff) {
+    const venueName = currentVenue === 'fusion'
+      ? 'Go Ultra · 3 emplacements'
+      : (STAFF[currentVenue] && STAFF[currentVenue][0] ? STAFF[currentVenue][0].venueName : 'Café Atlas');
+    return `
+      <div class="pay-head">
+        <div>
+          <div class="pay-title">Paie &amp; Planning</div>
+          <div class="pay-sub">${payEsc(venueName)} · ${staff.length} employés · cycle de paie mensuel</div>
+        </div>
+        <button class="kb primary" data-action="pay-export">Exporter la paie</button>
+      </div>`;
+  }
+
+  function payHeroHtml(staff) {
+    const masse  = staff.reduce((a, s) => a + payGross(s), 0);
+    const charges = Math.round(masse * PAY_CNSS_RATE);
+    const total  = masse + charges;
+    const avg    = staff.length ? Math.round(masse / staff.length) : 0;
+    const card = (l, v, s) =>
+      `<div class="pay-stat"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+    return `
+      <div class="pay-hero">
+        ${card('Masse salariale', payMad(masse), 'brut · ce mois')}
+        ${card('Charges sociales', payMad(charges), 'CNSS · AMO · employeur')}
+        ${card('Coût total employeur', payMad(total), 'masse + charges')}
+        ${card('Coût moyen / employé', payMad(avg), `${staff.length} employés`)}
+      </div>`;
+  }
+
+  function payDeptHtml(staff) {
+    const masse = staff.reduce((a, s) => a + payGross(s), 0) || 1;
+    const byDept = {};
+    staff.forEach(s => {
+      if (!byDept[s.department]) byDept[s.department] = { sum: 0, n: 0 };
+      byDept[s.department].sum += payGross(s);
+      byDept[s.department].n++;
+    });
+    const rows = EQ_DEPT_ORDER.filter(d => byDept[d]).map(d => {
+      const D = EQ_DEPTS[d], info = byDept[d], pct = Math.round((info.sum / masse) * 100);
+      return `
+        <div class="pay-dept-row">
+          <div class="pay-dept-name"><span class="pay-dept-dot" style="background:${D.color}"></span>${payEsc(D.label)}</div>
+          <div class="pay-dept-meta">${info.n} ${info.n > 1 ? 'employés' : 'employé'}</div>
+          <div class="pay-dept-track"><div class="pay-dept-fill" data-pay-bar="${pct}" style="background:${D.color}"></div></div>
+          <div class="pay-dept-val">${payMad(info.sum)}<span class="pct">${pct}%</span></div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="pay-section">
+        <div class="pay-section-head"><h3>Répartition par département</h3>
+          <span class="pay-section-sub">où part la masse salariale</span></div>
+        <div class="pay-dept-list">${rows}</div>
+      </div>`;
+  }
+
+  function payTableHtml(staff) {
+    const sorted = staff.slice().sort((a, b) => {
+      if (paySort === 'name')  return a.name.localeCompare(b.name);
+      if (paySort === 'hours') return b.hoursThisMonth - a.hoursThisMonth;
+      return payGross(b) - payGross(a);
+    });
+    const th = (key, label, cls) =>
+      `<th class="${cls || ''} ${paySort === key ? 'on' : ''}" data-action="pay-sort" data-arg="${key}">${label}</th>`;
+    const rows = sorted.map(s => {
+      const gross = payGross(s), tot = gross + s.tipsThisMonth;
+      const D = EQ_DEPTS[s.department] || { label: s.department, color: 'var(--n-400)' };
+      return `
+        <tr>
+          <td>
+            <div class="pay-emp">
+              <span class="pay-emp-av" style="background:${D.color}">${payEsc(s.avatar)}</span>
+              <span><span class="pay-emp-n">${payEsc(s.name)}</span>
+              <span class="pay-emp-r">${payEsc(s.role)}</span></span>
+            </div>
+          </td>
+          <td><span class="pay-dept-tag" style="color:${D.color}">${payEsc(D.label)}</span></td>
+          <td class="r mono">${s.contractHours} h/sem</td>
+          <td class="r mono">${s.hourlyRate} MAD/h</td>
+          <td class="r mono">${payMad(gross)}</td>
+          <td class="r mono">${s.tipsThisMonth ? payMad(s.tipsThisMonth) : '—'}</td>
+          <td class="r mono pay-total">${payMad(tot)}</td>
+        </tr>`;
+    }).join('');
+    const masse = staff.reduce((a, s) => a + payGross(s), 0);
+    const tips  = staff.reduce((a, s) => a + s.tipsThisMonth, 0);
+    return `
+      <div class="pay-section">
+        <div class="pay-section-head"><h3>Paie par employé</h3>
+          <span class="pay-section-sub">cliquez un en-tête pour trier</span></div>
+        <div class="pay-table-wrap">
+          <table class="pay-table">
+            <thead><tr>
+              ${th('name', 'Employé')}
+              <th>Département</th>
+              <th class="r">Contrat</th>
+              <th class="r">Taux</th>
+              ${th('salary', 'Salaire brut', 'r')}
+              <th class="r">Pourboires</th>
+              ${th('hours', 'Total', 'r')}
+            </tr></thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr>
+              <td colspan="4">Total · ${staff.length} employés</td>
+              <td class="r mono">${payMad(masse)}</td>
+              <td class="r mono">${payMad(tips)}</td>
+              <td class="r mono pay-total">${payMad(masse + tips)}</td>
+            </tr></tfoot>
+          </table>
+        </div>
+      </div>`;
+  }
+
+  function payPlanningHtml(staff) {
+    const sched = paySched();
+    const cover = PAY_DOW.map(() => 0);
+    const body = staff.map(s => {
+      const week = sched[s.id] || PAY_DOW.map(() => null);
+      const cells = week.map((sh, d) => {
+        if (sh) cover[d]++;
+        const kind = payShiftKind(sh);
+        const inner = sh
+          ? `<span class="pay-sh-time">${sh.s}–${sh.e}</span><span class="pay-sh-h">${payShiftHours(sh).toFixed(1).replace('.0', '')} h</span>`
+          : `<span class="pay-sh-rest">Repos</span>`;
+        return `<button type="button" class="pay-cell ${kind}" data-action="pay-edit-shift" data-arg="${s.id}:${d}">${inner}</button>`;
+      }).join('');
+      const D = EQ_DEPTS[s.department] || { color: 'var(--n-400)' };
+      return `
+        <div class="pay-wk-row">
+          <div class="pay-wk-name"><span class="pay-wk-dot" style="background:${D.color}"></span>
+            <span><span class="pay-emp-n">${payEsc(s.name)}</span>
+            <span class="pay-emp-r">${payEsc(s.role)}</span></span></div>
+          ${cells}
+        </div>`;
+    }).join('');
+    const head = PAY_DOW.map((d, i) => `<div class="pay-wk-hcell">${d}</div>`).join('');
+    const coverRow = cover.map(c => `<div class="pay-wk-cover">${c} <span>en poste</span></div>`).join('');
+    return `
+      <div class="pay-section">
+        <div class="pay-section-head"><h3>Planning de la semaine</h3>
+          <span class="pay-section-sub">cliquez un service pour le modifier</span></div>
+        <div class="pay-week">
+          <div class="pay-wk-grid">
+            <div class="pay-wk-row pay-wk-headrow"><div class="pay-wk-name"></div>${head}</div>
+            ${body}
+            <div class="pay-wk-row pay-wk-coverrow"><div class="pay-wk-name">Couverture</div>${coverRow}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* ═══════════ EDIT-SHIFT MODAL ═══════════ */
+
+  function payOpenShiftModal(id, day) {
+    const member = payStaffAll().find(s => s.id === id);
+    if (!member || !window.Kiwi || !window.Kiwi.modal) return;
+    const sched = paySched();
+    const cur = sched[id] && sched[id][day];
+    const handle = window.Kiwi.modal({
+      title: 'Modifier le service',
+      tag: PAY_DOW_LONG[day],
+      desc: member.name + ' · ' + member.role,
+      width: 430,
+      body: `
+        <label class="pay-modal-rest">
+          <input type="checkbox" data-pay-rest ${cur ? '' : 'checked'}/>
+          <span>Jour de repos</span>
+        </label>
+        <div class="pay-modal-times" data-pay-times ${cur ? '' : 'hidden'}>
+          <div class="kf-row">
+            <div class="kf-group"><label class="kf-label">Début</label>
+              <input type="time" class="kf-input" data-pay-start value="${cur ? cur.s : '09:00'}"/></div>
+            <div class="kf-group"><label class="kf-label">Fin</label>
+              <input type="time" class="kf-input" data-pay-end value="${cur ? cur.e : '17:00'}"/></div>
+          </div>
+        </div>`,
+      foot: `<button class="kb ghost" data-pay-cancel>Annuler</button>
+             <button class="kb primary" data-pay-save>Enregistrer</button>`,
+    });
+    const el = handle.el;
+    const rest = el.querySelector('[data-pay-rest]');
+    const times = el.querySelector('[data-pay-times]');
+    rest.addEventListener('change', () => { times.hidden = rest.checked; });
+    el.querySelector('[data-pay-cancel]').addEventListener('click', () => handle.close());
+    el.querySelector('[data-pay-save]').addEventListener('click', () => {
+      if (rest.checked) {
+        sched[id][day] = null;
+      } else {
+        sched[id][day] = {
+          s: el.querySelector('[data-pay-start]').value || '09:00',
+          e: el.querySelector('[data-pay-end]').value || '17:00',
+        };
+      }
+      handle.close();
+      renderPayroll();
+      window.Kiwi.toast('Planning mis à jour', { type: 'success', desc: member.name + ' · ' + PAY_DOW_LONG[day] });
+    });
+  }
+
+  /* ═══════════ HANDLERS ═══════════ */
+
+  function payWireHandlers() {
+    const H = window.Kiwi && window.Kiwi.handlers;
+    if (!H) { setTimeout(payWireHandlers, 30); return; }
+    H['nav-payroll'] = () => payShowPage();
+    const origAccueil = H['nav-accueil'];
+    H['nav-accueil'] = function () {
+      try { if (origAccueil) origAccueil.apply(this, arguments); } catch (_) {}
+      payShowDashboard();
+    };
+    H['pay-edit-shift'] = (_el, arg) => {
+      const i = String(arg || '').lastIndexOf(':');
+      if (i < 0) return;
+      payOpenShiftModal(String(arg).slice(0, i), +String(arg).slice(i + 1));
+    };
+    H['pay-sort'] = (_el, key) => { paySort = key || 'salary'; renderPayroll(); };
+    H['pay-export'] = () => window.Kiwi.toast('Export paie généré', {
+      type: 'success', desc: 'Bulletin récapitulatif · PDF envoyé au gérant',
+    });
+  }
+  payWireHandlers();
+
+  /* The Équipe / Menu / Paie pages override Kiwi.handlers['nav-*'] so the
+   * sidebar opens the full-page views, not pages-pro.js's legacy drawers.
    * Script order is no longer guaranteed — a perf pass moved pages.js /
    * pages-pro.js to load AFTER venues.js, so they were overwriting these. Re-
    * assert once every deferred script has run (window 'load' fires after them). */
   window.addEventListener('load', function () {
     const H = window.Kiwi && window.Kiwi.handlers;
     if (!H) return;
-    H['nav-equipe'] = () => eqShowPage();
-    H['nav-menu']   = () => miShowPage();
+    H['nav-equipe']  = () => eqShowPage();
+    H['nav-menu']    = () => miShowPage();
+    H['nav-payroll'] = () => payShowPage();
     const origAccueil = H['nav-accueil'];
     H['nav-accueil'] = function () {
       try { if (origAccueil) origAccueil.apply(this, arguments); } catch (_) {}
       eqShowDashboard();
       miShowDashboard();
+      payShowDashboard();
     };
   });
 
@@ -3972,7 +4304,18 @@
     getCurrentVenueData,
     getVenueType,
     getKpiSpec: type => KPI_BY_TYPE[type] || KPI_BY_TYPE.restaurant,
-    getHeroAiRec: id => { const L = HERO_AI_REC[fusionLang()] || HERO_AI_REC.fr; return L[id || currentVenue] || L.cafeAtlas; },
+    getHeroAiRec: id => {
+      const v = id || currentVenue;
+      if (isCustom(v)) {
+        const W = {
+          fr: { title: 'Votre tableau de bord est prêt', obs: "Aucune donnée pour l'instant — enregistrez vos ventes et Kiwi AI commencera à repérer vos heures fortes, vos marges et vos opportunités.", act: '→ Enregistrez votre première vente pour démarrer.' },
+          en: { title: 'Your dashboard is ready', obs: 'No data yet — record your sales and Kiwi AI will start spotting your peak hours, margins and opportunities.', act: '→ Record your first sale to get started.' },
+          ar: { title: 'لوحة التحكم جاهزة', obs: 'لا توجد بيانات بعد — سجّل مبيعاتك وسيبدأ Kiwi AI في رصد ساعات الذروة والهوامش والفرص.', act: '→ سجّل أول عملية بيع للبدء.' },
+        };
+        return W[fusionLang()] || W.fr;
+      }
+      const L = HERO_AI_REC[fusionLang()] || HERO_AI_REC.fr; return L[v] || L.cafeAtlas;
+    },
     getHeatmapAiRec: id => { const L = HEATMAP_AI_REC[fusionLang()] || HEATMAP_AI_REC.fr; return L[id || currentVenue] || L.cafeAtlas; },
     getMixCmiSavings: id => { const L = MIX_CMI_SAVINGS[fusionLang()] || MIX_CMI_SAVINGS.fr; return L[id || currentVenue] || L.cafeAtlas; },
     getBenchLabels: id => { const L = BENCH_LABELS[fusionLang()] || BENCH_LABELS.fr; return L[id || currentVenue] || L.cafeAtlas; },
