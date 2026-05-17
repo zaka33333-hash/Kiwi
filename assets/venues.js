@@ -621,9 +621,9 @@
   };
 
   const DROPDOWN_CTA = {
-    fr: { exitT: 'Revenir à la vue simple', exitS: 'Repasser sur un seul emplacement', enterT: 'Passer en Go Ultra', enterS: 'Vue consolidée · données multi-sites' },
-    en: { exitT: 'Back to single view', exitS: 'Return to a single location', enterT: 'Switch to Go Ultra', enterS: 'Consolidated view · multi-site data' },
-    ar: { exitT: 'العودة إلى العرض البسيط', exitS: 'الرجوع إلى موقع واحد', enterT: 'الانتقال إلى Go Ultra', enterS: 'عرض موحّد · بيانات متعدّدة المواقع' },
+    fr: { exitT: 'Revenir à la vue simple', exitS: 'Repasser sur un seul emplacement', enterT: 'Go Ultra', enterS: 'Vue consolidée · données multi-sites' },
+    en: { exitT: 'Back to single view', exitS: 'Return to a single location', enterT: 'Go Ultra', enterS: 'Consolidated view · multi-site data' },
+    ar: { exitT: 'العودة إلى العرض البسيط', exitS: 'الرجوع إلى موقع واحد', enterT: 'Go Ultra', enterS: 'عرض موحّد · بيانات متعدّدة المواقع' },
   };
 
   function renderDropdown() {
@@ -3432,7 +3432,7 @@
           <div class="mi-locked">
             <div class="mi-locked-ic">${miSvg('compare', 24)}</div>
             <h3>Comparaison multi-sites</h3>
-            <p>Activez Go Ultra (sidebar → Passer en Go Ultra) pour comparer les menus, le pricing et la performance de vos 3 établissements côte à côte.</p>
+            <p>Activez Go Ultra (sidebar → Go Ultra) pour comparer les menus, le pricing et la performance de vos 3 établissements côte à côte.</p>
           </div>
         </div>`;
     }
