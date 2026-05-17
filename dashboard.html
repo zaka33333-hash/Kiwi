@@ -3135,6 +3135,96 @@
   body.fusion-mode .mi-list tbody tr:hover { background: rgba(125,242,176,0.07) !important; }
   body.fusion-mode .mi-dot { border-color: #0C2920; }
   body.fusion-mode .mi-qcard-btn.danger { background: linear-gradient(135deg, var(--danger), #9B2F22) !important; border-color: transparent !important; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * PAIE & PLANNING — full-page payroll + scheduling view (.dash-payroll)
+   * Rendered by renderPayroll() in assets/venues.js; shown on body.page-payroll.
+   * ═══════════════════════════════════════════════════════════════════════ */
+  .dash-payroll { display: none; }
+  body.page-payroll .page-head,
+  body.page-payroll .dash-date-range,
+  body.page-payroll .dash-standard,
+  body.page-payroll .dash-fusion { display: none !important; }
+  body.page-payroll .dash-payroll { display: block; animation: fade-in 220ms ease-out; min-width: 0; }
+  @media (min-width: 1101px) {
+    body.page-payroll .app { grid-template-columns: 260px minmax(0, 1fr); }
+  }
+
+  .pay-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 18px 0 22px; }
+  .pay-title { font-size: 34px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); line-height: 1.1; }
+  .pay-sub { font-size: 13px; color: var(--n-500); margin-top: 6px; }
+
+  .pay-hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  @media (max-width: 980px) { .pay-hero { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .pay-hero { grid-template-columns: 1fr; } }
+  .pay-stat { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 18px 20px; }
+  .pay-stat .l { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--n-500); font-weight: 600; font-family: var(--mono); }
+  .pay-stat .v { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; margin-top: 9px; color: var(--ink); font-feature-settings: "tnum" 1; }
+  .pay-stat .s { font-size: 11.5px; color: var(--n-500); margin-top: 5px; }
+
+  .pay-section { background: #fff; border: 1px solid var(--n-200); border-radius: 16px; padding: 22px 24px; margin-bottom: 16px; }
+  .pay-section-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .pay-section-head h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; margin: 0; color: var(--ink); }
+  .pay-section-sub { font-size: 12px; color: var(--n-500); }
+
+  .pay-dept-list { display: flex; flex-direction: column; gap: 13px; }
+  .pay-dept-row { display: grid; grid-template-columns: 156px 92px 1fr 156px; gap: 14px; align-items: center; }
+  @media (max-width: 680px) { .pay-dept-row { grid-template-columns: 1fr auto; } .pay-dept-track, .pay-dept-meta { display: none; } }
+  .pay-dept-name { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--ink); }
+  .pay-dept-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .pay-dept-meta { font-size: 12px; color: var(--n-500); }
+  .pay-dept-track { height: 8px; background: var(--paper-soft); border-radius: 999px; overflow: hidden; }
+  .pay-dept-fill { height: 100%; width: 0; border-radius: 999px; transition: width 700ms cubic-bezier(0.32,0.72,0,1); }
+  .pay-dept-val { text-align: right; font-size: 13px; font-weight: 600; font-family: var(--mono); font-feature-settings: "tnum" 1; color: var(--ink); }
+  .pay-dept-val .pct { color: var(--n-500); font-weight: 400; margin-left: 7px; }
+
+  .pay-table-wrap { overflow-x: auto; }
+  .pay-table { width: 100%; border-collapse: collapse; }
+  .pay-table th { text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); padding: 0 12px 12px; white-space: nowrap; }
+  .pay-table th[data-action] { cursor: pointer; }
+  .pay-table th[data-action]:hover { color: var(--ink); }
+  .pay-table th.on { color: var(--atlas); }
+  .pay-table th.r, .pay-table td.r { text-align: right; }
+  .pay-table td { padding: 13px 12px; border-top: 1px solid var(--n-200); font-size: 13px; color: var(--ink); }
+  .pay-table td.mono { font-family: var(--mono); font-feature-settings: "tnum" 1; }
+  .pay-table tbody tr:hover { background: var(--paper-soft); }
+  .pay-total { font-weight: 700; }
+  .pay-table tfoot td { border-top: 2px solid var(--n-300); font-weight: 600; font-size: 12.5px; color: var(--n-600); }
+  .pay-emp { display: flex; align-items: center; gap: 11px; }
+  .pay-emp-av { width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
+  .pay-emp-n { display: block; font-size: 13px; font-weight: 600; color: var(--ink); }
+  .pay-emp-r { display: block; font-size: 11px; color: var(--n-500); margin-top: 1px; }
+  .pay-dept-tag { font-size: 11.5px; font-weight: 600; }
+
+  .pay-week { overflow-x: auto; }
+  .pay-wk-grid { min-width: 720px; display: flex; flex-direction: column; gap: 6px; }
+  .pay-wk-row { display: grid; grid-template-columns: 188px repeat(7, 1fr); gap: 6px; }
+  .pay-wk-name { display: flex; align-items: center; gap: 9px; padding: 4px 2px; min-width: 0; }
+  .pay-wk-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .pay-wk-headrow .pay-wk-hcell { font-size: 10.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); text-align: center; padding-bottom: 2px; }
+  .pay-cell { border: 0; border-radius: 9px; padding: 9px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; font-family: var(--sans); transition: transform 120ms, box-shadow 120ms; }
+  .pay-cell:hover { transform: translateY(-1px); box-shadow: 0 6px 16px -8px rgba(10,15,13,0.3); }
+  .pay-cell.morning { background: rgba(58,111,184,0.13); }
+  .pay-cell.day     { background: rgba(31,181,116,0.14); }
+  .pay-cell.evening { background: rgba(11,110,79,0.14); }
+  .pay-cell.off     { background: var(--paper-soft); }
+  .pay-sh-time { font-size: 12px; font-weight: 600; color: var(--ink); font-feature-settings: "tnum" 1; }
+  .pay-sh-h { font-size: 10px; color: var(--n-500); font-family: var(--mono); }
+  .pay-sh-rest { font-size: 11.5px; color: var(--n-400); }
+  .pay-wk-coverrow { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--n-200); }
+  .pay-wk-coverrow .pay-wk-name { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
+  .pay-wk-cover { text-align: center; font-size: 14px; font-weight: 600; color: var(--ink); font-feature-settings: "tnum" 1; padding: 4px 0; }
+  .pay-wk-cover span { display: block; font-size: 9px; font-weight: 400; color: var(--n-500); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px; }
+
+  .pay-modal-rest { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+  .pay-modal-rest input { width: 16px; height: 16px; accent-color: var(--atlas); cursor: pointer; }
+  .pay-modal-times { margin-top: 14px; }
+
+  /* Go Ultra / dark theme — html[data-theme="dark"] covers both */
+  html[data-theme="dark"] .pay-stat,
+  html[data-theme="dark"] .pay-section { background: var(--paper-soft); border-color: var(--n-200); }
+  html[data-theme="dark"] .pay-table tbody tr:hover,
+  html[data-theme="dark"] .pay-cell.off { background: var(--paper-muted); }
 </style>
 <link rel="stylesheet" href="assets/mobile.css" />
 </head>
@@ -3861,6 +3951,7 @@
        *  In-memory state only — resets on refresh.
        *  ═══════════════════════════════════════════════════════════════════ -->
       <section class="dash-menu" data-menu-root hidden></section>
+      <section class="dash-payroll" data-payroll-root hidden></section>
 
     </div>
 
