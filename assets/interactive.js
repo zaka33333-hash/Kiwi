@@ -1304,49 +1304,101 @@ ar: {
       `
     })},
 
-    'settings': () => drawer({
+    'settings': () => {
+      const I18 = window.KiwiI18n;
+      const lang = (I18 && I18.getLang && I18.getLang()) || 'fr';
+      const theme = (I18 && I18.getTheme && I18.getTheme()) || 'light';
+      const LANGNAME = { fr: 'Français', en: 'English', ar: 'العربية' };
+      const setOn = (k) => { try { return localStorage.getItem('kiwiSet:' + k) !== '0'; } catch (_) { return true; } };
+      const sec = (t) => `<div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-weight:500; font-family:var(--mono); margin-bottom:10px;">${t}</div>`;
+      return drawer({
       title: 'Paramètres',
       subtitle: 'Compte · boutique · conformité',
       width: 460,
       body: `
+        <style>
+          .kset-row { display:flex; align-items:center; gap:12px; padding:11px 6px; border-bottom:1px solid var(--n-200); cursor:pointer; transition:background 100ms; border-radius:8px; }
+          .kset-row:hover { background:var(--paper-soft); }
+          .kset-row:focus-visible { outline:2px solid var(--atlas); outline-offset:-2px; }
+          .kset-emoji { width:28px; text-align:center; font-size:16px; flex-shrink:0; }
+          .kset-toggle { width:34px; height:20px; background:var(--n-300); border-radius:999px; position:relative; transition:background 160ms; flex-shrink:0; }
+          .kset-toggle.on { background:var(--atlas); }
+          .kset-knob { position:absolute; top:2px; inset-inline-start:2px; width:16px; height:16px; background:#fff; border-radius:50%; transition:inset-inline-start 160ms; box-shadow:0 1px 2px rgba(10,15,13,0.25); }
+          .kset-toggle.on .kset-knob { inset-inline-start:16px; }
+        </style>
         <div style="margin-bottom:20px;">
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-weight:500; font-family:var(--mono); margin-bottom:10px;">PRÉFÉRENCES</div>
+          ${sec('PRÉFÉRENCES')}
           <div style="display:flex; flex-direction:column; gap:2px;">
-            ${settingsRow('🌍', 'Langue', 'Français · Darija · العربية')}
-            ${settingsRow('🌓', 'Mode sombre', 'Automatique selon système')}
-            ${settingsRow('🔔', 'Notifications WhatsApp', 'Résumé quotidien 19h')}
-            ${settingsRow('💰', 'Devise d\'affichage', 'MAD · Dirham marocain')}
+            ${settingsRow('🌍', 'Langue', LANGNAME[lang] || 'Français', { action: 'settings-lang' })}
+            ${settingsRow('🌓', 'Mode sombre', theme === 'dark' ? 'Activé' : 'Désactivé', { action: 'settings-theme' })}
+            ${settingsRow('🔔', 'Notifications WhatsApp', 'Résumé quotidien 19h', { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
+            ${settingsRow('💰', 'Devise d\'affichage', 'MAD · Dirham marocain', { action: 'settings-soon' })}
           </div>
         </div>
         <div style="margin-bottom:20px;">
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-weight:500; font-family:var(--mono); margin-bottom:10px;">BOUTIQUE</div>
+          ${sec('BOUTIQUE')}
           <div style="display:flex; flex-direction:column; gap:2px;">
-            ${settingsRow('🏪', 'Café Atlas · Maarif', 'Emplacement principal')}
-            ${settingsRow('⏰', 'Heures d\'ouverture', '07:00 - 23:00 · tous les jours')}
-            ${settingsRow('💳', 'Méthodes acceptées', 'Visa · MC · Kiwi Tap · QR')}
-            ${settingsRow('🎯', 'Objectif journalier', '28 000 MAD')}
+            ${settingsRow('🏪', 'Café Atlas · Maarif', 'Emplacement principal', { action: 'settings-soon' })}
+            ${settingsRow('⏰', 'Heures d\'ouverture', '07:00 - 23:00 · tous les jours', { action: 'settings-soon' })}
+            ${settingsRow('💳', 'Méthodes acceptées', 'Visa · MC · Kiwi Tap · QR', { action: 'settings-soon' })}
+            ${settingsRow('🎯', 'Objectif journalier', '28 000 MAD', { action: 'settings-soon' })}
           </div>
         </div>
         <div style="margin-bottom:20px;">
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-weight:500; font-family:var(--mono); margin-bottom:10px;">CONFORMITÉ & SÉCURITÉ</div>
+          ${sec('CONFORMITÉ & SÉCURITÉ')}
           <div style="display:flex; flex-direction:column; gap:2px;">
-            ${settingsRow('🛡️', 'Authentification 2FA', 'SMS activé', true)}
-            ${settingsRow('🔐', 'PCI-DSS', 'Certification valide 2026', true)}
-            ${settingsRow('📋', 'KYC', 'Vérifié le 12 mars 2026', true)}
-            ${settingsRow('🏛️', 'Bank Al-Maghrib', 'Sponsoring actif', true)}
+            ${settingsRow('🛡️', 'Authentification 2FA', 'SMS activé', { toggle: true, on: setOn('2fa'), action: 'settings-toggle', arg: '2fa' })}
+            ${settingsRow('🔐', 'PCI-DSS', 'Certification valide 2026', { toggle: true, on: setOn('pcidss'), action: 'settings-toggle', arg: 'pcidss' })}
+            ${settingsRow('📋', 'KYC', 'Vérifié le 12 mars 2026', { toggle: true, on: setOn('kyc'), action: 'settings-toggle', arg: 'kyc' })}
+            ${settingsRow('🏛️', 'Bank Al-Maghrib', 'Sponsoring actif', { toggle: true, on: setOn('bankam'), action: 'settings-toggle', arg: 'bankam' })}
           </div>
         </div>
         <div>
-          <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-weight:500; font-family:var(--mono); margin-bottom:10px;">INTÉGRATIONS</div>
+          ${sec('INTÉGRATIONS')}
           <div style="display:flex; flex-direction:column; gap:2px;">
-            ${settingsRow('🟠', 'Glovo', 'Connecté · 1 420 MAD aujourd\'hui', true)}
-            ${settingsRow('🔴', 'Jumia Food', 'Connecté · 24 commandes', true)}
-            ${settingsRow('📊', 'Comptabilité', 'Export quotidien OCP', true)}
-            ${settingsRow('🏦', 'BMCE Banque', 'IBAN vérifié ••3291', true)}
+            ${settingsRow('🟠', 'Glovo', 'Connecté · 1 420 MAD aujourd\'hui', { toggle: true, on: setOn('glovo'), action: 'settings-toggle', arg: 'glovo' })}
+            ${settingsRow('🔴', 'Jumia Food', 'Connecté · 24 commandes', { toggle: true, on: setOn('jumia'), action: 'settings-toggle', arg: 'jumia' })}
+            ${settingsRow('📊', 'Comptabilité', 'Export quotidien OCP', { toggle: true, on: setOn('compta'), action: 'settings-toggle', arg: 'compta' })}
+            ${settingsRow('🏦', 'BMCE Banque', 'IBAN vérifié ••3291', { toggle: true, on: setOn('bmce'), action: 'settings-toggle', arg: 'bmce' })}
           </div>
         </div>
       `,
-    }),
+    });
+    },
+
+    'settings-lang': (el) => {
+      const I18 = window.KiwiI18n;
+      const cur = (I18 && I18.getLang && I18.getLang()) || 'fr';
+      const pick = (l) => {
+        if (I18 && I18.setLang) I18.setLang(l);
+        // The settings drawer's own text isn't data-i18n bound — close it so
+        // it re-opens fresh in the new language.
+        document.querySelectorAll('.kiwi-drawer-backdrop').forEach((b) => b.__kiwiClose && b.__kiwiClose());
+      };
+      menu(el, [
+        { label: 'Français', active: cur === 'fr', onClick: () => pick('fr') },
+        { label: 'English',  active: cur === 'en', onClick: () => pick('en') },
+        { label: 'العربية',  active: cur === 'ar', onClick: () => pick('ar') },
+      ]);
+    },
+
+    'settings-theme': (el) => {
+      const I18 = window.KiwiI18n;
+      const next = ((I18 && I18.getTheme && I18.getTheme()) === 'dark') ? 'light' : 'dark';
+      if (I18 && I18.setTheme) I18.setTheme(next);
+      const v = el && el.querySelector('.kset-val');
+      if (v) v.textContent = next === 'dark' ? 'Activé' : 'Désactivé';
+    },
+
+    'settings-toggle': (el, arg) => {
+      const tg = el && el.querySelector('[data-kset-toggle]');
+      if (!tg) return;
+      const on = !tg.classList.contains('on');
+      tg.classList.toggle('on', on);
+      if (arg) { try { localStorage.setItem('kiwiSet:' + arg, on ? '1' : '0'); } catch (_) {} }
+    },
+
+    'settings-soon': () => toast('Réglage bientôt disponible', { type: 'info', duration: 1800 }),
 
     'export': () => {
       toast('Préparation de l\'export…', { type: 'info', duration: 1600 });
@@ -1727,8 +1779,19 @@ ar: {
   };
 
   /* ─── Helpers for rendering ─── */
-  function settingsRow(emoji, label, value, toggle = false) {
-    return `<div style="display:flex; align-items:center; gap:12px; padding:11px 4px; border-bottom:1px solid var(--n-200); cursor:pointer; transition:background 100ms;"><div style="width:28px; text-align:center; font-size:16px;">${emoji}</div><div style="flex:1;"><div style="font-size:13.5px; font-weight:500;">${label}</div><div style="font-size:12px; color:var(--n-500); margin-top:1px;">${value}</div></div>${toggle ? '<div style="width:34px; height:20px; background:var(--atlas); border-radius:999px; position:relative;"><div style="position:absolute; top:2px; right:2px; width:16px; height:16px; background:#fff; border-radius:50%;"></div></div>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--n-400)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>'}</div>`;
+  function settingsRow(emoji, label, value, opts) {
+    if (opts === true) opts = { toggle: true, on: true };
+    opts = opts || {};
+    const attrs = (opts.action ? ` data-action="${opts.action}"` : '') +
+                  (opts.arg ? ` data-arg="${opts.arg}"` : '');
+    const right = opts.toggle
+      ? `<div class="kset-toggle${opts.on ? ' on' : ''}" data-kset-toggle><div class="kset-knob"></div></div>`
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--n-400)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>';
+    return `<div class="kset-row"${attrs} role="button" tabindex="0">` +
+      `<div class="kset-emoji">${emoji}</div>` +
+      `<div style="flex:1; min-width:0;"><div style="font-size:13.5px; font-weight:500;">${label}</div>` +
+      `<div class="kset-val" style="font-size:12px; color:var(--n-500); margin-top:1px;">${value}</div></div>` +
+      right + `</div>`;
   }
 
   function escape(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
