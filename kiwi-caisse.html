@@ -1760,6 +1760,99 @@
     .clo-foot button:hover { color: var(--paper-cream); }
 
     /* ===========================================================
+       === Journal des ventes ===  (transaction ledger drawer)
+       =========================================================== */
+    .stat-card--tap {
+      cursor: pointer; text-align: left; width: 100%;
+      position: relative;
+      transition: background 150ms;
+    }
+    .stat-card--tap:hover { background: rgba(255,255,255,0.09); }
+    .stat-card-go {
+      position: absolute; top: 11px; right: 11px;
+      width: 13px; height: 13px; color: #8f9591;
+      transition: color 150ms;
+    }
+    .stat-card--tap:hover .stat-card-go { color: var(--mint); }
+
+    .jr-toolbar {
+      flex: 0 0 auto;
+      padding: 12px 24px 14px;
+      border-bottom: 1px solid var(--line-soft);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .jr-summary { font-size: 12px; color: var(--ink-3); font-feature-settings: "tnum" 1; }
+    .jr-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--paper-mute);
+      border-radius: var(--r-lg);
+      padding: 9px 12px;
+    }
+    .jr-search svg { width: 15px; height: 15px; color: var(--ink-4); flex: 0 0 15px; }
+    .jr-search input {
+      flex: 1; border: 0; background: transparent; padding: 0;
+      font-family: inherit; font-size: 13px; color: var(--ink); outline: none;
+    }
+    .jr-search input::placeholder { color: var(--ink-4); }
+    .jr-filters { display: flex; gap: 6px; }
+    .jr-chip {
+      padding: 5px 13px; border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      background: var(--paper-mute); color: var(--ink-3);
+      transition: background 150ms, color 150ms;
+    }
+    .jr-chip:hover { background: var(--line-soft); }
+    .jr-chip.is-active { background: var(--forest); color: #fff; }
+
+    .jr-entry {
+      width: 100%; text-align: left;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--r-lg);
+      transition: background 140ms;
+    }
+    .jr-entry:hover { background: var(--paper-mute); }
+    .jr-entry + .jr-entry { margin-top: 1px; }
+    .jr-entry-ic {
+      width: 34px; height: 34px; border-radius: 9px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 34px;
+    }
+    .jr-entry-ic svg { width: 16px; height: 16px; }
+    .jr-entry-ic--card { background: rgba(63,182,122,0.12); color: var(--forest); }
+    .jr-entry-ic--cash { background: rgba(212,159,46,0.16); color: #8a6411; }
+    .jr-entry-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .jr-entry-label {
+      font-size: 13.5px; font-weight: 600; color: var(--ink);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .jr-entry-meta {
+      font-size: 11px; color: var(--ink-4);
+      font-family: var(--mono); font-feature-settings: "tnum" 1;
+    }
+    .jr-entry-amount {
+      font-size: 14px; font-weight: 700; color: var(--ink);
+      font-feature-settings: "tnum" 1; flex: 0 0 auto;
+    }
+    .jr-entry-reprint {
+      flex: 0 0 auto; width: 22px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--ink-4); opacity: 0;
+      transition: opacity 140ms;
+    }
+    .jr-entry:hover .jr-entry-reprint { opacity: 1; }
+    .jr-entry-reprint svg { width: 14px; height: 14px; }
+    .jr-entry--fresh { animation: jr-fresh 1700ms ease; }
+    @keyframes jr-fresh {
+      0%   { background: rgba(125,242,176,0.5); }
+      100% { background: rgba(125,242,176,0); }
+    }
+    .jr-empty {
+      text-align: center; padding: 44px 20px;
+      font-size: 13px; color: var(--ink-4);
+    }
+
+    /* ===========================================================
        SERVER AVATARS ON TABLE CARDS
        =========================================================== */
     .tbl-server {
@@ -2333,11 +2426,12 @@
           <div class="stat-value" id="stat-revenue">7 140 MAD</div>
           <div class="stat-delta" id="stat-revenue-delta">40% de l'objectif</div>
         </div>
-        <div class="stat-card">
+        <button class="stat-card stat-card--tap" id="stat-txns-card" type="button" aria-label="Ouvrir le journal des ventes">
           <div class="stat-label">Transactions</div>
           <div class="stat-value" id="stat-txns">53</div>
           <div class="stat-delta" id="stat-txns-delta">Carte 63% · Cash 37%</div>
-        </div>
+          <i data-lucide="receipt-text" class="stat-card-go"></i>
+        </button>
         <div class="stat-row">
           <div class="stat-card compact">
             <div class="stat-label">Moyenn tabla</div>
@@ -2768,6 +2862,31 @@
         </button>
       </div>
       <div class="drawer-body" id="team-drawer-body"></div>
+    </aside>
+  </div>
+
+  <!-- ============ JOURNAL DES VENTES (drawer) ============ -->
+  <div class="drawer-veil" id="journal-drawer" role="dialog" aria-modal="true" aria-labelledby="journal-drawer-title">
+    <aside class="drawer" aria-label="Journal des ventes">
+      <div class="drawer-head">
+        <div class="drawer-title" id="journal-drawer-title">Journal des ventes<em>— ce service</em></div>
+        <button class="drawer-close" id="journal-drawer-close" aria-label="Fermer">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="jr-toolbar">
+        <div class="jr-summary" id="jr-summary">— transactions</div>
+        <div class="jr-search">
+          <i data-lucide="search"></i>
+          <input type="text" id="jr-search-input" placeholder="Rechercher — table, montant, réf" aria-label="Rechercher une transaction" />
+        </div>
+        <div class="jr-filters" id="jr-filters">
+          <button class="jr-chip is-active" data-jr-filter="all">Tout</button>
+          <button class="jr-chip" data-jr-filter="card">Carte</button>
+          <button class="jr-chip" data-jr-filter="cash">Espèces</button>
+        </div>
+      </div>
+      <div class="drawer-body" id="journal-body"></div>
     </aside>
   </div>
 
@@ -3612,7 +3731,7 @@
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'card');
+      if (!splitPayCallback) recordSale(currentTotal(), 'card', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'));
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -3688,7 +3807,7 @@
       cashAmountOverride = null;
       cashModal.classList.remove('is-open');
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'cash');
+      if (!splitPayCallback) recordSale(currentTotal(), 'cash', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'));
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -4331,7 +4450,7 @@
 
     function markSplitPartPaid(partIdx, method) {
       const p = splitState.flow.parts[partIdx];
-      recordSale(p.amount, method === 'carte' ? 'card' : 'cash');
+      recordSale(p.amount, method === 'carte' ? 'card' : 'cash', (splitState.tableId || 'Table') + ' · part ' + (partIdx + 1));
       p.paid = true;
       p.payMethod = method;
       splitState.flow.paidCount++;
@@ -4483,35 +4602,84 @@
     const OPENING_FLOAT  = 500;     // fond de caisse — MAD
     const DAILY_OBJECTIF = 18000;   // objectif d'lyoum — MAD
 
-    /* Cashier shift ledger. Seeded so the demo opens mid-service;
-       every payment processed adds to it live via recordSale(). */
-    const shift = {
-      revenue: 7140, txns: 53, card: 4490, cash: 2650,
-      discounts: 95, refunds: 0, tablesPaid: 14,
-    };
+    /* Non-journal shift counters — the journal below is the ledger of record. */
+    const shift = { discounts: 95, refunds: 0, tablesPaid: 0 };
     let shiftOpenedAt = null;
 
-    /* Record one completed tender (table payment, vente rapida, or split part) */
-    function recordSale(amount, method) {
-      amount = Math.round(amount || 0);
-      if (amount <= 0) return;
-      shift.txns    += 1;
-      shift.revenue += amount;
-      if (method === 'cash') shift.cash += amount;
-      else                   shift.card += amount;
-      renderShiftStats();
+    /* ---- Journal des ventes — the shift's transaction ledger ---- */
+    const journal = [];          // [{ id, time, label, amount, method, ref }]
+    let journalSearch = '';
+    let journalFilter = 'all';   // all | card | cash
+    let lastSaleId    = null;    // flashes the freshest entry while the drawer is open
+
+    function genRef() { return 'KW-' + (28000 + Math.floor(Math.random() * 1999)); }
+
+    /* Roll up the ledger — single source of truth for revenue / tenders */
+    function journalTotals() {
+      let revenue = 0, card = 0, cash = 0;
+      for (const e of journal) {
+        revenue += e.amount;
+        if (e.method === 'cash') cash += e.amount; else card += e.amount;
+      }
+      return { revenue: revenue, card: card, cash: cash, txns: journal.length };
     }
 
-    /* Live sidebar stats — replaces the old hardcoded values */
+    /* Seed the ledger so the demo opens mid-service (~2h of transactions) */
+    function seedJournal() {
+      const openedMs = shiftOpenedAt.getTime();
+      const span     = Date.now() - openedMs;
+      const N        = 47;
+      const tIds     = Object.keys(tables);
+      let tablesDone = 0;
+      for (let i = 0; i < N; i++) {
+        const isVrap = Math.random() < 0.26;
+        let label, amount;
+        if (isVrap) {
+          label  = 'Vente rapida';
+          amount = 30 + Math.floor(Math.random() * 13) * 15;   // 30–210 MAD
+        } else {
+          label  = tIds[Math.floor(Math.random() * tIds.length)];
+          amount = 90 + Math.floor(Math.random() * 28) * 15;   // 90–495 MAD
+          tablesDone++;
+        }
+        journal.push({
+          id: 'seed-' + i,
+          time: new Date(openedMs + span * (i + 0.5) / N),
+          label: label, amount: amount,
+          method: Math.random() < 0.6 ? 'card' : 'cash',
+          ref: genRef(),
+        });
+      }
+      shift.tablesPaid = tablesDone;
+    }
+
+    /* Record one completed tender (table payment, vente rapida, or split part) */
+    function recordSale(amount, method, label) {
+      amount = Math.round(amount || 0);
+      if (amount <= 0) return;
+      const entry = {
+        id: 'sale-' + Date.now() + '-' + journal.length,
+        time: new Date(),
+        label: label || 'Vente',
+        amount: amount, method: method, ref: genRef(),
+      };
+      journal.push(entry);
+      lastSaleId = entry.id;
+      renderShiftStats();
+      if ($('#journal-drawer').classList.contains('is-open')) renderJournal();
+    }
+
+    /* Live sidebar stats — computed from the journal */
     function renderShiftStats() {
-      const pct     = Math.min(100, Math.round(shift.revenue / DAILY_OBJECTIF * 100));
-      const cardPct = shift.revenue > 0 ? Math.round(shift.card / shift.revenue * 100) : 0;
+      const t       = journalTotals();
+      const pct     = Math.min(100, Math.round(t.revenue / DAILY_OBJECTIF * 100));
+      const cardPct = t.revenue > 0 ? Math.round(t.card / t.revenue * 100) : 0;
       const set = (id, txt) => { const el = $(id); if (el) el.textContent = txt; };
-      set('#stat-revenue',       fmtMAD(shift.revenue));
+      set('#stat-revenue',       fmtMAD(t.revenue));
       set('#stat-revenue-delta', `${pct}% de l'objectif`);
-      set('#stat-txns',          String(shift.txns));
+      set('#stat-txns',          String(t.txns));
       set('#stat-txns-delta',    `Carte ${cardPct}% · Cash ${100 - cardPct}%`);
-      set('#stat-avg',           fmtMAD(shift.txns > 0 ? shift.revenue / shift.txns : 0));
+      set('#stat-avg',           fmtMAD(t.txns > 0 ? t.revenue / t.txns : 0));
       set('#stat-tables',        String(shift.tablesPaid));
     }
 
@@ -4529,6 +4697,7 @@
 
       // Open the cashier's shift — seeded to feel mid-service.
       shiftOpenedAt = new Date(Date.now() - 128 * 60 * 1000);  // ~2h08 ago
+      seedJournal();
       renderShiftStats();
 
       setTimeout(() => runEntrySequence(clockinEl), 540);
@@ -4614,15 +4783,16 @@
       $('#clo-meta').textContent =
         `Café Atlas · Rachid B. · ${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
 
+      const tot = journalTotals();
       const rows = [
         ['Service ouvert à', `${pad2(openedAt.getHours())}:${pad2(openedAt.getMinutes())}`, false, ''],
         ['Durée du service', fmtDur(durMin),                                               false, ''],
-        ['Transactions',     String(shift.txns),                                           false, ''],
+        ['Transactions',     String(tot.txns),                                             false, ''],
         ['Tables réglées',   String(shift.tablesPaid),                                      false, ''],
-        ['Total encaissé',   fmtMAD(shift.revenue),                                         true,  'total'],
-        ['dont Carte',       fmtMAD(shift.card),                                            true,  'sub'],
-        ['dont Espèces',     fmtMAD(shift.cash),                                            true,  'sub'],
-        ['Ticket moyen',     fmtMAD(shift.txns > 0 ? shift.revenue / shift.txns : 0),        true,  ''],
+        ['Total encaissé',   fmtMAD(tot.revenue),                                           true,  'total'],
+        ['dont Carte',       fmtMAD(tot.card),                                              true,  'sub'],
+        ['dont Espèces',     fmtMAD(tot.cash),                                              true,  'sub'],
+        ['Ticket moyen',     fmtMAD(tot.txns > 0 ? tot.revenue / tot.txns : 0),             true,  ''],
         ['Réductions accordées', fmtMAD(shift.discounts),                                   true,  ''],
       ];
       if (shift.refunds > 0) rows.push(['Remboursements', fmtMAD(shift.refunds), true, '']);
@@ -4637,19 +4807,19 @@
 
       // Tiroir-caisse reconciliation
       $('#clo-float').textContent   = fmtMAD(OPENING_FLOAT);
-      $('#clo-cash-in').textContent = fmtMAD(shift.cash);
-      $('#clo-drawer').textContent  = fmtMAD(OPENING_FLOAT + shift.cash - shift.refunds);
+      $('#clo-cash-in').textContent = fmtMAD(tot.cash);
+      $('#clo-drawer').textContent  = fmtMAD(OPENING_FLOAT + tot.cash - shift.refunds);
 
       // Highlight — objectif d'lyoum progress
-      const pct    = Math.round(shift.revenue / DAILY_OBJECTIF * 100);
+      const pct    = Math.round(tot.revenue / DAILY_OBJECTIF * 100);
       const hlIcon = $('#cloture-modal .clo-highlight-icon');
       const hlText = $('#clo-highlight-text');
-      if (shift.revenue >= DAILY_OBJECTIF) {
+      if (tot.revenue >= DAILY_OBJECTIF) {
         if (hlIcon) hlIcon.innerHTML = '<i data-lucide="trophy"></i>';
-        if (hlText) hlText.innerHTML = `Objectif d'lyoum dépassé — <em>${fmtMAD(shift.revenue)}</em> encaissés. Beau service.`;
+        if (hlText) hlText.innerHTML = `Objectif d'lyoum dépassé — <em>${fmtMAD(tot.revenue)}</em> encaissés. Beau service.`;
       } else {
         if (hlIcon) hlIcon.innerHTML = '<i data-lucide="target"></i>';
-        if (hlText) hlText.innerHTML = `À <em>${pct}%</em> de l'objectif d'lyoum — ${fmtMAD(DAILY_OBJECTIF - shift.revenue)} restants.`;
+        if (hlText) hlText.innerHTML = `À <em>${pct}%</em> de l'objectif d'lyoum — ${fmtMAD(DAILY_OBJECTIF - tot.revenue)} restants.`;
       }
       // Re-trigger the entrance animation on the static blocks
       [['#clo-drawer-box', rows.length * 70 + 30], ['#clo-highlight', rows.length * 70 + 60]].forEach(([sel, delay]) => {
@@ -4672,6 +4842,73 @@
     $('#clo-continue').addEventListener('click', () => $('#cloture-modal').classList.remove('is-open'));
     $('#cloture-modal').addEventListener('click', (e) => {
       if (e.target === $('#cloture-modal')) $('#cloture-modal').classList.remove('is-open');
+    });
+
+    /* ---- Journal des ventes — drawer ---- */
+    function renderJournal() {
+      const tot = journalTotals();
+      const sumEl = $('#jr-summary');
+      if (sumEl) sumEl.textContent =
+        `${tot.txns} transaction${tot.txns > 1 ? 's' : ''} · ${fmtMAD(tot.revenue)} encaissés`;
+
+      const q = journalSearch.trim().toLowerCase();
+      let list = journal.slice().reverse();   // newest first
+      if (journalFilter !== 'all') list = list.filter(e => e.method === journalFilter);
+      if (q) list = list.filter(e =>
+        e.label.toLowerCase().includes(q) ||
+        e.ref.toLowerCase().includes(q) ||
+        String(e.amount).includes(q)
+      );
+
+      const body = $('#journal-body');
+      if (!body) return;
+      if (list.length === 0) {
+        body.innerHTML = '<div class="jr-empty">Walo — aucune transaction ne correspond.</div>';
+        return;
+      }
+      body.innerHTML = list.map(e => {
+        const hh = String(e.time.getHours()).padStart(2, '0');
+        const mm = String(e.time.getMinutes()).padStart(2, '0');
+        const icon   = e.method === 'cash' ? 'banknote' : 'credit-card';
+        const mLabel = e.method === 'cash' ? 'Espèces'  : 'Carte';
+        const fresh  = e.id === lastSaleId ? ' jr-entry--fresh' : '';
+        return `<button class="jr-entry${fresh}" data-jr-ref="${e.ref}">`
+             + `<span class="jr-entry-ic jr-entry-ic--${e.method}"><i data-lucide="${icon}"></i></span>`
+             + `<span class="jr-entry-main">`
+             +   `<span class="jr-entry-label">${e.label}</span>`
+             +   `<span class="jr-entry-meta">${hh}:${mm} · ${mLabel} · ${e.ref}</span>`
+             + `</span>`
+             + `<span class="jr-entry-amount">${fmtMAD(e.amount)}</span>`
+             + `<span class="jr-entry-reprint"><i data-lucide="printer"></i></span>`
+             + `</button>`;
+      }).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+    function openJournal() {
+      lastSaleId = null;
+      renderJournal();
+      $('#journal-drawer').classList.add('is-open');
+    }
+    function closeJournal() { $('#journal-drawer').classList.remove('is-open'); }
+
+    const txnsCard = $('#stat-txns-card');
+    if (txnsCard) txnsCard.addEventListener('click', openJournal);
+    $('#journal-drawer-close').addEventListener('click', closeJournal);
+    $('#journal-drawer').addEventListener('click', (e) => {
+      if (e.target === $('#journal-drawer')) { closeJournal(); return; }
+      const entry = e.target.closest('[data-jr-ref]');
+      if (entry) toast('Ticket réimprimé · ' + entry.dataset.jrRef);
+    });
+    $('#jr-search-input').addEventListener('input', (e) => {
+      journalSearch = e.target.value;
+      renderJournal();
+    });
+    $('#jr-filters').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-jr-filter]');
+      if (!chip) return;
+      journalFilter = chip.dataset.jrFilter;
+      $$('#jr-filters .jr-chip').forEach(c => c.classList.toggle('is-active', c === chip));
+      renderJournal();
     });
 
     $('#pin-pad').addEventListener('click', (e) => {
