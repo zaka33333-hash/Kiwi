@@ -2826,15 +2826,42 @@
 
   /* ── Category metadata — existing tokens only ─────────────────────────── */
   const MI_CATS = {
-    entrees:    { label: 'Entrées',    color: 'var(--success)'   },
-    tajines:    { label: 'Tajines',    color: 'var(--warning)'   },
-    couscous:   { label: 'Couscous',   color: 'var(--atlas-600)' },
-    pastillas:  { label: 'Pastillas',  color: 'var(--info)'      },
-    sandwiches: { label: 'Sandwiches', color: 'var(--riad)'      },
-    boissons:   { label: 'Boissons',   color: 'var(--atlas)'     },
-    desserts:   { label: 'Desserts',   color: 'var(--danger)'    },
-    soins:      { label: 'Soins',      color: 'var(--atlas-700)' },
+    entrees:    { label: 'Entrées',    color: 'var(--success)',   emoji: '🥗' },
+    tajines:    { label: 'Tajines',    color: 'var(--warning)',   emoji: '🍲' },
+    couscous:   { label: 'Couscous',   color: 'var(--atlas-600)', emoji: '🍛' },
+    pastillas:  { label: 'Pastillas',  color: 'var(--info)',      emoji: '🥧' },
+    sandwiches: { label: 'Sandwiches', color: 'var(--riad)',      emoji: '🥪' },
+    boissons:   { label: 'Boissons',   color: 'var(--atlas)',     emoji: '🥤' },
+    desserts:   { label: 'Desserts',   color: 'var(--danger)',    emoji: '🍮' },
+    soins:      { label: 'Soins',      color: 'var(--atlas-700)', emoji: '💆' },
   };
+  /* Per-item emoji — keyword match on the item name first, category as fallback.
+   * Makes the menu grid scannable at a glance for merchants and investors. */
+  const MI_NAME_EMOJI = [
+    [/salade|crudit/,'🥗'],[/harira|soupe|bissara|chorba|veloute/,'🍲'],
+    [/briouate|brick|cigare/,'🥟'],[/zaalouk|taktouka|aubergine|caviar/,'🍆'],
+    [/tajine/,'🍲'],[/couscous|seffa/,'🍛'],[/pastilla|bastilla/,'🥧'],
+    [/sandwich|panini|wrap/,'🥪'],[/burger/,'🍔'],[/pizza/,'🍕'],
+    [/p[âa]tes|pasta|spaghetti|lasagne/,'🍝'],[/frites/,'🍟'],
+    [/poulet|chicken|dinde/,'🍗'],[/poisson|thon|seafood|crevette|fruits de mer|calamar/,'🐟'],
+    [/kefta|viande|b[œo]euf|agneau|merguez|brochette/,'🥩'],[/pigeon|caille/,'🍗'],
+    [/[œo]euf|omelette/,'🍳'],[/salade de fruits|fruit/,'🍓'],
+    [/cr[êe]pe|msemen|baghrir|gaufre/,'🥞'],[/pain|khobz|batbout/,'🍞'],
+    [/th[ée]\b|menthe/,'🍵'],[/caf[ée]|express?o|cappucc/,'☕'],
+    [/jus|press[ée]e|citronnade/,'🧃'],[/smoothie|milkshake|lait/,'🥤'],
+    [/eau|water/,'💧'],[/soda|cola|limonade/,'🥤'],
+    [/g[âa]teau|cake|tarte|fondant/,'🍰'],[/glace|sorbet|ice/,'🍨'],
+    [/chocolat/,'🍫'],[/cookie|biscuit|sabl[ée]/,'🍪'],
+    [/cr[èe]me|flan|panna/,'🍮'],[/miel|p[âa]tisserie|corne|gazelle|chebakia/,'🍯'],
+    [/massage|gommage|hammam|soin|gommag|enveloppement|modelage/,'💆'],
+    [/manucure|p[ée]dicure|ongle/,'💅'],[/coiffure|brushing|coupe/,'💇'],
+  ];
+  function miItemEmoji(it) {
+    const n = (it && it.name ? it.name : '').toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '');
+    for (const [re, em] of MI_NAME_EMOJI) if (re.test(n)) return em;
+    return (MI_CATS[it && it.category] || {}).emoji || '🍽️';
+  }
   const MI_CAT_ORDER = ['entrees','tajines','couscous','pastillas','sandwiches','boissons','desserts','soins'];
   const MI_TAGS = ['signature','top','premium','vegan','veg'];
   const MI_TAG_LABEL = { signature:'Signature', top:'Top', premium:'Premium', vegan:'Vegan', veg:'Végé' };
@@ -3119,10 +3146,10 @@
     return `
       <div class="mi-card" data-mi-card="${it.id}" data-action="mi-edit-item" data-arg="${it.id}">
         <div class="mi-card-top">
-          <span class="mi-card-cat">${miCatLabel(it.category)}</span>
+          <span class="mi-card-cat">${(MI_CATS[it.category]||{}).emoji||''} ${miCatLabel(it.category)}</span>
           <span class="mi-tags">${miTagPills(it.tags)}</span>
         </div>
-        <div class="mi-card-name">${eqEsc(it.name)}</div>
+        <div class="mi-card-name"><span class="mi-card-emoji" aria-hidden="true">${miItemEmoji(it)}</span>${eqEsc(it.name)}</div>
         <div class="mi-card-price-row">
           <span class="mi-card-price">${eqFrInt(it.price)}</span>
           <button type="button" class="mi-card-station" data-action="mi-reroute-item" data-arg="${it.id}" aria-label="Rerouter vers une station">→ ${eqEsc(it.station)}</button>
@@ -3173,7 +3200,7 @@
       <div class="mi-cat-bar">
         <div class="mi-pill-row mi-cat-pills">
           <button class="mi-pill${miCatFilter === 'all' ? ' on' : ''}" data-action="mi-cat-filter" data-cat="all">Tous</button>
-          ${cats.map(c => `<button class="mi-pill${miCatFilter === c ? ' on' : ''}" data-action="mi-cat-filter" data-cat="${c}">${miCatLabel(c)}</button>`).join('')}
+          ${cats.map(c => `<button class="mi-pill${miCatFilter === c ? ' on' : ''}" data-action="mi-cat-filter" data-cat="${c}">${(MI_CATS[c]||{}).emoji||''} ${miCatLabel(c)}</button>`).join('')}
         </div>
         <div class="mi-cat-bar-acts">
           <button class="btn-slim" data-action="mi-add-sub">${miSvg('plus', 13)}<span>Sous-section</span></button>
@@ -3254,8 +3281,8 @@
       const pct = miMarginPct(it);
       return `
         <tr data-mi-card="${it.id}" data-action="mi-edit-item" data-arg="${it.id}">
-          <td><b style="font-weight:600;">${eqEsc(it.name)}</b></td>
-          <td>${miCatLabel(it.category)}</td>
+          <td><b style="font-weight:600;"><span class="mi-card-emoji" aria-hidden="true">${miItemEmoji(it)}</span>${eqEsc(it.name)}</b></td>
+          <td>${(MI_CATS[it.category]||{}).emoji||''} ${miCatLabel(it.category)}</td>
           <td class="mono">${eqFrInt(it.price)} MAD</td>
           <td class="mono">${eqFrInt(it.cost)} MAD</td>
           <td><span class="mi-card-margin ${miMarginClass(pct)}">${Math.round(pct)} %</span></td>
