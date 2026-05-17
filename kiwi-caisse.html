@@ -4987,6 +4987,8 @@
     }
     function closeRegister() {
       $('#cloture-modal').classList.remove('is-open');
+      registerClosing = true;
+      clearPersistedShift();
       toast('Caisse fermée · à bientôt Rachid');
       setTimeout(() => location.reload(), 720);
     }
@@ -5594,6 +5596,94 @@
     renderMenu();
     updateTeamCount();
     renderPinDots();
+
+    /* ===========================================================
+       === Persistence ===  (the shift survives a reload)
+       =========================================================== */
+    const KC_STORE = 'kiwi-caisse-shift';
+    let registerClosing = false;
+
+    function persistShift() {
+      if (registerClosing || !shiftOpenedAt) return;
+      try {
+        localStorage.setItem(KC_STORE, JSON.stringify({
+          v: 1,
+          savedAt: Date.now(),
+          openedAt: shiftOpenedAt.toISOString(),
+          openingFloat: openingFloat,
+          journal: journal,
+          cashMovements: cashMovements,
+          shift: shift,
+          tables: tables,
+          tableOrders: tableOrders,
+          orders: orders,
+        }));
+      } catch (e) {}
+    }
+    function clearPersistedShift() {
+      try { localStorage.removeItem(KC_STORE); } catch (e) {}
+    }
+    function loadPersistedShift() {
+      try {
+        const raw = localStorage.getItem(KC_STORE);
+        if (!raw) return null;
+        const d = JSON.parse(raw);
+        if (!d || d.v !== 1 || !d.openedAt) return null;
+        if (Date.now() - (d.savedAt || 0) > 12 * 3600 * 1000) { clearPersistedShift(); return null; }
+        return d;
+      } catch (e) { return null; }
+    }
+    function restoreShift(d) {
+      shiftOpenedAt = new Date(d.openedAt);
+      openingFloat  = d.openingFloat || 500;
+      journal.length = 0;
+      (d.journal || []).forEach(e => journal.push({
+        id: e.id, time: new Date(e.time), label: e.label,
+        amount: e.amount, method: e.method, ref: e.ref,
+      }));
+      cashMovements.length = 0;
+      (d.cashMovements || []).forEach(m => cashMovements.push({
+        id: m.id, time: new Date(m.time), type: m.type, amount: m.amount, reason: m.reason,
+      }));
+      if (d.shift) {
+        shift.discounts  = d.shift.discounts;
+        shift.refunds    = d.shift.refunds;
+        shift.tablesPaid = d.shift.tablesPaid;
+      }
+      if (d.tables) Object.keys(d.tables).forEach(id => {
+        if (tables[id]) Object.assign(tables[id], d.tables[id]);
+      });
+      if (d.tableOrders) {
+        Object.keys(tableOrders).forEach(k => delete tableOrders[k]);
+        Object.assign(tableOrders, d.tableOrders);
+      }
+      if (d.orders) {
+        Object.keys(orders).forEach(k => delete orders[k]);
+        Object.assign(orders, d.orders);
+      }
+    }
+    function enterShellDirectly() {
+      const pin = $('#pin-screen');     if (pin) pin.style.display = 'none';
+      const ci  = $('#clockin-screen'); if (ci)  ci.style.display = 'none';
+      const greet = document.querySelector('[data-kiwi-greet]'); if (greet) greet.remove();
+      document.body.classList.add('is-unlocked');
+      renderSalle();
+      renderShiftStats();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    /* On load — if a recent shift was saved, resume straight into the shell */
+    (function () {
+      const saved = loadPersistedShift();
+      if (!saved) return;
+      restoreShift(saved);
+      enterShellDirectly();
+      setTimeout(() => toast('Service restauré · ' + journal.length + ' transactions'), 500);
+    })();
+
+    /* Autosave — covers refresh, tab close and crashes */
+    window.addEventListener('beforeunload', persistShift);
+    setInterval(persistShift, 5000);
 
     /* ---------- Lucide first paint ---------- */
     document.addEventListener('DOMContentLoaded', () => {
