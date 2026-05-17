@@ -20,7 +20,7 @@
    * Monthly figures (MAD), aligned with the dashboard's 30-day revenue
    * chart total (842 300 MAD) and the KPI band. The agent reasons entirely
    * off this object. opex keys are stable IDs — labels come from T.opex. */
-  const B = {
+  const ATLAS = {
     name: 'Café Atlas · Maarif',
     revenue: 842300,
     cogs: 261000,
@@ -50,12 +50,49 @@
     daysInMonth: 31,
     staffCount: 8,
   };
-  B.dailyRev = B.revenue / B.daysOpen;
-  B.dailyNet = B.netProfit / B.daysOpen;
-  B.netPerOrder = B.netProfit / B.ordersPerMonth;
-  B.breakEvenRev = B.totalOpex / B.contribRatio;
-  B.breakEvenOrdersDay = B.breakEvenRev / B.avgBasket / B.daysOpen;
-  B.marginOfSafety = (B.revenue - B.breakEvenRev) / B.revenue * 100;
+  ATLAS.dailyRev = ATLAS.revenue / ATLAS.daysOpen;
+  ATLAS.dailyNet = ATLAS.netProfit / ATLAS.daysOpen;
+  ATLAS.netPerOrder = ATLAS.netProfit / ATLAS.ordersPerMonth;
+  ATLAS.breakEvenRev = ATLAS.totalOpex / ATLAS.contribRatio;
+  ATLAS.breakEvenOrdersDay = ATLAS.breakEvenRev / ATLAS.avgBasket / ATLAS.daysOpen;
+  ATLAS.marginOfSafety = (ATLAS.revenue - ATLAS.breakEvenRev) / ATLAS.revenue * 100;
+
+  /* ─────────────── ACTIVE BUSINESS PROFILE ───────────────
+   * The agent reasons off `B`. For Café Atlas (and the demo venues) `B` is
+   * the full ATLAS model above. For a user-created venue there is no cost
+   * structure yet — so `B` becomes a PARTIAL profile built only from the
+   * merchant's own recorded sales (KiwiSales). Cost-dependent scenarios then
+   * degrade honestly instead of quoting Café Atlas's numbers.
+   * Principle (KIWI_AI_ROADMAP.md): never emit a number we don't have. */
+  let B = ATLAS;
+
+  function buildProfile() {
+    const KV = window.KiwiVenue;
+    if (!KV || typeof KV.isCustom !== 'function' || !KV.isCustom()) return ATLAS;
+    const vd = (KV.getCurrentVenueData && KV.getCurrentVenueData()) || {};
+    const vid = KV.getVenue ? KV.getVenue() : null;
+    const tot = (window.KiwiSales && window.KiwiSales.totals)
+      ? window.KiwiSales.totals(vid) : { revenue: 0, count: 0, basket: 0 };
+    const nm = vd.fullDisplay || [vd.name, vd.location].filter(Boolean).join(' · ') || 'Votre établissement';
+    return {
+      partial: true,
+      name: nm,
+      revenue: tot.revenue,
+      ordersPerMonth: tot.count,
+      ordersPerDay: 0,
+      avgBasket: tot.basket,
+      daysOpen: 30,
+      dailyRev: tot.revenue / 30,
+      /* cost structure unknown until the merchant records it */
+      cogs: null, grossProfit: null, grossMargin: null,
+      opex: {}, totalOpex: null, netProfit: null, netMargin: null,
+      cashBuffer: null, staffCount: null, contribRatio: null,
+      dailyNet: null, netPerOrder: null,
+      breakEvenRev: null, breakEvenOrdersDay: null, marginOfSafety: null,
+      mtdRevenue: tot.revenue, mtdDays: 1, daysInMonth: 30,
+    };
+  }
+  function syncProfile() { B = buildProfile(); return B; }
 
   /* ─────────────── LANGUAGE ─────────────── */
   function getLang() {
@@ -534,7 +571,61 @@
   /* ═══════════════ SCENARIO ENGINE ═══════════════
    * Each returns { text, stats:[{l,v,h}], verdict:{tone,text}, note, follow:[] } */
 
+  /* ─── New-venue (partial profile) strings — fr / en / ar ─── */
+  const NV = {
+    fr: {
+      costsNeeded: (n) => `${n} démarre sur Kiwi. Je raisonne sur vos ventes réelles enregistrées — mais je n'ai pas encore votre structure de coûts (loyer, salaires, marge, trésorerie). Je préfère ne rien simuler plutôt que d'inventer des chiffres.`,
+      costsCta: 'Enregistrez vos ventes au fil des jours et renseignez vos charges dans Réglages — je débloque alors les simulations d\'embauche, de prix, de rentabilité et de prévision.',
+      noSales: (n) => `${n} n'a pas encore de vente enregistrée. Dès la première vente saisie en caisse, je commence à suivre votre chiffre d'affaires, votre panier moyen et vos tendances.`,
+      revIntro: 'Voici vos ventes réelles enregistrées à ce jour.',
+      revLabel: 'Ventes enregistrées', ordLabel: 'Nombre de ventes', basketLabel: 'Panier moyen',
+      heroGreet: 'Bonjour.',
+      heroLead: (n) => `Je suis votre directeur financier. ${n} démarre sur Kiwi — je travaille à partir de vos ventes réelles. Posez une question, ou commencez ici.`,
+      heroIns: 'Enregistrez vos ventes et renseignez vos charges — je débloque alors vos marges, votre seuil de rentabilité et vos simulations.',
+      railEmpty: 'Vos charges, marges et trésorerie apparaîtront ici dès que vous les renseignez.',
+    },
+    en: {
+      costsNeeded: (n) => `${n} is just starting on Kiwi. I reason from your real recorded sales — but I don't have your cost structure yet (rent, payroll, margin, cash). I'd rather simulate nothing than invent figures.`,
+      costsCta: 'Record your sales day to day and add your costs in Settings — I then unlock hiring, pricing, break-even and forecast simulations.',
+      noSales: (n) => `${n} has no recorded sale yet. As soon as the first sale is rung up, I start tracking your revenue, average basket and trends.`,
+      revIntro: 'Here are your real recorded sales so far.',
+      revLabel: 'Recorded sales', ordLabel: 'Number of sales', basketLabel: 'Average basket',
+      heroGreet: 'Hello.',
+      heroLead: (n) => `I'm your finance director. ${n} is starting on Kiwi — I work from your real sales. Ask a question, or start here.`,
+      heroIns: 'Record your sales and add your costs — I then unlock your margins, break-even point and simulations.',
+      railEmpty: 'Your costs, margins and cash will show up here once you record them.',
+    },
+    ar: {
+      costsNeeded: (n) => `${n} بدأ للتو على Kiwi. أعتمد على مبيعاتك الحقيقية المسجّلة — لكن ليس لديّ بعد هيكل تكاليفك (الكراء، الأجور، الهامش، السيولة). أفضّل ألّا أحاكي شيئًا على أن أخترع أرقامًا.`,
+      costsCta: 'سجّل مبيعاتك يومًا بيوم وأضف تكاليفك في الإعدادات — عندها أفتح محاكاة التوظيف والأسعار ونقطة التعادل والتوقعات.',
+      noSales: (n) => `${n} ليس لديه بعد أي عملية بيع مسجّلة. بمجرد تسجيل أول عملية بيع، أبدأ بتتبّع رقم معاملاتك ومتوسط السلة والاتجاهات.`,
+      revIntro: 'هذه مبيعاتك الحقيقية المسجّلة حتى الآن.',
+      revLabel: 'المبيعات المسجّلة', ordLabel: 'عدد المبيعات', basketLabel: 'متوسط السلة',
+      heroGreet: 'مرحبًا.',
+      heroLead: (n) => `أنا مديرك المالي. ${n} يبدأ على Kiwi — أعمل انطلاقًا من مبيعاتك الحقيقية. اطرح سؤالاً أو ابدأ من هنا.`,
+      heroIns: 'سجّل مبيعاتك وأضف تكاليفك — عندها أفتح هوامشك ونقطة التعادل والمحاكاة.',
+      railEmpty: 'ستظهر تكاليفك وهوامشك وسيولتك هنا بمجرد تسجيلها.',
+    },
+  };
+  const nv = () => NV[L] || NV.fr;
+
+  /* Honest fallback for cost-dependent scenarios on a partial (new) venue —
+   * states what real data exists, never invents a cost or margin. */
+  function partialReply() {
+    const t = nv();
+    const r = { text: t.costsNeeded(B.name), note: t.costsCta };
+    if (B.revenue > 0) {
+      r.stats = [
+        { l: t.revLabel, v: fmtMad(B.revenue), h: '' },
+        { l: t.ordLabel, v: fmt(B.ordersPerMonth), h: '' },
+        { l: t.basketLabel, v: fmtMad(B.avgBasket), h: '' },
+      ];
+    }
+    return r;
+  }
+
   function sHire(q) {
+    if (B.partial) return partialReply();
     const t = tr().hire;
     let c = parseAmount(q), assumed = false;
     if (!c || c < 1800) { c = 7200; assumed = true; }
@@ -556,6 +647,7 @@
   }
 
   function sPrice(q) {
+    if (B.partial) return partialReply();
     const t = tr().price;
     let p = parsePercent(q), assumed = false;
     if (p == null) { p = 5; assumed = true; }
@@ -581,6 +673,7 @@
   }
 
   function sAfford(q) {
+    if (B.partial) return partialReply();
     const t = tr().afford;
     const A = parseAmount(q);
     if (!A || A < 100) {
@@ -609,6 +702,7 @@
   }
 
   function sForecast() {
+    if (B.partial) return partialReply();
     const t = tr().forecast;
     const runRate = B.mtdRevenue / B.mtdDays;
     const projRev = runRate * B.daysInMonth;
@@ -630,6 +724,7 @@
   }
 
   function sBreakEven() {
+    if (B.partial) return partialReply();
     const t = tr().breakeven;
     return {
       text: t.text(),
@@ -645,6 +740,7 @@
   }
 
   function sMargin() {
+    if (B.partial) return partialReply();
     const t = tr().margin;
     return {
       text: t.text,
@@ -661,6 +757,7 @@
   }
 
   function sCharges() {
+    if (B.partial) return partialReply();
     const t = tr().charges;
     const labels = tr().opex;
     const items = Object.entries(B.opex).sort((a, b) => b[1] - a[1]);
@@ -675,6 +772,19 @@
 
   function sRevenue() {
     const t = tr().revenue;
+    if (B.partial) {
+      if (!(B.revenue > 0)) return { text: nv().noSales(B.name) };
+      const p = nv();
+      return {
+        text: p.revIntro,
+        stats: [
+          { l: p.revLabel, v: fmtMad(B.revenue), h: '' },
+          { l: p.ordLabel, v: fmt(B.ordersPerMonth), h: '' },
+          { l: p.basketLabel, v: fmtMad(B.avgBasket), h: '' },
+        ],
+        note: p.costsCta,
+      };
+    }
     return {
       text: t.text,
       stats: [
@@ -688,6 +798,7 @@
   }
 
   function sProfit() {
+    if (B.partial) return partialReply();
     const t = tr().profit;
     return {
       text: t.text,
@@ -753,10 +864,13 @@
     const icPct  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.4"/><circle cx="17" cy="17" r="2.4"/></svg>';
     const icBook = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4a2 2 0 012-2h12v20H7a2 2 0 01-2-2z"/><path d="M9 2v20"/></svg>';
     const icIns  = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.6l2.55 6.86 6.85 2.54-6.85 2.55L12 22.4l-2.55-6.85L2.6 13l6.85-2.54z"/></svg>';
+    const heroH   = B.partial ? nv().heroGreet        : h.greet;
+    const heroP   = B.partial ? nv().heroLead(B.name) : h.lead;
+    const heroIns = B.partial ? nv().heroIns          : h.ins(fmt1(B.netMargin), fmt1(safety));
     return `<div class="fa-hero" data-fa-hero>
       <div class="fa-hero-mark">${ICON.avatar}</div>
-      <div class="fa-hero-h">${h.greet}</div>
-      <div class="fa-hero-p">${h.lead}</div>
+      <div class="fa-hero-h">${heroH}</div>
+      <div class="fa-hero-p">${heroP}</div>
       <div class="fa-hero-cards">
         <button class="fa-hero-card" type="button" data-fa-follow="${escAttr(tr().chips.hire)}">
           <span class="ic">${icHire}</span><span class="t">${h.c1t}</span><span class="s">${h.c1s}</span></button>
@@ -765,7 +879,7 @@
         <button class="fa-hero-card" type="button" data-fa-open="open-comptabilite">
           <span class="ic">${icBook}</span><span class="t">${h.c3t}</span><span class="s">${h.c3s}</span></button>
       </div>
-      <div class="fa-hero-insight">${icIns}<div><b>${h.insT}</b> ${h.ins(fmt1(B.netMargin), fmt1(safety))}</div></div>
+      <div class="fa-hero-insight">${icIns}<div><b>${h.insT}</b> ${heroIns}</div></div>
     </div>`;
   }
 
@@ -822,6 +936,7 @@
     profit: /(benefice|profit|gagne|resultat|rentre|combien je gagne|earn|bottom line|net income|make money|ربح|ارباح|صافي|نتيجة)/,
   };
   function respond(rawIn) {
+    syncProfile();   // reason off whatever venue is active right now
     const raw = fixDigits(rawIn);
     const q = norm(raw);
     if (looksLikeMath(raw)) {
@@ -859,6 +974,22 @@
   const llmHistory = [];
 
   function buildSystemPrompt() {
+    if (B.partial) {
+      return [
+        `Tu es l'assistant financier de "${B.name}", un établissement qui vient de démarrer sur Kiwi, au Maroc.`,
+        B.revenue > 0
+          ? `Seules données réelles disponibles : ${fmt(B.revenue)} MAD de ventes enregistrées sur ${fmt(B.ordersPerMonth)} vente(s), panier moyen ${fmt(B.avgBasket)} MAD.`
+          : 'Aucune vente n\'a encore été enregistrée pour cet établissement.',
+        'Tu n\'as PAS sa structure de coûts (loyer, salaires, coût matière, marge, trésorerie, effectif).',
+        '',
+        'Règles :',
+        '- Réponds TOUJOURS dans la langue de la question (français, anglais, ou arabe / darija marocaine).',
+        '- N\'invente JAMAIS un chiffre financier. Si on te demande une marge, un bénéfice, un seuil de rentabilité, des charges ou une simulation de coûts, explique que le commerçant doit d\'abord enregistrer ses ventes et renseigner ses charges dans Kiwi — ne donne pas de nombre.',
+        '- Tu peux donner des conseils de gestion généraux et qualitatifs, mais sans chiffrer ce que tu ne connais pas.',
+        '- Tu n\'as pas accès à Internet ni à des données en temps réel.',
+        '- Ne donne jamais de conseil d\'investissement boursier. Ne réponds pas aux questions sans lien avec l\'activité.',
+      ].join('\n');
+    }
     const o = B.opex;
     return [
       'Tu es l\'assistant financier de "Café Atlas · Maarif", un café-restaurant à Casablanca, au Maroc.',
@@ -1191,6 +1322,7 @@
     if (!window.Kiwi || !window.Kiwi.drawer) return;
     L = getLang();
     injectCss();
+    syncProfile();   // build the profile for whatever venue is active
     const u = tr().ui;
 
     // Every fact the agent knows — grouped, each row click-to-insert.
@@ -1198,43 +1330,74 @@
       `<button class="fa-ctx-item" type="button" data-fa-fact="${escAttr(`${k} : ${v}`)}"><span class="k">${k}</span><span class="v">${v}</span></button>`;
     const ctxGroup = (title, items, total) =>
       `<div class="fa-ctx-group"><div class="fa-ctx-gh"><span>${title}</span>${total ? `<span class="tot">${total}</span>` : ''}</div>${items.map(([k, v]) => ctxItem(k, v)).join('')}</div>`;
-    const f = tr().facts;
-    const opexItems = Object.entries(B.opex).sort((a, b) => b[1] - a[1])
-      .map(([k, v]) => [tr().opex[k] || k, fmtMad(v)]);
-    const ctxRail =
-      ctxGroup(u.gActivity, [
-        [f.revenue, fmtMad(B.revenue)],
-        [f.revPerDay, fmtMad(B.dailyRev)],
-        [f.mtdRev, `${fmtMad(B.mtdRevenue)} · ${B.mtdDays} ${u.days}`],
-        [f.ordersMonth, fmt(B.ordersPerMonth)],
-        [f.ordersDay, fmt(B.ordersPerDay)],
-        [f.basket, fmtMad(B.avgBasket)],
-      ]) +
-      ctxGroup(u.gProfit, [
-        [f.grossMargin, `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`],
-        [f.cogs, `${fmtMad(B.cogs)} · ${fmt1(100 - B.grossMargin)} %`],
-        [f.profitPerOrder, fmtMad(B.netPerOrder)],
-        [f.breakEven, `${fmtMad(B.breakEvenRev)} ${u.perMonth}`],
-      ]) +
-      ctxGroup(u.gFixed, opexItems, `${fmtMad(B.totalOpex)} ${u.perMonth}`) +
-      ctxGroup(u.gCash, [
-        [f.cashAvail, fmtMad(B.cashBuffer)],
-        [f.headcount, u.employees(B.staffCount)],
-      ]);
-    const netFact = `${f.netProfit} : ${fmtMad(B.netProfit)} · ${f.netMarginLine(fmt1(B.netMargin))}`;
-
-    /* curated rail — 4 headline KPIs + a cost split; the full list folds away */
-    const kpiFact = (k, v) => `${k} : ${v}`;
-    const coreKpis = [
-      { k: f.revenue, v: fmtMad(B.revenue), fact: kpiFact(f.revenue, fmtMad(B.revenue)) },
-      { k: f.grossMargin, v: fmtMad(B.grossProfit), fact: kpiFact(f.grossMargin, `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`) },
-      { k: f.netProfit, v: fmtMad(B.netProfit), fact: netFact, hl: true },
-      { k: f.cashAvail, v: fmtMad(B.cashBuffer), fact: kpiFact(f.cashAvail, fmtMad(B.cashBuffer)) },
-    ];
-    const opexRaw = Object.entries(B.opex).sort((a, b) => b[1] - a[1]);
-    const vizColors = ['var(--atlas)', '#46A878', '#7DF2B0', '#cdd6d0'];
-    const vizParts = opexRaw.slice(0, 3).map(([k, v], i) => ({ k: tr().opex[k] || k, v, c: vizColors[i] }));
-    vizParts.push({ k: HL().autres, v: opexRaw.slice(3).reduce((s, r) => s + r[1], 0), c: vizColors[3] });
+    /* The context rail — full financial panel for Café Atlas, or a clean
+     * "new venue" panel (real recorded sales only) for a custom venue. */
+    let asideHtml;
+    if (B.partial) {
+      const p = nv();
+      const rows = B.revenue > 0
+        ? [[p.revLabel, fmtMad(B.revenue)], [p.ordLabel, fmt(B.ordersPerMonth)], [p.basketLabel, fmtMad(B.avgBasket)]]
+        : [];
+      asideHtml =
+        `<div class="fa-ctx-eyebrow">${u.ctxEyebrow}</div>` +
+        `<div class="fa-ctx-biz">${B.name}</div>` +
+        `<div class="fa-ctx-sub">${u.ctxSub}</div>` +
+        (rows.length
+          ? `<div class="fa-ctx-kpis">${rows.map(([k, v]) =>
+              `<button class="fa-ctx-kpi" type="button" data-fa-fact="${escAttr(k + ' : ' + v)}"><span class="k">${k}</span><span class="v">${v}</span></button>`).join('')}</div>`
+          : '') +
+        `<div class="fa-ctx-detail" style="display:block;font-size:12.5px;color:var(--n-500);line-height:1.55;">${p.railEmpty}</div>` +
+        `<div class="fa-ctx-trust">${ICON.lock}<span>${u.ctxTrust}</span></div>`;
+    } else {
+      const f = tr().facts;
+      const opexItems = Object.entries(B.opex).sort((a, b) => b[1] - a[1])
+        .map(([k, v]) => [tr().opex[k] || k, fmtMad(v)]);
+      const ctxRail =
+        ctxGroup(u.gActivity, [
+          [f.revenue, fmtMad(B.revenue)],
+          [f.revPerDay, fmtMad(B.dailyRev)],
+          [f.mtdRev, `${fmtMad(B.mtdRevenue)} · ${B.mtdDays} ${u.days}`],
+          [f.ordersMonth, fmt(B.ordersPerMonth)],
+          [f.ordersDay, fmt(B.ordersPerDay)],
+          [f.basket, fmtMad(B.avgBasket)],
+        ]) +
+        ctxGroup(u.gProfit, [
+          [f.grossMargin, `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`],
+          [f.cogs, `${fmtMad(B.cogs)} · ${fmt1(100 - B.grossMargin)} %`],
+          [f.profitPerOrder, fmtMad(B.netPerOrder)],
+          [f.breakEven, `${fmtMad(B.breakEvenRev)} ${u.perMonth}`],
+        ]) +
+        ctxGroup(u.gFixed, opexItems, `${fmtMad(B.totalOpex)} ${u.perMonth}`) +
+        ctxGroup(u.gCash, [
+          [f.cashAvail, fmtMad(B.cashBuffer)],
+          [f.headcount, u.employees(B.staffCount)],
+        ]);
+      const netFact = `${f.netProfit} : ${fmtMad(B.netProfit)} · ${f.netMarginLine(fmt1(B.netMargin))}`;
+      const kpiFact = (k, v) => `${k} : ${v}`;
+      const coreKpis = [
+        { k: f.revenue, v: fmtMad(B.revenue), fact: kpiFact(f.revenue, fmtMad(B.revenue)) },
+        { k: f.grossMargin, v: fmtMad(B.grossProfit), fact: kpiFact(f.grossMargin, `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`) },
+        { k: f.netProfit, v: fmtMad(B.netProfit), fact: netFact, hl: true },
+        { k: f.cashAvail, v: fmtMad(B.cashBuffer), fact: kpiFact(f.cashAvail, fmtMad(B.cashBuffer)) },
+      ];
+      const opexRaw = Object.entries(B.opex).sort((a, b) => b[1] - a[1]);
+      const vizColors = ['var(--atlas)', '#46A878', '#7DF2B0', '#cdd6d0'];
+      const vizParts = opexRaw.slice(0, 3).map(([k, v], i) => ({ k: tr().opex[k] || k, v, c: vizColors[i] }));
+      vizParts.push({ k: HL().autres, v: opexRaw.slice(3).reduce((s, r) => s + r[1], 0), c: vizColors[3] });
+      asideHtml =
+        `<div class="fa-ctx-eyebrow">${u.ctxEyebrow}</div>` +
+        `<div class="fa-ctx-biz">${B.name}</div>` +
+        `<div class="fa-ctx-sub">${u.ctxSub}</div>` +
+        `<div class="fa-ctx-kpis">${coreKpis.map((c) => `<button class="fa-ctx-kpi${c.hl ? ' hl' : ''}" type="button" data-fa-fact="${escAttr(c.fact)}"><span class="k">${c.k}</span><span class="v">${c.v}</span></button>`).join('')}</div>` +
+        `<div class="fa-ctx-viz">` +
+          `<div class="fa-ctx-viz-h"><span>${u.gFixed}</span><span class="t">${fmtMad(B.totalOpex)}</span></div>` +
+          `<div class="fa-ctx-bar">${vizParts.map((p) => `<span style="width:${(p.v / B.totalOpex * 100).toFixed(1)}%;background:${p.c};"></span>`).join('')}</div>` +
+          `<div class="fa-ctx-leg">${vizParts.map((p) => `<span class="li"><i style="background:${p.c};"></i>${p.k}</span>`).join('')}</div>` +
+        `</div>` +
+        `<button class="fa-ctx-more" type="button" data-fa-ctx-more>${HL().more}</button>` +
+        `<div class="fa-ctx-detail" data-fa-detail hidden>${ctxRail}</div>` +
+        `<div class="fa-ctx-trust">${ICON.lock}<span>${u.ctxTrust}</span></div>`;
+    }
 
     const body = `
       <div class="fa">
@@ -1267,22 +1430,7 @@
             </div>
           </div>
         </div>
-        <aside class="fa-context">
-          <div class="fa-ctx-eyebrow">${u.ctxEyebrow}</div>
-          <div class="fa-ctx-biz">${B.name}</div>
-          <div class="fa-ctx-sub">${u.ctxSub}</div>
-          <div class="fa-ctx-kpis">
-            ${coreKpis.map((c) => `<button class="fa-ctx-kpi${c.hl ? ' hl' : ''}" type="button" data-fa-fact="${escAttr(c.fact)}"><span class="k">${c.k}</span><span class="v">${c.v}</span></button>`).join('')}
-          </div>
-          <div class="fa-ctx-viz">
-            <div class="fa-ctx-viz-h"><span>${u.gFixed}</span><span class="t">${fmtMad(B.totalOpex)}</span></div>
-            <div class="fa-ctx-bar">${vizParts.map((p) => `<span style="width:${(p.v / B.totalOpex * 100).toFixed(1)}%;background:${p.c};"></span>`).join('')}</div>
-            <div class="fa-ctx-leg">${vizParts.map((p) => `<span class="li"><i style="background:${p.c};"></i>${p.k}</span>`).join('')}</div>
-          </div>
-          <button class="fa-ctx-more" type="button" data-fa-ctx-more>${HL().more}</button>
-          <div class="fa-ctx-detail" data-fa-detail hidden>${ctxRail}</div>
-          <div class="fa-ctx-trust">${ICON.lock}<span>${u.ctxTrust}</span></div>
-        </aside>
+        <aside class="fa-context">${asideHtml}</aside>
       </div>`;
 
     const res = window.Kiwi.drawer({
@@ -1524,6 +1672,12 @@
     window.Kiwi.handlers['open-assistant'] = open;
   }
   register();
+
+  // Keep the active profile in lockstep with the venue switcher.
+  (function subVenue() {
+    if (window.KiwiVenue && window.KiwiVenue.subscribe) { window.KiwiVenue.subscribe(syncProfile); return; }
+    setTimeout(subVenue, 120);
+  })();
 
   // The dashboard hero's question box opens this assistant with the typed question.
   function wireHeroInput() {
