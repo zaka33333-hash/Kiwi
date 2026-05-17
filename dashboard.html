@@ -4099,6 +4099,12 @@
     if (done || unlocked) return;
     unlocked = true;
     if (window.__kiwiOnboard) { unlockOnboard(); return; }
+    /* Any non-0000 PIN is the Café Atlas demo — never a leftover
+     * user-created (zeroed) venue from a previous 0000 session. */
+    try {
+      const KV = window.KiwiVenue;
+      if (KV && KV.isCustom && KV.isCustom() && KV.setVenue) KV.setVenue('cafeAtlas');
+    } catch (_) {}
     /* Stagger the success pop on each cell (left -> right). */
     cells.forEach((c, i) => {
       setTimeout(() => c.classList.add('is-success'), i * 70);
