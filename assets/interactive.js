@@ -1403,7 +1403,7 @@ ar: {
       if (arg) { try { localStorage.setItem('kiwiSet:' + arg, on ? '1' : '0'); } catch (_) {} }
     },
 
-    'settings-soon': () => toast('Réglage bientôt disponible', { type: 'info', duration: 1800 }),
+    'settings-soon': () => {},
 
     'export': () => {
       toast('Préparation de l\'export…', { type: 'info', duration: 1600 });
@@ -2592,11 +2592,7 @@ ar: {
     if (sugg) { handlers['ai-suggest'](sugg); return; }
 
     // 6. AI drawer close
-    if (e.target.closest('.ai-drawer .head .x')) { document.querySelector('.ai-drawer').style.display = 'none'; toast('Kiwi AI masqué · ⌘J pour rouvrir', {type:'info', duration: 2000}); return; }
-
-    // 7. AI drawer input
-    const aiInput = e.target.closest('.ai-drawer .input');
-    if (aiInput) { toast('Kiwi AI chat ouvert', {type:'info', desc: 'Tapez votre question ou commande'}); return; }
+    if (e.target.closest('.ai-drawer .head .x')) { document.querySelector('.ai-drawer').style.display = 'none'; return; }
 
     // 8. feed-row → transaction detail
     const feedRow = e.target.closest('.feed-row, .tx-row');
@@ -2620,14 +2616,12 @@ ar: {
       return;
     }
 
-    // 10. Sidebar nav → highlight + toast
+    // 10. Sidebar nav → highlight (no toast)
     const sidebarLink = e.target.closest('.sidebar nav a');
     if (sidebarLink && !sidebarLink.dataset.action && sidebarLink.getAttribute('href') === '#') {
       e.preventDefault();
       sidebarLink.parentElement.querySelectorAll('a').forEach(a => a.classList.remove('active'));
       sidebarLink.classList.add('active');
-      const label = sidebarLink.childNodes[2]?.textContent?.trim() || sidebarLink.textContent.trim();
-      toast(`${label} ouvert`, {type:'info', duration: 1800});
       return;
     }
 
@@ -2645,7 +2639,6 @@ ar: {
       const aria = btn.getAttribute('aria-label') || '';
       if (aria.toLowerCase().includes('notif')) { handlers.notifications(); return; }
       if (aria.toLowerCase().includes('param')) { handlers.settings(); return; }
-      toast('Action', {type:'info', duration: 1200});
       return;
     }
 
@@ -2658,90 +2651,16 @@ ar: {
     // 16. Team stack
     if (e.target.closest('.team-stack')) { handlers.notifications(); return; } // reuse drawer-style
 
-    // 17. integ-card
-    if (e.target.closest('.integ-card')) {
-      const n = e.target.closest('.integ-card').querySelector('.n')?.textContent || 'Intégration';
-      toast(`${n} · paramètres`, {type:'info', desc:'Ouvrir la configuration'});
-      return;
-    }
-
-    // 18. timeline-day
-    const tday = e.target.closest('.timeline-day');
-    if (tday) { toast(`${tday.querySelector('.d')?.textContent} · ${tday.querySelector('.n')?.textContent}`, {type:'info', desc: tday.classList.contains('today') ? 'Journée en cours' : tday.classList.contains('tomorrow') ? 'Règlement prévu 9h00 · 23 091 MAD' : 'Règlement projeté'}); return; }
-
-    // 19. heatmap cell
-    const cell = e.target.closest('.heatmap .cell');
-    if (cell) { toast('Créneau · intensité élevée', {type:'info', desc: 'Samedi 20h-22h · ~840 MAD/h en moyenne'}); return; }
-
-    // 20. staff row
-    const staff = e.target.closest('.staff-row');
-    if (staff) { const n = staff.querySelector('.n')?.textContent || 'Employé'; toast(`${n}`, {type:'info', desc: 'Profil équipe · ouvrir'}); return; }
-
-    // 21. prod-row
-    const prod = e.target.closest('.prod-row');
-    if (prod) { const n = prod.querySelector('.n')?.textContent || 'Produit'; toast(n, {type:'info', desc: 'Éditer produit · prix · modificateurs'}); return; }
-
-    // 22. health check li
-    const hc = e.target.closest('.health-check li');
-    if (hc) { toast(hc.querySelector('span')?.textContent || 'Critère', {type:'info', desc:'Détails et recommandations'}); return; }
-
-    // 23. bench row
-    const bench = e.target.closest('.bench-row');
-    if (bench) { toast(bench.querySelector('.lbl')?.textContent || 'Métrique', {type:'info', desc: 'Voir vos pairs dans cette catégorie'}); return; }
-
-    // 24. testimonial card
-    const testi = e.target.closest('.testi-card');
-    if (testi) { toast('Témoignage complet', {type:'info', desc: testi.querySelector('.n')?.textContent || ''}); return; }
-
-    // 25. Pricing card
-    const priceCard = e.target.closest('.price-card, .bm-card, .pillar, .prod');
-    if (priceCard) { toast(priceCard.querySelector('h3, h4')?.textContent || 'Plan', {type:'info'}); return; }
-
-    // 26. roadmap card
-    const rmap = e.target.closest('.rmap-card');
-    if (rmap) { toast(rmap.querySelector('h4')?.textContent || 'Phase', {type:'info', desc: 'Détails de la phase'}); return; }
-
-    // 27. f-card (wallet features)
-    const fcard = e.target.closest('.f-card');
-    if (fcard) { toast(fcard.querySelector('h3')?.textContent || 'Fonction', {type:'info'}); return; }
-
-    // 28. sec-item
-    const sec = e.target.closest('.sec-item');
-    if (sec) { toast(sec.querySelector('h4')?.textContent || 'Sécurité', {type:'info', desc: sec.querySelector('p')?.textContent || ''}); return; }
-
-    // 29. Store buttons (app store / google play)
+    // 17. Store buttons (app store / google play)
     const store = e.target.closest('.store-btn');
     if (store) { handlers['download-app'](); return; }
 
-    // 30. socials
-    const soc = e.target.closest('.socials a');
-    if (soc) { toast('Réseau social', {type:'info', desc: 'Ouvrir @kiwi.ma'}); return; }
-
-    // 31. logo cells in brand
-    const logoCell = e.target.closest('.logo-cell');
-    if (logoCell) { toast('Copié au presse-papier', {type:'success', desc: 'SVG disponible dans le kit de marque'}); return; }
-
-    // 32. color swatches
-    const color = e.target.closest('.color');
-    if (color) { const h = color.querySelector('.h')?.textContent || 'couleur'; toast(`${h} copié`, {type:'success'}); return; }
-
-    // 33. btn / kb / various buttons — fallback only for top-level CTAs, never inside modal/drawer/menu
-    //     Uses type:'info' deliberately — an unwired button hasn't *succeeded*
-    //     at anything, so a green success toast would be a false claim.
-    const btn = e.target.closest('button, .btn, .btn-slim, .btn-primary, .btn-ghost, .btn-atlas, .btn-mint, .btn-lg');
-    if (btn && !btn.closest('a[href]') && !shouldSkipFallback(btn)) {
-      e.preventDefault();
-      const label = btn.textContent.trim().slice(0, 50);
-      toast(label || 'Action exécutée', {type: 'info', duration: 2000});
-      return;
-    }
-
-    // 34. pill / chip
-    const pill = e.target.closest('.pill, .chip, .rest-chips span');
-    if (pill && !pill.closest('[data-action]') && !pill.closest('a') && !shouldSkipFallback(pill)) {
-      toast(pill.textContent.trim().slice(0, 50), {type:'info', duration:1500});
-      return;
-    }
+    /* Passive widgets — integration cards, timeline days, heatmap cells,
+     * staff / product rows, health & bench rows, testimonial / pricing /
+     * roadmap / feature / security cards, social links, brand swatches, and
+     * generic unwired buttons / pills — used to raise a "… clicked / … opened"
+     * fallback toast on EVERY click. Removed: an interaction now either runs a
+     * real handler from the steps above, or stays silent. */
   });
 
   /* ─── Keyboard shortcuts ─── */
