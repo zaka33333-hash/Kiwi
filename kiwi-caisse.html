@@ -1847,7 +1847,9 @@
     .jr-entry-label {
       font-size: 13.5px; font-weight: 600; color: var(--ink);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: flex; align-items: center; gap: 7px;
     }
+    .jr-entry-label > .jr-tag-refunded { overflow: visible; }
     .jr-entry-meta {
       font-size: 11px; color: var(--ink-4);
       font-family: var(--mono); font-feature-settings: "tnum" 1;
@@ -2515,6 +2517,139 @@
       color: var(--ink-4);
     }
     .rm-block { margin-bottom: 16px; }
+
+    /* ===========================================================
+       === Remboursement ===  (refund — pick a txn, refund it)
+       =========================================================== */
+    .rf-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--paper-mute);
+      border-radius: var(--r-lg);
+      padding: 9px 12px; margin-bottom: 10px;
+    }
+    .rf-search svg { width: 15px; height: 15px; color: var(--ink-4); flex: 0 0 15px; }
+    .rf-search input {
+      flex: 1; border: 0; background: transparent; padding: 0;
+      font-family: inherit; font-size: 13px; color: var(--ink); outline: none;
+    }
+    .rf-search input::placeholder { color: var(--ink-4); }
+    .rf-list {
+      display: flex; flex-direction: column; gap: 2px;
+      max-height: 308px; overflow-y: auto;
+      margin: 0 -6px; padding: 0 6px;
+    }
+    .rf-entry {
+      width: 100%; text-align: left;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--r-lg);
+      transition: background 140ms;
+    }
+    .rf-entry:hover { background: var(--paper-mute); }
+    .rf-entry:disabled { cursor: default; opacity: 0.6; }
+    .rf-entry:disabled:hover { background: transparent; }
+    .rf-entry-ic {
+      width: 34px; height: 34px; border-radius: 9px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 34px;
+    }
+    .rf-entry-ic svg { width: 16px; height: 16px; }
+    .rf-entry-ic--card { background: rgba(63,182,122,0.12); color: var(--forest); }
+    .rf-entry-ic--cash { background: rgba(212,159,46,0.16); color: #8a6411; }
+    .rf-entry-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rf-entry-label {
+      font-size: 13.5px; font-weight: 600; color: var(--ink);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .rf-entry-meta {
+      font-size: 11px; color: var(--ink-4);
+      font-family: var(--mono); font-feature-settings: "tnum" 1;
+    }
+    .rf-entry-amount {
+      font-size: 14px; font-weight: 700; color: var(--ink);
+      font-feature-settings: "tnum" 1; flex: 0 0 auto;
+    }
+    .rf-done-tag {
+      font-size: 9.5px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--danger-mute);
+      background: rgba(184,82,69,0.12);
+      padding: 2px 7px; border-radius: 999px;
+      flex: 0 0 auto;
+    }
+    .rf-empty {
+      text-align: center; padding: 40px 20px;
+      font-size: 13px; color: var(--ink-4);
+    }
+    /* --- step 2 — confirm --- */
+    .rf-picked {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; margin-bottom: 16px;
+      border-radius: var(--r-lg);
+      background: var(--paper-mute);
+    }
+    .rf-picked-ic {
+      width: 36px; height: 36px; border-radius: 9px; flex: 0 0 36px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .rf-picked-ic svg { width: 17px; height: 17px; }
+    .rf-picked-ic--card { background: rgba(63,182,122,0.12); color: var(--forest); }
+    .rf-picked-ic--cash { background: rgba(212,159,46,0.16); color: #8a6411; }
+    .rf-picked-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .rf-picked-label {
+      font-size: 14px; font-weight: 600; color: var(--ink);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .rf-picked-meta {
+      font-size: 11px; color: var(--ink-4);
+      font-family: var(--mono); font-feature-settings: "tnum" 1;
+    }
+    .rf-picked-amount {
+      font-size: 15px; font-weight: 700; color: var(--ink);
+      font-feature-settings: "tnum" 1; flex: 0 0 auto;
+    }
+    .rf-reasons { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rf-reason {
+      padding: 7px 13px; border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      background: var(--paper-mute); color: var(--ink-3);
+      transition: background 150ms, color 150ms;
+    }
+    .rf-reason:hover { background: var(--line-soft); }
+    .rf-reason.is-active { background: var(--forest); color: #fff; }
+    .rf-preview {
+      margin: 16px 0 4px;
+      padding: 13px 15px;
+      border-radius: var(--r-lg);
+      background: rgba(184,82,69,0.07);
+      border: 1px solid rgba(184,82,69,0.22);
+      display: flex; align-items: baseline; gap: 8px;
+      flex-wrap: wrap;
+      font-size: 13.5px; color: var(--ink-2);
+    }
+    .rf-preview .rf-pv-from { color: var(--ink-3); }
+    .rf-preview .rf-pv-arrow { color: var(--ink-4); }
+    .rf-preview .rf-pv-to { font-weight: 700; color: var(--danger-mute); }
+    .rf-preview .rf-pv-cut { margin-left: auto; font-weight: 700; color: var(--danger-mute); }
+    .rf-back {
+      display: block; width: 100%; text-align: center;
+      margin-top: 12px;
+      font-size: 12px; color: var(--ink-4);
+    }
+    .rf-back:hover { color: var(--ink-3); }
+    .ma-btn.danger { background: var(--danger-mute); color: #fff; }
+    /* --- refund row inside the journal drawer --- */
+    .jr-entry-ic--refund { background: rgba(184,82,69,0.12); color: var(--danger-mute); }
+    .jr-entry-amount.is-refund { color: var(--danger-mute); }
+    .jr-tag-refunded {
+      font-size: 9px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--danger-mute);
+      background: rgba(184,82,69,0.12);
+      padding: 1px 6px; border-radius: 999px;
+      flex: 0 0 auto;
+    }
   </style>
 </head>
 
@@ -3236,6 +3371,51 @@
       <div class="modal-actions is-visible">
         <button class="ma-btn secondary" id="rm-cancel" style="flex:1;">Annuler</button>
         <button class="ma-btn primary" id="rm-confirm" style="flex:2;"><i data-lucide="badge-percent"></i><span>Appliquer la remise</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ REMBOURSEMENT (REFUND) MODAL ============ -->
+  <div class="modal-veil" id="refund-modal" role="dialog" aria-modal="true" aria-labelledby="rf-title">
+    <div class="modal">
+      <!-- Step 1 — pick the transaction -->
+      <div id="rf-step-pick">
+        <h3 class="modal-title" id="rf-title">Remboursement</h3>
+        <p class="modal-subtle">Khtar la transaction à rembourser — journal d'lyoum.</p>
+        <div class="rf-search">
+          <i data-lucide="search"></i>
+          <input type="text" id="rf-search-input" placeholder="Rechercher — table, montant, réf" aria-label="Rechercher une transaction" />
+        </div>
+        <div class="rf-list" id="rf-list"></div>
+        <div class="modal-actions is-visible">
+          <button class="ma-btn secondary" id="rf-cancel" style="flex:1;">Annuler</button>
+        </div>
+      </div>
+      <!-- Step 2 — confirm the refund -->
+      <div id="rf-step-confirm" hidden>
+        <h3 class="modal-title">Rembourser</h3>
+        <p class="modal-subtle">Vérifie le montant — l'opération sera autorisée par le manager.</p>
+        <div class="rf-picked" id="rf-picked"></div>
+        <div class="cash-input-row" style="margin-bottom:6px;">
+          <label class="cash-input-label" for="rf-amount">Montant à rembourser</label>
+          <input class="cash-input mono" id="rf-amount" type="number" inputmode="numeric" min="1" step="10" placeholder="0" />
+        </div>
+        <div class="rm-block" style="margin-top:14px;">
+          <div class="rm-section-label">Motif</div>
+          <div class="rf-reasons" id="rf-reasons">
+            <button class="rf-reason is-active" data-rf-reason="Erreur de saisie">Erreur de saisie</button>
+            <button class="rf-reason" data-rf-reason="Plat retourné">Plat retourné</button>
+            <button class="rf-reason" data-rf-reason="Client insatisfait">Client insatisfait</button>
+            <button class="rf-reason" data-rf-reason="Geste commercial">Geste commercial</button>
+            <button class="rf-reason" data-rf-reason="Autre">Autre</button>
+          </div>
+        </div>
+        <div class="rf-preview" id="rf-preview"></div>
+        <div class="modal-actions is-visible">
+          <button class="ma-btn secondary" id="rf-confirm-cancel" style="flex:1;">Annuler</button>
+          <button class="ma-btn danger" id="rf-confirm" style="flex:2;"><i data-lucide="corner-up-left"></i><span id="rf-confirm-label">Rembourser</span></button>
+        </div>
+        <a id="rf-back" class="rf-back">← Choisir une autre transaction</a>
       </div>
     </div>
   </div>
@@ -4030,7 +4210,7 @@
     $$('.qa-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const a = btn.dataset.action;
-        if (a === 'remboursement')   toast('Remboursement · choisis transaction');
+        if (a === 'remboursement')   openRefund();
         else if (a === 'cash-move')  openCashMove();
         else if (a === 'fin-service') openCloture();
       });
@@ -5255,16 +5435,23 @@
       body.innerHTML = list.map(e => {
         const hh = String(e.time.getHours()).padStart(2, '0');
         const mm = String(e.time.getMinutes()).padStart(2, '0');
-        const icon   = e.method === 'cash' ? 'banknote' : 'credit-card';
-        const mLabel = e.method === 'cash' ? 'Espèces'  : 'Carte';
+        const isRefund = e.kind === 'refund';
+        const icCls  = isRefund ? 'refund' : e.method;
+        const icon   = isRefund ? 'corner-up-left' : (e.method === 'cash' ? 'banknote' : 'credit-card');
+        const mLabel = e.method === 'cash' ? 'Espèces' : 'Carte';
         const fresh  = e.id === lastSaleId ? ' jr-entry--fresh' : '';
+        const amtTxt = isRefund
+          ? '− ' + fmtMAD(Math.abs(e.amount))
+          : fmtMAD(e.amount);
+        const refundedTag = e.refunded
+          ? `<span class="jr-tag-refunded">remboursé</span>` : '';
         return `<button class="jr-entry${fresh}" data-jr-ref="${e.ref}">`
-             + `<span class="jr-entry-ic jr-entry-ic--${e.method}"><i data-lucide="${icon}"></i></span>`
+             + `<span class="jr-entry-ic jr-entry-ic--${icCls}"><i data-lucide="${icon}"></i></span>`
              + `<span class="jr-entry-main">`
-             +   `<span class="jr-entry-label">${e.label}</span>`
+             +   `<span class="jr-entry-label">${e.label}${refundedTag}</span>`
              +   `<span class="jr-entry-meta">${hh}:${mm} · ${mLabel} · ${e.ref}</span>`
              + `</span>`
-             + `<span class="jr-entry-amount">${fmtMAD(e.amount)}</span>`
+             + `<span class="jr-entry-amount${isRefund ? ' is-refund' : ''}">${amtTxt}</span>`
              + `<span class="jr-entry-reprint"><i data-lucide="printer"></i></span>`
              + `</button>`;
       }).join('');
@@ -6027,6 +6214,198 @@
     });
 
     /* ===========================================================
+       REMBOURSEMENT — manager-gated refund of a past transaction
+       -----------------------------------------------------------
+       The cashier picks a sale from the day's journal and refunds
+       it (full or partial) with a reason. The refund is recorded as
+       a NEW journal entry with a NEGATIVE amount and kind:'refund' —
+       so journalTotals() (revenue / card / cash) and every reader
+       (renderShiftStats, the Clôture report) reflect it for free.
+       The original entry is tagged `refunded = true`.
+         journal refund entry = {
+           id, time, label:'Remboursement · '+orig.label,
+           amount: -refundAmount,   // NEGATIVE
+           method: orig.method,     // refunded on the same tender
+           ref, kind:'refund', refundOf: orig.ref,
+         }
+       =========================================================== */
+    const refundModal = $('#refund-modal');
+    const refundState = { search: '', orig: null, amount: 0, reason: 'Erreur de saisie' };
+
+    function refundableJournal() {
+      // Newest first — only real sales (positive, not already refunded).
+      return journal.slice().reverse()
+        .filter(e => e.kind !== 'refund' && e.amount > 0);
+    }
+    function renderRefundList() {
+      const q    = refundState.search.trim().toLowerCase();
+      const list = refundableJournal().filter(e =>
+        !q ||
+        e.label.toLowerCase().includes(q) ||
+        e.ref.toLowerCase().includes(q) ||
+        String(e.amount).includes(q)
+      );
+      const body = $('#rf-list');
+      if (!body) return;
+      if (list.length === 0) {
+        body.innerHTML = '<div class="rf-empty">Walo — aucune transaction ne correspond.</div>';
+        return;
+      }
+      body.innerHTML = list.map(e => {
+        const hh = String(e.time.getHours()).padStart(2, '0');
+        const mm = String(e.time.getMinutes()).padStart(2, '0');
+        const icon   = e.method === 'cash' ? 'banknote' : 'credit-card';
+        const mLabel = e.method === 'cash' ? 'Espèces'  : 'Carte';
+        const done   = e.refunded === true;
+        return `<button class="rf-entry" data-rf-ref="${e.ref}"${done ? ' disabled' : ''}>`
+             + `<span class="rf-entry-ic rf-entry-ic--${e.method}"><i data-lucide="${icon}"></i></span>`
+             + `<span class="rf-entry-main">`
+             +   `<span class="rf-entry-label">${e.label}`
+             +     (done ? `<span class="rf-done-tag">remboursé</span>` : '')
+             +   `</span>`
+             +   `<span class="rf-entry-meta">${hh}:${mm} · ${mLabel} · ${e.ref}</span>`
+             + `</span>`
+             + `<span class="rf-entry-amount">${fmtMAD(e.amount)}</span>`
+             + `</button>`;
+      }).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+    function renderRefundPreview() {
+      const o  = refundState.orig;
+      const pv = $('#rf-preview');
+      if (!o) return;
+      const amt  = refundState.amount;
+      const left = o.amount - amt;
+      pv.innerHTML =
+        `<span class="rf-pv-from mono">Vente ${fmtMAD(o.amount)}</span>`
+        + `<span class="rf-pv-arrow">→</span>`
+        + `<span class="rf-pv-to mono">${left > 0 ? 'Reste ' + fmtMAD(left) : 'Remboursé en entier'}</span>`
+        + `<span class="rf-pv-cut mono">−${fmtMAD(amt)}</span>`;
+      $('#rf-confirm-label').textContent = 'Rembourser ' + fmtMAD(amt);
+    }
+    function showRefundStep(step) {
+      $('#rf-step-pick').hidden    = step !== 'pick';
+      $('#rf-step-confirm').hidden = step !== 'confirm';
+    }
+    function openRefundConfirm(orig) {
+      refundState.orig   = orig;
+      refundState.amount = orig.amount;            // default — full refund
+      refundState.reason = 'Erreur de saisie';
+      const hh = String(orig.time.getHours()).padStart(2, '0');
+      const mm = String(orig.time.getMinutes()).padStart(2, '0');
+      const icon   = orig.method === 'cash' ? 'banknote' : 'credit-card';
+      const mLabel = orig.method === 'cash' ? 'Espèces'  : 'Carte';
+      $('#rf-picked').innerHTML =
+        `<span class="rf-picked-ic rf-picked-ic--${orig.method}"><i data-lucide="${icon}"></i></span>`
+        + `<span class="rf-picked-main">`
+        +   `<span class="rf-picked-label">${orig.label}</span>`
+        +   `<span class="rf-picked-meta">${hh}:${mm} · ${mLabel} · ${orig.ref}</span>`
+        + `</span>`
+        + `<span class="rf-picked-amount">${fmtMAD(orig.amount)}</span>`;
+      $('#rf-amount').value = String(orig.amount);
+      $('#rf-amount').max   = String(orig.amount);
+      $$('#rf-reasons .rf-reason').forEach(b =>
+        b.classList.toggle('is-active', b.dataset.rfReason === 'Erreur de saisie'));
+      renderRefundPreview();
+      showRefundStep('confirm');
+      if (window.lucide) lucide.createIcons();
+    }
+    function openRefund() {
+      refundState.search = '';
+      refundState.orig   = null;
+      $('#rf-search-input').value = '';
+      renderRefundList();
+      showRefundStep('pick');
+      refundModal.classList.add('is-open');
+      if (window.lucide) lucide.createIcons();
+      setTimeout(() => { const s = $('#rf-search-input'); if (s) s.focus(); }, 60);
+    }
+    function closeRefund() { refundModal.classList.remove('is-open'); }
+
+    function clampRefundAmount() {
+      const o = refundState.orig;
+      if (!o) return;
+      let amt = Math.round(parseFloat($('#rf-amount').value) || 0);
+      amt = Math.max(1, Math.min(amt, o.amount));   // 1 … original
+      refundState.amount = amt;
+    }
+    function confirmRefund() {
+      const orig = refundState.orig;
+      if (!orig) { showRefundStep('pick'); return; }
+      if (orig.refunded) { toast('Transaction déjà remboursée'); return; }
+      clampRefundAmount();
+      const amount = refundState.amount;
+      if (amount <= 0) { toast('Saisis un montant'); return; }
+      requireManager('Remboursement', () => {
+        if (orig.refunded) { toast('Transaction déjà remboursée'); return; }
+        // NEGATIVE journal entry — NOT via recordSale (it rejects amount<=0).
+        const entry = {
+          id: 'refund-' + Date.now() + '-' + journal.length,
+          time: new Date(),
+          label: 'Remboursement · ' + orig.label,
+          amount: -amount,
+          method: orig.method,
+          ref: genRef(),
+          kind: 'refund',
+          refundOf: orig.ref,
+        };
+        journal.push(entry);
+        orig.refunded = true;
+        shift.refunds += amount;        // positive — Clôture renders it as a row
+        lastSaleId = entry.id;
+        renderShiftStats();
+        if ($('#journal-drawer').classList.contains('is-open')) renderJournal();
+        closeRefund();
+        toast('Remboursement · −' + fmtMAD(amount));
+      });
+    }
+
+    refundModal.addEventListener('click', (e) => {
+      if (e.target === refundModal) { closeRefund(); return; }
+      if (e.target.closest('#rf-cancel') || e.target.closest('#rf-confirm-cancel')) {
+        closeRefund(); return;
+      }
+      if (e.target.closest('#rf-back')) {
+        refundState.orig = null;
+        renderRefundList();
+        showRefundStep('pick');
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+      const reasonBtn = e.target.closest('[data-rf-reason]');
+      if (reasonBtn) {
+        refundState.reason = reasonBtn.dataset.rfReason;
+        $$('#rf-reasons .rf-reason').forEach(b => b.classList.toggle('is-active', b === reasonBtn));
+        return;
+      }
+      if (e.target.closest('#rf-confirm')) { confirmRefund(); return; }
+      const entry = e.target.closest('[data-rf-ref]');
+      if (entry && !entry.disabled) {
+        const orig = journal.find(j => j.ref === entry.dataset.rfRef);
+        if (orig) openRefundConfirm(orig);
+        return;
+      }
+    });
+    $('#rf-search-input').addEventListener('input', (e) => {
+      refundState.search = e.target.value;
+      renderRefundList();
+    });
+    $('#rf-amount').addEventListener('input', () => {
+      const o = refundState.orig;
+      if (!o) return;
+      let amt = Math.round(parseFloat($('#rf-amount').value) || 0);
+      if (!amt) { refundState.amount = 0; }   // keep preview live while typing
+      else      { amt = Math.max(1, Math.min(amt, o.amount)); refundState.amount = amt; }
+      renderRefundPreview();
+    });
+    $('#rf-amount').addEventListener('blur', () => {
+      if (!refundState.orig) return;
+      clampRefundAmount();
+      $('#rf-amount').value = String(refundState.amount);
+      renderRefundPreview();
+    });
+
+    /* ===========================================================
        RP actions: reassign + split resume/cancel
        =========================================================== */
     document.addEventListener('click', (e) => {
@@ -6098,10 +6477,16 @@
       shiftOpenedAt = new Date(d.openedAt);
       openingFloat  = d.openingFloat || 500;
       journal.length = 0;
-      (d.journal || []).forEach(e => journal.push({
-        id: e.id, time: new Date(e.time), label: e.label,
-        amount: e.amount, method: e.method, ref: e.ref,
-      }));
+      (d.journal || []).forEach(e => {
+        const entry = {
+          id: e.id, time: new Date(e.time), label: e.label,
+          amount: e.amount, method: e.method, ref: e.ref,
+        };
+        if (e.kind)            entry.kind     = e.kind;       // 'refund'
+        if (e.refundOf)        entry.refundOf = e.refundOf;
+        if (e.refunded)        entry.refunded = true;
+        journal.push(entry);
+      });
       cashMovements.length = 0;
       (d.cashMovements || []).forEach(m => cashMovements.push({
         id: m.id, time: new Date(m.time), type: m.type, amount: m.amount, reason: m.reason,
