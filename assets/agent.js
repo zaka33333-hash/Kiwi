@@ -681,11 +681,42 @@
     };
   }
 
+  /* ─── Accounting agent (Comptabilité) — opens the hub / a module ─── */
+  const ACCT_LBL = {
+    fr: { open: 'Ouvrir ma comptabilité', tva: 'Ouvrir TVA & Impôts', paie: 'Ouvrir la Paie', etats: 'Ouvrir les états financiers', livre: 'Ouvrir le grand livre' },
+    en: { open: 'Open my accounting', tva: 'Open Tax & VAT', paie: 'Open Payroll', etats: 'Open financial statements', livre: 'Open the ledger' },
+    ar: { open: 'افتح محاسبتي', tva: 'الضريبة والـTVA', paie: 'الأجور', etats: 'القوائم المالية', livre: 'دفتر الأستاذ' },
+  };
+  const acctLabel = (k) => (ACCT_LBL[L] || ACCT_LBL.fr)[k];
+  const RX_ACCT = /(comptab|grand.?livre|ecritur|\btva\b|impot|fiscal|declarat|cnss|\bpaie\b|fiche.?de.?paie|bulletin.?de.?paie|bilan|cloture|amortiss|\bdgi\b|etats financiers)/;
+
   function sHelp() {
     return {
       text: tr().help.text,
       follow: [tr().chips.hire, tr().chips.price5, tr().chips.breakeven, tr().chips.forecast, tr().chips.invest80],
+      open: [{ label: acctLabel('open'), handler: 'open-comptabilite' }],
     };
+  }
+
+  function sAccounting(q) {
+    const D = window.KiwiComptable && window.KiwiComptable.data;
+    let handler = 'open-comptabilite', btn = acctLabel('open'), text;
+    if (D && /\btva\b|impot|fiscal|declarat|acompte|\bdgi\b|\bis\b/.test(q)) {
+      handler = 'acct-tva'; btn = acctLabel('tva');
+      text = `Je m'occupe de votre fiscalité. Pour ${D.period} : TVA à payer <b>${fmtMad(D.tva.aPayer)}</b>, échéance ${D.tva.echeance}. IS estimé sur l'exercice : ${fmtMad(D.is.estimeAnnuel)}. J'ouvre le module pour préparer la déclaration.`;
+    } else if (D && /cnss|\bpaie\b|fiche|bulletin|salair/.test(q)) {
+      handler = 'acct-paie'; btn = acctLabel('paie');
+      text = `Côté paie : <b>${D.payroll.headcount} salariés</b>, ${fmtMad(D.payroll.totalNet)} net à verser pour ${D.period}. La déclaration CNSS est due le ${D.payroll.echeance} — je peux générer les fiches.`;
+    } else if (D && /bilan|resultat|\betats?\b|cloture|comptes/.test(q)) {
+      handler = 'acct-etats'; btn = acctLabel('etats');
+      text = `Vos états de ${D.period} : résultat net <b>${fmtMad(D.netProfit)}</b>, trésorerie ${fmtMad(D.cash)}, bilan équilibré. J'ouvre vos états financiers.`;
+    } else if (D && /livre|ecritur|journal|comptabilis/.test(q)) {
+      handler = 'acct-livre'; btn = acctLabel('livre');
+      text = `<b>${fmt(D.entriesThisMonth)} écritures</b> ce mois — chaque vente et chaque dépense, enregistrée et catégorisée automatiquement.`;
+    } else {
+      text = 'Je suis aussi votre comptable, teneur de livres, fiscaliste et gestionnaire de paie — tout est réuni dans votre Comptabilité : livre, états financiers, TVA & impôts, et paie.';
+    }
+    return { text, open: [{ label: btn, handler }] };
   }
 
   function sCalc(expr, result) {
@@ -731,6 +762,7 @@
     if (RX.charges.test(q)) return sCharges();
     if (RX.revenue.test(q)) return sRevenue();
     if (RX.profit.test(q)) return sProfit();
+    if (RX_ACCT.test(q)) return sAccounting(q);
     const r = evalMath(raw);
     if (r != null) return sCalc(raw, r);
     return null;   // unmatched → routed to the in-browser LLM
@@ -969,6 +1001,10 @@
     if (r.follow && r.follow.length) {
       h += '<div class="fa-follow">' + r.follow.map((f) =>
         `<button data-fa-follow="${escAttr(f)}">${f}</button>`).join('') + '</div>';
+    }
+    if (r.open && r.open.length) {
+      h += '<div class="fa-follow">' + r.open.map((o) =>
+        `<button class="fa-llm-btn" data-fa-open="${escAttr(o.handler)}">${o.label}</button>`).join('') + '</div>';
     }
     return h;
   }
@@ -1219,6 +1255,12 @@
     root.addEventListener('click', (e) => {
       const follow = e.target.closest('[data-fa-follow]');
       if (follow) { ask(follow.getAttribute('data-fa-follow')); return; }
+      const openBtn = e.target.closest('[data-fa-open]');
+      if (openBtn) {
+        const fn = window.Kiwi && window.Kiwi.handlers && window.Kiwi.handlers[openBtn.getAttribute('data-fa-open')];
+        if (typeof fn === 'function') fn();
+        return;
+      }
       if (e.target.closest('[data-fa-activate]')) { activateLlm(); return; }
       const fact = e.target.closest('[data-fa-fact]');
       if (fact) { insertFact(fact.getAttribute('data-fa-fact'), fact); return; }
