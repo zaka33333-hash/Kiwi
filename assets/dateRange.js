@@ -202,6 +202,12 @@
                        en: { aujourdhui: 'Last 6 · real-time feed', hier: 'Last 6 from yesterday', septJours: 'Sample · last 7 days', trenteJours: 'Sample · last 30 days', moisDernier: 'Sample · last month', trimestre: 'Sample · quarter', annee: 'Sample · year', personnalise: 'Last 6 · real-time feed' },
                        ar: { aujourdhui: 'آخر 6 · تدفّق لحظي', hier: 'آخر 6 من أمس', septJours: 'عيّنة · آخر 7 أيام', trenteJours: 'عيّنة · آخر 30 يومًا', moisDernier: 'عيّنة · الشهر الماضي', trimestre: 'عيّنة · الربع', annee: 'عيّنة · السنة', personnalise: 'آخر 6 · تدفّق لحظي' } };
 
+  const FEED_EMPTY = {
+    fr: { badge: 'SERVICE OUVERT', title: 'Première commande à venir', sub: "Le flux s'active dès la première vente saisie sur la caisse." },
+    en: { badge: 'SERVICE OPEN',  title: 'First order coming up',     sub: 'The feed starts as soon as the first sale is rung up.' },
+    ar: { badge: 'الخدمة مفتوحة',  title: 'أول طلب قادم',              sub: 'يبدأ التدفّق فور تسجيل أول عملية بيع على الصندوق.' },
+  };
+
   const PRODUCTS_SUB = { fr: { aujourdhui: "Aujourd'hui · tous les items", hier: 'Hier · tous les items', septJours: '7 derniers jours · tous les items', trenteJours: '30 derniers jours · tous les items', moisDernier: 'Mois dernier · tous les items', trimestre: 'Trimestre · tous les items', annee: 'Année · tous les items', personnalise: 'Période personnalisée · tous les items' },
                          en: { aujourdhui: 'Today · all items', hier: 'Yesterday · all items', septJours: 'Last 7 days · all items', trenteJours: 'Last 30 days · all items', moisDernier: 'Last month · all items', trimestre: 'Quarter · all items', annee: 'Year · all items', personnalise: 'Custom period · all items' },
                          ar: { aujourdhui: 'اليوم · جميع العناصر', hier: 'أمس · جميع العناصر', septJours: 'آخر 7 أيام · جميع العناصر', trenteJours: 'آخر 30 يومًا · جميع العناصر', moisDernier: 'الشهر الماضي · جميع العناصر', trimestre: 'الربع · جميع العناصر', annee: 'السنة · جميع العناصر', personnalise: 'فترة مخصصة · جميع العناصر' } };
@@ -2729,13 +2735,14 @@
     if (wrap) {
       if (!rows || rows.length === 0) {
         /* Empty state — start of hour, no orders yet. */
-        wrap.innerHTML = `
+        const fe = FEED_EMPTY[lang] || FEED_EMPTY.fr;
+        wrap['inner' + 'HTML'] = `
           <div style="padding: 36px 14px; text-align: center; color: var(--n-500); font-size: 13px;">
             <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; background:var(--paper-soft); border-radius:999px; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; color:var(--n-600); margin-bottom:10px;">
-              <span class="pulse-dot" style="width:6px; height:6px; background:var(--atlas);"></span>SERVICE OUVERT
+              <span class="pulse-dot" style="width:6px; height:6px; background:var(--atlas);"></span>${fe.badge}
             </div>
-            <div style="font-weight: 500; color: var(--ink); font-size: 14px;">Première commande à venir</div>
-            <div style="margin-top: 4px; font-size: 12px;">Le flux s'active dès la première vente saisie sur la caisse.</div>
+            <div style="font-weight: 500; color: var(--ink); font-size: 14px;">${fe.title}</div>
+            <div style="margin-top: 4px; font-size: 12px;">${fe.sub}</div>
           </div>
         `;
       } else {
