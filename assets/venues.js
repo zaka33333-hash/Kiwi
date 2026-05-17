@@ -574,7 +574,7 @@
     VENUES[id] = {
       id, name, location,
       fullDisplay: location ? `${name} · ${location}` : name,
-      type, typeLabel: TYPE_LABELS[type],
+      type, typeLabel: (cfg.typeLabel || TYPE_LABELS[type]),
       siblings: '', status: 'En service', ice: '—',
       txCount: 0, staffCount: 0, custom: true,
       hours: cfg.hours || '', methods: cfg.methods || '', goal: +cfg.goal || 0,

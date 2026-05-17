@@ -1409,11 +1409,27 @@ ar: {
      * Reached by entering PIN 0000 at the lock screen. ─── */
     'onboard': () => {
       let picked = 'restaurant';
+      const ic = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+      // Each visible type maps to one of the 3 data verticals (`base`); the
+      // specific label is what the merchant sees. `primary` types show first.
       const TYPES = [
-        { k: 'restaurant', label: 'Restaurant / Café', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2v7c0 1.1.9 2 2 2h2v11M11 2v20M11 11h8a3 3 0 003-3V4M19 4v17"/></svg>' },
-        { k: 'boutique',   label: 'Boutique',          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>' },
-        { k: 'spa',        label: 'Spa / Bien-être',   icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2 6h6l-5 4 2 7-5-4-5 4 2-7-5-4h6z"/></svg>' },
+        { id: 'restaurant', base: 'restaurant', primary: true, label: 'Restaurant',          icon: ic('<path d="M3 2v7c0 1.1.9 2 2 2h2v11M11 2v20M11 11h8a3 3 0 003-3V4M19 4v17"/>') },
+        { id: 'boutique',   base: 'boutique',   primary: true, label: 'Boutique',            icon: ic('<path d="M3 7h18v14H3z"/><path d="M8 7V5a4 4 0 018 0v2"/>') },
+        { id: 'spa',        base: 'spa',        primary: true, label: 'Spa / Bien-être',     icon: ic('<path d="M12 2l2 6h6l-5 4 2 7-5-4-5 4 2-7-5-4h6z"/>') },
+        { id: 'cafe',       base: 'restaurant',                label: 'Café / Salon de thé', icon: ic('<path d="M4 8h13v5a4 4 0 01-4 4H8a4 4 0 01-4-4z"/><path d="M17 9h2a2 2 0 010 4h-2M7 3v2M11 3v2"/>') },
+        { id: 'fastfood',   base: 'restaurant',                label: 'Fast-food / Snack',   icon: ic('<path d="M5 11a7 7 0 0114 0M3 11h18M5 15h14M8 19h8"/>') },
+        { id: 'bakery',     base: 'restaurant',                label: 'Boulangerie',         icon: ic('<path d="M12 3v18M12 8c-3-2-7-1-7-1M12 8c3-2 7-1 7-1M12 14c-3-2-7-1-7-1M12 14c3-2 7-1 7-1"/>') },
+        { id: 'pizzeria',   base: 'restaurant',                label: 'Pizzeria',            icon: ic('<path d="M3 6l9 15 9-15zM3 6c6-3 12-3 18 0"/><path d="M9 9h.01M13 12h.01"/>') },
+        { id: 'traiteur',   base: 'restaurant',                label: 'Traiteur',            icon: ic('<path d="M3 17h18M5 17a7 7 0 0114 0M12 5v2"/><circle cx="12" cy="4" r="1"/>') },
+        { id: 'foodtruck',  base: 'restaurant',                label: 'Food truck',          icon: ic('<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>') },
+        { id: 'epicerie',   base: 'boutique',                  label: 'Épicerie',            icon: ic('<path d="M3 4h2l2.4 11h9.2L19 7H6"/><circle cx="9" cy="19" r="1.6"/><circle cx="16" cy="19" r="1.6"/>') },
+        { id: 'pharmacie',  base: 'boutique',                  label: 'Pharmacie',           icon: ic('<rect x="4" y="6" width="16" height="14" rx="2"/><path d="M12 10v6M9 13h6"/>') },
+        { id: 'librairie',  base: 'boutique',                  label: 'Librairie',           icon: ic('<path d="M5 4h13a1 1 0 011 1v15H6a1 1 0 01-1-1zM5 4v15"/>') },
+        { id: 'fleuriste',  base: 'boutique',                  label: 'Fleuriste',           icon: ic('<circle cx="12" cy="8" r="3.5"/><path d="M12 11.5V21M8 14a3 3 0 11-3-3M16 14a3 3 0 013-3"/>') },
+        { id: 'coiffure',   base: 'spa',                       label: 'Salon de coiffure',   icon: ic('<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 8l12 8M8 16L20 8"/>') },
+        { id: 'sport',      base: 'spa',                       label: 'Salle de sport',      icon: ic('<path d="M6 8v8M3 6v12M18 8v8M21 6v12M6 12h12"/>') },
       ];
+      const moreCount = TYPES.filter((t) => !t.primary).length;
       const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;';
       const lbl = 'display:block;font-size:12px;font-weight:500;color:var(--n-600);margin:16px 0 6px;';
       const m = modal({
@@ -1425,17 +1441,23 @@ ar: {
           <style>
             .ob-type{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 8px;
               border:1px solid var(--n-200);border-radius:12px;background:#fff;cursor:pointer;
-              font-family:var(--sans);font-size:12px;font-weight:500;color:var(--n-600);
+              font-family:var(--sans);font-size:12px;font-weight:500;color:var(--n-600);text-align:center;
               transition:border-color 140ms,background 140ms,color 140ms;}
             .ob-type svg{width:22px;height:22px;}
             .ob-type:hover{border-color:var(--n-400);}
             .ob-type.sel{border-color:var(--atlas);background:rgba(11,110,79,0.05);color:var(--atlas);}
+            .ob-type.ob-more{display:none;}
+            .ob-morebtn{margin-top:8px;width:100%;padding:9px;border:1px dashed var(--n-300);
+              border-radius:10px;background:#fff;cursor:pointer;font-family:var(--sans);font-size:12.5px;
+              font-weight:500;color:var(--n-600);transition:border-color 140ms,color 140ms;}
+            .ob-morebtn:hover{border-color:var(--atlas);color:var(--atlas);}
             .ob-field:focus{border-color:var(--atlas)!important;}
           </style>
           <label style="${lbl}margin-top:4px;">Type d'activité</label>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-            ${TYPES.map((t, i) => `<button type="button" class="ob-type${i === 0 ? ' sel' : ''}" data-ob-type="${t.k}">${t.icon}<span>${t.label}</span></button>`).join('')}
+            ${TYPES.map((t) => `<button type="button" class="ob-type${t.id === picked ? ' sel' : ''}${t.primary ? '' : ' ob-more'}" data-ob-type="${t.id}">${t.icon}<span>${t.label}</span></button>`).join('')}
           </div>
+          <button type="button" class="ob-morebtn" data-ob-more>+ Plus de types (${moreCount})</button>
           <label style="${lbl}">Nom de l'activité</label>
           <input class="ob-field" data-ob-name placeholder="Ex. Café des Oudayas" style="${fld}" maxlength="40"/>
           <label style="${lbl}">Ville</label>
@@ -1443,13 +1465,19 @@ ar: {
           <label style="${lbl}">Objectif de chiffre d'affaires par jour <span style="color:var(--n-400);font-weight:400;">· optionnel</span></label>
           <input class="ob-field" data-ob-goal type="number" inputmode="numeric" placeholder="Ex. 5000 MAD" style="${fld}" min="0"/>
         `,
-        foot: `<button class="kb atlas" data-ob-create type="button" style="width:100%;just-content:center;justify-content:center;padding:13px;font-size:15px;">Créer mon tableau de bord →</button>`,
+        foot: `<button class="kb atlas" data-ob-create type="button" style="width:100%;justify-content:center;padding:13px;font-size:15px;">Créer mon tableau de bord →</button>`,
       });
       const nameInput = m.el.querySelector('[data-ob-name]');
       setTimeout(() => nameInput && nameInput.focus(), 320);
-      // Make sure the visible selection matches `picked` on open.
       m.el.querySelectorAll('[data-ob-type]').forEach((x) => x.classList.toggle('sel', x.dataset.obType === picked));
       m.el.addEventListener('click', (e) => {
+        // "Plus de types" — reveal the hidden cards.
+        if (e.target.closest('[data-ob-more]')) {
+          m.el.querySelectorAll('.ob-type.ob-more').forEach((x) => x.classList.remove('ob-more'));
+          const btn = m.el.querySelector('[data-ob-more]');
+          if (btn) btn.style.display = 'none';
+          return;
+        }
         const t = e.target.closest('[data-ob-type]');
         if (t) {
           picked = t.dataset.obType;
@@ -1461,8 +1489,9 @@ ar: {
           if (!name) { toast('Donnez un nom à votre activité', { type: 'pend', force: true }); nameInput.focus(); return; }
           const city = (m.el.querySelector('[data-ob-city]').value || '').trim();
           const goal = +(m.el.querySelector('[data-ob-goal]').value) || 0;
+          const def = TYPES.find((x) => x.id === picked) || TYPES[0];
           let id = null;
-          try { id = window.KiwiVenue?.createVenue?.({ type: picked, name, location: city, goal }); } catch (_) {}
+          try { id = window.KiwiVenue?.createVenue?.({ type: def.base, typeLabel: def.label, name, location: city, goal }); } catch (_) {}
           if (!id) { toast('Création impossible', { type: 'pend', force: true }); return; }
           m.close();
           try { window.KiwiVenue.setVenue(id); } catch (_) {}
