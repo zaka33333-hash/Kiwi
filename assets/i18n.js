@@ -258,7 +258,8 @@
       'dash.integ.sub': 'The tools Kiwi syncs for you',
 
       /* Dashboard — added for full i18n coverage */
-      'dash.lock.welcome': 'Welcome, Rachid',
+      'dash.lock.welcome': 'Welcome',
+      'dash.lock.sub': 'Merchant dashboard',
       'dash.lock.help': 'Enter your <b>4-digit code</b> to open the dashboard',
       'dash.lock.skip': 'Enter the demo →',
       'dash.more.show': 'More analytics',
@@ -850,7 +851,8 @@
       'dash.integ.sub': 'الأدوات التي تزامنها كيوي لأجلكم',
 
       /* Dashboard — added for full i18n coverage */
-      'dash.lock.welcome': 'مرحبًا، رشيد',
+      'dash.lock.welcome': 'مرحبًا',
+      'dash.lock.sub': 'لوحة تحكم التاجر',
       'dash.lock.help': 'أدخل <b>رمزك المكوّن من 4 أرقام</b> لفتح لوحة التحكم',
       'dash.lock.skip': 'ادخل إلى العرض ←',
       'dash.more.show': 'تحليلات إضافية',
