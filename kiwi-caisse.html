@@ -2380,6 +2380,69 @@
       .kiwi-greet h1 .em-clip.is-revealed { max-width: var(--em-w, 700px) !important; }
       .kiwi-greet h1 .em-clip.is-typing::after { animation: none !important; opacity: 0; }
     }
+
+    /* ===========================================================
+       MANAGER-PIN AUTHORIZATION MODAL
+       Standard .modal-veil > .modal shell; the keypad reuses the
+       access-PIN visual language with its own scoped classes so it
+       is never caught by the #pin-pad listener.
+       =========================================================== */
+    .mgr-dots {
+      display: flex; gap: 14px;
+      justify-content: center;
+      margin: 4px 0 18px;
+    }
+    .mgr-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1.5px solid var(--line);
+      background: transparent;
+      transition: background 180ms, transform 200ms, border-color 180ms;
+    }
+    .mgr-dot.is-filled {
+      background: var(--forest);
+      border-color: var(--forest);
+      transform: scale(1.08);
+    }
+    .mgr-dot.is-success { animation: mgr-success-pop 360ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+    @keyframes mgr-success-pop {
+      0%   { transform: scale(1.08); background: var(--forest); border-color: var(--forest);
+             box-shadow: 0 0 0 0 rgba(63,182,122, 0.5); }
+      45%  { transform: scale(1.5); background: var(--emerald); border-color: var(--emerald);
+             box-shadow: 0 0 0 9px rgba(63,182,122, 0.28); }
+      100% { transform: scale(1.16); background: var(--emerald); border-color: var(--emerald);
+             box-shadow: 0 0 0 0 rgba(63,182,122, 0); }
+    }
+    .mgr-pad {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .mgr-key {
+      height: 58px; border-radius: var(--r-lg);
+      background: var(--paper-mute);
+      color: var(--ink);
+      font-size: 22px; font-weight: 500;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 140ms, transform 100ms;
+      font-feature-settings: "tnum" 1;
+    }
+    .mgr-key:hover { background: #ECEBE6; }
+    .mgr-key:active { transform: scale(0.95); background: rgba(63,182,122,.16); }
+    .mgr-key.is-spare {
+      background: transparent;
+      pointer-events: none;
+    }
+    .mgr-key.is-action {
+      background: transparent;
+      color: var(--ink-4);
+    }
+    .mgr-key.is-action svg { width: 20px; height: 20px; }
+    .mgr-key.is-action:hover { color: var(--ink-2); background: var(--paper-mute); }
+    .mgr-hint {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 10.5px; color: var(--ink-4);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
   </style>
 </head>
 
@@ -3029,6 +3092,38 @@
       <div class="nt-actions" style="margin-top:14px;">
         <button class="ma-btn secondary" id="reassign-cancel" style="flex:1;">Annuler</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ MANAGER-PIN AUTHORIZATION MODAL ============ -->
+  <div class="modal-veil" id="manager-modal" role="dialog" aria-modal="true" aria-labelledby="manager-modal-title">
+    <div class="modal">
+      <h3 class="modal-title" id="manager-modal-title">Autorisation manager</h3>
+      <p class="modal-subtle" id="manager-modal-sub">Action à autoriser</p>
+      <div class="mgr-dots" id="mgr-dots" aria-hidden="true">
+        <span class="mgr-dot"></span><span class="mgr-dot"></span>
+        <span class="mgr-dot"></span><span class="mgr-dot"></span>
+      </div>
+      <div class="mgr-pad" id="mgr-pad">
+        <button class="mgr-key" data-mgr="1">1</button>
+        <button class="mgr-key" data-mgr="2">2</button>
+        <button class="mgr-key" data-mgr="3">3</button>
+        <button class="mgr-key" data-mgr="4">4</button>
+        <button class="mgr-key" data-mgr="5">5</button>
+        <button class="mgr-key" data-mgr="6">6</button>
+        <button class="mgr-key" data-mgr="7">7</button>
+        <button class="mgr-key" data-mgr="8">8</button>
+        <button class="mgr-key" data-mgr="9">9</button>
+        <span class="mgr-key is-spare" aria-hidden="true"></span>
+        <button class="mgr-key" data-mgr="0">0</button>
+        <button class="mgr-key is-action" data-mgr="back" aria-label="Effacer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H7l-5 7 5 7h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+        </button>
+      </div>
+      <div class="modal-foot is-visible">
+        <a id="manager-cancel">Annuler</a>
+      </div>
+      <div class="mgr-hint">Démo · n'importe quel code manager</div>
     </div>
   </div>
 
@@ -4939,6 +5034,7 @@
         ['Réductions accordées', fmtMAD(shift.discounts),                                   true,  ''],
       ];
       if (shift.refunds > 0) rows.push(['Remboursements', fmtMAD(shift.refunds), true, '']);
+      if (authorizations.length > 0) rows.push(['Autorisations manager', String(authorizations.length), false, '']);
 
       $('#clo-rows').innerHTML = rows.map((r, i) => {
         const cls  = 'clo-row' + (r[3] === 'total' ? ' is-total' : (r[3] === 'sub' ? ' is-sub' : ''));
@@ -4996,7 +5092,7 @@
     const clockinBtn = document.getElementById('clockin-btn');
     if (clockinBtn) clockinBtn.addEventListener('click', openService);
     $('#clo-print').addEventListener('click', () => toast("Rapport Z envoyé à l'imprimante"));
-    $('#clo-close').addEventListener('click', closeRegister);
+    $('#clo-close').addEventListener('click', () => requireManager('Fermeture de caisse', closeRegister));
     $('#clo-continue').addEventListener('click', () => $('#cloture-modal').classList.remove('is-open'));
     $('#cloture-modal').addEventListener('click', (e) => {
       if (e.target === $('#cloture-modal')) $('#cloture-modal').classList.remove('is-open');
@@ -5199,6 +5295,90 @@
         renderPinDots();
       }
     });
+
+    /* ===========================================================
+       MANAGER-PIN AUTHORIZATION GATE
+       -----------------------------------------------------------
+       requireManager(actionLabel, onApprove)
+         · actionLabel — string shown in the modal subtitle
+                          (e.g. "Remise sur l'addition").
+         · onApprove   — callback fired ONLY after a valid 4-digit
+                          manager code is entered. Demo: any 4 digits
+                          are accepted.
+       Cancel / veil-click closes the modal WITHOUT calling onApprove.
+       Every approval is logged to the `authorizations` array below.
+       Exposed as window.requireManager so later features can gate
+       sensitive actions through it.
+       =========================================================== */
+    const authorizations = [];   // [{ id, time:Date, action }]
+    const mgrModal   = $('#manager-modal');
+    let   mgrBuffer  = '';
+    let   mgrOnApprove = null;
+    let   mgrBusy    = false;     // true during the success beat
+
+    function renderMgrDots() {
+      $$('#mgr-dots .mgr-dot').forEach((d, i) => {
+        d.classList.toggle('is-filled', i < mgrBuffer.length);
+      });
+    }
+
+    function closeManagerModal() {
+      mgrModal.classList.remove('is-open');
+      mgrBuffer = '';
+      mgrOnApprove = null;
+      mgrBusy = false;
+      $$('#mgr-dots .mgr-dot').forEach(d => d.classList.remove('is-filled', 'is-success'));
+    }
+
+    function requireManager(actionLabel, onApprove) {
+      mgrBuffer = '';
+      mgrBusy = false;
+      mgrOnApprove = typeof onApprove === 'function' ? onApprove : null;
+      $('#manager-modal-sub').textContent = actionLabel || 'Action à autoriser';
+      $$('#mgr-dots .mgr-dot').forEach(d => d.classList.remove('is-filled', 'is-success'));
+      mgrModal.classList.add('is-open');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function mgrPushDigit(v) {
+      if (mgrBusy || mgrBuffer.length >= 4) return;
+      mgrBuffer += v;
+      renderMgrDots();
+      if (mgrBuffer.length === 4) {
+        // Demo: any 4-digit code is accepted.
+        mgrBusy = true;
+        const action  = $('#manager-modal-sub').textContent;
+        const approve = mgrOnApprove;
+        // Success beat — dots pop left → right, mirroring the access PIN.
+        $$('#mgr-dots .mgr-dot').forEach((d, i) => {
+          setTimeout(() => d.classList.add('is-success'), i * 70);
+        });
+        setTimeout(() => {
+          authorizations.push({ id: 'auth-' + Date.now(), time: new Date(), action: action });
+          closeManagerModal();
+          if (approve) approve();
+        }, 520);
+      }
+    }
+
+    $('#mgr-pad').addEventListener('click', (e) => {
+      const key = e.target.closest('.mgr-key');
+      if (!key || key.classList.contains('is-spare')) return;
+      const v = key.dataset.mgr;
+      if (v === 'back') {
+        if (mgrBusy) return;
+        mgrBuffer = mgrBuffer.slice(0, -1);
+        renderMgrDots();
+        return;
+      }
+      mgrPushDigit(v);
+    });
+    $('#manager-cancel').addEventListener('click', closeManagerModal);
+    mgrModal.addEventListener('click', (e) => {
+      if (e.target === mgrModal) closeManagerModal();
+    });
+
+    window.requireManager = requireManager;
 
     /* ===========================================================
        TEAM DRAWER — list servers, break management, send message
