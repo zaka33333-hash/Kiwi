@@ -1265,9 +1265,9 @@
         <div class="fs-chart-plot">
           <svg class="fs-chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
             ${gridSvg}
-            <path d="${pathSpa}"     fill="var(--mint)"      opacity="0.40"/>
-            <path d="${pathMansour}" fill="var(--atlas-600)" opacity="0.50"/>
-            <path d="${pathAtlas}"   fill="var(--atlas)"     opacity="0.60"/>
+            <path d="${pathSpa}"     fill="var(--fs-bahia)"   opacity="0.92"/>
+            <path d="${pathMansour}" fill="var(--fs-mansour)" opacity="0.92"/>
+            <path d="${pathAtlas}"   fill="var(--fs-atlas)"   opacity="0.92"/>
           </svg>
         </div>
         <div class="fs-chart-x-axis">${xHtml}</div>
@@ -1477,9 +1477,9 @@
           bodyEl.innerHTML = fusionIntradayBuffer.length > 0
             ? fusionStackedAreaSvg(fusionIntradayBuffer, { showXEvery: 1, minMax: FUSION_PORTFOLIO_GOAL * 0.4 })
               + `<div class="fs-chart-legend">
-                  <span><i style="background:var(--atlas)"></i> Café Atlas</span>
-                  <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
-                  <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+                  <span><i style="background:var(--fs-atlas)"></i> Café Atlas</span>
+                  <span><i style="background:var(--fs-mansour)"></i> Maison Mansour</span>
+                  <span><i style="background:var(--fs-bahia)"></i> Spa Bahia</span>
                 </div>`
             : `<div class="fs-chart-empty">En attente du premier tick du démo-clock…</div>`;
         }
@@ -1500,9 +1500,9 @@
         if (subEl)   subEl.textContent   = '3 enseignes empilées · CA quotidien';
         if (bodyEl)  bodyEl.innerHTML    = fusionStackedAreaSvg(points, { showXEvery: range === 'septJours' ? 1 : 5 })
           + `<div class="fs-chart-legend">
-              <span><i style="background:var(--atlas)"></i> Café Atlas</span>
-              <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
-              <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+              <span><i style="background:var(--fs-atlas)"></i> Café Atlas</span>
+              <span><i style="background:var(--fs-mansour)"></i> Maison Mansour</span>
+              <span><i style="background:var(--fs-bahia)"></i> Spa Bahia</span>
             </div>`;
       }
     }
@@ -1656,9 +1656,9 @@
     if (chartBody && fusionIntradayBuffer.length > 0) {
       chartBody.innerHTML = fusionStackedAreaSvg(fusionIntradayBuffer, { showXEvery: 1, minMax: FUSION_PORTFOLIO_GOAL * 0.4 })
         + `<div class="fs-chart-legend">
-            <span><i style="background:var(--atlas)"></i> Café Atlas</span>
-            <span><i style="background:var(--atlas-600)"></i> Maison Mansour</span>
-            <span><i style="background:var(--mint)"></i> Spa Bahia</span>
+            <span><i style="background:var(--fs-atlas)"></i> Café Atlas</span>
+            <span><i style="background:var(--fs-mansour)"></i> Maison Mansour</span>
+            <span><i style="background:var(--fs-bahia)"></i> Spa Bahia</span>
           </div>`;
     }
   }
