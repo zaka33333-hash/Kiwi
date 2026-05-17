@@ -64,34 +64,55 @@
 
   const KPI_DESC_STR = {
     fr: {
+      tx:         'Nombre de ventes sur la période.',
+      panier:     'Montant moyen dépensé par vente.',
       revenue:    'Total encaissé sur la période.',
       revPerDay:  'Chiffre d\'affaires moyen par jour.',
+      marge:      'Part du CA conservée après coût matière.',
       profit:     'Ce qu\'il reste après le coût matière.',
       cogs:       'Dépense en matières premières.',
       tips:       'Pourboires estimés encaissés.',
+      success:    'Paiements aboutis · créneaux remplis.',
+      ratio:      'Répartition des paiements carte vs espèces.',
+      regulars:   'Clients déjà venus sur la période.',
       retention:  'Part de clients réguliers parmi vos ventes.',
       newClients: 'Premières visites estimées sur la période.',
       txPerDay:   'Nombre de ventes moyen par jour.',
+      tauxRetour: 'Part des articles retournés.',
     },
     en: {
+      tx:         'Number of sales over the period.',
+      panier:     'Average amount spent per sale.',
       revenue:    'Total cashed in over the period.',
       revPerDay:  'Average daily revenue.',
+      marge:      'Share of revenue kept after food cost.',
       profit:     'What remains after cost of goods.',
       cogs:       'Expenditure on raw materials.',
       tips:       'Estimated tips collected.',
+      success:    'Successful payments · slots filled.',
+      ratio:      'Card vs cash payment split.',
+      regulars:   'Customers who came before in the period.',
       retention:  'Share of regular customers among your sales.',
       newClients: 'Estimated first visits over the period.',
       txPerDay:   'Average number of sales per day.',
+      tauxRetour: 'Share of items returned.',
     },
     ar: {
+      tx:         'عدد المبيعات خلال الفترة.',
+      panier:     'متوسط المبلغ المنفق لكل عملية.',
       revenue:    'إجمالي المقبوضات خلال الفترة.',
       revPerDay:  'متوسط الإيرادات اليومية.',
+      marge:      'نسبة المداخيل المحتفظ بها بعد تكلفة المواد.',
       profit:     'ما يتبقى بعد تكلفة المواد.',
       cogs:       'الإنفاق على المواد الأولية.',
       tips:       'الإكراميات المقدرة المحصلة.',
+      success:    'المدفوعات الناجحة · الحصص المملوءة.',
+      ratio:      'توزيع المدفوعات بالبطاقة مقابل النقد.',
+      regulars:   'زبائن سبق أن زاروا خلال الفترة.',
       retention:  'حصة العملاء المنتظمين من مبيعاتك.',
       newClients: 'الزيارات الأولى المقدرة خلال الفترة.',
       txPerDay:   'متوسط عدد المبيعات في اليوم.',
+      tauxRetour: 'نسبة المنتجات المرتجعة.',
     }
   };
 
@@ -2431,6 +2452,21 @@ ar: {
     }
     return false;
   }
+
+  /* Keyboard activation — div-based "buttons" (KPI tiles, feed/tx rows,
+   * non-<button> [data-action] elements) aren't natively focusable-clickable.
+   * Enter / Space on a focused one fires a real click, which the delegated
+   * handler below then routes normally. */
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    const el = document.activeElement;
+    if (!el || el.tagName === 'BUTTON' || el.tagName === 'A' ||
+        el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') return;
+    if (el.matches('.kpi-m, .kpi-c, .feed-row, .tx-row, [data-action]')) {
+      e.preventDefault();
+      el.click();
+    }
+  });
 
   document.addEventListener('click', (e) => {
     // 1. explicit data-action

@@ -186,9 +186,12 @@
   };
 
   const HH_SUB = {
-    fr: { aujourdhui: "Intensité horaire aujourd'hui", hier: 'Intensité horaire hier', septJours: 'Intensité horaire moyenne — 7 derniers jours', trenteJours: 'Intensité horaire moyenne — 30 derniers jours', moisDernier: 'Intensité horaire moyenne — mois dernier', trimestre: 'Intensité horaire moyenne — trimestre', annee: 'Intensité horaire moyenne — année', personnalise: 'Intensité horaire — période personnalisée' },
-    en: { aujourdhui: 'Hourly intensity today', hier: 'Hourly intensity yesterday', septJours: 'Average hourly intensity — last 7 days', trenteJours: 'Average hourly intensity — last 30 days', moisDernier: 'Average hourly intensity — last month', trimestre: 'Average hourly intensity — quarter', annee: 'Average hourly intensity — year', personnalise: 'Hourly intensity — custom period' },
-    ar: { aujourdhui: 'كثافة الساعات اليوم', hier: 'كثافة الساعات أمس', septJours: 'متوسط الكثافة الساعية — آخر 7 أيام', trenteJours: 'متوسط الكثافة الساعية — آخر 30 يومًا', moisDernier: 'متوسط الكثافة الساعية — الشهر الماضي', trimestre: 'متوسط الكثافة الساعية — الربع', annee: 'متوسط الكثافة الساعية — السنة', personnalise: 'كثافة الساعات — فترة مخصصة' },
+    // moisDernier/trimestre/annee reuse the 30-day hourly profile (buildHeatmap
+    // maps them onto trenteJours), so their labels say "typical profile" rather
+    // than claim period-exact data.
+    fr: { aujourdhui: "Intensité horaire aujourd'hui", hier: 'Intensité horaire hier', septJours: 'Intensité horaire moyenne — 7 derniers jours', trenteJours: 'Intensité horaire moyenne — 30 derniers jours', moisDernier: 'Profil horaire type — moyenne longue période', trimestre: 'Profil horaire type — moyenne longue période', annee: 'Profil horaire type — moyenne longue période', personnalise: 'Intensité horaire — période personnalisée' },
+    en: { aujourdhui: 'Hourly intensity today', hier: 'Hourly intensity yesterday', septJours: 'Average hourly intensity — last 7 days', trenteJours: 'Average hourly intensity — last 30 days', moisDernier: 'Typical hourly profile — long-run average', trimestre: 'Typical hourly profile — long-run average', annee: 'Typical hourly profile — long-run average', personnalise: 'Hourly intensity — custom period' },
+    ar: { aujourdhui: 'كثافة الساعات اليوم', hier: 'كثافة الساعات أمس', septJours: 'متوسط الكثافة الساعية — آخر 7 أيام', trenteJours: 'متوسط الكثافة الساعية — آخر 30 يومًا', moisDernier: 'النمط الساعي النموذجي — متوسط طويل المدى', trimestre: 'النمط الساعي النموذجي — متوسط طويل المدى', annee: 'النمط الساعي النموذجي — متوسط طويل المدى', personnalise: 'كثافة الساعات — فترة مخصصة' },
   };
   const COVERS_LABEL = { fr: 'couverts', en: 'guests', ar: 'زبون' };
 
@@ -1839,7 +1842,7 @@
       const T = window.KiwiI18n?.T?.[lang] || {};
       const label = T[s.i18n] || s.label;
       return `
-        <div class="kpi-m" data-kpi="${s.key}">
+        <div class="kpi-m" data-kpi="${s.key}" tabindex="0" role="button">
           <div class="l"><span${i18nAttr}>${label}</span><div class="ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${iconPath}</svg></div></div>
           <div class="v" data-kpi-val></div>
           <div class="d" data-kpi-delta></div>
@@ -2737,7 +2740,7 @@
         `;
       } else {
         wrap.innerHTML = rows.map(r => `
-          <div class="feed-row${r.isNew ? ' new' : ''}">
+          <div class="feed-row${r.isNew ? ' new' : ''}" tabindex="0" role="button">
             <div class="t">${r.t}</div>
             <div class="method">
               <div class="ci ${r.method}">${r.method === 'tap' ? 'NFC' : r.method === 'qr' ? 'QR' : r.method === 'cash' ? 'MAD' : ''}</div>

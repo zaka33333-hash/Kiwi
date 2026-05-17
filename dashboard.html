@@ -51,6 +51,12 @@
   }
   @media (prefers-reduced-motion: reduce) {
     body { animation: none; }
+    /* Chart, donut and celebratory motion all stand down. */
+    [data-mix-donut] .seg { transition: none !important; }
+    .rev-line, .rev-area, .rev-line-halo, .rev-cmp,
+    .rev-live-ring { animation: none !important; }
+    .rev-line, .rev-area, .rev-line-halo { stroke-dashoffset: 0 !important; opacity: 1 !important; }
+    .kiwi-confetti { display: none !important; }
   }
 
   /* Demo banner */
@@ -435,8 +441,12 @@
   .kpi-band { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 16px; }
   @media (max-width: 1400px) { .kpi-band { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 720px) { .kpi-band { grid-template-columns: repeat(2, 1fr); } }
-  .kpi-m { background: #fff; border: 1px solid var(--n-200); border-radius: 12px; padding: 16px 18px; transition: border-color 150ms; cursor: default; position: relative; }
+  .kpi-m { background: #fff; border: 1px solid var(--n-200); border-radius: 12px; padding: 16px 18px; transition: border-color 150ms; cursor: pointer; position: relative; }
   .kpi-m:hover { border-color: var(--n-400); }
+  /* Keyboard focus ring for the div-based interactive tiles/rows */
+  .kpi-m:focus-visible, .kpi-c:focus-visible, .feed-row:focus-visible {
+    outline: 2px solid var(--atlas); outline-offset: 2px; border-radius: 10px;
+  }
   .kpi-m .l { font-size: 10.5px; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
   .kpi-m .l .ico { width: 24px; height: 24px; border-radius: 6px; background: var(--paper-soft); color: var(--atlas); display: flex; align-items: center; justify-content: center; }
   .kpi-m .v { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; margin-top: 10px; font-feature-settings: "tnum" 1; line-height: 1; }
@@ -3486,7 +3496,7 @@
             </div>
             <form class="hai-input" onsubmit="event.preventDefault();">
               <input type="text" data-hai-input data-i18n-attr="placeholder:dash.hero.ai.input.placeholder" placeholder="Posez votre question sur votre restaurant..." />
-              <button type="submit" class="hai-send" aria-label="Envoyer">
+              <button type="submit" class="hai-send" aria-label="Envoyer" data-i18n-attr="aria-label:dash.aria.send">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
               </button>
             </form>
@@ -3867,7 +3877,7 @@
               <div class="fs-ai-insights" data-fs-ai-insights></div>
               <div class="fs-ai-chat">
                 <input type="text" class="fs-ai-chat-input" placeholder="Demandez à Kiwi AI · « Pourquoi le spa baisse ? »"/>
-                <button class="fs-ai-chat-send" aria-label="Envoyer">→</button>
+                <button class="fs-ai-chat-send" aria-label="Envoyer" data-i18n-attr="aria-label:dash.aria.send">→</button>
               </div>
             </div>
           </div>
