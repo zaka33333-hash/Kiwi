@@ -3898,6 +3898,24 @@
 
   miWireHandlers();
 
+  /* The Équipe + Menu pages override Kiwi.handlers['nav-equipe'] / ['nav-menu']
+   * so the sidebar opens the full-page views, not pages-pro.js's legacy drawers.
+   * Script order is no longer guaranteed — a perf pass moved pages.js /
+   * pages-pro.js to load AFTER venues.js, so they were overwriting these. Re-
+   * assert once every deferred script has run (window 'load' fires after them). */
+  window.addEventListener('load', function () {
+    const H = window.Kiwi && window.Kiwi.handlers;
+    if (!H) return;
+    H['nav-equipe'] = () => eqShowPage();
+    H['nav-menu']   = () => miShowPage();
+    const origAccueil = H['nav-accueil'];
+    H['nav-accueil'] = function () {
+      try { if (origAccueil) origAccueil.apply(this, arguments); } catch (_) {}
+      eqShowDashboard();
+      miShowDashboard();
+    };
+  });
+
   /* ═══════════════ INIT (deferred to here so STAFF is defined) ═══════════════ */
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
