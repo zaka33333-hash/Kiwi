@@ -2531,7 +2531,7 @@ ar: {
 
   /* ═══════════════════════ UNIVERSAL ROUTER ═══════════════════════ */
   /* Elements that OWN their own click handling — the fallback must not touch them */
-  const SKIP_FALLBACK_ATTRS = ['data-close', 'data-dismiss', 'data-confirm', 'data-save', 'data-next', 'data-prev', 'data-pay', 'data-activate', 'data-send', 'data-sms', 'data-agent-approve', 'data-agent-dismiss', 'data-agent-run-all', 'data-filter-apply', 'data-mark-read', 'data-contact-go', 'data-login-go', 'data-to-signup', 'data-biz', 'data-en', 'data-amt', 'data-cap', 'data-rec', 'data-from', 'data-f', 'data-r', 'data-m', 'data-key', 'data-method', 'data-copy', 'data-share', 'data-upgrade', 'data-refund', 'data-print', 'data-new', 'data-gen', 'data-confirm-settle', 'data-ai-send', 'data-copilot-send', 'data-bubble-close'];
+  const SKIP_FALLBACK_ATTRS = ['data-close', 'data-dismiss', 'data-confirm', 'data-save', 'data-next', 'data-prev', 'data-pay', 'data-activate', 'data-send', 'data-sms', 'data-agent-approve', 'data-agent-dismiss', 'data-agent-run-all', 'data-filter-apply', 'data-mark-read', 'data-contact-go', 'data-login-go', 'data-to-signup', 'data-biz', 'data-en', 'data-amt', 'data-cap', 'data-rec', 'data-from', 'data-f', 'data-r', 'data-m', 'data-key', 'data-method', 'data-copy', 'data-share', 'data-upgrade', 'data-refund', 'data-print', 'data-new', 'data-gen', 'data-confirm-settle', 'data-ai-send', 'data-copilot-send', 'data-bubble-close', 'data-kiwi-skip'];
   const SKIP_FALLBACK_CONTAINERS = '.kiwi-modal, .kiwi-drawer, .kiwi-menu, .kp, .ai-drawer, .amount-pad, .mode-tg';
 
   function shouldSkipFallback(el) {
@@ -2726,11 +2726,13 @@ ar: {
     if (color) { const h = color.querySelector('.h')?.textContent || 'couleur'; toast(`${h} copié`, {type:'success'}); return; }
 
     // 33. btn / kb / various buttons — fallback only for top-level CTAs, never inside modal/drawer/menu
+    //     Uses type:'info' deliberately — an unwired button hasn't *succeeded*
+    //     at anything, so a green success toast would be a false claim.
     const btn = e.target.closest('button, .btn, .btn-slim, .btn-primary, .btn-ghost, .btn-atlas, .btn-mint, .btn-lg');
     if (btn && !btn.closest('a[href]') && !shouldSkipFallback(btn)) {
       e.preventDefault();
       const label = btn.textContent.trim().slice(0, 50);
-      toast(label || 'Action exécutée', {type: 'success', duration: 2000});
+      toast(label || 'Action exécutée', {type: 'info', duration: 2000});
       return;
     }
 

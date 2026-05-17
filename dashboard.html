@@ -972,6 +972,15 @@
     line-height: 1.5;
   }
   .kiwi-lock-help b { color: var(--mint); font-family: var(--mono); font-weight: 400; }
+  /* Skip control — collapses the lock + greeting intro for repeat viewers */
+  .kiwi-lock-skip {
+    margin-top: 20px; background: none; border: 0; cursor: pointer;
+    font-family: var(--sans); font-size: 12px; letter-spacing: 0.01em;
+    color: rgba(198,234,212,0.55); padding: 7px 12px; border-radius: 9px;
+    transition: color 140ms ease, background 140ms ease;
+  }
+  .kiwi-lock-skip:hover { color: #c6ead4; background: rgba(255,255,255,0.06); }
+  .kiwi-lock-skip:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; color: #c6ead4; }
   /* Hidden input — captures keystrokes */
   .kiwi-pin-input {
     position: absolute; opacity: 0; left: -9999px;
@@ -994,7 +1003,7 @@
       radial-gradient(50% 45% at 85% 80%, rgba(125,242,176,0.10), transparent 60%);
     pointer-events: none;
   }
-  .kiwi-greet.is-visible { opacity: 1; }
+  .kiwi-greet.is-visible { opacity: 1; pointer-events: auto; cursor: pointer; }
   .kiwi-greet-inner {
     position: relative; z-index: 1;
     padding: 0 32px;
@@ -3098,6 +3107,7 @@
     </div>
     <input type="tel" inputmode="numeric" maxlength="4" class="kiwi-pin-input" data-kiwi-pin-input autocomplete="off" autofocus />
     <div class="kiwi-lock-help" data-i18n="dash.lock.help">Saisis ton <b>code à 4 chiffres</b> pour ouvrir le tableau de bord</div>
+    <button type="button" class="kiwi-lock-skip" data-kiwi-skip data-i18n="dash.lock.skip">Entrer dans la démo →</button>
   </div>
 </div>
 
@@ -3826,10 +3836,14 @@
   const greet    = document.querySelector('[data-kiwi-greet]');
   const pinInput = document.querySelector('[data-kiwi-pin-input]');
   const cells    = document.querySelectorAll('[data-kiwi-pin] .kiwi-pin-cell');
+  const skipBtn  = document.querySelector('[data-kiwi-skip]');
   if (!lock || !greet || !pinInput || !cells.length) return;
 
   /* No persistence — the lock + greeting flow ALWAYS replays on reload
-   * so the demo entry sequence is fully repeatable. */
+   * so the demo entry sequence is fully repeatable. The Skip control
+   * lets a repeat viewer collapse it without sitting through it again. */
+  let unlocked = false;  /* the PIN-success choreography has started */
+  let done = false;      /* the intro is resolved — normal end or Skip */
 
   /* Prevent the page from scrolling while the lock is up. */
   document.documentElement.style.overflow = 'hidden';
@@ -3840,8 +3854,13 @@
   setTimeout(refocus, 180);
   lock.addEventListener('click', refocus);
   document.addEventListener('keydown', (e) => {
-    /* Keep keystrokes flowing into the input even if it loses focus. */
+    /* Escape collapses the intro from either the lock or the greeting. */
+    if (e.key === 'Escape') { skipToApp(); return; }
     if (!lock.isConnected) return;
+    /* Don't steal focus while the user Tabs to / rests on the Skip
+     * button — otherwise it is unreachable from the keyboard. */
+    if (e.key === 'Tab' || document.activeElement === skipBtn) return;
+    /* Keep keystrokes flowing into the input even if it loses focus. */
     if (document.activeElement !== pinInput) pinInput.focus();
   });
 
@@ -3898,6 +3917,8 @@
   }
 
   function unlock() {
+    if (done || unlocked) return;
+    unlocked = true;
     /* Stagger the success pop on each cell (left -> right). */
     cells.forEach((c, i) => {
       setTimeout(() => c.classList.add('is-success'), i * 70);
@@ -3963,6 +3984,34 @@
       if (greet.parentNode) greet.remove();
     }, 4000);
   }
+
+  /* ── Skip control ──────────────────────────────────────────────────
+   * Repeat viewers — and anyone reloading during a working session —
+   * can collapse the lock + greeting choreography instantly: via the
+   * on-screen button, the Escape key, or a click on the greeting once
+   * it is showing. The intro still replays on the next fresh load;
+   * Skip just lets you opt out of watching it again. */
+  function skipToApp() {
+    if (done) return;
+    done = true;
+    document.documentElement.style.overflow = '';
+    if (app)     app.classList.remove('kw-app-hidden');
+    if (demoBar) demoBar.classList.remove('kw-bar-hidden');
+    if (lock && lock.parentNode) {
+      lock.classList.add('is-unlocking');
+      setTimeout(() => { if (lock.parentNode) lock.remove(); }, 280);
+    }
+    if (greet && greet.parentNode) {
+      greet.classList.remove('is-visible');
+      greet.setAttribute('aria-hidden', 'true');
+      setTimeout(() => { if (greet.parentNode) greet.remove(); }, 280);
+    }
+  }
+  if (skipBtn) skipBtn.addEventListener('click', skipToApp);
+  /* Once the greeting is on screen, a click anywhere on it skips ahead. */
+  greet.addEventListener('click', () => {
+    if (greet.classList.contains('is-visible')) skipToApp();
+  });
 
   pinInput.addEventListener('input', paintCells);
 })();
