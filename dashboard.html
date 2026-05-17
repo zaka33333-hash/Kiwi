@@ -1083,43 +1083,43 @@
   }
 
   /* ══════════════════════════════════════════════════════════════════════════
-   * FUSION MODE — Majorelle palette overrides + sci-fi merge animation
+   * GO ULTRA — Atlas Dark palette overrides
    *
-   * Triggered when the merchant clicks "Fusionner les 3 emplacements" from
-   * the venue dropdown. Shifts the brand tokens (Atlas → Vif, Riad → Nuit,
-   * Mint → Fleur) and plays a Tony-Stark-style choreography over the
-   * dashboard: three orbs collide at center, shockwave radiates, sigil
-   * rotates, diagonal sweep paints the new theme onto the UI.
+   * Triggered when the merchant clicks "Go Ultra" from the venue
+   * dropdown. Shifts the brand tokens to a dark-green palette (Atlas Dark)
+   * and plays a quick theme fade — a dark wash carrying the GO ULTRA
+   * wordmark — while the dashboard re-renders underneath into the
+   * consolidated portfolio view.
    * ══════════════════════════════════════════════════════════════════════════ */
 
   /* Theme override — only active while body.fusion-mode is set.
    * Full dark mode: paper/ink flip, neutral ramp reversed onto rgba whites
-   * over a Nuit base. Brand tokens swing to Majorelle. */
+   * over a deep-green base. Brand tokens swing to the Atlas Dark palette. */
   body.fusion-mode {
-    --atlas:       #3955D6;   /* Majorelle Vif */
-    --atlas-600:   #5670E5;
-    --atlas-700:   #2A40A8;
-    --riad:        #0A1230;   /* Majorelle Nuit */
-    --riad-deep:   #050818;
-    --mint:        #5BD5FF;   /* Majorelle Néon */
-    --mint-soft:   #1A2A66;   /* dark velvet replacement for mint-soft pastel */
-    --paper:       #060A1C;
-    --paper-soft:  #0E1638;
-    --paper-muted: #14204A;
-    --ink:         #EEF1FA;
-    --ink-soft:    #C5CDE6;
+    --atlas:       #21C586;   /* Atlas Dark · primary green */
+    --atlas-600:   #34D896;
+    --atlas-700:   #199E6C;
+    --riad:        #0C3325;   /* deep green */
+    --riad-deep:   #03100B;
+    --mint:        #7DF2B0;   /* mint accent */
+    --mint-soft:   #10402F;   /* dark mint-tinted surface */
+    --paper:       #06140F;
+    --paper-soft:  #0C2920;
+    --paper-muted: #123A2D;
+    --ink:         #EAF3EE;
+    --ink-soft:    #B7C9BF;
     --n-50:        rgba(255,255,255,0.04);
     --n-100:       rgba(255,255,255,0.06);
     --n-200:       rgba(255,255,255,0.10);
     --n-300:       rgba(255,255,255,0.16);
-    --n-400:       #5C6280;
-    --n-500:       #8088A8;
-    --n-600:       #A8B0C8;
-    --n-700:       #D5DBEC;
-    --n-800:       #eef1fa;
+    --n-400:       #5C7268;
+    --n-500:       #7E938A;
+    --n-600:       #A6B6AC;
+    --n-700:       #D3DDD6;
+    --n-800:       #EAF3EE;
   }
   body.fusion-mode {
-    background: #060A1C !important;
+    background: #06140F !important;
     color: var(--ink);
     transition: background 480ms cubic-bezier(0.32,0.72,0,1);
   }
@@ -1143,37 +1143,37 @@
   /* Live-badge dot + brand accent dot recolor to Fleur */
   body.fusion-mode .sidebar .brand i,
   body.fusion-mode .live-dot,
-  body.fusion-mode .loc-switch .badge i { background: #5BD5FF !important; box-shadow: 0 0 8px rgba(91,213,255,0.6); }
-  body.fusion-mode .loc-switch .badge { color: #5BD5FF !important; }
+  body.fusion-mode .loc-switch .badge i { background: #7DF2B0 !important; box-shadow: 0 0 8px rgba(125,242,176,0.6); }
+  body.fusion-mode .loc-switch .badge { color: #7DF2B0 !important; }
   /* Hero card gradient + halos in fusion */
   body.fusion-mode .hero-today {
-    background: linear-gradient(135deg, #0A1230 0%, #1E2F7C 100%) !important;
+    background: linear-gradient(135deg, #0C3325 0%, #0F5C40 100%) !important;
   }
   body.fusion-mode .hero-today::before {
-    background: radial-gradient(circle, rgba(91,213,255,0.32), transparent 60%) !important;
+    background: radial-gradient(circle, rgba(125,242,176,0.32), transparent 60%) !important;
   }
   body.fusion-mode .hero-today::after {
-    background: radial-gradient(circle, rgba(57,85,214,0.42), transparent 60%) !important;
+    background: radial-gradient(circle, rgba(33,197,134,0.42), transparent 60%) !important;
   }
   body.fusion-mode .hero-left .live-badge {
-    background: rgba(91,213,255,0.14) !important;
-    border-color: rgba(91,213,255,0.28) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.14) !important;
+    border-color: rgba(125,242,176,0.28) !important;
+    color: #7DF2B0 !important;
   }
   body.fusion-mode .hero-left .meta,
   body.fusion-mode .hero-breakdown .b .l,
-  body.fusion-mode .hero-goal .g-head { color: #C7D6FF !important; }
+  body.fusion-mode .hero-goal .g-head { color: #BFE6CF !important; }
   /* Sparkline strokes — recolour to Vif */
-  body.fusion-mode .kpi-m .sp path { stroke: #3955D6 !important; }
+  body.fusion-mode .kpi-m .sp path { stroke: #21C586 !important; }
   /* Sidebar active nav pill */
   body.fusion-mode .sidebar nav a.active {
-    background: rgba(91,213,255,0.10) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.10) !important;
+    color: #7DF2B0 !important;
   }
   /* Venue dropdown row icon, hero AI eyebrow */
-  body.fusion-mode .venue-row-icon { color: #3955D6 !important; }
+  body.fusion-mode .venue-row-icon { color: #21C586 !important; }
   body.fusion-mode .hai-eyebrow,
-  body.fusion-mode .ultra-tag { color: #5BD5FF !important; }
+  body.fusion-mode .ultra-tag { color: #7DF2B0 !important; }
 
   /* ─── Dark surfaces: every white/paper card → Nuit velvet ─── */
   body.fusion-mode .kpi-m,
@@ -1182,242 +1182,244 @@
   body.fusion-mode .upgrade-pro-card,
   body.fusion-mode .topbar,
   body.fusion-mode .integ-card {
-    background: #0E1638 !important;
-    border-color: rgba(91,213,255,0.10) !important;
+    background: #0C2920 !important;
+    border-color: rgba(125,242,176,0.10) !important;
     color: var(--ink);
   }
   /* Pure-white inline backgrounds (style="background:#fff") on KPI tiles */
-  body.fusion-mode .kpi-m { background: #0E1638 !important; }
-  body.fusion-mode .kpi-m:hover { border-color: rgba(91,213,255,0.28) !important; }
+  body.fusion-mode .kpi-m { background: #0C2920 !important; }
+  body.fusion-mode .kpi-m:hover { border-color: rgba(125,242,176,0.28) !important; }
   body.fusion-mode .kpi-m .l .ico {
-    background: rgba(91,213,255,0.10) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.10) !important;
+    color: #7DF2B0 !important;
   }
   body.fusion-mode .kpi-m .v,
   body.fusion-mode .kpi-m .u { color: var(--ink) !important; }
   body.fusion-mode .kpi-m .l,
-  body.fusion-mode .kpi-m .u { color: #8088A8 !important; }
+  body.fusion-mode .kpi-m .u { color: #7E938A !important; }
 
   /* Topbar / search */
-  body.fusion-mode .topbar { background: rgba(6,10,28,0.85) !important; border-bottom-color: rgba(91,213,255,0.08) !important; }
+  body.fusion-mode .topbar { background: rgba(6,20,15,0.85) !important; border-bottom-color: rgba(125,242,176,0.08) !important; }
   body.fusion-mode .search-big {
     background: rgba(255,255,255,0.04) !important;
-    border-color: rgba(91,213,255,0.10) !important;
+    border-color: rgba(125,242,176,0.10) !important;
     color: var(--ink) !important;
   }
   body.fusion-mode .search-big .k span {
     background: rgba(255,255,255,0.06) !important;
-    color: #8088A8 !important;
-    border-color: rgba(91,213,255,0.10) !important;
+    color: #7E938A !important;
+    border-color: rgba(125,242,176,0.10) !important;
   }
   body.fusion-mode .breadcrumb,
   body.fusion-mode .breadcrumb b { color: var(--ink) !important; }
-  body.fusion-mode .breadcrumb .sep { color: #5C6280 !important; }
+  body.fusion-mode .breadcrumb .sep { color: #5C7268 !important; }
 
   /* Block headings + section meta */
   body.fusion-mode .block-head .t,
   body.fusion-mode .block-head .t * { color: var(--ink) !important; }
   body.fusion-mode .block-head .s,
-  body.fusion-mode .block-head .s * { color: #8088A8 !important; }
-  body.fusion-mode .block-head .t .pulse-dot { background: #5BD5FF !important; }
+  body.fusion-mode .block-head .s * { color: #7E938A !important; }
+  body.fusion-mode .block-head .t .pulse-dot { background: #7DF2B0 !important; }
 
   /* Range pills */
   body.fusion-mode .dr-pills {
     background: rgba(255,255,255,0.04) !important;
-    border-color: rgba(91,213,255,0.10) !important;
+    border-color: rgba(125,242,176,0.10) !important;
   }
-  body.fusion-mode .dr-pill { color: #8088A8 !important; }
+  body.fusion-mode .dr-pill { color: #7E938A !important; }
   body.fusion-mode .dr-pill.on {
-    background: linear-gradient(135deg, #3955D6 0%, #1E2F7C 100%) !important;
+    background: linear-gradient(135deg, #21C586 0%, #0F5C40 100%) !important;
     color: #fff !important;
-    box-shadow: 0 4px 14px -4px rgba(57,85,214,0.55) !important;
+    box-shadow: 0 4px 14px -4px rgba(33,197,134,0.55) !important;
   }
 
   /* Range mini-buttons */
-  body.fusion-mode .range { color: #8088A8 !important; }
-  body.fusion-mode .range span { color: #8088A8 !important; }
-  body.fusion-mode .range span.on { background: rgba(91,213,255,0.14) !important; color: #5BD5FF !important; }
+  body.fusion-mode .range { color: #7E938A !important; }
+  body.fusion-mode .range span { color: #7E938A !important; }
+  body.fusion-mode .range span.on { background: rgba(125,242,176,0.14) !important; color: #7DF2B0 !important; }
   body.fusion-mode .range span:hover:not(.on) { color: var(--ink) !important; }
 
-  /* Heatmap "Heures de pointe" — green ramp → Majorelle ramp */
-  body.fusion-mode .hh-cell.i0 { background: #14204A !important; }
-  body.fusion-mode .hh-cell.i1 { background: #1A2360 !important; }
-  body.fusion-mode .hh-cell.i2 { background: #2541A6 !important; }
-  body.fusion-mode .hh-cell.i3 { background: #324DC2 !important; }
-  body.fusion-mode .hh-cell.i4 { background: #5BD5FF !important; }
-  body.fusion-mode .hh-cell.now { box-shadow: 0 0 0 2px #5BD5FF, 0 0 16px -2px rgba(91,213,255,0.6) !important; }
+  /* Heatmap "Heures de pointe" — green ramp → Atlas Dark ramp */
+  body.fusion-mode .hh-cell.i0 { background: #123A2D !important; }
+  body.fusion-mode .hh-cell.i1 { background: #16563D !important; }
+  body.fusion-mode .hh-cell.i2 { background: #1C8259 !important; }
+  body.fusion-mode .hh-cell.i3 { background: #23B377 !important; }
+  body.fusion-mode .hh-cell.i4 { background: #7DF2B0 !important; }
+  body.fusion-mode .hh-cell.now { box-shadow: 0 0 0 2px #7DF2B0, 0 0 16px -2px rgba(125,242,176,0.6) !important; }
   body.fusion-mode .hh-col .lbl,
-  body.fusion-mode .hh-foot { color: #8088A8 !important; }
+  body.fusion-mode .hh-foot { color: #7E938A !important; }
 
   /* Revenue line chart — every green stroke/fill → Vif/Fleur */
   body.fusion-mode .rev-line-halo,
-  body.fusion-mode .rev-line { stroke: #5BD5FF !important; }
-  body.fusion-mode .rev-area { fill: rgba(91,213,255,0.18) !important; }
-  body.fusion-mode .rev-live-dot { fill: #5BD5FF !important; stroke: #0E1638 !important; }
+  body.fusion-mode .rev-line { stroke: #7DF2B0 !important; }
+  body.fusion-mode .rev-area { fill: rgba(125,242,176,0.18) !important; }
+  body.fusion-mode .rev-live-dot { fill: #7DF2B0 !important; stroke: #0C2920 !important; }
   body.fusion-mode .rev-grid line { stroke: rgba(255,255,255,0.06) !important; }
   body.fusion-mode .rev-axis text,
   body.fusion-mode .rev-axis-x text,
-  body.fusion-mode .rev-axis-y text { fill: #8088A8 !important; }
+  body.fusion-mode .rev-axis-y text { fill: #7E938A !important; }
 
   /* Mix donut — replace green slices via inline CSS overrides */
-  body.fusion-mode .mix-legend .dot.card { background: #5BD5FF !important; }
-  body.fusion-mode .mix-legend .dot.cash { background: #3955D6 !important; }
-  body.fusion-mode .mix-legend .dot.transfer { background: #1E2F7C !important; }
+  body.fusion-mode .mix-legend .dot.card { background: #7DF2B0 !important; }
+  body.fusion-mode .mix-legend .dot.cash { background: #21C586 !important; }
+  body.fusion-mode .mix-legend .dot.transfer { background: #0F5C40 !important; }
 
   /* Feed rows */
   body.fusion-mode .feed-row { border-color: rgba(255,255,255,0.06) !important; }
   body.fusion-mode .feed-row .method .ci.cash {
     background: rgba(255,255,255,0.05) !important;
-    color: #A8B0C8 !important;
-    border-color: rgba(91,213,255,0.12) !important;
+    color: #A6B6AC !important;
+    border-color: rgba(125,242,176,0.12) !important;
   }
   body.fusion-mode .feed-row .amt { color: var(--ink) !important; }
   body.fusion-mode .feed-row .meta,
-  body.fusion-mode .feed-row .time { color: #8088A8 !important; }
+  body.fusion-mode .feed-row .time { color: #7E938A !important; }
 
   /* Chips */
-  body.fusion-mode .chip.ok { background: rgba(91,213,255,0.14) !important; color: #5BD5FF !important; }
-  body.fusion-mode .chip { color: #A8B0C8 !important; }
+  body.fusion-mode .chip.ok { background: rgba(125,242,176,0.14) !important; color: #7DF2B0 !important; }
+  body.fusion-mode .chip { color: #A6B6AC !important; }
 
   /* Settlement card */
   body.fusion-mode .settle {
-    background: linear-gradient(135deg, #1E2F7C 0%, #0A1230 120%) !important;
+    background: linear-gradient(135deg, #0F5C40 0%, #0C3325 120%) !important;
   }
 
   /* Timeline */
   body.fusion-mode .timeline-day {
-    background: #14204A !important;
-    border-color: rgba(91,213,255,0.10) !important;
+    background: #123A2D !important;
+    border-color: rgba(125,242,176,0.10) !important;
     color: var(--ink) !important;
   }
   body.fusion-mode .timeline-day.today {
-    background: #060A1C !important;
-    border-color: #060A1C !important;
+    background: #06140F !important;
+    border-color: #06140F !important;
   }
   body.fusion-mode .timeline-day.tomorrow {
-    background: #3955D6 !important;
-    border-color: #3955D6 !important;
+    background: #21C586 !important;
+    border-color: #21C586 !important;
   }
 
   /* Staff avatars (atlas bg → Vif) */
-  body.fusion-mode .staff-row .av { background: #3955D6 !important; color: #fff !important; }
+  body.fusion-mode .staff-row .av { background: #21C586 !important; color: #fff !important; }
   body.fusion-mode .staff-row .name { color: var(--ink) !important; }
-  body.fusion-mode .staff-row .role { color: #8088A8 !important; }
+  body.fusion-mode .staff-row .role { color: #7E938A !important; }
 
   /* Buttons */
   body.fusion-mode .btn-slim {
     background: rgba(255,255,255,0.04) !important;
-    color: #A8B0C8 !important;
-    border-color: rgba(91,213,255,0.10) !important;
+    color: #A6B6AC !important;
+    border-color: rgba(125,242,176,0.10) !important;
   }
   body.fusion-mode .btn-slim.primary {
-    background: #5BD5FF !important;
-    color: #0A1230 !important;
-    border-color: #5BD5FF !important;
+    background: #7DF2B0 !important;
+    color: #0C3325 !important;
+    border-color: #7DF2B0 !important;
   }
   body.fusion-mode .icon-btn {
     background: rgba(255,255,255,0.04) !important;
-    color: #A8B0C8 !important;
+    color: #A6B6AC !important;
   }
 
   /* Hero AI card inputs */
   body.fusion-mode .hai-input {
     background: rgba(0,0,0,0.32) !important;
-    border-color: rgba(91,213,255,0.18) !important;
+    border-color: rgba(125,242,176,0.18) !important;
   }
   body.fusion-mode .hai-send {
-    background: rgba(91,213,255,0.12) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.12) !important;
+    color: #7DF2B0 !important;
   }
-  body.fusion-mode .hai-send:hover { background: rgba(91,213,255,0.22) !important; }
-  body.fusion-mode .hai-rec::before { background: #5BD5FF !important; }
-  body.fusion-mode .hai-rec-act { color: #5BD5FF !important; }
+  body.fusion-mode .hai-send:hover { background: rgba(125,242,176,0.22) !important; }
+  body.fusion-mode .hai-rec::before { background: #7DF2B0 !important; }
+  body.fusion-mode .hai-rec-act { color: #7DF2B0 !important; }
 
   /* Hero goal bar */
   body.fusion-mode .hero-goal .g-fill {
-    background: linear-gradient(90deg, #5BD5FF, #3955D6) !important;
+    background: linear-gradient(90deg, #7DF2B0, #21C586) !important;
   }
 
   /* Sparklines — keep stroke Vif */
-  body.fusion-mode .kpi-m .sp path { stroke: #5BD5FF !important; }
+  body.fusion-mode .kpi-m .sp path { stroke: #7DF2B0 !important; }
 
   /* Sidebar tweaks */
   body.fusion-mode .sidebar {
-    background: #050818 !important;
-    color: #A8B0C8;
+    background: #03100B !important;
+    color: #A6B6AC;
   }
   /* "kiwi" wordmark — anchored to light bone (var(--paper) flips dark in fusion) */
-  body.fusion-mode .sidebar .brand { color: #EEF1FA !important; }
-  body.fusion-mode .sidebar .brand i { background: #5BD5FF !important; box-shadow: 0 0 8px rgba(91,213,255,0.6); }
+  body.fusion-mode .sidebar .brand { color: #EAF3EE !important; }
+  body.fusion-mode .sidebar .brand i { background: #7DF2B0 !important; box-shadow: 0 0 8px rgba(125,242,176,0.6); }
   body.fusion-mode .sidebar .merchant { border-color: rgba(255,255,255,0.06) !important; }
   body.fusion-mode .sidebar nav a .tag {
-    background: rgba(91,213,255,0.12) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.12) !important;
+    color: #7DF2B0 !important;
   }
   body.fusion-mode .sidebar nav a .count {
     background: rgba(255,255,255,0.06) !important;
-    color: #A8B0C8 !important;
+    color: #A6B6AC !important;
   }
-  body.fusion-mode .sidebar nav a:hover { background: rgba(91,213,255,0.06) !important; color: var(--ink) !important; }
-  body.fusion-mode .sidebar nav a.active::before { background: #5BD5FF !important; }
-  body.fusion-mode .sidebar .sect { color: #5C6280 !important; }
+  body.fusion-mode .sidebar nav a:hover { background: rgba(125,242,176,0.06) !important; color: var(--ink) !important; }
+  body.fusion-mode .sidebar nav a.active::before { background: #7DF2B0 !important; }
+  body.fusion-mode .sidebar .sect { color: #5C7268 !important; }
   body.fusion-mode .sidebar .upsell {
-    background: linear-gradient(145deg, rgba(91,213,255,0.10), rgba(57,85,214,0.16)) !important;
-    border-color: rgba(91,213,255,0.18) !important;
+    background: linear-gradient(145deg, rgba(125,242,176,0.10), rgba(33,197,134,0.16)) !important;
+    border-color: rgba(125,242,176,0.18) !important;
   }
   body.fusion-mode .sidebar .upsell button {
-    background: #5BD5FF !important;
-    color: #0A1230 !important;
+    background: #7DF2B0 !important;
+    color: #0C3325 !important;
   }
   body.fusion-mode .sidebar .avatar {
-    background: linear-gradient(135deg, #5BD5FF, #3955D6) !important;
-    color: #0A1230 !important;
+    background: linear-gradient(135deg, #7DF2B0, #21C586) !important;
+    color: #0C3325 !important;
   }
 
   /* Demo bar */
   body.fusion-mode .demo-bar {
-    background: #050818 !important;
-    border-bottom-color: rgba(91,213,255,0.10) !important;
+    background: #03100B !important;
+    color: var(--ink) !important;
+    border-bottom-color: rgba(125,242,176,0.10) !important;
   }
-  body.fusion-mode .demo-bar a { color: #5BD5FF !important; }
+  body.fusion-mode .demo-bar b { color: var(--ink) !important; }
+  body.fusion-mode .demo-bar a { color: #7DF2B0 !important; }
 
   /* Venue dropdown when open in fusion mode — keep its surface readable */
   body.fusion-mode .venue-dropdown {
-    background: #0E1638 !important;
-    border-color: rgba(91,213,255,0.18) !important;
+    background: #0C2920 !important;
+    border-color: rgba(125,242,176,0.18) !important;
     box-shadow: 0 18px 40px -10px rgba(0,0,0,0.6) !important;
   }
   body.fusion-mode .venue-row { color: var(--ink) !important; }
-  body.fusion-mode .venue-row:hover:not(.active) { background: rgba(91,213,255,0.06) !important; }
-  body.fusion-mode .venue-row.active { background: rgba(91,213,255,0.10) !important; }
+  body.fusion-mode .venue-row:hover:not(.active) { background: rgba(125,242,176,0.06) !important; }
+  body.fusion-mode .venue-row.active { background: rgba(125,242,176,0.10) !important; }
   body.fusion-mode .venue-row-name { color: var(--ink) !important; }
-  body.fusion-mode .venue-row-type { color: #8088A8 !important; }
+  body.fusion-mode .venue-row-type { color: #7E938A !important; }
   body.fusion-mode .venue-action.return-cta {
-    background: rgba(91,213,255,0.10) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.10) !important;
+    color: #7DF2B0 !important;
   }
   body.fusion-mode .venue-action.return-cta .va-icon {
-    background: rgba(91,213,255,0.18) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.18) !important;
+    color: #7DF2B0 !important;
   }
   body.fusion-mode .venue-action.return-cta .va-title { color: var(--ink) !important; }
 
   /* Hero "Net après Kiwi" + breakdown text */
   body.fusion-mode .hero-breakdown .b .v,
   body.fusion-mode .hero-breakdown .b .v .d { color: #fff !important; }
-  body.fusion-mode .hero-breakdown .b .v .d { color: #5BD5FF !important; }
+  body.fusion-mode .hero-breakdown .b .v .d { color: #7DF2B0 !important; }
 
   /* Loc-switch tile when in fusion */
   body.fusion-mode .loc-switch {
-    background: rgba(91,213,255,0.06) !important;
-    border-color: rgba(91,213,255,0.18) !important;
+    background: rgba(125,242,176,0.06) !important;
+    border-color: rgba(125,242,176,0.18) !important;
   }
   body.fusion-mode .loc-switch .name { color: var(--ink) !important; }
-  body.fusion-mode .loc-switch .meta { color: #8088A8 !important; }
+  body.fusion-mode .loc-switch .meta { color: #7E938A !important; }
 
   /* Upgrade-tip pastel mint-soft → dark velvet */
   body.fusion-mode .upgrade-tip {
-    background: rgba(91,213,255,0.08) !important;
+    background: rgba(125,242,176,0.08) !important;
     color: var(--ink) !important;
   }
 
@@ -1430,23 +1432,23 @@
    * and the Aperçu bulletin / Pourboires donut. */
   body.fusion-mode svg rect[fill="#7DF2B0"],
   body.fusion-mode svg path[fill="#7DF2B0"],
-  body.fusion-mode svg circle[fill="#7DF2B0"] { fill: #5BD5FF !important; }
+  body.fusion-mode svg circle[fill="#7DF2B0"] { fill: #7DF2B0 !important; }
   body.fusion-mode svg rect[fill="#0B6E4F"],
   body.fusion-mode svg path[fill="#0B6E4F"],
-  body.fusion-mode svg circle[fill="#0B6E4F"] { fill: #3955D6 !important; }
+  body.fusion-mode svg circle[fill="#0B6E4F"] { fill: #21C586 !important; }
   body.fusion-mode svg rect[fill="#13855F"],
-  body.fusion-mode svg path[fill="#13855F"] { fill: #3955D6 !important; }
-  body.fusion-mode svg rect[fill="#E8F5EC"] { fill: #14204A !important; }
-  body.fusion-mode svg rect[fill="#B9E5CC"] { fill: #1A2360 !important; }
-  body.fusion-mode svg rect[fill="#7FD4A4"] { fill: #2541A6 !important; }
-  body.fusion-mode svg rect[fill="#3FB57A"] { fill: #324DC2 !important; }
+  body.fusion-mode svg path[fill="#13855F"] { fill: #21C586 !important; }
+  body.fusion-mode svg rect[fill="#E8F5EC"] { fill: #123A2D !important; }
+  body.fusion-mode svg rect[fill="#B9E5CC"] { fill: #16563D !important; }
+  body.fusion-mode svg rect[fill="#7FD4A4"] { fill: #1C8259 !important; }
+  body.fusion-mode svg rect[fill="#3FB57A"] { fill: #23B377 !important; }
   body.fusion-mode svg rect[fill="#E8E6E0"] { fill: rgba(255,255,255,0.06) !important; }
   /* Tick labels / axis text on the dashboard's SVG */
   body.fusion-mode svg text[fill="#6F6C65"],
-  body.fusion-mode svg text[fill="#A8A49A"] { fill: #8088A8 !important; }
+  body.fusion-mode svg text[fill="#A8A49A"] { fill: #7E938A !important; }
   body.fusion-mode svg text[fill="#0A0F0D"],
-  body.fusion-mode svg text[fill="#0B6E4F"] { fill: #EEF1FA !important; }
-  body.fusion-mode svg line[stroke="#A8A49A"] { stroke: rgba(91,213,255,0.30) !important; }
+  body.fusion-mode svg text[fill="#0B6E4F"] { fill: #EAF3EE !important; }
+  body.fusion-mode svg line[stroke="#A8A49A"] { stroke: rgba(125,242,176,0.30) !important; }
 
   /* Inline style="background:#fff" — used throughout the drawers for
    * payslip tables, payment-link cards, agent-action rows, toggle thumbs.
@@ -1456,14 +1458,14 @@
   body.fusion-mode [style*="background: #fff"]:not(.kiwi-toast),
   body.fusion-mode [style*="background:#FFF"]:not(.kiwi-toast),
   body.fusion-mode [style*="background: #FFF"]:not(.kiwi-toast) {
-    background: #0E1638 !important;
-    border-color: rgba(91,213,255,0.12) !important;
+    background: #0C2920 !important;
+    border-color: rgba(125,242,176,0.12) !important;
   }
   body.fusion-mode [style*="background:#FAFAF8"],
   body.fusion-mode [style*="background:#F7F5F0"],
   body.fusion-mode [style*="background:var(--paper)"],
   body.fusion-mode [style*="background:var(--paper-soft)"] {
-    background: #0E1638 !important;
+    background: #0C2920 !important;
   }
 
   /* Inline style="color:var(--ink)" → var(--ink) is light in fusion, ok.
@@ -1472,10 +1474,10 @@
    *
    * Hardcoded #0A0F0D (ink) / #0B6E4F (atlas) inline though stay dark. */
   body.fusion-mode [style*="color:#0A0F0D"],
-  body.fusion-mode [style*="color: #0A0F0D"] { color: #EEF1FA !important; }
+  body.fusion-mode [style*="color: #0A0F0D"] { color: #EAF3EE !important; }
   body.fusion-mode [style*="color:#0B6E4F"],
-  body.fusion-mode [style*="color: #0B6E4F"] { color: #5BD5FF !important; }
-  body.fusion-mode [style*="color:#13855F"] { color: #5BD5FF !important; }
+  body.fusion-mode [style*="color: #0B6E4F"] { color: #7DF2B0 !important; }
+  body.fusion-mode [style*="color:#13855F"] { color: #7DF2B0 !important; }
 
   /* Buttons rendered via the .kb (interactive.js) family — keep them
    * legible. Default .kb.ghost has #fff bg + ink text; in fusion it
@@ -1483,21 +1485,21 @@
   body.fusion-mode .kb.ghost {
     background: rgba(255,255,255,0.04) !important;
     color: var(--ink) !important;
-    border-color: rgba(91,213,255,0.14) !important;
+    border-color: rgba(125,242,176,0.14) !important;
   }
   body.fusion-mode .kb.ghost:hover {
-    background: rgba(91,213,255,0.08) !important;
-    border-color: rgba(91,213,255,0.28) !important;
+    background: rgba(125,242,176,0.08) !important;
+    border-color: rgba(125,242,176,0.28) !important;
   }
   body.fusion-mode .kb.atlas {
-    background: #3955D6 !important;
+    background: #21C586 !important;
     color: #fff !important;
   }
-  body.fusion-mode .kb.atlas:hover { background: #5670E5 !important; }
+  body.fusion-mode .kb.atlas:hover { background: #34D896 !important; }
 
   /* Chips used in modals (chip.ok / chip.warn / chip.live etc) */
   body.fusion-mode .chip.warn { background: rgba(217,154,43,0.18) !important; color: #E5B85F !important; }
-  body.fusion-mode .chip.live { background: rgba(91,213,255,0.18) !important; color: #5BD5FF !important; }
+  body.fusion-mode .chip.live { background: rgba(125,242,176,0.18) !important; color: #7DF2B0 !important; }
   body.fusion-mode .chip.danger { background: rgba(201,74,58,0.20) !important; color: #E07A6B !important; }
 
   /* The drawer's "sh-section" cards in payroll/team/etc */
@@ -1508,16 +1510,16 @@
     color: var(--ink);
   }
   body.fusion-mode .sh-section-head h4 { color: var(--ink) !important; }
-  body.fusion-mode .sh-section-head .sub { color: #8088A8 !important; }
+  body.fusion-mode .sh-section-head .sub { color: #7E938A !important; }
   body.fusion-mode .sh-lvs-num { color: var(--ink) !important; }
 
   /* Pricing comparison modal (Kiwi Pro vs Ultra) — checkmarks were green */
-  body.fusion-mode .kiwi-modal [style*="color:var(--atlas)"] { color: #5BD5FF !important; }
-  body.fusion-mode .upgrade-pro-eyebrow { color: #5BD5FF !important; }
+  body.fusion-mode .kiwi-modal [style*="color:var(--atlas)"] { color: #7DF2B0 !important; }
+  body.fusion-mode .upgrade-pro-eyebrow { color: #7DF2B0 !important; }
   body.fusion-mode .upgrade-pro-price { color: var(--ink) !important; }
   body.fusion-mode .upgrade-pro-tag {
-    background: rgba(91,213,255,0.14) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.14) !important;
+    color: #7DF2B0 !important;
   }
 
   /* Reservation drawer: pink/violet header gradient with dark "38 couverts"
@@ -1541,34 +1543,34 @@
   /* Staff progress bar (the green/orange thick line under each row) — these
    * use a hardcoded gradient or hex. We can't catch every variant but a
    * filter shift gets us in the right family. */
-  body.fusion-mode .av { background: linear-gradient(135deg, #5BD5FF, #3955D6) !important; color: #0A1230 !important; }
+  body.fusion-mode .av { background: linear-gradient(135deg, #7DF2B0, #21C586) !important; color: #0C3325 !important; }
 
   /* Sidebar "kiwi" upsell — was already dark in light mode (Nuit bg).
    * In fusion the inner heading h4 / p was using --paper which now flips dark. */
-  body.fusion-mode .sidebar .upsell h4 { color: #EEF1FA !important; }
-  body.fusion-mode .sidebar .upsell p { color: #A8B0C8 !important; }
-  body.fusion-mode .sidebar .merchant .n { color: #EEF1FA !important; }
-  body.fusion-mode .sidebar .merchant .r { color: #8088A8 !important; }
+  body.fusion-mode .sidebar .upsell h4 { color: #EAF3EE !important; }
+  body.fusion-mode .sidebar .upsell p { color: #A6B6AC !important; }
+  body.fusion-mode .sidebar .merchant .n { color: #EAF3EE !important; }
+  body.fusion-mode .sidebar .merchant .r { color: #7E938A !important; }
 
   /* Équipe drawer member rows — .kw-eq-row.active is hardcoded background:#fff
    * in pages-pro.js (a class selector, not inline style, so my generic
    * [style*="background:#fff"] override doesn't catch it). */
   body.fusion-mode .kw-eq-row.active {
-    background: #0E1638 !important;
-    border-color: rgba(91,213,255,0.12) !important;
+    background: #0C2920 !important;
+    border-color: rgba(125,242,176,0.12) !important;
   }
   body.fusion-mode .kw-eq-row.inactive {
     background: rgba(255,255,255,0.03) !important;
-    border-color: rgba(91,213,255,0.10) !important;
+    border-color: rgba(125,242,176,0.10) !important;
   }
   body.fusion-mode .kw-eq-row.active:hover {
-    box-shadow: 0 1px 0 rgba(91,213,255,0.04), 0 12px 24px -14px rgba(91,213,255,0.18) !important;
+    box-shadow: 0 1px 0 rgba(125,242,176,0.04), 0 12px 24px -14px rgba(125,242,176,0.18) !important;
   }
   body.fusion-mode .kw-eq-iconbtn,
   body.fusion-mode .kw-eq-detailbtn {
     background: rgba(255,255,255,0.04) !important;
-    color: #A8B0C8 !important;
-    border-color: rgba(91,213,255,0.12) !important;
+    color: #A6B6AC !important;
+    border-color: rgba(125,242,176,0.12) !important;
   }
   /* Timeline rail — the inline gradient bakes #ECEAE4 as the centre stop */
   body.fusion-mode [style*="#ECEAE4"] {
@@ -1578,7 +1580,7 @@
    * over the gradient. Keep white centre but tighten border to Fleur for the
    * cleanest read. (Selector deliberately narrow to not catch other dots.) */
   body.fusion-mode .kw-eq-row [style*="border-radius: 50%"][style*="background: #fff"] {
-    background: #C7E3FF !important;
+    background: #C7E8D3 !important;
   }
 
   /* Kiwi AI · pointages block — uses var(--ink) gradient + var(--paper)
@@ -1587,27 +1589,27 @@
    * gradient and bone-coloured title; recolour the mint-rgba chip + button
    * surfaces; swap the hardcoded green sub-text colour for Fleur-tinted bone. */
   body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] {
-    background: linear-gradient(135deg, #0E1638 0%, #060A1C 100%) !important;
-    color: #EEF1FA !important;
-    border: 1px solid rgba(91,213,255,0.14) !important;
+    background: linear-gradient(135deg, #0C2920 0%, #06140F 100%) !important;
+    color: #EAF3EE !important;
+    border: 1px solid rgba(125,242,176,0.14) !important;
   }
   body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] [style*="color:var(--paper)"],
   body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] [style*="color: var(--paper)"] {
-    color: #EEF1FA !important;
+    color: #EAF3EE !important;
   }
   body.fusion-mode [style*="color:#A8B0C8"],
-  body.fusion-mode [style*="color: #A8B0C8"] { color: #A8B0C8 !important; }
+  body.fusion-mode [style*="color: #A8B0C8"] { color: #A6B6AC !important; }
 
   /* Mint-rgba inline backgrounds anywhere on the page → Fleur-rgba */
   body.fusion-mode [style*="background:rgba(125,242,176"],
   body.fusion-mode [style*="background: rgba(125,242,176"] {
-    background: rgba(91,213,255,0.16) !important;
-    color: #5BD5FF !important;
+    background: rgba(125,242,176,0.16) !important;
+    color: #7DF2B0 !important;
   }
   body.fusion-mode [style*="color:var(--mint)"],
-  body.fusion-mode [style*="color: var(--mint)"] { color: #5BD5FF !important; }
+  body.fusion-mode [style*="color: var(--mint)"] { color: #7DF2B0 !important; }
   /* SVG strokes that reference --mint directly */
-  body.fusion-mode [stroke="var(--mint)"] { stroke: #5BD5FF !important; }
+  body.fusion-mode [stroke="var(--mint)"] { stroke: #7DF2B0 !important; }
 
   /* Sidebar "first 7 only" — vertical-section is hidden, replaced by a
    * compact aggregated-KPI card. Animated with the same fade pattern as
@@ -1619,21 +1621,21 @@
     margin: 14px 4px 6px;
     border-radius: 12px;
     padding: 12px 14px;
-    background: linear-gradient(135deg, rgba(91,213,255,0.08) 0%, rgba(57,85,214,0.10) 100%);
-    border: 1px solid rgba(91,213,255,0.18);
+    background: linear-gradient(135deg, rgba(125,242,176,0.08) 0%, rgba(33,197,134,0.10) 100%);
+    border: 1px solid rgba(125,242,176,0.18);
   }
   .fusion-kpis .fk-head {
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #5BD5FF;
+    color: #7DF2B0;
     margin-bottom: 8px;
     display: flex; align-items: center; gap: 6px;
   }
   .fusion-kpis .fk-head i {
     width: 5px; height: 5px; border-radius: 50%;
-    background: #5BD5FF; box-shadow: 0 0 8px #5BD5FF;
+    background: #7DF2B0; box-shadow: 0 0 8px #7DF2B0;
     animation: fk-pulse 1.6s infinite;
   }
   /* ✦ ULTRA pill — sits inline at the right edge of the VUE PORTFOLIO row */
@@ -1648,10 +1650,10 @@
     font-weight: 500;
   }
   body.fusion-mode .fusion-kpis .fk-head .fk-ultra {
-    background: rgba(91,213,255,0.18);
-    color: #5BD5FF;
+    background: rgba(125,242,176,0.18);
+    color: #7DF2B0;
   }
-  body.fusion-mode .sidebar .loc-ultra { color: #5BD5FF; }
+  body.fusion-mode .sidebar .loc-ultra { color: #7DF2B0; }
   @keyframes fk-pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(1.3); }
@@ -1659,13 +1661,13 @@
   .fusion-kpis .fk-row {
     display: flex; justify-content: space-between; align-items: baseline;
     padding: 6px 0;
-    border-top: 1px solid rgba(91,213,255,0.10);
+    border-top: 1px solid rgba(125,242,176,0.10);
   }
   .fusion-kpis .fk-row:first-of-type { border-top: 0; }
-  .fusion-kpis .fk-l { font-size: 11.5px; color: #8088A8; letter-spacing: 0.01em; }
+  .fusion-kpis .fk-l { font-size: 11.5px; color: #7E938A; letter-spacing: 0.01em; }
   /* fk-v: always rendered on the dark fusion sidebar, so colour is anchored
    * to a light bone (not var(--paper) — that token is dark in fusion-mode). */
-  .fusion-kpis .fk-v { font-size: 14px; color: #EEF1FA; font-weight: 500; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
+  .fusion-kpis .fk-v { font-size: 14px; color: #EAF3EE; font-weight: 500; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
 
   /* "Revenir à la vue simple" CTA inside the venue dropdown */
   .venue-action {
@@ -1680,7 +1682,7 @@
   }
   .venue-action:hover { background: #F7F7F5; }
   .venue-action.fusion-cta {
-    background: linear-gradient(135deg, #0A1230 0%, #1E2F7C 100%);
+    background: linear-gradient(135deg, #0C3325 0%, #0F5C40 100%);
     color: #fff;
     margin: 6px 4px 0;
     padding: 12px 14px;
@@ -1690,7 +1692,7 @@
   }
   .venue-action.fusion-cta::after {
     content: ''; position: absolute; inset: 0;
-    background: linear-gradient(105deg, transparent 30%, rgba(91,213,255,0.22) 50%, transparent 70%);
+    background: linear-gradient(105deg, transparent 30%, rgba(125,242,176,0.22) 50%, transparent 70%);
     transform: translateX(-100%);
     animation: fusion-cta-shimmer 3s ease-in-out infinite;
     pointer-events: none;
@@ -1698,11 +1700,11 @@
   @keyframes fusion-cta-shimmer { 50% { transform: translateX(100%); } 100% { transform: translateX(100%); } }
   .venue-action.fusion-cta .va-icon {
     width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(91,213,255,0.18); border: 1px solid rgba(91,213,255,0.3);
-    display: grid; place-items: center; color: #5BD5FF; flex-shrink: 0;
+    background: rgba(125,242,176,0.18); border: 1px solid rgba(125,242,176,0.3);
+    display: grid; place-items: center; color: #7DF2B0; flex-shrink: 0;
   }
   .venue-action.fusion-cta .va-title { font-size: 13.5px; font-weight: 600; letter-spacing: -0.01em; color: #fff; }
-  .venue-action.fusion-cta .va-sub { font-size: 11px; color: #C7D6FF; margin-top: 1px; letter-spacing: 0.01em; }
+  .venue-action.fusion-cta .va-sub { font-size: 11px; color: #BFE6CF; margin-top: 1px; letter-spacing: 0.01em; }
   .venue-action.fusion-cta .va-body { min-width: 0; flex: 1; }
 
   .venue-action.return-cta {
@@ -1727,7 +1729,7 @@
    *
    * pages.js / pages-pro.js declare many drawer classes with
    *   `color: var(--paper)` on `background: var(--atlas)` / gradients.
-   * In fusion mode the Majorelle palette flips --paper to dark Nuit (#060A1C),
+   * In fusion mode the Atlas Dark palette flips --paper to dark Nuit (#06140F),
    * which makes that text disappear into the now-blue surface. Force all such
    * colored-surface elements to var(--ink) (light in fusion) so they stay
    * readable. Also patch hardcoded warning/danger/success pills and the
@@ -1782,20 +1784,20 @@
     color: #F29B8F !important;
   }
 
-  /* Hardcoded success pills (#E3F7EC bg) → Majorelle mint */
+  /* Hardcoded success pills (#E3F7EC bg) → Atlas Dark mint */
   body.fusion-mode .pr-cert-stat.ok,
   body.fusion-mode [style*="background:#E3F7EC"],
   body.fusion-mode [style*="background: #E3F7EC"] {
-    background: rgba(91,213,255,0.16) !important;
+    background: rgba(125,242,176,0.16) !important;
     color: var(--mint) !important;
   }
 
   /* Drawer close button — pages.js / interactive.js have `background:#fff`
    * hardcoded without a dark-theme override. Renders as a near-white blob
-   * on the dark Majorelle drawer. Repaint it on-brand. */
+   * on the dark Atlas Dark drawer. Repaint it on-brand. */
   body.fusion-mode .kiwi-drawer-close {
     background: var(--paper-muted) !important;
-    border-color: rgba(91,213,255,0.18) !important;
+    border-color: rgba(125,242,176,0.18) !important;
     color: var(--mint) !important;
   }
   body.fusion-mode .kiwi-drawer-close:hover {
@@ -1805,12 +1807,12 @@
 
   /* Active tab pills (.resv-tab.on, .sc-pill.on) — dark-theme rule
    * resolves to a near-bone pill which doesn't pop on the Nuit drawer.
-   * Force Majorelle mint highlight so the active tab reads as on-brand. */
+   * Force Atlas Dark mint highlight so the active tab reads as on-brand. */
   body.fusion-mode .resv-tab.on,
   body.fusion-mode .sc-pill.on {
     background: var(--mint) !important;
     color: var(--riad) !important;
-    box-shadow: 0 0 0 1px rgba(91,213,255,0.32) !important;
+    box-shadow: 0 0 0 1px rgba(125,242,176,0.32) !important;
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
@@ -1818,7 +1820,7 @@
    *
    * Hides the standard dashboard markup and reveals the dedicated fusion
    * portfolio layout when body.fusion-mode is active. All colours via
-   * tokens (Majorelle palette flips happen in the body.fusion-mode block
+   * tokens (Atlas Dark palette flips happen in the body.fusion-mode block
    * above) — no hex values below.
    * ═════════════════════════════════════════════════════════════════════════ */
   .dash-fusion { display: none; }
@@ -1841,8 +1843,8 @@
     margin-bottom: 14px;
   }
   body.fusion-mode .fs-section {
-    background: rgba(14,22,56,0.55);
-    border-color: rgba(91,213,255,0.12);
+    background: rgba(12,41,32,0.55);
+    border-color: rgba(125,242,176,0.12);
   }
   .fs-section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
   .fs-section-head h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: var(--ink); }
@@ -1853,7 +1855,7 @@
     background: linear-gradient(135deg, var(--riad) 0%, var(--riad-deep) 100%);
     color: var(--paper);
     padding: 38px 40px;
-    border: 1px solid rgba(91,213,255,0.18);
+    border: 1px solid rgba(125,242,176,0.18);
   }
   body.fusion-mode .fs-hero {
     background: linear-gradient(135deg, var(--riad) 0%, var(--riad-deep) 100%);
@@ -1866,8 +1868,8 @@
     display: inline-flex; align-items: center; gap: 6px;
     font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em;
     color: var(--mint);
-    background: rgba(91,213,255,0.10);
-    border: 1px solid rgba(91,213,255,0.22);
+    background: rgba(125,242,176,0.10);
+    border: 1px solid rgba(125,242,176,0.22);
     padding: 4px 10px; border-radius: 999px;
     margin-bottom: 14px;
   }
@@ -1958,7 +1960,7 @@
 
   .fs-hero-right {
     background: rgba(0,0,0,0.22);
-    border: 1px solid rgba(91,213,255,0.14);
+    border: 1px solid rgba(125,242,176,0.14);
     border-radius: 14px;
     padding: 18px 20px;
     display: flex; flex-direction: column;
@@ -2010,7 +2012,7 @@
   .fs-ai-chat-input {
     flex: 1;
     background: rgba(0,0,0,0.28);
-    border: 1px solid rgba(91,213,255,0.18);
+    border: 1px solid rgba(125,242,176,0.18);
     border-radius: 999px;
     padding: 9px 14px;
     color: var(--ink);
@@ -2050,9 +2052,9 @@
   }
   body.fusion-mode .fs-kpi {
     background: var(--paper-soft);
-    border-color: rgba(91,213,255,0.10);
+    border-color: rgba(125,242,176,0.10);
   }
-  .fs-kpi:hover { border-color: rgba(91,213,255,0.28); }
+  .fs-kpi:hover { border-color: rgba(125,242,176,0.28); }
   .fs-kpi-l {
     font-family: var(--mono);
     font-size: 10px;
@@ -2093,7 +2095,7 @@
     padding: 14px 4px;
     border-top: 1px solid var(--n-200);
   }
-  body.fusion-mode .fs-venue-row { border-top-color: rgba(91,213,255,0.10); }
+  body.fusion-mode .fs-venue-row { border-top-color: rgba(125,242,176,0.10); }
   .fs-venue-row:first-child { border-top: 0; }
   @media (max-width: 980px) {
     .fs-venue-row { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -2109,7 +2111,7 @@
     flex-shrink: 0;
   }
   body.fusion-mode .fs-venue-icon {
-    background: rgba(91,213,255,0.10);
+    background: rgba(125,242,176,0.10);
     color: var(--mint);
   }
   .fs-venue-name { font-size: 14px; font-weight: 600; letter-spacing: -0.005em; color: var(--ink); }
@@ -2157,7 +2159,7 @@
     color: var(--atlas);
   }
   body.fusion-mode .fs-venue-signal.sig-objectif-atteint { background: var(--mint); color: var(--riad); }
-  body.fusion-mode .fs-venue-signal.sig-croissance { background: rgba(91,213,255,0.18); color: var(--mint); }
+  body.fusion-mode .fs-venue-signal.sig-croissance { background: rgba(125,242,176,0.18); color: var(--mint); }
   .fs-venue-signal.sig-attention {
     background: rgba(217,154,43,0.16);
     color: var(--warning);
@@ -2258,7 +2260,7 @@
   }
   body.fusion-mode .fs-intel-tile {
     background: var(--paper-soft);
-    border-color: rgba(91,213,255,0.10);
+    border-color: rgba(125,242,176,0.10);
   }
   .fs-intel-ico {
     width: 32px; height: 32px;
@@ -2269,7 +2271,7 @@
     margin-bottom: 12px;
   }
   body.fusion-mode .fs-intel-ico {
-    background: rgba(91,213,255,0.10);
+    background: rgba(125,242,176,0.10);
     color: var(--mint);
   }
   .fs-intel-v {
@@ -2320,7 +2322,7 @@
   }
   body.fusion-mode .fs-alert {
     background: var(--paper-soft);
-    border-color: rgba(91,213,255,0.10);
+    border-color: rgba(125,242,176,0.10);
     border-left-color: var(--warning);
   }
   .fs-alert-ico {
@@ -2346,14 +2348,17 @@
     white-space: nowrap;
   }
   body.fusion-mode .fs-alert-cta {
-    border-color: rgba(91,213,255,0.22);
+    border-color: rgba(125,242,176,0.22);
     color: var(--mint);
   }
   .fs-alert-cta:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   body.fusion-mode .fs-alert-cta:hover { background: var(--mint); color: var(--riad); border-color: var(--mint); }
 
   /* ─────────────────────────────────────────────────────────────────────────
-   * FUSION OVERLAY — full-viewport choreography
+   * GO ULTRA — transition overlay
+   * A quick, clean theme fade: a dark wash covers the dashboard while the
+   * palette swaps underneath, with the GO ULTRA wordmark fading at center.
+   * (Replaced the earlier sci-fi merge choreography — orbs / CRT / sigil.)
    * ───────────────────────────────────────────────────────────────────────── */
   .fusion-overlay {
     position: fixed; inset: 0;
@@ -2362,305 +2367,45 @@
     opacity: 0;
     visibility: hidden;
     background:
-      radial-gradient(ellipse at center, rgba(10,18,48,0.0) 0%, rgba(10,18,48,0.85) 35%, rgba(5,8,24,0.98) 75%, #050818 100%);
-    transition: opacity 320ms ease, visibility 0s 320ms;
+      radial-gradient(ellipse at center, rgba(6,20,15,0.80) 0%, rgba(3,16,11,0.97) 70%, #03100B 100%);
+    transition: opacity 280ms ease, visibility 0s 280ms;
     overflow: hidden;
   }
   .fusion-overlay.active {
     opacity: 1;
     visibility: visible;
-    transition: opacity 320ms ease;
+    transition: opacity 280ms ease;
   }
-  .fusion-overlay.exiting { opacity: 0; transition: opacity 520ms ease; }
+  .fusion-overlay.exiting { opacity: 0; transition: opacity 420ms ease; }
 
-  /* Starfield — tiny dots scattered across the overlay, drifting slowly */
-  .fo-stars {
-    position: absolute; inset: 0;
-    background-image:
-      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.45), transparent),
-      radial-gradient(1px 1px at 70% 70%, rgba(91,213,255,0.5), transparent),
-      radial-gradient(1.5px 1.5px at 45% 20%, rgba(255,255,255,0.35), transparent),
-      radial-gradient(1px 1px at 85% 40%, rgba(91,213,255,0.4), transparent),
-      radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.4), transparent),
-      radial-gradient(1.5px 1.5px at 60% 90%, rgba(91,213,255,0.45), transparent),
-      radial-gradient(1px 1px at 90% 15%, rgba(255,255,255,0.5), transparent),
-      radial-gradient(1px 1px at 35% 55%, rgba(57,85,214,0.4), transparent);
-    opacity: 0;
-    animation: fo-stars-in 0.6s ease-out forwards 0.1s;
-  }
-  @keyframes fo-stars-in { to { opacity: 1; } }
-
-  /* Three orbs — each represents a venue, colour-coded, fly from corners to center */
-  .fo-orbs {
-    position: absolute; inset: 0;
-    perspective: 800px;
-  }
-  .fo-orb {
-    position: absolute;
-    width: 110px; height: 110px;
-    border-radius: 50%;
-    transform: translate(-50%, -50%) scale(1);  }
-  .fo-orb::before {
-    content: ''; position: absolute; inset: 0; border-radius: 50%;
-    background: radial-gradient(circle at 32% 32%, rgba(255,255,255,0.55), transparent 50%),
-                radial-gradient(circle, var(--orb-color) 0%, var(--orb-color-deep) 80%, transparent 100%);
-    box-shadow:
-      0 0 60px 8px var(--orb-color),
-      0 0 120px 24px var(--orb-color-deep),
-      inset 0 0 40px rgba(0,0,0,0.25);
-  }
-  .fo-orb-trail {
-    position: absolute; top: 50%; left: 50%;
-    width: 280px; height: 4px;
-    transform-origin: 0% 50%;
-    background: linear-gradient(90deg, transparent, var(--orb-color) 60%, transparent);
-    filter: blur(2px);
-    opacity: 0;
-  }
-  /* Orb 1 — Atlas Green (Café Atlas) · from top-left */
-  .fo-orb.o1 { --orb-color: #1FB574; --orb-color-deep: #0B6E4F; top: -8%; left: -8%; animation: fo-fly-1 1.25s cubic-bezier(0.55,0.05,0.35,1) forwards 0.25s; }
-  .fo-orb.o1 .fo-orb-trail { transform: rotate(45deg); animation: fo-trail 1.25s ease-out forwards 0.25s; }
-  /* Orb 2 — Gold (Maison Mansour) · from top-right */
-  .fo-orb.o2 { --orb-color: #E5B85F; --orb-color-deep: #D99A2B; top: -8%; right: -8%; left: auto; animation: fo-fly-2 1.25s cubic-bezier(0.55,0.05,0.35,1) forwards 0.35s; }
-  .fo-orb.o2 .fo-orb-trail { transform: rotate(135deg); transform-origin: 100% 50%; left: auto; right: 50%; animation: fo-trail 1.25s ease-out forwards 0.35s; }
-  /* Orb 3 — Majorelle Néon (Spa Bahia) · from bottom-center */
-  .fo-orb.o3 { --orb-color: #5BD5FF; --orb-color-deep: #3955D6; bottom: -10%; left: 50%; top: auto; animation: fo-fly-3 1.25s cubic-bezier(0.55,0.05,0.35,1) forwards 0.45s; }
-  .fo-orb.o3 .fo-orb-trail { transform: rotate(-90deg); animation: fo-trail 1.25s ease-out forwards 0.45s; }
-
-  @keyframes fo-fly-1 {
-    0%   { top: -8%;  left: -8%;  transform: translate(-50%,-50%) scale(1) rotate(0deg); opacity: 0; }
-    8%   { opacity: 1; }
-    78%  { top: 50%;  left: 50%;  transform: translate(-50%,-50%) scale(0.85) rotate(180deg); opacity: 1; }
-    100% { top: 50%;  left: 50%;  transform: translate(-50%,-50%) scale(0.2) rotate(360deg); opacity: 0; }
-  }
-  @keyframes fo-fly-2 {
-    0%   { top: -8%; right: -8%; transform: translate(50%,-50%) scale(1) rotate(0deg); opacity: 0; }
-    8%   { opacity: 1; }
-    78%  { top: 50%; right: 50%; transform: translate(50%,-50%) scale(0.85) rotate(-180deg); opacity: 1; }
-    100% { top: 50%; right: 50%; transform: translate(50%,-50%) scale(0.2) rotate(-360deg); opacity: 0; }
-  }
-  @keyframes fo-fly-3 {
-    0%   { bottom: -10%; left: 50%; transform: translate(-50%,50%) scale(1) rotate(0deg); opacity: 0; }
-    8%   { opacity: 1; }
-    78%  { bottom: 50%;  left: 50%; transform: translate(-50%,50%) scale(0.85) rotate(180deg); opacity: 1; }
-    100% { bottom: 50%;  left: 50%; transform: translate(-50%,50%) scale(0.2) rotate(360deg); opacity: 0; }
-  }
-  @keyframes fo-trail {
-    0%, 10% { opacity: 0; width: 0; }
-    40%     { opacity: 0.65; width: 320px; }
-    100%    { opacity: 0; width: 0; }
-  }
-
-  /* Impact flash — explodes at center the moment the orbs collide */
-  .fo-flash {
-    position: absolute; left: 50%; top: 50%;
-    width: 200px; height: 200px;
-    margin: -100px 0 0 -100px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #fff 0%, #5BD5FF 28%, rgba(57,85,214,0.6) 55%, transparent 75%);
-    transform: scale(0);
-    opacity: 0;
-    filter: blur(1px);
-  }
-  .fo-flash { animation: fo-flash 0.62s cubic-bezier(0.2,0.7,0.3,1) forwards 1.25s; }
-  @keyframes fo-flash {
-    0%   { transform: scale(0);   opacity: 0; }
-    20%  { transform: scale(1.6); opacity: 1; }
-    100% { transform: scale(16);  opacity: 0; }
-  }
-
-  /* ── Smart-TV CRT opening ──────────────────────────────────────────────
-   * fo-crt-seed: a 3px-tall hairline at vertical center that ignites first
-   *   (mimics the bright horizontal line on an old TV warming up).
-   * fo-crt-line.top / .bot: two thicker bright bars that start at center,
-   *   then slide apart vertically — top to y=0, bottom to y=100% — opening
-   *   the screen like a CRT. Each leaves a bright leading edge with a soft
-   *   trailing glow that fades out as the lines reach the screen edges.
-   * Timing slots in BEFORE the flash so flash/particles read as the
-   *   impact AFTER the screen has cracked open. */
-  .fo-crt-seed {
-    position: absolute; left: 0; right: 0; top: 50%;
-    height: 3px; margin-top: -1.5px;
-    background: linear-gradient(90deg,
-      transparent 0%, rgba(91,213,255,0.55) 12%,
-      #fff 40%, #5BD5FF 50%, #fff 60%,
-      rgba(91,213,255,0.55) 88%, transparent 100%);
-    box-shadow: 0 0 18px rgba(255,255,255,0.95), 0 0 38px rgba(91,213,255,0.85);
-    transform: scaleX(0);
-    transform-origin: 50% 50%;
-    opacity: 0;
-    animation: fo-crt-seed 1.1s cubic-bezier(0.22,0.72,0,1) forwards 0.05s;
-  }
-  @keyframes fo-crt-seed {
-    0%   { transform: scaleX(0);    opacity: 0; filter: brightness(1); }
-    22%  { transform: scaleX(0.65); opacity: 1; }
-    42%  { transform: scaleX(1);    opacity: 1; filter: brightness(1); }
-    50%  { transform: scaleX(1);    opacity: 1; filter: brightness(1.6); }
-    100% { transform: scaleX(1);    opacity: 0; filter: brightness(1); }
-  }
-
-  .fo-crt-line {
-    position: absolute; left: 0; right: 0;
-    height: 6px;
-    background: linear-gradient(180deg,
-      transparent 0%,
-      rgba(91,213,255,0.0) 20%,
-      rgba(91,213,255,0.55) 45%,
-      #fff 50%,
-      rgba(91,213,255,0.55) 55%,
-      rgba(91,213,255,0.0) 80%,
-      transparent 100%);
-    box-shadow: 0 0 22px rgba(255,255,255,0.85), 0 0 60px rgba(91,213,255,0.7);
-    opacity: 0;  }
-  .fo-crt-line.top {
-    top: 50%; margin-top: -3px;
-    animation: fo-crt-top 1.05s cubic-bezier(0.55,0.05,0.25,1) forwards 0.6s;
-  }
-  .fo-crt-line.bot {
-    top: 50%; margin-top: -3px;
-    animation: fo-crt-bot 1.05s cubic-bezier(0.55,0.05,0.25,1) forwards 0.6s;
-  }
-  @keyframes fo-crt-top {
-    0%   { transform: translateY(0);     opacity: 1; height: 8px; }
-    8%   { transform: translateY(-2vh);  opacity: 1; height: 7px; }
-    75%  { opacity: 1; }
-    100% { transform: translateY(-50vh); opacity: 0; height: 2px; }
-  }
-  @keyframes fo-crt-bot {
-    0%   { transform: translateY(0);    opacity: 1; height: 8px; }
-    8%   { transform: translateY(2vh);  opacity: 1; height: 7px; }
-    75%  { opacity: 1; }
-    100% { transform: translateY(50vh); opacity: 0; height: 2px; }
-  }
-
-  /* ── Smart-TV CRT closing (exit fusion mode) ──────────────────────────
-   * Inverse of the entry: two lines slide IN from the screen edges, meet
-   * at center, the seed line ignites + collapses horizontally to a point,
-   * then the overlay fades to reveal the restored single-venue dashboard. */
-  .fo-crt-line.top-exit {
-    top: 0; margin-top: 0;
-    animation: fo-crt-top-exit 0.85s cubic-bezier(0.55,0.05,0.35,1) forwards 0.1s;
-  }
-  .fo-crt-line.bot-exit {
-    top: 100%; margin-top: -8px;
-    animation: fo-crt-bot-exit 0.85s cubic-bezier(0.55,0.05,0.35,1) forwards 0.1s;
-  }
-  @keyframes fo-crt-top-exit {
-    0%   { transform: translateY(-6px); opacity: 0; height: 2px; }
-    18%  { opacity: 1; }
-    88%  { transform: translateY(50vh); opacity: 1; height: 8px; }
-    100% { transform: translateY(50vh); opacity: 0; height: 8px; }
-  }
-  @keyframes fo-crt-bot-exit {
-    0%   { transform: translateY(6px);   opacity: 0; height: 2px; }
-    18%  { opacity: 1; }
-    88%  { transform: translateY(-50vh); opacity: 1; height: 8px; }
-    100% { transform: translateY(-50vh); opacity: 0; height: 8px; }
-  }
-  .fo-crt-seed.exit {
-    animation: fo-crt-seed-exit 0.65s cubic-bezier(0.55,0.05,0.35,1) forwards 0.85s;
-  }
-  @keyframes fo-crt-seed-exit {
-    0%   { transform: scaleX(1);    opacity: 0; filter: brightness(1); }
-    20%  { transform: scaleX(1);    opacity: 1; filter: brightness(1.2); }
-    55%  { transform: scaleX(1);    opacity: 1; filter: brightness(1.8); }
-    85%  { transform: scaleX(0.05); opacity: 1; filter: brightness(2); }
-    100% { transform: scaleX(0);    opacity: 0; filter: brightness(1); }
-  }
-
-  /* The fused sigil — a six-point star made of three rotated diamonds,
-   * representing the three merged venues. Scales in after the flash, then
-   * slowly rotates while the label types in. */
-  .fo-sigil {
-    position: absolute; left: 50%; top: 50%;
-    width: 220px; height: 220px;
-    transform: translate(-50%,-50%) scale(0) rotate(-90deg);
-    opacity: 0;
-    animation:
-      fo-sigil-in   0.95s cubic-bezier(0.22,0.72,0,1) forwards 1.55s,
-      fo-sigil-spin 12s linear infinite 2.5s;
-  }
-  @keyframes fo-sigil-in {
-    0%   { transform: translate(-50%,-50%) scale(0)    rotate(-120deg); opacity: 0; }
-    55%  { transform: translate(-50%,-50%) scale(1.18) rotate(0deg);    opacity: 1; }
-    100% { transform: translate(-50%,-50%) scale(1)    rotate(15deg);   opacity: 1; }
-  }
-  @keyframes fo-sigil-spin {
-    from { transform: translate(-50%,-50%) scale(1) rotate(15deg); }
-    to   { transform: translate(-50%,-50%) scale(1) rotate(375deg); }
-  }
-  .fo-sigil svg {
-    width: 100%; height: 100%;
-    filter: drop-shadow(0 0 24px rgba(91,213,255,0.8)) drop-shadow(0 0 48px rgba(57,85,214,0.4));
-  }
-  .fo-sigil-glow {
-    position: absolute; inset: -40%;
-    background: radial-gradient(circle, rgba(91,213,255,0.25), transparent 60%);
-    border-radius: 50%;
-    animation: fo-sigil-glow 2.2s ease-in-out infinite alternate;
-  }
-  @keyframes fo-sigil-glow { from { opacity: 0.4; } to { opacity: 0.9; } }
-
-  /* Mono label — types in under the sigil */
+  /* Centered wordmark — fades in while the palette swaps underneath */
   .fo-label {
-    position: absolute; left: 50%; top: calc(50% + 145px);
-    transform: translateX(-50%);
-    font-family: var(--mono); font-size: 12px; letter-spacing: 0.36em;
-    color: #5BD5FF;
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.46em;
+    color: #7DF2B0;
     text-transform: uppercase;
+    text-shadow: 0 0 16px rgba(125,242,176,0.45);
     opacity: 0;
-    animation: fo-label 0.55s ease-out forwards 1.6s;
-    text-shadow: 0 0 12px rgba(91,213,255,0.7);
+    animation: fo-label 480ms cubic-bezier(0.32,0.72,0,1) forwards 90ms;
     white-space: nowrap;
   }
   .fo-label .fo-label-sub {
     display: block;
-    font-size: 10px; letter-spacing: 0.24em;
-    color: #C7D6FF; opacity: 0.7;
-    margin-top: 6px;
+    font-size: 10px; letter-spacing: 0.26em;
+    color: rgba(125,242,176,0.6);
+    margin-top: 9px;
   }
   @keyframes fo-label {
-    from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
-
-  /* Diagonal Majorelle sweep — paints the new theme across the screen
-   * the moment the dashboard re-renders underneath. */
-  .fo-sweep {
-    position: absolute; inset: 0;
-    background: linear-gradient(115deg,
-      transparent 0%, transparent 32%,
-      rgba(57,85,214,0.55) 44%,
-      rgba(30,47,124,0.85)   52%,
-      rgba(10,18,48,0.85)   58%,
-      rgba(91,213,255,0.45) 66%,
-      transparent 80%);
-    transform: translateX(-110%);
-    animation: fo-sweep 0.9s cubic-bezier(0.55,0.05,0.35,1) forwards 1.8s;
-    mix-blend-mode: screen;
-    pointer-events: none;
-  }
-  @keyframes fo-sweep { to { transform: translateX(110%); } }
-
-  /* Particle burst — 18 dots ejected from the impact point */
-  .fo-particle {
-    position: absolute; left: 50%; top: 50%;
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #5BD5FF;
-    box-shadow: 0 0 12px #5BD5FF;
-    transform: translate(-50%,-50%);
-    opacity: 0;
-    animation: fo-particle 1.2s cubic-bezier(0.22,0.72,0,1) forwards 1.3s;
-  }
-  @keyframes fo-particle {
-    0%   { transform: translate(-50%,-50%) translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(-50%,-50%) translate(var(--px), var(--py)) scale(0); opacity: 0; }
+    from { opacity: 0; transform: translate(-50%, -50%) translateY(8px); }
+    to   { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
    * ÉQUIPE — Staff & HR page
    * A full dashboard view shown when body.page-equipe is set. Built entirely
-   * from CSS variable tokens so it adapts to the Majorelle palette when
+   * from CSS variable tokens so it adapts to the Atlas Dark palette when
    * fusion mode is also active — only a small override block (#fff surfaces)
    * is needed, mirroring how the dashboard already handles .block / .kpi-m.
    * ═══════════════════════════════════════════════════════════════════════ */
@@ -2936,10 +2681,10 @@
   body.fusion-mode .eq-stat-ico,
   body.fusion-mode .eq-rank-num.neutral,
   body.fusion-mode .eq-rank-badge.neutral,
-  body.fusion-mode .eq-planner-nav button { background: #0E1638 !important; border-color: rgba(91,213,255,0.12) !important; }
+  body.fusion-mode .eq-planner-nav button { background: #0C2920 !important; border-color: rgba(125,242,176,0.12) !important; }
   body.fusion-mode .eq-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.03) !important; }
   body.fusion-mode .eq-table tbody tr:hover,
-  body.fusion-mode .eq-table tbody tr:nth-child(even):hover { background: rgba(91,213,255,0.07) !important; }
+  body.fusion-mode .eq-table tbody tr:nth-child(even):hover { background: rgba(125,242,176,0.07) !important; }
   body.fusion-mode .eq-cell-empty { color: var(--n-400); }
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -3216,12 +2961,12 @@
   body.fusion-mode .mi-qcard-btn,
   body.fusion-mode .mi-chip,
   body.fusion-mode .mi-station-x,
-  body.fusion-mode .mi-toggle button { background: #0E1638 !important; border-color: rgba(91,213,255,0.12) !important; }
+  body.fusion-mode .mi-toggle button { background: #0C2920 !important; border-color: rgba(125,242,176,0.12) !important; }
   body.fusion-mode .mi-view-toggle,
-  body.fusion-mode .mi-toggle { border-color: rgba(91,213,255,0.12) !important; }
+  body.fusion-mode .mi-toggle { border-color: rgba(125,242,176,0.12) !important; }
   body.fusion-mode .mi-list tbody tr:nth-child(even) { background: rgba(255,255,255,0.03) !important; }
-  body.fusion-mode .mi-list tbody tr:hover { background: rgba(91,213,255,0.07) !important; }
-  body.fusion-mode .mi-dot { border-color: #0E1638; }
+  body.fusion-mode .mi-list tbody tr:hover { background: rgba(125,242,176,0.07) !important; }
+  body.fusion-mode .mi-dot { border-color: #0C2920; }
   body.fusion-mode .mi-qcard-btn.danger { background: linear-gradient(135deg, var(--danger), #9B2F22) !important; border-color: transparent !important; }
 </style>
 <link rel="stylesheet" href="assets/mobile.css" />

@@ -80,9 +80,9 @@
     // this file) to paint the dedicated <section class="dash-fusion"> layout.
     fusion: {
       id: 'fusion',
-      name: 'Vue fusionnée',
+      name: 'Go Ultra',
       location: '3 emplacements',
-      fullDisplay: 'Vue fusionnée · 3 emplacements',
+      fullDisplay: 'Go Ultra · 3 emplacements',
       type: 'fusion',
       typeLabel: 'Multi-sites · Casa / Marrakech',
       siblings: 'Café Atlas · Maison Mansour · Spa Bahia',
@@ -621,9 +621,9 @@
   };
 
   const DROPDOWN_CTA = {
-    fr: { exitT: 'Revenir à la vue simple', exitS: 'Repasser sur un seul emplacement', enterT: 'Fusionner les 3 emplacements', enterS: 'Vue consolidée · données multi-sites' },
-    en: { exitT: 'Back to single view', exitS: 'Return to a single location', enterT: 'Merge the 3 locations', enterS: 'Consolidated view · multi-site data' },
-    ar: { exitT: 'العودة إلى العرض البسيط', exitS: 'الرجوع إلى موقع واحد', enterT: 'دمج المواقع الثلاثة', enterS: 'عرض موحّد · بيانات متعدّدة المواقع' },
+    fr: { exitT: 'Revenir à la vue simple', exitS: 'Repasser sur un seul emplacement', enterT: 'Go Ultra', enterS: 'Vue consolidée · données multi-sites' },
+    en: { exitT: 'Back to single view', exitS: 'Return to a single location', enterT: 'Go Ultra', enterS: 'Consolidated view · multi-site data' },
+    ar: { exitT: 'العودة إلى العرض البسيط', exitS: 'الرجوع إلى موقع واحد', enterT: 'Go Ultra', enterS: 'عرض موحّد · بيانات متعدّدة المواقع' },
   };
 
   function renderDropdown() {
@@ -857,30 +857,11 @@
   // the orbs/sigil/particles as raw DOM so the choreography is idempotent
   // (re-trigger by toggling .active off → animation reflows on next entry).
   function buildOverlayMarkup(overlay) {
-    // Particle burst — 18 dots fanned around the impact point at random radii.
-    const particles = [];
-    for (let i = 0; i < 18; i++) {
-      const angle = (i / 18) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
-      const dist = 180 + Math.random() * 240;
-      const px = Math.cos(angle) * dist;
-      const py = Math.sin(angle) * dist;
-      const delay = 0.35 + Math.random() * 0.15;
-      particles.push(
-        `<div class="fo-particle" style="--px:${px.toFixed(1)}px;--py:${py.toFixed(1)}px;animation-delay:${delay.toFixed(2)}s;"></div>`
-      );
-    }
     overlay.innerHTML = `
-      <div class="fo-stars"></div>
-      <div class="fo-crt-seed"></div>
-      <div class="fo-crt-line top"></div>
-      <div class="fo-crt-line bot"></div>
-      <div class="fo-flash"></div>
-      ${particles.join('')}
       <div class="fo-label">
-        FUSION ACTIVE
+        GO ULTRA
         <span class="fo-label-sub">3 emplacements · vue consolidée</span>
       </div>
-      <div class="fo-sweep"></div>
     `;
   }
 
@@ -902,50 +883,43 @@
       return;
     }
 
-    // Reset + build a fresh markup so animations replay from t=0.
+    // Reset + build fresh markup so the wordmark replays from t=0.
     overlay.classList.remove('exiting');
     buildOverlayMarkup(overlay);
-    // Force reflow before flipping .active so transitions trigger cleanly.
+    // Force reflow before flipping .active so the fade triggers cleanly.
     overlay.offsetHeight;
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
 
-    /* Choreography timeline (matches CSS keyframes):
-     *   t=0.00  overlay fades in, starfield drifts
-     *   t=0.05  CRT hairline ignites + extends across vertical center
-     *   t=0.55  two CRT lines split — top and bottom slide apart (TV-on)
-     *   t=1.25  flash + particle burst at impact (lines have cleared screen)
-     *   t=1.60  mono "FUSION ACTIVE" label fades in
-     *   t=1.80  Majorelle diagonal sweep + theme/data swap UNDER overlay
-     *   t=2.55  overlay fades out, dashboard fully revealed
-     *   t=3.15  cleanup
+    /* Quick theme fade (matches the .fusion-overlay CSS timing):
+     *   t=0.00  dark wash fades in over the dashboard
+     *   t=0.32  palette + data swap UNDER the wash (Go Ultra engaged)
+     *   t=0.64  wash fades back out, Go Ultra dashboard revealed
+     *   t=1.10  cleanup
      */
-
-    // Swap palette + data during the sweep, so when the overlay fades the
-    // dashboard already wears Majorelle. The sweep visually paints it.
     setTimeout(() => {
       document.body.classList.add('fusion-mode');
       // Engage the existing dark theme so every modal/drawer/menu (defined
       // in theme.css) re-skins automatically. body.fusion-mode then layers
-      // Majorelle brand tokens on top of the dark surface tokens.
+      // the Atlas Dark brand tokens on top of the dark surface tokens.
       document.documentElement.setAttribute('data-theme', 'dark');
       currentVenue = 'fusion';
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
-    }, 1800);
+    }, 320);
 
     // Fade overlay back out, then clear markup.
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 2550);
+    }, 640);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 3150);
+    }, 1100);
   }
 
   function exitFusion(opts = {}) {
@@ -969,28 +943,20 @@
 
     fusionAnimating = true;
 
-    // Inverse CRT sequence — two lines slide in from the edges to meet at
-    // center, the seed ignites and collapses to a point, then theme reverts.
+    // Quick theme fade back to the single-venue view — a dark wash covers
+    // the dashboard while the palette reverts underneath.
     overlay.classList.remove('exiting');
-    overlay.innerHTML = `
-      <div class="fo-stars"></div>
-      <div class="fo-crt-line top-exit"></div>
-      <div class="fo-crt-line bot-exit"></div>
-      <div class="fo-crt-seed exit"></div>
-    `;
-    overlay.offsetHeight; // reflow → animations replay
+    overlay.innerHTML = '';
+    overlay.offsetHeight; // reflow → fade replays
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
 
-    /* Exit choreography:
-     *   t=0.00  overlay fades in dark over the fusion dashboard
-     *   t=0.10  two CRT lines slide IN from top + bottom edges → meet at center
-     *   t=0.85  seed ignites at center, pulses brightest at t=1.20
-     *   t=1.45  seed collapses horizontally to a point + theme/data swap UNDER overlay
-     *   t=1.95  overlay fades out, restored single-venue dashboard revealed
-     *   t=2.55  cleanup
+    /* Quick theme fade:
+     *   t=0.00  dark wash fades in over the Go Ultra dashboard
+     *   t=0.32  palette + data revert UNDER the wash
+     *   t=0.64  wash fades out, single-venue dashboard revealed
+     *   t=1.10  cleanup
      */
-
     setTimeout(() => {
       document.body.classList.remove('fusion-mode');
       document.documentElement.removeAttribute('data-theme');
@@ -998,18 +964,18 @@
       try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
-    }, 1450);
+    }, 320);
 
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 1950);
+    }, 640);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 2550);
+    }, 1100);
   }
 
   function registerHandlers() {
@@ -2903,7 +2869,7 @@
     H['mi-tab'] = (el) => {
       const t = el.dataset.tab;
       if (t === 'compare' && currentVenue !== 'fusion') {
-        Kiwi.toast('Comparaison multi-sites', { type: 'info', desc: 'Activez la vue fusionnée pour comparer vos 3 établissements.' });
+        Kiwi.toast('Comparaison multi-sites', { type: 'info', desc: 'Activez Go Ultra pour comparer vos 3 établissements.' });
         return;
       }
       miTab = t; renderMenu();
@@ -3466,7 +3432,7 @@
           <div class="mi-locked">
             <div class="mi-locked-ic">${miSvg('compare', 24)}</div>
             <h3>Comparaison multi-sites</h3>
-            <p>Activez la vue fusionnée (sidebar → Fusionner les emplacements) pour comparer les menus, le pricing et la performance de vos 3 établissements côte à côte.</p>
+            <p>Activez Go Ultra (sidebar → Go Ultra) pour comparer les menus, le pricing et la performance de vos 3 établissements côte à côte.</p>
           </div>
         </div>`;
     }
