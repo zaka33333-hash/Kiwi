@@ -690,6 +690,64 @@
   const acctLabel = (k) => (ACCT_LBL[L] || ACCT_LBL.fr)[k];
   const RX_ACCT = /(comptab|grand.?livre|ecritur|\btva\b|impot|fiscal|declarat|cnss|\bpaie\b|fiche.?de.?paie|bulletin.?de.?paie|bilan|cloture|amortiss|\bdgi\b|etats financiers)/;
 
+  /* ─── Empty-state hero — the assistant's first screen ─── */
+  const HERO_L = {
+    fr: {
+      greet: 'Bonjour Rachid.',
+      lead: 'Je suis votre directeur financier — je connais Café Atlas dans le détail. Posez une question chiffrée, ou commencez ici.',
+      c1t: 'Simuler une embauche', c1s: 'Coût réel sur la marge',
+      c2t: 'Tester une hausse de prix', c2s: 'Effet sur le bénéfice',
+      c3t: 'Ma comptabilité', c3s: 'Livre · TVA · paie · états',
+      insT: 'État du jour ·',
+      ins: (m, s) => `Café Atlas est solide — marge nette ${m} %, soit ${s} % au-dessus de votre seuil de rentabilité.`,
+      autres: 'Autres', more: 'Voir tous les chiffres', less: 'Réduire',
+    },
+    en: {
+      greet: 'Hello Rachid.',
+      lead: 'I’m your finance director — I know Café Atlas inside out. Ask a numbers question, or start here.',
+      c1t: 'Simulate a hire', c1s: 'Real cost on margin',
+      c2t: 'Test a price rise', c2s: 'Effect on profit',
+      c3t: 'My accounting', c3s: 'Ledger · VAT · payroll · books',
+      insT: 'Today ·',
+      ins: (m, s) => `Café Atlas is solid — ${m} % net margin, ${s} % above your break-even point.`,
+      autres: 'Other', more: 'Show every figure', less: 'Collapse',
+    },
+    ar: {
+      greet: 'مرحبا رشيد.',
+      lead: 'أنا مديرك المالي — أعرف مقهى أطلس بالتفصيل. اطرح سؤالاً بالأرقام أو ابدأ من هنا.',
+      c1t: 'محاكاة توظيف', c1s: 'التكلفة على الهامش',
+      c2t: 'اختبار رفع الأسعار', c2s: 'الأثر على الربح',
+      c3t: 'محاسبتي', c3s: 'الدفتر · الضريبة · الأجور',
+      insT: 'اليوم ·',
+      ins: (m, s) => `مقهى أطلس في وضع جيد — هامش صافٍ ${m}٪، أي ${s}٪ فوق نقطة التعادل.`,
+      autres: 'أخرى', more: 'عرض كل الأرقام', less: 'إخفاء',
+    },
+  };
+  const HL = () => HERO_L[L] || HERO_L.fr;
+
+  function renderHero() {
+    const h = HL();
+    const safety = (B.revenue - B.breakEvenRev) / B.revenue * 100;
+    const icHire = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.6"/><path d="M5 21v-1a6 6 0 016-6h2a6 6 0 016 6v1"/></svg>';
+    const icPct  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.4"/><circle cx="17" cy="17" r="2.4"/></svg>';
+    const icBook = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4a2 2 0 012-2h12v20H7a2 2 0 01-2-2z"/><path d="M9 2v20"/></svg>';
+    const icIns  = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.6l2.55 6.86 6.85 2.54-6.85 2.55L12 22.4l-2.55-6.85L2.6 13l6.85-2.54z"/></svg>';
+    return `<div class="fa-hero" data-fa-hero>
+      <div class="fa-hero-mark">${ICON.avatar}</div>
+      <div class="fa-hero-h">${h.greet}</div>
+      <div class="fa-hero-p">${h.lead}</div>
+      <div class="fa-hero-cards">
+        <button class="fa-hero-card" type="button" data-fa-follow="${escAttr(tr().chips.hire)}">
+          <span class="ic">${icHire}</span><span class="t">${h.c1t}</span><span class="s">${h.c1s}</span></button>
+        <button class="fa-hero-card" type="button" data-fa-follow="${escAttr(tr().chips.price5)}">
+          <span class="ic">${icPct}</span><span class="t">${h.c2t}</span><span class="s">${h.c2s}</span></button>
+        <button class="fa-hero-card" type="button" data-fa-open="open-comptabilite">
+          <span class="ic">${icBook}</span><span class="t">${h.c3t}</span><span class="s">${h.c3s}</span></button>
+      </div>
+      <div class="fa-hero-insight">${icIns}<div><b>${h.insT}</b> ${h.ins(fmt1(B.netMargin), fmt1(safety))}</div></div>
+    </div>`;
+  }
+
   function sHelp() {
     return {
       text: tr().help.text,
@@ -940,11 +998,11 @@
     .fa-kpgrid button.eq:hover { background:var(--riad); }
 
     /* context rail */
-    .fa-context { width:318px; flex-shrink:0; border-inline-start:1px solid var(--n-200);
-      background:#fff; padding:28px 24px; overflow-y:auto; }
-    .fa-ctx-eyebrow { font-size:10px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:var(--atlas); }
-    .fa-ctx-biz { font-family:'Instrument Serif',serif; font-size:23px; color:var(--ink); margin-top:7px; line-height:1.15; }
-    .fa-ctx-sub { font-size:11px; color:var(--n-500); margin-top:4px; }
+    .fa-context { width:312px; flex-shrink:0; border-inline-start:1px solid var(--n-200);
+      background:var(--paper); padding:28px 22px; overflow-y:auto; }
+    .fa-ctx-eyebrow { font-size:10px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:var(--n-500); }
+    .fa-ctx-biz { font-size:14.5px; font-weight:600; color:var(--ink); margin-top:5px; line-height:1.2; }
+    .fa-ctx-sub { font-size:11px; color:var(--n-500); margin-top:3px; }
     .fa-ctx-group { margin-top:6px; }
     .fa-ctx-gh { display:flex; justify-content:space-between; align-items:baseline; gap:8px;
       font-size:10px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--n-500);
@@ -973,6 +1031,61 @@
     .fa-ctx-trust { margin-top:13px; display:flex; gap:7px; align-items:flex-start; font-size:11px; color:var(--n-500); line-height:1.45; }
     .fa-ctx-trust svg { width:13px; height:13px; color:var(--atlas); flex-shrink:0; margin-top:1px; }
     @media (max-width:920px) { .fa-context { display:none; } }
+
+    /* ─── empty-state hero — the first screen, before any conversation ─── */
+    .fa-hero { display:flex; flex-direction:column; }
+    .fa-hero-mark { width:46px; height:46px; border-radius:50%; display:flex; align-items:center;
+      justify-content:center; background:linear-gradient(150deg,var(--atlas),var(--riad)); color:var(--mint);
+      box-shadow:0 8px 22px -8px rgba(11,110,79,.6); }
+    .fa-hero-mark svg { width:21px; height:21px; }
+    .fa-hero-h { font-family:'Instrument Serif',serif; font-size:31px; color:var(--ink); margin:17px 0 0; line-height:1.08; }
+    .fa-hero-p { font-size:14px; color:var(--n-600); line-height:1.62; margin-top:9px; max-width:540px; }
+    .fa-hero-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:24px; }
+    .fa-hero-card { display:flex; flex-direction:column; align-items:flex-start; text-align:start;
+      background:#fff; border:1px solid var(--n-200); border-radius:16px; padding:15px 14px; cursor:pointer;
+      font:inherit; transition:transform 160ms var(--fa-ease), border-color 160ms, box-shadow 160ms;
+      box-shadow:0 1px 2px rgba(10,15,13,.04), 0 18px 32px -26px rgba(10,15,13,.24); }
+    .fa-hero-card:hover { border-color:var(--atlas); transform:translateY(-2px);
+      box-shadow:0 16px 30px -18px rgba(11,110,79,.42); }
+    .fa-hero-card:active { transform:scale(.98); }
+    .fa-hero-card .ic { width:32px; height:32px; border-radius:10px; display:flex; align-items:center;
+      justify-content:center; background:var(--paper-soft); color:var(--atlas); margin-bottom:12px; }
+    .fa-hero-card .ic svg { width:17px; height:17px; }
+    .fa-hero-card .t { font-size:13px; font-weight:600; color:var(--ink); }
+    .fa-hero-card .s { font-size:11.5px; color:var(--n-500); margin-top:3px; line-height:1.4; }
+    .fa-hero-insight { display:flex; gap:11px; align-items:flex-start; margin-top:13px;
+      padding:14px 16px; border-radius:15px; background:var(--paper-soft); border:1px solid var(--n-200);
+      font-size:12.5px; color:var(--n-600); line-height:1.55; }
+    .fa-hero-insight svg { width:16px; height:16px; color:var(--atlas); flex-shrink:0; margin-top:1px; }
+    .fa-hero-insight b { color:var(--atlas); font-weight:600; }
+    @media (max-width:560px) { .fa-hero-cards { grid-template-columns:1fr; } }
+
+    /* ─── curated context rail — 4 KPIs, a cost split, the rest folded away ─── */
+    .fa-ctx-kpis { margin-top:20px; }
+    .fa-ctx-kpi { display:flex; justify-content:space-between; align-items:baseline; gap:12px; width:100%;
+      border:0; background:transparent; padding:12px 8px; border-radius:11px; cursor:pointer;
+      text-align:start; font:inherit; transition:background 130ms var(--fa-ease); }
+    .fa-ctx-kpi + .fa-ctx-kpi { border-top:1px solid var(--n-200); }
+    .fa-ctx-kpi:hover { background:var(--paper-soft); }
+    .fa-ctx-kpi.fa-flash { animation:fa-flash-kf 540ms var(--fa-ease); }
+    .fa-ctx-kpi .k { font-size:11.5px; color:var(--n-600); }
+    .fa-ctx-kpi .v { font-size:15px; font-weight:600; color:var(--ink); white-space:nowrap; text-align:end;
+      font-variant-numeric:tabular-nums; }
+    .fa-ctx-kpi.hl .v { color:var(--atlas); }
+    .fa-ctx-viz { margin-top:20px; padding-top:18px; border-top:1px solid var(--n-200); }
+    .fa-ctx-viz-h { display:flex; justify-content:space-between; align-items:baseline;
+      font-size:10px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--n-500); }
+    .fa-ctx-viz-h .t { color:var(--atlas); letter-spacing:.02em; }
+    .fa-ctx-bar { display:flex; height:10px; border-radius:999px; overflow:hidden; margin-top:10px; gap:2px; }
+    .fa-ctx-bar span { display:block; height:100%; }
+    .fa-ctx-leg { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:11px; }
+    .fa-ctx-leg .li { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--n-600); }
+    .fa-ctx-leg .li i { width:8px; height:8px; border-radius:3px; flex-shrink:0; }
+    .fa-ctx-more { width:100%; margin-top:18px; font:inherit; font-size:12px; font-weight:500;
+      color:var(--n-600); background:transparent; border:1px solid var(--n-200); border-radius:11px;
+      padding:10px; cursor:pointer; transition:all 140ms; }
+    .fa-ctx-more:hover { border-color:var(--n-400); color:var(--ink); }
+    .fa-ctx-detail[hidden] { display:none; }
 
     /* in-browser LLM */
     .fa-llm-btn { font-size:13px; font-weight:600; padding:11px 19px; border-radius:999px; border:none;
@@ -1045,6 +1158,19 @@
       ]);
     const netFact = `${f.netProfit} : ${fmtMad(B.netProfit)} · ${f.netMarginLine(fmt1(B.netMargin))}`;
 
+    /* curated rail — 4 headline KPIs + a cost split; the full list folds away */
+    const kpiFact = (k, v) => `${k} : ${v}`;
+    const coreKpis = [
+      { k: f.revenue, v: fmtMad(B.revenue), fact: kpiFact(f.revenue, fmtMad(B.revenue)) },
+      { k: f.grossMargin, v: fmtMad(B.grossProfit), fact: kpiFact(f.grossMargin, `${fmtMad(B.grossProfit)} · ${fmt1(B.grossMargin)} %`) },
+      { k: f.netProfit, v: fmtMad(B.netProfit), fact: netFact, hl: true },
+      { k: f.cashAvail, v: fmtMad(B.cashBuffer), fact: kpiFact(f.cashAvail, fmtMad(B.cashBuffer)) },
+    ];
+    const opexRaw = Object.entries(B.opex).sort((a, b) => b[1] - a[1]);
+    const vizColors = ['var(--atlas)', '#46A878', '#7DF2B0', '#cdd6d0'];
+    const vizParts = opexRaw.slice(0, 3).map(([k, v], i) => ({ k: tr().opex[k] || k, v, c: vizColors[i] }));
+    vizParts.push({ k: HL().autres, v: opexRaw.slice(3).reduce((s, r) => s + r[1], 0), c: vizColors[3] });
+
     const body = `
       <div class="fa">
         <div class="fa-main">
@@ -1079,13 +1205,16 @@
           <div class="fa-ctx-eyebrow">${u.ctxEyebrow}</div>
           <div class="fa-ctx-biz">${B.name}</div>
           <div class="fa-ctx-sub">${u.ctxSub}</div>
-          ${ctxRail}
-          <button class="fa-ctx-net" type="button" data-fa-fact="${escAttr(netFact)}">
-            <div class="k">${f.netProfit}</div>
-            <div class="v">${fmtMad(B.netProfit)}</div>
-            <div class="s">${f.netMarginLine(fmt1(B.netMargin))}</div>
-          </button>
-          <div class="fa-ctx-note">${u.ctxNote}</div>
+          <div class="fa-ctx-kpis">
+            ${coreKpis.map((c) => `<button class="fa-ctx-kpi${c.hl ? ' hl' : ''}" type="button" data-fa-fact="${escAttr(c.fact)}"><span class="k">${c.k}</span><span class="v">${c.v}</span></button>`).join('')}
+          </div>
+          <div class="fa-ctx-viz">
+            <div class="fa-ctx-viz-h"><span>${u.gFixed}</span><span class="t">${fmtMad(B.totalOpex)}</span></div>
+            <div class="fa-ctx-bar">${vizParts.map((p) => `<span style="width:${(p.v / B.totalOpex * 100).toFixed(1)}%;background:${p.c};"></span>`).join('')}</div>
+            <div class="fa-ctx-leg">${vizParts.map((p) => `<span class="li"><i style="background:${p.c};"></i>${p.k}</span>`).join('')}</div>
+          </div>
+          <button class="fa-ctx-more" type="button" data-fa-ctx-more>${HL().more}</button>
+          <div class="fa-ctx-detail" data-fa-detail hidden>${ctxRail}</div>
           <div class="fa-ctx-trust">${ICON.lock}<span>${u.ctxTrust}</span></div>
         </aside>
       </div>`;
@@ -1137,6 +1266,8 @@
     function ask(text) {
       const t = (text || '').trim();
       if (!t) return;
+      const hero = thread.querySelector('[data-fa-hero]');
+      if (hero) hero.remove();
       pushUser(t);
       const reply = respond(t);
       if (reply) {
@@ -1219,8 +1350,8 @@
       }
     }
 
-    // greeting
-    pushAgent(replyHtml(sHelp()));
+    // first screen — the empty-state hero, replaced by the conversation on first ask
+    thread.insertAdjacentHTML('beforeend', renderHero());
 
     if (typeof prefill === 'string' && prefill.trim()) {
       setTimeout(() => ask(prefill.trim()), 360);
@@ -1262,6 +1393,15 @@
         return;
       }
       if (e.target.closest('[data-fa-activate]')) { activateLlm(); return; }
+      const moreBtn = e.target.closest('[data-fa-ctx-more]');
+      if (moreBtn) {
+        const det = root.querySelector('[data-fa-detail]');
+        if (det) {
+          det.hidden = !det.hidden;
+          moreBtn.textContent = det.hidden ? HL().more : HL().less;
+        }
+        return;
+      }
       const fact = e.target.closest('[data-fa-fact]');
       if (fact) { insertFact(fact.getAttribute('data-fa-fact'), fact); return; }
     });
