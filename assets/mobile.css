@@ -31,7 +31,7 @@
    * trapped in .app's scaled coordinate space. mobile-nav.js therefore moves
    * the .sidebar element out to <body> on phones, so the rules below anchor
    * it to the viewport. */
-  .container { padding: 18px 14px 96px; }   /* 96px clears the bottom tab bar */
+  .container { padding: 16px 16px 104px; }   /* 104px clears the bottom tab bar */
 
   /* Hide the demo bar — the phone owner doesn't drive the demo clock */
   .demo-bar { display: none !important; }
@@ -144,9 +144,9 @@
   .quick-acts { width: 100%; }
   .quick-acts .btn-slim { flex: 1; justify-content: center; }
 
-  .dash-date-range { gap: 14px; margin: 6px 0 20px; }
-  .dash-date-range .dr-label { font-size: 23px; }
-  .dash-date-range .dr-sub { font-size: 12px; margin-top: 4px; }
+  .dash-date-range { gap: 14px; margin: 4px 0 20px; }
+  .dash-date-range .dr-label { font-size: 27px; letter-spacing: -0.03em; }
+  .dash-date-range .dr-sub { font-size: 12.5px; margin-top: 5px; }
   .dr-pills {
     width: 100%;
     flex-wrap: nowrap; overflow-x: auto;
@@ -179,7 +179,8 @@
   /* Integration cards — 1 column so each stays tappable */
   .integ-grid { grid-template-columns: 1fr !important; }
 
-  /* ─── Data tables — tighter cells, sticky first column, swipe to scroll ─── */
+  /* ─── Data tables ─── */
+  /* Generic tables stay scrollable with a pinned first column … */
   .block table, .p-table {
     display: block; overflow-x: auto; -webkit-overflow-scrolling: touch;
   }
@@ -188,10 +189,37 @@
     font-size: 12.5px !important;
     white-space: nowrap;
   }
-  /* keep the time/label column pinned while the rest of the row scrolls */
   .p-table th:first-child, .p-table td:first-child {
     position: sticky; left: 0; background: #fff; z-index: 1;
   }
+
+  /* … but the transactions table becomes a native list feed —
+   * each row a tappable card: method + amount, then client + time. */
+  .p-table--tx, .p-table--tx tbody { display: block; overflow: visible; }
+  .p-table--tx thead { display: none; }
+  .p-table--tx tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 12px; row-gap: 3px;
+    padding: 14px 2px !important;
+    border-bottom: 1px solid var(--n-200);
+    align-items: baseline;
+  }
+  .p-table--tx tbody tr:active { background: var(--paper-soft); }
+  .p-table--tx tbody td {
+    padding: 0 !important; border: 0 !important;
+    white-space: normal !important; position: static !important;
+  }
+  .p-table--tx td:nth-child(1) { grid-column: 2; grid-row: 2; text-align: right;
+    font-size: 11.5px !important; color: var(--n-500) !important;
+    background: transparent !important; }
+  .p-table--tx td:nth-child(2) { grid-column: 1; grid-row: 1; font-size: 14px !important; }
+  .p-table--tx td:nth-child(3) { grid-column: 1; grid-row: 2;
+    font-size: 12.5px !important; color: var(--n-500) !important; }
+  .p-table--tx td:nth-child(4) { grid-column: 2; grid-row: 1; text-align: right;
+    font-weight: 600; font-size: 15.5px !important; }
+  .p-table--tx td:nth-child(5),
+  .p-table--tx td:nth-child(6) { display: none; }
 
   /* ─── Mix de paiement — donut stacks above its legend ─── */
   .donut-row { flex-direction: column; align-items: center; gap: 18px; }
@@ -221,6 +249,7 @@
   .kiwi-drawer-backdrop:not(.kiwi-fullpage) .kiwi-drawer-head {
     position: relative; flex-shrink: 0;
     padding: 26px 18px 14px !important;
+    touch-action: none;   /* the header is the swipe-to-dismiss grip */
   }
   .kiwi-drawer-backdrop:not(.kiwi-fullpage) .kiwi-drawer-head::before {
     content: ""; position: absolute; top: 9px; left: 50%; margin-left: -20px;

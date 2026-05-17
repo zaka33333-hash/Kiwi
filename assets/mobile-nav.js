@@ -194,12 +194,56 @@
       if (e.key === 'Escape' && isMenuOpen()) { closeMenu(); syncMenuAria(); }
     });
 
-    /* Re-sync the active tab: once every drawer/overlay is gone the merchant
-     * is back on the home view, so the highlight returns to Accueil. */
+    /* React to drawers opening/closing:
+     *  · re-sync the active tab once every overlay is gone
+     *  · tag the transactions table so the mobile card-list CSS kicks in
+     *    (done here, not in pages.js, to stay inside the mobile layer) */
+    function tagTxTables() {
+      document.querySelectorAll('.p-table:not(.p-table--tx)').forEach((t) => {
+        if (t.querySelector('tr[data-action="tx-detail"]')) t.classList.add('p-table--tx');
+      });
+    }
+
+    /* Swipe-down-to-dismiss for bottom-sheet drawers — drag the header /
+     * grab-handle down; past the threshold the sheet closes, otherwise it
+     * springs back. The mobile CSS makes non-fullpage drawers bottom sheets. */
+    function wireSheetSwipe(backdrop) {
+      if (backdrop.__kwSwipe || backdrop.classList.contains('kiwi-fullpage')) return;
+      const drawer = backdrop.querySelector('.kiwi-drawer');
+      const head = drawer && drawer.querySelector('.kiwi-drawer-head');
+      if (!drawer || !head) return;
+      backdrop.__kwSwipe = true;
+      let startY = 0, dy = 0, dragging = false;
+      head.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY; dy = 0; dragging = true;
+        drawer.style.setProperty('transition', 'none', 'important');
+      }, { passive: true });
+      head.addEventListener('touchmove', (e) => {
+        if (!dragging) return;
+        dy = Math.max(0, e.touches[0].clientY - startY);
+        drawer.style.setProperty('transform', 'translateY(' + dy + 'px)', 'important');
+        backdrop.style.opacity = String(Math.max(0, 1 - dy / 520));
+      }, { passive: true });
+      head.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+        drawer.style.removeProperty('transition');
+        drawer.style.removeProperty('transform');
+        backdrop.style.opacity = '';
+        if (dy > 110) {
+          if (typeof backdrop.__kiwiClose === 'function') backdrop.__kiwiClose();
+          else backdrop.remove();
+        }
+      });
+    }
+
     const resync = new MutationObserver(() => {
       const anyOverlay = document.querySelector('.kiwi-drawer-backdrop, .kiwi-backdrop');
       if (!anyOverlay && !tabs[0].classList.contains('on')) setActive('accueil');
+      tagTxTables();
+      document.querySelectorAll('.kiwi-drawer-backdrop').forEach(wireSheetSwipe);
     });
     resync.observe(document.body, { childList: true });
+    tagTxTables();
   });
 })();
