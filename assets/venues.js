@@ -4400,7 +4400,18 @@
       }
       const L = HERO_AI_REC[fusionLang()] || HERO_AI_REC.fr; return L[v] || L.cafeAtlas;
     },
-    getHeatmapAiRec: id => { const L = HEATMAP_AI_REC[fusionLang()] || HEATMAP_AI_REC.fr; return L[id || currentVenue] || L.cafeAtlas; },
+    getHeatmapAiRec: id => {
+      const v = id || currentVenue;
+      if (isCustom(v)) {
+        const W = {
+          fr: { title: 'Vos heures de pointe apparaîtront ici', obs: 'Dès vos premières ventes, Kiwi AI repère vos creux et vos pics de la journée et suggère quoi lancer, et quand.', cta: '' },
+          en: { title: 'Your peak hours will show up here', obs: 'As soon as you record sales, Kiwi AI spots your daily lulls and rushes and suggests what to run, and when.', cta: '' },
+          ar: { title: 'ساعات الذروة ستظهر هنا', obs: 'بمجرد تسجيل مبيعاتك، يرصد Kiwi AI فترات الركود والذروة ويقترح ما الذي تطلقه ومتى.', cta: '' },
+        };
+        return W[fusionLang()] || W.fr;
+      }
+      const L = HEATMAP_AI_REC[fusionLang()] || HEATMAP_AI_REC.fr; return L[v] || L.cafeAtlas;
+    },
     getMixCmiSavings: id => { const L = MIX_CMI_SAVINGS[fusionLang()] || MIX_CMI_SAVINGS.fr; return L[id || currentVenue] || L.cafeAtlas; },
     getBenchLabels: id => { const L = BENCH_LABELS[fusionLang()] || BENCH_LABELS.fr; return L[id || currentVenue] || L.cafeAtlas; },
     isFusion: () => currentVenue === 'fusion',

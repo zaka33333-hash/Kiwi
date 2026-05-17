@@ -1663,6 +1663,11 @@
     // the closest one so it never crashes on moisDernier/trimestre/annee.
     rng = ({ personnalise: 'aujourdhui', moisDernier: 'trenteJours', trimestre: 'trenteJours', annee: 'trenteJours' })[rng] || rng;
     const v = getCurrentVenue();
+    // A user-created venue has no hourly history — a flat, empty heatmap
+    // instead of borrowing Café Atlas's intensity pattern.
+    if (window.KiwiVenue?.isCustom?.(v)) {
+      return HH_HOURS.map(h => ({ hour: h, revenue: 0, covers: 0, intensity: 0 }));
+    }
     const rev = HH_RAW_BY_VENUE[v]?.[rng] || HH_RAW_BY_VENUE.cafeAtlas[rng]
       || HH_RAW_BY_VENUE.cafeAtlas.trenteJours || HH_RAW_BY_VENUE.cafeAtlas.aujourdhui;
     const cov = HH_COVERS_BY_VENUE[v]?.[rng] || HH_COVERS_BY_VENUE.cafeAtlas[rng]
@@ -1899,7 +1904,11 @@
     const tiles = spec.map(s => {
       const tileData = data[s.key];
       if (!tileData) return ''; // tile hidden for this vertical/range
-      const sparkPath = KPI_SPARKS[s.key] || KPI_SPARKS.tx;
+      // A user-created venue has no trend history yet — show a flat baseline
+      // instead of a borrowed demo sparkline.
+      const sparkPath = window.KiwiVenue?.isCustom?.()
+        ? 'M0 18 L120 18'
+        : (KPI_SPARKS[s.key] || KPI_SPARKS.tx);
       const iconPath = KPI_ICONS[s.key] || KPI_ICONS.tx;
       const i18nAttr = s.i18n ? ` data-i18n="${s.i18n}"` : '';
       // If a translation exists in T, use it as initial label; otherwise the FR label.
