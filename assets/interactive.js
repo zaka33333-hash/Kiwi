@@ -1413,21 +1413,21 @@ ar: {
       // Each visible type maps to one of the 3 data verticals (`base`); the
       // specific label is what the merchant sees. `primary` types show first.
       const TYPES = [
-        { id: 'restaurant', base: 'restaurant', primary: true, label: 'Restaurant',          icon: ic('<path d="M3 2v7c0 1.1.9 2 2 2h2v11M11 2v20M11 11h8a3 3 0 003-3V4M19 4v17"/>') },
-        { id: 'boutique',   base: 'boutique',   primary: true, label: 'Boutique',            icon: ic('<path d="M3 7h18v14H3z"/><path d="M8 7V5a4 4 0 018 0v2"/>') },
-        { id: 'spa',        base: 'spa',        primary: true, label: 'Spa / Bien-être',     icon: ic('<path d="M12 2l2 6h6l-5 4 2 7-5-4-5 4 2-7-5-4h6z"/>') },
-        { id: 'cafe',       base: 'restaurant',                label: 'Café / Salon de thé', icon: ic('<path d="M4 8h13v5a4 4 0 01-4 4H8a4 4 0 01-4-4z"/><path d="M17 9h2a2 2 0 010 4h-2M7 3v2M11 3v2"/>') },
-        { id: 'fastfood',   base: 'restaurant',                label: 'Fast-food / Snack',   icon: ic('<path d="M5 11a7 7 0 0114 0M3 11h18M5 15h14M8 19h8"/>') },
-        { id: 'bakery',     base: 'restaurant',                label: 'Boulangerie',         icon: ic('<path d="M12 3v18M12 8c-3-2-7-1-7-1M12 8c3-2 7-1 7-1M12 14c-3-2-7-1-7-1M12 14c3-2 7-1 7-1"/>') },
-        { id: 'pizzeria',   base: 'restaurant',                label: 'Pizzeria',            icon: ic('<path d="M3 6l9 15 9-15zM3 6c6-3 12-3 18 0"/><path d="M9 9h.01M13 12h.01"/>') },
-        { id: 'traiteur',   base: 'restaurant',                label: 'Traiteur',            icon: ic('<path d="M3 17h18M5 17a7 7 0 0114 0M12 5v2"/><circle cx="12" cy="4" r="1"/>') },
-        { id: 'foodtruck',  base: 'restaurant',                label: 'Food truck',          icon: ic('<path d="M2 7h11v9H2zM13 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>') },
-        { id: 'epicerie',   base: 'boutique',                  label: 'Épicerie',            icon: ic('<path d="M3 4h2l2.4 11h9.2L19 7H6"/><circle cx="9" cy="19" r="1.6"/><circle cx="16" cy="19" r="1.6"/>') },
-        { id: 'pharmacie',  base: 'boutique',                  label: 'Pharmacie',           icon: ic('<rect x="4" y="6" width="16" height="14" rx="2"/><path d="M12 10v6M9 13h6"/>') },
-        { id: 'librairie',  base: 'boutique',                  label: 'Librairie',           icon: ic('<path d="M5 4h13a1 1 0 011 1v15H6a1 1 0 01-1-1zM5 4v15"/>') },
-        { id: 'fleuriste',  base: 'boutique',                  label: 'Fleuriste',           icon: ic('<circle cx="12" cy="8" r="3.5"/><path d="M12 11.5V21M8 14a3 3 0 11-3-3M16 14a3 3 0 013-3"/>') },
-        { id: 'coiffure',   base: 'spa',                       label: 'Salon de coiffure',   icon: ic('<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8 8l12 8M8 16L20 8"/>') },
-        { id: 'sport',      base: 'spa',                       label: 'Salle de sport',      icon: ic('<path d="M6 8v8M3 6v12M18 8v8M21 6v12M6 12h12"/>') },
+        { id: 'restaurant', base: 'restaurant', primary: true, label: 'Restaurant',          icon: ic('<path d="M3 3v6a2 2 0 002 2h1v10M6 11V3M11 3c-1 0-2 1.6-2 4s1 4 2 4 2-1.6 2-4-1-4-2-4zM11 11v10"/>') },
+        { id: 'boutique',   base: 'boutique',   primary: true, label: 'Boutique',            icon: ic('<path d="M6 2 3 6v13a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/>') },
+        { id: 'spa',        base: 'spa',        primary: true, label: 'Spa / Bien-être',     icon: ic('<path d="M11 20A7 7 0 019.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>') },
+        { id: 'cafe',       base: 'restaurant',                label: 'Café / Salon de thé', icon: ic('<path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4z"/><path d="M6 2v2.5M10 2v2.5M14 2v2.5"/>') },
+        { id: 'fastfood',   base: 'restaurant',                label: 'Fast-food / Snack',   icon: ic('<path d="M3 11a9 9 0 0118 0"/><path d="M2 15h20"/><path d="M5 19h14a2 2 0 002-2H3a2 2 0 002 2z"/><path d="M7.5 7.6h.01M12 6.6h.01M16.5 7.6h.01"/>') },
+        { id: 'bakery',     base: 'restaurant',                label: 'Boulangerie',         icon: ic('<path d="M4 13a8 4.5 0 0116 0v4.5A1.5 1.5 0 0118.5 19h-13A1.5 1.5 0 014 17.5z"/><path d="M9.5 13.5v5M14.5 13.5v5"/>') },
+        { id: 'pizzeria',   base: 'restaurant',                label: 'Pizzeria',            icon: ic('<path d="M3 7l9 14 9-14z"/><path d="M3 7a30 30 0 0118 0"/><path d="M9.5 11h.01M13 13.5h.01M11 16.5h.01"/>') },
+        { id: 'traiteur',   base: 'restaurant',                label: 'Traiteur',            icon: ic('<path d="M4 17a8 8 0 0116 0z"/><path d="M2 17h20"/><path d="M12 5v4"/><path d="M10.5 5h3"/>') },
+        { id: 'foodtruck',  base: 'restaurant',                label: 'Food truck',          icon: ic('<path d="M14 17V6a1 1 0 00-1-1H3a1 1 0 00-1 1v11h2"/><path d="M14 9h4l4 4v4h-2"/><path d="M9 17h2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>') },
+        { id: 'epicerie',   base: 'boutique',                  label: 'Épicerie',            icon: ic('<path d="M3 4h2l2.6 11.4a1 1 0 001 .8h8.8a1 1 0 001-.8L21 8H6"/><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/>') },
+        { id: 'pharmacie',  base: 'boutique',                  label: 'Pharmacie',           icon: ic('<path d="M9.5 3h5a1 1 0 011 1v4.5H20a1 1 0 011 1v5a1 1 0 01-1 1h-4.5V20a1 1 0 01-1 1h-5a1 1 0 01-1-1v-4.5H4a1 1 0 01-1-1v-5a1 1 0 011-1h4.5V4a1 1 0 011-1z"/>') },
+        { id: 'librairie',  base: 'boutique',                  label: 'Librairie',           icon: ic('<path d="M12 7v14"/><path d="M3 18a1 1 0 01-1-1V4a1 1 0 011-1h5a3 3 0 013 3v14a3 3 0 00-3-3z"/><path d="M21 18a1 1 0 001-1V4a1 1 0 00-1-1h-5a3 3 0 00-3 3v14a3 3 0 013-3z"/>') },
+        { id: 'fleuriste',  base: 'boutique',                  label: 'Fleuriste',           icon: ic('<path d="M12 22V12"/><path d="M12 12C9 12 7 9.5 7 6c4 0 5 2.5 5 6z"/><path d="M12 12c3 0 5-2.5 5-6-4 0-5 2.5-5 6z"/><path d="M8 22h8"/>') },
+        { id: 'coiffure',   base: 'spa',                       label: 'Salon de coiffure',   icon: ic('<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/>') },
+        { id: 'sport',      base: 'spa',                       label: 'Salle de sport',      icon: ic('<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>') },
       ];
       const moreCount = TYPES.filter((t) => !t.primary).length;
       const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;';
