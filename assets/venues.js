@@ -861,8 +861,8 @@
       <div class="fo-crt-line top"></div>
       <div class="fo-crt-line bot"></div>
       <div class="fo-label">
-        GO ULTRA
-        <span class="fo-label-sub">3 emplacements · vue consolidée</span>
+        <span class="fo-mark">kiwi<i></i></span>
+        <span class="fo-ultra">✦</span>
       </div>
     `;
   }
@@ -885,7 +885,7 @@
       return;
     }
 
-    // Reset + build fresh markup so the wordmark replays from t=0.
+    // Reset + build fresh markup so the CRT + Kiwi lockup replay from t=0.
     overlay.classList.remove('exiting');
     buildOverlayMarkup(overlay);
     // Force reflow before flipping .active so the fade triggers cleanly.
@@ -893,12 +893,13 @@
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
 
-    /* Smart-TV screen-open (matches the .fo-crt CSS timing):
+    /* Smart-TV screen-open (matches the .fo-crt + .fo-label CSS timing):
      *   t=0.00  dark wash fades in, CRT scanline ignites at centre
      *   t=0.55  the screen "opens" — two bright lines split apart
-     *   t=1.20  palette + data swap UNDER the wash (Go Ultra engaged)
-     *   t=1.70  wash fades out, Go Ultra dashboard revealed
-     *   t=2.25  cleanup
+     *   t=0.85  the Kiwi lockup fades in, ✦ Ultra star pops in at t=1.18
+     *   t=1.45  palette + data swap UNDER the wash (Go Ultra engaged)
+     *   t=2.25  wash fades out, Go Ultra dashboard revealed
+     *   t=2.75  cleanup
      */
     setTimeout(() => {
       document.body.classList.add('fusion-mode');
@@ -910,19 +911,19 @@
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
-    }, 1200);
+    }, 1450);
 
-    // Fade overlay back out, then clear markup.
+    // Hold the lockup briefly, then fade the overlay out and clear markup.
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 1700);
+    }, 2250);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 2250);
+    }, 2750);
   }
 
   function exitFusion(opts = {}) {

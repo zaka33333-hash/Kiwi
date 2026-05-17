@@ -2379,28 +2379,45 @@
   }
   .fusion-overlay.exiting { opacity: 0; transition: opacity 460ms ease; }
 
-  /* Centered wordmark — fades in once the screen has opened */
+  /* Centered Kiwi · Ultra lockup — the brand mark + the ✦ Ultra star.
+   * Fades in once the screen has opened, holds briefly, then is carried
+   * out with the overlay fade. */
   .fo-label {
     position: absolute; left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    font-family: var(--mono); font-size: 13px; letter-spacing: 0.46em;
-    color: #7DF2B0;
-    text-transform: uppercase;
-    text-shadow: 0 0 16px rgba(125,242,176,0.45);
+    transform: translate(-50%, -50%) scale(0.92);
+    display: inline-flex; align-items: flex-start; gap: 10px;
     opacity: 0;
-    animation: fo-label 520ms cubic-bezier(0.32,0.72,0,1) forwards 900ms;
-    white-space: nowrap;
+    animation: fo-logo-in 540ms cubic-bezier(0.32,0.72,0,1) forwards 850ms;
   }
-  .fo-label .fo-label-sub {
-    display: block;
-    font-size: 10px; letter-spacing: 0.26em;
-    color: rgba(125,242,176,0.6);
-    margin-top: 9px;
+  .fo-mark {
+    display: inline-flex; align-items: baseline; gap: 0.1em;
+    font-family: var(--sans); font-weight: 700;
+    font-size: clamp(48px, 6.6vw, 72px);
+    letter-spacing: -0.05em; line-height: 1;
+    color: #EAF3EE;
+    text-shadow: 0 0 34px rgba(125,242,176,0.22);
   }
-  @keyframes fo-label {
-    from { opacity: 0; transform: translate(-50%, -50%) translateY(8px); }
-    to   { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+  .fo-mark i {
+    width: 0.2em; height: 0.2em; border-radius: 50%;
+    background: #7DF2B0;
+    box-shadow: 0 0 16px rgba(125,242,176,0.75);
+  }
+  .fo-ultra {
+    font-size: clamp(20px, 2.7vw, 29px); line-height: 1;
+    color: #7DF2B0;
+    text-shadow: 0 0 18px rgba(125,242,176,0.65);
+    opacity: 0;
+    transform-origin: 50% 50%;
+    animation: fo-star-in 460ms cubic-bezier(0.34,1.56,0.64,1) forwards 1180ms;
+  }
+  @keyframes fo-logo-in {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  @keyframes fo-star-in {
+    0%   { opacity: 0; transform: scale(0)    rotate(-60deg); }
+    65%  { opacity: 1; transform: scale(1.22) rotate(6deg); }
+    100% { opacity: 1; transform: scale(1)    rotate(0deg); }
   }
 
   /* ── Smart-TV CRT screen-open (enter) ──────────────────────────────────
