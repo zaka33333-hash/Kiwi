@@ -2647,7 +2647,9 @@
   @media (min-width: 1101px) {
     body.page-equipe .app { grid-template-columns: 260px minmax(0, 1fr); }
   }
-  body.page-equipe .dash-equipe { min-width: 0; }
+  /* padding:24px 0 0 overrides the global `section { padding:96px 0 }`
+     marketing rule that .dash-equipe (a <section>) would otherwise inherit. */
+  body.page-equipe .dash-equipe { min-width: 0; padding: 24px 0 0; }
 
   /* ── Page header ──────────────────────────────────────────────────────── */
   .eq-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 18px 0 20px; }
@@ -3202,7 +3204,9 @@
   body.page-payroll .dash-date-range,
   body.page-payroll .dash-standard,
   body.page-payroll .dash-fusion { display: none !important; }
-  body.page-payroll .dash-payroll { display: block; animation: fade-in 220ms ease-out; min-width: 0; }
+  /* padding:24px 0 0 overrides the global `section { padding:96px 0 }`
+     marketing rule that .dash-payroll (a <section>) would otherwise inherit. */
+  body.page-payroll .dash-payroll { display: block; animation: fade-in 220ms ease-out; min-width: 0; padding: 24px 0 0; }
   @media (min-width: 1101px) {
     body.page-payroll .app { grid-template-columns: 260px minmax(0, 1fr); }
   }
