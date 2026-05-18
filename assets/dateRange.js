@@ -1531,6 +1531,12 @@
     const labelEl = document.querySelector('[data-hero-label]');
     if (labelEl) labelEl.textContent = HERO_LABEL[lang]?.[effective] || HERO_LABEL.fr[effective];
 
+    // The live-session row ("LIVE · HH:MM · 24 heures · session continue
+    // depuis 08h12") is a today-only concept — a ticking LIVE clock over a
+    // 7-day or 30-day aggregate is misleading. Show it only on aujourd'hui.
+    const greetEl = document.querySelector('.hero-left-today .greet');
+    if (greetEl) greetEl.style.display = (effective === 'aujourdhui') ? '' : 'none';
+
     const amtEl = document.querySelector('[data-hero-amount]');
     if (amtEl) {
       const fromVal = parseAmountFromEl(amtEl);

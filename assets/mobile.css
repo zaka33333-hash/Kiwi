@@ -91,6 +91,9 @@
     transition: background 140ms;
   }
   .kw-hamburger:active { background: var(--paper-soft); }
+  /* Explicit icon size — an SVG with only a viewBox collapses to 0×0
+   * inside a flex container on iOS Safari (the blank-button bug). */
+  .kw-hamburger svg { width: 22px; height: 22px; display: block; }
   .kw-topbar-brand {
     position: absolute; left: 50%; top: 50%;
     transform: translate(-50%, -50%);
