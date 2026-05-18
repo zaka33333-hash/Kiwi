@@ -3241,6 +3241,22 @@
     }
     .vrap-back-btn:hover { background: var(--line); }
     .vrap-back-btn svg { width: 14px; height: 14px; }
+
+    /* À emporter — "Encaisser" checkout modal */
+    .vco-items { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; max-height: 190px; overflow-y: auto; }
+    .vco-item { display: flex; align-items: baseline; gap: 10px; font-size: 13.5px; }
+    .vco-item-q { font-family: var(--mono); font-weight: 700; color: var(--forest); font-size: 12.5px; flex: 0 0 30px; }
+    .vco-item-n { color: var(--ink); }
+    .vco-item-note { font-size: 11.5px; color: #8A6210; background: #FFF8E8; border: 1px solid #F0E2BE; border-radius: 8px; padding: 7px 10px; margin-top: 3px; }
+    .vco-total { display: flex; align-items: baseline; justify-content: space-between; margin: 16px 0 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .vco-total-l { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .vco-total-v { font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+    .vco-pay { display: flex; gap: 10px; }
+    .vco-pay-btn { flex: 1; height: 54px; border-radius: var(--r-lg); display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-size: 14.5px; font-weight: 600; color: #fff; transition: transform 150ms ease, filter 150ms ease; }
+    .vco-pay-btn svg { width: 19px; height: 19px; }
+    .vco-pay-btn:hover { transform: translateY(-1px); }
+    .vco-pay-card { background: var(--ink); }
+    .vco-pay-cash { background: var(--gradient); }
   </style>
 </head>
 
@@ -3824,6 +3840,31 @@
           <a data-modal-action="close">Fermer</a>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ ENCAISSER — commande à emporter ============ -->
+  <div class="modal-veil" id="vrap-checkout-modal" role="dialog" aria-modal="true" aria-labelledby="vco-title">
+    <div class="modal">
+      <h3 class="modal-title" id="vco-title">Encaisser la commande</h3>
+      <p class="modal-subtle" id="vco-sub">À emporter</p>
+      <div class="vco-items" id="vco-items"></div>
+      <div class="rm-section-label">Réduction</div>
+      <div class="rm-pct-chips" id="vco-disc">
+        <button class="rm-pct-chip is-active" data-vco-disc="0">Aucune</button>
+        <button class="rm-pct-chip" data-vco-disc="5">5 %</button>
+        <button class="rm-pct-chip" data-vco-disc="10">10 %</button>
+        <button class="rm-pct-chip" data-vco-disc="15">15 %</button>
+      </div>
+      <div class="vco-total">
+        <span class="vco-total-l">Total à encaisser</span>
+        <span class="vco-total-v mono" id="vco-total">— MAD</span>
+      </div>
+      <div class="vco-pay">
+        <button class="vco-pay-btn vco-pay-card" id="vco-pay-card"><i data-lucide="credit-card"></i><span>Carte</span></button>
+        <button class="vco-pay-btn vco-pay-cash" id="vco-pay-cash"><i data-lucide="banknote"></i><span>Espèces</span></button>
+      </div>
+      <div class="modal-foot is-visible"><a id="vco-cancel">Annuler</a></div>
     </div>
   </div>
 
@@ -8150,13 +8191,62 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function vrapPay(num) {
+    /* "Encaisser" — checkout modal: review the order, apply a réduction,
+       then pay by carte / espèces through the real payment modals. */
+    let vcoOrder = null;
+    let vcoDisc  = 0;
+    function vcoNet() { return vcoOrder ? Math.round(vcoOrder.total * (1 - vcoDisc / 100)) : 0; }
+    function renderVcoTotal() {
+      const el = $('#vco-total');
+      if (el) el.textContent = fmtMAD(vcoNet());
+    }
+    function openVrapCheckout(num) {
       const o = kdsOrders.find(x => x.num === num);
       if (!o || o.paid) return;
-      o.paid = true;
-      renderVrapBoard();
-      toast(`Commande #${num} encaissée · ${fmtMAD(o.total)}`);
+      vcoOrder = o;
+      vcoDisc  = 0;
+      cashAmountOverride = null;     // drop any stale payment context
+      splitPayCallback   = null;
+      $('#vco-sub').textContent = `À emporter · commande #${o.num}`;
+      $('#vco-items').innerHTML = o.items.map(i =>
+        `<div class="vco-item"><span class="vco-item-q mono">${i.q}×</span><span class="vco-item-n">${kdsEsc(i.n)}</span></div>`
+      ).join('') + (o.note ? `<div class="vco-item-note">« ${kdsEsc(o.note)} »</div>` : '');
+      $$('#vco-disc .rm-pct-chip').forEach(c => c.classList.toggle('is-active', c.dataset.vcoDisc === '0'));
+      renderVcoTotal();
+      $('#vrap-checkout-modal').classList.add('is-open');
+      if (window.lucide) lucide.createIcons();
     }
+    function closeVrapCheckout() { $('#vrap-checkout-modal').classList.remove('is-open'); }
+
+    $('#vrap-checkout-modal').addEventListener('click', (e) => {
+      if (e.target === $('#vrap-checkout-modal') || e.target.closest('#vco-cancel')) { closeVrapCheckout(); return; }
+      const chip = e.target.closest('[data-vco-disc]');
+      if (chip) {
+        vcoDisc = Number(chip.dataset.vcoDisc) || 0;
+        $$('#vco-disc .rm-pct-chip').forEach(c => c.classList.toggle('is-active', c === chip));
+        renderVcoTotal();
+        return;
+      }
+      const card = e.target.closest('#vco-pay-card');
+      const cash = e.target.closest('#vco-pay-cash');
+      if ((card || cash) && vcoOrder) {
+        const o = vcoOrder, net = vcoNet(), disc = vcoDisc;
+        const method = card ? 'card' : 'cash';
+        closeVrapCheckout();
+        cashAmountOverride = net;
+        splitPayCallback = () => {
+          o.paid = true;
+          o.total = net;
+          cashAmountOverride = null;
+          recordSale(net, method, 'À emporter #' + o.num, 0);
+          renderVrapBoard();
+          toast(`Commande #${o.num} encaissée · ${fmtMAD(net)}${disc ? ' · −' + disc + ' %' : ''}`);
+        };
+        $$('[data-bind="table"]').forEach(el => el.textContent = 'À emporter');
+        $$('[data-bind="covers"]').forEach(el => el.textContent = '#' + o.num);
+        if (card) openCardModal(); else openCashModal();
+      }
+    });
     function vrapHandover(num) {
       const o = kdsOrders.find(x => x.num === num);
       if (!o || o.pickedUp) return;
@@ -8169,7 +8259,7 @@
     $('#vrap-board').addEventListener('click', (e) => {
       if (e.target.closest('#vrap-new-order')) { setVrapView('builder'); if (window.lucide) lucide.createIcons(); return; }
       const pay = e.target.closest('[data-vrap-pay]');
-      if (pay) { vrapPay(Number(pay.dataset.vrapPay)); return; }
+      if (pay) { openVrapCheckout(Number(pay.dataset.vrapPay)); return; }
       const ho = e.target.closest('[data-vrap-handover]');
       if (ho) { vrapHandover(Number(ho.dataset.vrapHandover)); return; }
     });
