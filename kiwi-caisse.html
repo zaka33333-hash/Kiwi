@@ -3172,23 +3172,8 @@
     /* the `hidden` attribute is too weak vs. these flex rules — force it */
     #rp-server-row[hidden] { display: none; }
     #rp-send-kitchen[hidden] { display: none; }
-    #pay-split[hidden] { display: none; }
     .pay-btn.pay-kitchen { background: var(--forest); color: #fff; }
     .pay-btn.pay-kitchen:hover { background: var(--forest-deep); }
-
-    /* À emporter checkout — réduction chips inside the bill panel */
-    .rp-vrap-disc { padding: 4px 20px 2px; }
-    #rp-vrap-disc[hidden] { display: none; }
-    #rp-disc-chips { margin-bottom: 0; }
-    #rp-disc-chips .rm-pct-chip { height: 40px; font-size: 13px; }
-    /* À emporter checkout — kitchen note shown as a read-only review line */
-    .rp-item--note .rp-item-qty {
-      background: var(--paper-mute);
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 4px;
-    }
-    .rp-item--note .rp-item-qty svg { width: 12px; height: 12px; color: var(--ink-3); }
-    .rp-item--note .rp-item-name { color: var(--ink-3); font-style: italic; }
 
     /* ===========================================================
        À EMPORTER — orders board (landing) + builder
@@ -3215,6 +3200,8 @@
       padding: 14px; box-shadow: var(--shadow-1);
     }
     .vrap-order.is-ready { border-left-color: var(--emerald); }
+    .vrap-order.is-open { cursor: pointer; transition: box-shadow 150ms ease, transform 150ms ease; }
+    .vrap-order.is-open:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
     .vrap-order-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 9px; }
     .vrap-order-num { font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
     .vrap-order-time { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ink-4); font-family: var(--mono); }
@@ -3580,17 +3567,6 @@
           <div class="rp-knote-field">
             <i data-lucide="pencil-line"></i>
             <input type="text" id="rp-knote-input" placeholder="Note cuisine — sans oignon, allergies…" aria-label="Note pour la cuisine" />
-          </div>
-        </div>
-
-        <!-- À emporter checkout — réduction on the order being encaissé -->
-        <div class="rp-vrap-disc" id="rp-vrap-disc" hidden>
-          <div class="rm-section-label">Réduction</div>
-          <div class="rm-pct-chips" id="rp-disc-chips">
-            <button class="rm-pct-chip is-active" data-rp-disc="0">Aucune</button>
-            <button class="rm-pct-chip" data-rp-disc="5">5 %</button>
-            <button class="rm-pct-chip" data-rp-disc="10">10 %</button>
-            <button class="rm-pct-chip" data-rp-disc="15">15 %</button>
           </div>
         </div>
 
@@ -4488,9 +4464,9 @@
           : newMode === 'order' ? 'Annuler commande' : 'Annuler mesa';
       }
 
-      // Reset right panel — drop any in-progress À emporter checkout
-      vrapCheckoutOrder = null;
-      vrapCheckoutDisc  = 0;
+      // Reset right panel — persist any À emporter edit, drop the edit state
+      if (vrapEditingNum != null) { saveVrapEdits(); vrapEditingNum = null; cart = []; }
+      vrapDiscount = null;
       if (newMode === 'salle') {
         showPayButtons(false);
         if (selectedId) renderRightPanel(selectedId);
@@ -4596,7 +4572,6 @@
       $('#cash-received').value = net;
       updateRendu();
       showPayButtons(false);
-      resetVrapCheckoutChrome();   // drop any À emporter checkout chrome
       // Kitchen note + send button are À emporter only
       $('#rp-kitchen-note').hidden = true;
       $('#rp-send-kitchen').hidden = true;
@@ -4629,7 +4604,6 @@
     }
 
     function showEmpty() {
-      resetVrapCheckoutChrome();   // drop any À emporter checkout chrome
       $$('.tbl').forEach(el => el.classList.remove('is-selected')); // inner tabletops only
       $('#rp-active').hidden = true;
       $('#rp-active').style.display = 'none';
@@ -4748,9 +4722,21 @@
 
     let activeCat = 'all';
     let cart = []; // { id, name, price, qty }
-    /* À emporter checkout — takeaway order loaded into the bill panel */
-    let vrapCheckoutOrder = null;
-    let vrapCheckoutDisc  = 0;
+    /* À emporter — an existing board order can be re-opened in the builder
+       for editing. vrapEditingNum holds its number (null = new order).
+       vrapDiscount holds a manager-approved réduction on the cart. */
+    let vrapEditingNum = null;
+    let vrapDiscount   = null;   // { kind, value, amount, reason } | null
+
+    /* Réduction amount for the À emporter cart, clamped to the gross. */
+    function vrapDiscountAmount(gross) {
+      const d = vrapDiscount;
+      if (!d) return 0;
+      const amt = d.kind === 'pct'
+        ? Math.round(gross * (d.value || 0) / 100)
+        : Math.round(d.value || 0);
+      return Math.max(0, Math.min(amt, Math.round(gross)));
+    }
 
     function renderCatPills() {
       const counts = { all: menuItems.length };
@@ -4827,18 +4813,23 @@
 
     function clearCart() {
       cart = [];
+      vrapDiscount = null;
       renderMenu();
       renderCart();
     }
 
     function renderCart() {
-      const total = cart.reduce((s, l) => s + l.price * l.qty, 0);
+      const gross = cart.reduce((s, l) => s + l.price * l.qty, 0);
       const itemCount = cart.reduce((s, l) => s + l.qty, 0);
 
       if (cart.length === 0) {
         showEmpty();
         return;
       }
+
+      const discAmt = vrapDiscountAmount(gross);
+      const net = Math.max(0, gross - discAmt);
+      const editing = vrapEditingNum != null;
 
       // Show active panel with cart contents
       $('#rp-empty').hidden = true;
@@ -4850,16 +4841,17 @@
       // Hide server row and split card in vrap mode
       const sr = $('#rp-server-row'); if (sr) sr.hidden = true;
       const sc = $('#rp-split-card'); if (sc) sc.hidden = true;
-      resetVrapCheckoutChrome();   // drop any À emporter checkout chrome
 
       // Header
-      $('#rp-table').textContent = 'À emporter';
+      $('#rp-table').textContent = editing ? `À emporter · #${vrapEditingNum}` : 'À emporter';
       const sub = $('#rp-substatus');
       sub.dataset.flag = 'ka-tkhdam';
-      sub.textContent = `${itemCount} article${itemCount > 1 ? 's' : ''} · ${fmtMAD(total)}`;
+      sub.textContent = editing
+        ? `Commande #${vrapEditingNum} · ${itemCount} article${itemCount > 1 ? 's' : ''}`
+        : `${itemCount} article${itemCount > 1 ? 's' : ''} · ${fmtMAD(net)}`;
 
       // Items with +/- controls
-      $('#rp-items').innerHTML = cart.map(l => `
+      let itemsHTML = cart.map(l => `
         <div class="rp-item rp-item--cart" data-cart-id="${l.id}">
           <div class="qty-control">
             <button class="qty-btn" data-cart-action="dec" aria-label="Moins">−</button>
@@ -4870,21 +4862,32 @@
           <span class="rp-item-price mono">${fmtMAD(l.price * l.qty)}</span>
         </div>
       `).join('');
+      if (discAmt > 0) {
+        const tag = vrapDiscount.kind === 'pct' ? `Remise ${vrapDiscount.value} %` : 'Remise';
+        itemsHTML += `
+        <div class="rp-item rp-item--discount">
+          <span class="rp-item-qty"><i data-lucide="badge-percent"></i></span>
+          <span class="rp-item-name">${tag}${vrapDiscount.reason ? ' · ' + vrapDiscount.reason : ''}</span>
+          <span class="rp-item-price mono">−${fmtMAD(discAmt)}</span>
+        </div>`;
+      }
+      $('#rp-items').innerHTML = itemsHTML;
 
-      $('#rp-subtotal').textContent = fmtMAD(total);
-      $('#rp-total').textContent = fmtMAD(total);
+      $('#rp-subtotal').textContent = fmtMAD(gross);
+      $('#rp-total').textContent = fmtMAD(net);
 
       // Sync modal labels
       $$('[data-bind="table"]').forEach(el => el.textContent = 'À emporter');
-      $$('[data-bind="covers"]').forEach(el => el.textContent = `${itemCount} art.`);
-      $('#card-amount').textContent = fmtMADcents(total);
-      $('#cash-amount').textContent = fmtMADcents(total);
-      $('#cash-received').value = total;
+      $$('[data-bind="covers"]').forEach(el => el.textContent = editing ? `#${vrapEditingNum}` : `${itemCount} art.`);
+      $('#card-amount').textContent = fmtMADcents(net);
+      $('#cash-amount').textContent = fmtMADcents(net);
+      $('#cash-received').value = net;
       updateRendu();
       showPayButtons(false);
-      // À emporter — surface the kitchen note + "Envoyer en cuisine"
+      // Kitchen note always; "Envoyer en cuisine" only for a brand-new order.
       $('#rp-kitchen-note').hidden = false;
-      $('#rp-send-kitchen').hidden = false;
+      $('#rp-send-kitchen').hidden = editing;
+      if (discAmt > 0 && window.lucide) lucide.createIcons();
     }
 
     /* Event delegation: tables, menu items, cart qty, cat pills */
@@ -4962,13 +4965,8 @@
 
     /* ---------- Right panel actions ---------- */
     $('#rp-close').addEventListener('click', () => {
-      if (vrapCheckoutOrder) {
-        // Abandon the À emporter checkout — order stays on the board, unpaid
-        closeVrapCheckout();
-        return;
-      }
       if (mode === 'vrap') {
-        // Clear cart entirely
+        // Clear the working cart entirely
         clearCart();
         return;
       }
@@ -5042,7 +5040,6 @@
 
     function payTipPct() {
       if (splitPayCallback) return 0;        // split has its own tip
-      if (vrapCheckoutOrder) return 0;       // À emporter checkout — no tip
       if (payTipMode === 'autre') return Math.max(0, payTipCustom || 0);
       return parseFloat(payTipMode) || 0;
     }
@@ -5052,9 +5049,6 @@
     /* Itemised lines for the receipt of the sale being tendered (non-split).
        Table → generateOrder; vente rapida → the cart. */
     function currentSaleLines() {
-      if (vrapCheckoutOrder) {
-        return vrapCheckoutOrder.items.map(i => ({ name: i.n, qty: i.q, total: (i.p || 0) * i.q }));
-      }
       if (mode === 'vrap') {
         return cart.map(c => ({ name: c.name, qty: c.qty, total: c.price * c.qty }));
       }
@@ -5077,13 +5071,13 @@
         { label: '15 %',           val: '15'  },
         { label: 'Autre',          val: 'autre'},
       ];
-      // Hide the tip block for split parts and for À emporter checkout.
-      const hideTip = !!splitPayCallback || !!vrapCheckoutOrder;
+      const isSplit = !!splitPayCallback;
       ['card', 'cash'].forEach(which => {
         const wrap = $('#' + which + '-tip');
         if (!wrap) return;
-        wrap.style.display = hideTip ? 'none' : '';
-        if (hideTip) return;
+        // Hide the whole tip block while a split part is being paid.
+        wrap.style.display = isSplit ? 'none' : '';
+        if (isSplit) return;
         $('#' + which + '-tip-chips').innerHTML = opts.map(o =>
           `<button class="pay-tip-chip ${o.val === payTipMode ? 'is-active' : ''}" data-pay-tip="${o.val}">${o.label}</button>`
         ).join('');
@@ -5182,8 +5176,9 @@
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
       if (!paid) return;
-      const saleLabel = vrapCheckoutOrder ? ('À emporter #' + vrapCheckoutOrder.num)
-        : mode === 'vrap' ? 'À emporter' : (selectedId || 'Table');
+      const saleLabel = mode === 'vrap'
+        ? (vrapEditingNum != null ? 'À emporter #' + vrapEditingNum : 'À emporter')
+        : (selectedId || 'Table');
       if (!splitPayCallback) recordSale(currentTotal(), 'card', saleLabel, payTipAmount(), currentSaleLines());
       if (splitPayCallback) {
         const cb = splitPayCallback;
@@ -5191,9 +5186,8 @@
         cb();
         return;
       }
-      if (vrapCheckoutOrder) { completeVrapCheckout(); return; }
       if (mode === 'vrap') {
-        clearCart();
+        settleVrapPayment();
       } else if (selectedId) {
         markPaid(selectedId);
         closeRightPanel();
@@ -5223,9 +5217,9 @@
 
     function currentTotal() {
       if (cashAmountOverride !== null) return cashAmountOverride;
-      if (vrapCheckoutOrder) return vrapCheckoutNet();
       if (mode === 'vrap') {
-        return cart.reduce((s, l) => s + l.price * l.qty, 0);
+        const gross = cart.reduce((s, l) => s + l.price * l.qty, 0);
+        return Math.max(0, gross - vrapDiscountAmount(gross));
       }
       if (!selectedId) return 0;
       const lines = generateOrder(selectedId, tables[selectedId]);
@@ -5268,8 +5262,9 @@
       cashAmountOverride = null;
       cashModal.classList.remove('is-open');
       if (!paid) return;
-      const saleLabel = vrapCheckoutOrder ? ('À emporter #' + vrapCheckoutOrder.num)
-        : mode === 'vrap' ? 'À emporter' : (selectedId || 'Table');
+      const saleLabel = mode === 'vrap'
+        ? (vrapEditingNum != null ? 'À emporter #' + vrapEditingNum : 'À emporter')
+        : (selectedId || 'Table');
       if (!splitPayCallback) recordSale(currentTotal(), 'cash', saleLabel, payTipAmount(), currentSaleLines());
       if (splitPayCallback) {
         const cb = splitPayCallback;
@@ -5277,9 +5272,8 @@
         cb();
         return;
       }
-      if (vrapCheckoutOrder) { completeVrapCheckout(); return; }
       if (mode === 'vrap') {
-        clearCart();
+        settleVrapPayment();
       } else if (selectedId) {
         markPaid(selectedId);
         closeRightPanel();
@@ -7201,7 +7195,7 @@
     }
 
     const remiseModal = $('#remise-modal');
-    const remiseState = { tableId: null, gross: 0, kind: 'pct', value: 0, reason: 'Geste commercial' };
+    const remiseState = { target: 'table', tableId: null, gross: 0, kind: 'pct', value: 0, reason: 'Geste commercial' };
 
     function remiseCutPreview() {
       const g = remiseState.gross;
@@ -7240,6 +7234,7 @@
       }
       const lines = generateOrder(id, tables[id]);
       const gross = lines.reduce((s, l) => s + l.total, 0);
+      remiseState.target  = 'table';
       remiseState.tableId = id;
       remiseState.gross   = gross;
       remiseState.kind    = 'pct';
@@ -7258,6 +7253,30 @@
     function closeRemiseModal() { remiseModal.classList.remove('is-open'); }
 
     function applyRemise() {
+      // À emporter — the réduction lands on the working cart, not a table.
+      if (remiseState.target === 'vrap') {
+        const cut = remiseCutPreview();
+        if (cut <= 0) { toast('Choisis une remise'); return; }
+        requireManager("Remise sur l'addition", () => {
+          const gross = cart.reduce((s, l) => s + l.price * l.qty, 0);
+          let amount = remiseState.kind === 'pct'
+            ? Math.round(gross * (remiseState.value || 0) / 100)
+            : Math.round(remiseState.value || 0);
+          amount = Math.max(0, Math.min(amount, Math.round(gross)));
+          if (amount <= 0) { toast('Remise sans effet'); return; }
+          vrapDiscount = {
+            kind:   remiseState.kind,
+            value:  remiseState.value,
+            amount: amount,
+            reason: remiseState.reason,
+          };
+          shift.discounts += amount;
+          closeRemiseModal();
+          renderCart();
+          toast(`Remise appliquée · −${fmtMAD(amount)}`);
+        });
+        return;
+      }
       const id = remiseState.tableId;
       if (!id || !tables[id]) { closeRemiseModal(); return; }
       const cut = remiseCutPreview();
@@ -7803,6 +7822,8 @@
         openReassignModal(selectedId);
       } else if (name === 'discount' && selectedId) {
         openRemiseModal(selectedId);
+      } else if (name === 'discount' && mode === 'vrap') {
+        openVrapRemise();
       } else if (name === 'resume-split' && selectedId) {
         openSplitModal(selectedId);
       } else if (name === 'cancel-split' && selectedId) {
@@ -8007,11 +8028,7 @@
       o.status = 'ready';
       o.readyAt = kdsNowHM();
       kdsPaint();
-      if (o.type === 'takeaway') {
-        renderVrapBoard();
-        // keep the bill panel in sync if this order is being encaissé
-        if (vrapCheckoutOrder && vrapCheckoutOrder.num === o.num) renderVrapCheckout();
-      }
+      if (o.type === 'takeaway') renderVrapBoard();
       toast(`Commande #${num} prête`);
     }
 
@@ -8149,9 +8166,9 @@
     function vrapOrderCard(o) {
       const ready = o.status === 'ready';
       let action = '';
-      if (!o.paid) action = `<button class="vrap-act" data-vrap-pay="${o.num}">Encaisser</button>`;
+      if (!o.paid) action = `<button class="vrap-act">Encaisser</button>`;
       else if (!o.pickedUp) action = `<button class="vrap-act" data-vrap-handover="${o.num}">Remettre au client</button>`;
-      return `<div class="vrap-order${ready ? ' is-ready' : ''}" data-vrap-num="${o.num}">
+      return `<div class="vrap-order${ready ? ' is-ready' : ''}${o.paid ? '' : ' is-open'}" data-vrap-num="${o.num}">
         <div class="vrap-order-head">
           <span class="vrap-order-num">#${o.num}</span>
           <span class="vrap-order-time"><i data-lucide="clock"></i> ${vrapElapsed(o)}</span>
@@ -8204,136 +8221,98 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    /* "Encaisser" — load the takeaway order into the right bill panel
-       (the standard checkout surface): review the lines, apply a
-       réduction, then pay by carte / espèces through the real modals.
-       State (vrapCheckoutOrder / vrapCheckoutDisc) is declared up top. */
-    function vrapCheckoutGross() {
-      const o = vrapCheckoutOrder;
-      if (!o) return 0;
-      return o.items.reduce((s, i) => s + (i.p || 0) * i.q, 0) || o.total;
-    }
-    function vrapCheckoutNet() {
-      return Math.max(0, Math.round(vrapCheckoutGross() * (1 - vrapCheckoutDisc / 100)));
-    }
+    /* Clicking a board order re-opens it in the menu builder: its lines load
+       into the cart, you add from the menu / adjust with +/−, apply a
+       réduction, then pay through the real card / cash modals.
+       State (vrapEditingNum / vrapDiscount) is declared up top. */
 
-    /* Restore the bill-panel chrome that the À emporter checkout overrides. */
-    function resetVrapCheckoutChrome() {
-      const d = $('#rp-vrap-disc'); if (d) d.hidden = true;
-      const s = $('#pay-split');    if (s) s.hidden = false;
-      const m = $('.rp-meta');      if (m) m.style.display = '';
+    /* cart lines → order item objects, preserving each line's kitchen station */
+    function vrapCartItems(o) {
+      return cart.map(c => {
+        const orig = o && o.items.find(it => it.n === c.name);
+        const m = menuItems.find(x => x.id === c.id);
+        return { q: c.qty, n: c.name, p: c.price,
+          stations: orig ? orig.stations : [(m && KDS_CAT_STATION[m.cat]) || 'cuisson'] };
+      });
     }
 
-    function renderVrapCheckout() {
-      const o = vrapCheckoutOrder;
-      if (!o) { showEmpty(); return; }
-      const gross = vrapCheckoutGross();
-      const net   = vrapCheckoutNet();
-      const disc  = gross - net;
+    /* Persist the working cart back onto the order being edited (no payment). */
+    function saveVrapEdits() {
+      if (vrapEditingNum == null) return;
+      const o = kdsOrders.find(x => x.num === vrapEditingNum);
+      if (!o || o.paid || cart.length === 0) return;
+      o.items = vrapCartItems(o);
+      o.total = cart.reduce((s, c) => s + c.price * c.qty, 0);   // gross — réduction is checkout-only
+      const ni = $('#rp-knote-input');
+      if (ni) o.note = ni.value.trim();
+    }
 
-      $('#rp-empty').hidden = true;
-      $('#rp-empty').style.display = 'none';
+    /* Card / cash cleared in À emporter mode. For an order being edited this
+       settles it on the board; for a fresh counter sale it just clears. */
+    function settleVrapPayment() {
+      if (vrapEditingNum != null) {
+        const o = kdsOrders.find(x => x.num === vrapEditingNum);
+        if (o) {
+          o.paid  = true;
+          o.total = currentTotal();          // net of any réduction
+          if (cart.length) o.items = vrapCartItems(o);
+          const ni = $('#rp-knote-input');
+          if (ni) o.note = ni.value.trim();
+          toast(`Commande #${o.num} encaissée · ${fmtMAD(o.total)}`);
+        }
+        vrapEditingNum = null;
+        clearCart();
+        setVrapView('board');
+      } else {
+        clearCart();
+      }
+    }
+
+    /* Click a board order → load it into the builder for editing + checkout. */
+    function openVrapOrder(num) {
+      const o = kdsOrders.find(x => x.num === num);
+      if (!o || o.paid) return;
+      vrapEditingNum = num;
+      vrapDiscount   = null;
+      cart = o.items.map(i => {
+        const m = menuItems.find(x => x.name === i.n);
+        return {
+          id:    m ? m.id : ('x-' + i.n),
+          name:  i.n,
+          price: i.p != null ? i.p : (m ? m.price : 0),
+          qty:   i.q,
+        };
+      });
+      const ni = $('#rp-knote-input'); if (ni) ni.value = o.note || '';
+      setVrapView('builder');
+      renderMenu();
+      renderCart();
+      // Re-trigger the panel slide-in so the order visibly lands.
       const active = $('#rp-active');
-      active.hidden = false;
-      active.style.display = 'flex';
+      if (active) { active.style.animation = 'none'; void active.offsetWidth; active.style.animation = ''; }
+    }
 
-      const sr = $('#rp-server-row'); if (sr) sr.hidden = true;
-      const sc = $('#rp-split-card'); if (sc) sc.hidden = true;
-
-      $('#rp-table').textContent = `À emporter · #${o.num}`;
-      const sub = $('#rp-substatus');
-      sub.dataset.flag = o.status === 'ready' ? 'bgha-ykhlass' : 'ka-tkhdam';
-      sub.textContent  = o.status === 'ready' ? 'Commande prête' : 'En préparation';
-
-      let itemsHTML = o.items.map(i => `
-        <div class="rp-item">
-          <span class="rp-item-qty">${i.q}×</span>
-          <span class="rp-item-name">${kdsEsc(i.n)}</span>
-          <span class="rp-item-price mono">${fmtMAD((i.p || 0) * i.q)}</span>
-        </div>
-      `).join('');
-      if (o.note) {
-        itemsHTML += `
-        <div class="rp-item rp-item--note">
-          <span class="rp-item-qty"><i data-lucide="pencil-line"></i></span>
-          <span class="rp-item-name">${kdsEsc(o.note)}</span>
-          <span class="rp-item-price"></span>
-        </div>`;
-      }
-      if (disc > 0) {
-        itemsHTML += `
-        <div class="rp-item rp-item--discount">
-          <span class="rp-item-qty"><i data-lucide="badge-percent"></i></span>
-          <span class="rp-item-name">Remise ${vrapCheckoutDisc} %</span>
-          <span class="rp-item-price mono">−${fmtMAD(disc)}</span>
-        </div>`;
-      }
-      $('#rp-items').innerHTML = itemsHTML;
-
-      $('#rp-subtotal').textContent = fmtMAD(gross);
-      $('#rp-total').textContent    = fmtMAD(net);
-
-      $$('[data-bind="table"]').forEach(el => el.textContent = 'À emporter');
-      $$('[data-bind="covers"]').forEach(el => el.textContent = '#' + o.num);
-      $('#card-amount').textContent = fmtMADcents(net);
-      $('#cash-amount').textContent = fmtMADcents(net);
-      $('#cash-received').value = net;
-      updateRendu();
-
-      // Panel chrome: card/cash row + réduction chips; no split / kitchen note / meta.
-      showPayButtons(false);
-      $('#rp-kitchen-note').hidden = true;
-      $('#rp-send-kitchen').hidden = true;
-      const split = $('#pay-split'); if (split) split.hidden = true;
-      const meta  = $('.rp-meta');   if (meta) meta.style.display = 'none';
-      const dwrap = $('#rp-vrap-disc'); if (dwrap) dwrap.hidden = false;
-      $$('#rp-disc-chips .rm-pct-chip').forEach(c =>
-        c.classList.toggle('is-active', Number(c.dataset.rpDisc) === vrapCheckoutDisc));
-
+    /* Réduction on the À emporter cart — same modal as the Salle remise. */
+    function openVrapRemise() {
+      if (mode !== 'vrap' || cart.length === 0) { toast('Ajoute des articles d\'abord'); return; }
+      const gross = cart.reduce((s, l) => s + l.price * l.qty, 0);
+      remiseState.target  = 'vrap';
+      remiseState.tableId = null;
+      remiseState.gross   = gross;
+      remiseState.kind    = 'pct';
+      remiseState.value   = 0;
+      remiseState.reason  = 'Geste commercial';
+      $('#rm-subtle').innerHTML = `À emporter · addition <span class="mono">${fmtMAD(gross)}</span>`;
+      $('#rm-amount').value = '';
+      $$('#rm-pct-chips .rm-pct-chip').forEach(c => c.classList.remove('is-active'));
+      $$('#rm-reasons .rm-reason').forEach(b =>
+        b.classList.toggle('is-active', b.dataset.rmReason === 'Geste commercial'));
+      syncRemiseType();
+      renderRemisePreview();
+      remiseModal.classList.add('is-open');
       if (window.lucide) lucide.createIcons();
     }
 
-    function openVrapCheckout(num) {
-      const o = kdsOrders.find(x => x.num === num);
-      if (!o || o.paid) return;
-      vrapCheckoutOrder = o;
-      vrapCheckoutDisc  = 0;
-      renderVrapCheckout();
-      // Re-trigger the panel slide-in so the order visibly lands.
-      const active = $('#rp-active');
-      active.style.animation = 'none';
-      void active.offsetWidth;
-      active.style.animation = '';
-    }
-
-    function closeVrapCheckout() {
-      vrapCheckoutOrder = null;
-      vrapCheckoutDisc  = 0;
-      showEmpty();
-    }
-
-    /* Payment cleared through the real card / cash modal — mark the order
-       paid, bank the discounted total, drop the panel back to empty. */
-    function completeVrapCheckout() {
-      const o = vrapCheckoutOrder;
-      if (!o) return;
-      const net  = vrapCheckoutNet();
-      const disc = vrapCheckoutDisc;
-      o.paid  = true;
-      o.total = net;
-      vrapCheckoutOrder = null;
-      vrapCheckoutDisc  = 0;
-      renderVrapBoard();
-      showEmpty();
-      toast(`Commande #${o.num} encaissée · ${fmtMAD(net)}${disc ? ' · −' + disc + ' %' : ''}`);
-    }
-
-    $('#rp-disc-chips').addEventListener('click', (e) => {
-      const chip = e.target.closest('[data-rp-disc]');
-      if (!chip || !vrapCheckoutOrder) return;
-      vrapCheckoutDisc = Number(chip.dataset.rpDisc) || 0;
-      renderVrapCheckout();
-    });
     function vrapHandover(num) {
       const o = kdsOrders.find(x => x.num === num);
       if (!o || o.pickedUp) return;
@@ -8345,20 +8324,28 @@
 
     $('#vrap-board').addEventListener('click', (e) => {
       if (e.target.closest('#vrap-new-order')) {
-        // Leaving the board for the menu builder — drop any open checkout
-        vrapCheckoutOrder = null;
-        vrapCheckoutDisc  = 0;
+        // Start a fresh order — drop any edit state and the working cart
+        vrapEditingNum = null;
+        clearCart();
         setVrapView('builder');
-        renderCart();
         if (window.lucide) lucide.createIcons();
         return;
       }
-      const pay = e.target.closest('[data-vrap-pay]');
-      if (pay) { openVrapCheckout(Number(pay.dataset.vrapPay)); return; }
       const ho = e.target.closest('[data-vrap-handover]');
       if (ho) { vrapHandover(Number(ho.dataset.vrapHandover)); return; }
+      // Any other click on an order card opens it (unpaid → edit + checkout).
+      const card = e.target.closest('.vrap-order');
+      if (card) { openVrapOrder(Number(card.dataset.vrapNum)); return; }
     });
-    $('#vrap-back-board').addEventListener('click', () => setVrapView('board'));
+
+    $('#vrap-back-board').addEventListener('click', () => {
+      if (vrapEditingNum != null) {
+        saveVrapEdits();
+        vrapEditingNum = null;
+        clearCart();          // empties cart + réduction, panel → empty
+      }
+      setVrapView('board');
+    });
 
     /* keep "il y a X min" fresh while the board is on screen */
     setInterval(() => {
