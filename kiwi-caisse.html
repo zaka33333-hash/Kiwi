@@ -3172,8 +3172,23 @@
     /* the `hidden` attribute is too weak vs. these flex rules — force it */
     #rp-server-row[hidden] { display: none; }
     #rp-send-kitchen[hidden] { display: none; }
+    #pay-split[hidden] { display: none; }
     .pay-btn.pay-kitchen { background: var(--forest); color: #fff; }
     .pay-btn.pay-kitchen:hover { background: var(--forest-deep); }
+
+    /* À emporter checkout — réduction chips inside the bill panel */
+    .rp-vrap-disc { padding: 4px 20px 2px; }
+    #rp-vrap-disc[hidden] { display: none; }
+    #rp-disc-chips { margin-bottom: 0; }
+    #rp-disc-chips .rm-pct-chip { height: 40px; font-size: 13px; }
+    /* À emporter checkout — kitchen note shown as a read-only review line */
+    .rp-item--note .rp-item-qty {
+      background: var(--paper-mute);
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 4px;
+    }
+    .rp-item--note .rp-item-qty svg { width: 12px; height: 12px; color: var(--ink-3); }
+    .rp-item--note .rp-item-name { color: var(--ink-3); font-style: italic; }
 
     /* ===========================================================
        À EMPORTER — orders board (landing) + builder
@@ -3241,22 +3256,6 @@
     }
     .vrap-back-btn:hover { background: var(--line); }
     .vrap-back-btn svg { width: 14px; height: 14px; }
-
-    /* À emporter — "Encaisser" checkout modal */
-    .vco-items { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; max-height: 190px; overflow-y: auto; }
-    .vco-item { display: flex; align-items: baseline; gap: 10px; font-size: 13.5px; }
-    .vco-item-q { font-family: var(--mono); font-weight: 700; color: var(--forest); font-size: 12.5px; flex: 0 0 30px; }
-    .vco-item-n { color: var(--ink); }
-    .vco-item-note { font-size: 11.5px; color: #8A6210; background: #FFF8E8; border: 1px solid #F0E2BE; border-radius: 8px; padding: 7px 10px; margin-top: 3px; }
-    .vco-total { display: flex; align-items: baseline; justify-content: space-between; margin: 16px 0 14px; padding-top: 14px; border-top: 1px solid var(--line); }
-    .vco-total-l { font-size: 14px; font-weight: 600; color: var(--ink); }
-    .vco-total-v { font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
-    .vco-pay { display: flex; gap: 10px; }
-    .vco-pay-btn { flex: 1; height: 54px; border-radius: var(--r-lg); display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-size: 14.5px; font-weight: 600; color: #fff; transition: transform 150ms ease, filter 150ms ease; }
-    .vco-pay-btn svg { width: 19px; height: 19px; }
-    .vco-pay-btn:hover { transform: translateY(-1px); }
-    .vco-pay-card { background: var(--ink); }
-    .vco-pay-cash { background: var(--gradient); }
   </style>
 </head>
 
@@ -3584,6 +3583,17 @@
           </div>
         </div>
 
+        <!-- À emporter checkout — réduction on the order being encaissé -->
+        <div class="rp-vrap-disc" id="rp-vrap-disc" hidden>
+          <div class="rm-section-label">Réduction</div>
+          <div class="rm-pct-chips" id="rp-disc-chips">
+            <button class="rm-pct-chip is-active" data-rp-disc="0">Aucune</button>
+            <button class="rm-pct-chip" data-rp-disc="5">5 %</button>
+            <button class="rm-pct-chip" data-rp-disc="10">10 %</button>
+            <button class="rm-pct-chip" data-rp-disc="15">15 %</button>
+          </div>
+        </div>
+
         <div class="rp-pay">
           <button class="pay-btn pay-kitchen" id="rp-send-kitchen" hidden>
             <i data-lucide="send"></i>
@@ -3840,31 +3850,6 @@
           <a data-modal-action="close">Fermer</a>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ============ ENCAISSER — commande à emporter ============ -->
-  <div class="modal-veil" id="vrap-checkout-modal" role="dialog" aria-modal="true" aria-labelledby="vco-title">
-    <div class="modal">
-      <h3 class="modal-title" id="vco-title">Encaisser la commande</h3>
-      <p class="modal-subtle" id="vco-sub">À emporter</p>
-      <div class="vco-items" id="vco-items"></div>
-      <div class="rm-section-label">Réduction</div>
-      <div class="rm-pct-chips" id="vco-disc">
-        <button class="rm-pct-chip is-active" data-vco-disc="0">Aucune</button>
-        <button class="rm-pct-chip" data-vco-disc="5">5 %</button>
-        <button class="rm-pct-chip" data-vco-disc="10">10 %</button>
-        <button class="rm-pct-chip" data-vco-disc="15">15 %</button>
-      </div>
-      <div class="vco-total">
-        <span class="vco-total-l">Total à encaisser</span>
-        <span class="vco-total-v mono" id="vco-total">— MAD</span>
-      </div>
-      <div class="vco-pay">
-        <button class="vco-pay-btn vco-pay-card" id="vco-pay-card"><i data-lucide="credit-card"></i><span>Carte</span></button>
-        <button class="vco-pay-btn vco-pay-cash" id="vco-pay-cash"><i data-lucide="banknote"></i><span>Espèces</span></button>
-      </div>
-      <div class="modal-foot is-visible"><a id="vco-cancel">Annuler</a></div>
     </div>
   </div>
 
@@ -4503,7 +4488,9 @@
           : newMode === 'order' ? 'Annuler commande' : 'Annuler mesa';
       }
 
-      // Reset right panel
+      // Reset right panel — drop any in-progress À emporter checkout
+      vrapCheckoutOrder = null;
+      vrapCheckoutDisc  = 0;
       if (newMode === 'salle') {
         showPayButtons(false);
         if (selectedId) renderRightPanel(selectedId);
@@ -4609,6 +4596,7 @@
       $('#cash-received').value = net;
       updateRendu();
       showPayButtons(false);
+      resetVrapCheckoutChrome();   // drop any À emporter checkout chrome
       // Kitchen note + send button are À emporter only
       $('#rp-kitchen-note').hidden = true;
       $('#rp-send-kitchen').hidden = true;
@@ -4641,6 +4629,7 @@
     }
 
     function showEmpty() {
+      resetVrapCheckoutChrome();   // drop any À emporter checkout chrome
       $$('.tbl').forEach(el => el.classList.remove('is-selected')); // inner tabletops only
       $('#rp-active').hidden = true;
       $('#rp-active').style.display = 'none';
@@ -4759,6 +4748,9 @@
 
     let activeCat = 'all';
     let cart = []; // { id, name, price, qty }
+    /* À emporter checkout — takeaway order loaded into the bill panel */
+    let vrapCheckoutOrder = null;
+    let vrapCheckoutDisc  = 0;
 
     function renderCatPills() {
       const counts = { all: menuItems.length };
@@ -4858,6 +4850,7 @@
       // Hide server row and split card in vrap mode
       const sr = $('#rp-server-row'); if (sr) sr.hidden = true;
       const sc = $('#rp-split-card'); if (sc) sc.hidden = true;
+      resetVrapCheckoutChrome();   // drop any À emporter checkout chrome
 
       // Header
       $('#rp-table').textContent = 'À emporter';
@@ -4969,6 +4962,11 @@
 
     /* ---------- Right panel actions ---------- */
     $('#rp-close').addEventListener('click', () => {
+      if (vrapCheckoutOrder) {
+        // Abandon the À emporter checkout — order stays on the board, unpaid
+        closeVrapCheckout();
+        return;
+      }
       if (mode === 'vrap') {
         // Clear cart entirely
         clearCart();
@@ -5044,6 +5042,7 @@
 
     function payTipPct() {
       if (splitPayCallback) return 0;        // split has its own tip
+      if (vrapCheckoutOrder) return 0;       // À emporter checkout — no tip
       if (payTipMode === 'autre') return Math.max(0, payTipCustom || 0);
       return parseFloat(payTipMode) || 0;
     }
@@ -5053,6 +5052,9 @@
     /* Itemised lines for the receipt of the sale being tendered (non-split).
        Table → generateOrder; vente rapida → the cart. */
     function currentSaleLines() {
+      if (vrapCheckoutOrder) {
+        return vrapCheckoutOrder.items.map(i => ({ name: i.n, qty: i.q, total: (i.p || 0) * i.q }));
+      }
       if (mode === 'vrap') {
         return cart.map(c => ({ name: c.name, qty: c.qty, total: c.price * c.qty }));
       }
@@ -5075,13 +5077,13 @@
         { label: '15 %',           val: '15'  },
         { label: 'Autre',          val: 'autre'},
       ];
-      const isSplit = !!splitPayCallback;
+      // Hide the tip block for split parts and for À emporter checkout.
+      const hideTip = !!splitPayCallback || !!vrapCheckoutOrder;
       ['card', 'cash'].forEach(which => {
         const wrap = $('#' + which + '-tip');
         if (!wrap) return;
-        // Hide the whole tip block while a split part is being paid.
-        wrap.style.display = isSplit ? 'none' : '';
-        if (isSplit) return;
+        wrap.style.display = hideTip ? 'none' : '';
+        if (hideTip) return;
         $('#' + which + '-tip-chips').innerHTML = opts.map(o =>
           `<button class="pay-tip-chip ${o.val === payTipMode ? 'is-active' : ''}" data-pay-tip="${o.val}">${o.label}</button>`
         ).join('');
@@ -5180,13 +5182,16 @@
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'card', mode === 'vrap' ? 'À emporter' : (selectedId || 'Table'), payTipAmount(), currentSaleLines());
+      const saleLabel = vrapCheckoutOrder ? ('À emporter #' + vrapCheckoutOrder.num)
+        : mode === 'vrap' ? 'À emporter' : (selectedId || 'Table');
+      if (!splitPayCallback) recordSale(currentTotal(), 'card', saleLabel, payTipAmount(), currentSaleLines());
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
         cb();
         return;
       }
+      if (vrapCheckoutOrder) { completeVrapCheckout(); return; }
       if (mode === 'vrap') {
         clearCart();
       } else if (selectedId) {
@@ -5218,6 +5223,7 @@
 
     function currentTotal() {
       if (cashAmountOverride !== null) return cashAmountOverride;
+      if (vrapCheckoutOrder) return vrapCheckoutNet();
       if (mode === 'vrap') {
         return cart.reduce((s, l) => s + l.price * l.qty, 0);
       }
@@ -5262,13 +5268,16 @@
       cashAmountOverride = null;
       cashModal.classList.remove('is-open');
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'cash', mode === 'vrap' ? 'À emporter' : (selectedId || 'Table'), payTipAmount(), currentSaleLines());
+      const saleLabel = vrapCheckoutOrder ? ('À emporter #' + vrapCheckoutOrder.num)
+        : mode === 'vrap' ? 'À emporter' : (selectedId || 'Table');
+      if (!splitPayCallback) recordSale(currentTotal(), 'cash', saleLabel, payTipAmount(), currentSaleLines());
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
         cb();
         return;
       }
+      if (vrapCheckoutOrder) { completeVrapCheckout(); return; }
       if (mode === 'vrap') {
         clearCart();
       } else if (selectedId) {
@@ -7852,7 +7861,7 @@
         { num: 40, type: 'dineIn', table: '8', status: 'ready', ago: 1390, readyAt: '14:10', items: [
           { q: 3, n: 'Briouates viande', stations: ['cuisson'] }, { q: 2, n: 'Msemen beurre & miel', stations: ['pastry'] } ] },
         { num: 41, type: 'takeaway', status: 'ready', ago: 1155, readyAt: '14:22', total: 280, items: [
-          { q: 2, n: 'Méchoui', stations: ['bbq'] }, { q: 2, n: 'Orange pressée', stations: ['boissons'] } ] },
+          { q: 2, n: 'Méchoui', p: 120, stations: ['bbq'] }, { q: 2, n: 'Orange pressée', p: 20, stations: ['boissons'] } ] },
         { num: 42, type: 'dineIn', table: '4', status: 'cooking', ago: 1010, items: [
           { q: 2, n: 'Tajine kefta œuf', stations: ['cuisson'] }, { q: 1, n: 'Salade marocaine', stations: ['salade'] }, { q: 3, n: 'Thé à la menthe', stations: ['boissons'] } ] },
         { num: 43, type: 'glovo', code: '3412', status: 'cooking', ago: 742, items: [
@@ -7870,11 +7879,11 @@
         { num: 49, type: 'dineIn', table: '1', status: 'new', ago: 38, items: [
           { q: 1, n: 'Tajine agneau pruneaux', stations: ['cuisson'] } ] },
         { num: 50, type: 'takeaway', status: 'cooking', ago: 360, total: 130, items: [
-          { q: 2, n: 'Sandwich kefta', stations: ['cuisson'] }, { q: 2, n: 'Café noir double', stations: ['boissons'] } ] },
+          { q: 2, n: 'Sandwich kefta', p: 50, stations: ['cuisson'] }, { q: 2, n: 'Café noir double', p: 15, stations: ['boissons'] } ] },
         { num: 51, type: 'takeaway', status: 'ready', ago: 690, readyAt: '14:30', paid: true, total: 205, note: 'Bien chaud svp', items: [
-          { q: 1, n: 'Pastilla poulet', stations: ['cuisson', 'pastry'] }, { q: 2, n: 'Thé à la menthe', stations: ['boissons'] } ] },
+          { q: 1, n: 'Pastilla poulet', p: 145, stations: ['cuisson', 'pastry'] }, { q: 2, n: 'Thé à la menthe', p: 30, stations: ['boissons'] } ] },
         { num: 52, type: 'takeaway', status: 'ready', ago: 1500, readyAt: '14:02', paid: true, pickedUp: true, pickedUpAt: '14:09', total: 230, items: [
-          { q: 3, n: 'Briouates viande', stations: ['cuisson'] }, { q: 1, n: "Jus d'orange", stations: ['boissons'] } ] },
+          { q: 3, n: 'Briouates viande', p: 65, stations: ['cuisson'] }, { q: 1, n: "Jus d'orange", p: 35, stations: ['boissons'] } ] },
       ];
       seed.forEach(s => kdsOrders.push({
         num: s.num, type: s.type, table: s.table || null, code: s.code || null,
@@ -7998,7 +8007,11 @@
       o.status = 'ready';
       o.readyAt = kdsNowHM();
       kdsPaint();
-      if (o.type === 'takeaway') renderVrapBoard();
+      if (o.type === 'takeaway') {
+        renderVrapBoard();
+        // keep the bill panel in sync if this order is being encaissé
+        if (vrapCheckoutOrder && vrapCheckoutOrder.num === o.num) renderVrapCheckout();
+      }
       toast(`Commande #${num} prête`);
     }
 
@@ -8081,7 +8094,7 @@
       const total  = cart.reduce((s, l) => s + l.price * l.qty, 0);
       const items  = cart.map(l => {
         const m = menuItems.find(x => x.id === l.id);
-        return { q: l.qty, n: l.name, stations: [(m && KDS_CAT_STATION[m.cat]) || 'cuisson'] };
+        return { q: l.qty, n: l.name, p: l.price, stations: [(m && KDS_CAT_STATION[m.cat]) || 'cuisson'] };
       });
       const order = {
         num: ++kdsOrderSeq, type: 'takeaway', status: 'new',
@@ -8191,61 +8204,135 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    /* "Encaisser" — checkout modal: review the order, apply a réduction,
-       then pay by carte / espèces through the real payment modals. */
-    let vcoOrder = null;
-    let vcoDisc  = 0;
-    function vcoNet() { return vcoOrder ? Math.round(vcoOrder.total * (1 - vcoDisc / 100)) : 0; }
-    function renderVcoTotal() {
-      const el = $('#vco-total');
-      if (el) el.textContent = fmtMAD(vcoNet());
+    /* "Encaisser" — load the takeaway order into the right bill panel
+       (the standard checkout surface): review the lines, apply a
+       réduction, then pay by carte / espèces through the real modals.
+       State (vrapCheckoutOrder / vrapCheckoutDisc) is declared up top. */
+    function vrapCheckoutGross() {
+      const o = vrapCheckoutOrder;
+      if (!o) return 0;
+      return o.items.reduce((s, i) => s + (i.p || 0) * i.q, 0) || o.total;
     }
+    function vrapCheckoutNet() {
+      return Math.max(0, Math.round(vrapCheckoutGross() * (1 - vrapCheckoutDisc / 100)));
+    }
+
+    /* Restore the bill-panel chrome that the À emporter checkout overrides. */
+    function resetVrapCheckoutChrome() {
+      const d = $('#rp-vrap-disc'); if (d) d.hidden = true;
+      const s = $('#pay-split');    if (s) s.hidden = false;
+      const m = $('.rp-meta');      if (m) m.style.display = '';
+    }
+
+    function renderVrapCheckout() {
+      const o = vrapCheckoutOrder;
+      if (!o) { showEmpty(); return; }
+      const gross = vrapCheckoutGross();
+      const net   = vrapCheckoutNet();
+      const disc  = gross - net;
+
+      $('#rp-empty').hidden = true;
+      $('#rp-empty').style.display = 'none';
+      const active = $('#rp-active');
+      active.hidden = false;
+      active.style.display = 'flex';
+
+      const sr = $('#rp-server-row'); if (sr) sr.hidden = true;
+      const sc = $('#rp-split-card'); if (sc) sc.hidden = true;
+
+      $('#rp-table').textContent = `À emporter · #${o.num}`;
+      const sub = $('#rp-substatus');
+      sub.dataset.flag = o.status === 'ready' ? 'bgha-ykhlass' : 'ka-tkhdam';
+      sub.textContent  = o.status === 'ready' ? 'Commande prête' : 'En préparation';
+
+      let itemsHTML = o.items.map(i => `
+        <div class="rp-item">
+          <span class="rp-item-qty">${i.q}×</span>
+          <span class="rp-item-name">${kdsEsc(i.n)}</span>
+          <span class="rp-item-price mono">${fmtMAD((i.p || 0) * i.q)}</span>
+        </div>
+      `).join('');
+      if (o.note) {
+        itemsHTML += `
+        <div class="rp-item rp-item--note">
+          <span class="rp-item-qty"><i data-lucide="pencil-line"></i></span>
+          <span class="rp-item-name">${kdsEsc(o.note)}</span>
+          <span class="rp-item-price"></span>
+        </div>`;
+      }
+      if (disc > 0) {
+        itemsHTML += `
+        <div class="rp-item rp-item--discount">
+          <span class="rp-item-qty"><i data-lucide="badge-percent"></i></span>
+          <span class="rp-item-name">Remise ${vrapCheckoutDisc} %</span>
+          <span class="rp-item-price mono">−${fmtMAD(disc)}</span>
+        </div>`;
+      }
+      $('#rp-items').innerHTML = itemsHTML;
+
+      $('#rp-subtotal').textContent = fmtMAD(gross);
+      $('#rp-total').textContent    = fmtMAD(net);
+
+      $$('[data-bind="table"]').forEach(el => el.textContent = 'À emporter');
+      $$('[data-bind="covers"]').forEach(el => el.textContent = '#' + o.num);
+      $('#card-amount').textContent = fmtMADcents(net);
+      $('#cash-amount').textContent = fmtMADcents(net);
+      $('#cash-received').value = net;
+      updateRendu();
+
+      // Panel chrome: card/cash row + réduction chips; no split / kitchen note / meta.
+      showPayButtons(false);
+      $('#rp-kitchen-note').hidden = true;
+      $('#rp-send-kitchen').hidden = true;
+      const split = $('#pay-split'); if (split) split.hidden = true;
+      const meta  = $('.rp-meta');   if (meta) meta.style.display = 'none';
+      const dwrap = $('#rp-vrap-disc'); if (dwrap) dwrap.hidden = false;
+      $$('#rp-disc-chips .rm-pct-chip').forEach(c =>
+        c.classList.toggle('is-active', Number(c.dataset.rpDisc) === vrapCheckoutDisc));
+
+      if (window.lucide) lucide.createIcons();
+    }
+
     function openVrapCheckout(num) {
       const o = kdsOrders.find(x => x.num === num);
       if (!o || o.paid) return;
-      vcoOrder = o;
-      vcoDisc  = 0;
-      cashAmountOverride = null;     // drop any stale payment context
-      splitPayCallback   = null;
-      $('#vco-sub').textContent = `À emporter · commande #${o.num}`;
-      $('#vco-items').innerHTML = o.items.map(i =>
-        `<div class="vco-item"><span class="vco-item-q mono">${i.q}×</span><span class="vco-item-n">${kdsEsc(i.n)}</span></div>`
-      ).join('') + (o.note ? `<div class="vco-item-note">« ${kdsEsc(o.note)} »</div>` : '');
-      $$('#vco-disc .rm-pct-chip').forEach(c => c.classList.toggle('is-active', c.dataset.vcoDisc === '0'));
-      renderVcoTotal();
-      $('#vrap-checkout-modal').classList.add('is-open');
-      if (window.lucide) lucide.createIcons();
+      vrapCheckoutOrder = o;
+      vrapCheckoutDisc  = 0;
+      renderVrapCheckout();
+      // Re-trigger the panel slide-in so the order visibly lands.
+      const active = $('#rp-active');
+      active.style.animation = 'none';
+      void active.offsetWidth;
+      active.style.animation = '';
     }
-    function closeVrapCheckout() { $('#vrap-checkout-modal').classList.remove('is-open'); }
 
-    $('#vrap-checkout-modal').addEventListener('click', (e) => {
-      if (e.target === $('#vrap-checkout-modal') || e.target.closest('#vco-cancel')) { closeVrapCheckout(); return; }
-      const chip = e.target.closest('[data-vco-disc]');
-      if (chip) {
-        vcoDisc = Number(chip.dataset.vcoDisc) || 0;
-        $$('#vco-disc .rm-pct-chip').forEach(c => c.classList.toggle('is-active', c === chip));
-        renderVcoTotal();
-        return;
-      }
-      const card = e.target.closest('#vco-pay-card');
-      const cash = e.target.closest('#vco-pay-cash');
-      if ((card || cash) && vcoOrder) {
-        const o = vcoOrder, net = vcoNet(), disc = vcoDisc;
-        const method = card ? 'card' : 'cash';
-        closeVrapCheckout();
-        cashAmountOverride = net;
-        splitPayCallback = () => {
-          o.paid = true;
-          o.total = net;
-          cashAmountOverride = null;
-          recordSale(net, method, 'À emporter #' + o.num, 0);
-          renderVrapBoard();
-          toast(`Commande #${o.num} encaissée · ${fmtMAD(net)}${disc ? ' · −' + disc + ' %' : ''}`);
-        };
-        $$('[data-bind="table"]').forEach(el => el.textContent = 'À emporter');
-        $$('[data-bind="covers"]').forEach(el => el.textContent = '#' + o.num);
-        if (card) openCardModal(); else openCashModal();
-      }
+    function closeVrapCheckout() {
+      vrapCheckoutOrder = null;
+      vrapCheckoutDisc  = 0;
+      showEmpty();
+    }
+
+    /* Payment cleared through the real card / cash modal — mark the order
+       paid, bank the discounted total, drop the panel back to empty. */
+    function completeVrapCheckout() {
+      const o = vrapCheckoutOrder;
+      if (!o) return;
+      const net  = vrapCheckoutNet();
+      const disc = vrapCheckoutDisc;
+      o.paid  = true;
+      o.total = net;
+      vrapCheckoutOrder = null;
+      vrapCheckoutDisc  = 0;
+      renderVrapBoard();
+      showEmpty();
+      toast(`Commande #${o.num} encaissée · ${fmtMAD(net)}${disc ? ' · −' + disc + ' %' : ''}`);
+    }
+
+    $('#rp-disc-chips').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-rp-disc]');
+      if (!chip || !vrapCheckoutOrder) return;
+      vrapCheckoutDisc = Number(chip.dataset.rpDisc) || 0;
+      renderVrapCheckout();
     });
     function vrapHandover(num) {
       const o = kdsOrders.find(x => x.num === num);
@@ -8257,7 +8344,15 @@
     }
 
     $('#vrap-board').addEventListener('click', (e) => {
-      if (e.target.closest('#vrap-new-order')) { setVrapView('builder'); if (window.lucide) lucide.createIcons(); return; }
+      if (e.target.closest('#vrap-new-order')) {
+        // Leaving the board for the menu builder — drop any open checkout
+        vrapCheckoutOrder = null;
+        vrapCheckoutDisc  = 0;
+        setVrapView('builder');
+        renderCart();
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
       const pay = e.target.closest('[data-vrap-pay]');
       if (pay) { openVrapCheckout(Number(pay.dataset.vrapPay)); return; }
       const ho = e.target.closest('[data-vrap-handover]');
