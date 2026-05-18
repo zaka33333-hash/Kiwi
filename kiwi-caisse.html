@@ -3173,6 +3173,73 @@
     #rp-send-kitchen[hidden] { display: none; }
     .pay-btn.pay-kitchen { background: var(--forest); color: #fff; }
     .pay-btn.pay-kitchen:hover { background: var(--forest-deep); }
+
+    /* ===========================================================
+       À EMPORTER — orders board (landing) + builder
+       =========================================================== */
+    #vrap-board { padding: 4px 2px 22px; }
+    .vrap-board-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    .vrap-board-count { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+    .vrap-new-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 18px; border-radius: var(--r-lg);
+      background: var(--gradient); color: #fff;
+      font-size: 14px; font-weight: 600; box-shadow: var(--shadow-1);
+      transition: transform 150ms ease, filter 150ms ease;
+    }
+    .vrap-new-btn:hover { transform: translateY(-1px); }
+    .vrap-new-btn:active { transform: translateY(0); }
+    .vrap-new-btn svg { width: 17px; height: 17px; }
+    .vrap-section { margin-bottom: 22px; }
+    .vrap-section-label { font-size: 11px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-4); margin-bottom: 10px; }
+    .vrap-orders { display: grid; grid-template-columns: repeat(auto-fill, minmax(252px, 1fr)); gap: 12px; }
+    .vrap-order {
+      background: #fff; border: 1px solid var(--line);
+      border-left: 3px solid var(--line); border-radius: 14px;
+      padding: 14px; box-shadow: var(--shadow-1);
+    }
+    .vrap-order.is-ready { border-left-color: var(--emerald); }
+    .vrap-order-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 9px; }
+    .vrap-order-num { font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+    .vrap-order-time { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ink-4); font-family: var(--mono); }
+    .vrap-order-time svg { width: 12px; height: 12px; }
+    .vrap-order-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .vrap-badge { font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+    .vrap-badge.k-cooking { background: rgba(217,154,43,0.16); color: #8A6210; }
+    .vrap-badge.k-ready { background: rgba(63,182,122,0.16); color: var(--forest); }
+    .vrap-badge.p-unpaid { background: var(--paper-mute); color: var(--ink-3); }
+    .vrap-badge.p-paid { background: rgba(63,182,122,0.16); color: var(--forest); }
+    .vrap-order-items { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+    .vrap-order-note { font-size: 11.5px; color: #8A6210; background: #FFF8E8; border-radius: 8px; padding: 5px 9px; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+    .vrap-order-note svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .vrap-order-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--line); }
+    .vrap-order-total { font-size: 15px; font-weight: 700; color: var(--ink); font-feature-settings: "tnum" 1; }
+    .vrap-act {
+      padding: 9px 15px; border-radius: 999px;
+      background: var(--gradient); color: #fff;
+      font-size: 12.5px; font-weight: 600; box-shadow: var(--shadow-1);
+      transition: transform 130ms ease;
+    }
+    .vrap-act:hover { transform: translateY(-1px); }
+    .vrap-empty { text-align: center; padding: 46px 20px; color: var(--ink-4); }
+    .vrap-empty svg { width: 30px; height: 30px; margin: 0 auto 8px; }
+    .vrap-empty span { display: block; font-size: 13px; }
+    .vrap-hrows { display: flex; flex-direction: column; gap: 7px; }
+    .vrap-hrow { display: flex; align-items: center; gap: 12px; background: var(--paper-soft); border: 1px solid var(--line-soft); border-radius: 10px; padding: 10px 14px; }
+    .vrap-hrow-num { font-size: 13px; font-weight: 700; color: var(--ink-3); flex-shrink: 0; }
+    .vrap-hrow-items { flex: 1; min-width: 0; font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .vrap-hrow-total { font-size: 12.5px; font-weight: 600; color: var(--ink-3); font-feature-settings: "tnum" 1; }
+    .vrap-hrow-done { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--forest); font-weight: 600; flex-shrink: 0; }
+    .vrap-hrow-done svg { width: 13px; height: 13px; }
+    .vrap-back-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 14px; border-radius: 999px;
+      background: var(--paper-mute); color: var(--ink-2);
+      font-size: 12.5px; font-weight: 600; margin-bottom: 12px;
+      transition: background 130ms ease;
+    }
+    .vrap-back-btn:hover { background: var(--line); }
+    .vrap-back-btn svg { width: 14px; height: 14px; }
   </style>
 </head>
 
@@ -3412,9 +3479,25 @@
       </section>
 
       <!-- ===== VENTE RAPIDA VIEW (menu) ===== -->
-      <section class="view view-vrap" data-mode-section="vrap" aria-label="Menu à emporter" hidden>
-        <div class="cat-pills" id="cat-pills" role="tablist"></div>
-        <div class="menu-grid" id="menu-grid"></div>
+      <section class="view view-vrap" data-mode-section="vrap" aria-label="À emporter" hidden>
+        <!-- ORDERS BOARD — the À emporter landing -->
+        <div id="vrap-board">
+          <div class="vrap-board-head">
+            <div class="vrap-board-count" id="vrap-board-count">—</div>
+            <button class="vrap-new-btn" id="vrap-new-order">
+              <i data-lucide="plus"></i><span>Nouvelle commande</span>
+            </button>
+          </div>
+          <div id="vrap-board-body"></div>
+        </div>
+        <!-- ORDER BUILDER — menu + cart, reached via "Nouvelle commande" -->
+        <div id="vrap-builder" hidden>
+          <button class="vrap-back-btn" id="vrap-back-board">
+            <i data-lucide="arrow-left"></i><span>Commandes à emporter</span>
+          </button>
+          <div class="cat-pills" id="cat-pills" role="tablist"></div>
+          <div class="menu-grid" id="menu-grid"></div>
+        </div>
       </section>
     </main>
 
@@ -4384,8 +4467,10 @@
         if (selectedId) renderRightPanel(selectedId);
         else showEmpty();
       } else if (newMode === 'order') {
+        setVrapView('builder');
         renderOrderPanel(selectedId);
       } else {
+        setVrapView('board');
         showPayButtons(false);
         renderCart();
       }
@@ -7710,7 +7795,7 @@
       pastillas: 'cuisson', sandwiches: 'cuisson', boissons: 'boissons', desserts: 'pastry' };
 
     const kdsOrders   = [];
-    let   kdsOrderSeq = 49;
+    let   kdsOrderSeq = 52;
     let   kdsActiveStation = 'all';
     let   kdsHistoryOpen   = false;
     let   kdsTimer = null;
@@ -7724,7 +7809,7 @@
           { q: 1, n: 'Tajine poulet citron', stations: ['cuisson'] }, { q: 1, n: 'Salade marocaine', stations: ['salade'] } ] },
         { num: 40, type: 'dineIn', table: '8', status: 'ready', ago: 1390, readyAt: '14:10', items: [
           { q: 3, n: 'Briouates viande', stations: ['cuisson'] }, { q: 2, n: 'Msemen beurre & miel', stations: ['pastry'] } ] },
-        { num: 41, type: 'takeaway', status: 'ready', ago: 1155, readyAt: '14:22', items: [
+        { num: 41, type: 'takeaway', status: 'ready', ago: 1155, readyAt: '14:22', total: 280, items: [
           { q: 2, n: 'Méchoui', stations: ['bbq'] }, { q: 2, n: 'Orange pressée', stations: ['boissons'] } ] },
         { num: 42, type: 'dineIn', table: '4', status: 'cooking', ago: 1010, items: [
           { q: 2, n: 'Tajine kefta œuf', stations: ['cuisson'] }, { q: 1, n: 'Salade marocaine', stations: ['salade'] }, { q: 3, n: 'Thé à la menthe', stations: ['boissons'] } ] },
@@ -7742,11 +7827,18 @@
           { q: 1, n: 'Méchoui', stations: ['bbq'] }, { q: 1, n: 'Limonade traditionnelle', stations: ['boissons'] } ] },
         { num: 49, type: 'dineIn', table: '1', status: 'new', ago: 38, items: [
           { q: 1, n: 'Tajine agneau pruneaux', stations: ['cuisson'] } ] },
+        { num: 50, type: 'takeaway', status: 'cooking', ago: 360, total: 130, items: [
+          { q: 2, n: 'Sandwich kefta', stations: ['cuisson'] }, { q: 2, n: 'Café noir double', stations: ['boissons'] } ] },
+        { num: 51, type: 'takeaway', status: 'ready', ago: 690, readyAt: '14:30', paid: true, total: 205, note: 'Bien chaud svp', items: [
+          { q: 1, n: 'Pastilla poulet', stations: ['cuisson', 'pastry'] }, { q: 2, n: 'Thé à la menthe', stations: ['boissons'] } ] },
+        { num: 52, type: 'takeaway', status: 'ready', ago: 1500, readyAt: '14:02', paid: true, pickedUp: true, pickedUpAt: '14:09', total: 230, items: [
+          { q: 3, n: 'Briouates viande', stations: ['cuisson'] }, { q: 1, n: "Jus d'orange", stations: ['boissons'] } ] },
       ];
       seed.forEach(s => kdsOrders.push({
         num: s.num, type: s.type, table: s.table || null, code: s.code || null,
-        status: s.status, readyAt: s.readyAt || null, note: '',
+        status: s.status, readyAt: s.readyAt || null, note: s.note || '',
         items: s.items, sentAt: new Date(Date.now() - s.ago * 1000),
+        paid: !!s.paid, pickedUp: !!s.pickedUp, pickedUpAt: s.pickedUpAt || null, total: s.total || 0,
       }));
     }
 
@@ -7864,6 +7956,7 @@
       o.status = 'ready';
       o.readyAt = kdsNowHM();
       kdsPaint();
+      if (o.type === 'takeaway') renderVrapBoard();
       toast(`Commande #${num} prête`);
     }
 
@@ -7943,6 +8036,7 @@
       if (mode !== 'vrap' || cart.length === 0) { toast('Ajoute des articles d\'abord'); return; }
       const noteEl = $('#rp-knote-input');
       const note   = noteEl ? noteEl.value.trim() : '';
+      const total  = cart.reduce((s, l) => s + l.price * l.qty, 0);
       const items  = cart.map(l => {
         const m = menuItems.find(x => x.id === l.id);
         return { q: l.qty, n: l.name, stations: [(m && KDS_CAT_STATION[m.cat]) || 'cuisson'] };
@@ -7950,6 +8044,7 @@
       const order = {
         num: ++kdsOrderSeq, type: 'takeaway', status: 'new',
         readyAt: null, note: note, items: items, sentAt: new Date(),
+        paid: false, pickedUp: false, pickedUpAt: null, total: total,
       };
       kdsOrders.push(order);
       const count = cart.reduce((s, l) => s + l.qty, 0);
@@ -7957,12 +8052,134 @@
       if (kdsEl.classList.contains('is-open')) kdsPaint();
       clearCart();
       if (noteEl) noteEl.value = '';
+      setVrapView('board');
       toast(`Commande #${order.num} envoyée en cuisine · ${count} article${count > 1 ? 's' : ''}`);
     }
     $('#rp-send-kitchen').addEventListener('click', sendToKitchen);
 
     kdsSeed();
     updateKdsCount();
+
+    /* ===========================================================
+       À EMPORTER — orders board (landing) + builder toggle
+       -----------------------------------------------------------
+       À emporter opens on the orders board: every takeaway order
+       sent to the kitchen, with its kitchen status (en préparation
+       / prête, synced from the KDS), payment and pickup status.
+       "Nouvelle commande" reveals the menu builder. Served orders
+       drop into the history.
+       =========================================================== */
+    let vrapView = 'board';   // 'board' | 'builder'
+
+    function setVrapView(v) {
+      vrapView = v;
+      const board = $('#vrap-board'), builder = $('#vrap-builder');
+      if (board)   board.hidden   = v !== 'board';
+      if (builder) builder.hidden = v !== 'builder';
+      const back = $('#vrap-back-board');
+      if (back) back.style.display = (v === 'builder' && mode === 'vrap') ? '' : 'none';
+      const meta = $('.main-head[data-mode-section="vrap"] .vrap-meta');
+      if (meta) meta.style.display = (v === 'builder') ? '' : 'none';
+      if (v === 'board') renderVrapBoard();
+    }
+
+    function vrapElapsed(o) {
+      const min = Math.max(0, Math.floor((Date.now() - o.sentAt.getTime()) / 60000));
+      return min < 1 ? "à l'instant" : `il y a ${min} min`;
+    }
+    function vrapItemsLine(o) {
+      return o.items.map(i => `${i.q}× ${kdsEsc(i.n)}`).join(', ');
+    }
+
+    function vrapOrderCard(o) {
+      const ready = o.status === 'ready';
+      let action = '';
+      if (!o.paid) action = `<button class="vrap-act" data-vrap-pay="${o.num}">Encaisser</button>`;
+      else if (!o.pickedUp) action = `<button class="vrap-act" data-vrap-handover="${o.num}">Remettre au client</button>`;
+      return `<div class="vrap-order${ready ? ' is-ready' : ''}" data-vrap-num="${o.num}">
+        <div class="vrap-order-head">
+          <span class="vrap-order-num">#${o.num}</span>
+          <span class="vrap-order-time"><i data-lucide="clock"></i> ${vrapElapsed(o)}</span>
+        </div>
+        <div class="vrap-order-badges">
+          <span class="vrap-badge ${ready ? 'k-ready' : 'k-cooking'}">${ready ? 'Prête' : 'En préparation'}</span>
+          <span class="vrap-badge ${o.paid ? 'p-paid' : 'p-unpaid'}">${o.paid ? 'Payé' : 'Non payé'}</span>
+        </div>
+        <div class="vrap-order-items">${vrapItemsLine(o)}</div>
+        ${o.note ? `<div class="vrap-order-note"><i data-lucide="pencil-line"></i> ${kdsEsc(o.note)}</div>` : ''}
+        <div class="vrap-order-foot">
+          <span class="vrap-order-total">${fmtMAD(o.total)}</span>
+          ${action}
+        </div>
+      </div>`;
+    }
+
+    function vrapHistoryRow(o) {
+      return `<div class="vrap-hrow">
+        <span class="vrap-hrow-num">#${o.num}</span>
+        <span class="vrap-hrow-items">${vrapItemsLine(o)}</span>
+        <span class="vrap-hrow-total">${fmtMAD(o.total)}</span>
+        <span class="vrap-hrow-done"><i data-lucide="check"></i> Remise ${kdsEsc(o.pickedUpAt || '')}</span>
+      </div>`;
+    }
+
+    function renderVrapBoard() {
+      const body = $('#vrap-board-body');
+      if (!body) return;
+      const orders = kdsOrders.filter(o => o.type === 'takeaway');
+      const active = orders.filter(o => !o.pickedUp)
+        .sort((a, b) => ((b.status === 'ready') - (a.status === 'ready')) || (b.num - a.num));
+      const done   = orders.filter(o => o.pickedUp).sort((a, b) => b.num - a.num);
+
+      const cntEl = $('#vrap-board-count');
+      if (cntEl) cntEl.textContent = active.length
+        ? `${active.length} commande${active.length > 1 ? 's' : ''} en cours · ${done.length} servie${done.length > 1 ? 's' : ''}`
+        : 'Aucune commande en cours';
+
+      let html = `<div class="vrap-section"><div class="vrap-section-label">En cours</div>`;
+      html += active.length
+        ? `<div class="vrap-orders">${active.map(vrapOrderCard).join('')}</div>`
+        : `<div class="vrap-empty"><i data-lucide="package"></i><span>Aucune commande à emporter — clique « Nouvelle commande » pour démarrer.</span></div>`;
+      html += `</div>`;
+      if (done.length) {
+        html += `<div class="vrap-section"><div class="vrap-section-label">Historique · servies aujourd'hui</div>`
+          + `<div class="vrap-hrows">${done.map(vrapHistoryRow).join('')}</div></div>`;
+      }
+      body.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function vrapPay(num) {
+      const o = kdsOrders.find(x => x.num === num);
+      if (!o || o.paid) return;
+      o.paid = true;
+      renderVrapBoard();
+      toast(`Commande #${num} encaissée · ${fmtMAD(o.total)}`);
+    }
+    function vrapHandover(num) {
+      const o = kdsOrders.find(x => x.num === num);
+      if (!o || o.pickedUp) return;
+      o.pickedUp = true;
+      o.pickedUpAt = kdsNowHM();
+      renderVrapBoard();
+      toast(`Commande #${num} remise au client`);
+    }
+
+    $('#vrap-board').addEventListener('click', (e) => {
+      if (e.target.closest('#vrap-new-order')) { setVrapView('builder'); if (window.lucide) lucide.createIcons(); return; }
+      const pay = e.target.closest('[data-vrap-pay]');
+      if (pay) { vrapPay(Number(pay.dataset.vrapPay)); return; }
+      const ho = e.target.closest('[data-vrap-handover]');
+      if (ho) { vrapHandover(Number(ho.dataset.vrapHandover)); return; }
+    });
+    $('#vrap-back-board').addEventListener('click', () => setVrapView('board'));
+
+    /* keep "il y a X min" fresh while the board is on screen */
+    setInterval(() => {
+      if (mode === 'vrap' && vrapView === 'board' && document.body.classList.contains('is-unlocked')) {
+        renderVrapBoard();
+      }
+    }, 25000);
 
     /* ===========================================================
        === Persistence ===  (the shift survives a reload)
