@@ -172,6 +172,10 @@
     grid-template-columns: 1fr !important;
     gap: 16px;
   }
+  /* Hard guarantee: a grid/flex child keeps its min-content width unless
+   * told otherwise — that is what lets an inner row balloon the card past
+   * the viewport. Zeroing the minimum lets every card shrink to its column. */
+  .row, .row > .block, .block, .block > * { min-width: 0; }
   .block-head { flex-wrap: wrap; gap: 8px; }
 
   /* Consistent vertical rhythm — every top-level section gets the same
@@ -227,6 +231,27 @@
     font-weight: 600; font-size: 15.5px !important; }
   .p-table--tx td:nth-child(5),
   .p-table--tx td:nth-child(6) { display: none; }
+
+  /* ─── Live-orders feed (Commandes en direct) → native 2-line rows ───
+   * The desktop feed-row is a 6-column grid (time · method · client ·
+   * amount · tip · menu) ~426px wide — far past a phone. Restack it to
+   * the same card pattern as the transactions table: method + amount on
+   * top, client + time below; tip and the ⋮ menu drop away (the whole
+   * row is already tappable). */
+  .feed > .feed-row {
+    grid-template-columns: 1fr auto !important;
+    grid-auto-rows: auto !important;
+    column-gap: 12px !important;
+    row-gap: 2px !important;
+    padding-block: 13px !important;
+    align-items: baseline;
+  }
+  .feed-row > .method { grid-column: 1; grid-row: 1; min-width: 0; }
+  .feed-row > .amt    { grid-column: 2; grid-row: 1; text-align: right; font-weight: 600; font-size: 15px; }
+  .feed-row > .ctx    { grid-column: 1; grid-row: 2; min-width: 0; font-size: 12.5px; color: var(--n-500); }
+  .feed-row > .t      { grid-column: 2; grid-row: 2; text-align: right; font-size: 11.5px; color: var(--n-500); }
+  .feed-row > .tip,
+  .feed-row > .more   { display: none; }
 
   /* ─── Mix de paiement — donut stacks above its legend ─── */
   .donut-row { flex-direction: column; align-items: center; gap: 18px; }
