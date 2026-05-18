@@ -5013,6 +5013,11 @@
         // 'discount' is handled by the [data-action] delegation listener below.
         if (a === 'print-bill') toast('Imprimante en cours…');
         else if (a === 'cancel-table') {
+          if (mode === 'order') {
+            // Building a new mesa — cancel it properly (drops the order, back to Salle)
+            cancelNewOrder();
+            return;
+          }
           if (mode === 'vrap') {
             clearCart();
             toast('Commande vidée');
