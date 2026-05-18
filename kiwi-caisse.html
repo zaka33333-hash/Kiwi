@@ -3584,10 +3584,16 @@
                 <i data-lucide="banknote"></i>
               </button>
             </div>
-            <button class="pay-btn pay-split" id="pay-split">
-              <i data-lucide="divide"></i>
-              <span>Partager l'addition</span>
-            </button>
+            <div class="pay-row">
+              <button class="pay-btn pay-split" id="pay-split">
+                <i data-lucide="divide"></i>
+                <span>Partager</span>
+              </button>
+              <button class="pay-btn pay-split" data-action="discount">
+                <i data-lucide="badge-percent"></i>
+                <span>Réduction</span>
+              </button>
+            </div>
           </div>
           <!-- Order-mode buttons (new table being built) -->
           <div id="rp-pay-order" hidden>
@@ -3603,9 +3609,6 @@
         </div>
 
         <div class="rp-meta">
-          <button class="meta-btn" data-action="discount">
-            <i data-lucide="badge-percent"></i><span>Réduction</span>
-          </button>
           <button class="meta-btn" data-action="print-bill">
             <i data-lucide="printer"></i><span>Imprimer</span>
           </button>
