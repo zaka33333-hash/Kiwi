@@ -233,7 +233,7 @@
       },
       calc: { title: 'Calcul', result: 'résultat' },
       llm: {
-        noGpu: 'Cette question sort de mes calculs prédéfinis. Pour y répondre librement j’utilise un assistant IA dans le navigateur, mais le vôtre ne prend pas en charge WebGPU — essayez Chrome ou Edge à jour sur ordinateur. Je reste disponible pour tout calcul : embauche, prix, investissement, seuil, prévisions.',
+        noGpu: 'Cette question sort de mes calculs — je suis votre copilote chiffres : embauche, prix, investissement, seuil de rentabilité, prévisions, marges et charges. Demandez-moi l’un de ceux-là et la réponse arrive aussitôt. Et pour savoir quels articles de votre menu marchent — ou non — ouvrez la page Menu du tableau de bord.',
         loading: (p) => `Mon assistant IA finit de se charger (${p} %). Je réponds dès qu’il est prêt.`,
         offerLead: 'Cette question sort de mes calculs prédéfinis — mais je peux y répondre librement avec un <b>assistant IA open-source</b> qui s’exécute <b>entièrement dans votre navigateur</b> : aucune donnée ne part ailleurs.',
         offerSize: (sz) => `Premier lancement : un téléchargement unique de ${sz}, ensuite instantané.`,
@@ -372,7 +372,7 @@
       },
       calc: { title: 'Calculation', result: 'result' },
       llm: {
-        noGpu: 'This question is beyond my preset calculations. To answer it freely I use an in-browser AI assistant, but yours doesn\'t support WebGPU — try an up-to-date Chrome or Edge on a computer. I\'m still here for any calculation: hiring, pricing, investment, break-even, forecasts.',
+        noGpu: 'That’s outside what I calculate — I’m your numbers copilot: hiring, pricing, investment, break-even, forecasts, margins and charges. Ask me any of those and the answer comes right back. And to see which menu items are working — or not — open the Menu page in your dashboard.',
         loading: (p) => `My AI assistant is finishing loading (${p}%). I'll answer as soon as it's ready.`,
         offerLead: 'This question is beyond my preset calculations — but I can answer it freely with an <b>open-source AI assistant</b> that runs <b>entirely in your browser</b>: no data goes anywhere.',
         offerSize: (sz) => `First launch: a one-time download of ${sz}, instant after that.`,
@@ -512,7 +512,7 @@
       },
       calc: { title: 'حساب', result: 'النتيجة' },
       llm: {
-        noGpu: 'هذا السؤال خارج حساباتي المُعدّة مسبقاً. للإجابة عنه بحرية أستعمل مساعد ذكاء اصطناعي داخل المتصفّح، لكن متصفّحك لا يدعم WebGPU — جرّب Chrome أو Edge محدّثاً على حاسوب. أبقى متاحاً لأي حساب: توظيف، أسعار، استثمار، عتبة، توقّعات.',
+        noGpu: 'هذا السؤال خارج نطاق حساباتي — أنا مساعدك في الأرقام: التوظيف، الأسعار، الاستثمار، عتبة الربحية، التوقّعات، الهوامش والمصاريف. اسألني عن أيٍّ منها وتصلك الإجابة فوراً. ولمعرفة أصناف قائمتك الناجحة من غيرها، افتح صفحة القائمة في لوحة التحكم.',
         loading: (p) => `مساعد الذكاء الاصطناعي يكمل التحميل (${p}%). سأجيب فور جاهزيته.`,
         offerLead: 'هذا السؤال خارج حساباتي المُعدّة مسبقاً — لكن يمكنني الإجابة عنه بحرية عبر <b>مساعد ذكاء اصطناعي مفتوح المصدر</b> يعمل <b>كلياً داخل متصفّحك</b>: لا تغادر أي بيانات.',
         offerSize: (sz) => `الإطلاق الأول: تنزيل واحد بحجم ${sz}، ثم فوري بعد ذلك.`,
