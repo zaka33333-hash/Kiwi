@@ -3150,19 +3150,26 @@
     .kit-zoom .kit-nm { font-size: 18px; }
     .kit-zoom .kit-act { padding: 18px; font-size: 17px; }
 
-    /* À emporter — kitchen note + send-to-kitchen button */
+    /* À emporter — kitchen note (compact single line) + send button */
     .rp-knote { padding: 2px 0 0; }
-    .rp-knote-label { font-size: 10.5px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-    .rp-knote-label svg { width: 13px; height: 13px; }
-    .rp-knote textarea {
-      width: 100%; resize: none; min-height: 50px;
-      padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r-lg);
-      font-family: var(--sans); font-size: 12.5px; color: var(--ink);
+    .rp-knote-field {
+      display: flex; align-items: center; gap: 8px;
+      height: 38px; padding: 0 12px;
+      border: 1px solid var(--line); border-radius: var(--r-lg);
       background: var(--paper-soft);
       transition: border-color 150ms, box-shadow 150ms, background 150ms;
     }
-    .rp-knote textarea:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 3px rgba(31,93,60,.1); background: #fff; }
-    .rp-knote textarea::placeholder { color: var(--ink-4); }
+    .rp-knote-field:focus-within { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(31,93,60,.1); background: #fff; }
+    .rp-knote-field svg { width: 14px; height: 14px; color: var(--ink-4); flex-shrink: 0; }
+    .rp-knote-field input {
+      flex: 1; min-width: 0; height: 100%;
+      border: 0; background: transparent; outline: none;
+      font-family: var(--sans); font-size: 12.5px; color: var(--ink); padding: 0;
+    }
+    .rp-knote-field input::placeholder { color: var(--ink-4); }
+    /* the `hidden` attribute is too weak vs. these flex rules — force it */
+    #rp-server-row[hidden] { display: none; }
+    #rp-send-kitchen[hidden] { display: none; }
     .pay-btn.pay-kitchen { background: var(--forest); color: #fff; }
     .pay-btn.pay-kitchen:hover { background: var(--forest-deep); }
   </style>
@@ -3470,8 +3477,10 @@
         </div>
 
         <div class="rp-knote" id="rp-kitchen-note" hidden>
-          <div class="rp-knote-label"><i data-lucide="message-square"></i> Note pour la cuisine</div>
-          <textarea id="rp-knote-input" rows="2" placeholder="Sans oignon, bien cuit, allergies…" aria-label="Note pour la cuisine"></textarea>
+          <div class="rp-knote-field">
+            <i data-lucide="pencil-line"></i>
+            <input type="text" id="rp-knote-input" placeholder="Note cuisine — sans oignon, allergies…" aria-label="Note pour la cuisine" />
+          </div>
         </div>
 
         <div class="rp-pay">
