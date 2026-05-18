@@ -8647,7 +8647,7 @@ handlers['bout-cat-publish'] = () => {
       .kit-htg-ct { font-family: var(--mono); font-size: 12px; font-weight: 600; line-height: 1; padding: 3px 7px; border-radius: 999px; background: var(--paper-soft); color: var(--n-600); }
       .kit-history-toggle.on .kit-htg-ct { background: rgba(255,255,255,0.18); color: var(--paper); }
       .kit-cols { display: flex; gap: 14px; align-items: flex-start; }
-      .kit-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+      .kit-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 0; margin: 0; }
       .kit-col-new { width: 300px; flex-shrink: 0; }
       .kit-col-cooking { flex: 1; min-width: 0; }
       .kit-col-head { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); padding: 1px 3px; }
@@ -8694,9 +8694,9 @@ handlers['bout-cat-publish'] = () => {
       .kit-empty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 40px 20px; text-align: center; background: var(--paper-soft); border: 1px dashed var(--n-300); border-radius: 13px; }
       .kit-empty svg { width: 26px; height: 26px; color: var(--n-400); }
       .kit-empty span { font-size: 12.5px; color: var(--n-500); }
-      .kit-history { width: 0; flex-shrink: 0; overflow: hidden; transition: width 280ms cubic-bezier(0.4,0,0.2,1); }
-      .kit-history.open { width: 304px; }
-      .kit-history-inner { width: 304px; display: flex; flex-direction: column; gap: 10px; padding-inline-start: 4px; }
+      .kit-history { position: fixed; top: 0; right: 0; bottom: 0; width: 340px; max-width: 86vw; z-index: 40; background: var(--paper); border-left: 1px solid var(--n-200); box-shadow: -24px 0 55px -30px rgba(10,15,13,0.5); transform: translateX(100%); transition: transform 300ms cubic-bezier(0.4,0,0.2,1); overflow-y: auto; padding: 18px; }
+      .kit-history.open { transform: translateX(0); }
+      .kit-history-inner { display: flex; flex-direction: column; gap: 10px; }
       .kit-history-head .kit-history-x { margin-inline-start: auto; width: 26px; height: 26px; padding: 0; flex-shrink: 0; border: 1px solid var(--n-200); background: #fff; border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--n-500); }
       .kit-history-head .kit-history-x:hover { color: var(--ink); border-color: var(--n-400); }
       .kit-history-head .kit-history-x svg { width: 13px; height: 13px; }
