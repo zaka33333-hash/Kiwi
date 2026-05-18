@@ -778,15 +778,15 @@
     .pay-btn svg { width: 18px; height: 18px; }
     .pay-btn:hover { transform: translateY(-1px); }
     .pay-btn:active { transform: translateY(0); }
-    .pay-card {
+    /* card + cash share one row as compact icon-only buttons */
+    .pay-row { display: flex; gap: 8px; }
+    .pay-row .pay-btn { flex: 1; }
+    .pay-icon {
       background: var(--gradient);
       color: #fff;
       box-shadow: var(--shadow-1);
     }
-    .pay-cash {
-      background: var(--ink);
-      color: #fff;
-    }
+    .pay-icon svg { width: 23px; height: 23px; }
     .pay-split {
       background: var(--paper-mute);
       color: var(--ink-2);
@@ -1418,8 +1418,9 @@
       transition: transform 100ms, opacity 150ms;
     }
     .split-part-btn svg { width: 13px; height: 13px; }
-    .split-part-btn.carte { background: var(--gradient); color: #fff; }
-    .split-part-btn.cash-dark { background: var(--ink); color: #fff; }
+    .split-part-btn.carte,
+    .split-part-btn.cash-dark { background: var(--gradient); color: #fff; }
+    .split-part-btn svg { width: 15px; height: 15px; }
     .split-part-btn:hover { transform: translateY(-1px); }
 
     .split-all-done { text-align: center; padding: 16px 0 4px; }
@@ -3151,7 +3152,7 @@
     .kit-zoom .kit-act { padding: 18px; font-size: 17px; }
 
     /* À emporter — kitchen note (compact single line) + send button */
-    .rp-knote { padding: 2px 0 0; }
+    .rp-knote { margin: 14px 0 16px; }
     .rp-knote-field {
       display: flex; align-items: center; gap: 8px;
       height: 38px; padding: 0 12px;
@@ -3490,14 +3491,14 @@
           </button>
           <!-- Normal payment buttons (salle read-to-pay + vrap) -->
           <div id="rp-pay-normal">
-            <button class="pay-btn pay-card" id="pay-card">
-              <i data-lucide="credit-card"></i>
-              <span>Payer par carte</span>
-            </button>
-            <button class="pay-btn pay-cash" id="pay-cash">
-              <i data-lucide="banknote"></i>
-              <span>Flous — espèces</span>
-            </button>
+            <div class="pay-row">
+              <button class="pay-btn pay-icon" id="pay-card" aria-label="Payer par carte">
+                <i data-lucide="credit-card"></i>
+              </button>
+              <button class="pay-btn pay-icon" id="pay-cash" aria-label="Payer en espèces">
+                <i data-lucide="banknote"></i>
+              </button>
+            </div>
             <button class="pay-btn pay-split" id="pay-split">
               <i data-lucide="divide"></i>
               <span>Partager l'addition</span>
@@ -5750,11 +5751,11 @@
             <div class="split-part-label">${p.label}</div>
           </div>
           <div class="split-part-btns">
-            <button class="split-part-btn carte" data-pay-part="${idx}" data-pay-method="carte">
-              <i data-lucide="credit-card"></i> Carte
+            <button class="split-part-btn carte" data-pay-part="${idx}" data-pay-method="carte" aria-label="Payer par carte">
+              <i data-lucide="credit-card"></i>
             </button>
-            <button class="split-part-btn cash-dark" data-pay-part="${idx}" data-pay-method="cash">
-              <i data-lucide="banknote"></i> Cash
+            <button class="split-part-btn cash-dark" data-pay-part="${idx}" data-pay-method="cash" aria-label="Payer en espèces">
+              <i data-lucide="banknote"></i>
             </button>
           </div>
         </div>`;
