@@ -3022,6 +3022,128 @@
       width: 322px; max-width: calc(100vw - 48px);
       margin-top: 14px;
     }
+
+    /* ===========================================================
+       ÉCRAN CUISINE — KDS (kitchen display, full-screen)
+       Ported from the dashboard KDS, remapped to the caisse tokens.
+       =========================================================== */
+    .kds-screen {
+      position: fixed; inset: 0; z-index: 85;
+      background: var(--paper);
+      display: none; flex-direction: column;
+      animation: fade-in 220ms ease-out;
+    }
+    .kds-screen.is-open { display: flex; }
+    .kds-head {
+      flex: 0 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 15px 26px;
+      background: var(--ink-bg); color: var(--paper-cream);
+    }
+    .kds-head-l { display: flex; align-items: baseline; gap: 12px; }
+    .kds-head-l h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .kds-head-l .sub { font-size: 12px; color: rgba(247,245,240,0.5); }
+    .kds-live { display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mint); font-weight: 600; }
+    .kds-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); animation: pulse-dot 2s infinite; }
+    .kds-close {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 999px;
+      background: rgba(255,255,255,0.08); color: var(--paper-cream);
+      font-size: 13px; font-weight: 600; transition: background 150ms;
+    }
+    .kds-close:hover { background: rgba(255,255,255,0.16); }
+    .kds-close svg { width: 15px; height: 15px; }
+    .kds-body { flex: 1; overflow-y: auto; padding: 22px 26px 32px; }
+
+    .kds-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .kds-kpi { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 13px 16px; }
+    .kds-kpi .l { font-size: 10px; letter-spacing: 0.09em; color: var(--ink-4); font-family: var(--mono); text-transform: uppercase; }
+    .kds-kpi .v { font-size: 23px; font-weight: 700; letter-spacing: -0.02em; margin-top: 5px; font-feature-settings: "tnum" 1; }
+    .kds-kpi .v .u { font-size: 13px; color: var(--ink-4); margin-left: 3px; font-weight: 500; }
+    .kds-kpi .d { font-size: 11.5px; color: var(--ink-3); margin-top: 4px; }
+
+    .kds-board { display: grid; grid-template-columns: 1fr 290px; gap: 18px; align-items: start; }
+    @media (max-width: 920px) { .kds-board { grid-template-columns: 1fr; } }
+    .kds-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .kds-pills { display: inline-flex; gap: 4px; padding: 4px; background: var(--paper-mute); border: 1px solid var(--line); border-radius: 11px; flex-wrap: wrap; }
+    .kds-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 500; color: var(--ink-3); background: transparent; transition: background 150ms, color 150ms; }
+    .kds-pill:hover { color: var(--ink); }
+    .kds-pill.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+    .kds-pill .mono { font-size: 10.5px; color: var(--ink-4); }
+    .kds-pill.on .mono { color: var(--forest); }
+    .kds-grid-tk { display: grid; grid-template-columns: repeat(auto-fill, minmax(234px, 1fr)); gap: 11px; }
+    .kds-empty { grid-column: 1/-1; text-align: center; padding: 56px 20px; color: var(--ink-4); font-size: 13px; }
+
+    .kds-tk { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 13px 14px; border-left: 3px solid var(--forest); transition: transform 150ms, box-shadow 150ms; }
+    .kds-tk.warn { border-left-color: #D99A2B; }
+    .kds-tk.over { border-left-color: var(--danger-mute); }
+    .kds-tk:hover { transform: translateY(-1px); box-shadow: var(--shadow-1); }
+    .kds-tk.is-fresh { animation: kds-tk-in 460ms cubic-bezier(0.32,0.72,0,1) both; }
+    @keyframes kds-tk-in { from { opacity: 0; transform: translateY(-10px) scale(0.97); } to { opacity: 1; transform: none; } }
+    .kds-tk-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--line); margin-bottom: 9px; }
+    .kds-tk-id b { font-size: 14.5px; font-weight: 700; }
+    .kds-tk-src { font-size: 11px; color: var(--ink-4); margin-left: 3px; text-transform: capitalize; }
+    .kds-tk-time { font-size: 14px; font-weight: 700; font-feature-settings: "tnum" 1; }
+    .kds-tk-time.ok { color: var(--emerald); }
+    .kds-tk-time.warn { color: #B47A14; }
+    .kds-tk-time.over { color: var(--danger-mute); }
+    .kds-tk-items { list-style: none; padding: 0; margin: 0 0 9px; }
+    .kds-tk-items li { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; padding: 4px 0; font-size: 12.5px; }
+    .kds-q { font-weight: 700; color: var(--forest); font-family: var(--mono); font-size: 12px; }
+    .kds-it { color: var(--ink); }
+    .kds-st { font-size: 9px; font-family: var(--mono); padding: 2px 7px; border-radius: 999px; letter-spacing: 0.03em; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
+    .kds-st-salade { background: #E3F0F7; color: #1F6BA0; }
+    .kds-st-cuisson { background: #FFE9DD; color: #B45A1F; }
+    .kds-st-boissons { background: var(--mint-tint); color: var(--forest); }
+    .kds-st-desserts { background: #F7E3F0; color: #9B2F73; }
+    .kds-tk-note { font-size: 11.5px; color: var(--ink-2); background: #FFF8E8; border: 1px solid #F0E2BE; border-radius: 8px; padding: 6px 9px; margin-bottom: 9px; display: flex; gap: 6px; line-height: 1.4; }
+    .kds-tk-note svg { width: 13px; height: 13px; flex: 0 0 13px; color: #B47A14; margin-top: 1px; }
+    .kds-tk-foot { display: flex; justify-content: space-between; align-items: center; padding-top: 9px; border-top: 1px solid var(--line); gap: 8px; }
+    .kds-tk-cook { font-size: 11px; color: var(--ink-3); }
+    .kds-tk-cook b { color: var(--ink); font-weight: 600; }
+    .kds-tk-acts { display: inline-flex; gap: 5px; }
+    .kds-btn { padding: 6px 11px; font-size: 11px; font-weight: 600; border-radius: 7px; border: 1px solid var(--line); background: #fff; color: var(--ink-2); transition: border-color 130ms, color 130ms, background 130ms; }
+    .kds-btn:hover { border-color: var(--forest); color: var(--forest); }
+    .kds-btn.bump { background: var(--forest); color: #fff; border-color: var(--forest); }
+    .kds-btn.bump:hover { background: var(--forest-deep); color: var(--mint); border-color: var(--forest-deep); }
+
+    .kds-side { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+    .kds-side-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .kds-side-head.spaced { margin-top: 18px; }
+    .kds-side-head h5 { margin: 0; font-size: 13px; font-weight: 700; }
+    .kds-side-tag { font-size: 10px; font-weight: 700; font-family: var(--mono); color: var(--ink-3); background: var(--paper-mute); padding: 3px 9px; border-radius: 999px; }
+    .kds-notif { display: grid; grid-template-columns: 28px 1fr; gap: 9px; padding: 10px 12px; background: var(--paper-soft); border: 1px solid var(--line); border-radius: 10px; font-size: 12px; margin-bottom: 6px; }
+    .kds-notif.warn { border-color: #F0E2BE; background: #FFF8E8; }
+    .kds-notif-ico { width: 26px; height: 26px; border-radius: 8px; background: #fff; color: var(--forest); display: flex; align-items: center; justify-content: center; }
+    .kds-notif.warn .kds-notif-ico { background: #FBEFCF; color: #B47A14; }
+    .kds-notif-ico svg { width: 14px; height: 14px; }
+    .kds-notif b { font-weight: 600; font-size: 12.5px; }
+    .kds-notif .m { font-size: 11px; color: var(--ink-3); margin-top: 2px; line-height: 1.4; }
+    .kds-cook { display: grid; grid-template-columns: 32px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .kds-cook:last-child { border-bottom: 0; }
+    .kds-cook-av { width: 30px; height: 30px; border-radius: 50%; background: var(--forest); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10.5px; font-family: var(--mono); }
+    .kds-cook-av.b { background: var(--forest-deep); }
+    .kds-cook-info b { display: block; font-weight: 600; font-size: 12.5px; }
+    .kds-cook-info .m { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+    .kds-chip { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); }
+    .kds-chip.ok { background: var(--mint-tint); color: var(--forest); }
+    .kds-chip.pend { background: #FFF8E8; color: #B47A14; }
+
+    /* À emporter — kitchen note + send-to-kitchen button */
+    .rp-knote { padding: 2px 0 0; }
+    .rp-knote-label { font-size: 10.5px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .rp-knote-label svg { width: 13px; height: 13px; }
+    .rp-knote textarea {
+      width: 100%; resize: none; min-height: 50px;
+      padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r-lg);
+      font-family: var(--sans); font-size: 12.5px; color: var(--ink);
+      background: var(--paper-soft);
+      transition: border-color 150ms, box-shadow 150ms, background 150ms;
+    }
+    .rp-knote textarea:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 3px rgba(31,93,60,.1); background: #fff; }
+    .rp-knote textarea::placeholder { color: var(--ink-4); }
+    .pay-btn.pay-kitchen { background: var(--forest); color: #fff; }
+    .pay-btn.pay-kitchen:hover { background: var(--forest-deep); }
   </style>
 </head>
 
@@ -3191,6 +3313,12 @@
         <span class="count" id="team-count">3</span>
       </button>
 
+      <button class="team-trigger" id="open-kds" aria-label="Écran cuisine">
+        <i data-lucide="chef-hat"></i>
+        <span>Écran cuisine</span>
+        <span class="count" id="kds-count">0</span>
+      </button>
+
       <div class="quick-actions" aria-label="Fin de service">
         <button class="qa-btn ghost" data-action="fin-service">
           <i data-lucide="log-out"></i>
@@ -3320,7 +3448,16 @@
           <div class="rp-total"><span class="lbl">Total</span><span class="val mono" id="rp-total">530 MAD</span></div>
         </div>
 
+        <div class="rp-knote" id="rp-kitchen-note" hidden>
+          <div class="rp-knote-label"><i data-lucide="message-square"></i> Note pour la cuisine</div>
+          <textarea id="rp-knote-input" rows="2" placeholder="Sans oignon, bien cuit, allergies…" aria-label="Note pour la cuisine"></textarea>
+        </div>
+
         <div class="rp-pay">
+          <button class="pay-btn pay-kitchen" id="rp-send-kitchen" hidden>
+            <i data-lucide="send"></i>
+            <span>Envoyer en cuisine</span>
+          </button>
           <!-- Normal payment buttons (salle read-to-pay + vrap) -->
           <div id="rp-pay-normal">
             <button class="pay-btn pay-card" id="pay-card">
@@ -3921,6 +4058,68 @@
     </div>
   </div>
 
+  <!-- ============ ÉCRAN CUISINE — KDS (full-screen) ============ -->
+  <div class="kds-screen" id="kds-screen" role="dialog" aria-modal="true" aria-label="Écran cuisine">
+    <div class="kds-head">
+      <div class="kds-head-l">
+        <h2>Écran cuisine</h2>
+        <span class="sub">Café Atlas · service en cours</span>
+        <span class="kds-live">Live</span>
+      </div>
+      <button class="kds-close" id="kds-close-btn">
+        <i data-lucide="x"></i><span>Fermer</span>
+      </button>
+    </div>
+    <div class="kds-body">
+      <div class="kds-kpis" id="kds-kpis"><!-- KPIs injected --></div>
+      <div class="kds-board">
+        <div class="kds-main">
+          <div class="kds-toolbar">
+            <div class="kds-pills" id="kds-pills" role="tablist">
+              <button class="kds-pill on" data-kds-st="all">Tout <span class="mono" data-kds-ct="all">0</span></button>
+              <button class="kds-pill" data-kds-st="salade">Salade <span class="mono" data-kds-ct="salade">0</span></button>
+              <button class="kds-pill" data-kds-st="cuisson">Cuisson <span class="mono" data-kds-ct="cuisson">0</span></button>
+              <button class="kds-pill" data-kds-st="boissons">Boissons <span class="mono" data-kds-ct="boissons">0</span></button>
+              <button class="kds-pill" data-kds-st="desserts">Desserts <span class="mono" data-kds-ct="desserts">0</span></button>
+            </div>
+          </div>
+          <div class="kds-grid-tk" id="kds-grid"><!-- tickets injected --></div>
+        </div>
+        <aside class="kds-side">
+          <div class="kds-side-head">
+            <h5>Notifications cuisine</h5>
+            <span class="kds-side-tag">live</span>
+          </div>
+          <div class="kds-notif warn">
+            <div class="kds-notif-ico"><i data-lucide="alert-triangle"></i></div>
+            <div><b>Ticket en attente cuisson</b><div class="m">Pastilla dépasse 15 min · prévenir Mehdi M.</div></div>
+          </div>
+          <div class="kds-notif">
+            <div class="kds-notif-ico"><i data-lucide="info"></i></div>
+            <div><b>2 tajines kefta encore prévus</b><div class="m">Pré-cuire les œufs · gain estimé 90 s / ticket</div></div>
+          </div>
+          <div class="kds-notif">
+            <div class="kds-notif-ico"><i data-lucide="message-circle"></i></div>
+            <div><b>Sofia (salle) demande</b><div class="m">T4 — sans coriandre sur le tajine</div></div>
+          </div>
+          <div class="kds-side-head spaced">
+            <h5>Performance cuisinier</h5>
+          </div>
+          <div class="kds-cook">
+            <div class="kds-cook-av">MM</div>
+            <div class="kds-cook-info"><b>Mehdi M. · chef</b><div class="m">prép. moyenne 7 min 50 s</div></div>
+            <span class="kds-chip ok">SLA 92 %</span>
+          </div>
+          <div class="kds-cook">
+            <div class="kds-cook-av b">AY</div>
+            <div class="kds-cook-info"><b>Ayoub Y. · auxiliaire</b><div class="m">prép. moyenne 9 min 12 s</div></div>
+            <span class="kds-chip pend">SLA 79 %</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ TOAST STACK ============ -->
   <div id="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
@@ -4286,6 +4485,9 @@
       $('#cash-received').value = net;
       updateRendu();
       showPayButtons(false);
+      // Kitchen note + send button are À emporter only
+      $('#rp-kitchen-note').hidden = true;
+      $('#rp-send-kitchen').hidden = true;
     }
 
     function openTable(id) {
@@ -4563,6 +4765,9 @@
       $('#cash-received').value = total;
       updateRendu();
       showPayButtons(false);
+      // À emporter — surface the kitchen note + "Envoyer en cuisine"
+      $('#rp-kitchen-note').hidden = false;
+      $('#rp-send-kitchen').hidden = false;
     }
 
     /* Event delegation: tables, menu items, cart qty, cat pills */
@@ -5025,6 +5230,11 @@
       normal.style.display = forOrder ? 'none' : '';
       order.hidden  = !forOrder;
       order.style.display = forOrder ? 'flex' : 'none';
+      // Order-builder mode has its own "Envoyer en cuisine" — hide the À emporter one
+      if (forOrder) {
+        const kn = $('#rp-kitchen-note'); if (kn) kn.hidden = true;
+        const sk = $('#rp-send-kitchen'); if (sk) sk.hidden = true;
+      }
     }
 
     /* ---- covers modal ---- */
@@ -7480,6 +7690,210 @@
     renderMenu();
     updateTeamCount();
     renderPinDots();
+
+    /* ===========================================================
+       ÉCRAN CUISINE — KDS (kitchen display, full-screen)
+       -----------------------------------------------------------
+       Ported from the dashboard KDS. Tickets come from the seed
+       below + every "Envoyer en cuisine" sent from the À emporter
+       panel. Faithful to the dashboard: station filter pills,
+       colour-coded prep timers (ok < 8 min, warn < 15, over 15+),
+       and bump / recall on each ticket.
+       =========================================================== */
+    const KDS_STATION_OF = { entrees: 'salade', tajines: 'cuisson', couscous: 'cuisson',
+      pastillas: 'cuisson', sandwiches: 'cuisson', boissons: 'boissons', desserts: 'desserts' };
+    const kdsStLabel = { salade: 'Salade', cuisson: 'Cuisson', boissons: 'Boissons', desserts: 'Desserts' };
+    const kdsTickets = [];
+    let   kdsFilter  = 'all';
+    let   kdsSeq     = 0;
+    let   kdsTimer   = null;
+    let   kdsFreshId = null;
+    const kdsEl      = $('#kds-screen');
+
+    function kdsEsc(s) {
+      return String(s == null ? '' : s).replace(/[<>&]/g,
+        c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+    }
+    function kdsElapsed(t) { return Math.max(0, Math.floor((Date.now() - t.sentAt.getTime()) / 1000)); }
+    function kdsFmt(s) { return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }
+    function kdsCls(s) { return s < 480 ? 'ok' : s < 900 ? 'warn' : 'over'; }
+
+    function kdsSeed() {
+      const seed = [
+        { label: 'T4', src: 'salle', cook: 'Mehdi M.', ago: 412, note: '',
+          items: [{ q: 2, n: 'Salade marocaine', st: 'salade' }, { q: 1, n: 'Tajine kefta', st: 'cuisson' }, { q: 3, n: 'Thé à la menthe', st: 'boissons' }] },
+        { label: 'T7', src: 'salle', cook: 'Mehdi M.', ago: 232, note: '',
+          items: [{ q: 1, n: 'Couscous royal', st: 'cuisson' }, { q: 1, n: 'Pastilla poulet', st: 'cuisson' }] },
+        { label: 'T2', src: 'salle', cook: 'Ayoub Y.', ago: 648, note: 'Sans pain · client allergique gluten',
+          items: [{ q: 4, n: 'Briouates au fromage', st: 'salade' }, { q: 2, n: 'Zaalouk', st: 'salade' }] },
+        { label: 'Glovo', src: 'livraison', cook: 'Mehdi M.', ago: 524, note: '',
+          items: [{ q: 2, n: 'Tajine kefta', st: 'cuisson' }, { q: 1, n: 'Salade marocaine', st: 'salade' }] },
+        { label: 'T9', src: 'salle', cook: 'Ayoub Y.', ago: 96, note: '',
+          items: [{ q: 1, n: 'Pastilla poulet', st: 'cuisson' }, { q: 1, n: 'Glace artisanale', st: 'desserts' }] },
+        { label: 'À emporter', src: 'comptoir', cook: 'Ayoub Y.', ago: 58, note: '',
+          items: [{ q: 2, n: 'Sandwich kefta', st: 'cuisson' }, { q: 2, n: 'Coca-Cola', st: 'boissons' }] },
+      ];
+      seed.forEach(s => kdsTickets.push({
+        id: 'KT-' + (7820 + (++kdsSeq)),
+        label: s.label, src: s.src, cook: s.cook, items: s.items, note: s.note,
+        sentAt: new Date(Date.now() - s.ago * 1000),
+      }));
+    }
+
+    function kdsTicketHtml(t) {
+      const s = kdsElapsed(t), c = kdsCls(s);
+      const stations = [...new Set(t.items.map(i => i.st))].join(' ');
+      const fresh = t.id === kdsFreshId ? ' is-fresh' : '';
+      return `<div class="kds-tk ${c}${fresh}" data-tk="${t.id}" data-stations="${stations}">
+        <div class="kds-tk-head">
+          <div class="kds-tk-id"><b>${t.label}</b><span class="kds-tk-src">· ${t.src}</span></div>
+          <div class="kds-tk-time mono ${c}" data-kds-time>${kdsFmt(s)}</div>
+        </div>
+        <ul class="kds-tk-items">
+          ${t.items.map(i => `<li><span class="kds-q mono">×${i.q}</span><span class="kds-it">${i.n}</span><span class="kds-st kds-st-${i.st}">${kdsStLabel[i.st]}</span></li>`).join('')}
+        </ul>
+        ${t.note ? `<div class="kds-tk-note"><i data-lucide="message-square"></i><span>${kdsEsc(t.note)}</span></div>` : ''}
+        <div class="kds-tk-foot">
+          <span class="kds-tk-cook">Affecté : <b>${t.cook}</b></span>
+          <span class="kds-tk-acts">
+            <button class="kds-btn" data-kds-recall="${t.id}">Rappeler</button>
+            <button class="kds-btn bump" data-kds-bump="${t.id}">Bump ✓</button>
+          </span>
+        </div>
+      </div>`;
+    }
+
+    function renderKdsKpis() {
+      const n = kdsTickets.length;
+      const stCount = {};
+      kdsTickets.forEach(t => t.items.forEach(i => { stCount[i.st] = (stCount[i.st] || 0) + i.q; }));
+      const busiest = Object.entries(stCount).sort((a, b) => b[1] - a[1])[0];
+      const overdue = kdsTickets.filter(t => kdsElapsed(t) >= 900).length;
+      const salle = kdsTickets.filter(t => t.src === 'salle').length;
+      const liv   = kdsTickets.filter(t => t.src === 'livraison').length;
+      const kpis = [
+        ['Tickets actifs', String(n), n ? `${salle} salle · ${liv} livraison · ${Math.max(0, n - salle - liv)} comptoir` : 'file vide'],
+        ['Prép. moyenne', '8 min <span class="u">14 s</span>', 'SLA 12 min · respecté à 87 %'],
+        ['Station chargée', busiest ? kdsStLabel[busiest[0]] : '—', busiest ? `${busiest[1]} plats en file` : 'rien en file'],
+        ['Tickets en retard', String(overdue), overdue ? 'au-delà de 15 min' : 'aucun · service fluide'],
+      ];
+      $('#kds-kpis').innerHTML = kpis.map(k =>
+        `<div class="kds-kpi"><div class="l">${k[0]}</div><div class="v">${k[1]}</div><div class="d">${k[2]}</div></div>`
+      ).join('');
+    }
+
+    function renderKdsGrid() {
+      const list = kdsFilter === 'all' ? kdsTickets
+        : kdsTickets.filter(t => t.items.some(i => i.st === kdsFilter));
+      $('#kds-grid').innerHTML = list.length
+        ? list.map(kdsTicketHtml).join('')
+        : `<div class="kds-empty">Walo f la file — aucun ticket ${kdsFilter !== 'all' ? 'sur cette station' : 'en cuisine'}.</div>`;
+      const ct = { all: kdsTickets.length, salade: 0, cuisson: 0, boissons: 0, desserts: 0 };
+      kdsTickets.forEach(t => [...new Set(t.items.map(i => i.st))].forEach(st => { ct[st] = (ct[st] || 0) + 1; }));
+      $$('#kds-pills [data-kds-ct]').forEach(el => { el.textContent = ct[el.dataset.kdsCt] || 0; });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function updateKdsCount() {
+      const el = $('#kds-count');
+      if (el) el.textContent = String(kdsTickets.length);
+    }
+
+    function renderKds() {
+      renderKdsKpis();
+      renderKdsGrid();
+      updateKdsCount();
+    }
+
+    function kdsTick() {
+      if (!kdsEl.classList.contains('is-open')) return;
+      $$('#kds-grid .kds-tk').forEach(node => {
+        const t = kdsTickets.find(x => x.id === node.dataset.tk);
+        if (!t) return;
+        const s = kdsElapsed(t), c = kdsCls(s);
+        const tEl = node.querySelector('[data-kds-time]');
+        if (tEl) { tEl.textContent = kdsFmt(s); tEl.className = `kds-tk-time mono ${c}`; }
+        node.classList.remove('ok', 'warn', 'over'); node.classList.add(c);
+      });
+    }
+
+    function openKds() {
+      renderKds();
+      kdsFreshId = null;
+      kdsEl.classList.add('is-open');
+      if (window.lucide) lucide.createIcons();
+      clearInterval(kdsTimer);
+      kdsTimer = setInterval(kdsTick, 1000);
+    }
+    function closeKds() {
+      kdsEl.classList.remove('is-open');
+      clearInterval(kdsTimer);
+      kdsTimer = null;
+    }
+
+    $('#open-kds').addEventListener('click', openKds);
+    $('#kds-close-btn').addEventListener('click', closeKds);
+    kdsEl.addEventListener('click', (e) => {
+      const pill = e.target.closest('[data-kds-st]');
+      if (pill) {
+        kdsFilter = pill.dataset.kdsSt;
+        $$('#kds-pills .kds-pill').forEach(p => p.classList.toggle('on', p === pill));
+        renderKdsGrid();
+        return;
+      }
+      const bumpBtn = e.target.closest('[data-kds-bump]');
+      if (bumpBtn) {
+        const idx = kdsTickets.findIndex(t => t.id === bumpBtn.dataset.kdsBump);
+        if (idx < 0) return;
+        const lbl = kdsTickets[idx].label;
+        kdsTickets.splice(idx, 1);
+        const node = bumpBtn.closest('.kds-tk');
+        if (node) {
+          node.style.transition = 'opacity 240ms ease, transform 240ms ease';
+          node.style.opacity = '0';
+          node.style.transform = 'translateX(16px)';
+          setTimeout(renderKds, 240);
+        } else { renderKds(); }
+        toast(`Ticket ${lbl} prêt · bumpé`);
+        return;
+      }
+      const recallBtn = e.target.closest('[data-kds-recall]');
+      if (recallBtn) {
+        const t = kdsTickets.find(x => x.id === recallBtn.dataset.kdsRecall);
+        if (t) { t.sentAt = new Date(); renderKds(); toast(`Ticket ${t.label} rappelé en cuisine`); }
+        return;
+      }
+    });
+
+    /* À emporter — push the current cart to the kitchen screen */
+    function sendToKitchen() {
+      if (mode !== 'vrap' || cart.length === 0) { toast('Ajoute des articles d\'abord'); return; }
+      const noteEl = $('#rp-knote-input');
+      const note   = noteEl ? noteEl.value.trim() : '';
+      const items  = cart.map(l => {
+        const m = menuItems.find(x => x.id === l.id);
+        return { q: l.qty, n: l.name, st: (m && KDS_STATION_OF[m.cat]) || 'cuisson' };
+      });
+      const ticket = {
+        id: 'KT-' + (7820 + (++kdsSeq)),
+        label: 'À emporter', src: 'comptoir',
+        cook: Math.random() < 0.5 ? 'Mehdi M.' : 'Ayoub Y.',
+        items: items, note: note,
+        sentAt: new Date(),
+      };
+      kdsTickets.unshift(ticket);
+      kdsFreshId = ticket.id;
+      const count = cart.reduce((s, l) => s + l.qty, 0);
+      updateKdsCount();
+      if (kdsEl.classList.contains('is-open')) renderKds();
+      clearCart();
+      if (noteEl) noteEl.value = '';
+      toast(`Commande envoyée en cuisine · ${count} article${count > 1 ? 's' : ''}`);
+    }
+    $('#rp-send-kitchen').addEventListener('click', sendToKitchen);
+
+    kdsSeed();
+    updateKdsCount();
 
     /* ===========================================================
        === Persistence ===  (the shift survives a reload)
