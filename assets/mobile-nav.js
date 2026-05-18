@@ -76,10 +76,9 @@
                aria-controls="kw-sidebar" aria-expanded="false">${I.menu}</button>
        <button class="kw-topbar-brand" type="button" aria-label="Revenir en haut du tableau de bord">kiwi<i></i></button>`);
     const hamburger = topbarInner.querySelector('.kw-hamburger');
-    /* Tapping the centred wordmark scrolls back to the top of the dashboard. */
-    topbarInner.querySelector('.kw-topbar-brand').addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    /* Tapping the centred wordmark returns to the home dashboard —
+     * from any sub-page, not just a scroll-to-top. */
+    topbarInner.querySelector('.kw-topbar-brand').addEventListener('click', () => goHome());
 
     /* ── Backdrop for the off-canvas menu ── */
     const backdrop = document.createElement('div');
@@ -127,6 +126,23 @@
       });
     }
 
+    /* Return to the home dashboard from anywhere — closes the menu and any
+     * open overlay, activates the real Accueil destination (which re-renders
+     * the home view from a sub-page), and scrolls to the top. Shared by the
+     * wordmark and the Accueil tab. */
+    function goHome() {
+      closeMenu(); syncMenuAria();
+      closeOverlays();
+      const home = document.querySelector('.sidebar nav a[data-nav="accueil"]');
+      if (home) {
+        home.parentElement.querySelectorAll('a').forEach((a) => a.classList.remove('active'));
+        home.classList.add('active');
+        home.click();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setActive('accueil');
+    }
+
     /* ── Bottom tab bar ── */
     const tabbar = document.createElement('nav');
     tabbar.className = 'kw-tabbar';
@@ -171,14 +187,7 @@
       closeMenu(); syncMenuAria();
 
       if (key === 'accueil') {
-        closeOverlays();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        const home = document.querySelector('.sidebar nav a[data-nav="accueil"]');
-        if (home) {
-          home.parentElement.querySelectorAll('a').forEach((a) => a.classList.remove('active'));
-          home.classList.add('active');
-        }
-        setActive('accueil');
+        goHome();
       } else if (key === 'commandes') {
         runHandler('nav-transactions'); setActive('commandes');
       } else if (key === 'equipe') {
