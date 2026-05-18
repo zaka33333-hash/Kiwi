@@ -101,6 +101,22 @@
   }
   let L = 'fr';   // resolved at open()
 
+  /* Language of one specific question — the assistant's free-text answer must
+   * match it even when the dashboard UI runs in another language. Arabic
+   * script wins outright; otherwise FR vs EN on common function words; a tie
+   * falls back to the UI language. */
+  function detectQLang(text) {
+    const t = String(text || '');
+    if (/[؀-ۿ]/.test(t)) return 'ar';
+    const s = ' ' + t.toLowerCase().replace(/[^a-zà-ÿ ]/g, ' ') + ' ';
+    let fr = 0, en = 0;
+    ['le','la','les','une','des','du','mon','ma','mes','est','sont','quel','quels','quelle','combien','pour','avec','je','pas','ne','ca'].forEach((w) => { if (s.indexOf(' ' + w + ' ') >= 0) fr++; });
+    ['the','an','my','is','are','what','how','much','many','with','does','best','worst','show','which','items','your'].forEach((w) => { if (s.indexOf(' ' + w + ' ') >= 0) en++; });
+    if (en > fr) return 'en';
+    if (fr > en) return 'fr';
+    return getLang();
+  }
+
   /* ─────────────── FORMATTING ─────────────── */
   const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
   const fmtMad = (n) => fmt(n) + ' MAD';
@@ -973,26 +989,48 @@
   };
   const llmHistory = [];
 
-  function buildSystemPrompt() {
+  const SP_DIR = {
+    fr: 'IMPÉRATIF : rédige ta réponse entièrement en FRANÇAIS.',
+    en: `CRITICAL: the notes below are written in French, but you MUST write your entire reply in ENGLISH — the language of the user's question. Do not reply in French.`,
+    ar: 'إلزامي: الملاحظات أدناه مكتوبة بالفرنسية، لكن يجب أن تكتب ردّك بالكامل بالعربية — لغة سؤال المستخدم. لا تُجب بالفرنسية.',
+  };
+
+  /* Real menu of the active venue (via window.KiwiMenu, exposed by venues.js)
+   * — so the model answers menu questions from data instead of inventing
+   * dishes. Sorted best-seller first. */
+  function menuContextLines() {
+    const items = (window.KiwiMenu && window.KiwiMenu.items && window.KiwiMenu.items()) || [];
+    if (!items.length) return null;
+    return items.slice().sort((a, b) => b.units - a.units).map(
+      (it) => `  · ${it.name} — ${fmt(it.units)} vendus/mois · prix ${fmt(it.price)} MAD · marge unitaire ${fmt(it.price - it.cost)} MAD`
+    ).join('\n');
+  }
+
+  function buildSystemPrompt(lang) {
+    const dir = SP_DIR[lang] || SP_DIR.fr;
     if (B.partial) {
       return [
+        dir, '',
         `Tu es l'assistant financier de "${B.name}", un établissement qui vient de démarrer sur Kiwi, au Maroc.`,
         B.revenue > 0
-          ? `Seules données réelles disponibles : ${fmt(B.revenue)} MAD de ventes enregistrées sur ${fmt(B.ordersPerMonth)} vente(s), panier moyen ${fmt(B.avgBasket)} MAD.`
-          : 'Aucune vente n\'a encore été enregistrée pour cet établissement.',
-        'Tu n\'as PAS sa structure de coûts (loyer, salaires, coût matière, marge, trésorerie, effectif).',
+          ? `Seules données réelles disponibles : ${fmt(B.revenue)} MAD de ventes sur ${fmt(B.ordersPerMonth)} vente(s), panier moyen ${fmt(B.avgBasket)} MAD.`
+          : `Aucune vente n'a encore été enregistrée pour cet établissement.`,
+        `Tu n'as PAS sa structure de coûts (loyer, salaires, coût matière, marge, trésorerie, effectif) ni le détail de sa carte.`,
         '',
         'Règles :',
-        '- Réponds TOUJOURS dans la langue de la question (français, anglais, ou arabe / darija marocaine).',
-        '- N\'invente JAMAIS un chiffre financier. Si on te demande une marge, un bénéfice, un seuil de rentabilité, des charges ou une simulation de coûts, explique que le commerçant doit d\'abord enregistrer ses ventes et renseigner ses charges dans Kiwi — ne donne pas de nombre.',
-        '- Tu peux donner des conseils de gestion généraux et qualitatifs, mais sans chiffrer ce que tu ne connais pas.',
-        '- Tu n\'as pas accès à Internet ni à des données en temps réel.',
-        '- Ne donne jamais de conseil d\'investissement boursier. Ne réponds pas aux questions sans lien avec l\'activité.',
+        `- N'invente JAMAIS un chiffre, un plat ou une statistique. Si on te demande une marge, un bénéfice, un seuil de rentabilité, des charges, ou les articles du menu, explique que le commerçant doit d'abord renseigner ces données dans Kiwi — ne donne ni nombre ni liste inventée.`,
+        `- Tu peux donner des conseils de gestion généraux et qualitatifs, sans chiffrer ce que tu ne connais pas.`,
+        `- Tu n'as pas accès à Internet ni à des données en temps réel.`,
+        `- Ne donne jamais de conseil d'investissement boursier. Ne réponds pas aux questions sans lien avec l'activité.`,
+        '',
+        dir,
       ].join('\n');
     }
     const o = B.opex;
-    return [
-      'Tu es l\'assistant financier de "Café Atlas · Maarif", un café-restaurant à Casablanca, au Maroc.',
+    const menu = menuContextLines();
+    const lines = [
+      dir, '',
+      `Tu es l'assistant financier de "Café Atlas · Maarif", un café-restaurant à Casablanca, au Maroc.`,
       'Tu conseilles son propriétaire, Rachid. Voici ses chiffres réels sur les 30 derniers jours (en dirhams marocains, MAD) :',
       `- Chiffre d'affaires : ${fmt(B.revenue)} MAD`,
       `- Coût matière : ${fmt(B.cogs)} MAD (${fmt1(100 - B.grossMargin)} % du CA)`,
@@ -1001,16 +1039,28 @@
       `- Bénéfice net : ${fmt(B.netProfit)} MAD (marge nette ${fmt1(B.netMargin)} %)`,
       `- Trésorerie disponible : ${fmt(B.cashBuffer)} MAD`,
       `- Panier moyen : ${fmt(B.avgBasket)} MAD · ${fmt(B.ordersPerMonth)} ventes/mois · ${B.staffCount} employés.`,
+    ];
+    if (menu) {
+      lines.push(
+        '',
+        `Sa carte réelle — chaque article avec ses ventes du mois, son prix et sa marge unitaire. Pour TOUTE question sur le menu, les plats, les meilleures ou les moins bonnes ventes, appuie-toi UNIQUEMENT sur cette liste — n'invente jamais un plat qui n'y figure pas :`,
+        menu
+      );
+    } else {
+      lines.push('', `Tu n'as pas le détail de sa carte : pour une question sur les plats, invite-le à ouvrir la page Menu — ne cite aucun plat de mémoire.`);
+    }
+    lines.push(
       '',
       'Règles :',
-      '- Réponds TOUJOURS dans la langue de la question de l\'utilisateur (français, anglais, ou arabe / darija marocaine).',
-      '- Sois concis, concret et chiffré quand c\'est utile.',
-      '- Tu peux discuter de tout ce qui touche la gestion du café : finances, RH, marketing, opérations, fournisseurs, stratégie, motivation.',
-      '- Tu NE réponds PAS aux questions sans lien avec l\'activité (sport, célébrités, actualité, culture générale). Décline poliment en une phrase et propose de revenir au café.',
-      '- Tu n\'as pas accès à Internet ni à des données en temps réel : dis-le clairement si on te demande un fait récent (score, météo, cours).',
-      '- Ne donne jamais de conseil d\'investissement boursier.',
-      '- N\'invente pas de chiffres : appuie-toi sur les données ci-dessus.',
-    ].join('\n');
+      `- Sois concis, concret et chiffré quand c'est utile.`,
+      `- Tu peux parler de tout ce qui touche la gestion du café : finances, RH, marketing, opérations, fournisseurs, stratégie, menu.`,
+      `- N'invente JAMAIS un chiffre, un plat ou une statistique : appuie-toi uniquement sur les données ci-dessus. Si une information manque, dis-le simplement.`,
+      `- Tu NE réponds PAS aux questions sans lien avec l'activité (sport, célébrités, actualité). Décline poliment en une phrase.`,
+      `- Tu n'as pas accès à Internet ni à des données en temps réel ; ne donne jamais de conseil d'investissement boursier.`,
+      '',
+      dir
+    );
+    return lines.join('\n');
   }
 
   /* ═══════════════ UI ═══════════════ */
@@ -1545,7 +1595,7 @@
     async function runLlm(question) {
       const typing = pushTyping();
       llmHistory.push({ role: 'user', content: question });
-      const messages = [{ role: 'system', content: buildSystemPrompt() }, ...llmHistory.slice(-8)];
+      const messages = [{ role: 'system', content: buildSystemPrompt(detectQLang(question)) }, ...llmHistory.slice(-8)];
       try {
         const stream = await LLM.engine.chat.completions.create({ messages, temperature: 0.5, stream: true });
         typing.remove();

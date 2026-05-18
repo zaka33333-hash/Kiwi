@@ -4407,6 +4407,15 @@
   // Keep the sidebar "Commandes" badge in lockstep with recorded sales.
   salesSubs.add(() => renderSidebarCounts());
 
+  /* Active venue's real menu — lets the financial assistant answer menu
+   * questions (best/worst sellers, prices, margins) from data instead of
+   * inventing dishes. */
+  window.KiwiMenu = {
+    items: () => (MENU[miMenuVenue()] || MENU.cafeAtlas || []).map(it => ({
+      name: it.name, category: it.category, price: it.price, cost: it.cost, units: it.unitsThisMonth,
+    })),
+  };
+
   /* ═══════════════ PUBLIC API ═══════════════ */
 
   window.KiwiVenue = {
