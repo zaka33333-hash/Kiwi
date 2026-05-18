@@ -232,6 +232,26 @@
       box-shadow: var(--shadow-1);
     }
 
+    /* Action pills — caisse operations, styled as a compact sibling row
+       of the mode selector (smaller card, smaller icon). */
+    .act-selector { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .act-pill {
+      display: inline-flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 2px;
+      border-radius: 14px;
+      font-size: 9.5px; font-weight: 600;
+      background: rgba(255,255,255,0.06);
+      color: #8f9591;
+      text-align: center; line-height: 1.25;
+      letter-spacing: -0.01em;
+      min-height: 74px;
+      transition: background 200ms ease, color 200ms ease, transform 150ms ease;
+    }
+    .act-pill svg { width: 18px; height: 18px; flex: 0 0 18px; stroke-width: 1.75; }
+    .act-pill:hover { background: rgba(255,255,255,0.1); color: var(--paper-cream); }
+    .act-pill:active { transform: scale(0.97); }
+
     .quick-actions { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
     .qa-btn {
       display: flex; align-items: center; gap: 10px;
@@ -3127,16 +3147,26 @@
         </button>
         <button class="mode-pill" data-mode="vrap" aria-pressed="false">
           <i data-lucide="shopping-bag"></i>
-          <span>Vente rapida</span>
+          <span>À emporter</span>
+        </button>
+      </div>
+
+      <div class="act-selector" aria-label="Actions caisse">
+        <button class="act-pill" data-action="remboursement">
+          <i data-lucide="rotate-ccw"></i>
+          <span>Remboursement</span>
+        </button>
+        <button class="act-pill" data-action="cash-move">
+          <i data-lucide="arrow-down-up"></i>
+          <span>Mouvement caisse</span>
+        </button>
+        <button class="act-pill" data-action="passation">
+          <i data-lucide="arrow-left-right"></i>
+          <span>Passation caisse</span>
         </button>
       </div>
 
       <div class="stats-section" aria-label="Stats du shift">
-        <div class="stat-card">
-          <div class="stat-label">Flous d'lyoum</div>
-          <div class="stat-value" id="stat-revenue">7 140 MAD</div>
-          <div class="stat-delta" id="stat-revenue-delta">40% de l'objectif</div>
-        </div>
         <button class="stat-card stat-card--tap" id="stat-txns-card" type="button" aria-label="Ouvrir le journal des ventes">
           <div class="stat-label">Transactions</div>
           <div class="stat-value" id="stat-txns">53</div>
@@ -3161,19 +3191,7 @@
         <span class="count" id="team-count">3</span>
       </button>
 
-      <div class="quick-actions" aria-label="Actions rapides">
-        <button class="qa-btn" data-action="remboursement">
-          <i data-lucide="rotate-ccw"></i>
-          <span>Remboursement</span>
-        </button>
-        <button class="qa-btn" data-action="cash-move">
-          <i data-lucide="arrow-down-up"></i>
-          <span>Mouvement caisse</span>
-        </button>
-        <button class="qa-btn" data-action="passation">
-          <i data-lucide="arrow-left-right"></i>
-          <span>Passation caisse</span>
-        </button>
+      <div class="quick-actions" aria-label="Fin de service">
         <button class="qa-btn ghost" data-action="fin-service">
           <i data-lucide="log-out"></i>
           <span>Fin d'service</span>
@@ -3197,7 +3215,7 @@
 
       <!-- Header — vente rapida mode -->
       <div class="main-head" data-mode-section="vrap" hidden>
-        <div class="main-title">Vente rapida<em>— commande à emporter</em></div>
+        <div class="main-title">À emporter<em>— vente au comptoir</em></div>
         <div class="vrap-meta">
           <span id="vrap-cat-count">7 catégories</span>
           <span class="dot-sep">·</span>
@@ -3237,7 +3255,7 @@
       </section>
 
       <!-- ===== VENTE RAPIDA VIEW (menu) ===== -->
-      <section class="view view-vrap" data-mode-section="vrap" aria-label="Menu vente rapida" hidden>
+      <section class="view view-vrap" data-mode-section="vrap" aria-label="Menu à emporter" hidden>
         <div class="cat-pills" id="cat-pills" role="tablist"></div>
         <div class="menu-grid" id="menu-grid"></div>
       </section>
@@ -4153,7 +4171,7 @@
             <span class="order-mode-badge"><i data-lucide="pencil-line"></i> en cours</span>
             <em>— ${t.covers} couvert${t.covers > 1 ? 's' : ''}</em>`;
         } else {
-          vrapTitle.innerHTML = 'Vente rapida<em>— commande à emporter</em>';
+          vrapTitle.innerHTML = 'À emporter<em>— vente au comptoir</em>';
         }
       }
 
@@ -4307,7 +4325,7 @@
       const txt = $('#rp-empty-text');
       if (txt) {
         txt.textContent = mode === 'vrap'
-          ? 'Vente rapida vide — khtar mn lmenu bach tzid lcommande.'
+          ? 'Commande vide — khtar mn lmenu bach tzid lcommande.'
           : "Ktar 3la tabla bach tshuf l'addition.";
       }
     }
@@ -4516,7 +4534,7 @@
       const sc = $('#rp-split-card'); if (sc) sc.hidden = true;
 
       // Header
-      $('#rp-table').textContent = 'Vente rapida · à emporter';
+      $('#rp-table').textContent = 'À emporter';
       const sub = $('#rp-substatus');
       sub.dataset.flag = 'ka-tkhdam';
       sub.textContent = `${itemCount} article${itemCount > 1 ? 's' : ''} · ${fmtMAD(total)}`;
@@ -4538,7 +4556,7 @@
       $('#rp-total').textContent = fmtMAD(total);
 
       // Sync modal labels
-      $$('[data-bind="table"]').forEach(el => el.textContent = 'Vente rapida');
+      $$('[data-bind="table"]').forEach(el => el.textContent = 'À emporter');
       $$('[data-bind="covers"]').forEach(el => el.textContent = `${itemCount} art.`);
       $('#card-amount').textContent = fmtMADcents(total);
       $('#cash-amount').textContent = fmtMADcents(total);
@@ -4639,7 +4657,7 @@
     });
 
     $('#pay-split').addEventListener('click', () => {
-      if (mode === 'vrap') { toast('Vente rapida — paiement en une fois'); return; }
+      if (mode === 'vrap') { toast('À emporter — paiement en une fois'); return; }
       if (selectedId) openSplitModal(selectedId);
     });
     $$('.meta-btn').forEach(btn => {
@@ -4665,7 +4683,7 @@
       });
     });
 
-    $$('.qa-btn').forEach(btn => {
+    $$('.qa-btn, .act-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         const a = btn.dataset.action;
         if (a === 'remboursement')   openRefund();
@@ -4833,7 +4851,7 @@
       clearTimeout(cardSuccessTimer);
       clearTimeout(cardFootTimer);
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'card', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'), payTipAmount(), currentSaleLines());
+      if (!splitPayCallback) recordSale(currentTotal(), 'card', mode === 'vrap' ? 'À emporter' : (selectedId || 'Table'), payTipAmount(), currentSaleLines());
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -4915,7 +4933,7 @@
       cashAmountOverride = null;
       cashModal.classList.remove('is-open');
       if (!paid) return;
-      if (!splitPayCallback) recordSale(currentTotal(), 'cash', mode === 'vrap' ? 'Vente rapida' : (selectedId || 'Table'), payTipAmount(), currentSaleLines());
+      if (!splitPayCallback) recordSale(currentTotal(), 'cash', mode === 'vrap' ? 'À emporter' : (selectedId || 'Table'), payTipAmount(), currentSaleLines());
       if (splitPayCallback) {
         const cb = splitPayCallback;
         splitPayCallback = null;
@@ -5142,7 +5160,7 @@
 
       // Restore vrap header text
       const vrapTitle = $('.main-head[data-mode-section="vrap"] .main-title');
-      if (vrapTitle) vrapTitle.innerHTML = 'Vente rapida<em>— commande à emporter</em>';
+      if (vrapTitle) vrapTitle.innerHTML = 'À emporter<em>— vente au comptoir</em>';
 
       // Switch back to salle mode directly (bypass guard)
       mode = 'salle';
@@ -5187,7 +5205,7 @@
       selectedId = null;
       // Restore vrap header
       const vrapTitle = $('.main-head[data-mode-section="vrap"] .main-title');
-      if (vrapTitle) vrapTitle.innerHTML = 'Vente rapida<em>— commande à emporter</em>';
+      if (vrapTitle) vrapTitle.innerHTML = 'À emporter<em>— vente au comptoir</em>';
       mode = 'salle';
       document.body.dataset.mode = 'salle';
       $$('.mode-pill').forEach(p =>
@@ -5765,7 +5783,7 @@
         const isVrap = Math.random() < 0.26;
         let label, amount;
         if (isVrap) {
-          label  = 'Vente rapida';
+          label  = 'À emporter';
           amount = 30 + Math.floor(Math.random() * 13) * 15;   // 30–210 MAD
         } else {
           label  = tIds[Math.floor(Math.random() * tIds.length)];
@@ -5945,11 +5963,8 @@
     /* Live sidebar stats — computed from the journal */
     function renderShiftStats() {
       const t       = journalTotals();
-      const pct     = Math.min(100, Math.round(t.revenue / DAILY_OBJECTIF * 100));
       const cardPct = t.revenue > 0 ? Math.round(t.card / t.revenue * 100) : 0;
       const set = (id, txt) => { const el = $(id); if (el) el.textContent = txt; };
-      set('#stat-revenue',       fmtMAD(t.revenue));
-      set('#stat-revenue-delta', `${pct}% de l'objectif`);
       set('#stat-txns',          String(t.txns));
       set('#stat-txns-delta',    `Carte ${cardPct}% · Cash ${100 - cardPct}%`);
       set('#stat-avg',           fmtMAD(t.txns > 0 ? t.revenue / t.txns : 0));
