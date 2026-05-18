@@ -1036,7 +1036,9 @@
 
   .drp-cal { flex: 1; min-width: 0; padding: 15px 18px; }
   .drp-months { display: flex; gap: 20px; justify-content: center; }
-  .drp-month { flex-shrink: 0; }
+  /* Fixed width + no shrink — the month can never be squeezed narrower
+     than its 7×36px grid, so the two panes can't bleed into each other. */
+  .drp-month { width: 252px; flex-shrink: 0; }
   .drp-mhead { display: flex; align-items: center; justify-content: space-between;
     gap: 8px; height: 28px; margin-bottom: 8px; }
   .drp-mname { font-size: 13.5px; font-weight: 600; letter-spacing: -0.012em; color: var(--ink); }
@@ -1089,7 +1091,9 @@
   .drp-btn-go:hover { background: var(--atlas); }
   .drp-btn-go:disabled { opacity: 0.34; pointer-events: none; }
 
-  @media (max-width: 720px) {
+  /* Below 768px the 716px two-month popover can't sit comfortably, so it
+     drops to a viewport-anchored single column with the months stacked. */
+  @media (max-width: 768px) {
     /* Anchor to the viewport, not the pill row — at narrow widths the
        pills can sit far enough right that an absolute popover overflows. */
     .dr-popover {
