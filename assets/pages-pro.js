@@ -8620,9 +8620,9 @@ handlers['bout-cat-publish'] = () => {
    * ═════════════════════════════════════════════════════════════════════════ */
   /* Kitchen-screen UI strings — FR / EN / AR. */
   const KDS_T = {
-    fr: { title: 'Écran cuisine', subtitle: 'File de préparation · mise à jour en direct', allStations: 'Toutes', statusNew: 'Nouvelle', statusCooking: 'En préparation', accept: 'Accepter', ready: 'Prête', table: (n) => `Table ${n}`, takeaway: 'À emporter', close: 'Fermer', emptyTitle: 'Aucune commande', emptyDesc: 'Cette station est à jour.', readyToast: (n) => `Commande #${n} prête`, notifyServer: 'Serveur prévenu · à servir en salle.', notifyCounter: 'Comptoir prévenu · prêt à remettre.' },
-    en: { title: 'Kitchen display', subtitle: 'Prep queue · live updates', allStations: 'All', statusNew: 'New', statusCooking: 'In progress', accept: 'Accept', ready: 'Ready', table: (n) => `Table ${n}`, takeaway: 'Takeaway', close: 'Close', emptyTitle: 'No orders', emptyDesc: 'This station is all caught up.', readyToast: (n) => `Order #${n} ready`, notifyServer: 'Server notified · to serve in the dining room.', notifyCounter: 'Counter notified · ready for pickup.' },
-    ar: { title: 'شاشة المطبخ', subtitle: 'قائمة التحضير · تحديث مباشر', allStations: 'الكل', statusNew: 'جديدة', statusCooking: 'قيد التحضير', accept: 'قبول', ready: 'جاهزة', table: (n) => `طاولة ${n}`, takeaway: 'للأخذ', close: 'إغلاق', emptyTitle: 'لا توجد طلبات', emptyDesc: 'هذه المحطة محدّثة.', readyToast: (n) => `الطلب #${n} جاهز`, notifyServer: 'تم إشعار النادل · للتقديم في القاعة.', notifyCounter: 'تم إشعار الكاونتر · جاهز للتسليم.' },
+    fr: { title: 'Écran cuisine', subtitle: 'File de préparation · mise à jour en direct', allStations: 'Toutes', statusNew: 'Nouvelle', statusCooking: 'En préparation', accept: 'Accepter', ready: 'Prête', table: (n) => `Table ${n}`, takeaway: 'À emporter', close: 'Fermer', colNew: 'Nouvelles', colCooking: 'En préparation', history: 'Historique', historyTitle: 'Servies aujourd\'hui', emptyNew: 'Aucune nouvelle commande', emptyCooking: 'Aucune commande en préparation', emptyHistory: 'Aucune commande servie pour l\'instant', served: 'Servie', view: 'Agrandir', readyToast: (n) => `Commande #${n} prête`, notifyServer: 'Serveur prévenu · à servir en salle.', notifyCounter: 'Comptoir prévenu · prêt à remettre.' },
+    en: { title: 'Kitchen display', subtitle: 'Prep queue · live updates', allStations: 'All', statusNew: 'New', statusCooking: 'In progress', accept: 'Accept', ready: 'Ready', table: (n) => `Table ${n}`, takeaway: 'Takeaway', close: 'Close', colNew: 'New', colCooking: 'In preparation', history: 'History', historyTitle: 'Served today', emptyNew: 'No new orders', emptyCooking: 'Nothing in preparation', emptyHistory: 'No orders served yet', served: 'Served', view: 'Enlarge', readyToast: (n) => `Order #${n} ready`, notifyServer: 'Server notified · to serve in the dining room.', notifyCounter: 'Counter notified · ready for pickup.' },
+    ar: { title: 'شاشة المطبخ', subtitle: 'قائمة التحضير · تحديث مباشر', allStations: 'الكل', statusNew: 'جديدة', statusCooking: 'قيد التحضير', accept: 'قبول', ready: 'جاهزة', table: (n) => `طاولة ${n}`, takeaway: 'للأخذ', close: 'إغلاق', colNew: 'جديدة', colCooking: 'قيد التحضير', history: 'السجل', historyTitle: 'قُدّمت اليوم', emptyNew: 'لا توجد طلبات جديدة', emptyCooking: 'لا شيء قيد التحضير', emptyHistory: 'لم تُقدَّم أي طلبات بعد', served: 'قُدّمت', view: 'تكبير', readyToast: (n) => `الطلب #${n} جاهز`, notifyServer: 'تم إشعار النادل · للتقديم في القاعة.', notifyCounter: 'تم إشعار الكاونتر · جاهز للتسليم.' },
   };
 
   /* Kitchen-screen styles — self-contained, kit- prefix, copy-paste safe. */
@@ -8630,26 +8630,46 @@ handlers['bout-cat-publish'] = () => {
     const kdsCss = document.createElement('style');
     kdsCss.id = 'kiwi-kds-css';
     kdsCss.textContent = `
-      .kit-screen { display: flex; flex-direction: column; gap: 18px; }
-      .kit-stationbar { display: flex; gap: 8px; flex-wrap: wrap; }
+      .kit-screen { display: flex; flex-direction: column; gap: 14px; }
+      .kit-topbar { display: flex; gap: 12px; align-items: flex-start; }
+      .kit-stationbar { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
       .kit-station { display: inline-flex; align-items: center; gap: 9px; padding: 11px 14px; border-radius: 11px; border: 1px solid var(--n-200); background: #fff; cursor: pointer; font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--n-600); letter-spacing: -0.005em; transition: background 130ms ease, border-color 130ms ease, color 130ms ease; }
       .kit-station:hover { border-color: var(--n-400); color: var(--ink); }
       .kit-station.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
       .kit-station i { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
       .kit-station-ct { font-family: var(--mono); font-size: 12px; font-weight: 600; line-height: 1; padding: 3px 7px; border-radius: 999px; background: var(--paper-soft); color: var(--n-600); }
       .kit-station.on .kit-station-ct { background: rgba(255,255,255,0.18); color: var(--paper); }
-      .kit-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(288px, 1fr)); gap: 14px; align-items: start; }
+      .kit-history-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 11px 15px; border-radius: 11px; border: 1px solid var(--n-200); background: #fff; cursor: pointer; font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--n-600); white-space: nowrap; flex-shrink: 0; transition: background 130ms ease, border-color 130ms ease, color 130ms ease; }
+      .kit-history-toggle:hover { border-color: var(--n-400); color: var(--ink); }
+      .kit-history-toggle.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+      .kit-history-toggle svg { width: 16px; height: 16px; }
+      .kit-htg-ct { font-family: var(--mono); font-size: 12px; font-weight: 600; line-height: 1; padding: 3px 7px; border-radius: 999px; background: var(--paper-soft); color: var(--n-600); }
+      .kit-history-toggle.on .kit-htg-ct { background: rgba(255,255,255,0.18); color: var(--paper); }
+      .kit-cols { display: flex; gap: 14px; align-items: flex-start; }
+      .kit-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+      .kit-col-new { width: 300px; flex-shrink: 0; }
+      .kit-col-cooking { flex: 1; min-width: 0; }
+      .kit-col-head { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); padding: 1px 3px; }
+      .kit-col-ct { font-weight: 700; color: var(--ink); }
+      .kit-col-stack { display: flex; flex-direction: column; gap: 12px; }
+      .kit-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; align-items: start; }
+      @media (max-width: 1100px) { .kit-grid3 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
       .kit-order { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--n-200); border-radius: 14px; overflow: hidden; }
       .kit-order.is-new { border: 2px solid var(--atlas); box-shadow: 0 0 0 4px rgba(11,110,79,0.10); }
       .kit-order.is-late { border-color: var(--danger); }
       .kit-order.is-late.is-new { box-shadow: 0 0 0 4px rgba(193,58,46,0.12); }
       .kit-order-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 15px 0; }
+      .kit-order-tr { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
       .kit-order-num { font-size: 27px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); line-height: 1; }
       .kit-timer { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 15px; font-weight: 600; padding: 5px 9px; border-radius: 8px; line-height: 1; font-feature-settings: "tnum" 1; flex-shrink: 0; }
       .kit-timer svg { width: 13px; height: 13px; }
       .kit-timer.ok { color: var(--atlas); background: rgba(11,110,79,0.10); }
       .kit-timer.warn { color: #8A6210; background: rgba(217,154,43,0.16); }
       .kit-timer.over { color: var(--danger); background: rgba(193,58,46,0.12); }
+      .kit-eye { width: 38px; height: 38px; flex-shrink: 0; padding: 0; border: 1px solid var(--n-200); background: var(--paper-soft); border-radius: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--n-500); transition: background 120ms ease, color 120ms ease, border-color 120ms ease; }
+      .kit-eye:hover { color: var(--ink); border-color: var(--n-400); }
+      .kit-eye:active { background: var(--n-200); }
+      .kit-eye svg { width: 19px; height: 19px; }
       .kit-order-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 15px 13px; }
       .kit-type { display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 8px; letter-spacing: -0.005em; }
       .kit-type.dineIn { background: rgba(11,110,79,0.10); color: var(--atlas); }
@@ -8670,14 +8690,38 @@ handlers['bout-cat-publish'] = () => {
       .kit-act-ready { background: var(--atlas); color: var(--paper); }
       .kit-act-ready:hover { background: var(--atlas-700); }
       .kit-act:active { filter: brightness(0.93); }
-      .kit-empty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 60px 24px; text-align: center; background: var(--paper-soft); border: 1px dashed var(--n-300); border-radius: 14px; }
-      .kit-empty svg { width: 32px; height: 32px; color: var(--atlas); }
-      .kit-empty b { font-size: 15.5px; font-weight: 600; color: var(--ink); }
-      .kit-empty span { font-size: 13px; color: var(--n-500); }
-      html[data-theme="dark"] .kit-station, html[data-theme="dark"] .kit-order { background: var(--paper-soft); }
-      html[data-theme="dark"] .kit-station.on { background: var(--paper); border-color: var(--paper); color: var(--ink); }
-      html[data-theme="dark"] .kit-station.on .kit-station-ct { background: var(--paper-muted); color: var(--ink); }
-      html[data-theme="dark"] .kit-station-ct, html[data-theme="dark"] .kit-q { background: var(--paper-muted); }
+      .kit-empty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 40px 20px; text-align: center; background: var(--paper-soft); border: 1px dashed var(--n-300); border-radius: 13px; }
+      .kit-empty svg { width: 26px; height: 26px; color: var(--n-400); }
+      .kit-empty span { font-size: 12.5px; color: var(--n-500); }
+      .kit-history { width: 0; flex-shrink: 0; overflow: hidden; transition: width 280ms cubic-bezier(0.4,0,0.2,1); }
+      .kit-history.open { width: 304px; }
+      .kit-history-inner { width: 304px; display: flex; flex-direction: column; gap: 10px; padding-inline-start: 4px; }
+      .kit-history-head .kit-history-x { margin-inline-start: auto; width: 26px; height: 26px; padding: 0; flex-shrink: 0; border: 1px solid var(--n-200); background: #fff; border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--n-500); }
+      .kit-history-head .kit-history-x:hover { color: var(--ink); border-color: var(--n-400); }
+      .kit-history-head .kit-history-x svg { width: 13px; height: 13px; }
+      .kit-history-rows { display: flex; flex-direction: column; gap: 8px; }
+      .kit-hrow { display: flex; align-items: center; gap: 9px; background: #fff; border: 1px solid var(--n-200); border-radius: 11px; padding: 11px 13px; }
+      .kit-hrow-num { font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; flex-shrink: 0; }
+      .kit-hrow-time { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 11px; color: var(--atlas); flex-shrink: 0; }
+      .kit-hrow-time svg { width: 13px; height: 13px; }
+      .kit-zoom-backdrop { position: fixed; inset: 0; z-index: 9995; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(10,15,13,0.46); -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px); opacity: 0; transition: opacity 220ms ease; }
+      .kit-zoom-backdrop.in { opacity: 1; }
+      .kit-zoom { width: 420px; max-width: 100%; background: #fff; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 32px 70px -20px rgba(10,15,13,0.6); transform: scale(0.86); transition: transform 280ms cubic-bezier(0.34,1.3,0.64,1); }
+      .kit-zoom-backdrop.in .kit-zoom { transform: scale(1); }
+      .kit-zoom .kit-order-top { padding: 22px 22px 0; }
+      .kit-zoom .kit-order-num { font-size: 38px; }
+      .kit-zoom .kit-timer { font-size: 17px; padding: 7px 12px; }
+      .kit-zoom .kit-timer svg { width: 15px; height: 15px; }
+      .kit-zoom .kit-order-meta { padding: 13px 22px 17px; }
+      .kit-zoom .kit-type { font-size: 13.5px; padding: 6px 12px; }
+      .kit-zoom .kit-items { padding: 18px 22px 22px; gap: 14px; }
+      .kit-zoom .kit-q { min-width: 33px; height: 30px; font-size: 16px; }
+      .kit-zoom .kit-nm { font-size: 18px; }
+      .kit-zoom .kit-act { padding: 18px; font-size: 17px; }
+      html[data-theme="dark"] .kit-station, html[data-theme="dark"] .kit-history-toggle, html[data-theme="dark"] .kit-order, html[data-theme="dark"] .kit-hrow, html[data-theme="dark"] .kit-zoom, html[data-theme="dark"] .kit-history-head .kit-history-x { background: var(--paper-soft); }
+      html[data-theme="dark"] .kit-station.on, html[data-theme="dark"] .kit-history-toggle.on { background: var(--paper); border-color: var(--paper); color: var(--ink); }
+      html[data-theme="dark"] .kit-station.on .kit-station-ct, html[data-theme="dark"] .kit-history-toggle.on .kit-htg-ct { background: var(--paper-muted); color: var(--ink); }
+      html[data-theme="dark"] .kit-station-ct, html[data-theme="dark"] .kit-htg-ct, html[data-theme="dark"] .kit-q, html[data-theme="dark"] .kit-eye, html[data-theme="dark"] .kit-zoom .kit-q { background: var(--paper-muted); }
       html[data-theme="dark"] .kit-act-accept { background: var(--paper-muted); color: var(--ink); }
       html[data-theme="dark"] .kit-act-accept:hover { background: var(--n-200); }
       html[data-theme="dark"] .kit-empty { background: var(--paper-soft); }
@@ -8689,48 +8733,59 @@ handlers['bout-cat-publish'] = () => {
     const lang = (window.KiwiI18n && KiwiI18n.getLang && KiwiI18n.getLang()) || 'fr';
     const T = KDS_T[lang] || KDS_T.fr;
 
-    /* Fresh order queue each open — a demo always shows a busy kitchen. */
+    /* Fresh order queue each open — a demo always shows a busy kitchen.
+     * status: new (not accepted) · cooking (in prep) · ready (served, history). */
     const orders = [
-      { num: 41, type: 'dineIn',   table: '4', status: 'cooking', elapsed: 1015, items: [
+      { num: 38, type: 'dineIn', table: '3', status: 'ready', elapsed: 1880, readyAt: '13:46', items: [
+        { q: 2, n: 'Couscous royal',         stations: ['cuisson'] },
+        { q: 2, n: 'Thé à la menthe',        stations: ['boissons'] } ] },
+      { num: 39, type: 'glovo', code: '2904', status: 'ready', elapsed: 1645, readyAt: '13:58', items: [
+        { q: 1, n: 'Tajine poulet citron',   stations: ['cuisson'] },
+        { q: 1, n: 'Salade marocaine',       stations: ['salade'] } ] },
+      { num: 40, type: 'dineIn', table: '8', status: 'ready', elapsed: 1390, readyAt: '14:10', items: [
+        { q: 3, n: 'Briouates viande',       stations: ['cuisson'] },
+        { q: 2, n: 'Msemen beurre & miel',   stations: ['pastry'] } ] },
+      { num: 41, type: 'takeaway', status: 'ready', elapsed: 1155, readyAt: '14:22', items: [
+        { q: 2, n: 'Méchoui',                stations: ['bbq'] },
+        { q: 2, n: 'Orange pressée',         stations: ['boissons'] } ] },
+      { num: 42, type: 'dineIn', table: '4', status: 'cooking', elapsed: 1010, items: [
         { q: 2, n: 'Tajine kefta œuf',       stations: ['cuisson'] },
         { q: 1, n: 'Salade marocaine',       stations: ['salade'] },
         { q: 3, n: 'Thé à la menthe',        stations: ['boissons'] } ] },
-      { num: 43, type: 'glovo',    code: '3412', status: 'cooking', elapsed: 712, items: [
+      { num: 43, type: 'glovo', code: '3412', status: 'cooking', elapsed: 742, items: [
         { q: 2, n: 'Tajine poulet citron',   stations: ['cuisson'] },
         { q: 1, n: 'Cornes de gazelle',      stations: ['pastry'] } ] },
-      { num: 42, type: 'dineIn',   table: '7', status: 'cooking', elapsed: 628, items: [
+      { num: 44, type: 'dineIn', table: '7', status: 'cooking', elapsed: 620, items: [
         { q: 1, n: 'Couscous royal',         stations: ['cuisson'] },
         { q: 1, n: 'Pastilla poulet',        stations: ['cuisson', 'pastry'] } ] },
-      { num: 44, type: 'dineIn',   table: '2', status: 'cooking', elapsed: 437, items: [
+      { num: 45, type: 'jumia', code: '8821', status: 'cooking', elapsed: 388, items: [
+        { q: 3, n: 'Tajine kefta œuf',       stations: ['cuisson'] },
+        { q: 2, n: 'Cocktail mocktail',      stations: ['bar'] } ] },
+      { num: 46, type: 'dineIn', table: '2', status: 'cooking', elapsed: 256, items: [
+        { q: 2, n: 'Crêpe complète',         stations: ['crepes'] },
+        { q: 4, n: 'Café noir double',       stations: ['boissons'] } ] },
+      { num: 47, type: 'dineIn', table: '9', status: 'new', elapsed: 184, items: [
         { q: 4, n: 'Briouates viande',       stations: ['cuisson'] },
         { q: 2, n: "Caviar d'aubergine",     stations: ['salade'] } ] },
-      { num: 45, type: 'jumia',    code: '8821', status: 'cooking', elapsed: 351, items: [
-        { q: 3, n: 'Tajine kefta œuf',       stations: ['cuisson'] },
-        { q: 2, n: 'Msemen beurre & miel',   stations: ['pastry'] } ] },
-      { num: 46, type: 'dineIn',   table: '9', status: 'cooking', elapsed: 264, items: [
-        { q: 2, n: 'Méchoui',                stations: ['bbq'] },
-        { q: 4, n: 'Café noir double',       stations: ['boissons'] } ] },
-      { num: 47, type: 'takeaway', status: 'new', elapsed: 138, items: [
-        { q: 1, n: 'Couscous légumes',       stations: ['cuisson'] },
-        { q: 2, n: 'Orange pressée',         stations: ['boissons'] } ] },
-      { num: 48, type: 'dineIn',   table: '5', status: 'new', elapsed: 74, items: [
-        { q: 2, n: 'Crêpe complète',         stations: ['crepes'] },
-        { q: 1, n: 'Salade marocaine',       stations: ['salade'] },
-        { q: 2, n: 'Cocktail mocktail',      stations: ['bar'] } ] },
-      { num: 49, type: 'dineIn',   table: '1', status: 'new', elapsed: 33, items: [
+      { num: 48, type: 'glovo', code: '3590', status: 'new', elapsed: 92, items: [
+        { q: 1, n: 'Méchoui',                stations: ['bbq'] },
+        { q: 1, n: 'Limonade traditionnelle', stations: ['boissons'] } ] },
+      { num: 49, type: 'dineIn', table: '1', status: 'new', elapsed: 38, items: [
         { q: 1, n: 'Tajine agneau pruneaux', stations: ['cuisson'] } ] },
     ];
 
     const t0 = Date.now();
     let activeStation = 'all';
+    let historyOpen = false;
 
     const esc = (v) => String(v == null ? '' : v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const liveElapsed = (o) => o.elapsed + Math.floor((Date.now() - t0) / 1000);
     const urgency = (s) => (s < 480 ? 'ok' : s < 900 ? 'warn' : 'over');
     const fmtTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
-    const ordersForStation = () => activeStation === 'all'
-      ? orders
-      : orders.filter((o) => o.items.some((i) => i.stations.includes(activeStation)));
+    const nowHM = () => { const d = new Date(); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+    const matchesStation = (o, sid) => sid === 'all' || o.items.some((i) => i.stations.includes(sid));
+    const byOldest = (a, b) => liveElapsed(b) - liveElapsed(a);
+    const groupOrders = (status) => orders.filter((o) => o.status === status && matchesStation(o, activeStation)).slice().sort(byOldest);
 
     const typeChip = (o) => {
       if (o.type === 'glovo')    return `<span class="kit-type glovo">Glovo · ${esc(o.code)}</span>`;
@@ -8739,7 +8794,8 @@ handlers['bout-cat-publish'] = () => {
       return `<span class="kit-type dineIn">${T.table(esc(o.table))}</span>`;
     };
 
-    const orderCard = (o) => {
+    /* Inner content of an order — shared by the board card and the zoom panel. */
+    const orderInner = (o, withEye) => {
       const el = liveElapsed(o);
       const u = urgency(el);
       const isNew = o.status === 'new';
@@ -8750,41 +8806,65 @@ handlers['bout-cat-publish'] = () => {
       const act = isNew
         ? `<button class="kit-act kit-act-accept" data-kit-accept="${o.num}">${T.accept}</button>`
         : `<button class="kit-act kit-act-ready" data-kit-ready="${o.num}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>${T.ready}</button>`;
+      const eye = withEye
+        ? `<button class="kit-eye" data-kit-eye="${o.num}" aria-label="${esc(T.view)} #${o.num}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>`
+        : '';
       return `
-        <div class="kit-order ${isNew ? 'is-new' : 'is-cooking'}${u === 'over' ? ' is-late' : ''}" data-kit-num="${o.num}" data-base="${o.elapsed}">
-          <div class="kit-order-top">
-            <span class="kit-order-num">#${o.num}</span>
+        <div class="kit-order-top">
+          <span class="kit-order-num">#${o.num}</span>
+          <div class="kit-order-tr">
             <span class="kit-timer ${u}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="kit-timer-v">${fmtTime(el)}</span></span>
+            ${eye}
           </div>
-          <div class="kit-order-meta">
-            ${typeChip(o)}
-            <span class="kit-status">${isNew ? T.statusNew : T.statusCooking}</span>
-          </div>
-          <ul class="kit-items">${items}</ul>
-          ${act}
-        </div>`;
+        </div>
+        <div class="kit-order-meta">
+          ${typeChip(o)}
+          <span class="kit-status">${isNew ? T.statusNew : T.statusCooking}</span>
+        </div>
+        <ul class="kit-items">${items}</ul>
+        ${act}`;
     };
+
+    const orderCard = (o) => {
+      const u = urgency(liveElapsed(o));
+      return `<div class="kit-order ${o.status === 'new' ? 'is-new' : 'is-cooking'}${u === 'over' ? ' is-late' : ''}" data-kit-num="${o.num}" data-base="${o.elapsed}">${orderInner(o, true)}</div>`;
+    };
+
+    const historyRow = (o) => `
+      <div class="kit-hrow">
+        <span class="kit-hrow-num">#${o.num}</span>
+        ${typeChip(o)}
+        <span class="kit-hrow-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12l5 5L20 7"/></svg>${T.served} ${esc(o.readyAt || '')}</span>
+      </div>`;
+
+    const emptyHtml = (msg) => `<div class="kit-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>${esc(msg)}</span></div>`;
 
     const stationBar = () => {
       const btn = (id, dot, label) => {
-        const count = id === 'all'
-          ? orders.length
-          : orders.filter((o) => o.items.some((i) => i.stations.includes(id))).length;
-        return `<button class="kit-station ${activeStation === id ? 'on' : ''}" data-kit-st="${id}"><i style="background:${dot};"></i><span class="kit-station-nm">${esc(label)}</span><span class="kit-station-ct">${count}</span></button>`;
+        const count = orders.filter((o) => o.status !== 'ready' && matchesStation(o, id)).length;
+        return `<button class="kit-station ${activeStation === id ? 'on' : ''}" data-kit-st="${id}"><i style="background:${dot};"></i><span>${esc(label)}</span><span class="kit-station-ct">${count}</span></button>`;
       };
-      return btn('all', 'var(--ink)', T.allStations)
-        + STATIONS.map((s) => btn(s.id, s.raw, s.name)).join('');
+      return btn('all', 'var(--ink)', T.allStations) + STATIONS.map((s) => btn(s.id, s.raw, s.name)).join('');
     };
 
-    const boardHtml = () => {
-      const list = ordersForStation().slice().sort((a, b) => liveElapsed(b) - liveElapsed(a));
-      if (!list.length) {
-        return `<div class="kit-empty">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          <b>${T.emptyTitle}</b><span>${T.emptyDesc}</span>
-        </div>`;
-      }
-      return list.map(orderCard).join('');
+    const historyToggleHtml = () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 2.5-6.2"/><path d="M3 4v4h4"/><path d="M12 8v4.5l3 1.8"/></svg><span>${esc(T.history)}</span><span class="kit-htg-ct">${groupOrders('ready').length}</span>`;
+
+    const colHeadHtml = (label, count) => `<div class="kit-col-head"><span>${esc(label)}</span><span class="kit-col-ct">${count}</span></div>`;
+
+    const colNewHtml = () => {
+      const list = groupOrders('new');
+      return colHeadHtml(T.colNew, list.length)
+        + `<div class="kit-col-stack">${list.length ? list.map(orderCard).join('') : emptyHtml(T.emptyNew)}</div>`;
+    };
+    const colCookHtml = () => {
+      const list = groupOrders('cooking');
+      return colHeadHtml(T.colCooking, list.length)
+        + `<div class="kit-grid3">${list.length ? list.map(orderCard).join('') : emptyHtml(T.emptyCooking)}</div>`;
+    };
+    const historyHtml = () => {
+      const list = groupOrders('ready');
+      return `<div class="kit-col-head kit-history-head"><span>${esc(T.historyTitle)}</span><span class="kit-col-ct">${list.length}</span><button class="kit-history-x" data-kit-history-toggle aria-label="${esc(T.close)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`
+        + `<div class="kit-history-rows">${list.length ? list.map(historyRow).join('') : emptyHtml(T.emptyHistory)}</div>`;
     };
 
     const r = fullpage({
@@ -8792,21 +8872,86 @@ handlers['bout-cat-publish'] = () => {
       subtitle: T.subtitle,
       body: `
         <div class="kit-screen">
-          <div class="kit-stationbar" data-kit-stationbar>${stationBar()}</div>
-          <div class="kit-board" data-kit-board>${boardHtml()}</div>
+          <div class="kit-topbar">
+            <div class="kit-stationbar" data-kit-bar></div>
+            <button class="kit-history-toggle" data-kit-history-toggle></button>
+          </div>
+          <div class="kit-cols">
+            <section class="kit-col kit-col-new" data-kit-new></section>
+            <section class="kit-col kit-col-cooking" data-kit-cook></section>
+            <aside class="kit-history" data-kit-history>
+              <div class="kit-history-inner" data-kit-history-inner></div>
+            </aside>
+          </div>
         </div>`,
       foot: `<button class="kb ghost" data-dismiss>${T.close}</button>`,
     });
     wireDismiss(r);
 
-    const board = r.el.querySelector('[data-kit-board]');
-    const bar = r.el.querySelector('[data-kit-stationbar]');
-    const rerender = () => { if (board) board.innerHTML = boardHtml(); if (bar) bar.innerHTML = stationBar(); };
+    const barEl = r.el.querySelector('[data-kit-bar]');
+    const toggleEl = r.el.querySelector('[data-kit-history-toggle]');
+    const newEl = r.el.querySelector('[data-kit-new]');
+    const cookEl = r.el.querySelector('[data-kit-cook]');
+    const histEl = r.el.querySelector('[data-kit-history]');
+    const histInnerEl = r.el.querySelector('[data-kit-history-inner]');
 
-    /* Live timers — the interval clears itself once the screen is closed. */
+    const paint = () => {
+      barEl.innerHTML = stationBar();
+      toggleEl.innerHTML = historyToggleHtml();
+      newEl.innerHTML = colNewHtml();
+      cookEl.innerHTML = colCookHtml();
+      histInnerEl.innerHTML = historyHtml();
+    };
+    paint();
+
+    /* — accept (new -> cooking) / ready (cooking -> served, notify) — */
+    const acceptOrder = (num) => {
+      const o = orders.find((x) => x.num === num);
+      if (o && o.status === 'new') { o.status = 'cooking'; paint(); }
+    };
+    const readyOrder = (num) => {
+      const o = orders.find((x) => x.num === num);
+      if (!o || o.status === 'ready') return;
+      o.status = 'ready';
+      o.readyAt = nowHM();
+      paint();
+      const delivery = o.type === 'glovo' || o.type === 'jumia' || o.type === 'takeaway';
+      // force:true — the ready notification must show even though the KDS is an overlay.
+      toast(T.readyToast(num), { type: 'success', duration: 2600, force: true, desc: delivery ? T.notifyCounter : T.notifyServer });
+    };
+
+    /* — zoom · one order centered, screen behind blurred, tap-out to close — */
+    const openZoom = (o) => {
+      document.querySelectorAll('.kit-zoom-backdrop').forEach((b) => b.remove());
+      const bd = document.createElement('div');
+      bd.className = 'kit-zoom-backdrop';
+      bd.innerHTML = `<div class="kit-zoom" data-base="${o.elapsed}">${orderInner(o, false)}</div>`;
+      document.body.appendChild(bd);
+      requestAnimationFrame(() => bd.classList.add('in'));
+      let closing = false;
+      const closeZoom = () => {
+        if (closing) return;
+        closing = true;
+        bd.classList.remove('in');
+        setTimeout(() => bd.remove(), 300);
+      };
+      bd.addEventListener('click', (e) => {
+        const acc = e.target.closest('[data-kit-accept]');
+        if (acc) { acceptOrder(Number(acc.getAttribute('data-kit-accept'))); closeZoom(); return; }
+        const rdy = e.target.closest('[data-kit-ready]');
+        if (rdy) { readyOrder(Number(rdy.getAttribute('data-kit-ready'))); closeZoom(); return; }
+        if (!e.target.closest('.kit-zoom')) closeZoom();
+      });
+    };
+
+    /* Live timers — interval clears itself once the screen is closed. */
     const tick = setInterval(() => {
-      if (!document.body.contains(r.el)) { clearInterval(tick); return; }
-      r.el.querySelectorAll('.kit-order').forEach((card) => {
+      if (!document.body.contains(r.el)) {
+        clearInterval(tick);
+        document.querySelectorAll('.kit-zoom-backdrop').forEach((b) => b.remove());
+        return;
+      }
+      document.querySelectorAll('.kit-order, .kit-zoom').forEach((card) => {
         const base = Number(card.getAttribute('data-base')) || 0;
         const el = base + Math.floor((Date.now() - t0) / 1000);
         const u = urgency(el);
@@ -8814,33 +8959,35 @@ handlers['bout-cat-publish'] = () => {
         const tEl = card.querySelector('.kit-timer');
         if (v) v.textContent = fmtTime(el);
         if (tEl) tEl.className = `kit-timer ${u}`;
-        card.classList.toggle('is-late', u === 'over');
+        if (card.classList.contains('kit-order')) card.classList.toggle('is-late', u === 'over');
       });
     }, 1000);
 
     /* All interactions are local — the kitchen screen is fully self-contained. */
     r.el.addEventListener('click', (e) => {
       const st = e.target.closest('[data-kit-st]');
-      if (st) { activeStation = st.getAttribute('data-kit-st'); rerender(); return; }
+      if (st) { activeStation = st.getAttribute('data-kit-st'); paint(); return; }
 
-      const acc = e.target.closest('[data-kit-accept]');
-      if (acc) {
-        const o = orders.find((x) => x.num === Number(acc.getAttribute('data-kit-accept')));
-        if (o) { o.status = 'cooking'; rerender(); }
+      const ht = e.target.closest('[data-kit-history-toggle]');
+      if (ht) {
+        historyOpen = !historyOpen;
+        histEl.classList.toggle('open', historyOpen);
+        toggleEl.classList.toggle('on', historyOpen);
         return;
       }
 
-      const rdy = e.target.closest('[data-kit-ready]');
-      if (rdy) {
-        const num = Number(rdy.getAttribute('data-kit-ready'));
-        const o = orders.find((x) => x.num === num);
-        if (!o) return;
-        orders.splice(orders.indexOf(o), 1);
-        rerender();
-        const delivery = o.type === 'glovo' || o.type === 'jumia' || o.type === 'takeaway';
-        // force:true — the ready notification must show even though the KDS is an overlay.
-        toast(T.readyToast(num), { type: 'success', duration: 2600, force: true, desc: delivery ? T.notifyCounter : T.notifyServer });
+      const eye = e.target.closest('[data-kit-eye]');
+      if (eye) {
+        const o = orders.find((x) => x.num === Number(eye.getAttribute('data-kit-eye')));
+        if (o) openZoom(o);
+        return;
       }
+
+      const acc = e.target.closest('[data-kit-accept]');
+      if (acc) { acceptOrder(Number(acc.getAttribute('data-kit-accept'))); return; }
+
+      const rdy = e.target.closest('[data-kit-ready]');
+      if (rdy) { readyOrder(Number(rdy.getAttribute('data-kit-ready'))); return; }
     });
   };
 
