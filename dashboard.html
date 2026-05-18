@@ -473,6 +473,32 @@
   .kpi-m .d.neutral { color: var(--n-500); }
   .kpi-m .sp { height: 22px; margin-top: 8px; margin-left: -2px; }
 
+  /* ─────────────── INTERACTION POLISH ───────────────
+   * A unified hover-lift + press layer for clickable surfaces. Purely
+   * additive — complements the per-component states above. Every transform
+   * is suppressed under prefers-reduced-motion (block at the end). */
+  .kpi-m {
+    transition: border-color 150ms ease,
+                transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .kpi-m:hover { transform: translateY(-2px); box-shadow: 0 12px 26px -16px rgba(10, 15, 13, 0.32); }
+  .kpi-m:active { transform: translateY(0); transition-duration: 90ms; }
+  /* Clickable list rows + integration cards — a crisp, consistent press. */
+  .feed-row, .integ-card { transition: background 140ms ease, border-color 140ms ease, transform 150ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .feed-row:active, .integ-card:active { transform: scale(0.992); }
+  /* Buttons — one press feel across the dashboard. */
+  .kb, .icon-btn { transition: transform 130ms cubic-bezier(0.16, 1, 0.3, 1), background 150ms ease, box-shadow 150ms ease, border-color 150ms ease; }
+  .kb:active, .icon-btn:active, .range span:active { transform: scale(0.97); }
+  @media (prefers-reduced-motion: reduce) {
+    .kpi-m, .feed-row, .integ-card, .kb, .icon-btn, .range span {
+      transition: border-color 150ms ease, background 140ms ease !important;
+    }
+    .kpi-m:hover, .kpi-m:active,
+    .feed-row:active, .integ-card:active,
+    .kb:active, .icon-btn:active, .range span:active { transform: none; }
+  }
+
   /* ─────────────── BLOCK STYLE ─────────────── */
   .block { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 22px 24px; }
   .block-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
