@@ -568,6 +568,39 @@ const TERMINAUX_STR = {
         cuisine: 'Cuisine',
         wifi: 'Wi-Fi',
         fourG: '4G',
+        // — fleet management · Add / Manage / Deactivate / Remove —
+        manageTitle: 'Gérer le terminal',
+        firmwareLabel: 'Firmware',
+        batteryWord: 'Batterie',
+        locationLabel: 'Emplacement',
+        locationPlaceholder: 'ex. Comptoir, Terrasse…',
+        networkLabel: 'Réseau',
+        modelLabel: 'Modèle',
+        disabledStatus: 'Désactivé',
+        save: 'Enregistrer',
+        cancel: 'Annuler',
+        saveDone: 'Emplacement mis à jour',
+        actionsLabel: 'Actions',
+        deactivate: 'Désactiver ce terminal',
+        reactivate: 'Réactiver ce terminal',
+        deactivatedToast: (n) => `${n} désactivé`,
+        reactivatedToast: (n) => `${n} réactivé`,
+        deactivatedDesc: 'Le terminal n\'acceptera plus de paiements jusqu\'à réactivation.',
+        reactivatedDesc: 'Le terminal est de nouveau prêt à encaisser.',
+        diagRunning: 'Diagnostic en cours',
+        diagDesc: 'Réseau, batterie et firmware vérifiés — aucun problème détecté.',
+        testUnavailable: 'Terminal hors-ligne — test impossible',
+        dangerZone: 'Zone sensible',
+        removeBtn: 'Retirer du parc',
+        removeTitle: 'Retirer ce terminal ?',
+        removeDesc: (n) => `${n} sera retiré de votre parc Kiwi. Vous pourrez le réenregistrer à tout moment via « Ajouter ».`,
+        removeCta: 'Retirer le terminal',
+        removedToast: (n) => `${n} retiré du parc`,
+        addTitle: 'Ajouter un terminal',
+        addIntro: 'Enregistrez un appareil Kiwi déjà en votre possession. Pour commander du nouveau matériel, utilisez « Demander un terminal ».',
+        addCta: 'Ajouter au parc',
+        addedToast: (n) => `${n} ajouté au parc`,
+        addedDesc: 'Le terminal est en ligne et prêt à encaisser.',
     },
     en: {
         loaned: 'Loaned · Kiwi Pro',
@@ -602,6 +635,39 @@ const TERMINAUX_STR = {
         cuisine: 'Kitchen',
         wifi: 'Wi-Fi',
         fourG: '4G',
+        // — fleet management · Add / Manage / Deactivate / Remove —
+        manageTitle: 'Manage terminal',
+        firmwareLabel: 'Firmware',
+        batteryWord: 'Battery',
+        locationLabel: 'Location',
+        locationPlaceholder: 'e.g. Counter, Terrace…',
+        networkLabel: 'Network',
+        modelLabel: 'Model',
+        disabledStatus: 'Deactivated',
+        save: 'Save',
+        cancel: 'Cancel',
+        saveDone: 'Location updated',
+        actionsLabel: 'Actions',
+        deactivate: 'Deactivate this terminal',
+        reactivate: 'Reactivate this terminal',
+        deactivatedToast: (n) => `${n} deactivated`,
+        reactivatedToast: (n) => `${n} reactivated`,
+        deactivatedDesc: 'The terminal will stop accepting payments until reactivated.',
+        reactivatedDesc: 'The terminal is ready to take payments again.',
+        diagRunning: 'Running diagnostics',
+        diagDesc: 'Network, battery and firmware checked — no issues found.',
+        testUnavailable: 'Terminal offline — test unavailable',
+        dangerZone: 'Danger zone',
+        removeBtn: 'Remove from fleet',
+        removeTitle: 'Remove this terminal?',
+        removeDesc: (n) => `${n} will be removed from your Kiwi fleet. You can re-register it any time via "Add".`,
+        removeCta: 'Remove terminal',
+        removedToast: (n) => `${n} removed from fleet`,
+        addTitle: 'Add a terminal',
+        addIntro: 'Register a Kiwi device you already have. To order new hardware, use "Request a terminal".',
+        addCta: 'Add to fleet',
+        addedToast: (n) => `${n} added to fleet`,
+        addedDesc: 'The terminal is online and ready to take payments.',
     },
     ar: {
         loaned: 'معار · كيوي برو',
@@ -636,10 +702,75 @@ const TERMINAUX_STR = {
         cuisine: 'المطبخ',
         wifi: 'Wi-Fi',
         fourG: '4G',
+        // — إدارة الأسطول · إضافة / إدارة / تعطيل / إزالة —
+        manageTitle: 'إدارة الجهاز',
+        firmwareLabel: 'البرنامج الثابت',
+        batteryWord: 'البطارية',
+        locationLabel: 'الموقع',
+        locationPlaceholder: 'مثال: الكاونتر، الشرفة…',
+        networkLabel: 'الشبكة',
+        modelLabel: 'الموديل',
+        disabledStatus: 'معطّل',
+        save: 'حفظ',
+        cancel: 'إلغاء',
+        saveDone: 'تم تحديث الموقع',
+        actionsLabel: 'إجراءات',
+        deactivate: 'تعطيل هذا الجهاز',
+        reactivate: 'إعادة تفعيل هذا الجهاز',
+        deactivatedToast: (n) => `تم تعطيل ${n}`,
+        reactivatedToast: (n) => `تمت إعادة تفعيل ${n}`,
+        deactivatedDesc: 'لن يقبل الجهاز المدفوعات حتى إعادة تفعيله.',
+        reactivatedDesc: 'الجهاز جاهز لاستقبال المدفوعات من جديد.',
+        diagRunning: 'جارٍ التشخيص',
+        diagDesc: 'تم فحص الشبكة والبطارية والبرنامج الثابت — لم يتم العثور على مشاكل.',
+        testUnavailable: 'الجهاز غير متصل — التجربة غير متاحة',
+        dangerZone: 'منطقة حساسة',
+        removeBtn: 'إزالة من الأسطول',
+        removeTitle: 'إزالة هذا الجهاز؟',
+        removeDesc: (n) => `سيُزال ${n} من أسطول كيوي. يمكنك إعادة تسجيله في أي وقت عبر «إضافة».`,
+        removeCta: 'إزالة الجهاز',
+        removedToast: (n) => `تمت إزالة ${n} من الأسطول`,
+        addTitle: 'إضافة جهاز',
+        addIntro: 'سجّل جهاز كيوي موجوداً لديك بالفعل. لطلب جهاز جديد، استخدم «طلب جهاز».',
+        addCta: 'إضافة إلى الأسطول',
+        addedToast: (n) => `تمت إضافة ${n} إلى الأسطول`,
+        addedDesc: 'الجهاز متصل وجاهز لاستقبال المدفوعات.',
     },
 };
+/* Live fleet state — module-level so add / deactivate / remove survive the
+ * Terminaux drawer being closed & re-opened within a session. A full page
+ * reload re-seeds the demo fleet. */
+let TERM_FLEET = null;
+function termFleetSeed() {
+  return [
+    { id: 'KP-PRO-2831', model: 'KiwiPad pro',     loc: 'comptoir', net: 'wifi', img: 'Hardware_pictures/Hardware_gamefication4.png',    state: 'on',  batt: 87,  battStart: 96,  fw: '4.2.1', fwUpdate: false, txDay: 87,  life: 'loaned',      pulse: 0.70 },
+    { id: 'KP-CL-1208',  model: 'KiwiPad cashless', loc: 'salle',    net: '4g',   img: 'Hardware_pictures/Hardware_gamefication2.png',    state: 'on',  batt: 63,  battStart: 92,  fw: '2.0.4', fwUpdate: true,  txDay: 54,  life: 'purchased',   pulse: 0.55 },
+    { id: 'KP-PRO-2832', model: 'KiwiPad pro',     loc: 'terrasse', net: 'wifi', img: 'Hardware_pictures/Hardware_gamefication4.png',    state: 'off', batt: 64,  battStart: 88,  fw: '4.2.1', fwUpdate: false, txDay: 0,   life: 'replacement', pulse: 0.05 },
+    { id: 'KO-PRO-4501', model: 'KiwiOrders pro',  loc: 'cuisine',  net: 'wifi', img: 'Hardware_pictures/Hardware_KDSgamefication1.png', state: 'on',  batt: 100, battStart: 100, fw: '3.1.0', fwUpdate: false, txDay: 132, life: 'loaned',      pulse: 0.78 },
+  ];
+}
+function termFleet() { if (!TERM_FLEET) TERM_FLEET = termFleetSeed(); return TERM_FLEET; }
+
+/* Hardware the "Add a terminal" form can register. */
+const TERM_MODELS = {
+  'KiwiPad pro':      { prefix: 'KP-PRO', fw: '4.2.1', img: 'Hardware_pictures/Hardware_gamefication4.png' },
+  'KiwiPad cashless': { prefix: 'KP-CL',  fw: '2.0.4', img: 'Hardware_pictures/Hardware_gamefication2.png' },
+  'KiwiOrders pro':   { prefix: 'KO-PRO', fw: '3.1.0', img: 'Hardware_pictures/Hardware_KDSgamefication1.png' },
+};
+
 handlers['nav-terminaux'] = () => {
-  // sparkline helper — 30 points, 0..1 normalized
+  const T = TERMINAUX_STR[trLang()] || TERMINAUX_STR.fr;
+  const fleet = termFleet();
+  const lifeChip = { loaned: 'ok', purchased: 'neutral', replacement: 'pend' };
+  const lifeText = { loaned: T.loaned, purchased: T.purchased, replacement: T.replacement };
+
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const locName = (l) => T[l] || l;
+  const netName = (n) => (n === '4g' ? T.fourG : n === 'wifi' ? T.wifi : n);
+  const activeCount = () => fleet.filter((t) => t.state === 'on').length;
+  const byId = (id) => fleet.find((t) => t.id === id);
+
+  /* sparkline + battery-curve helpers */
   const spark = (arr, color = 'var(--atlas)') => {
     const max = Math.max(...arr, 1);
     const w = 120, h = 28;
@@ -653,85 +784,52 @@ handlers['nav-terminaux'] = () => {
   };
   const beat = (n) => Array.from({ length: 30 }, () => Math.max(0.4, n + (Math.random() - 0.5) * 0.5));
 
-  /* The Café Atlas fleet — KiwiPad pro / KiwiPad cashless / KiwiPad / KiwiOrders pro.
-   * `img` points to the gamification PNG; the catalog drawer uses the real photo. */
-  const T = TERMINAUX_STR[trLang()] || TERMINAUX_STR.fr;
-  const terms = [
-    {
-      id: 'KP-PRO-2831', name: 'KiwiPad pro', loc: T.comptoir,
-      img: 'Hardware_pictures/Hardware_gamefication4.png',
-      state: 'on', net: T.wifi, batt: 87, battStart: 96,
-      fw: '4.2.1', fwUpdate: false, txDay: 87,
-      life: 'loaned', lifeLabel: T.loaned,
-      spark: beat(0.7),
-    },
-    {
-      id: 'KP-CL-1208', name: 'KiwiPad cashless', loc: T.salle,
-      img: 'Hardware_pictures/Hardware_gamefication2.png',
-      state: 'on', net: T.fourG, batt: 63, battStart: 92,
-      fw: '2.0.4', fwUpdate: true, txDay: 54,
-      life: 'purchased', lifeLabel: T.purchased,
-      spark: beat(0.55),
-    },
-    {
-      id: 'KP-PRO-2832', name: 'KiwiPad pro', loc: T.terrasse,
-      img: 'Hardware_pictures/Hardware_gamefication4.png',
-      state: 'off', net: T.offlineStatus, batt: 64, battStart: 88,
-      fw: '4.2.1', fwUpdate: false, txDay: 0,
-      life: 'replacement', lifeLabel: T.replacement,
-      spark: beat(0.05),
-    },
-    {
-      id: 'KO-PRO-4501', name: 'KiwiOrders pro', loc: T.cuisine,
-      img: 'Hardware_pictures/Hardware_KDSgamefication1.png',
-      state: 'on', net: T.wifi, batt: 100, battStart: 100,
-      fw: '3.1.0', fwUpdate: false, txDay: 132,
-      life: 'loaned', lifeLabel: T.loaned,
-      spark: beat(0.78),
-    },
-  ];
-  const lifeChip = { loaned: 'ok', purchased: 'neutral', replacement: 'pend' };
-
-  drawer({
-    title: T.title,
-    subtitle: T.subtitle(v_count_active(terms), terms.length),
-    width: 780,
-    body: `
+  /* ── fleet markup · re-rendered in place after every mutation ───────── */
+  function fleetHtml() {
+    return `
       <div class="p-hero">
         <div class="l">${T.heroTitle}</div>
-        <div class="big">${v_count_active(terms)} / ${terms.length} <span style="font-size:18px; opacity:0.7;">${T.online}</span></div>
+        <div class="big">${activeCount()} / ${fleet.length} <span style="font-size:18px; opacity:0.7;">${T.online}</span></div>
         <div class="sub">${T.heroSubtitle}</div>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase;">${T.deployedDevices}</div>
-        <button class="kb ghost" data-action="add-terminal" style="padding:6px 12px; font-size:12px; gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>${T.add}</button>
+        <button class="kb ghost" data-action="term-add" style="padding:6px 12px; font-size:12px; gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>${T.add}</button>
       </div>
 
-      ${terms.map(t => `
-        <div class="p-card" style="margin-bottom:10px; ${t.state === 'off' ? 'background:#FFF4DD;' : ''}">
+      ${fleet.map((t) => {
+        const off = t.state === 'off';
+        const disabled = t.state === 'disabled';
+        const dim = off || disabled;
+        const bg = off ? 'background:#FFF4DD;' : disabled ? 'background:var(--paper-soft);' : '';
+        const dot = t.state === 'on' ? 'var(--success)' : off ? 'var(--danger)' : 'var(--n-400)';
+        const statusTxt = t.state === 'on' ? `${T.onlineStatus} · ${netName(t.net)}` : off ? `${T.offlineStatus} · 09:18` : T.disabledStatus;
+        const sparkColor = t.state === 'on' ? 'var(--atlas)' : off ? 'var(--danger)' : 'var(--n-400)';
+        return `
+        <div class="p-card" style="margin-bottom:10px; ${bg}">
           <div style="display:grid; grid-template-columns:104px 1fr auto; gap:14px; align-items:center; margin-bottom:12px;">
-            <div style="width:104px; height:80px; border-radius:11px; background:#fff; border:1px solid var(--n-200); display:flex; align-items:center; justify-content:center; padding:6px; ${t.state === 'off' ? 'opacity:0.55;' : ''}">
-              <img src="${t.img}" alt="${t.name}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
+            <div style="width:104px; height:80px; border-radius:11px; background:#fff; border:1px solid var(--n-200); display:flex; align-items:center; justify-content:center; padding:6px; ${dim ? 'opacity:0.55;' : ''}">
+              <img src="${t.img}" alt="${esc(t.model)}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
             </div>
             <div>
-              <div style="font-weight:600; font-size:14.5px; letter-spacing:-0.005em;">${t.name} · ${t.loc}</div>
-              <div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:2px;">S/N ${t.id} · firmware ${t.fw}${t.fwUpdate ? ` · <span class="chip pend" style="padding:1px 7px; font-size:10px; margin-left:4px;">${T.updateAvailable}</span>` : ''}</div>
+              <div style="font-weight:600; font-size:14.5px; letter-spacing:-0.005em;">${esc(t.model)} · ${esc(locName(t.loc))}</div>
+              <div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:2px;">S/N ${esc(t.id)} · firmware ${t.fw}${t.fwUpdate ? ` · <span class="chip pend" style="padding:1px 7px; font-size:10px; margin-left:4px;">${T.updateAvailable}</span>` : ''}</div>
               <div style="display:flex; gap:14px; margin-top:8px; font-size:11.5px; color:var(--n-600); flex-wrap:wrap;">
-                <span style="display:inline-flex; align-items:center; gap:5px;"><i style="width:6px; height:6px; border-radius:50%; background:${t.state==='on'?'var(--success)':'var(--danger)'};"></i>${t.state==='on'?`${T.onlineStatus} · ${t.net}`:`${T.offlineStatus} · 09:18`}</span>
+                <span style="display:inline-flex; align-items:center; gap:5px;"><i style="width:6px; height:6px; border-radius:50%; background:${dot};"></i>${statusTxt}</span>
                 <span>${t.txDay} ${T.txToday}</span>
-                <span class="chip ${lifeChip[t.life]}" style="padding:1px 8px; font-size:10px;">${t.lifeLabel}</span>
+                <span class="chip ${lifeChip[t.life] || 'neutral'}" style="padding:1px 8px; font-size:10px;">${lifeText[t.life] || ''}</span>
               </div>
             </div>
             <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
               <button class="kb ghost" data-action="term-test" data-arg="${t.id}" style="padding:5px 10px; font-size:11.5px; gap:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>${T.testTx}</button>
-              <button class="kb ${t.state==='off'?'atlas':'ghost'}" data-action="term-manage" data-arg="${t.id}" style="padding:5px 10px; font-size:11.5px;">${t.state==='off'?T.diagnose:T.manage}</button>
+              <button class="kb ${off ? 'atlas' : 'ghost'}" data-action="term-manage" data-arg="${t.id}" style="padding:5px 10px; font-size:11.5px;">${T.manage}</button>
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; padding-top:12px; border-top:1px solid var(--n-200);">
             <div>
               <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.beats}</div>
-              ${spark(t.spark, t.state === 'off' ? 'var(--danger)' : 'var(--atlas)')}
+              ${spark(beat(t.state === 'on' ? t.pulse : 0.05), sparkColor)}
             </div>
             <div>
               <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.battery} · ${t.batt} %</div>
@@ -739,28 +837,213 @@ handlers['nav-terminaux'] = () => {
             </div>
             <div>
               <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.lastTx}</div>
-              <div style="font-family:var(--mono); font-weight:500; font-size:13px;">${t.state==='on'?'14:'+(28+Math.floor(Math.random()*9)):'09:18'}</div>
-              <div style="font-size:11px; color:var(--n-500); margin-top:2px;">${t.state==='on'?Math.round(40+Math.random()*200)+',00 MAD':T.beforeDisconnect}</div>
+              <div style="font-family:var(--mono); font-weight:500; font-size:13px;">${t.state === 'on' ? '14:' + (28 + Math.floor(Math.random() * 9)) : '09:18'}</div>
+              <div style="font-size:11px; color:var(--n-500); margin-top:2px;">${t.state === 'on' ? Math.round(40 + Math.random() * 200) + ',00 MAD' : T.beforeDisconnect}</div>
             </div>
           </div>
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
 
       <div style="padding:18px; margin-top:6px; background:var(--paper-soft); border-radius:14px; border:1px dashed var(--n-300); text-align:center;">
         <div style="font-weight:600; margin-bottom:4px; font-size:14.5px;">${T.orderNewTerminal}</div>
         <div style="font-size:12.5px; color:var(--n-500); margin-bottom:12px;">${T.orderNewTerminalDesc}</div>
         <button class="kb atlas" data-action="add-terminal" style="padding:9px 18px;">${T.requestTerminal}</button>
       </div>
-    `,
+    `;
+  }
+
+  /* re-render the open drawer body + keep the sidebar badge in sync */
+  function refresh() {
+    const wrap = document.getElementById('term-fleet');
+    if (wrap) wrap.innerHTML = fleetHtml();
+    const sub = document.querySelector('.kiwi-drawer-backdrop .kiwi-drawer-head p');
+    if (sub) sub.textContent = T.subtitle(activeCount(), fleet.length);
+    const cnt = document.querySelector('a[data-nav="terminaux"] .count');
+    if (cnt) cnt.textContent = String(fleet.length);
+  }
+
+  /* shared form styling for the Manage / Add modals */
+  const fieldCss = 'width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:9px; font-size:13px; font-family:inherit; background:#fff; color:var(--ink); box-sizing:border-box;';
+  const labelCss = 'display:block; font-size:10px; letter-spacing:0.08em; font-family:var(--mono); color:var(--n-500); text-transform:uppercase; margin-bottom:6px;';
+
+  /* ── MANAGE one terminal · rename · activate/deactivate · diagnose · remove ── */
+  function openManage(t) {
+    const off = t.state === 'off';
+    const disabled = t.state === 'disabled';
+    const dot = t.state === 'on' ? 'var(--success)' : off ? 'var(--danger)' : 'var(--n-400)';
+    const statusTxt = t.state === 'on' ? `${T.onlineStatus} · ${netName(t.net)}` : off ? `${T.offlineStatus} · 09:18` : T.disabledStatus;
+    const m = modal({
+      title: `${esc(t.model)} · ${esc(locName(t.loc))}`,
+      tag: `S/N ${esc(t.id)}`,
+      width: 460,
+      body: `
+        <div style="display:flex; gap:13px; align-items:center; padding-bottom:14px; border-bottom:1px solid var(--n-200);">
+          <div style="width:80px; height:62px; border-radius:10px; background:#fff; border:1px solid var(--n-200); display:flex; align-items:center; justify-content:center; padding:6px; flex-shrink:0;">
+            <img src="${t.img}" alt="" style="max-width:100%; max-height:100%; object-fit:contain;">
+          </div>
+          <div style="font-size:12px; color:var(--n-600); line-height:1.65;">
+            <div style="display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--ink); font-size:12.5px;"><i style="width:7px; height:7px; border-radius:50%; background:${dot};"></i>${statusTxt}</div>
+            <div>${T.firmwareLabel} ${t.fw}${t.fwUpdate ? ` · <span style="color:#8A6210;">${T.updateAvailable}</span>` : ''}</div>
+            <div>${T.batteryWord} ${t.batt} % · ${t.txDay} ${T.txToday}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <label style="${labelCss}" for="term-loc-input">${T.locationLabel}</label>
+          <input id="term-loc-input" type="text" value="${esc(locName(t.loc))}" placeholder="${esc(T.locationPlaceholder)}" style="${fieldCss}">
+        </div>
+
+        <div style="margin-top:16px;">
+          <div style="${labelCss}">${T.actionsLabel}</div>
+          <div style="display:flex; gap:8px;">
+            <button id="term-mtest" class="kb ghost" style="flex:1; justify-content:center; padding:8px 10px; font-size:12px;">${T.testTx}</button>
+            <button id="term-mdiag" class="kb ghost" style="flex:1; justify-content:center; padding:8px 10px; font-size:12px;">${T.diagnose}</button>
+          </div>
+          <button id="term-mtoggle" class="kb ${disabled ? 'atlas' : 'ghost'}" style="width:100%; justify-content:center; margin-top:8px; padding:9px 12px; font-size:12.5px;">${disabled ? T.reactivate : T.deactivate}</button>
+        </div>
+
+        <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--n-200);">
+          <div style="font-size:10px; letter-spacing:0.08em; font-family:var(--mono); color:var(--danger); text-transform:uppercase; margin-bottom:8px;">${T.dangerZone}</div>
+          <button id="term-mremove" class="kb ghost" style="width:100%; justify-content:center; padding:9px 12px; font-size:12.5px; color:var(--danger); border-color:rgba(193,58,46,0.45);">${T.removeBtn}</button>
+        </div>
+      `,
+      foot: `
+        <button id="term-mcancel" class="kb ghost" style="padding:9px 16px;">${T.cancel}</button>
+        <button id="term-msave" class="kb atlas" style="padding:9px 16px;">${T.save}</button>
+      `,
+    });
+    const q = (s) => m.el.querySelector(s);
+    q('#term-mcancel').onclick = () => m.close();
+    q('#term-mtest').onclick = () => {
+      if (t.state !== 'on') { toast(T.testUnavailable, { type: 'info', duration: 1800 }); return; }
+      toast(`${T.testTxSent} · ${t.id.slice(-4)}`, { type: 'success', duration: 1800 });
+    };
+    q('#term-mdiag').onclick = () => toast(T.diagRunning, { type: 'info', duration: 2200, desc: T.diagDesc });
+    q('#term-msave').onclick = () => {
+      const v = q('#term-loc-input').value.trim();
+      if (v && v !== locName(t.loc)) t.loc = v;
+      m.close();
+      refresh();
+      toast(T.saveDone, { type: 'success', duration: 1600 });
+    };
+    q('#term-mtoggle').onclick = () => {
+      t.state = t.state === 'disabled' ? 'on' : 'disabled';
+      const nowOn = t.state === 'on';
+      m.close();
+      refresh();
+      toast(nowOn ? T.reactivatedToast(t.model) : T.deactivatedToast(t.model), {
+        type: nowOn ? 'success' : 'info',
+        duration: 2200,
+        desc: nowOn ? T.reactivatedDesc : T.deactivatedDesc,
+      });
+    };
+    q('#term-mremove').onclick = () => { m.close(); openRemove(t); };
+  }
+
+  /* ── REMOVE confirmation ────────────────────────────────────────────── */
+  function openRemove(t) {
+    const m = modal({
+      title: T.removeTitle,
+      width: 420,
+      desc: T.removeDesc(`${t.model} · ${locName(t.loc)}`),
+      body: `
+        <div style="display:flex; gap:12px; align-items:center; padding:12px; background:var(--paper-soft); border-radius:10px; border:1px solid var(--n-200);">
+          <div style="width:56px; height:44px; border-radius:8px; background:#fff; border:1px solid var(--n-200); display:flex; align-items:center; justify-content:center; padding:5px; flex-shrink:0;">
+            <img src="${t.img}" alt="" style="max-width:100%; max-height:100%; object-fit:contain;">
+          </div>
+          <div style="font-size:12px; color:var(--n-600);">
+            <div style="font-weight:600; color:var(--ink); font-size:13px;">${esc(t.model)} · ${esc(locName(t.loc))}</div>
+            <div style="font-family:var(--mono); margin-top:2px;">S/N ${esc(t.id)}</div>
+          </div>
+        </div>
+      `,
+      foot: `
+        <button id="term-rcancel" class="kb ghost" style="padding:9px 16px;">${T.cancel}</button>
+        <button id="term-rconfirm" class="kb danger" style="padding:9px 16px;">${T.removeCta}</button>
+      `,
+    });
+    m.el.querySelector('#term-rcancel').onclick = () => m.close();
+    m.el.querySelector('#term-rconfirm').onclick = () => {
+      const i = fleet.findIndex((x) => x.id === t.id);
+      if (i >= 0) fleet.splice(i, 1);
+      m.close();
+      refresh();
+      toast(T.removedToast(t.model), { type: 'success', duration: 2000 });
+    };
+  }
+
+  /* ── ADD a terminal to the fleet ────────────────────────────────────── */
+  function openAdd() {
+    const models = Object.keys(TERM_MODELS);
+    const m = modal({
+      title: T.addTitle,
+      width: 460,
+      desc: T.addIntro,
+      body: `
+        <div style="margin-bottom:13px;">
+          <label style="${labelCss}" for="term-add-model">${T.modelLabel}</label>
+          <select id="term-add-model" style="${fieldCss}">
+            ${models.map((mm) => `<option value="${esc(mm)}">${esc(mm)}</option>`).join('')}
+          </select>
+        </div>
+        <div style="margin-bottom:13px;">
+          <label style="${labelCss}" for="term-add-loc">${T.locationLabel}</label>
+          <input id="term-add-loc" type="text" placeholder="${esc(T.locationPlaceholder)}" style="${fieldCss}">
+        </div>
+        <div>
+          <label style="${labelCss}" for="term-add-net">${T.networkLabel}</label>
+          <select id="term-add-net" style="${fieldCss}">
+            <option value="wifi">${T.wifi}</option>
+            <option value="4g">${T.fourG}</option>
+          </select>
+        </div>
+      `,
+      foot: `
+        <button id="term-acancel" class="kb ghost" style="padding:9px 16px;">${T.cancel}</button>
+        <button id="term-asave" class="kb atlas" style="padding:9px 16px;">${T.addCta}</button>
+      `,
+    });
+    const q = (s) => m.el.querySelector(s);
+    q('#term-acancel').onclick = () => m.close();
+    q('#term-asave').onclick = () => {
+      const model = q('#term-add-model').value;
+      const spec = TERM_MODELS[model] || TERM_MODELS['KiwiPad pro'];
+      const loc = q('#term-add-loc').value.trim() || locName('comptoir');
+      const net = q('#term-add-net').value === '4g' ? '4g' : 'wifi';
+      const sn = `${spec.prefix}-${1000 + Math.floor(Math.random() * 8999)}`;
+      fleet.push({
+        id: sn, model, loc, net, img: spec.img,
+        state: 'on', batt: 100, battStart: 100, fw: spec.fw,
+        fwUpdate: false, txDay: 0, life: 'loaned', pulse: 0.5,
+      });
+      m.close();
+      refresh();
+      toast(T.addedToast(`${model} · ${loc}`), { type: 'success', duration: 2400, desc: T.addedDesc });
+    };
+  }
+
+  /* ── render the drawer ──────────────────────────────────────────────── */
+  drawer({
+    title: T.title,
+    subtitle: T.subtitle(activeCount(), fleet.length),
+    width: 780,
+    body: `<div id="term-fleet">${fleetHtml()}</div>`,
   });
+  const cnt0 = document.querySelector('a[data-nav="terminaux"] .count');
+  if (cnt0) cnt0.textContent = String(fleet.length);
 
-  if (!handlers['term-test'])   handlers['term-test']   = (_el, id) => toast(`${T.testTxSent} · ${(id||'').slice(-4)}`, { type: 'success', duration: 1800 });
-  if (!handlers['term-manage']) handlers['term-manage'] = (_el, id) => toast(T.diagOpen((id||'').slice(-4)), { type: 'info', duration: 1600 });
+  /* ── wire actions · re-bound each open so a language switch is applied ── */
+  handlers['term-test'] = (_el, id) => {
+    const t = byId(id);
+    if (!t) return;
+    if (t.state !== 'on') { toast(T.testUnavailable, { type: 'info', duration: 1800 }); return; }
+    toast(`${T.testTxSent} · ${id.slice(-4)}`, { type: 'success', duration: 1800 });
+  };
+  handlers['term-manage'] = (_el, id) => { const t = byId(id); if (t) openManage(t); };
+  handlers['term-add'] = () => openAdd();
 
-  /* "Ajouter" + "Demander un terminal" both open the catalog drawer. */
+  /* "Demander un terminal" → hardware catalogue (ordering brand-new gear). */
   handlers['add-terminal'] = () => handlers['terminal-catalog']?.();
-
-  function v_count_active(arr) { return arr.filter(x => x.state === 'on').length; }
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════

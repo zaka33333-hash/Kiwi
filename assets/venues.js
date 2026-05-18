@@ -900,7 +900,7 @@
     // Terminals + compliance badges — a brand-new venue has neither yet.
     const cv = isCustom(currentVenue);
     const termEl = document.querySelector('a[data-nav="terminaux"] .count');
-    if (termEl) termEl.textContent = cv ? '0' : '3';
+    if (termEl) termEl.textContent = cv ? '0' : '4';
     const confEl = document.querySelector('a[data-nav="conformite"] .tag');
     if (confEl) confEl.textContent = cv ? '—' : 'AAA';
     const staffCountEl = document.querySelector('a[data-nav="equipe"] .count');
