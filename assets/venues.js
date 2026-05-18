@@ -3331,6 +3331,7 @@
     const dogCost = buckets.dog.reduce((a, i) => a + miMarginVal(i) * Math.round(i.unitsThisMonth * 0.4), 0);
 
     return `
+      <div class="mi-perf">
       <div class="mi-section">
         <div class="mi-section-head">
           <h3>Performance des articles · Mai 2026</h3>
@@ -3356,6 +3357,7 @@
         <div class="mi-ai-t">Augmentez le prix du Tajine kefta</div>
         <div class="mi-ai-b">Le Tajine kefta est votre #1 — 542 unités ce mois, marge unitaire 128 MAD, contribution CA : 12 % du total. Sa popularité dépasse la médiane de 3,2× mais son prix n'a pas évolué depuis 18 mois. Les clients sont insensibles au prix sur leur plat préféré.</div>
         <div class="mi-ai-a">→ Passer de 180 à 195 MAD (+8 %) générerait ~8 130 MAD/mois additionnels avec un risque de perte estimé à &lt;3 % des unités.</div>
+      </div>
       </div>`;
   }
   function miMatrixHtml(venue) {
@@ -3386,6 +3388,7 @@
           ${dots}
         </div>
         <div class="mi-axis-x">Popularité — ventes mensuelles →</div>
+        <div class="mi-matrix-cap"><b>Taille des bulles</b> = chiffre d'affaires mensuel · survolez une carte ci-dessous pour isoler un quadrant</div>
       </div>`;
   }
   function miQuadAction(q) {
