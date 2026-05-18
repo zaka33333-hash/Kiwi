@@ -3106,6 +3106,10 @@
     .kit-order.is-new .kit-status { color: var(--forest); font-weight: 600; }
     .kit-note { display: flex; gap: 7px; margin: 0 15px 13px; padding: 8px 11px; background: #FFF8E8; border: 1px solid #F0E2BE; border-radius: 9px; font-size: 12px; color: var(--ink-2); line-height: 1.4; }
     .kit-note svg { width: 13px; height: 13px; flex-shrink: 0; color: #B47A14; margin-top: 1px; }
+    /* per-dish note shown under an item name on the kitchen ticket */
+    .kit-inote { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 12px; font-weight: 600; color: #B47A14; }
+    .kit-inote svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .kit-zoom .kit-inote { font-size: 14px; }
     .kit-items { list-style: none; margin: 0; padding: 13px 15px 15px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; flex: 1; }
     .kit-item { display: flex; align-items: flex-start; gap: 11px; }
     .kit-q { flex-shrink: 0; min-width: 28px; height: 25px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--ink); background: var(--paper-soft); border-radius: 7px; }
@@ -3152,23 +3156,25 @@
     .kit-zoom .kit-nm { font-size: 18px; }
     .kit-zoom .kit-act { padding: 18px; font-size: 17px; }
 
-    /* À emporter — kitchen note (compact single line) + send button */
-    .rp-knote { margin: 14px 0 16px; }
-    .rp-knote-field {
-      display: flex; align-items: center; gap: 8px;
-      height: 38px; padding: 0 12px;
-      border: 1px solid var(--line); border-radius: var(--r-lg);
+    /* Per-dish kitchen note — a compact input under each cart / order line */
+    .rp-item-note {
+      grid-column: 1 / -1;
+      width: 100%;
+      border: 1px solid var(--line); border-radius: 8px;
       background: var(--paper-soft);
-      transition: border-color 150ms, box-shadow 150ms, background 150ms;
+      font-family: var(--sans); font-size: 11.5px; color: var(--ink);
+      padding: 5px 9px;
+      transition: border-color 150ms, background 150ms, color 150ms;
     }
-    .rp-knote-field:focus-within { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(31,93,60,.1); background: #fff; }
-    .rp-knote-field svg { width: 14px; height: 14px; color: var(--ink-4); flex-shrink: 0; }
-    .rp-knote-field input {
-      flex: 1; min-width: 0; height: 100%;
-      border: 0; background: transparent; outline: none;
-      font-family: var(--sans); font-size: 12.5px; color: var(--ink); padding: 0;
+    .rp-item-note::placeholder { color: var(--ink-4); }
+    .rp-item-note:focus { outline: none; border-color: var(--forest); background: #fff; }
+    .rp-item-note.has-note { border-color: var(--forest); background: var(--mint-tint); color: var(--forest-deep); font-weight: 500; }
+    /* read-only note sub-line under a bill item (table addition) */
+    .rp-item-noteline {
+      grid-column: 1 / -1;
+      font-size: 11px; color: var(--forest); font-style: italic;
+      margin-top: 3px; padding-left: 2px;
     }
-    .rp-knote-field input::placeholder { color: var(--ink-4); }
     /* the `hidden` attribute is too weak vs. these flex rules — force it */
     #rp-server-row[hidden] { display: none; }
     #rp-send-kitchen[hidden] { display: none; }
@@ -3561,13 +3567,6 @@
           <div class="rp-summary-row"><span class="lbl">Service (0%)</span><span class="val mono">0 MAD</span></div>
           <div class="rp-tva-note">TVA comprise dans les prix</div>
           <div class="rp-total"><span class="lbl">Total</span><span class="val mono" id="rp-total">530 MAD</span></div>
-        </div>
-
-        <div class="rp-knote" id="rp-kitchen-note" hidden>
-          <div class="rp-knote-field">
-            <i data-lucide="pencil-line"></i>
-            <input type="text" id="rp-knote-input" placeholder="Note cuisine — sans oignon, allergies…" aria-label="Note pour la cuisine" />
-          </div>
         </div>
 
         <div class="rp-pay">
@@ -4320,7 +4319,7 @@
       if (orders[tableId]) return orders[tableId];
       // Live order built by cashier — convert to {qty,name,total} format
       if (tableId in tableOrders) {
-        return tableOrders[tableId].map(l => ({ qty: l.qty, name: l.name, total: l.price * l.qty }));
+        return tableOrders[tableId].map(l => ({ qty: l.qty, name: l.name, total: l.price * l.qty, note: l.note || '' }));
       }
       const seed = parseInt(tableId.replace('T',''), 10);
       const lines = [];
@@ -4547,6 +4546,7 @@
           <span class="rp-item-qty">${l.qty}×</span>
           <span class="rp-item-name">${l.name}</span>
           <span class="rp-item-price mono">${fmtMAD(l.total)}</span>
+          ${l.note && l.note.trim() ? `<span class="rp-item-noteline">Note cuisine · ${kdsEsc(l.note)}</span>` : ''}
         </div>
       `).join('');
       if (discAmt > 0) {
@@ -4572,8 +4572,7 @@
       $('#cash-received').value = net;
       updateRendu();
       showPayButtons(false);
-      // Kitchen note + send button are À emporter only
-      $('#rp-kitchen-note').hidden = true;
+      // "Envoyer en cuisine" is À emporter only
       $('#rp-send-kitchen').hidden = true;
     }
 
@@ -4721,7 +4720,11 @@
     ];
 
     let activeCat = 'all';
-    let cart = []; // { id, name, price, qty }
+    let cart = []; // line: { uid, id, name, price, qty, note }
+    /* Stable per-line id so the same dish can sit on two lines with
+       different kitchen notes (id stays = menu id for menu/station lookups). */
+    let lineSeq = 0;
+    const newLineUid = () => 'ln' + (++lineSeq);
     /* À emporter — an existing board order can be re-opened in the builder
        for editing. vrapEditingNum holds its number (null = new order).
        vrapDiscount holds a manager-approved réduction on the cart. */
@@ -4760,8 +4763,8 @@
       const activeSource = (mode === 'order' && selectedId)
         ? (tableOrders[selectedId] || []) : cart;
       $('#menu-grid').innerHTML = items.map(m => {
-        const inCart = activeSource.find(c => c.id === m.id);
-        const qty = inCart ? inCart.qty : 0;
+        // qty badge = total across every line of this dish (noted + plain)
+        const qty = activeSource.filter(c => c.id === m.id).reduce((s, c) => s + c.qty, 0);
         const control = qty > 0
           ? `
             <span class="menu-item-stepper">
@@ -4787,9 +4790,10 @@
     function addToCart(itemId) {
       const item = menuItems.find(m => m.id === itemId);
       if (!item) return;
-      const existing = cart.find(c => c.id === itemId);
-      if (existing) existing.qty++;
-      else cart.push({ id: itemId, name: item.name, price: item.price, qty: 1 });
+      // Stack onto the un-noted line; a noted line is "locked" so a fresh add splits off.
+      const line = cart.find(c => c.id === itemId && !(c.note || '').trim());
+      if (line) line.qty++;
+      else cart.push({ uid: newLineUid(), id: itemId, name: item.name, price: item.price, qty: 1, note: '' });
 
       // Brief pop animation on the card
       const card = document.querySelector(`.menu-item[data-menu-id="${itemId}"]`);
@@ -4802,13 +4806,21 @@
       renderCart();
     }
 
-    function changeCartQty(itemId, delta) {
-      const line = cart.find(c => c.id === itemId);
+    /* Cart panel +/- — targets one specific line by its uid. */
+    function changeCartLineQty(uid, delta) {
+      const line = cart.find(c => c.uid === uid);
       if (!line) return;
       line.qty += delta;
-      if (line.qty <= 0) cart = cart.filter(c => c.id !== itemId);
+      if (line.qty <= 0) cart = cart.filter(c => c.uid !== uid);
       renderMenu();
       renderCart();
+    }
+
+    /* Menu-card − — removes one unit of a dish (the plain line, else the last). */
+    function cartMinusMenu(itemId) {
+      const lines = cart.filter(c => c.id === itemId);
+      const line = lines.find(c => !(c.note || '').trim()) || lines[lines.length - 1];
+      if (line) changeCartLineQty(line.uid, -1);
     }
 
     function clearCart() {
@@ -4852,7 +4864,7 @@
 
       // Items with +/- controls
       let itemsHTML = cart.map(l => `
-        <div class="rp-item rp-item--cart" data-cart-id="${l.id}">
+        <div class="rp-item rp-item--cart" data-cart-uid="${l.uid}">
           <div class="qty-control">
             <button class="qty-btn" data-cart-action="dec" aria-label="Moins">−</button>
             <span class="qty-num mono">${l.qty}</span>
@@ -4860,6 +4872,9 @@
           </div>
           <span class="rp-item-name">${l.name}</span>
           <span class="rp-item-price mono">${fmtMAD(l.price * l.qty)}</span>
+          <input class="rp-item-note${(l.note || '').trim() ? ' has-note' : ''}" data-note-uid="${l.uid}"
+            value="${kdsEsc(l.note || '')}" placeholder="Note cuisine — ex. bien chaud, sans oignon"
+            aria-label="Note cuisine — ${kdsEsc(l.name)}" />
         </div>
       `).join('');
       if (discAmt > 0) {
@@ -4884,8 +4899,7 @@
       $('#cash-received').value = net;
       updateRendu();
       showPayButtons(false);
-      // Kitchen note always; "Envoyer en cuisine" only for a brand-new order.
-      $('#rp-kitchen-note').hidden = false;
+      // "Envoyer en cuisine" only for a brand-new order (not when editing one).
       $('#rp-send-kitchen').hidden = editing;
       if (discAmt > 0 && window.lucide) lucide.createIcons();
     }
@@ -4918,11 +4932,11 @@
       if (stepBtn) {
         const card = stepBtn.closest('.menu-item');
         if (card) {
-          const action = stepBtn.dataset.step;
+          const mid = card.dataset.menuId, inc = stepBtn.dataset.step === 'inc';
           if (mode === 'order' && selectedId) {
-            changeTableOrderQty(selectedId, card.dataset.menuId, action === 'inc' ? 1 : -1);
+            inc ? addToTableOrder(selectedId, mid) : tableOrderMinusMenu(selectedId, mid);
           } else {
-            changeCartQty(card.dataset.menuId, action === 'inc' ? 1 : -1);
+            inc ? addToCart(mid) : cartMinusMenu(mid);
           }
         }
         return;
@@ -4939,21 +4953,29 @@
         return;
       }
 
-      // Cart qty +/- buttons (vente rapida)
+      // Cart qty +/- buttons (vente rapida) — one specific line by uid
       const qtyBtn = e.target.closest('.qty-btn');
       if (qtyBtn) {
-        const row = qtyBtn.closest('[data-cart-id]');
-        if (row) {
-          const action = qtyBtn.dataset.cartAction;
-          changeCartQty(row.dataset.cartId, action === 'inc' ? 1 : -1);
-        }
-        // Order panel qty +/- buttons
-        const oRow = qtyBtn.closest('[data-order-id]');
-        if (oRow && mode === 'order' && selectedId) {
-          const action = qtyBtn.dataset.cartAction;
-          changeTableOrderQty(selectedId, oRow.dataset.orderId, action === 'inc' ? 1 : -1);
-        }
+        const d = qtyBtn.dataset.cartAction === 'inc' ? 1 : -1;
+        const row = qtyBtn.closest('[data-cart-uid]');
+        if (row) changeCartLineQty(row.dataset.cartUid, d);
+        const oRow = qtyBtn.closest('[data-order-uid]');
+        if (oRow && mode === 'order' && selectedId) changeTableOrderLineQty(selectedId, oRow.dataset.orderUid, d);
         return;
+      }
+    });
+
+    /* Per-dish kitchen note typed into a line — persist without re-rendering
+       (so focus stays); the note then routes with that dish to its station. */
+    document.addEventListener('input', (e) => {
+      const inp = e.target.closest('.rp-item-note');
+      if (!inp) return;
+      const uid = inp.dataset.noteUid;
+      const list = (mode === 'order' && selectedId) ? (tableOrders[selectedId] || []) : cart;
+      const line = list.find(l => l.uid === uid);
+      if (line) {
+        line.note = inp.value;
+        inp.classList.toggle('has-note', !!inp.value.trim());
       }
     });
     document.addEventListener('keydown', (e) => {
@@ -5359,7 +5381,6 @@
       order.style.display = forOrder ? 'flex' : 'none';
       // Order-builder mode has its own "Envoyer en cuisine" — hide the À emporter one
       if (forOrder) {
-        const kn = $('#rp-kitchen-note'); if (kn) kn.hidden = true;
         const sk = $('#rp-send-kitchen'); if (sk) sk.hidden = true;
       }
     }
@@ -5408,9 +5429,10 @@
       if (!tableOrders[tableId]) tableOrders[tableId] = [];
       const item = menuItems.find(m => m.id === itemId);
       if (!item) return;
-      const existing = tableOrders[tableId].find(l => l.id === itemId);
-      if (existing) existing.qty++;
-      else tableOrders[tableId].push({ id: itemId, name: item.name, price: item.price, qty: 1 });
+      // Stack onto the un-noted line; a noted line splits off so it keeps its note.
+      const line = tableOrders[tableId].find(l => l.id === itemId && !(l.note || '').trim());
+      if (line) line.qty++;
+      else tableOrders[tableId].push({ uid: newLineUid(), id: itemId, name: item.name, price: item.price, qty: 1, note: '' });
       // Pop animation on card
       const card = document.querySelector(`.menu-item[data-menu-id="${itemId}"]`);
       if (card) { card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop'); }
@@ -5418,14 +5440,22 @@
       renderOrderPanel(tableId);
     }
 
-    function changeTableOrderQty(tableId, itemId, delta) {
+    /* Order panel +/- — targets one specific line by its uid. */
+    function changeTableOrderLineQty(tableId, uid, delta) {
       if (!tableOrders[tableId]) return;
-      const line = tableOrders[tableId].find(l => l.id === itemId);
+      const line = tableOrders[tableId].find(l => l.uid === uid);
       if (!line) return;
       line.qty += delta;
-      if (line.qty <= 0) tableOrders[tableId] = tableOrders[tableId].filter(l => l.id !== itemId);
+      if (line.qty <= 0) tableOrders[tableId] = tableOrders[tableId].filter(l => l.uid !== uid);
       renderMenu();
       renderOrderPanel(tableId);
+    }
+
+    /* Menu-card − in order mode — removes one unit (plain line, else the last). */
+    function tableOrderMinusMenu(tableId, itemId) {
+      const lines = (tableOrders[tableId] || []).filter(l => l.id === itemId);
+      const line = lines.find(l => !(l.note || '').trim()) || lines[lines.length - 1];
+      if (line) changeTableOrderLineQty(tableId, line.uid, -1);
     }
 
     /* ---- order panel (right panel while building an order) ---- */
@@ -5470,7 +5500,7 @@
           </div>`;
       } else {
         $('#rp-items').innerHTML = order.map(l => `
-          <div class="rp-item rp-item--cart" data-order-id="${l.id}">
+          <div class="rp-item rp-item--cart" data-order-uid="${l.uid}">
             <div class="qty-control">
               <button class="qty-btn" data-cart-action="dec" aria-label="Moins">−</button>
               <span class="qty-num mono">${l.qty}</span>
@@ -5478,6 +5508,9 @@
             </div>
             <span class="rp-item-name">${l.name}</span>
             <span class="rp-item-price mono">${fmtMAD(l.price * l.qty)}</span>
+            <input class="rp-item-note${(l.note || '').trim() ? ' has-note' : ''}" data-note-uid="${l.uid}"
+              value="${kdsEsc(l.note || '')}" placeholder="Note cuisine — ex. bien chaud, sans oignon"
+              aria-label="Note cuisine — ${kdsEsc(l.name)}" />
           </div>`).join('');
       }
 
@@ -7882,9 +7915,9 @@
         { num: 40, type: 'dineIn', table: '8', status: 'ready', ago: 1390, readyAt: '14:10', items: [
           { q: 3, n: 'Briouates viande', stations: ['cuisson'] }, { q: 2, n: 'Msemen beurre & miel', stations: ['pastry'] } ] },
         { num: 41, type: 'takeaway', status: 'ready', ago: 1155, readyAt: '14:22', total: 280, items: [
-          { q: 2, n: 'Méchoui', p: 120, stations: ['bbq'] }, { q: 2, n: 'Orange pressée', p: 20, stations: ['boissons'] } ] },
+          { q: 2, n: 'Méchoui', p: 120, note: 'bien cuit', stations: ['bbq'] }, { q: 2, n: 'Orange pressée', p: 20, stations: ['boissons'] } ] },
         { num: 42, type: 'dineIn', table: '4', status: 'cooking', ago: 1010, items: [
-          { q: 2, n: 'Tajine kefta œuf', stations: ['cuisson'] }, { q: 1, n: 'Salade marocaine', stations: ['salade'] }, { q: 3, n: 'Thé à la menthe', stations: ['boissons'] } ] },
+          { q: 2, n: 'Tajine kefta œuf', note: 'sans coriandre', stations: ['cuisson'] }, { q: 1, n: 'Salade marocaine', stations: ['salade'] }, { q: 3, n: 'Thé à la menthe', stations: ['boissons'] } ] },
         { num: 43, type: 'glovo', code: '3412', status: 'cooking', ago: 742, items: [
           { q: 2, n: 'Tajine poulet citron', stations: ['cuisson'] }, { q: 1, n: 'Cornes de gazelle', stations: ['pastry'] } ] },
         { num: 44, type: 'dineIn', table: '7', status: 'cooking', ago: 620, items: [
@@ -7892,7 +7925,7 @@
         { num: 45, type: 'jumia', code: '8821', status: 'cooking', ago: 388, items: [
           { q: 3, n: 'Tajine kefta œuf', stations: ['cuisson'] }, { q: 2, n: 'Cocktail mocktail', stations: ['bar'] } ] },
         { num: 46, type: 'dineIn', table: '2', status: 'cooking', ago: 256, items: [
-          { q: 2, n: 'Crêpe complète', stations: ['crepes'] }, { q: 4, n: 'Café noir double', stations: ['boissons'] } ] },
+          { q: 2, n: 'Crêpe complète', stations: ['crepes'] }, { q: 4, n: 'Café noir double', note: '2 sans sucre', stations: ['boissons'] } ] },
         { num: 47, type: 'dineIn', table: '9', status: 'new', ago: 184, items: [
           { q: 4, n: 'Briouates viande', stations: ['cuisson'] }, { q: 2, n: "Caviar d'aubergine", stations: ['salade'] } ] },
         { num: 48, type: 'glovo', code: '3590', status: 'new', ago: 92, items: [
@@ -7901,14 +7934,14 @@
           { q: 1, n: 'Tajine agneau pruneaux', stations: ['cuisson'] } ] },
         { num: 50, type: 'takeaway', status: 'cooking', ago: 360, total: 130, items: [
           { q: 2, n: 'Sandwich kefta', p: 50, stations: ['cuisson'] }, { q: 2, n: 'Café noir double', p: 15, stations: ['boissons'] } ] },
-        { num: 51, type: 'takeaway', status: 'ready', ago: 690, readyAt: '14:30', paid: true, total: 205, note: 'Bien chaud svp', items: [
-          { q: 1, n: 'Pastilla poulet', p: 145, stations: ['cuisson', 'pastry'] }, { q: 2, n: 'Thé à la menthe', p: 30, stations: ['boissons'] } ] },
+        { num: 51, type: 'takeaway', status: 'ready', ago: 690, readyAt: '14:30', paid: true, total: 205, items: [
+          { q: 1, n: 'Pastilla poulet', p: 145, stations: ['cuisson', 'pastry'] }, { q: 2, n: 'Thé à la menthe', p: 30, note: 'bien chaud svp', stations: ['boissons'] } ] },
         { num: 52, type: 'takeaway', status: 'ready', ago: 1500, readyAt: '14:02', paid: true, pickedUp: true, pickedUpAt: '14:09', total: 230, items: [
           { q: 3, n: 'Briouates viande', p: 65, stations: ['cuisson'] }, { q: 1, n: "Jus d'orange", p: 35, stations: ['boissons'] } ] },
       ];
       seed.forEach(s => kdsOrders.push({
         num: s.num, type: s.type, table: s.table || null, code: s.code || null,
-        status: s.status, readyAt: s.readyAt || null, note: s.note || '',
+        status: s.status, readyAt: s.readyAt || null,
         items: s.items, sentAt: new Date(Date.now() - s.ago * 1000),
         paid: !!s.paid, pickedUp: !!s.pickedUp, pickedUpAt: s.pickedUpAt || null, total: s.total || 0,
       }));
@@ -7947,7 +7980,8 @@
       const isNew = o.status === 'new', isReady = o.status === 'ready';
       const items = o.items.map(i => {
         const off = kdsActiveStation !== 'all' && !i.stations.includes(kdsActiveStation);
-        return `<li class="kit-item${off ? ' kit-item-off' : ''}"><span class="kit-q">${i.q}</span><span class="kit-nm">${kdsEsc(i.n)}</span></li>`;
+        const note = (i.note || '').trim();
+        return `<li class="kit-item${off ? ' kit-item-off' : ''}"><span class="kit-q">${i.q}</span><span class="kit-nm">${kdsEsc(i.n)}${note ? `<span class="kit-inote">${KDS_SVG.note}<span>${kdsEsc(note)}</span></span>` : ''}</span></li>`;
       }).join('');
       const act = isReady ? ''
         : isNew ? `<button class="kit-act kit-act-accept" data-kit-accept="${o.num}">Accepter</button>`
@@ -7965,7 +7999,6 @@
           ${kdsTypeChip(o)}
           <span class="kit-status">${isReady ? 'Servie' : isNew ? 'Nouvelle' : 'En préparation'}</span>
         </div>
-        ${o.note ? `<div class="kit-note">${KDS_SVG.note}<span>${kdsEsc(o.note)}</span></div>` : ''}
         <ul class="kit-items">${items}</ul>
         ${act}`;
     }
@@ -8106,16 +8139,15 @@
     /* À emporter — push the current cart to the kitchen screen as a new order */
     function sendToKitchen() {
       if (mode !== 'vrap' || cart.length === 0) { toast('Ajoute des articles d\'abord'); return; }
-      const noteEl = $('#rp-knote-input');
-      const note   = noteEl ? noteEl.value.trim() : '';
       const total  = cart.reduce((s, l) => s + l.price * l.qty, 0);
       const items  = cart.map(l => {
         const m = menuItems.find(x => x.id === l.id);
-        return { q: l.qty, n: l.name, p: l.price, stations: [(m && KDS_CAT_STATION[m.cat]) || 'cuisson'] };
+        return { q: l.qty, n: l.name, p: l.price, note: (l.note || '').trim(),
+          stations: [(m && KDS_CAT_STATION[m.cat]) || 'cuisson'] };
       });
       const order = {
         num: ++kdsOrderSeq, type: 'takeaway', status: 'new',
-        readyAt: null, note: note, items: items, sentAt: new Date(),
+        readyAt: null, items: items, sentAt: new Date(),
         paid: false, pickedUp: false, pickedUpAt: null, total: total,
       };
       kdsOrders.push(order);
@@ -8123,7 +8155,6 @@
       updateKdsCount();
       if (kdsEl.classList.contains('is-open')) kdsPaint();
       clearCart();
-      if (noteEl) noteEl.value = '';
       setVrapView('board');
       toast(`Commande #${order.num} envoyée en cuisine · ${count} article${count > 1 ? 's' : ''}`);
     }
@@ -8168,6 +8199,9 @@
       let action = '';
       if (!o.paid) action = `<button class="vrap-act">Encaisser</button>`;
       else if (!o.pickedUp) action = `<button class="vrap-act" data-vrap-handover="${o.num}">Remettre au client</button>`;
+      const notes = o.items.filter(i => (i.note || '').trim())
+        .map(i => `<div class="vrap-order-note"><i data-lucide="pencil-line"></i> <strong>${kdsEsc(i.n)}</strong> · ${kdsEsc(i.note)}</div>`)
+        .join('');
       return `<div class="vrap-order${ready ? ' is-ready' : ''}${o.paid ? '' : ' is-open'}" data-vrap-num="${o.num}">
         <div class="vrap-order-head">
           <span class="vrap-order-num">#${o.num}</span>
@@ -8178,7 +8212,7 @@
           <span class="vrap-badge ${o.paid ? 'p-paid' : 'p-unpaid'}">${o.paid ? 'Payé' : 'Non payé'}</span>
         </div>
         <div class="vrap-order-items">${vrapItemsLine(o)}</div>
-        ${o.note ? `<div class="vrap-order-note"><i data-lucide="pencil-line"></i> ${kdsEsc(o.note)}</div>` : ''}
+        ${notes}
         <div class="vrap-order-foot">
           <span class="vrap-order-total">${fmtMAD(o.total)}</span>
           ${action}
@@ -8226,12 +8260,12 @@
        réduction, then pay through the real card / cash modals.
        State (vrapEditingNum / vrapDiscount) is declared up top. */
 
-    /* cart lines → order item objects, preserving each line's kitchen station */
+    /* cart lines → order item objects, preserving each line's kitchen station + note */
     function vrapCartItems(o) {
       return cart.map(c => {
         const orig = o && o.items.find(it => it.n === c.name);
         const m = menuItems.find(x => x.id === c.id);
-        return { q: c.qty, n: c.name, p: c.price,
+        return { q: c.qty, n: c.name, p: c.price, note: (c.note || '').trim(),
           stations: orig ? orig.stations : [(m && KDS_CAT_STATION[m.cat]) || 'cuisson'] };
       });
     }
@@ -8243,8 +8277,6 @@
       if (!o || o.paid || cart.length === 0) return;
       o.items = vrapCartItems(o);
       o.total = cart.reduce((s, c) => s + c.price * c.qty, 0);   // gross — réduction is checkout-only
-      const ni = $('#rp-knote-input');
-      if (ni) o.note = ni.value.trim();
     }
 
     /* Card / cash cleared in À emporter mode. For an order being edited this
@@ -8256,8 +8288,6 @@
           o.paid  = true;
           o.total = currentTotal();          // net of any réduction
           if (cart.length) o.items = vrapCartItems(o);
-          const ni = $('#rp-knote-input');
-          if (ni) o.note = ni.value.trim();
           toast(`Commande #${o.num} encaissée · ${fmtMAD(o.total)}`);
         }
         vrapEditingNum = null;
@@ -8277,13 +8307,14 @@
       cart = o.items.map(i => {
         const m = menuItems.find(x => x.name === i.n);
         return {
+          uid:   newLineUid(),
           id:    m ? m.id : ('x-' + i.n),
           name:  i.n,
           price: i.p != null ? i.p : (m ? m.price : 0),
           qty:   i.q,
+          note:  i.note || '',
         };
       });
-      const ni = $('#rp-knote-input'); if (ni) ni.value = o.note || '';
       setVrapView('builder');
       renderMenu();
       renderCart();
