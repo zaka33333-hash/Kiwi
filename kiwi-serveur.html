@@ -709,6 +709,28 @@
       letter-spacing: -0.02em;
     }
 
+    /* Kitchen note — serveur jots allergies / requests before "Lancer" */
+    .td-knote {
+      display: flex; align-items: center; gap: 9px;
+      height: 46px; padding: 0 14px;
+      border: 1px solid var(--line); border-radius: var(--r-lg);
+      background: var(--paper-mute);
+      transition: border-color 150ms, box-shadow 150ms, background 150ms;
+    }
+    .td-knote:focus-within {
+      border-color: var(--forest);
+      box-shadow: 0 0 0 3px rgba(31,93,60,.1);
+      background: #fff;
+    }
+    .td-knote svg { width: 15px; height: 15px; color: var(--ink-4); flex-shrink: 0; }
+    .td-knote input {
+      flex: 1; min-width: 0; height: 100%;
+      border: 0; background: transparent; outline: none;
+      font-family: var(--sans); font-size: 13px; color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .td-knote input::placeholder { color: var(--ink-4); }
+
     .td-footer {
       flex: 0 0 auto;
       padding: 12px 16px 18px;
@@ -1971,6 +1993,21 @@
     /* Payment-choice sheet shown when serveur taps "Encaisser" */
     .pay-choice { display: flex; flex-direction: column; gap: 10px; }
     .pay-choice .td-btn { width: 100%; }
+    /* card + cash share one row as icon-only buttons (mirrors caisse) */
+    .pay-row { display: flex; gap: 8px; }
+    .pay-icon {
+      flex: 1;
+      height: 56px;
+      border-radius: var(--r-lg);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff;
+      box-shadow: var(--shadow-1);
+      transition: transform 150ms ease, filter 150ms ease;
+    }
+    .pay-icon:active { transform: scale(0.98); }
+    .pay-icon svg { width: 23px; height: 23px; }
+    .pay-icon.card { background: var(--ink); }
+    .pay-icon.cash { background: var(--gradient); }
 
     /* ---------- Toast ---------- */
     #toast-stack {
@@ -2642,12 +2679,14 @@
           <h3 class="modal-title">Encaisser <span id="pc-table-id">T2</span></h3>
           <p class="modal-subtle">Total: <span id="pc-total" class="mono">530 MAD</span></p>
           <div class="pay-choice">
-            <button class="td-btn primary" data-pay="card">
-              <i data-lucide="credit-card"></i> Payer par carte
-            </button>
-            <button class="td-btn dark" data-pay="cash">
-              <i data-lucide="banknote"></i> Flous — espèces
-            </button>
+            <div class="pay-row">
+              <button class="pay-icon card" data-pay="card" aria-label="Payer par carte">
+                <i data-lucide="credit-card"></i>
+              </button>
+              <button class="pay-icon cash" data-pay="cash" aria-label="Payer en espèces">
+                <i data-lucide="banknote"></i>
+              </button>
+            </div>
             <button class="td-btn ghost" data-pay="split">
               <i data-lucide="divide"></i> Partager l'addition
             </button>
@@ -3032,6 +3071,9 @@
     /* Tables with unsent changes (need "Lancer la commande" to send to terminals) */
     const dirtyOrders = new Set();
     function markDirty(tableId) { if (tableId) dirtyOrders.add(tableId); }
+
+    /* Per-table kitchen note typed before the order is sent (allergies, requests) */
+    const tableKitchenNotes = {};
     function ensureTableOrder(id) {
       if (!tableOrders[id]) {
         const t = tables[id];
@@ -3518,6 +3560,7 @@
       const t = tables[id];
       const order = ensureTableOrder(id);
       const total = order.reduce((s, l) => s + l.price * l.qty, 0);
+      const isDirty = dirtyOrders.has(id);
 
       $('#td-table-name').textContent = `${id} · ${t.covers} couvert${t.covers > 1 ? 's' : ''}`;
       $('#td-table-meta').textContent = (t.status === 'khawya' || t.status === 'khlass')
@@ -3562,6 +3605,13 @@
           }
         }).join('');
 
+        const knoteHTML = isDirty ? `
+          <div class="td-knote">
+            <i data-lucide="pencil-line"></i>
+            <input type="text" id="td-knote-input" placeholder="Note cuisine — sans oignon, allergies…" aria-label="Note pour la cuisine" />
+          </div>
+        ` : '';
+
         body.innerHTML = `
           <div class="td-order-list">${itemsHTML}</div>
           <div class="td-summary">
@@ -3572,12 +3622,14 @@
               <span class="val">${fmtMAD(total)}</span>
             </div>
           </div>
+          ${knoteHTML}
         `;
+        const knInput = $('#td-knote-input');
+        if (knInput) knInput.value = tableKitchenNotes[id] || '';
       }
 
       // Footer buttons depend on status
       const footer = $('#td-footer');
-      const isDirty = dirtyOrders.has(id);
       const lancerHTML = isDirty ? `
         <button class="td-btn primary lancer-btn" data-action="lancer">
           <i data-lucide="send-horizontal"></i> Lancer la commande
@@ -3712,7 +3764,9 @@
         setTab('menu');
       } else if (action === 'lancer') {
         // Send the order to the kitchen + bar terminals
+        const knote = (tableKitchenNotes[activeTableId] || '').trim();
         dirtyOrders.delete(activeTableId);
+        delete tableKitchenNotes[activeTableId];
         renderTableDetail();
         // Count routing for a richer toast (food → cuisine, drinks → bar)
         const order = tableOrders[activeTableId] || [];
@@ -3729,6 +3783,7 @@
         if (foodIds > 0 && drinkIds > 0)      msg += ` · cuisine + bar`;
         else if (foodIds > 0)                 msg += ` · cuisine`;
         else if (drinkIds > 0)                msg += ` · bar`;
+        if (knote)                            msg += ` · note transmise`;
         toast(msg);
       } else if (action === 'ask-bill') {
         const t = tables[activeTableId];
@@ -3746,6 +3801,7 @@
         tables[id].elapsed = 0;
         delete tableOrders[id];
         dirtyOrders.delete(id);
+        delete tableKitchenNotes[id];
         tableSplits.delete(id);
         activeTableId = null;
         showScreen('screen-main');
@@ -3779,6 +3835,13 @@
       if (!row) return;
       changeOrderQty(activeTableId, row.dataset.orderId, qBtn.dataset.qty === 'inc' ? 1 : -1);
       renderTableDetail();
+    });
+
+    /* ---- kitchen note — persist as the serveur types ---- */
+    $('#td-body').addEventListener('input', (e) => {
+      if (e.target.id === 'td-knote-input' && activeTableId) {
+        tableKitchenNotes[activeTableId] = e.target.value;
+      }
     });
 
     function changeOrderQty(tableId, lineId, delta) {
