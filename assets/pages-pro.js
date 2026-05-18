@@ -8700,10 +8700,14 @@ handlers['bout-cat-publish'] = () => {
       .kit-history-head .kit-history-x:hover { color: var(--ink); border-color: var(--n-400); }
       .kit-history-head .kit-history-x svg { width: 13px; height: 13px; }
       .kit-history-rows { display: flex; flex-direction: column; gap: 8px; }
-      .kit-hrow { display: flex; align-items: center; gap: 9px; background: #fff; border: 1px solid var(--n-200); border-radius: 11px; padding: 11px 13px; }
+      .kit-hrow { display: flex; align-items: center; gap: 9px; width: 100%; text-align: start; font-family: inherit; appearance: none; -webkit-appearance: none; background: #fff; border: 1px solid var(--n-200); border-radius: 11px; padding: 11px 13px; cursor: pointer; transition: border-color 130ms ease, background 130ms ease; }
+      .kit-hrow:hover { border-color: var(--n-400); background: var(--paper-soft); }
       .kit-hrow-num { font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; flex-shrink: 0; }
       .kit-hrow-time { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 11px; color: var(--atlas); flex-shrink: 0; }
       .kit-hrow-time svg { width: 13px; height: 13px; }
+      .kit-hrow-eye { width: 16px; height: 16px; color: var(--n-400); flex-shrink: 0; }
+      .kit-served-at { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 15px; font-weight: 600; padding: 5px 9px; border-radius: 8px; line-height: 1; color: var(--atlas); background: rgba(11,110,79,0.10); flex-shrink: 0; }
+      .kit-served-at svg { width: 13px; height: 13px; }
       .kit-zoom-backdrop { position: fixed; inset: 0; z-index: 9995; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(10,15,13,0.46); -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px); opacity: 0; transition: opacity 220ms ease; }
       .kit-zoom-backdrop.in { opacity: 1; }
       .kit-zoom { width: 420px; max-width: 100%; background: #fff; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 32px 70px -20px rgba(10,15,13,0.6); transform: scale(0.86); transition: transform 280ms cubic-bezier(0.34,1.3,0.64,1); }
@@ -8712,6 +8716,8 @@ handlers['bout-cat-publish'] = () => {
       .kit-zoom .kit-order-num { font-size: 38px; }
       .kit-zoom .kit-timer { font-size: 17px; padding: 7px 12px; }
       .kit-zoom .kit-timer svg { width: 15px; height: 15px; }
+      .kit-zoom .kit-served-at { font-size: 17px; padding: 7px 12px; }
+      .kit-zoom .kit-served-at svg { width: 15px; height: 15px; }
       .kit-zoom .kit-order-meta { padding: 13px 22px 17px; }
       .kit-zoom .kit-type { font-size: 13.5px; padding: 6px 12px; }
       .kit-zoom .kit-items { padding: 18px 22px 22px; gap: 14px; }
@@ -8799,27 +8805,33 @@ handlers['bout-cat-publish'] = () => {
       const el = liveElapsed(o);
       const u = urgency(el);
       const isNew = o.status === 'new';
+      const isReady = o.status === 'ready';
       const items = o.items.map((i) => {
         const off = activeStation !== 'all' && !i.stations.includes(activeStation);
         return `<li class="kit-item${off ? ' kit-item-off' : ''}"><span class="kit-q">${i.q}</span><span class="kit-nm">${esc(i.n)}</span></li>`;
       }).join('');
-      const act = isNew
-        ? `<button class="kit-act kit-act-accept" data-kit-accept="${o.num}">${T.accept}</button>`
-        : `<button class="kit-act kit-act-ready" data-kit-ready="${o.num}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>${T.ready}</button>`;
+      const act = isReady
+        ? ''
+        : isNew
+          ? `<button class="kit-act kit-act-accept" data-kit-accept="${o.num}">${T.accept}</button>`
+          : `<button class="kit-act kit-act-ready" data-kit-ready="${o.num}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>${T.ready}</button>`;
       const eye = withEye
         ? `<button class="kit-eye" data-kit-eye="${o.num}" aria-label="${esc(T.view)} #${o.num}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>`
         : '';
+      const topRight = isReady
+        ? `<span class="kit-served-at"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>${esc(o.readyAt || '')}</span>`
+        : `<span class="kit-timer ${u}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="kit-timer-v">${fmtTime(el)}</span></span>`;
       return `
         <div class="kit-order-top">
           <span class="kit-order-num">#${o.num}</span>
           <div class="kit-order-tr">
-            <span class="kit-timer ${u}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="kit-timer-v">${fmtTime(el)}</span></span>
+            ${topRight}
             ${eye}
           </div>
         </div>
         <div class="kit-order-meta">
           ${typeChip(o)}
-          <span class="kit-status">${isNew ? T.statusNew : T.statusCooking}</span>
+          <span class="kit-status">${isReady ? T.served : isNew ? T.statusNew : T.statusCooking}</span>
         </div>
         <ul class="kit-items">${items}</ul>
         ${act}`;
@@ -8831,11 +8843,12 @@ handlers['bout-cat-publish'] = () => {
     };
 
     const historyRow = (o) => `
-      <div class="kit-hrow">
+      <button class="kit-hrow" data-kit-eye="${o.num}" aria-label="${esc(T.view)} #${o.num}">
         <span class="kit-hrow-num">#${o.num}</span>
         ${typeChip(o)}
         <span class="kit-hrow-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12l5 5L20 7"/></svg>${T.served} ${esc(o.readyAt || '')}</span>
-      </div>`;
+        <svg class="kit-hrow-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>`;
 
     const emptyHtml = (msg) => `<div class="kit-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>${esc(msg)}</span></div>`;
 
