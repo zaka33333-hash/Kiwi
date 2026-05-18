@@ -635,7 +635,7 @@
 
     .td-order-list { display: flex; flex-direction: column; gap: 8px; }
     .td-item {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
       padding: 10px 12px;
       background: var(--paper-mute);
       border-radius: var(--r-md);
@@ -709,27 +709,24 @@
       letter-spacing: -0.02em;
     }
 
-    /* Kitchen note — serveur jots allergies / requests before "Lancer" */
-    .td-knote {
-      display: flex; align-items: center; gap: 9px;
-      height: 46px; padding: 0 14px;
-      border: 1px solid var(--line); border-radius: var(--r-lg);
-      background: var(--paper-mute);
-      transition: border-color 150ms, box-shadow 150ms, background 150ms;
-    }
-    .td-knote:focus-within {
-      border-color: var(--forest);
-      box-shadow: 0 0 0 3px rgba(31,93,60,.1);
+    /* Per-dish kitchen note — one note per order line (allergies, requests) */
+    .td-item-note {
+      flex: 1 0 100%;
+      border: 1px solid var(--line); border-radius: 8px;
       background: #fff;
+      font-family: var(--sans); font-size: 12px; color: var(--ink);
+      padding: 6px 10px;
+      transition: border-color 150ms, background 150ms, color 150ms;
     }
-    .td-knote svg { width: 15px; height: 15px; color: var(--ink-4); flex-shrink: 0; }
-    .td-knote input {
-      flex: 1; min-width: 0; height: 100%;
-      border: 0; background: transparent; outline: none;
-      font-family: var(--sans); font-size: 13px; color: var(--ink);
-      letter-spacing: -0.005em;
+    .td-item-note::placeholder { color: var(--ink-4); }
+    .td-item-note:focus { outline: none; border-color: var(--forest); }
+    .td-item-note.has-note { border-color: var(--forest); background: rgba(31,93,60,.07); color: var(--forest); font-weight: 500; }
+    /* read-only note sub-line under a sent order item */
+    .td-item-noteline {
+      flex: 1 0 100%;
+      font-size: 11.5px; color: var(--forest); font-style: italic;
+      padding-left: 2px;
     }
-    .td-knote input::placeholder { color: var(--ink-4); }
 
     .td-footer {
       flex: 0 0 auto;
@@ -2988,10 +2985,10 @@
     /* Pre-seeded orders for already-occupied tables (read-only mock) */
     const seedOrders = {
       T2: [
-        { name: 'Salade marocaine', qty: 2, price: 45  },
-        { name: 'Tajine kefta',     qty: 2, price: 180 },
-        { name: 'Thé à la menthe',  qty: 1, price: 30  },
-        { name: "Jus d'avocat",     qty: 1, price: 50  },
+        { id: 'm-001', name: 'Salade marocaine', qty: 2, price: 45  },
+        { id: 'm-007', name: 'Tajine kefta',     qty: 2, price: 180 },
+        { id: 'm-023', name: 'Thé à la menthe',  qty: 1, price: 30  },
+        { id: 'm-028', name: "Jus d'avocat",     qty: 1, price: 50  },
       ],
     };
 
@@ -3056,12 +3053,12 @@
       const drinks = menuItems.filter(m => m.cat === 'boissons');
       const starters = menuItems.filter(m => m.cat === 'entrees');
       const main = mains[seed % mains.length];
-      lines.push({ name: main.name, qty: t.covers, price: main.price });
+      lines.push({ id: main.id, name: main.name, qty: t.covers, price: main.price });
       const drink = drinks[seed % drinks.length];
-      lines.push({ name: drink.name, qty: t.covers, price: drink.price });
+      lines.push({ id: drink.id, name: drink.name, qty: t.covers, price: drink.price });
       if (seed % 2 === 0) {
         const st = starters[seed % starters.length];
-        lines.push({ name: st.name, qty: 1, price: st.price });
+        lines.push({ id: st.id, name: st.name, qty: 1, price: st.price });
       }
       return lines;
     }
@@ -3072,16 +3069,24 @@
     const dirtyOrders = new Set();
     function markDirty(tableId) { if (tableId) dirtyOrders.add(tableId); }
 
-    /* Per-table kitchen note typed before the order is sent (allergies, requests) */
-    const tableKitchenNotes = {};
+    /* Stable per-line id so the same dish can sit on two lines with
+       different kitchen notes (id stays = menu id for menu / routing lookups). */
+    let lineSeq = 0;
+    const newLineUid = () => 'ln' + (++lineSeq);
+    /* Escape user-typed text before it goes into innerHTML. */
+    const esc = s => String(s == null ? '' : s)
+      .replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
     function ensureTableOrder(id) {
       if (!tableOrders[id]) {
         const t = tables[id];
-        tableOrders[id] = buildInitialOrder(id, t).map((l, i) => ({
-          id: 'mock-' + id + '-' + i,
-          name: l.name,
+        tableOrders[id] = buildInitialOrder(id, t).map(l => ({
+          uid:   newLineUid(),
+          id:    l.id || '',
+          name:  l.name,
           price: l.price,
-          qty: l.qty,
+          qty:   l.qty,
+          note:  '',
         }));
       }
       return tableOrders[id];
@@ -3582,9 +3587,10 @@
       } else {
         const isEditable = (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass');
         const itemsHTML = order.map(l => {
+          const noteTxt = (l.note || '').trim();
           if (isEditable) {
             return `
-              <div class="td-item" data-order-id="${l.id}">
+              <div class="td-item" data-order-uid="${l.uid}">
                 <div class="td-item-qty">
                   <button class="td-qty-btn minus" data-qty="dec" aria-label="Moins">−</button>
                   <span class="td-qty-num">${l.qty}</span>
@@ -3592,6 +3598,8 @@
                 </div>
                 <span class="td-item-name">${l.name}</span>
                 <span class="td-item-price">${fmtMAD(l.price * l.qty)}</span>
+                <input class="td-item-note${noteTxt ? ' has-note' : ''}" data-note-uid="${l.uid}"
+                  placeholder="Note cuisine — ex. bien chaud, sans oignon" aria-label="Note cuisine — ${esc(l.name)}" />
               </div>
             `;
           } else {
@@ -3600,17 +3608,11 @@
                 <span style="font-weight:700;width:32px;text-align:center;font-feature-settings:'tnum' 1;">${l.qty}×</span>
                 <span class="td-item-name">${l.name}</span>
                 <span class="td-item-price">${fmtMAD(l.price * l.qty)}</span>
+                ${noteTxt ? `<span class="td-item-noteline">Note cuisine · ${esc(noteTxt)}</span>` : ''}
               </div>
             `;
           }
         }).join('');
-
-        const knoteHTML = isDirty ? `
-          <div class="td-knote">
-            <i data-lucide="pencil-line"></i>
-            <input type="text" id="td-knote-input" placeholder="Note cuisine — sans oignon, allergies…" aria-label="Note pour la cuisine" />
-          </div>
-        ` : '';
 
         body.innerHTML = `
           <div class="td-order-list">${itemsHTML}</div>
@@ -3622,10 +3624,12 @@
               <span class="val">${fmtMAD(total)}</span>
             </div>
           </div>
-          ${knoteHTML}
         `;
-        const knInput = $('#td-knote-input');
-        if (knInput) knInput.value = tableKitchenNotes[id] || '';
+        // Set each per-dish note input's value safely (avoids HTML-escaping issues).
+        order.forEach(l => {
+          const inp = body.querySelector(`.td-item-note[data-note-uid="${l.uid}"]`);
+          if (inp) inp.value = l.note || '';
+        });
       }
 
       // Footer buttons depend on status
@@ -3764,9 +3768,7 @@
         setTab('menu');
       } else if (action === 'lancer') {
         // Send the order to the kitchen + bar terminals
-        const knote = (tableKitchenNotes[activeTableId] || '').trim();
         dirtyOrders.delete(activeTableId);
-        delete tableKitchenNotes[activeTableId];
         renderTableDetail();
         // Count routing for a richer toast (food → cuisine, drinks → bar)
         const order = tableOrders[activeTableId] || [];
@@ -3779,11 +3781,12 @@
           const m = menuItems.find(mm => mm.id === l.id);
           return m && drinkCats.has(m.cat);
         }).reduce((s, l) => s + l.qty, 0);
+        const hasNotes = order.some(l => (l.note || '').trim());
         let msg = `Mesa ${activeTableId} · commande envoyée`;
         if (foodIds > 0 && drinkIds > 0)      msg += ` · cuisine + bar`;
         else if (foodIds > 0)                 msg += ` · cuisine`;
         else if (drinkIds > 0)                msg += ` · bar`;
-        if (knote)                            msg += ` · note transmise`;
+        if (hasNotes)                         msg += ` · notes transmises`;
         toast(msg);
       } else if (action === 'ask-bill') {
         const t = tables[activeTableId];
@@ -3801,7 +3804,6 @@
         tables[id].elapsed = 0;
         delete tableOrders[id];
         dirtyOrders.delete(id);
-        delete tableKitchenNotes[id];
         tableSplits.delete(id);
         activeTableId = null;
         showScreen('screen-main');
@@ -3831,26 +3833,32 @@
     $('#td-body').addEventListener('click', (e) => {
       const qBtn = e.target.closest('[data-qty]');
       if (!qBtn) return;
-      const row = qBtn.closest('[data-order-id]');
+      const row = qBtn.closest('[data-order-uid]');
       if (!row) return;
-      changeOrderQty(activeTableId, row.dataset.orderId, qBtn.dataset.qty === 'inc' ? 1 : -1);
+      changeOrderQty(activeTableId, row.dataset.orderUid, qBtn.dataset.qty === 'inc' ? 1 : -1);
       renderTableDetail();
     });
 
-    /* ---- kitchen note — persist as the serveur types ---- */
+    /* ---- per-dish kitchen note — persist as the serveur types (no re-render,
+       so focus stays); the note then routes with that dish to its station ---- */
     $('#td-body').addEventListener('input', (e) => {
-      if (e.target.id === 'td-knote-input' && activeTableId) {
-        tableKitchenNotes[activeTableId] = e.target.value;
+      const inp = e.target.closest('.td-item-note');
+      if (!inp || !activeTableId) return;
+      const line = (tableOrders[activeTableId] || []).find(l => l.uid === inp.dataset.noteUid);
+      if (line) {
+        line.note = inp.value;
+        inp.classList.toggle('has-note', !!inp.value.trim());
+        markDirty(activeTableId);
       }
     });
 
-    function changeOrderQty(tableId, lineId, delta) {
+    function changeOrderQty(tableId, uid, delta) {
       const order = tableOrders[tableId];
       if (!order) return;
-      const line = order.find(l => l.id === lineId);
+      const line = order.find(l => l.uid === uid);
       if (!line) return;
       line.qty += delta;
-      if (line.qty <= 0) tableOrders[tableId] = order.filter(l => l.id !== lineId);
+      if (line.qty <= 0) tableOrders[tableId] = order.filter(l => l.uid !== uid);
       markDirty(tableId);
     }
 
@@ -3937,8 +3945,8 @@
       const items = activeCat === 'all' ? menuItems : menuItems.filter(m => m.cat === activeCat);
       const activeOrder = menuContextId ? (tableOrders[menuContextId] || []) : [];
       $('#menu-grid').innerHTML = items.map(m => {
-        const inCart = activeOrder.find(c => c.id === m.id);
-        const qty = inCart ? inCart.qty : 0;
+        // qty badge = total across every line of this dish (noted + plain)
+        const qty = activeOrder.filter(c => c.id === m.id).reduce((s, c) => s + c.qty, 0);
         const control = qty > 0
           ? `<span class="menu-item-stepper">
                <button class="step-btn step-minus" data-step="dec">−</button>
@@ -3981,9 +3989,10 @@
       if (!tableOrders[tableId]) tableOrders[tableId] = [];
       const item = menuItems.find(m => m.id === itemId);
       if (!item) return;
-      const existing = tableOrders[tableId].find(l => l.id === itemId);
-      if (existing) existing.qty++;
-      else tableOrders[tableId].push({ id: itemId, name: item.name, price: item.price, qty: 1 });
+      // Stack onto the un-noted line; a noted line splits off so it keeps its note.
+      const line = tableOrders[tableId].find(l => l.id === itemId && !(l.note || '').trim());
+      if (line) line.qty++;
+      else tableOrders[tableId].push({ uid: newLineUid(), id: itemId, name: item.name, price: item.price, qty: 1, note: '' });
       markDirty(tableId);
       const card = document.querySelector(`.menu-item[data-menu-id="${itemId}"]`);
       if (card) { card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop'); }
@@ -3991,12 +4000,14 @@
       renderCartBar();
     }
 
+    /* Menu-card +/- — + adds a unit, - removes from the plain line (else the last). */
     function changeMenuQty(tableId, itemId, delta) {
-      if (!tableOrders[tableId]) return;
-      const line = tableOrders[tableId].find(l => l.id === itemId);
+      if (delta > 0) { addToTableOrder(tableId, itemId); return; }
+      const lines = (tableOrders[tableId] || []).filter(l => l.id === itemId);
+      const line = lines.find(l => !(l.note || '').trim()) || lines[lines.length - 1];
       if (!line) return;
-      line.qty += delta;
-      if (line.qty <= 0) tableOrders[tableId] = tableOrders[tableId].filter(l => l.id !== itemId);
+      line.qty--;
+      if (line.qty <= 0) tableOrders[tableId] = tableOrders[tableId].filter(l => l.uid !== line.uid);
       markDirty(tableId);
       renderMenu();
       renderCartBar();
