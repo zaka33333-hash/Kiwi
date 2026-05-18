@@ -8632,12 +8632,13 @@ handlers['bout-cat-publish'] = () => {
     kdsCss.textContent = `
       .kit-screen { display: flex; flex-direction: column; gap: 14px; }
       .kit-topbar { display: flex; gap: 12px; align-items: flex-start; }
-      .kit-stationbar { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-      .kit-station { display: inline-flex; align-items: center; gap: 9px; padding: 11px 14px; border-radius: 11px; border: 1px solid var(--n-200); background: #fff; cursor: pointer; font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--n-600); letter-spacing: -0.005em; transition: background 130ms ease, border-color 130ms ease, color 130ms ease; }
+      .kit-stationbar { display: flex; gap: 7px; flex-wrap: nowrap; flex: 1; overflow-x: auto; scrollbar-width: none; }
+      .kit-stationbar::-webkit-scrollbar { display: none; }
+      .kit-station { display: inline-flex; align-items: center; gap: 7px; padding: 10px 12px; flex-shrink: 0; border-radius: 10px; border: 1px solid var(--n-200); background: #fff; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--n-600); letter-spacing: -0.005em; white-space: nowrap; transition: background 130ms ease, border-color 130ms ease, color 130ms ease; }
       .kit-station:hover { border-color: var(--n-400); color: var(--ink); }
       .kit-station.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
       .kit-station i { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-      .kit-station-ct { font-family: var(--mono); font-size: 12px; font-weight: 600; line-height: 1; padding: 3px 7px; border-radius: 999px; background: var(--paper-soft); color: var(--n-600); }
+      .kit-station-ct { font-family: var(--mono); font-size: 11.5px; font-weight: 600; line-height: 1; padding: 2px 6px; border-radius: 999px; background: var(--paper-soft); color: var(--n-600); }
       .kit-station.on .kit-station-ct { background: rgba(255,255,255,0.18); color: var(--paper); }
       .kit-history-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 11px 15px; border-radius: 11px; border: 1px solid var(--n-200); background: #fff; cursor: pointer; font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--n-600); white-space: nowrap; flex-shrink: 0; transition: background 130ms ease, border-color 130ms ease, color 130ms ease; }
       .kit-history-toggle:hover { border-color: var(--n-400); color: var(--ink); }
