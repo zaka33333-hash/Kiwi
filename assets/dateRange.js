@@ -11,15 +11,55 @@
   const STORAGE_KEY = 'kiwiDateRange';
   const CMP_KEY = 'kiwiRevCompare';
   const DEFAULT_RANGE = 'aujourdhui';
-  /* 'personnalise' is intentionally absent: the custom-range pill was a
-   * demo stub (it silently mapped to 'aujourdhui'), so it was removed from
-   * the UI. Keeping it out of VALID also migrates any returning user whose
-   * stored range was 'personnalise' back to the default. The downstream
-   * `=== 'personnalise'` guards are left as harmless dead defensive code. */
-  const VALID = ['aujourdhui', 'hier', 'septJours', 'trenteJours', 'moisDernier', 'trimestre', 'annee'];
+  /* 'personnalise' is a first-class range again: the "Personnalisé" pill
+   * opens a calendar popover (openCustomPicker) that commits a { start,
+   * end } pair. The custom range carries no data table of its own —
+   * effRange() buckets it onto an existing range by span, so every
+   * dashboard block stays internally consistent. */
+  const VALID = ['aujourdhui', 'hier', 'septJours', 'trenteJours', 'moisDernier', 'trimestre', 'annee', 'personnalise'];
   const subscribers = new Set();
   let currentRange = DEFAULT_RANGE;
   let showComparison = false;
+
+  /* ─── Custom range state · the picked { start, end } Date pair ───────
+   * Persisted to localStorage as "YYYY-MM-DD|YYYY-MM-DD". */
+  const CUSTOM_KEY = 'kiwiCustomRange';
+  let customRange = null;
+
+  const z2 = (n) => String(n).padStart(2, '0');
+  const dateToIso = (d) => `${d.getFullYear()}-${z2(d.getMonth() + 1)}-${z2(d.getDate())}`;
+  function isoToDate(s) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+    if (!m) return null;
+    const d = new Date(+m[1], +m[2] - 1, +m[3]);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function parseCustom(str) {
+    const p = String(str || '').split('|');
+    const a = isoToDate(p[0]), b = isoToDate(p[1]);
+    if (!a || !b) return null;
+    return a <= b ? { start: a, end: b } : { start: b, end: a };
+  }
+  // Inclusive whole-day span between two Dates (same day → 1).
+  function spanDays(a, b) {
+    const d0 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+    const d1 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+    return Math.round(Math.abs(d1 - d0) / 864e5) + 1;
+  }
+  /* Borrow the shape of a real data-bearing range, picked by how many
+   * days the custom range spans — hier / septJours / trenteJours are the
+   * buckets every venue-keyed table is guaranteed to carry. */
+  function customBucket() {
+    if (!customRange) return 'trenteJours';
+    const n = spanDays(customRange.start, customRange.end);
+    if (n <= 1) return 'hier';
+    if (n <= 10) return 'septJours';
+    return 'trenteJours';
+  }
+  // Resolve currentRange to a range key that actually carries data.
+  function effRange() {
+    return currentRange === 'personnalise' ? customBucket() : currentRange;
+  }
 
   const getLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
   // Translate a captured-FR string through a { frString: {en,ar} } map.
@@ -113,7 +153,7 @@
   function vData(table, range) {
     const v = getCurrentVenue();
     const knownRanges = ['aujourdhui', 'hier', 'septJours', 'trenteJours', 'personnalise'];
-    const requested = range === 'personnalise' ? 'aujourdhui' : range;
+    const requested = range === 'personnalise' ? effRange() : range;
     const hasRequested = !!(table?.[v]?.[requested] ?? table?.cafeAtlas?.[requested]);
     const eff = knownRanges.includes(range) || hasRequested ? requested : 'trenteJours';
     // A user-created venue has no demo data — hand back a zeroed clone of the
@@ -137,7 +177,7 @@
   }
   // True only on the live "today" range, with the demo clock active.
   function isLiveDemo() {
-    const eff = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const eff = effRange();
     // A user-created venue has no synthetic demo clock — it stays at zero
     // until the merchant records real sales.
     if (window.KiwiVenue?.isCustom?.(getCurrentVenue())) return false;
@@ -157,9 +197,9 @@
   };
 
   const HERO_LABEL = {
-    fr: { aujourdhui: "ENCAISSÉ AUJOURD'HUI", hier: 'ENCAISSÉ HIER', septJours: 'ENCAISSÉ 7 JOURS', trenteJours: 'ENCAISSÉ 30 JOURS', moisDernier: 'ENCAISSÉ — MOIS DERNIER', trimestre: 'ENCAISSÉ — TRIMESTRE', annee: 'ENCAISSÉ — ANNÉE' },
-    en: { aujourdhui: 'CASHED TODAY', hier: 'CASHED YESTERDAY', septJours: 'CASHED 7 DAYS', trenteJours: 'CASHED 30 DAYS', moisDernier: 'CASHED — LAST MONTH', trimestre: 'CASHED — QUARTER', annee: 'CASHED — YEAR' },
-    ar: { aujourdhui: 'المقبوض اليوم', hier: 'المقبوض أمس', septJours: 'المقبوض في 7 أيام', trenteJours: 'المقبوض في 30 يومًا', moisDernier: 'المقبوض — الشهر الماضي', trimestre: 'المقبوض — الربع', annee: 'المقبوض — السنة' },
+    fr: { aujourdhui: "ENCAISSÉ AUJOURD'HUI", hier: 'ENCAISSÉ HIER', septJours: 'ENCAISSÉ 7 JOURS', trenteJours: 'ENCAISSÉ 30 JOURS', moisDernier: 'ENCAISSÉ — MOIS DERNIER', trimestre: 'ENCAISSÉ — TRIMESTRE', annee: 'ENCAISSÉ — ANNÉE', personnalise: 'ENCAISSÉ — PÉRIODE' },
+    en: { aujourdhui: 'CASHED TODAY', hier: 'CASHED YESTERDAY', septJours: 'CASHED 7 DAYS', trenteJours: 'CASHED 30 DAYS', moisDernier: 'CASHED — LAST MONTH', trimestre: 'CASHED — QUARTER', annee: 'CASHED — YEAR', personnalise: 'CASHED — PERIOD' },
+    ar: { aujourdhui: 'المقبوض اليوم', hier: 'المقبوض أمس', septJours: 'المقبوض في 7 أيام', trenteJours: 'المقبوض في 30 يومًا', moisDernier: 'المقبوض — الشهر الماضي', trimestre: 'المقبوض — الربع', annee: 'المقبوض — السنة', personnalise: 'المقبوض — الفترة' },
   };
 
   const DELTA_LABELS = {
@@ -418,9 +458,9 @@
     },
   };
   const GOAL_LABEL = {
-    fr: { aujourdhui: 'OBJECTIF JOUR', hier: 'OBJECTIF JOUR', septJours: 'OBJECTIF SEMAINE', trenteJours: 'OBJECTIF MOIS', moisDernier: 'OBJECTIF MOIS DERNIER', trimestre: 'OBJECTIF TRIMESTRE', annee: 'OBJECTIF ANNÉE', personnalise: 'OBJECTIF JOUR' },
-    en: { aujourdhui: 'DAILY GOAL', hier: 'DAILY GOAL', septJours: 'WEEKLY GOAL', trenteJours: 'MONTHLY GOAL', moisDernier: 'LAST MONTH GOAL', trimestre: 'QUARTERLY GOAL', annee: 'YEARLY GOAL', personnalise: 'DAILY GOAL' },
-    ar: { aujourdhui: 'هدف اليوم', hier: 'هدف اليوم', septJours: 'هدف الأسبوع', trenteJours: 'هدف الشهر', moisDernier: 'هدف الشهر الماضي', trimestre: 'هدف الربع', annee: 'هدف السنة', personnalise: 'هدف اليوم' },
+    fr: { aujourdhui: 'OBJECTIF JOUR', hier: 'OBJECTIF JOUR', septJours: 'OBJECTIF SEMAINE', trenteJours: 'OBJECTIF MOIS', moisDernier: 'OBJECTIF MOIS DERNIER', trimestre: 'OBJECTIF TRIMESTRE', annee: 'OBJECTIF ANNÉE', personnalise: 'OBJECTIF PÉRIODE' },
+    en: { aujourdhui: 'DAILY GOAL', hier: 'DAILY GOAL', septJours: 'WEEKLY GOAL', trenteJours: 'MONTHLY GOAL', moisDernier: 'LAST MONTH GOAL', trimestre: 'QUARTERLY GOAL', annee: 'YEARLY GOAL', personnalise: 'PERIOD GOAL' },
+    ar: { aujourdhui: 'هدف اليوم', hier: 'هدف اليوم', septJours: 'هدف الأسبوع', trenteJours: 'هدف الشهر', moisDernier: 'هدف الشهر الماضي', trimestre: 'هدف الربع', annee: 'هدف السنة', personnalise: 'هدف الفترة' },
   };
 
   const HH_HOURS = ['11h','12h','13h','14h','15h','16h','17h','18h','19h','20h','21h','22h','23h','00h','01h','02h'];
@@ -1361,10 +1401,23 @@
 
   function setDateRange(id) {
     if (!VALID.includes(id)) id = DEFAULT_RANGE;
+    // 'personnalise' is only meaningful with a date pair behind it.
+    if (id === 'personnalise' && !customRange) id = DEFAULT_RANGE;
     currentRange = id;
     try { localStorage.setItem(STORAGE_KEY, id); } catch (_) {}
     renderSelector();
     subscribers.forEach(fn => { try { fn(id); } catch (_) {} });
+  }
+  /* Commit a calendar-picked pair and switch the dashboard onto it —
+   * called by the custom-range popover's "Appliquer" button. */
+  function commitCustomRange(start, end) {
+    if (!start || !end) return;
+    customRange = start <= end ? { start, end } : { start: end, end: start };
+    try {
+      localStorage.setItem(CUSTOM_KEY,
+        dateToIso(customRange.start) + '|' + dateToIso(customRange.end));
+    } catch (_) {}
+    setDateRange('personnalise');
   }
   function setShowComparison(v) {
     showComparison = !!v;
@@ -1479,8 +1532,18 @@
     const lang = getLang();
     const labelEl = document.querySelector('[data-dr-label]');
     const subEl = document.querySelector('[data-dr-sub]');
-    if (labelEl) labelEl.textContent = RANGE_STR[lang]?.[currentRange] || RANGE_STR.fr[currentRange];
-    if (subEl)   subEl.textContent = computeSubLine(currentRange);
+    if (currentRange === 'personnalise' && customRange) {
+      // The custom range owns the headline: show its human date span, with
+      // the day count standing in for the usual single-date sub-line.
+      const ps = PICKER_STR[lang] || PICKER_STR.fr;
+      const n = spanDays(customRange.start, customRange.end);
+      if (labelEl) labelEl.textContent = fmtHumanRange(customRange.start, customRange.end, lang);
+      if (subEl) subEl.textContent =
+        `${RANGE_STR[lang]?.personnalise || RANGE_STR.fr.personnalise} · ${n} ${n > 1 ? ps.days : ps.day}`;
+    } else {
+      if (labelEl) labelEl.textContent = RANGE_STR[lang]?.[currentRange] || RANGE_STR.fr[currentRange];
+      if (subEl)   subEl.textContent = computeSubLine(currentRange);
+    }
     document.querySelectorAll('.dr-pill').forEach(p => {
       const on = p.dataset.range === currentRange;
       p.classList.toggle('on', on);
@@ -1492,7 +1555,7 @@
 
   function renderHero() {
     const lang = getLang();
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     let data = vData(heroDataByVenue, currentRange);
     if (!data) return;
 
@@ -1511,7 +1574,7 @@
     }
 
     const labelEl = document.querySelector('[data-hero-label]');
-    if (labelEl) labelEl.textContent = HERO_LABEL[lang]?.[effective] || HERO_LABEL.fr[effective];
+    if (labelEl) labelEl.textContent = HERO_LABEL[lang]?.[currentRange] || HERO_LABEL.fr[currentRange];
 
     // The live-session row ("LIVE · HH:MM · 24 heures · session continue
     // depuis 08h12") is a today-only concept — a ticking LIVE clock over a
@@ -1603,7 +1666,7 @@
 
   function renderGoal() {
     const lang = getLang();
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     let data = vData(goalByVenue, currentRange);
     if (!data) return;
 
@@ -1668,7 +1731,7 @@
   }
   function renderHeatmap() {
     const lang = getLang();
-    const data = buildHeatmap(currentRange);
+    const data = buildHeatmap(effRange());
     // Determine sim cursor for past/current/future state on aujourdhui
     let simIdx = -1;
     if (isLiveDemo()) {
@@ -1863,7 +1926,7 @@
     // builder and value loop below keep working unchanged.
     const venueType = window.KiwiVenue?.getVenueType?.() || 'restaurant';
     const layout = getKpiLayout(venueType) || defaultKpiKeys(venueType);
-    const ctx = { venueType, range: currentRange, nbDays: RANGE_DAYS[currentRange] || 1 };
+    const ctx = { venueType, range: effRange(), nbDays: RANGE_DAYS[effRange()] || 1 };
     const derived = {};
     layout.forEach((k) => {
       const c = KPI_CATALOG[k];
@@ -1951,7 +2014,7 @@
     const kc = KC_STR[lang] || KC_STR.fr;
     const venueType = window.KiwiVenue?.getVenueType?.() || 'restaurant';
     const data = vData(kpiByVenue, currentRange) || {};
-    const ctx = { venueType, range: currentRange, nbDays: RANGE_DAYS[currentRange] || 1 };
+    const ctx = { venueType, range: effRange(), nbDays: RANGE_DAYS[effRange()] || 1 };
 
     // Only offer KPIs that actually resolve for this venue + range.
     const available = Object.keys(KPI_CATALOG).filter((k) => {
@@ -2057,7 +2120,7 @@
 
   function renderRevChart() {
     const lang = getLang();
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     let data = vData(revChartByVenue, currentRange);
     if (!data) return;
     const svg = document.querySelector('[data-rev-svg]');
@@ -2582,7 +2645,7 @@
   /* ═══════════════ RENDER: PAYMENT MIX DONUT ═══════════════ */
 
   function renderMix() {
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     const data = vData(mixByVenue, currentRange);
     if (!data) return;
     const lang = getLang();
@@ -2819,7 +2882,7 @@
 
   function renderFeed() {
     const lang = getLang();
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     const isLive = effective === 'aujourdhui';
 
     const venue = window.KiwiVenue?.getVenue?.() || 'cafeAtlas';
@@ -2889,7 +2952,7 @@
 
   function renderSettle() {
     const lang = getLang();
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     const data = vData(settleByVenue, currentRange);
     if (!data) return;
 
@@ -3055,7 +3118,7 @@
   /* ═══════════════ RENDER: TIMELINE WEEK TOTAL ═══════════════ */
 
   function renderTimeline() {
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     const total = (timelineWeekTotalByVenue[getCurrentVenue()] || timelineWeekTotalByVenue.cafeAtlas)[effective];
     const totalEl = document.querySelector('[data-timeline-week-total]');
     if (totalEl && total) totalEl.textContent = total;
@@ -3079,7 +3142,7 @@
     if (card && _healthOrig != null && card['inner' + 'HTML'] !== _healthOrig) {
       card['inner' + 'HTML'] = _healthOrig;
     }
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     const data = vData(healthByVenue, currentRange);
     if (!data) return;
 
@@ -3114,7 +3177,7 @@
     if (card && _benchOrig != null && card['inner' + 'HTML'] !== _benchOrig) {
       card['inner' + 'HTML'] = _benchOrig;
     }
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     const data = vData(benchByVenue, currentRange);
     if (!data) return;
 
@@ -3154,7 +3217,7 @@
 
   function renderProducts() {
     const lang = getLang();
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     const isCustom = !!window.KiwiVenue?.isCustom?.();
     const data = isCustom ? [] : vData(productsByVenue, currentRange);
     const list = document.querySelector('[data-products-list]');
@@ -3183,7 +3246,7 @@
 
   function renderStaff() {
     const lang = getLang();
-    const effective = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const effective = effRange();
     const isCustom = !!window.KiwiVenue?.isCustom?.();
     const data = isCustom ? [] : vData(staffByVenue, currentRange);
     const list = document.querySelector('[data-staff-list]');
@@ -3245,10 +3308,309 @@
     api.__drWrapped = true;
   }
 
+  /* ═══════════════ CUSTOM RANGE · calendar popover ═══════════════
+   * A branded two-month range picker that drops under the "Personnalisé"
+   * pill and commits a { start, end } pair via commitCustomRange().
+   * Self-contained — its own event delegation, no data-action hooks, no
+   * Kiwi.modal — so it can be lifted into the caisse app untouched. */
+
+  const LOCALES = { fr: 'fr-FR', en: 'en-GB', ar: 'ar-MA' };
+  const PICKER_STR = {
+    fr: { title: 'Période personnalisée', apply: 'Appliquer', cancel: 'Annuler',
+          presets: 'Raccourcis', hintStart: 'Sélectionnez la date de début',
+          hintEnd: 'Sélectionnez la date de fin', day: 'jour', days: 'jours',
+          p7: '7 derniers jours', p14: '14 derniers jours', p30: '30 derniers jours',
+          pMonth: 'Ce mois-ci', pLast: 'Mois dernier', p90: '90 derniers jours' },
+    en: { title: 'Custom period', apply: 'Apply', cancel: 'Cancel',
+          presets: 'Shortcuts', hintStart: 'Pick a start date',
+          hintEnd: 'Pick an end date', day: 'day', days: 'days',
+          p7: 'Last 7 days', p14: 'Last 14 days', p30: 'Last 30 days',
+          pMonth: 'This month', pLast: 'Last month', p90: 'Last 90 days' },
+    ar: { title: 'فترة مخصّصة', apply: 'تطبيق', cancel: 'إلغاء',
+          presets: 'اختصارات', hintStart: 'اختر تاريخ البداية',
+          hintEnd: 'اختر تاريخ النهاية', day: 'يوم', days: 'أيام',
+          p7: 'آخر 7 أيام', p14: 'آخر 14 يومًا', p30: 'آخر 30 يومًا',
+          pMonth: 'هذا الشهر', pLast: 'الشهر الماضي', p90: 'آخر 90 يومًا' },
+  };
+
+  const dpEsc = (s) => String(s).replace(/[&<>"]/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const addDays = (d, n) => { const x = startOfDay(d); x.setDate(x.getDate() + n); return x; };
+  const ymdInt = (d) => d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate();
+  const sameDay = (a, b) => !!a && !!b && ymdInt(a) === ymdInt(b);
+  const shiftMonth = (y, m, n) => { const t = new Date(y, m + n, 1); return { y: t.getFullYear(), m: t.getMonth() }; };
+  const capFirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+  const monthOnly = (d, lang, style) =>
+    new Intl.DateTimeFormat(LOCALES[lang] || LOCALES.fr, { month: style }).format(d);
+  const monthLabel = (y, m, lang) => capFirst(new Intl.DateTimeFormat(
+    LOCALES[lang] || LOCALES.fr, { month: 'long', year: 'numeric' }).format(new Date(y, m, 1)));
+
+  /* Human span — "14 mai 2026" · "1 – 14 mai 2026" · "28 avr. – 3 mai 2026"
+   * · "28 déc. 2025 – 4 janv. 2026". */
+  function fmtHumanRange(s, e, lang) {
+    if (sameDay(s, e)) return `${s.getDate()} ${monthOnly(s, lang, 'long')} ${s.getFullYear()}`;
+    const sameYear = s.getFullYear() === e.getFullYear();
+    if (sameYear && s.getMonth() === e.getMonth())
+      return `${s.getDate()} – ${e.getDate()} ${monthOnly(e, lang, 'long')} ${e.getFullYear()}`;
+    if (sameYear)
+      return `${s.getDate()} ${monthOnly(s, lang, 'short')} – ${e.getDate()} ${monthOnly(e, lang, 'short')} ${e.getFullYear()}`;
+    return `${s.getDate()} ${monthOnly(s, lang, 'short')} ${s.getFullYear()} – `
+         + `${e.getDate()} ${monthOnly(e, lang, 'short')} ${e.getFullYear()}`;
+  }
+
+  let dpEl = null, dpOutside = null, dpKey = null;
+
+  function closeCustomPicker() {
+    if (!dpEl) return;
+    const pop = dpEl;
+    dpEl = null;
+    pop.classList.remove('open');
+    if (dpOutside) document.removeEventListener('mousedown', dpOutside);
+    if (dpKey) document.removeEventListener('keydown', dpKey);
+    dpOutside = dpKey = null;
+    const pill = document.querySelector('.dr-pill-custom');
+    if (pill) pill.setAttribute('aria-expanded', 'false');
+    let gone = false;
+    const drop = () => { if (gone) return; gone = true; pop.remove(); };
+    pop.addEventListener('transitionend', drop, { once: true });
+    setTimeout(drop, 300);
+  }
+
+  function openCustomPicker() {
+    if (dpEl) { closeCustomPicker(); return; }          // second click → toggle shut
+    const control = document.querySelector('.dr-control');
+    if (!control) return;
+    const lang = getLang();
+    const S = PICKER_STR[lang] || PICKER_STR.fr;
+    const today = startOfDay(new Date());
+    const monIdx = (y, m) => y * 12 + m;
+    const maxLeft = monIdx(today.getFullYear(), today.getMonth()) - 1;  // right pane never future
+
+    let selStart = customRange ? startOfDay(customRange.start) : null;
+    let selEnd   = customRange ? startOfDay(customRange.end)   : null;
+    let hoverD   = null;
+    let view = selEnd
+      ? shiftMonth(selEnd.getFullYear(), selEnd.getMonth(), -1)
+      : shiftMonth(today.getFullYear(), today.getMonth(), -1);
+
+    const pop = document.createElement('div');
+    pop.className = 'dr-popover';
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-label', S.title);
+    if (lang === 'ar') pop.setAttribute('dir', 'rtl');
+    dpEl = pop;
+    control.appendChild(pop);
+
+    const presets = [['p7', S.p7], ['p14', S.p14], ['p30', S.p30],
+                     ['pMonth', S.pMonth], ['pLast', S.pLast], ['p90', S.p90]];
+    function presetRange(key) {
+      if (key === 'p7')  return [addDays(today, -6), today];
+      if (key === 'p14') return [addDays(today, -13), today];
+      if (key === 'p30') return [addDays(today, -29), today];
+      if (key === 'p90') return [addDays(today, -89), today];
+      if (key === 'pMonth') return [new Date(today.getFullYear(), today.getMonth(), 1), today];
+      if (key === 'pLast')  return [new Date(today.getFullYear(), today.getMonth() - 1, 1),
+                                    new Date(today.getFullYear(), today.getMonth(), 0)];
+      return null;
+    }
+    function activePreset() {
+      if (!selStart || !selEnd) return null;
+      for (let i = 0; i < presets.length; i++) {
+        const r = presetRange(presets[i][0]);
+        if (r && sameDay(startOfDay(r[0]), selStart) && sameDay(startOfDay(r[1]), selEnd))
+          return presets[i][0];
+      }
+      return null;
+    }
+    const chev = (dir) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+      + 'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="'
+      + (dir === 'prev' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6') + '"/></svg>';
+
+    function weekdayRow() {
+      const mon = addDays(today, -((today.getDay() + 6) % 7));
+      let h = '';
+      for (let i = 0; i < 7; i++) {
+        const wd = new Intl.DateTimeFormat(LOCALES[lang] || LOCALES.fr, { weekday: 'short' })
+          .format(addDays(mon, i)).replace('.', '');
+        h += `<span class="drp-wd">${dpEsc(wd)}</span>`;
+      }
+      return h;
+    }
+    function monthGrid(y, m) {
+      const lead = (new Date(y, m, 1).getDay() + 6) % 7;
+      const days = new Date(y, m + 1, 0).getDate();
+      let cells = '';
+      for (let i = 0; i < lead; i++) cells += '<span class="drp-day drp-empty"></span>';
+      for (let d = 1; d <= days; d++) {
+        const date = new Date(y, m, d);
+        const future = ymdInt(date) > ymdInt(today);
+        let cls = 'drp-day';
+        if (future) cls += ' is-disabled';
+        if (sameDay(date, today)) cls += ' is-today';
+        cells += `<button type="button" class="${cls}" data-day="${dateToIso(date)}"`
+          + `${future ? ' disabled' : ''}><span class="drp-dn">${d}</span></button>`;
+      }
+      return cells;
+    }
+    function monthCard(y, m, side) {
+      const canNext = monIdx(view.y, view.m) < maxLeft;
+      const lBtn = side === 'left'
+        ? `<button type="button" class="drp-nav" data-nav="prev" aria-label="←">${chev('prev')}</button>`
+        : '<span class="drp-nav-gap"></span>';
+      const rBtn = side === 'right'
+        ? `<button type="button" class="drp-nav" data-nav="next" aria-label="→"${canNext ? '' : ' disabled'}>${chev('next')}</button>`
+        : '<span class="drp-nav-gap"></span>';
+      return `<div class="drp-month"><div class="drp-mhead">${lBtn}`
+        + `<span class="drp-mname">${dpEsc(monthLabel(y, m, lang))}</span>${rBtn}</div>`
+        + `<div class="drp-wdrow">${weekdayRow()}</div>`
+        + `<div class="drp-grid">${monthGrid(y, m)}</div></div>`;
+    }
+
+    function decorate() {
+      let lo = selStart, hi = selEnd;
+      if (selStart && !selEnd && hoverD) {
+        lo = ymdInt(hoverD) < ymdInt(selStart) ? hoverD : selStart;
+        hi = ymdInt(hoverD) < ymdInt(selStart) ? selStart : hoverD;
+      }
+      const a = lo ? ymdInt(lo) : null;
+      const b = hi ? ymdInt(hi) : null;
+      pop.querySelectorAll('.drp-day').forEach((btn) => {
+        btn.classList.remove('in-range', 'is-start', 'is-end', 'is-edge', 'is-solo');
+        if (!btn.dataset.day) return;
+        const v = ymdInt(isoToDate(btn.dataset.day));
+        if (a != null && b != null) {
+          if (a === b) { if (v === a) btn.classList.add('is-edge', 'is-solo'); }
+          else if (v === a) btn.classList.add('is-start', 'is-edge');
+          else if (v === b) btn.classList.add('is-end', 'is-edge');
+          else if (v > a && v < b) btn.classList.add('in-range');
+        } else if (a != null && v === a) {
+          btn.classList.add('is-edge', 'is-solo');
+        }
+      });
+      const ro = pop.querySelector('[data-drp-readout]');
+      if (ro) {
+        if (lo && hi) ro.textContent = fmtHumanRange(lo, hi, lang);
+        else if (selStart) ro.textContent = fmtHumanRange(selStart, selStart, lang);
+        else ro.textContent = '—';
+        ro.classList.toggle('is-set', !!(lo || selStart));
+      }
+      const hint = pop.querySelector('[data-drp-hint]');
+      if (hint) {
+        if (lo && hi) {
+          const n = spanDays(lo, hi);
+          hint.innerHTML = `<b>${n}</b> ${dpEsc(n > 1 ? S.days : S.day)}`;
+        } else {
+          hint.textContent = selStart ? S.hintEnd : S.hintStart;
+        }
+      }
+      const apply = pop.querySelector('[data-drp-apply]');
+      if (apply) apply.disabled = !(selStart && selEnd);
+      const ap = activePreset();
+      pop.querySelectorAll('.drp-preset').forEach((p) => {
+        p.classList.toggle('is-active', p.dataset.preset === ap);
+      });
+    }
+
+    function render() {
+      const r = shiftMonth(view.y, view.m, 1);
+      pop.innerHTML =
+        `<div class="drp-head"><div><div class="drp-eyebrow">${dpEsc(S.title)}</div>`
+        + `<div class="drp-readout" data-drp-readout>—</div></div>`
+        + `<button type="button" class="drp-x" data-drp-cancel aria-label="${dpEsc(S.cancel)}">`
+        + `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" `
+        + `stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`
+        + `<div class="drp-body"><div class="drp-presets">`
+        + `<div class="drp-presets-lbl">${dpEsc(S.presets)}</div>`
+        + presets.map(([k, lbl]) =>
+            `<button type="button" class="drp-preset" data-preset="${k}">${dpEsc(lbl)}</button>`).join('')
+        + `</div><div class="drp-cal"><div class="drp-months">`
+        + monthCard(view.y, view.m, 'left') + monthCard(r.y, r.m, 'right')
+        + `</div></div></div>`
+        + `<div class="drp-foot"><div class="drp-hint" data-drp-hint></div>`
+        + `<div class="drp-acts">`
+        + `<button type="button" class="drp-btn drp-btn-ghost" data-drp-cancel>${dpEsc(S.cancel)}</button>`
+        + `<button type="button" class="drp-btn drp-btn-go" data-drp-apply>${dpEsc(S.apply)}</button>`
+        + `</div></div>`;
+      decorate();
+    }
+
+    function pickDay(iso) {
+      const d = isoToDate(iso);
+      if (!d) return;
+      if (!selStart || (selStart && selEnd)) { selStart = d; selEnd = null; }
+      else if (ymdInt(d) < ymdInt(selStart)) { selEnd = selStart; selStart = d; }
+      else { selEnd = d; }
+      hoverD = null;
+      render();
+    }
+    function applyPreset(key) {
+      const r = presetRange(key);
+      if (!r) return;
+      selStart = startOfDay(r[0]);
+      selEnd = startOfDay(r[1]);
+      hoverD = null;
+      view = shiftMonth(selEnd.getFullYear(), selEnd.getMonth(), -1);
+      render();
+    }
+    function shiftView(n) {
+      const nv = shiftMonth(view.y, view.m, n);
+      if (n > 0 && monIdx(nv.y, nv.m) > maxLeft) return;
+      view = nv;
+      render();
+    }
+
+    pop.addEventListener('click', (e) => {
+      const day = e.target.closest('.drp-day');
+      if (day && day.dataset.day && !day.disabled) { pickDay(day.dataset.day); return; }
+      const nav = e.target.closest('[data-nav]');
+      if (nav) { shiftView(nav.dataset.nav === 'next' ? 1 : -1); return; }
+      const pre = e.target.closest('[data-preset]');
+      if (pre) { applyPreset(pre.dataset.preset); return; }
+      if (e.target.closest('[data-drp-cancel]')) { closeCustomPicker(); return; }
+      if (e.target.closest('[data-drp-apply]') && selStart && selEnd) {
+        commitCustomRange(selStart, selEnd);
+        closeCustomPicker();
+      }
+    });
+    pop.addEventListener('mouseover', (e) => {
+      if (!selStart || selEnd) return;
+      const day = e.target.closest('.drp-day');
+      const nd = (day && day.dataset.day && !day.disabled) ? isoToDate(day.dataset.day) : null;
+      if ((nd ? ymdInt(nd) : 0) === (hoverD ? ymdInt(hoverD) : 0)) return;
+      hoverD = nd;
+      decorate();
+    });
+    pop.addEventListener('mouseleave', () => {
+      if (selStart && !selEnd && hoverD) { hoverD = null; decorate(); }
+    });
+
+    render();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (dpEl === pop) pop.classList.add('open');
+    }));
+
+    dpOutside = (e) => {
+      if (pop.contains(e.target)) return;
+      if (e.target.closest('.dr-pill-custom')) return;   // the pill's own click toggles
+      closeCustomPicker();
+    };
+    dpKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); closeCustomPicker(); } };
+    setTimeout(() => {
+      if (dpEl !== pop) return;
+      document.addEventListener('mousedown', dpOutside);
+      document.addEventListener('keydown', dpKey);
+    }, 0);
+
+    const pill = document.querySelector('.dr-pill-custom');
+    if (pill) pill.setAttribute('aria-expanded', 'true');
+  }
+
   function registerHandler() {
     const tryReg = () => {
       if (window.Kiwi?.handlers) {
         window.Kiwi.handlers['date-range'] = onAction;
+        window.Kiwi.handlers['open-date-picker'] = openCustomPicker;
         window.Kiwi.handlers['rev-compare'] = onCompareToggle;
         window.Kiwi.handlers['customize-kpi'] = openKpiCustomizer;
         window.Kiwi.handlers['hero-toggle-chart'] = () => {
@@ -3282,7 +3644,10 @@
     if (!/dashboard\.html/.test(location.pathname)) return;
     let stored = null;
     try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
+    try { customRange = parseCustom(localStorage.getItem(CUSTOM_KEY)); } catch (_) {}
     currentRange = VALID.includes(stored) ? stored : DEFAULT_RANGE;
+    // A stored 'personnalise' only stands if its date pair survived too.
+    if (currentRange === 'personnalise' && !customRange) currentRange = DEFAULT_RANGE;
     try { showComparison = localStorage.getItem(CMP_KEY) === '1'; } catch (_) {}
 
     registerHandler();
@@ -3368,7 +3733,7 @@
     const subDemo = () => {
       if (window.KiwiDemoClock?.subscribe) {
         window.KiwiDemoClock.subscribe((state, isReset) => {
-          const eff = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+          const eff = effRange();
           if (eff !== 'aujourdhui') return;
           liveTickInProgress = true;
           try {
@@ -3411,7 +3776,7 @@
       resizeTimer = setTimeout(() => {
         const amtEl = document.querySelector('[data-hero-amount]');
         if (amtEl) {
-          const eff = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+          const eff = effRange();
           const data = vData(heroDataByVenue, eff);
           if (data) fitHeroAmount(amtEl, data.amount);
         }
@@ -3451,7 +3816,7 @@
     // Demo clock owns deterministic ticking on aujourdhui — skip random ticks.
     if (window.KiwiDemoClock?.isActive?.()) return;
     // Live ticks only make sense on "today" — skip on historical ranges.
-    const r = currentRange === 'personnalise' ? 'aujourdhui' : currentRange;
+    const r = effRange();
     if (r !== 'aujourdhui') return;
     // And only mutate the currently active venue's data (each venue has its own).
     const v = getCurrentVenue();
