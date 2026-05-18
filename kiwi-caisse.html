@@ -2651,6 +2651,172 @@
       flex: 0 0 auto;
     }
 
+    /* ===========================================================
+       === Passation de caisse ===  (cashier shift handover)
+       =========================================================== */
+    #handover-modal .modal { max-height: calc(100vh - 48px); overflow-y: auto; }
+    .ho-step { animation: fade-in 200ms ease-out; }
+    .ma-btn:disabled { opacity: 0.4; cursor: default; }
+    .ma-btn:disabled:hover { transform: none; }
+
+    /* poste recap — outgoing cashier's shift so far */
+    .ho-recap {
+      background: var(--paper-soft);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--r-lg);
+      padding: 8px 14px; margin-bottom: 14px;
+    }
+    .ho-recap-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 4px 0; font-size: 13px;
+    }
+    .ho-recap-row .k { color: var(--ink-3); }
+    .ho-recap-row .v { font-weight: 600; color: var(--ink); font-feature-settings: "tnum" 1; }
+
+    /* drawer reconciliation box */
+    .ho-recon {
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 11px 14px; margin-bottom: 14px;
+    }
+    .ho-recon-line {
+      display: flex; justify-content: space-between;
+      font-size: 13px; color: var(--ink-3); padding: 3px 0;
+    }
+    .ho-recon-line .mono { font-family: var(--mono); color: var(--ink-2); }
+    .ho-recon-line.is-total {
+      border-top: 1px solid var(--line); margin-top: 6px; padding-top: 9px;
+    }
+    .ho-recon-line.is-total span:first-child { font-weight: 600; color: var(--ink); }
+    .ho-recon-line.is-total .mono { font-weight: 700; color: var(--forest); font-size: 15px; }
+
+    /* écart line — outgoing count vs expected */
+    .ho-ecart {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 14px; margin-bottom: 4px;
+      border-radius: var(--r-lg);
+      background: var(--paper-mute);
+      font-size: 13px;
+    }
+    .ho-ecart > span:first-child { color: var(--ink-3); }
+    .ho-ecart .mono { font-family: var(--mono); font-weight: 700; color: var(--ink-4); }
+    .ho-ecart.is-ok  { background: rgba(63,182,122,0.10); }
+    .ho-ecart.is-ok  .mono,
+    .ho-ecart.is-ok  > span:first-child { color: var(--forest); }
+    .ho-ecart.is-off { background: rgba(229,181,103,0.16); }
+    .ho-ecart.is-off .mono,
+    .ho-ecart.is-off > span:first-child { color: #8a6411; }
+
+    /* incoming cashier picker */
+    .ho-cashiers { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .ho-cashier {
+      display: flex; align-items: center; gap: 11px;
+      width: 100%; text-align: left;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      background: #fff;
+      transition: border-color 140ms, background 140ms;
+    }
+    .ho-cashier:hover { background: var(--paper-mute); }
+    .ho-cashier.is-active {
+      border-color: var(--forest);
+      background: rgba(63,182,122,0.07);
+    }
+    .ho-cashier-av {
+      width: 36px; height: 36px; border-radius: 50%; flex: 0 0 36px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(63,182,122,0.14); color: var(--forest);
+      font-size: 13px; font-weight: 700;
+    }
+    .ho-cashier-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .ho-cashier-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .ho-cashier-role { font-size: 11px; color: var(--ink-4); margin-top: 1px; }
+    .ho-cashier-tick {
+      width: 20px; height: 20px; flex: 0 0 20px;
+      opacity: 0; transition: opacity 140ms; color: var(--forest);
+    }
+    .ho-cashier.is-active .ho-cashier-tick { opacity: 1; }
+    .ho-cashier-tick svg { width: 20px; height: 20px; }
+
+    /* "drawer to take over" — the cash being passed on */
+    .ho-takeover {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 12px 16px; margin-bottom: 14px;
+      border-radius: var(--r-lg);
+      background: var(--ink-bg); color: var(--paper-cream);
+    }
+    .ho-takeover .k { font-size: 12px; color: rgba(247,245,240,0.6); }
+    .ho-takeover .v {
+      font-size: 25px; font-weight: 800; color: #fff;
+      font-feature-settings: "tnum" 1; letter-spacing: -0.02em;
+    }
+
+    /* verification verdict */
+    .ho-verdict {
+      display: flex; align-items: center; gap: 9px;
+      padding: 11px 14px; margin: 4px 0;
+      border-radius: var(--r-lg);
+      font-size: 12.5px; line-height: 1.35;
+    }
+    .ho-verdict svg { width: 17px; height: 17px; flex: 0 0 17px; }
+    .ho-verdict.is-idle { background: var(--paper-mute); color: var(--ink-4); }
+    .ho-verdict.is-ok   { background: rgba(63,182,122,0.12); color: var(--forest); }
+    .ho-verdict.is-warn { background: rgba(229,181,103,0.16); color: #8a6411; }
+    .ho-verdict b { font-weight: 700; }
+
+    /* handover slip — the proof artifact */
+    .ho-done-icon {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: rgba(63,182,122,0.14);
+      display: flex; align-items: center; justify-content: center;
+      margin: 2px auto 12px;
+    }
+    .ho-done-icon svg { width: 24px; height: 24px; color: var(--forest); }
+    .ho-slip {
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 15px 18px; margin-bottom: 14px;
+      background: var(--paper-soft);
+    }
+    .ho-slip-head {
+      text-align: center; padding-bottom: 10px;
+      border-bottom: 1px dashed var(--line); margin-bottom: 8px;
+    }
+    .ho-slip-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink);
+    }
+    .ho-slip-date { font-size: 11px; color: var(--ink-4); margin-top: 3px; font-family: var(--mono); }
+    .ho-slip-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 13px; padding: 4px 0;
+    }
+    .ho-slip-row .k { color: var(--ink-3); }
+    .ho-slip-row .v { font-weight: 600; color: var(--ink); }
+    .ho-slip-row .v.mono { font-family: var(--mono); }
+    .ho-slip-ecart {
+      display: flex; justify-content: space-between;
+      margin-top: 8px; padding: 9px 12px;
+      border-radius: 10px; font-size: 13px;
+    }
+    .ho-slip-ecart .mono { font-family: var(--mono); font-weight: 700; }
+    .ho-slip-ecart.is-ok  { background: rgba(63,182,122,0.12); color: var(--forest); }
+    .ho-slip-ecart.is-off { background: rgba(229,181,103,0.16); color: #8a6411; }
+    .ho-slip-sign {
+      display: flex; gap: 10px; margin-top: 12px;
+      padding-top: 11px; border-top: 1px dashed var(--line);
+    }
+    .ho-slip-sign-col { flex: 1; text-align: center; }
+    .ho-slip-sign-name {
+      font-family: var(--serif); font-style: italic;
+      font-size: 16px; color: var(--ink);
+    }
+    .ho-slip-sign-role {
+      font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--ink-4); margin-top: 3px;
+    }
+
     /* ---- Pourboire (tip) on card / cash payment modals ---- */
     .pay-tip {
       margin: 0 0 14px;
@@ -3003,6 +3169,10 @@
         <button class="qa-btn" data-action="cash-move">
           <i data-lucide="arrow-down-up"></i>
           <span>Mouvement caisse</span>
+        </button>
+        <button class="qa-btn" data-action="passation">
+          <i data-lucide="arrow-left-right"></i>
+          <span>Passation caisse</span>
         </button>
         <button class="qa-btn ghost" data-action="fin-service">
           <i data-lucide="log-out"></i>
@@ -3619,6 +3789,76 @@
           <button class="ma-btn danger" id="rf-confirm" style="flex:2;"><i data-lucide="corner-up-left"></i><span id="rf-confirm-label">Rembourser</span></button>
         </div>
         <a id="rf-back" class="rf-back">← Choisir une autre transaction</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PASSATION DE CAISSE (cashier handover) ============ -->
+  <div class="modal-veil" id="handover-modal" role="dialog" aria-modal="true" aria-labelledby="ho-title">
+    <div class="modal">
+      <!-- Step 1 — outgoing cashier counts the drawer -->
+      <div class="ho-step" id="ho-step-count">
+        <h3 class="modal-title" id="ho-title">Passation de caisse</h3>
+        <p class="modal-subtle" id="ho-count-sub">Le caissier sortant compte le tiroir.</p>
+        <div class="ho-recap" id="ho-recap"></div>
+        <div class="rm-section-label">Tiroir-caisse — attendu</div>
+        <div class="ho-recon" id="ho-recon"></div>
+        <div class="cash-input-row" style="margin-bottom:10px;">
+          <label class="cash-input-label" for="ho-count">Espèces comptées dans le tiroir</label>
+          <input class="cash-input mono" id="ho-count" type="number" inputmode="numeric" min="0" step="10" placeholder="0" />
+        </div>
+        <div class="cash-presets" aria-label="Ajout rapide">
+          <button class="cash-preset" data-ho-add="100">+100</button>
+          <button class="cash-preset" data-ho-add="500">+500</button>
+          <button class="cash-preset" data-ho-add="1000">+1 000</button>
+          <button class="cash-preset" data-ho-add="2000">+2 000</button>
+        </div>
+        <div class="ho-ecart" id="ho-ecart">
+          <span>Écart avec l'attendu</span><span class="mono" id="ho-ecart-val">—</span>
+        </div>
+        <div class="modal-actions is-visible">
+          <button class="ma-btn secondary" id="ho-count-cancel" style="flex:1;">Annuler</button>
+          <button class="ma-btn primary" id="ho-count-next" style="flex:2;"><span>Continuer</span><i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+      <!-- Step 2 — incoming cashier verifies and takes over -->
+      <div class="ho-step" id="ho-step-verify" hidden>
+        <h3 class="modal-title">Reprise de caisse</h3>
+        <p class="modal-subtle">Le caissier entrant recompte le tiroir, puis reprend la caisse.</p>
+        <div class="rm-section-label">Caissier entrant</div>
+        <div class="ho-cashiers" id="ho-cashiers"></div>
+        <div class="ho-takeover">
+          <span class="k">Caisse à reprendre</span>
+          <span class="v mono" id="ho-takeover-val">— MAD</span>
+        </div>
+        <div class="cash-input-row" style="margin-bottom:10px;">
+          <label class="cash-input-label" for="ho-verify">Recompte les espèces</label>
+          <input class="cash-input mono" id="ho-verify" type="number" inputmode="numeric" min="0" step="10" placeholder="0" />
+        </div>
+        <div class="cash-presets" aria-label="Ajout rapide">
+          <button class="cash-preset" data-ho-vadd="100">+100</button>
+          <button class="cash-preset" data-ho-vadd="500">+500</button>
+          <button class="cash-preset" data-ho-vadd="1000">+1 000</button>
+          <button class="cash-preset" data-ho-vadd="2000">+2 000</button>
+        </div>
+        <div class="ho-verdict is-idle" id="ho-verdict">
+          <i data-lucide="info"></i><span>Choisis le caissier entrant.</span>
+        </div>
+        <div class="modal-actions is-visible">
+          <button class="ma-btn secondary" id="ho-verify-back" style="flex:1;">Retour</button>
+          <button class="ma-btn primary" id="ho-verify-confirm" style="flex:2;" disabled><i data-lucide="check"></i><span>Confirmer la passation</span></button>
+        </div>
+      </div>
+      <!-- Step 3 — handover slip -->
+      <div class="ho-step" id="ho-step-done" hidden>
+        <div class="ho-done-icon"><i data-lucide="check"></i></div>
+        <h3 class="modal-title" style="text-align:center;">Passation enregistrée</h3>
+        <p class="modal-subtle" style="text-align:center;" id="ho-done-sub">La caisse a changé de main.</p>
+        <div class="ho-slip" id="ho-slip"></div>
+        <div class="modal-actions is-visible">
+          <button class="ma-btn secondary" id="ho-slip-print" style="flex:1;"><i data-lucide="printer"></i><span>Imprimer le bon</span></button>
+          <button class="ma-btn primary" id="ho-done-close" style="flex:1;"><i data-lucide="check"></i><span>Terminer</span></button>
+        </div>
       </div>
     </div>
   </div>
@@ -4430,6 +4670,7 @@
         const a = btn.dataset.action;
         if (a === 'remboursement')   openRefund();
         else if (a === 'cash-move')  openCashMove();
+        else if (a === 'passation')  openHandover();
         else if (a === 'fin-service') openCloture();
       });
     });
@@ -5475,6 +5716,22 @@
     const shift = { discounts: 95, refunds: 0, tablesPaid: 0 };
     let shiftOpenedAt = null;
 
+    /* ---- Cashier handover ("passation de caisse") ----
+       A business day is split into "postes" — one per cashier. The journal
+       keeps growing across the whole day; `posteOpenedAt` marks where the
+       CURRENT cashier's accountability starts, `posteOpeningFloat` is the
+       drawer they took over. Each handover is logged for the Clôture. */
+    const CASHIER_ROSTER = [
+      { id: 'rachid',  name: 'Rachid B.',  role: 'Caissier'  },
+      { id: 'yassine', name: 'Yassine M.', role: 'Caissier'  },
+      { id: 'salma',   name: 'Salma T.',   role: 'Caissière' },
+      { id: 'mehdi',   name: 'Mehdi A.',   role: 'Caissier'  },
+    ];
+    let   currentCashier    = { id: 'rachid', name: 'Rachid B.', role: 'Caissier' };
+    let   posteOpenedAt     = null;   // current cashier's poste start
+    let   posteOpeningFloat = 500;    // drawer the current cashier took over
+    const handovers         = [];     // [{ id,time,fromName,toName,posteOpenedAt,expected,counted,ecart }]
+
     /* ---- Journal des ventes — the shift's transaction ledger ---- */
     const journal = [];          // [{ id, time, label, amount, method, ref }]
     let journalSearch = '';
@@ -5528,6 +5785,7 @@
           method: Math.random() < 0.6 ? 'card' : 'cash',
           tip: tip,
           ref: genRef(),
+          cashier: currentCashier.name,
         });
       }
       shift.tablesPaid = tablesDone;
@@ -5545,6 +5803,7 @@
         label: label || 'Vente',
         amount: amount, method: method, ref: genRef(),
         tip: Math.round(tip) || 0,
+        cashier: currentCashier.name,
       };
       if (Array.isArray(lines) && lines.length) {
         entry.lines = lines.map(l => ({ name: l.name, qty: l.qty, total: l.total }));
@@ -5648,7 +5907,7 @@
         + `<div class="rct-row"><span class="rct-k">${isRefund ? 'Origine' : 'Service'}</span>`
         +   `<span class="rct-v">${entry.label}</span></div>`
         + `<div class="rct-row"><span class="rct-k">Caissier</span>`
-        +   `<span class="rct-v">Rachid B.</span></div>`
+        +   `<span class="rct-v">${entry.cashier || currentCashier.name}</span></div>`
         + `<div class="rct-dash" aria-hidden="true">${'· '.repeat(28)}</div>`
         + itemsHTML
         + `<hr class="rct-rule" />`
@@ -5711,6 +5970,8 @@
 
       // Open the cashier's shift — seeded to feel mid-service.
       shiftOpenedAt = new Date(Date.now() - 128 * 60 * 1000);  // ~2h08 ago
+      posteOpenedAt = shiftOpenedAt;         // first cashier's poste = whole shift
+      posteOpeningFloat = openingFloat;
       seedJournal();
       renderShiftStats();
 
@@ -5807,7 +6068,7 @@
       const pad2     = n => String(n).padStart(2, '0');
 
       $('#clo-meta').textContent =
-        `Café Atlas · Rachid B. · ${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
+        `Café Atlas · ${currentCashier.name} · ${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
 
       const tot = journalTotals();
       const rows = [
@@ -5824,6 +6085,14 @@
       if (tot.tips > 0)    rows.push(['Pourboires', fmtMAD(tot.tips), true, '']);
       if (shift.refunds > 0) rows.push(['Remboursements', fmtMAD(shift.refunds), true, '']);
       if (authorizations.length > 0) rows.push(['Autorisations manager', String(authorizations.length), false, '']);
+      if (handovers.length > 0) {
+        rows.push(['Passations de caisse', String(handovers.length), false, '']);
+        handovers.forEach(h => {
+          const ht = new Date(h.time);
+          rows.push([`${pad2(ht.getHours())}:${pad2(ht.getMinutes())} · ${h.fromName} → ${h.toName}`,
+                     fmtEcart(h.ecart), true, 'sub']);
+        });
+      }
 
       $('#clo-rows').innerHTML = rows.map((r, i) => {
         const cls  = 'clo-row' + (r[3] === 'total' ? ' is-total' : (r[3] === 'sub' ? ' is-sub' : ''));
@@ -6891,6 +7160,281 @@
     });
 
     /* ===========================================================
+       PASSATION DE CAISSE — cashier shift handover
+       -----------------------------------------------------------
+       Two cashiers share a business day. At the shift change the
+       OUTGOING cashier counts the drawer; the INCOMING cashier
+       recounts to verify; only when the two counts agree does the
+       handover go through. Both names land on a printable "bon de
+       passation" so any end-of-day shortfall is bracketed to the
+       right poste — the mutual count IS the control (no manager PIN).
+       =========================================================== */
+    function cashierInitials(name) {
+      return (name || '?').trim().split(/\s+/)
+             .map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
+    }
+    function fmtEcart(e) {
+      e = Math.round(e || 0);
+      if (e === 0) return '0 MAD';
+      return (e > 0 ? '+ ' : '− ') + fmtMAD(Math.abs(e));
+    }
+    function pad2HO(n) { return String(n).padStart(2, '0'); }
+
+    /* Roll up journal + cash movements for ONE poste (entries since `sinceMs`). */
+    function posteRollup(sinceMs) {
+      let revenue = 0, card = 0, cash = 0, tips = 0, cashTips = 0, txns = 0;
+      for (const e of journal) {
+        const t = (e.time instanceof Date ? e.time : new Date(e.time)).getTime();
+        if (t < sinceMs) continue;
+        revenue += e.amount;
+        if (e.method === 'cash') cash += e.amount; else card += e.amount;
+        const tip = e.tip || 0;
+        tips += tip;
+        if (e.method === 'cash') cashTips += tip;
+        txns++;
+      }
+      let movesIn = 0, movesOut = 0;
+      for (const m of cashMovements) {
+        const t = (m.time instanceof Date ? m.time : new Date(m.time)).getTime();
+        if (t < sinceMs) continue;
+        if (m.type === 'in') movesIn += m.amount; else movesOut += m.amount;
+      }
+      return { revenue, card, cash, tips, cashTips, txns, movesIn, movesOut };
+    }
+
+    /* Apply the live cashier identity to the sidebar card. */
+    function renderCashierCard() {
+      const nameEl = document.querySelector('.cashier-name');
+      const roleEl = document.querySelector('.cashier-role');
+      if (nameEl) nameEl.textContent = currentCashier.name;
+      if (roleEl) roleEl.textContent = currentCashier.role
+        + (handovers.length > 0 ? ' · poste ' + (handovers.length + 1) : '');
+    }
+
+    const handoverModal = $('#handover-modal');
+    const handoverState = { expected: 0, counted: 0, incoming: null, verifyCount: 0 };
+
+    function showHandoverStep(step) {
+      $('#ho-step-count').hidden  = step !== 'count';
+      $('#ho-step-verify').hidden = step !== 'verify';
+      $('#ho-step-done').hidden   = step !== 'done';
+    }
+
+    /* Step 1 — outgoing cashier's poste recap + drawer reconciliation. */
+    function renderHandoverCount() {
+      const now      = new Date();
+      const openedAt = posteOpenedAt || shiftOpenedAt || now;
+      const durMin   = Math.max(0, Math.floor((now - openedAt) / 60000));
+      const r        = posteRollup(openedAt.getTime());
+      handoverState.expected = posteOpeningFloat + r.cash + r.cashTips + r.movesIn - r.movesOut;
+
+      $('#ho-count-sub').textContent =
+        `${currentCashier.name} termine son poste — compte le tiroir.`;
+
+      const recap = [
+        ['Poste ouvert à', `${pad2HO(openedAt.getHours())}:${pad2HO(openedAt.getMinutes())}`],
+        ['Durée du poste', fmtDur(durMin)],
+        ['Transactions',   String(r.txns)],
+        ['Encaissé',       fmtMAD(r.revenue)],
+      ];
+      $('#ho-recap').innerHTML = recap.map(x =>
+        `<div class="ho-recap-row"><span class="k">${x[0]}</span><span class="v">${x[1]}</span></div>`
+      ).join('');
+
+      const lines = [
+        ['Fond du poste',      fmtMAD(posteOpeningFloat), ''],
+        ['Espèces encaissées', '+ ' + fmtMAD(r.cash),     ''],
+      ];
+      if (r.cashTips > 0) lines.push(['Pourboires espèces', '+ ' + fmtMAD(r.cashTips), '']);
+      if (r.movesIn  > 0) lines.push(['Entrées de caisse',  '+ ' + fmtMAD(r.movesIn),  '']);
+      if (r.movesOut > 0) lines.push(['Sorties de caisse',  '− ' + fmtMAD(r.movesOut), '']);
+      lines.push(['Attendu en caisse', fmtMAD(handoverState.expected), 'is-total']);
+      $('#ho-recon').innerHTML = lines.map(l =>
+        `<div class="ho-recon-line ${l[2]}"><span>${l[0]}</span><span class="mono">${l[1]}</span></div>`
+      ).join('');
+
+      $('#ho-count').value = '';
+      updateHandoverEcart();
+    }
+
+    function updateHandoverEcart() {
+      const box = $('#ho-ecart'), out = $('#ho-ecart-val'), inp = $('#ho-count');
+      box.classList.remove('is-ok', 'is-off');
+      const raw = inp ? inp.value : '';
+      if (raw === '' || raw == null) { out.textContent = '—'; return; }
+      handoverState.counted = Math.round(parseFloat(raw) || 0);
+      const ecart = handoverState.counted - handoverState.expected;
+      out.textContent = fmtEcart(ecart);
+      box.classList.add(Math.abs(ecart) <= 5 ? 'is-ok' : 'is-off');
+    }
+
+    /* Step 2 — incoming cashier picker + verification recount. */
+    function renderHandoverVerify() {
+      const list = CASHIER_ROSTER.filter(c => c.id !== currentCashier.id);
+      $('#ho-cashiers').innerHTML = list.map(c =>
+        `<button class="ho-cashier" data-ho-cashier="${c.id}">`
+        + `<span class="ho-cashier-av">${cashierInitials(c.name)}</span>`
+        + `<span class="ho-cashier-main">`
+        +   `<span class="ho-cashier-name">${c.name}</span>`
+        +   `<span class="ho-cashier-role">${c.role}</span>`
+        + `</span>`
+        + `<span class="ho-cashier-tick"><i data-lucide="check-circle-2"></i></span>`
+        + `</button>`
+      ).join('');
+      if (handoverState.incoming) {
+        const card = $(`#ho-cashiers [data-ho-cashier="${handoverState.incoming.id}"]`);
+        if (card) card.classList.add('is-active');
+      }
+      $('#ho-takeover-val').textContent = fmtMAD(handoverState.counted);
+      $('#ho-verify').value = '';
+      handoverState.verifyCount = 0;
+      updateHandoverVerdict();
+    }
+
+    function updateHandoverVerdict() {
+      const v   = $('#ho-verdict');
+      const btn = $('#ho-verify-confirm');
+      v.classList.remove('is-idle', 'is-ok', 'is-warn');
+      const raw = $('#ho-verify').value;
+      let icon, msg, cls, enabled = false;
+      if (!handoverState.incoming) {
+        cls = 'is-idle'; icon = 'info';
+        msg = 'Choisis le caissier entrant.';
+      } else if (raw === '' || raw == null) {
+        cls = 'is-idle'; icon = 'calculator';
+        msg = `<b>${handoverState.incoming.name}</b> recompte le tiroir pour vérifier.`;
+      } else if (handoverState.verifyCount === handoverState.counted) {
+        cls = 'is-ok'; icon = 'shield-check'; enabled = true;
+        msg = `Les deux comptes concordent — <b>${fmtMAD(handoverState.counted)}</b>. Caisse vérifiée.`;
+      } else {
+        cls = 'is-warn'; icon = 'alert-triangle';
+        const diff = handoverState.verifyCount - handoverState.counted;
+        msg = `Écart de <b>${fmtEcart(diff)}</b> avec le sortant — recomptez ensemble.`;
+      }
+      v.classList.add(cls);
+      v.innerHTML = `<i data-lucide="${icon}"></i><span>${msg}</span>`;
+      btn.disabled = !enabled;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    /* Step 3 — the printable handover slip. */
+    function renderHandoverSlip(rec) {
+      const d        = new Date(rec.time);
+      const opened   = new Date(rec.posteOpenedAt);
+      const ecartCls = Math.abs(rec.ecart) <= 5 ? 'is-ok' : 'is-off';
+      $('#ho-done-sub').textContent =
+        `${rec.toName} reprend la caisse — ${rec.fromName} est dégagé de toute responsabilité sur la suite.`;
+      $('#ho-slip').innerHTML =
+          `<div class="ho-slip-head">`
+        +   `<div class="ho-slip-title">Bon de passation</div>`
+        +   `<div class="ho-slip-date">Café Atlas · ${pad2HO(d.getDate())}/${pad2HO(d.getMonth()+1)}/${d.getFullYear()} · ${pad2HO(d.getHours())}:${pad2HO(d.getMinutes())}</div>`
+        + `</div>`
+        + `<div class="ho-slip-row"><span class="k">Poste ouvert à</span><span class="v mono">${pad2HO(opened.getHours())}:${pad2HO(opened.getMinutes())}</span></div>`
+        + `<div class="ho-slip-row"><span class="k">Attendu en caisse</span><span class="v mono">${fmtMAD(rec.expected)}</span></div>`
+        + `<div class="ho-slip-row"><span class="k">Espèces comptées</span><span class="v mono">${fmtMAD(rec.counted)}</span></div>`
+        + `<div class="ho-slip-ecart ${ecartCls}"><span>Écart constaté</span><span class="mono">${fmtEcart(rec.ecart)}</span></div>`
+        + `<div class="ho-slip-row" style="margin-top:8px;"><span class="k">Caisse transmise</span><span class="v mono">${fmtMAD(rec.counted)}</span></div>`
+        + `<div class="ho-slip-sign">`
+        +   `<div class="ho-slip-sign-col"><div class="ho-slip-sign-name">${rec.fromName}</div><div class="ho-slip-sign-role">Caissier sortant</div></div>`
+        +   `<div class="ho-slip-sign-col"><div class="ho-slip-sign-name">${rec.toName}</div><div class="ho-slip-sign-role">Caissier entrant</div></div>`
+        + `</div>`;
+    }
+
+    function openHandover() {
+      handoverState.counted = 0;
+      handoverState.incoming = null;
+      handoverState.verifyCount = 0;
+      renderHandoverCount();
+      showHandoverStep('count');
+      handoverModal.classList.add('is-open');
+      if (window.lucide) lucide.createIcons();
+      setTimeout(() => { const i = $('#ho-count'); if (i) i.focus(); }, 80);
+    }
+    function closeHandover() { handoverModal.classList.remove('is-open'); }
+
+    function confirmHandover() {
+      const inc = handoverState.incoming;
+      if (!inc) { toast('Choisis le caissier entrant'); return; }
+      if ($('#ho-verify').value === '' ||
+          handoverState.verifyCount !== handoverState.counted) {
+        toast('Les deux comptes doivent concorder'); return;
+      }
+      const now = new Date();
+      const rec = {
+        id: 'ho-' + Date.now(),
+        time: now,
+        fromName: currentCashier.name,
+        toName: inc.name,
+        posteOpenedAt: (posteOpenedAt || shiftOpenedAt || now),
+        expected: handoverState.expected,
+        counted: handoverState.counted,
+        ecart: handoverState.counted - handoverState.expected,
+      };
+      handovers.push(rec);
+      // The incoming cashier takes the counted drawer over as their float.
+      currentCashier    = { id: inc.id, name: inc.name, role: inc.role };
+      posteOpenedAt     = now;
+      posteOpeningFloat = handoverState.counted;
+      renderCashierCard();
+      renderHandoverSlip(rec);
+      showHandoverStep('done');
+      persistShift();
+      if (window.lucide) lucide.createIcons();
+      toast('Passation enregistrée · ' + inc.name + ' prend la caisse');
+    }
+
+    handoverModal.addEventListener('click', (e) => {
+      if (e.target === handoverModal)            { closeHandover(); return; }
+      if (e.target.closest('#ho-count-cancel'))  { closeHandover(); return; }
+      if (e.target.closest('#ho-done-close'))    { closeHandover(); return; }
+      if (e.target.closest('#ho-slip-print'))    { toast('Bon de passation envoyé à l\'imprimante'); return; }
+
+      const add = e.target.closest('[data-ho-add]');
+      if (add) {
+        $('#ho-count').value = (parseFloat($('#ho-count').value) || 0) + parseFloat(add.dataset.hoAdd);
+        updateHandoverEcart();
+        return;
+      }
+      const vadd = e.target.closest('[data-ho-vadd]');
+      if (vadd) {
+        $('#ho-verify').value = (parseFloat($('#ho-verify').value) || 0) + parseFloat(vadd.dataset.hoVadd);
+        handoverState.verifyCount = Math.round(parseFloat($('#ho-verify').value) || 0);
+        updateHandoverVerdict();
+        return;
+      }
+      if (e.target.closest('#ho-count-next')) {
+        if ($('#ho-count').value === '') { toast('Compte le tiroir'); return; }
+        updateHandoverEcart();
+        renderHandoverVerify();
+        showHandoverStep('verify');
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+      if (e.target.closest('#ho-verify-back')) {
+        const keep = handoverState.counted;
+        renderHandoverCount();
+        $('#ho-count').value = keep ? String(keep) : '';
+        updateHandoverEcart();
+        showHandoverStep('count');
+        return;
+      }
+      if (e.target.closest('#ho-verify-confirm')) { confirmHandover(); return; }
+
+      const pick = e.target.closest('[data-ho-cashier]');
+      if (pick) {
+        handoverState.incoming = CASHIER_ROSTER.find(c => c.id === pick.dataset.hoCashier) || null;
+        $$('#ho-cashiers .ho-cashier').forEach(b => b.classList.toggle('is-active', b === pick));
+        updateHandoverVerdict();
+        return;
+      }
+    });
+    $('#ho-count').addEventListener('input', updateHandoverEcart);
+    $('#ho-verify').addEventListener('input', () => {
+      handoverState.verifyCount = Math.round(parseFloat($('#ho-verify').value) || 0);
+      updateHandoverVerdict();
+    });
+
+    /* ===========================================================
        RP actions: reassign + split resume/cancel
        =========================================================== */
     document.addEventListener('click', (e) => {
@@ -6939,6 +7483,10 @@
           journal: journal,
           cashMovements: cashMovements,
           shift: shift,
+          currentCashier: currentCashier,
+          posteOpenedAt: posteOpenedAt ? posteOpenedAt.toISOString() : null,
+          posteOpeningFloat: posteOpeningFloat,
+          handovers: handovers,
           tables: tables,
           tableOrders: tableOrders,
           orders: orders,
@@ -6972,6 +7520,7 @@
         if (e.refunded)        entry.refunded = true;
         if (e.tip)             entry.tip      = e.tip;        // pourboire
         if (e.lines)           entry.lines    = e.lines;      // itemised receipt
+        if (e.cashier)         entry.cashier  = e.cashier;    // ringing cashier
         journal.push(entry);
       });
       cashMovements.length = 0;
@@ -6983,6 +7532,22 @@
         shift.refunds    = d.shift.refunds;
         shift.tablesPaid = d.shift.tablesPaid;
       }
+      if (d.currentCashier && d.currentCashier.name) {
+        currentCashier = {
+          id:   d.currentCashier.id   || 'rachid',
+          name: d.currentCashier.name,
+          role: d.currentCashier.role || 'Caissier',
+        };
+      }
+      posteOpenedAt     = d.posteOpenedAt ? new Date(d.posteOpenedAt) : shiftOpenedAt;
+      posteOpeningFloat = (typeof d.posteOpeningFloat === 'number') ? d.posteOpeningFloat : openingFloat;
+      handovers.length  = 0;
+      (d.handovers || []).forEach(h => handovers.push({
+        id: h.id, time: new Date(h.time),
+        fromName: h.fromName, toName: h.toName,
+        posteOpenedAt: new Date(h.posteOpenedAt),
+        expected: h.expected, counted: h.counted, ecart: h.ecart,
+      }));
       if (d.tables) Object.keys(d.tables).forEach(id => {
         if (tables[id]) Object.assign(tables[id], d.tables[id]);
       });
@@ -7002,6 +7567,7 @@
       document.body.classList.add('is-unlocked');
       renderSalle();
       renderShiftStats();
+      renderCashierCard();
       if (window.lucide) lucide.createIcons();
     }
 
