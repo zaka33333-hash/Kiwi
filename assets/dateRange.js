@@ -345,24 +345,6 @@
       resetT: 'تمت إعادة تعيين المؤشرات', resetD: 'العودة إلى الاختيار الافتراضي.',
     },
   };
-  // KPI catalog descriptions — EN/AR only (FR lives inline in KPI_CATALOG).
-  const KPI_DESC = {
-    tx:         { en: 'Number of sales in the period',           ar: 'عدد المبيعات في الفترة' },
-    panier:     { en: 'Average amount spent per sale',           ar: 'متوسّط المبلغ المنفق لكل عملية' },
-    revenue:    { en: 'Total cashed in the period',              ar: 'إجمالي المقبوض في الفترة' },
-    revPerDay:  { en: 'Average revenue per day',                 ar: 'متوسّط رقم المعاملات اليومي' },
-    marge:      { en: 'Share of revenue kept after food cost',   ar: 'نسبة المداخيل المحتفظ بها بعد تكلفة المواد' },
-    profit:     { en: 'Revenue minus food cost',                 ar: 'رقم المعاملات ناقص تكلفة المواد' },
-    cogs:       { en: 'Spend on raw materials',                  ar: 'الإنفاق على المواد الأولية' },
-    tips:       { en: 'Estimated tips cashed',                   ar: 'الإكراميات المقدّرة المقبوضة' },
-    success:    { en: 'Successful payments · slots filled',      ar: 'المدفوعات الناجحة · الحصص المملوءة' },
-    ratio:      { en: 'Card vs cash split',                      ar: 'توزيع البطاقة مقابل النقد' },
-    regulars:   { en: 'Customers who came before in the period', ar: 'زبائن سبق أن زاروا خلال الفترة' },
-    retention:  { en: 'Share of regulars among sales',           ar: 'نسبة الزبائن الدائمين من المبيعات' },
-    newClients: { en: 'Estimated first visits',                  ar: 'الزيارات الأولى المقدّرة' },
-    txPerDay:   { en: 'Average number of sales per day',         ar: 'متوسّط عدد المبيعات في اليوم' },
-    tauxRetour: { en: 'Share of items returned',                 ar: 'نسبة المنتجات المرتجعة' },
-  };
   // Heatmap-AI "set up Glovo combo" toast.
   const GLOVO_TOAST = {
     fr: { t: 'Combo Glovo · bientôt disponible', d: "Disponible quand l'intégration Glovo passe en live (Phase 2 · Kiwi Pay)." },
@@ -1978,18 +1960,26 @@
     let selected = (getKpiLayout(venueType) || defaultKpiKeys(venueType))
       .filter((k) => available.includes(k)).slice(0, 6);
 
+    const deltaSuffix = KPI_DELTA_SUFFIX[lang]?.[currentRange] || KPI_DELTA_SUFFIX.fr[currentRange];
+    // Each picker tile is a faithful preview of the dashboard KPI card —
+    // label + icon, the period value, its delta and a sparkline.
     const cardHtml = (k) => {
       const c = KPI_CATALOG[k];
       const icon = KPI_ICONS[k] || KPI_ICONS.tx;
+      const sparkPath = KPI_SPARKS[k] || KPI_SPARKS.tx;
+      let tile = null;
+      try { tile = c.derive(data, ctx); } catch (_) { tile = null; }
+      tile = tile || { value: 0, delta: 0 };
+      const valHtml = tile.text != null ? fmtKpiVal(tile, 0) : fmtKpiVal(tile, tile.value || 0);
+      const dv = tile.delta || 0;
+      const dCls = dv < 0 ? ' dn' : dv === 0 ? ' neutral' : '';
       return `
-        <button class="kc-card" data-kc="${k}" type="button">
+        <button class="kpi-pick" data-kc="${k}" type="button" aria-pressed="false">
           <span class="kc-badge"></span>
-          <span class="kc-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg></span>
-          <span class="kc-text">
-            <span class="kc-label">${kpiLabel(k, venueType, lang)}</span>
-            <span class="kc-desc">${(KPI_DESC[k] && KPI_DESC[k][lang]) || c.desc}</span>
-          </span>
-          <span class="kc-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+          <span class="l"><span>${kpiLabel(k, venueType, lang)}</span><span class="ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg></span></span>
+          <span class="v">${valHtml}</span>
+          <span class="d${dCls}">${arrowSvg(dv >= 0)}${fmtPct(dv)} ${deltaSuffix}</span>
+          <svg class="sp" viewBox="0 0 120 22" preserveAspectRatio="none"><path d="${sparkPath}" stroke="#0B6E4F" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
         </button>`;
     };
 
@@ -2011,9 +2001,10 @@
     const root = res.el;
 
     function refresh() {
-      root.querySelectorAll('.kc-card').forEach((card) => {
+      root.querySelectorAll('.kpi-pick').forEach((card) => {
         const idx = selected.indexOf(card.getAttribute('data-kc'));
         const badge = card.querySelector('.kc-badge');
+        card.setAttribute('aria-pressed', idx >= 0 ? 'true' : 'false');
         if (idx >= 0) { card.classList.add('sel'); badge.textContent = String(idx + 1); }
         else { card.classList.remove('sel'); badge.textContent = ''; }
       });
@@ -2026,7 +2017,7 @@
     }
 
     root.addEventListener('click', (e) => {
-      const card = e.target.closest('.kc-card');
+      const card = e.target.closest('.kpi-pick');
       if (card) {
         const k = card.getAttribute('data-kc');
         const idx = selected.indexOf(k);
