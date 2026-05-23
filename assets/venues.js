@@ -285,7 +285,7 @@
         { nav: 'tables', label: 'Tables & additions',   i18n: 'sidebar.restaurant.tables', tag: 'LIVE', icon: ICONS.tables },
         { nav: 'menu',   label: 'Menu & modificateurs', i18n: 'sidebar.restaurant.menu',                icon: ICONS.menu },
         { nav: 'kds',    label: 'Écran cuisine (KDS)',  i18n: 'sidebar.restaurant.kds',                 icon: ICONS.kds },
-        { nav: 'stock',  label: 'Stock ingrédients',    i18n: 'sidebar.restaurant.stock',               icon: ICONS.stock },
+        { nav: 'stock',  label: 'Stock & approvisionnement', i18n: 'sidebar.restaurant.stock',          icon: ICONS.stock },
       ],
     },
     boutique: {
@@ -4416,6 +4416,103 @@
     })),
   };
 
+
+  /* ═══════════════ INVENTORY · per-venue ingredient catalogue ═══════════════
+   * Drives the Stock & approvisionnement page (assets/stock.js).
+   * status: 'ok' (>= reorderLevel), 'low' (< reorderLevel, > 0), 'out' (= 0).
+   * usageThisWeek and theoreticalUsage drive variance reporting (actual vs
+   * what POS-recorded sales × recipes would imply). costPerUnit in MAD. */
+  const INVENTORY = {
+    cafeAtlas: [
+      // ── Viandes & volailles ──
+      { id: 'inv01', name: 'Viande hachée bœuf', category: 'viandes', unit: 'kg', currentStock: 12.4, parLevel: 18, reorderLevel: 8, costPerUnit: 95, supplier: 'Boucherie Errazi · Maarif', lastDelivery: '2026-05-13', deliveryFrequency: 'mardi-vendredi', usageThisWeek: 28.6, theoreticalUsage: 29.2, status: 'low' },
+      { id: 'inv02', name: 'Poulet entier', category: 'viandes', unit: 'kg', currentStock: 24.8, parLevel: 30, reorderLevel: 12, costPerUnit: 52, supplier: 'Volailles Atlas · Bouskoura', lastDelivery: '2026-05-14', deliveryFrequency: 'lundi-jeudi', usageThisWeek: 18.4, theoreticalUsage: 18.0, status: 'ok' },
+      { id: 'inv03', name: 'Agneau épaule', category: 'viandes', unit: 'kg', currentStock: 0, parLevel: 14, reorderLevel: 5, costPerUnit: 168, supplier: 'Boucherie Errazi · Maarif', lastDelivery: '2026-05-12', deliveryFrequency: 'mardi-vendredi', usageThisWeek: 9.2, theoreticalUsage: 11.4, status: 'out' },
+      { id: 'inv04', name: 'Merguez', category: 'viandes', unit: 'kg', currentStock: 6.8, parLevel: 8, reorderLevel: 3, costPerUnit: 78, supplier: 'Boucherie Errazi · Maarif', lastDelivery: '2026-05-13', deliveryFrequency: 'mardi-vendredi', usageThisWeek: 4.2, theoreticalUsage: 4.6, status: 'ok' },
+      { id: 'inv05', name: 'Thon en conserve', category: 'viandes', unit: 'boîte', currentStock: 48, parLevel: 60, reorderLevel: 24, costPerUnit: 14, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 36, theoreticalUsage: 38, status: 'ok' },
+      // ── Poissons & fruits de mer ──
+      { id: 'inv06', name: 'Poisson frais (sole)', category: 'poissons', unit: 'kg', currentStock: 0, parLevel: 6, reorderLevel: 2, costPerUnit: 142, supplier: 'Marché Central · Port Casablanca', lastDelivery: '2026-05-13', deliveryFrequency: 'tous-les-jours', usageThisWeek: 4.8, theoreticalUsage: 5.2, status: 'out' },
+      { id: 'inv07', name: 'Crevettes', category: 'poissons', unit: 'kg', currentStock: 3.2, parLevel: 4, reorderLevel: 1.5, costPerUnit: 168, supplier: 'Marché Central · Port Casablanca', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 2.8, theoreticalUsage: 3.0, status: 'ok' },
+      // ── Légumes & herbes ──
+      { id: 'inv08', name: 'Tomates fraîches', category: 'legumes', unit: 'kg', currentStock: 18.6, parLevel: 25, reorderLevel: 10, costPerUnit: 8, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 32.4, theoreticalUsage: 31.0, status: 'low' },
+      { id: 'inv09', name: 'Oignons', category: 'legumes', unit: 'kg', currentStock: 42, parLevel: 40, reorderLevel: 15, costPerUnit: 5, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-mercredi-vendredi', usageThisWeek: 26.8, theoreticalUsage: 27.2, status: 'ok' },
+      { id: 'inv10', name: 'Pommes de terre', category: 'legumes', unit: 'kg', currentStock: 28, parLevel: 35, reorderLevel: 12, costPerUnit: 6, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-mercredi-vendredi', usageThisWeek: 38.4, theoreticalUsage: 37.0, status: 'ok' },
+      { id: 'inv11', name: 'Courgettes', category: 'legumes', unit: 'kg', currentStock: 4.2, parLevel: 12, reorderLevel: 5, costPerUnit: 9, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'tous-les-jours', usageThisWeek: 14.8, theoreticalUsage: 13.6, status: 'low' },
+      { id: 'inv12', name: 'Carottes', category: 'legumes', unit: 'kg', currentStock: 16.4, parLevel: 18, reorderLevel: 7, costPerUnit: 5, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 11.2, theoreticalUsage: 11.6, status: 'ok' },
+      { id: 'inv13', name: 'Coriandre fraîche', category: 'legumes', unit: 'botte', currentStock: 28, parLevel: 40, reorderLevel: 15, costPerUnit: 4, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 64, theoreticalUsage: 62, status: 'ok' },
+      { id: 'inv14', name: 'Persil', category: 'legumes', unit: 'botte', currentStock: 32, parLevel: 35, reorderLevel: 12, costPerUnit: 4, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 56, theoreticalUsage: 54, status: 'ok' },
+      { id: 'inv15', name: 'Menthe fraîche', category: 'legumes', unit: 'botte', currentStock: 18, parLevel: 60, reorderLevel: 20, costPerUnit: 3, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'tous-les-jours', usageThisWeek: 142, theoreticalUsage: 138, status: 'low' },
+      { id: 'inv16', name: 'Citrons', category: 'legumes', unit: 'kg', currentStock: 14, parLevel: 18, reorderLevel: 6, costPerUnit: 12, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-mercredi-vendredi', usageThisWeek: 12.6, theoreticalUsage: 12.8, status: 'ok' },
+      { id: 'inv17', name: 'Avocats', category: 'legumes', unit: 'kg', currentStock: 9.4, parLevel: 14, reorderLevel: 5, costPerUnit: 32, supplier: 'Fruits Premium · Casablanca', lastDelivery: '2026-05-14', deliveryFrequency: 'mardi-vendredi', usageThisWeek: 18.2, theoreticalUsage: 17.6, status: 'low' },
+      // ── Épicerie sèche ──
+      { id: 'inv18', name: 'Semoule fine', category: 'epicerie', unit: 'kg', currentStock: 32, parLevel: 40, reorderLevel: 15, costPerUnit: 12, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 18, theoreticalUsage: 18.4, status: 'ok' },
+      { id: 'inv19', name: 'Riz long', category: 'epicerie', unit: 'kg', currentStock: 26, parLevel: 30, reorderLevel: 10, costPerUnit: 14, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 14, theoreticalUsage: 14.2, status: 'ok' },
+      { id: 'inv20', name: "Huile d'olive extra vierge", category: 'epicerie', unit: 'L', currentStock: 18, parLevel: 24, reorderLevel: 8, costPerUnit: 78, supplier: 'Huileries Sefrioui · Meknès', lastDelivery: '2026-05-07', deliveryFrequency: 'bi-mensuel', usageThisWeek: 11.6, theoreticalUsage: 12.0, status: 'ok' },
+      { id: 'inv21', name: 'Huile de tournesol', category: 'epicerie', unit: 'L', currentStock: 32, parLevel: 30, reorderLevel: 12, costPerUnit: 28, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 18.4, theoreticalUsage: 18.0, status: 'ok' },
+      { id: 'inv22', name: 'Couscous fin', category: 'epicerie', unit: 'kg', currentStock: 14, parLevel: 20, reorderLevel: 8, costPerUnit: 18, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 12.2, theoreticalUsage: 12.4, status: 'low' },
+      { id: 'inv23', name: 'Farine blé tendre', category: 'epicerie', unit: 'kg', currentStock: 48, parLevel: 50, reorderLevel: 20, costPerUnit: 8, supplier: 'Minoterie Lazaar · Casablanca', lastDelivery: '2026-05-09', deliveryFrequency: 'hebdomadaire', usageThisWeek: 32, theoreticalUsage: 31.6, status: 'ok' },
+      { id: 'inv24', name: 'Sucre blanc', category: 'epicerie', unit: 'kg', currentStock: 26, parLevel: 30, reorderLevel: 10, costPerUnit: 9, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 14.8, theoreticalUsage: 14.4, status: 'ok' },
+      // ── Épices ──
+      { id: 'inv25', name: 'Cumin moulu', category: 'epices', unit: 'kg', currentStock: 1.8, parLevel: 2, reorderLevel: 0.8, costPerUnit: 142, supplier: 'Épices Bab Marrakech', lastDelivery: '2026-05-01', deliveryFrequency: 'mensuel', usageThisWeek: 0.42, theoreticalUsage: 0.40, status: 'ok' },
+      { id: 'inv26', name: 'Paprika doux', category: 'epices', unit: 'kg', currentStock: 0.6, parLevel: 1.5, reorderLevel: 0.5, costPerUnit: 96, supplier: 'Épices Bab Marrakech', lastDelivery: '2026-05-01', deliveryFrequency: 'mensuel', usageThisWeek: 0.38, theoreticalUsage: 0.36, status: 'low' },
+      { id: 'inv27', name: 'Ras el hanout', category: 'epices', unit: 'kg', currentStock: 1.2, parLevel: 1.5, reorderLevel: 0.5, costPerUnit: 218, supplier: 'Épices Bab Marrakech', lastDelivery: '2026-05-01', deliveryFrequency: 'mensuel', usageThisWeek: 0.32, theoreticalUsage: 0.30, status: 'ok' },
+      { id: 'inv28', name: 'Safran', category: 'epices', unit: 'g', currentStock: 24, parLevel: 30, reorderLevel: 10, costPerUnit: 18, supplier: 'Coopérative Taliouine', lastDelivery: '2026-04-22', deliveryFrequency: 'mensuel', usageThisWeek: 4.2, theoreticalUsage: 4.0, status: 'ok' },
+      // ── Produits laitiers ──
+      { id: 'inv29', name: 'Lait entier', category: 'laitiers', unit: 'L', currentStock: 28, parLevel: 40, reorderLevel: 15, costPerUnit: 8, supplier: 'Centrale Danone · Casablanca', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 142, theoreticalUsage: 138, status: 'low' },
+      { id: 'inv30', name: 'Yaourt nature', category: 'laitiers', unit: 'pot', currentStock: 38, parLevel: 50, reorderLevel: 20, costPerUnit: 3, supplier: 'Centrale Danone · Casablanca', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 86, theoreticalUsage: 84, status: 'ok' },
+      { id: 'inv31', name: 'Fromage frais', category: 'laitiers', unit: 'kg', currentStock: 4.8, parLevel: 6, reorderLevel: 2, costPerUnit: 62, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-jeudi', usageThisWeek: 5.4, theoreticalUsage: 5.2, status: 'ok' },
+      { id: 'inv32', name: 'Beurre', category: 'laitiers', unit: 'kg', currentStock: 9.2, parLevel: 10, reorderLevel: 4, costPerUnit: 78, supplier: 'Centrale Danone · Casablanca', lastDelivery: '2026-05-12', deliveryFrequency: 'lundi-jeudi', usageThisWeek: 7.4, theoreticalUsage: 7.6, status: 'ok' },
+      { id: 'inv33', name: 'Œufs', category: 'laitiers', unit: 'unité', currentStock: 142, parLevel: 240, reorderLevel: 80, costPerUnit: 1.4, supplier: 'Avicole Atlas · Bouskoura', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-jeudi', usageThisWeek: 386, theoreticalUsage: 392, status: 'low' },
+      // ── Boissons ──
+      { id: 'inv34', name: 'Coca-Cola 33cl', category: 'boissons', unit: 'bouteille', currentStock: 144, parLevel: 240, reorderLevel: 96, costPerUnit: 6, supplier: 'NABC · Casablanca', lastDelivery: '2026-05-12', deliveryFrequency: 'hebdomadaire', usageThisWeek: 486, theoreticalUsage: 478, status: 'low' },
+      { id: 'inv35', name: 'Eau minérale 50cl', category: 'boissons', unit: 'bouteille', currentStock: 286, parLevel: 360, reorderLevel: 120, costPerUnit: 3, supplier: 'Sidi Ali · Distributeur', lastDelivery: '2026-05-13', deliveryFrequency: 'bi-hebdomadaire', usageThisWeek: 824, theoreticalUsage: 818, status: 'ok' },
+      { id: 'inv36', name: 'Thé vert en vrac', category: 'boissons', unit: 'kg', currentStock: 4.2, parLevel: 5, reorderLevel: 2, costPerUnit: 168, supplier: 'Thé Asma · Tanger', lastDelivery: '2026-04-28', deliveryFrequency: 'mensuel', usageThisWeek: 0.84, theoreticalUsage: 0.86, status: 'ok' },
+      // ── Produits finis / semi ──
+      { id: 'inv37', name: 'Pâte à pastilla', category: 'epicerie', unit: 'paquet', currentStock: 24, parLevel: 30, reorderLevel: 10, costPerUnit: 18, supplier: 'Bakery El Ouafy · Maarif', lastDelivery: '2026-05-14', deliveryFrequency: 'lundi-mercredi-vendredi', usageThisWeek: 38, theoreticalUsage: 36, status: 'ok' },
+      { id: 'inv38', name: 'Pain rond traditionnel', category: 'epicerie', unit: 'unité', currentStock: 38, parLevel: 80, reorderLevel: 30, costPerUnit: 2, supplier: 'Bakery El Ouafy · Maarif', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 286, theoreticalUsage: 282, status: 'low' },
+      // ── Consommables ──
+      { id: 'inv39', name: 'Serviettes papier', category: 'consommables', unit: 'paquet', currentStock: 14, parLevel: 18, reorderLevel: 6, costPerUnit: 32, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 8, theoreticalUsage: 8, status: 'ok' },
+      { id: 'inv40', name: 'Sacs poubelle 100L', category: 'consommables', unit: 'paquet', currentStock: 6, parLevel: 8, reorderLevel: 3, costPerUnit: 48, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 3, theoreticalUsage: 3, status: 'ok' },
+    ],
+    maisonMansour: [
+      { id: 'inv-mm01', name: 'Caftans (stock)', category: 'produits', unit: 'unité', currentStock: 48, parLevel: 60, reorderLevel: 20, costPerUnit: 1200, supplier: 'Atelier Marrakech · Médina', lastDelivery: '2026-04-22', deliveryFrequency: 'mensuel', usageThisWeek: 8, theoreticalUsage: 8, status: 'ok' },
+      { id: 'inv-mm02', name: 'Babouches cuir', category: 'produits', unit: 'paire', currentStock: 24, parLevel: 40, reorderLevel: 15, costPerUnit: 280, supplier: 'Tannerie Fès · Médina', lastDelivery: '2026-05-02', deliveryFrequency: 'bi-mensuel', usageThisWeek: 6, theoreticalUsage: 7, status: 'low' },
+      { id: 'inv-mm03', name: 'Tapis berbères', category: 'produits', unit: 'unité', currentStock: 18, parLevel: 25, reorderLevel: 8, costPerUnit: 2400, supplier: 'Coopérative Anti-Atlas', lastDelivery: '2026-04-15', deliveryFrequency: 'mensuel', usageThisWeek: 2, theoreticalUsage: 2, status: 'ok' },
+      { id: 'inv-mm04', name: 'Sachets cadeau', category: 'consommables', unit: 'unité', currentStock: 142, parLevel: 200, reorderLevel: 80, costPerUnit: 8, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'mensuel', usageThisWeek: 38, theoreticalUsage: 36, status: 'low' },
+    ],
+    spaBahia: [
+      { id: 'inv-sp01', name: "Huile d'argan", category: 'produits-soin', unit: 'L', currentStock: 6.4, parLevel: 8, reorderLevel: 3, costPerUnit: 320, supplier: 'Coopérative Tiznit', lastDelivery: '2026-05-08', deliveryFrequency: 'bi-mensuel', usageThisWeek: 1.8, theoreticalUsage: 2.0, status: 'ok' },
+      { id: 'inv-sp02', name: 'Savon noir traditionnel', category: 'produits-soin', unit: 'kg', currentStock: 12, parLevel: 15, reorderLevel: 5, costPerUnit: 95, supplier: 'Cosmétiques Médina · Fès', lastDelivery: '2026-05-08', deliveryFrequency: 'bi-mensuel', usageThisWeek: 3.4, theoreticalUsage: 3.2, status: 'ok' },
+      { id: 'inv-sp03', name: 'Gants de gommage', category: 'consommables', unit: 'unité', currentStock: 18, parLevel: 40, reorderLevel: 15, costPerUnit: 12, supplier: 'Cosmétiques Médina · Fès', lastDelivery: '2026-05-08', deliveryFrequency: 'bi-mensuel', usageThisWeek: 24, theoreticalUsage: 22, status: 'low' },
+      { id: 'inv-sp04', name: 'Serviettes éponge', category: 'consommables', unit: 'unité', currentStock: 84, parLevel: 100, reorderLevel: 40, costPerUnit: 38, supplier: 'Linge pro · Casablanca', lastDelivery: '2026-05-05', deliveryFrequency: 'bi-mensuel', usageThisWeek: 12, theoreticalUsage: 12, status: 'ok' },
+      { id: 'inv-sp05', name: 'Bougies aromatiques', category: 'consommables', unit: 'unité', currentStock: 28, parLevel: 40, reorderLevel: 15, costPerUnit: 24, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'mensuel', usageThisWeek: 8, theoreticalUsage: 8, status: 'ok' },
+      { id: 'inv-sp06', name: 'Henné poudre', category: 'produits-soin', unit: 'kg', currentStock: 0, parLevel: 2, reorderLevel: 0.5, costPerUnit: 140, supplier: 'Coopérative Tiznit', lastDelivery: '2026-04-28', deliveryFrequency: 'bi-mensuel', usageThisWeek: 0.4, theoreticalUsage: 0.42, status: 'out' },
+    ],
+  };
+
+  /* ═══════════════ SUPPLIERS · deduplicated catalogue ═══════════════
+   * Maps the supplier strings referenced in INVENTORY to richer profile data
+   * (contact, schedule, monthly spend, last 30d price change). Used in the
+   * Suppliers tab of the Stock page and in the Supplier Profile modal. */
+  const SUPPLIERS = [
+    { id: 'sup01', name: 'Boucherie Errazi', location: 'Maarif', category: 'viandes', contact: '+212 6 22 14 28 36', deliverySchedule: 'mardi · vendredi', avgInvoice: 3840, paymentTerms: 'Net 15', rating: 4.8, monthlySpend: 28400, priceChangeLast30d: 4.2 },
+    { id: 'sup02', name: 'Volailles Atlas', location: 'Bouskoura', category: 'viandes', contact: '+212 6 14 82 47 19', deliverySchedule: 'lundi · jeudi', avgInvoice: 1280, paymentTerms: 'Net 30', rating: 4.6, monthlySpend: 10240, priceChangeLast30d: 0 },
+    { id: 'sup03', name: 'Marché Central · Port', location: 'Casablanca', category: 'poissons', contact: '+212 6 38 19 47 02', deliverySchedule: 'tous les jours · 06h', avgInvoice: 820, paymentTerms: 'Comptant', rating: 4.4, monthlySpend: 16400, priceChangeLast30d: 8.4 },
+    { id: 'sup04', name: 'Marché de gros · Inezgane', location: 'Casablanca', category: 'legumes', contact: '+212 6 47 82 91 14', deliverySchedule: 'tous les jours · 05h30', avgInvoice: 1840, paymentTerms: 'Comptant', rating: 4.5, monthlySpend: 36800, priceChangeLast30d: -2.1 },
+    { id: 'sup05', name: 'Fruits Premium', location: 'Casablanca', category: 'legumes', contact: '+212 6 19 27 84 51', deliverySchedule: 'mardi · vendredi', avgInvoice: 1240, paymentTerms: 'Net 15', rating: 4.7, monthlySpend: 4960, priceChangeLast30d: 6.8 },
+    { id: 'sup06', name: 'Métro Casablanca', location: 'Aïn Sebaâ', category: 'epicerie', contact: '+212 5 22 67 84 00', deliverySchedule: 'jeudi · 14h', avgInvoice: 4620, paymentTerms: 'Net 30', rating: 4.9, monthlySpend: 18480, priceChangeLast30d: 1.4 },
+    { id: 'sup07', name: 'Huileries Sefrioui', location: 'Meknès', category: 'epicerie', contact: '+212 5 35 52 18 47', deliverySchedule: 'bi-mensuel', avgInvoice: 1680, paymentTerms: 'Net 30', rating: 4.8, monthlySpend: 3360, priceChangeLast30d: 0 },
+    { id: 'sup08', name: 'Minoterie Lazaar', location: 'Casablanca', category: 'epicerie', contact: '+212 5 22 30 14 28', deliverySchedule: 'hebdomadaire', avgInvoice: 480, paymentTerms: 'Net 15', rating: 4.6, monthlySpend: 1920, priceChangeLast30d: 0 },
+    { id: 'sup09', name: 'Épices Bab Marrakech', location: 'Marrakech', category: 'epices', contact: '+212 6 24 81 47 92', deliverySchedule: 'mensuel', avgInvoice: 1840, paymentTerms: 'Net 30', rating: 4.9, monthlySpend: 1840, priceChangeLast30d: 0 },
+    { id: 'sup10', name: 'Coopérative Taliouine', location: 'Taliouine', category: 'epices', contact: '+212 5 28 53 49 18', deliverySchedule: 'mensuel', avgInvoice: 432, paymentTerms: 'Comptant', rating: 5.0, monthlySpend: 432, priceChangeLast30d: 12.4 },
+    { id: 'sup11', name: 'Centrale Danone', location: 'Casablanca', category: 'laitiers', contact: '+212 5 22 87 14 00', deliverySchedule: 'tous les jours · 07h', avgInvoice: 1240, paymentTerms: 'Net 30', rating: 4.7, monthlySpend: 24800, priceChangeLast30d: 2.8 },
+    { id: 'sup12', name: 'Avicole Atlas', location: 'Bouskoura', category: 'laitiers', contact: '+212 6 28 47 19 84', deliverySchedule: 'lundi · jeudi', avgInvoice: 480, paymentTerms: 'Net 15', rating: 4.5, monthlySpend: 3840, priceChangeLast30d: 5.4 },
+    { id: 'sup13', name: 'NABC', location: 'Casablanca', category: 'boissons', contact: '+212 5 22 14 80 47', deliverySchedule: 'hebdomadaire', avgInvoice: 2160, paymentTerms: 'Net 30', rating: 4.6, monthlySpend: 8640, priceChangeLast30d: 0 },
+    { id: 'sup14', name: 'Sidi Ali · Distributeur', location: 'Oulmès', category: 'boissons', contact: '+212 5 37 84 19 28', deliverySchedule: 'bi-hebdomadaire', avgInvoice: 1080, paymentTerms: 'Net 30', rating: 4.7, monthlySpend: 8640, priceChangeLast30d: 0 },
+    { id: 'sup15', name: 'Thé Asma', location: 'Tanger', category: 'boissons', contact: '+212 6 39 47 28 14', deliverySchedule: 'mensuel', avgInvoice: 680, paymentTerms: 'Comptant', rating: 4.8, monthlySpend: 680, priceChangeLast30d: 0 },
+    { id: 'sup16', name: 'Bakery El Ouafy', location: 'Maarif', category: 'epicerie', contact: '+212 6 18 27 84 91', deliverySchedule: 'lundi · mercredi · vendredi', avgInvoice: 320, paymentTerms: 'Comptant', rating: 4.9, monthlySpend: 3840, priceChangeLast30d: 0 },
+  ];
+
   /* ═══════════════ PUBLIC API ═══════════════ */
 
   window.KiwiVenue = {
@@ -4427,6 +4524,9 @@
     getCurrentVenueData,
     getVenueType,
     getKpiSpec: type => KPI_BY_TYPE[type] || KPI_BY_TYPE.restaurant,
+    /* Stock & approvisionnement page data — see assets/stock.js */
+    getInventory: id => INVENTORY[id || currentVenue] || [],
+    getSuppliers: () => SUPPLIERS,
     getHeroAiRec: id => {
       const v = id || currentVenue;
       if (isCustom(v)) {
