@@ -1325,33 +1325,35 @@
    * ══════════════════════════════════════════════════════════════════════════ */
 
   /* Theme override — only active while body.fusion-mode is set.
-   * Full dark mode: paper/ink flip, neutral ramp reversed onto rgba whites
-   * over a deep-green base. Brand tokens swing to the Atlas Dark palette. */
+   * Black canvas + brand green palette (Atlas / Riad / Mint). No dark-green
+   * tint anywhere on surfaces. Mint is the high-contrast accent (text, icons,
+   * dots, sparklines); atlas + riad are reserved for filled green panels
+   * (hero, settlement, gradients) that need brand identity. */
   body.fusion-mode {
-    --atlas:       #21C586;   /* Atlas Dark · primary green */
-    --atlas-600:   #34D896;
-    --atlas-700:   #199E6C;
-    --riad:        #0C3325;   /* deep green */
-    --riad-deep:   #03100B;
-    --mint:        #7DF2B0;   /* mint accent */
-    --mint-soft:   #10402F;   /* dark mint-tinted surface */
-    --paper:       #06140F;
-    --paper-soft:  #0C2920;
-    --paper-muted: #123A2D;
-    --ink:         #EAF3EE;
-    --ink-soft:    #B7C9BF;
+    --atlas:       #0E805C;   /* brand atlas-600 — lifted for dark surfaces */
+    --atlas-600:   #0E805C;
+    --atlas-700:   #0A5E43;
+    --riad:        #053B2C;   /* brand riad */
+    --riad-deep:   #02261C;
+    --mint:        #7DF2B0;   /* brand mint — primary accent on black */
+    --mint-soft:   #14201A;   /* very dark mint-tinted surface */
+    --paper:       #000000;   /* pure black canvas */
+    --paper-soft:  #0F0F0F;   /* card surfaces — neutral near-black */
+    --paper-muted: #1A1A1A;   /* slightly raised surfaces */
+    --ink:         #F7F5F0;   /* primary text — brand paper */
+    --ink-soft:    #D3D0C8;
     --n-50:        rgba(255,255,255,0.04);
     --n-100:       rgba(255,255,255,0.06);
     --n-200:       rgba(255,255,255,0.10);
     --n-300:       rgba(255,255,255,0.16);
-    --n-400:       #5C7268;
-    --n-500:       #7E938A;
-    --n-600:       #A6B6AC;
-    --n-700:       #D3DDD6;
-    --n-800:       #EAF3EE;
+    --n-400:       #6B6862;
+    --n-500:       #8A8680;
+    --n-600:       #B8B4AC;
+    --n-700:       #D3D0C8;
+    --n-800:       #F2F0EA;
   }
   body.fusion-mode {
-    background: #06140F !important;
+    background: #000000 !important;
     color: var(--ink);
     transition: background 480ms cubic-bezier(0.32,0.72,0,1);
   }
@@ -1379,7 +1381,7 @@
   body.fusion-mode .loc-switch .badge { color: #7DF2B0 !important; }
   /* Hero card gradient + halos in fusion */
   body.fusion-mode .hero-today {
-    background: linear-gradient(135deg, #0C3325 0%, #0F5C40 100%) !important;
+    background: linear-gradient(135deg, #053B2C 0%, #0B6E4F 100%) !important;
   }
   body.fusion-mode .hero-today::before {
     background: radial-gradient(circle, rgba(125,242,176,0.32), transparent 60%) !important;
@@ -1395,15 +1397,15 @@
   body.fusion-mode .hero-left .meta,
   body.fusion-mode .hero-breakdown .b .l,
   body.fusion-mode .hero-goal .g-head { color: #BFE6CF !important; }
-  /* Sparkline strokes — recolour to Vif */
-  body.fusion-mode .kpi-m .sp path { stroke: #21C586 !important; }
+  /* Sparkline strokes — brand mint for contrast on pure black */
+  body.fusion-mode .kpi-m .sp path { stroke: #7DF2B0 !important; }
   /* Sidebar active nav pill */
   body.fusion-mode .sidebar nav a.active {
     background: rgba(125,242,176,0.10) !important;
     color: #7DF2B0 !important;
   }
-  /* Venue dropdown row icon, hero AI eyebrow */
-  body.fusion-mode .venue-row-icon { color: #21C586 !important; }
+  /* Venue dropdown row icon, hero AI eyebrow — brand mint for contrast */
+  body.fusion-mode .venue-row-icon { color: #7DF2B0 !important; }
   body.fusion-mode .hai-eyebrow,
   body.fusion-mode .ultra-tag { color: #7DF2B0 !important; }
 
@@ -1414,12 +1416,12 @@
   body.fusion-mode .upgrade-pro-card,
   body.fusion-mode .topbar,
   body.fusion-mode .integ-card {
-    background: #0C2920 !important;
+    background: #0F0F0F !important;
     border-color: rgba(125,242,176,0.10) !important;
     color: var(--ink);
   }
   /* Pure-white inline backgrounds (style="background:#fff") on KPI tiles */
-  body.fusion-mode .kpi-m { background: #0C2920 !important; }
+  body.fusion-mode .kpi-m { background: #0F0F0F !important; }
   body.fusion-mode .kpi-m:hover { border-color: rgba(125,242,176,0.28) !important; }
   body.fusion-mode .kpi-m .l .ico {
     background: rgba(125,242,176,0.10) !important;
@@ -1431,7 +1433,7 @@
   body.fusion-mode .kpi-m .u { color: #7E938A !important; }
 
   /* Topbar / search */
-  body.fusion-mode .topbar { background: rgba(6,20,15,0.85) !important; border-bottom-color: rgba(125,242,176,0.08) !important; }
+  body.fusion-mode .topbar { background: rgba(0,0,0,0.85) !important; border-bottom-color: rgba(125,242,176,0.08) !important; }
   body.fusion-mode .search-big {
     background: rgba(255,255,255,0.04) !important;
     border-color: rgba(125,242,176,0.10) !important;
@@ -1460,7 +1462,7 @@
   }
   body.fusion-mode .dr-pill { color: #7E938A !important; }
   body.fusion-mode .dr-pill.on {
-    background: linear-gradient(135deg, #21C586 0%, #0F5C40 100%) !important;
+    background: linear-gradient(135deg, #0E805C 0%, #0B6E4F 100%) !important;
     color: #fff !important;
     box-shadow: 0 4px 14px -4px rgba(33,197,134,0.55) !important;
   }
@@ -1472,10 +1474,10 @@
   body.fusion-mode .range span:hover:not(.on) { color: var(--ink) !important; }
 
   /* Heatmap "Heures de pointe" — green ramp → Atlas Dark ramp */
-  body.fusion-mode .hh-cell.i0 { background: #123A2D !important; }
-  body.fusion-mode .hh-cell.i1 { background: #16563D !important; }
-  body.fusion-mode .hh-cell.i2 { background: #1C8259 !important; }
-  body.fusion-mode .hh-cell.i3 { background: #23B377 !important; }
+  body.fusion-mode .hh-cell.i0 { background: #1A1A1A !important; }
+  body.fusion-mode .hh-cell.i1 { background: #053B2C !important; }
+  body.fusion-mode .hh-cell.i2 { background: #0A5E43 !important; }
+  body.fusion-mode .hh-cell.i3 { background: #0E805C !important; }
   body.fusion-mode .hh-cell.i4 { background: #7DF2B0 !important; }
   body.fusion-mode .hh-cell.now { box-shadow: 0 0 0 2px #7DF2B0, 0 0 16px -2px rgba(125,242,176,0.6) !important; }
   body.fusion-mode .hh-col .lbl,
@@ -1485,7 +1487,7 @@
   body.fusion-mode .rev-line-halo,
   body.fusion-mode .rev-line { stroke: #7DF2B0 !important; }
   body.fusion-mode .rev-area { fill: rgba(125,242,176,0.18) !important; }
-  body.fusion-mode .rev-live-dot { fill: #7DF2B0 !important; stroke: #0C2920 !important; }
+  body.fusion-mode .rev-live-dot { fill: #7DF2B0 !important; stroke: #0F0F0F !important; }
   body.fusion-mode .rev-grid line { stroke: rgba(255,255,255,0.06) !important; }
   body.fusion-mode .rev-axis text,
   body.fusion-mode .rev-axis-x text,
@@ -1493,8 +1495,8 @@
 
   /* Mix donut — replace green slices via inline CSS overrides */
   body.fusion-mode .mix-legend .dot.card { background: #7DF2B0 !important; }
-  body.fusion-mode .mix-legend .dot.cash { background: #21C586 !important; }
-  body.fusion-mode .mix-legend .dot.transfer { background: #0F5C40 !important; }
+  body.fusion-mode .mix-legend .dot.cash { background: #0E805C !important; }
+  body.fusion-mode .mix-legend .dot.transfer { background: #0B6E4F !important; }
 
   /* Feed rows */
   body.fusion-mode .feed-row { border-color: rgba(255,255,255,0.06) !important; }
@@ -1513,26 +1515,26 @@
 
   /* Settlement card */
   body.fusion-mode .settle {
-    background: linear-gradient(135deg, #0F5C40 0%, #0C3325 120%) !important;
+    background: linear-gradient(135deg, #0B6E4F 0%, #053B2C 120%) !important;
   }
 
   /* Timeline */
   body.fusion-mode .timeline-day {
-    background: #123A2D !important;
+    background: #1A1A1A !important;
     border-color: rgba(125,242,176,0.10) !important;
     color: var(--ink) !important;
   }
   body.fusion-mode .timeline-day.today {
-    background: #06140F !important;
-    border-color: #06140F !important;
+    background: #000000 !important;
+    border-color: #000000 !important;
   }
   body.fusion-mode .timeline-day.tomorrow {
-    background: #21C586 !important;
-    border-color: #21C586 !important;
+    background: #0E805C !important;
+    border-color: #0E805C !important;
   }
 
   /* Staff avatars (atlas bg → Vif) */
-  body.fusion-mode .staff-row .av { background: #21C586 !important; color: #fff !important; }
+  body.fusion-mode .staff-row .av { background: #0E805C !important; color: #fff !important; }
   body.fusion-mode .staff-row .name { color: var(--ink) !important; }
   body.fusion-mode .staff-row .role { color: #7E938A !important; }
 
@@ -1544,7 +1546,7 @@
   }
   body.fusion-mode .btn-slim.primary {
     background: #7DF2B0 !important;
-    color: #0C3325 !important;
+    color: #053B2C !important;
     border-color: #7DF2B0 !important;
   }
   body.fusion-mode .icon-btn {
@@ -1567,7 +1569,7 @@
 
   /* Hero goal bar */
   body.fusion-mode .hero-goal .g-fill {
-    background: linear-gradient(90deg, #7DF2B0, #21C586) !important;
+    background: linear-gradient(90deg, #7DF2B0, #0E805C) !important;
   }
 
   /* Sparklines — keep stroke Vif */
@@ -1575,7 +1577,7 @@
 
   /* Sidebar tweaks */
   body.fusion-mode .sidebar {
-    background: #03100B !important;
+    background: #000000 !important;
     color: #A6B6AC;
   }
   /* "kiwi" wordmark — anchored to light bone (var(--paper) flips dark in fusion) */
@@ -1599,16 +1601,16 @@
   }
   body.fusion-mode .sidebar .upsell button {
     background: #7DF2B0 !important;
-    color: #0C3325 !important;
+    color: #053B2C !important;
   }
   body.fusion-mode .sidebar .avatar {
-    background: linear-gradient(135deg, #7DF2B0, #21C586) !important;
-    color: #0C3325 !important;
+    background: linear-gradient(135deg, #7DF2B0, #0E805C) !important;
+    color: #053B2C !important;
   }
 
   /* Demo bar */
   body.fusion-mode .demo-bar {
-    background: #03100B !important;
+    background: #000000 !important;
     color: var(--ink) !important;
     border-bottom-color: rgba(125,242,176,0.10) !important;
   }
@@ -1617,7 +1619,7 @@
 
   /* Venue dropdown when open in fusion mode — keep its surface readable */
   body.fusion-mode .venue-dropdown {
-    background: #0C2920 !important;
+    background: #0F0F0F !important;
     border-color: rgba(125,242,176,0.18) !important;
     box-shadow: 0 18px 40px -10px rgba(0,0,0,0.6) !important;
   }
@@ -1667,13 +1669,13 @@
   body.fusion-mode svg circle[fill="#7DF2B0"] { fill: #7DF2B0 !important; }
   body.fusion-mode svg rect[fill="#0B6E4F"],
   body.fusion-mode svg path[fill="#0B6E4F"],
-  body.fusion-mode svg circle[fill="#0B6E4F"] { fill: #21C586 !important; }
+  body.fusion-mode svg circle[fill="#0B6E4F"] { fill: #0E805C !important; }
   body.fusion-mode svg rect[fill="#13855F"],
-  body.fusion-mode svg path[fill="#13855F"] { fill: #21C586 !important; }
-  body.fusion-mode svg rect[fill="#E8F5EC"] { fill: #123A2D !important; }
-  body.fusion-mode svg rect[fill="#B9E5CC"] { fill: #16563D !important; }
-  body.fusion-mode svg rect[fill="#7FD4A4"] { fill: #1C8259 !important; }
-  body.fusion-mode svg rect[fill="#3FB57A"] { fill: #23B377 !important; }
+  body.fusion-mode svg path[fill="#13855F"] { fill: #0E805C !important; }
+  body.fusion-mode svg rect[fill="#E8F5EC"] { fill: #1A1A1A !important; }
+  body.fusion-mode svg rect[fill="#B9E5CC"] { fill: #053B2C !important; }
+  body.fusion-mode svg rect[fill="#7FD4A4"] { fill: #0A5E43 !important; }
+  body.fusion-mode svg rect[fill="#3FB57A"] { fill: #0E805C !important; }
   body.fusion-mode svg rect[fill="#E8E6E0"] { fill: rgba(255,255,255,0.06) !important; }
   /* Tick labels / axis text on the dashboard's SVG */
   body.fusion-mode svg text[fill="#6F6C65"],
@@ -1690,14 +1692,14 @@
   body.fusion-mode [style*="background: #fff"]:not(.kiwi-toast),
   body.fusion-mode [style*="background:#FFF"]:not(.kiwi-toast),
   body.fusion-mode [style*="background: #FFF"]:not(.kiwi-toast) {
-    background: #0C2920 !important;
+    background: #0F0F0F !important;
     border-color: rgba(125,242,176,0.12) !important;
   }
   body.fusion-mode [style*="background:#FAFAF8"],
   body.fusion-mode [style*="background:#F7F5F0"],
   body.fusion-mode [style*="background:var(--paper)"],
   body.fusion-mode [style*="background:var(--paper-soft)"] {
-    background: #0C2920 !important;
+    background: #0F0F0F !important;
   }
 
   /* Inline style="color:var(--ink)" → var(--ink) is light in fusion, ok.
@@ -1724,7 +1726,7 @@
     border-color: rgba(125,242,176,0.28) !important;
   }
   body.fusion-mode .kb.atlas {
-    background: #21C586 !important;
+    background: #0E805C !important;
     color: #fff !important;
   }
   body.fusion-mode .kb.atlas:hover { background: #34D896 !important; }
@@ -1775,7 +1777,7 @@
   /* Staff progress bar (the green/orange thick line under each row) — these
    * use a hardcoded gradient or hex. We can't catch every variant but a
    * filter shift gets us in the right family. */
-  body.fusion-mode .av { background: linear-gradient(135deg, #7DF2B0, #21C586) !important; color: #0C3325 !important; }
+  body.fusion-mode .av { background: linear-gradient(135deg, #7DF2B0, #0E805C) !important; color: #053B2C !important; }
 
   /* Sidebar "kiwi" upsell — was already dark in light mode (Nuit bg).
    * In fusion the inner heading h4 / p was using --paper which now flips dark. */
@@ -1788,7 +1790,7 @@
    * in pages-pro.js (a class selector, not inline style, so my generic
    * [style*="background:#fff"] override doesn't catch it). */
   body.fusion-mode .kw-eq-row.active {
-    background: #0C2920 !important;
+    background: #0F0F0F !important;
     border-color: rgba(125,242,176,0.12) !important;
   }
   body.fusion-mode .kw-eq-row.inactive {
@@ -1821,7 +1823,7 @@
    * gradient and bone-coloured title; recolour the mint-rgba chip + button
    * surfaces; swap the hardcoded green sub-text colour for Fleur-tinted bone. */
   body.fusion-mode [style*="linear-gradient(135deg, var(--ink)"] {
-    background: linear-gradient(135deg, #0C2920 0%, #06140F 100%) !important;
+    background: linear-gradient(135deg, #0F0F0F 0%, #000000 100%) !important;
     color: #EAF3EE !important;
     border: 1px solid rgba(125,242,176,0.14) !important;
   }
@@ -1914,7 +1916,7 @@
   }
   .venue-action:hover { background: #F7F7F5; }
   .venue-action.fusion-cta {
-    background: linear-gradient(135deg, #0C3325 0%, #0F5C40 100%);
+    background: linear-gradient(135deg, #053B2C 0%, #0B6E4F 100%);
     color: #fff;
     margin: 6px 4px 0;
     padding: 12px 14px;
@@ -1961,7 +1963,7 @@
    *
    * pages.js / pages-pro.js declare many drawer classes with
    *   `color: var(--paper)` on `background: var(--atlas)` / gradients.
-   * In fusion mode the Atlas Dark palette flips --paper to dark Nuit (#06140F),
+   * In fusion mode the Atlas Dark palette flips --paper to dark Nuit (#000000),
    * which makes that text disappear into the now-blue surface. Force all such
    * colored-surface elements to var(--ink) (light in fusion) so they stay
    * readable. Also patch hardcoded warning/danger/success pills and the
@@ -2075,7 +2077,7 @@
     margin-bottom: 14px;
   }
   body.fusion-mode .fs-section {
-    background: rgba(12,41,32,0.55);
+    background: rgba(15,15,15,0.55);
     border-color: rgba(125,242,176,0.12);
   }
   .fs-section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
@@ -2600,7 +2602,7 @@
     opacity: 0;
     visibility: hidden;
     background:
-      radial-gradient(ellipse at center, rgba(6,20,15,0.80) 0%, rgba(3,16,11,0.97) 70%, #03100B 100%);
+      radial-gradient(ellipse at center, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.97) 70%, #000000 100%);
     transition: opacity 280ms ease, visibility 0s 280ms;
     overflow: hidden;
   }
@@ -3026,7 +3028,7 @@
   body.fusion-mode .eq-stat-ico,
   body.fusion-mode .eq-rank-num.neutral,
   body.fusion-mode .eq-rank-badge.neutral,
-  body.fusion-mode .eq-planner-nav button { background: #0C2920 !important; border-color: rgba(125,242,176,0.12) !important; }
+  body.fusion-mode .eq-planner-nav button { background: #0F0F0F !important; border-color: rgba(125,242,176,0.12) !important; }
   body.fusion-mode .eq-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.03) !important; }
   body.fusion-mode .eq-table tbody tr:hover,
   body.fusion-mode .eq-table tbody tr:nth-child(even):hover { background: rgba(125,242,176,0.07) !important; }
@@ -3349,12 +3351,12 @@
   body.fusion-mode .mi-qcard-btn,
   body.fusion-mode .mi-chip,
   body.fusion-mode .mi-station-x,
-  body.fusion-mode .mi-toggle button { background: #0C2920 !important; border-color: rgba(125,242,176,0.12) !important; }
+  body.fusion-mode .mi-toggle button { background: #0F0F0F !important; border-color: rgba(125,242,176,0.12) !important; }
   body.fusion-mode .mi-view-toggle,
   body.fusion-mode .mi-toggle { border-color: rgba(125,242,176,0.12) !important; }
   body.fusion-mode .mi-list tbody tr:nth-child(even) { background: rgba(255,255,255,0.03) !important; }
   body.fusion-mode .mi-list tbody tr:hover { background: rgba(125,242,176,0.07) !important; }
-  body.fusion-mode .mi-dot { border-color: #0C2920; }
+  body.fusion-mode .mi-dot { border-color: #0F0F0F; }
   body.fusion-mode .mi-qcard-btn.danger { background: linear-gradient(135deg, var(--danger), #9B2F22) !important; border-color: transparent !important; }
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -3793,7 +3795,7 @@
   body.fusion-mode .st-search,
   body.fusion-mode .st-mb-input,
   body.fusion-mode .st-mb-textarea,
-  body.fusion-mode .st-pc-input { background: #0C2920 !important; border-color: rgba(125,242,176,0.12) !important; color: var(--paper) !important; }
+  body.fusion-mode .st-pc-input { background: #0F0F0F !important; border-color: rgba(125,242,176,0.12) !important; color: var(--paper) !important; }
   body.fusion-mode .st-tbl tbody tr:nth-child(even),
   body.fusion-mode .st-sup-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.03) !important; }
   body.fusion-mode .st-tbl tbody tr:hover,
@@ -3827,9 +3829,9 @@
   body.fusion-mode .st-alert-impact { color: rgba(247,245,240,0.7) !important; }
   body.fusion-mode .st-alert { background: rgba(217,154,43,0.08) !important; border-color: rgba(217,154,43,0.2) !important; }
   body.fusion-mode .st-alert.out { background: rgba(201,74,58,0.1) !important; }
-  body.fusion-mode .st-card { background: #0C2920 !important; border-color: rgba(125,242,176,0.12) !important; }
+  body.fusion-mode .st-card { background: #0F0F0F !important; border-color: rgba(125,242,176,0.12) !important; }
   body.fusion-mode .st-tab.on { color: var(--paper); }
-  body.fusion-mode .st-cal-day { background: #0C2920 !important; border-color: rgba(125,242,176,0.12) !important; }
+  body.fusion-mode .st-cal-day { background: #0F0F0F !important; border-color: rgba(125,242,176,0.12) !important; }
   body.fusion-mode .st-cal-day.today { background: rgba(125,242,176,0.18) !important; border-color: var(--mint) !important; }
   body.fusion-mode .st-cal-day-item { background: rgba(0,0,0,0.25) !important; border-color: rgba(125,242,176,0.08) !important; color: var(--paper) !important; }
   body.fusion-mode .st-cal-day-item b { color: var(--paper) !important; }
