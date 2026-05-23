@@ -953,7 +953,7 @@
       <div class="fo-crt-line top"></div>
       <div class="fo-crt-line bot"></div>
       <div class="fo-label">
-        <span class="fo-mark">kiwi<i></i></span>
+        <span class="fo-mark">kiwi</span>
         <span class="fo-ultra">✦</span>
       </div>
     `;

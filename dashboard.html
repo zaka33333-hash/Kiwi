@@ -2639,18 +2639,17 @@
     color: #EAF3EE;
     text-shadow: 0 0 34px rgba(125,242,176,0.22);
   }
-  .fo-mark i {
-    width: 0.2em; height: 0.2em; border-radius: 50%;
-    background: #7DF2B0;
-    box-shadow: 0 0 16px rgba(125,242,176,0.75);
-  }
+  /* The star is now the only accent on the kiwi lockup — pops in, then a
+   * brief shine pulse so it reads as a "spark" rather than a static glyph. */
   .fo-ultra {
     font-size: clamp(20px, 2.7vw, 29px); line-height: 1;
     color: #7DF2B0;
     text-shadow: 0 0 18px rgba(125,242,176,0.65);
     opacity: 0;
     transform-origin: 50% 50%;
-    animation: fo-star-in 460ms cubic-bezier(0.34,1.56,0.64,1) forwards 1180ms;
+    animation:
+      fo-star-in    460ms cubic-bezier(0.34,1.56,0.64,1) forwards 1180ms,
+      fo-star-shine 900ms ease-in-out forwards 1700ms;
   }
   @keyframes fo-logo-in {
     from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
@@ -2660,6 +2659,25 @@
     0%   { opacity: 0; transform: scale(0)    rotate(-60deg); }
     65%  { opacity: 1; transform: scale(1.22) rotate(6deg); }
     100% { opacity: 1; transform: scale(1)    rotate(0deg); }
+  }
+  /* Small shine — gentle scale + halo pulse that fires once, ~550ms after
+   * the pop-in settles. Reads as a "spark" without looping forever. */
+  @keyframes fo-star-shine {
+    0% {
+      transform: scale(1);
+      text-shadow: 0 0 18px rgba(125,242,176,0.65);
+    }
+    45% {
+      transform: scale(1.18);
+      text-shadow:
+        0 0 6px #fff,
+        0 0 22px rgba(125,242,176,1),
+        0 0 48px rgba(125,242,176,0.55);
+    }
+    100% {
+      transform: scale(1);
+      text-shadow: 0 0 18px rgba(125,242,176,0.65);
+    }
   }
 
   /* ── Smart-TV CRT screen-open (enter) ──────────────────────────────────
