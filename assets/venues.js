@@ -990,8 +990,9 @@
      *   t=0.55  the screen "opens" — two bright lines split apart
      *   t=0.85  the Kiwi lockup fades in, ✦ Ultra star pops in at t=1.18
      *   t=1.45  palette + data swap UNDER the wash (Go Ultra engaged)
-     *   t=2.25  wash fades out, Go Ultra dashboard revealed
-     *   t=2.75  cleanup
+     *   t=1.70  ✦ shine pulse starts (1.6s · double-twinkle)
+     *   t=3.10  wash fades out, Go Ultra dashboard revealed
+     *   t=3.60  cleanup
      */
     setTimeout(() => {
       document.body.classList.add('fusion-mode');
@@ -1005,17 +1006,18 @@
       subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
     }, 1450);
 
-    // Hold the lockup briefly, then fade the overlay out and clear markup.
+    // Hold the lockup so the ✦ shine (starts t=1.7s, 1.6s long) plays
+    // through, then fade the overlay out and clear markup.
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 2250);
+    }, 3100);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 2750);
+    }, 3600);
   }
 
   function exitFusion(opts = {}) {
