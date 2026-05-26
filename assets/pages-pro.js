@@ -2842,6 +2842,14 @@ function wireDismiss(m) {
   });
 }
 
+/* ─── User-added tables (demo state · resets on refresh) ────────────────────
+ * The "+ Ajouter une table" modal pushes new tables here. The nav-tables
+ * floor plan renderer spreads them into its TABLES array on each open so
+ * they appear in the grid. No localStorage — refresh wipes them. */
+const _addedTables = [];
+let _nextTableId = 13;
+function _addTable(t) { _addedTables.push(t); _nextTableId = Math.max(_nextTableId, parseInt((t.id || '').replace(/^T/, ''), 10) + 1) || _nextTableId; }
+
 /* ═══════════════════════════════════════════════════════════════════════════
  * 1 ·  TABLES & ADDITIONS  ·  width 1080
  * ═══════════════════════════════════════════════════════════════════════════ */
@@ -2871,6 +2879,9 @@ handlers['nav-tables'] = () => {
     { id: 'TR2', zone: 'Terrasse', state: 'libre',       seats: 4, rev: 1480, turns: 2, server: 'YA', section: 'C' },
     { id: 'TR3', zone: 'Terrasse', state: 'occupied',    seats: 4, mins: 36, rev: 2120, turns: 3, server: 'MM', section: 'C' },
     { id: 'TR4', zone: 'Terrasse', state: 'libre',       seats: 2, rev: 640,  turns: 2, server: 'YA', section: 'C' },
+    /* Demo-added tables from the "+ Ajouter une table" modal — appended
+     * here so they paint inside the appropriate zone grid. */
+    ..._addedTables,
   ];
   const STAFF = [
     { i: 'FK', cls: 'a', name: 'Fatima Khalki',  section: 'A', tables: ['T1','T4','T11'], rev: 5870 },
@@ -3261,7 +3272,8 @@ function stateLabelOwner(s) {
 
 /* ─── Auxiliary owner-level handlers ─────────────────────────────────────── */
 handlers['tables-new'] = () => {
-  wireDismiss(modal({
+  const defaultId = `T${_nextTableId}`;
+  const m = modal({
     tag: 'AJOUTER',
     title: 'Ajouter une table au plan',
     desc: 'Configurez la nouvelle table puis glissez-la sur le plan en mode édition.',
@@ -3269,29 +3281,73 @@ handlers['tables-new'] = () => {
     body: `
       <div class="kf-group">
         <label class="kf-label">Identifiant</label>
-        <input class="kf-input" value="T13" />
+        <input class="kf-input" data-tn-id value="${defaultId}" />
       </div>
       <div class="kf-group">
         <label class="kf-label">Couverts</label>
-        <div style="display:flex; gap:6px;">
-          ${[1, 2, 4, 6, 8, 10].map((n, i) => `<button class="kb ${i===2?'atlas':'ghost'}" style="flex:1; justify-content:center;">${n}</button>`).join('')}
+        <div class="tn-row" data-tn-seats style="display:flex; gap:6px;">
+          ${[1, 2, 4, 6, 8, 10].map((n, i) => `<button type="button" class="kb ${i===2?'atlas':'ghost'}" data-seats="${n}" style="flex:1; justify-content:center;">${n}</button>`).join('')}
         </div>
       </div>
       <div class="kf-group">
         <label class="kf-label">Section</label>
-        <div style="display:flex; gap:6px;">
-          <button class="kb atlas" style="flex:1; justify-content:center;">Salle A</button>
-          <button class="kb ghost" style="flex:1; justify-content:center;">Salle B</button>
-          <button class="kb ghost" style="flex:1; justify-content:center;">Terrasse</button>
+        <div class="tn-row" data-tn-section style="display:flex; gap:6px;">
+          <button type="button" class="kb atlas" data-section="A" style="flex:1; justify-content:center;">Salle A</button>
+          <button type="button" class="kb ghost" data-section="B" style="flex:1; justify-content:center;">Salle B</button>
+          <button type="button" class="kb ghost" data-section="C" style="flex:1; justify-content:center;">Terrasse</button>
         </div>
       </div>
       <div class="kf-help">La table sera ajoutée au plan en cours et synchronisée sur l'app serveur.</div>
     `,
     foot: `
       <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Table T13 ajoutée',{type:'success',desc:'4 couverts · Salle A · à glisser sur le plan.'}); window.Kiwi.confetti();">Ajouter la table</button>
+      <button class="kb atlas" data-tn-confirm>Ajouter la table</button>
     `
-  }));
+  });
+  wireDismiss(m);
+  if (!m || !m.el) return;
+  /* Pill selection — single-select within each row. Click toggles the
+   * active button to .atlas and resets siblings to .ghost. */
+  m.el.addEventListener('click', (e) => {
+    const seatBtn = e.target.closest('[data-seats]');
+    const secBtn  = e.target.closest('[data-section]');
+    if (seatBtn) {
+      seatBtn.parentElement.querySelectorAll('[data-seats]').forEach(b => { b.classList.remove('atlas'); b.classList.add('ghost'); });
+      seatBtn.classList.remove('ghost'); seatBtn.classList.add('atlas');
+    } else if (secBtn) {
+      secBtn.parentElement.querySelectorAll('[data-section]').forEach(b => { b.classList.remove('atlas'); b.classList.add('ghost'); });
+      secBtn.classList.remove('ghost'); secBtn.classList.add('atlas');
+    }
+  });
+  /* Confirm — read inputs, push to _addedTables, re-render floor plan. */
+  const confirmBtn = m.el.querySelector('[data-tn-confirm]');
+  confirmBtn?.addEventListener('click', () => {
+    const idInput  = m.el.querySelector('[data-tn-id]');
+    const seatsBtn = m.el.querySelector('[data-tn-seats] .atlas');
+    const secBtnEl = m.el.querySelector('[data-tn-section] .atlas');
+    const id      = (idInput?.value || '').trim() || defaultId;
+    const seats   = parseInt(seatsBtn?.dataset.seats || '4', 10);
+    const section = secBtnEl?.dataset.section || 'A';
+    const zone    = section === 'C' ? 'Terrasse' : 'Salle';
+    const secLabel = section === 'C' ? 'Terrasse' : `Salle ${section}`;
+    /* Default server assignment matches the section's primary server in
+     * the floor plan: Fatima (A), Mehdi (B), Youssef (C). */
+    const serverByZone = { A: 'FK', B: 'MM', C: 'YA' };
+    _addTable({
+      id, zone, state: 'libre',
+      seats, rev: 0, turns: 0,
+      server: serverByZone[section] || 'FK',
+      section,
+      _userAdded: true,
+    });
+    m.close();
+    toast(`Table ${id} ajoutée`, { type: 'success', desc: `${seats} couverts · ${secLabel} · visible sur le plan.` });
+    if (confetti) confetti();
+    /* Refresh the floor plan to show the new table. nav-tables opens a
+     * fullpage drawer — re-invoking it rebuilds the grid with the new
+     * entry. The brief reflow reads as "table appears". */
+    setTimeout(() => handlers['nav-tables']?.(), 80);
+  });
 };
 
 handlers['tables-edit-mode'] = () => {
