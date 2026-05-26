@@ -2674,10 +2674,13 @@
                aria-label="Approchez votre téléphone du lecteur NFC">
             <div class="nfc-disc">
               <svg class="nfc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 20a8 8 0 0 0 0-16"/>
-                <path d="M12 16a4 4 0 0 0 0-8"/>
-                <circle cx="12" cy="12" r="1.4" fill="currentColor"/>
+                   stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <!-- Phone body on the left -->
+                <rect x="3" y="3.5" width="9" height="17" rx="1.8"/>
+                <line x1="5.5" y1="17.5" x2="9.5" y2="17.5"/>
+                <!-- Two concentric arcs emanating to the right (NFC waves) -->
+                <path d="M15 9a4.5 4.5 0 0 1 0 6"/>
+                <path d="M18.5 6a8 8 0 0 1 0 12"/>
               </svg>
               <svg class="nfc-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
