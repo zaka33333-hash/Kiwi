@@ -249,6 +249,15 @@
       background: rgba(255,255,255,0.1);
       color: var(--paper-cream);
     }
+    .pin-foot {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(247,245,240,0.35);
+      text-align: center;
+      margin-top: 14px;
+    }
 
     /* ===========================================================
        CLOCK-IN SCREEN
@@ -327,6 +336,166 @@
     .ci-restaurant {
       font-size: 12px; color: rgba(247,245,240,0.45);
       letter-spacing: 0.04em;
+    }
+
+    /* ===========================================================
+       POINTEUSE SCREEN — team time-clock (PIN 0000)
+       -----------------------------------------------------------
+       Walk-up time-clock for non-app staff (plongeur, ménage,
+       aide cuisine, livreur, etc). The same terminal accepts the
+       full serveur code for Yassir, OR 0000 for any other employee
+       who just needs to punch in / out. Tap a name to toggle.
+       =========================================================== */
+    .screen-pointeuse {
+      background: var(--ink-bg);
+      color: var(--paper-cream);
+      padding: 20px 18px 14px;
+      gap: 12px;
+    }
+    .pt-top {
+      display: flex; align-items: center; justify-content: space-between;
+      flex: 0 0 auto;
+    }
+    .pt-brand {
+      display: inline-flex; align-items: baseline; gap: 5px;
+      color: var(--paper-cream);
+      font-weight: 700; font-size: 26px;
+      line-height: 1; letter-spacing: -0.05em;
+    }
+    .pt-brand i {
+      width: 6px; height: 6px;
+      background: var(--mint);
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .pt-lock {
+      background: rgba(255,255,255,0.06);
+      color: rgba(247,245,240,0.7);
+      border-radius: 999px;
+      padding: 8px 12px 8px 11px;
+      font-size: 11.5px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: background 120ms ease;
+    }
+    .pt-lock:active { background: rgba(255,255,255,0.14); }
+    .pt-lock svg { width: 13px; height: 13px; }
+
+    .pt-clock {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px;
+      padding: 6px 0 4px;
+      flex: 0 0 auto;
+    }
+    .pt-tagline {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(247,245,240,0.45);
+    }
+    .pt-clock-time {
+      font-feature-settings: "tnum" 1;
+      font-size: 52px; font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .pt-clock-date {
+      font-size: 12px; color: rgba(247,245,240,0.5);
+      text-transform: capitalize;
+    }
+
+    .pt-body {
+      flex: 1; min-height: 0;
+      overflow-y: auto;
+      padding-right: 2px;
+      display: flex; flex-direction: column;
+      gap: 6px;
+    }
+    .pt-body::-webkit-scrollbar { width: 3px; }
+    .pt-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+    .pt-section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(247,245,240,0.5);
+      padding: 10px 4px 4px;
+    }
+    .pt-section-head .ct {
+      font-family: var(--mono);
+      background: rgba(255,255,255,0.08);
+      color: var(--paper-cream);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+    }
+    .pt-section-head.on .ct {
+      background: rgba(125,242,176,0.18);
+      color: var(--mint);
+    }
+
+    .pt-row {
+      display: flex; align-items: center; gap: 11px;
+      padding: 11px 13px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 13px;
+      transition: background 120ms ease, transform 80ms ease;
+      cursor: pointer;
+    }
+    .pt-row:active { transform: scale(0.99); }
+    .pt-row.on { background: rgba(125,242,176,0.09); }
+    .pt-row-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(247,245,240,0.20);
+      flex: 0 0 8px;
+    }
+    .pt-row.on .pt-row-dot {
+      background: var(--mint);
+      box-shadow: 0 0 0 3px rgba(125,242,176,0.18);
+    }
+    .pt-row-main { flex: 1; min-width: 0; }
+    .pt-row-name {
+      font-size: 14px; font-weight: 600;
+      color: var(--paper-cream);
+      letter-spacing: -0.01em;
+    }
+    .pt-row-role {
+      font-size: 11px;
+      color: rgba(247,245,240,0.5);
+      margin-top: 1px;
+    }
+    .pt-row-time {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      text-align: right;
+      flex: 0 0 auto;
+    }
+    .pt-row.on .pt-row-time {
+      color: var(--mint);
+    }
+    .pt-row.on .pt-row-time .dur {
+      color: rgba(247,245,240,0.5);
+      display: block;
+      margin-top: 1px;
+    }
+    .pt-row.off .pt-row-time {
+      color: rgba(247,245,240,0.35);
+      font-style: italic;
+    }
+
+    .pt-hint {
+      flex: 0 0 auto;
+      font-family: var(--mono);
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(247,245,240,0.35);
+      padding: 6px 0 2px;
     }
 
     /* ===========================================================
@@ -2433,6 +2602,7 @@
             <i data-lucide="delete"></i>
           </button>
         </div>
+        <div class="pin-foot">Démo · 0000 = pointeuse équipe · autre = serveur</div>
       </section>
 
       <!-- ============ CLOCK-IN SCREEN ============ -->
@@ -2459,6 +2629,26 @@
           </button>
           <div class="ci-restaurant">Maarif · Casablanca</div>
         </div>
+      </section>
+
+      <!-- ============ POINTEUSE SCREEN (PIN 0000) ============ -->
+      <section class="screen screen-pointeuse" id="screen-pointeuse" aria-label="Pointeuse équipe">
+        <div class="pt-top">
+          <div class="pt-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
+          <button class="pt-lock" id="pt-lock-btn" aria-label="Verrouiller">
+            <i data-lucide="lock"></i>
+            <span>Verrouiller</span>
+          </button>
+        </div>
+        <div class="pt-clock">
+          <div class="pt-tagline">Pointeuse · équipe</div>
+          <div class="pt-clock-time" id="pt-time">14:32</div>
+          <div class="pt-clock-date" id="pt-date">Ljm3a 24 April</div>
+        </div>
+        <div class="pt-body" id="pt-body">
+          <!-- populated by renderPointeuse() -->
+        </div>
+        <div class="pt-hint">Touchez votre nom pour pointer arrivée · sortie</div>
       </section>
 
       <!-- ============ MAIN APP ============ -->
@@ -3148,18 +3338,29 @@
       renderPinDots();
 
       if (pinInput.length === 4) {
+        // Capture the entered code before we reset pinInput.
+        const entered = pinInput;
         // Success pop on the 4 dots, staggered left → right.
         const dots = $$('.pin-dot');
         dots.forEach((d, i) => {
           setTimeout(() => d.classList.add('is-success'), i * 70);
         });
         // Wait for the pop choreography (~500ms total — 3*70 stagger + 360 anim)
-        // before transitioning to the clock-in screen, so the user sees it.
+        // before transitioning to the next screen, so the user sees it.
         setTimeout(() => {
           pinInput = '';
           // Clear both filled + success states for next login cycle
           dots.forEach(d => d.classList.remove('is-success', 'is-filled'));
-          showScreen('screen-clockin');
+          // 0000 → pointeuse for non-app staff. Any other code → serveur clock-in.
+          if (entered === '0000') {
+            renderPointeuse();
+            updatePointeuseClock();
+            startPointeuseTimer();
+            showScreen('screen-pointeuse');
+            lucide.createIcons();
+          } else {
+            showScreen('screen-clockin');
+          }
         }, 560);
       }
     }
@@ -3175,6 +3376,110 @@
       if (!$('#screen-pin').classList.contains('is-active')) return;
       if (e.key >= '0' && e.key <= '9') { handlePinKey(e.key); return; }
       if (e.key === 'Backspace')         { handlePinKey('back'); return; }
+    });
+
+    /* ---------- Pointeuse (PIN 0000) ----------
+       Walk-up time-clock for staff who don't have a personal app:
+       plongeur, ménage, aide cuisine, livreur, boulangerie, boucher.
+       Same terminal, different code. Each row toggles between "en
+       service" (clocked in) and "hors service" (clocked out). */
+    const POINTEUSE_ROSTER = [
+      { id: 'mounir',  name: 'Mounir A.',  role: 'Plongeur',     status: 'on',  inAt: new Date(Date.now() - (3 * 60 + 45) * 60000) },
+      { id: 'khadija', name: 'Khadija B.', role: 'Ménage',       status: 'on',  inAt: new Date(Date.now() - (2 * 60 + 12) * 60000) },
+      { id: 'said',    name: 'Saïd L.',    role: 'Aide cuisine', status: 'on',  inAt: new Date(Date.now() -  47       * 60000) },
+      { id: 'karim',   name: 'Karim R.',   role: 'Livreur',      status: 'off', inAt: null },
+      { id: 'aicha',   name: 'Aicha T.',   role: 'Boulangerie',  status: 'off', inAt: null },
+      { id: 'rachid',  name: 'Rachid M.',  role: 'Boucher',      status: 'off', inAt: null },
+      { id: 'latifa',  name: 'Latifa F.',  role: 'Ménage',       status: 'off', inAt: null },
+    ];
+
+    function ptClockHM(d) {
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
+    function ptDuration(from, to = new Date()) {
+      const m = Math.max(0, Math.floor((to.getTime() - from.getTime()) / 60000));
+      const h = Math.floor(m / 60);
+      const mm = m % 60;
+      return `${h}h ${String(mm).padStart(2, '0')}`;
+    }
+
+    function renderPointeuse() {
+      const body = $('#pt-body');
+      if (!body) return;
+      const on  = POINTEUSE_ROSTER.filter(p => p.status === 'on');
+      const off = POINTEUSE_ROSTER.filter(p => p.status === 'off');
+
+      const row = (p) => p.status === 'on'
+        ? `<button class="pt-row on" data-pt-id="${p.id}">
+             <span class="pt-row-dot"></span>
+             <div class="pt-row-main">
+               <div class="pt-row-name">${p.name}</div>
+               <div class="pt-row-role">${p.role}</div>
+             </div>
+             <div class="pt-row-time">
+               <span>depuis ${ptClockHM(p.inAt)}</span>
+               <span class="dur">${ptDuration(p.inAt)}</span>
+             </div>
+           </button>`
+        : `<button class="pt-row off" data-pt-id="${p.id}">
+             <span class="pt-row-dot"></span>
+             <div class="pt-row-main">
+               <div class="pt-row-name">${p.name}</div>
+               <div class="pt-row-role">${p.role}</div>
+             </div>
+             <div class="pt-row-time">hors service</div>
+           </button>`;
+
+      body.innerHTML =
+        `<div class="pt-section-head on"><span>En service</span><span class="ct">${on.length}</span></div>`
+        + on.map(row).join('')
+        + `<div class="pt-section-head"><span>Hors service</span><span class="ct">${off.length}</span></div>`
+        + off.map(row).join('');
+    }
+
+    function updatePointeuseClock() {
+      const d = new Date();
+      const t = $('#pt-time');
+      const dt = $('#pt-date');
+      if (t) t.textContent = ptClockHM(d);
+      if (dt) dt.textContent = `${dafrDays[d.getDay()]} ${d.getDate()} ${monthsEn[d.getMonth()]}`;
+    }
+
+    let pointeuseTimer = null;
+    function startPointeuseTimer() {
+      clearInterval(pointeuseTimer);
+      pointeuseTimer = setInterval(() => {
+        if (!$('#screen-pointeuse').classList.contains('is-active')) {
+          clearInterval(pointeuseTimer); pointeuseTimer = null; return;
+        }
+        updatePointeuseClock();
+        renderPointeuse();
+      }, 60000);
+    }
+
+    // Tap a name → toggle their clock state, toast the punch.
+    $('#pt-body').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-pt-id]');
+      if (!btn) return;
+      const p = POINTEUSE_ROSTER.find(x => x.id === btn.dataset.ptId);
+      if (!p) return;
+      if (p.status === 'on') {
+        const dur = ptDuration(p.inAt);
+        p.status = 'off';
+        p.inAt   = null;
+        toast(`${p.name.split(' ')[0]} a pointé la sortie · ${dur} de service`);
+      } else {
+        p.status = 'on';
+        p.inAt   = new Date();
+        toast(`${p.name.split(' ')[0]} a pointé l'arrivée à ${ptClockHM(p.inAt)}`);
+      }
+      renderPointeuse();
+    });
+
+    // Verrouiller → back to PIN screen for the next employee.
+    $('#pt-lock-btn').addEventListener('click', () => {
+      clearInterval(pointeuseTimer); pointeuseTimer = null;
+      showScreen('screen-pin');
     });
 
     /* ---------- Clock-in / Clock-out ---------- */
