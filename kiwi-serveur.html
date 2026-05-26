@@ -339,164 +339,87 @@
     }
 
     /* ===========================================================
-       POINTEUSE SCREEN — team time-clock (PIN 0000)
+       NFC TAP ZONE (clock-in screen)
        -----------------------------------------------------------
-       Walk-up time-clock for non-app staff (plongeur, ménage,
-       aide cuisine, livreur, etc). The same terminal accepts the
-       full serveur code for Yassir, OR 0000 for any other employee
-       who just needs to punch in / out. Tap a name to toggle.
+       Anti-fraud guard: the employee must physically tap their
+       phone on the POS-side NFC reader before "Pointer l'arrivée"
+       enables. Stops anyone from clocking in remotely from home.
+       In the demo, clicking the disc simulates the tap.
        =========================================================== */
-    .screen-pointeuse {
-      background: var(--ink-bg);
-      color: var(--paper-cream);
-      padding: 20px 18px 14px;
-      gap: 12px;
-    }
-    .pt-top {
-      display: flex; align-items: center; justify-content: space-between;
-      flex: 0 0 auto;
-    }
-    .pt-brand {
-      display: inline-flex; align-items: baseline; gap: 5px;
-      color: var(--paper-cream);
-      font-weight: 700; font-size: 26px;
-      line-height: 1; letter-spacing: -0.05em;
-    }
-    .pt-brand i {
-      width: 6px; height: 6px;
-      background: var(--mint);
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .pt-lock {
-      background: rgba(255,255,255,0.06);
-      color: rgba(247,245,240,0.7);
-      border-radius: 999px;
-      padding: 8px 12px 8px 11px;
-      font-size: 11.5px; font-weight: 600;
-      display: inline-flex; align-items: center; gap: 6px;
-      transition: background 120ms ease;
-    }
-    .pt-lock:active { background: rgba(255,255,255,0.14); }
-    .pt-lock svg { width: 13px; height: 13px; }
-
-    .pt-clock {
+    .nfc-zone {
       display: flex; flex-direction: column; align-items: center;
-      gap: 4px;
-      padding: 6px 0 4px;
-      flex: 0 0 auto;
-    }
-    .pt-tagline {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(247,245,240,0.45);
-    }
-    .pt-clock-time {
-      font-feature-settings: "tnum" 1;
-      font-size: 52px; font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1;
-    }
-    .pt-clock-date {
-      font-size: 12px; color: rgba(247,245,240,0.5);
-      text-transform: capitalize;
-    }
-
-    .pt-body {
-      flex: 1; min-height: 0;
-      overflow-y: auto;
-      padding-right: 2px;
-      display: flex; flex-direction: column;
-      gap: 6px;
-    }
-    .pt-body::-webkit-scrollbar { width: 3px; }
-    .pt-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-
-    .pt-section-head {
-      display: flex; align-items: center; justify-content: space-between;
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(247,245,240,0.5);
-      padding: 10px 4px 4px;
-    }
-    .pt-section-head .ct {
-      font-family: var(--mono);
-      background: rgba(255,255,255,0.08);
-      color: var(--paper-cream);
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 10.5px;
-      letter-spacing: 0.04em;
-    }
-    .pt-section-head.on .ct {
-      background: rgba(125,242,176,0.18);
-      color: var(--mint);
-    }
-
-    .pt-row {
-      display: flex; align-items: center; gap: 11px;
-      padding: 11px 13px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 13px;
-      transition: background 120ms ease, transform 80ms ease;
+      gap: 11px;
+      margin: 6px 0 18px;
       cursor: pointer;
+      user-select: none;
     }
-    .pt-row:active { transform: scale(0.99); }
-    .pt-row.on { background: rgba(125,242,176,0.09); }
-    .pt-row-dot {
-      width: 8px; height: 8px;
+    .nfc-disc {
+      position: relative;
+      width: 88px; height: 88px;
       border-radius: 50%;
-      background: rgba(247,245,240,0.20);
-      flex: 0 0 8px;
+      background: rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--mint);
+      transition: background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
     }
-    .pt-row.on .pt-row-dot {
-      background: var(--mint);
-      box-shadow: 0 0 0 3px rgba(125,242,176,0.18);
+    .nfc-disc::before, .nfc-disc::after {
+      content: ''; position: absolute; inset: -2px;
+      border-radius: 50%;
+      border: 2px solid rgba(125,242,176, 0.45);
+      animation: nfc-ripple 1.6s ease-out infinite;
+      pointer-events: none;
     }
-    .pt-row-main { flex: 1; min-width: 0; }
-    .pt-row-name {
-      font-size: 14px; font-weight: 600;
-      color: var(--paper-cream);
-      letter-spacing: -0.01em;
+    .nfc-disc::after { animation-delay: 0.8s; }
+    @keyframes nfc-ripple {
+      0%   { transform: scale(0.95); opacity: 0.8; }
+      80%  { opacity: 0; }
+      100% { transform: scale(1.65); opacity: 0; }
     }
-    .pt-row-role {
-      font-size: 11px;
-      color: rgba(247,245,240,0.5);
-      margin-top: 1px;
+    .nfc-disc svg {
+      width: 34px; height: 34px;
+      position: relative; z-index: 1;
+      transition: opacity 200ms ease;
     }
-    .pt-row-time {
-      font-family: var(--mono);
-      font-size: 10.5px;
-      text-align: right;
-      flex: 0 0 auto;
-    }
-    .pt-row.on .pt-row-time {
+    .nfc-check-svg { display: none; }
+    .nfc-zone.is-tapped .nfc-disc {
+      background: rgba(125,242,176,0.18);
+      box-shadow: 0 0 0 6px rgba(125,242,176,0.18), 0 8px 20px rgba(125,242,176,0.18);
+      transform: scale(1.02);
       color: var(--mint);
     }
-    .pt-row.on .pt-row-time .dur {
-      color: rgba(247,245,240,0.5);
-      display: block;
-      margin-top: 1px;
+    .nfc-zone.is-tapped .nfc-disc::before,
+    .nfc-zone.is-tapped .nfc-disc::after { animation: none; opacity: 0; }
+    .nfc-zone.is-tapped .nfc-svg { display: none; }
+    .nfc-zone.is-tapped .nfc-check-svg { display: block; animation: nfc-check-pop 360ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+    @keyframes nfc-check-pop {
+      0%   { transform: scale(0.4); opacity: 0; }
+      55%  { transform: scale(1.25); opacity: 1; }
+      100% { transform: scale(1);    opacity: 1; }
     }
-    .pt-row.off .pt-row-time {
-      color: rgba(247,245,240,0.35);
-      font-style: italic;
-    }
-
-    .pt-hint {
-      flex: 0 0 auto;
+    .nfc-caption {
       font-family: var(--mono);
-      text-align: center;
-      font-size: 10px;
+      font-size: 10.5px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(247,245,240,0.35);
-      padding: 6px 0 2px;
+      color: rgba(247,245,240,0.55);
+      text-align: center;
+      line-height: 1.4;
+      max-width: 240px;
+      transition: color 200ms ease;
     }
+    .nfc-zone.is-tapped .nfc-caption {
+      color: var(--mint);
+    }
+
+    /* Pointer l'arrivée — locked state until NFC tap. */
+    .ci-btn:disabled, .ci-btn[disabled] {
+      opacity: 0.42;
+      background: rgba(255,255,255,0.08);
+      box-shadow: none;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
 
     /* ===========================================================
        MAIN APP — top bar, content, bottom tabs
@@ -1270,6 +1193,133 @@
       color: var(--ink-4);
       text-transform: uppercase; letter-spacing: 0.08em;
     }
+
+    /* ===========================================================
+       Cette semaine — schedule strip
+       =========================================================== */
+    .kg-sched .kg-week {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .kg-day {
+      display: flex; flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 9px 4px 8px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 11px;
+      text-align: center;
+    }
+    .kg-day.is-today {
+      background: var(--mint-edge);
+      border-color: var(--mint);
+    }
+    .kg-day.is-rest {
+      background: transparent;
+      border-style: dashed;
+    }
+    .kg-day-name {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+    }
+    .kg-day-num {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+      margin-top: 1px;
+    }
+    .kg-day-hours {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: var(--forest);
+      margin-top: 3px;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+    }
+    .kg-day.is-rest .kg-day-hours { color: var(--ink-4); font-style: italic; }
+    .kg-day.is-today .kg-day-name,
+    .kg-day.is-today .kg-day-num { color: var(--forest-deep); }
+    .kg-day.is-today .kg-day-hours { color: var(--forest-deep); font-weight: 600; }
+
+    .kg-sched-shift {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 14px;
+      padding: 11px 14px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--line-soft);
+    }
+    .kg-sched-shift-label {
+      font-size: 11px;
+      color: var(--ink-4);
+      letter-spacing: 0.04em;
+    }
+    .kg-sched-shift-label b {
+      display: block; color: var(--ink); font-weight: 600;
+      font-size: 13px; letter-spacing: -0.01em; margin-top: 2px;
+    }
+    .kg-sched-shift-time {
+      font-family: var(--mono);
+      font-size: 14px; font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* ===========================================================
+       Heures travaillées — today / week / month tiles
+       =========================================================== */
+    .kg-hours-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .kg-hours-tile {
+      padding: 12px 8px 11px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .kg-hours-tile.is-today {
+      background: var(--mint-edge);
+      border-color: var(--mint);
+    }
+    .kg-hours-num {
+      font-family: var(--mono);
+      font-size: 16px; font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+      font-feature-settings: "tnum" 1;
+      white-space: nowrap;
+      letter-spacing: -0.02em;
+    }
+    .kg-hours-tile.is-today .kg-hours-num { color: var(--forest-deep); }
+    .kg-hours-label {
+      font-size: 10px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+      margin-top: 5px;
+    }
+
+    /* ===========================================================
+       Role-restricted view (PIN 0000) — hide server-only widgets
+       =========================================================== */
+    body.is-role-restricted .kg-rank,
+    body.is-role-restricted .kg-rec,
+    body.is-role-restricted .kg-defi,
+    body.is-role-restricted [data-role-restricted="hide"] { display: none !important; }
+    /* When restricted, the bottom-tab bar has nothing to switch between —
+       drop it so the profil view fills the screen. */
+    body.is-role-restricted .bottom-tabs { display: none !important; }
+    body.is-role-restricted .content { padding-bottom: 0; }
 
     /* a) Niveau / Grade */
     .kg-rank-top {
@@ -2602,7 +2652,7 @@
             <i data-lucide="delete"></i>
           </button>
         </div>
-        <div class="pin-foot">Démo · 0000 = pointeuse équipe · autre = serveur</div>
+        <div class="pin-foot">Démo · 0000 = plongeur · autre = serveur</div>
       </section>
 
       <!-- ============ CLOCK-IN SCREEN ============ -->
@@ -2620,7 +2670,23 @@
         </div>
 
         <div class="ci-bottom">
-          <button class="ci-btn" id="ci-button">
+          <div class="nfc-zone" id="nfc-zone" role="button" tabindex="0"
+               aria-label="Approchez votre téléphone du lecteur NFC">
+            <div class="nfc-disc">
+              <svg class="nfc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 20a8 8 0 0 0 0-16"/>
+                <path d="M12 16a4 4 0 0 0 0-8"/>
+                <circle cx="12" cy="12" r="1.4" fill="currentColor"/>
+              </svg>
+              <svg class="nfc-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="nfc-caption" id="nfc-caption">Approchez votre téléphone du lecteur NFC</div>
+          </div>
+          <button class="ci-btn" id="ci-button" disabled>
             <i data-lucide="log-in"></i>
             <span>Pointer l'arrivée</span>
             <span class="ci-btn-check" aria-hidden="true">
@@ -2629,26 +2695,6 @@
           </button>
           <div class="ci-restaurant">Maarif · Casablanca</div>
         </div>
-      </section>
-
-      <!-- ============ POINTEUSE SCREEN (PIN 0000) ============ -->
-      <section class="screen screen-pointeuse" id="screen-pointeuse" aria-label="Pointeuse équipe">
-        <div class="pt-top">
-          <div class="pt-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
-          <button class="pt-lock" id="pt-lock-btn" aria-label="Verrouiller">
-            <i data-lucide="lock"></i>
-            <span>Verrouiller</span>
-          </button>
-        </div>
-        <div class="pt-clock">
-          <div class="pt-tagline">Pointeuse · équipe</div>
-          <div class="pt-clock-time" id="pt-time">14:32</div>
-          <div class="pt-clock-date" id="pt-date">Ljm3a 24 April</div>
-        </div>
-        <div class="pt-body" id="pt-body">
-          <!-- populated by renderPointeuse() -->
-        </div>
-        <div class="pt-hint">Touchez votre nom pour pointer arrivée · sortie</div>
       </section>
 
       <!-- ============ MAIN APP ============ -->
@@ -2710,13 +2756,47 @@
                 <span class="shift-label">Durée actuelle</span>
                 <span class="shift-value mono" id="profil-shift-duration">0h 00</span>
               </div>
-              <div class="shift-row">
+              <div class="shift-row" data-role-restricted="hide">
                 <span class="shift-label">Tables actives</span>
                 <span class="shift-value" id="profil-tables-active">0 / 21</span>
               </div>
-              <div class="shift-row">
+              <div class="shift-row" data-role-restricted="hide">
                 <span class="shift-label">Tables réglées</span>
                 <span class="shift-value" id="profil-tables-paid">0</span>
+              </div>
+            </div>
+
+            <!-- === Schedule · cette semaine === -->
+            <div class="kg-card kg-sched" id="kg-sched-card">
+              <div class="kg-eyebrow">Cette semaine</div>
+              <div class="kg-week" id="kg-week">
+                <!-- 7 day chips rendered by renderSchedule() -->
+              </div>
+              <div class="kg-sched-shift" id="kg-sched-next">
+                <div class="kg-sched-shift-label">
+                  Prochain service
+                  <b id="kg-sched-next-day">Demain · Larb3a</b>
+                </div>
+                <div class="kg-sched-shift-time" id="kg-sched-next-time">11:00 → 19:00</div>
+              </div>
+            </div>
+
+            <!-- === Heures travaillées === -->
+            <div class="kg-card kg-hours" id="kg-hours-card">
+              <div class="kg-eyebrow">Heures travaillées</div>
+              <div class="kg-hours-grid">
+                <div class="kg-hours-tile is-today">
+                  <div class="kg-hours-num" id="kg-h-today">0h 00</div>
+                  <div class="kg-hours-label">Aujourd'hui</div>
+                </div>
+                <div class="kg-hours-tile">
+                  <div class="kg-hours-num" id="kg-h-week">28h 45</div>
+                  <div class="kg-hours-label">Cette semaine</div>
+                </div>
+                <div class="kg-hours-tile">
+                  <div class="kg-hours-num" id="kg-h-month">142h 30</div>
+                  <div class="kg-hours-label">Ce mois</div>
+                </div>
               </div>
             </div>
 
@@ -3351,16 +3431,13 @@
           pinInput = '';
           // Clear both filled + success states for next login cycle
           dots.forEach(d => d.classList.remove('is-success', 'is-filled'));
-          // 0000 → pointeuse for non-app staff. Any other code → serveur clock-in.
-          if (entered === '0000') {
-            renderPointeuse();
-            updatePointeuseClock();
-            startPointeuseTimer();
-            showScreen('screen-pointeuse');
-            lucide.createIcons();
-          } else {
-            showScreen('screen-clockin');
-          }
+          // 0000 → non-server employee (plongeur in the demo).
+          // Any other code → serveur. Same UI either way.
+          activeRole = (entered === '0000') ? ROLES.plongeur : ROLES.serveur;
+          applyRoleToClockin();
+          resetNfc();
+          showScreen('screen-clockin');
+          lucide.createIcons();
         }, 560);
       }
     }
@@ -3378,108 +3455,81 @@
       if (e.key === 'Backspace')         { handlePinKey('back'); return; }
     });
 
-    /* ---------- Pointeuse (PIN 0000) ----------
-       Walk-up time-clock for staff who don't have a personal app:
-       plongeur, ménage, aide cuisine, livreur, boulangerie, boucher.
-       Same terminal, different code. Each row toggles between "en
-       service" (clocked in) and "hors service" (clocked out). */
-    const POINTEUSE_ROSTER = [
-      { id: 'mounir',  name: 'Mounir A.',  role: 'Plongeur',     status: 'on',  inAt: new Date(Date.now() - (3 * 60 + 45) * 60000) },
-      { id: 'khadija', name: 'Khadija B.', role: 'Ménage',       status: 'on',  inAt: new Date(Date.now() - (2 * 60 + 12) * 60000) },
-      { id: 'said',    name: 'Saïd L.',    role: 'Aide cuisine', status: 'on',  inAt: new Date(Date.now() -  47       * 60000) },
-      { id: 'karim',   name: 'Karim R.',   role: 'Livreur',      status: 'off', inAt: null },
-      { id: 'aicha',   name: 'Aicha T.',   role: 'Boulangerie',  status: 'off', inAt: null },
-      { id: 'rachid',  name: 'Rachid M.',  role: 'Boucher',      status: 'off', inAt: null },
-      { id: 'latifa',  name: 'Latifa F.',  role: 'Ménage',       status: 'off', inAt: null },
-    ];
+    /* ===========================================================
+       ROLES — identity model
+       -----------------------------------------------------------
+       Same terminal, multiple roles. PIN 0000 logs in a non-server
+       employee (plongeur in the demo) — same UI, same clock-in,
+       same welcome flash, but a restricted main view (profil only).
+       Any other 4-digit code logs in the serveur with full access.
+       =========================================================== */
+    const ROLES = {
+      serveur: {
+        id: 'yassir',  name: 'Yassir', fullName: 'Yassir K.',  initials: 'YK',
+        role: 'Serveur',  tabs: ['tables', 'menu', 'paiement', 'profil'],
+        defaultTab: 'tables', restricted: false,
+      },
+      plongeur: {
+        id: 'mounir',  name: 'Mounir', fullName: 'Mounir A.',  initials: 'MA',
+        role: 'Plongeur', tabs: ['profil'],
+        defaultTab: 'profil', restricted: true,
+      },
+    };
+    let activeRole = ROLES.serveur;
 
-    function ptClockHM(d) {
-      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    }
-    function ptDuration(from, to = new Date()) {
-      const m = Math.max(0, Math.floor((to.getTime() - from.getTime()) / 60000));
-      const h = Math.floor(m / 60);
-      const mm = m % 60;
-      return `${h}h ${String(mm).padStart(2, '0')}`;
-    }
-
-    function renderPointeuse() {
-      const body = $('#pt-body');
-      if (!body) return;
-      const on  = POINTEUSE_ROSTER.filter(p => p.status === 'on');
-      const off = POINTEUSE_ROSTER.filter(p => p.status === 'off');
-
-      const row = (p) => p.status === 'on'
-        ? `<button class="pt-row on" data-pt-id="${p.id}">
-             <span class="pt-row-dot"></span>
-             <div class="pt-row-main">
-               <div class="pt-row-name">${p.name}</div>
-               <div class="pt-row-role">${p.role}</div>
-             </div>
-             <div class="pt-row-time">
-               <span>depuis ${ptClockHM(p.inAt)}</span>
-               <span class="dur">${ptDuration(p.inAt)}</span>
-             </div>
-           </button>`
-        : `<button class="pt-row off" data-pt-id="${p.id}">
-             <span class="pt-row-dot"></span>
-             <div class="pt-row-main">
-               <div class="pt-row-name">${p.name}</div>
-               <div class="pt-row-role">${p.role}</div>
-             </div>
-             <div class="pt-row-time">hors service</div>
-           </button>`;
-
-      body.innerHTML =
-        `<div class="pt-section-head on"><span>En service</span><span class="ct">${on.length}</span></div>`
-        + on.map(row).join('')
-        + `<div class="pt-section-head"><span>Hors service</span><span class="ct">${off.length}</span></div>`
-        + off.map(row).join('');
+    function applyRoleToClockin() {
+      const r = activeRole;
+      const greetEl = $('.ci-greeting');
+      const roleEl  = $('.ci-role');
+      if (greetEl) greetEl.innerHTML = `Slm <em>${r.name}</em>`;
+      if (roleEl)  roleEl.textContent = `${r.role} · Café Atlas`;
     }
 
-    function updatePointeuseClock() {
-      const d = new Date();
-      const t = $('#pt-time');
-      const dt = $('#pt-date');
-      if (t) t.textContent = ptClockHM(d);
-      if (dt) dt.textContent = `${dafrDays[d.getDay()]} ${d.getDate()} ${monthsEn[d.getMonth()]}`;
+    function applyRoleToMain() {
+      const r = activeRole;
+      const av = $('.tb-avatar');
+      const nm = $('.tb-name');
+      const pAv = $('.profil-avatar');
+      const pNm = $('.profil-name');
+      const pRl = $('.profil-role');
+      if (av)  av.textContent  = r.initials;
+      if (nm)  nm.textContent  = r.fullName;
+      if (pAv) pAv.textContent = r.initials;
+      if (pNm) pNm.textContent = r.fullName;
+      if (pRl) pRl.textContent = `${r.role} · Café Atlas`;
+      document.body.classList.toggle('is-role-restricted', r.restricted);
+      $$('.bt-btn').forEach(btn => {
+        btn.hidden = !r.tabs.includes(btn.dataset.tab);
+      });
     }
 
-    let pointeuseTimer = null;
-    function startPointeuseTimer() {
-      clearInterval(pointeuseTimer);
-      pointeuseTimer = setInterval(() => {
-        if (!$('#screen-pointeuse').classList.contains('is-active')) {
-          clearInterval(pointeuseTimer); pointeuseTimer = null; return;
-        }
-        updatePointeuseClock();
-        renderPointeuse();
-      }, 60000);
+    /* ===========================================================
+       NFC tap zone — gates "Pointer l'arrivée"
+       -----------------------------------------------------------
+       Real hardware: the employee taps their phone on the POS NFC
+       reader; only then does the button unlock. The demo simulates
+       that with a click on the disc. Reset on every clock-in entry
+       so re-login starts fresh.
+       =========================================================== */
+    let nfcTapped = false;
+    function resetNfc() {
+      nfcTapped = false;
+      const z = $('#nfc-zone'), c = $('#nfc-caption'), b = $('#ci-button');
+      if (z) z.classList.remove('is-tapped');
+      if (c) c.textContent = 'Approchez votre téléphone du lecteur NFC';
+      if (b) b.disabled = true;
     }
-
-    // Tap a name → toggle their clock state, toast the punch.
-    $('#pt-body').addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-pt-id]');
-      if (!btn) return;
-      const p = POINTEUSE_ROSTER.find(x => x.id === btn.dataset.ptId);
-      if (!p) return;
-      if (p.status === 'on') {
-        const dur = ptDuration(p.inAt);
-        p.status = 'off';
-        p.inAt   = null;
-        toast(`${p.name.split(' ')[0]} a pointé la sortie · ${dur} de service`);
-      } else {
-        p.status = 'on';
-        p.inAt   = new Date();
-        toast(`${p.name.split(' ')[0]} a pointé l'arrivée à ${ptClockHM(p.inAt)}`);
-      }
-      renderPointeuse();
-    });
-
-    // Verrouiller → back to PIN screen for the next employee.
-    $('#pt-lock-btn').addEventListener('click', () => {
-      clearInterval(pointeuseTimer); pointeuseTimer = null;
-      showScreen('screen-pin');
+    function fireNfcTap() {
+      if (nfcTapped) return;
+      nfcTapped = true;
+      const z = $('#nfc-zone'), c = $('#nfc-caption'), b = $('#ci-button');
+      if (z) z.classList.add('is-tapped');
+      if (c) c.textContent = `Téléphone reconnu · ${activeRole.name}`;
+      if (b) b.disabled = false;
+    }
+    $('#nfc-zone').addEventListener('click', fireNfcTap);
+    $('#nfc-zone').addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); fireNfcTap(); }
     });
 
     /* ---------- Clock-in / Clock-out ---------- */
@@ -3507,8 +3557,13 @@
           const main = $('#screen-main');
           main.classList.add('is-active', 'is-pre-hidden');
           btn.classList.remove('is-loading');
-          // Pre-render so the dive-in shows real data, not empty bones
-          setTab('tables');
+          // Wire identity + role-restricted tabs BEFORE first paint
+          applyRoleToMain();
+          renderSchedule();
+          renderHours();
+          // Pre-render so the dive-in shows real data, not empty bones.
+          // Restricted roles land straight in the profil tab.
+          setTab(activeRole.defaultTab);
           renderAll();
           lucide.createIcons();
 
@@ -3531,18 +3586,22 @@
         return;
       }
 
-      // --- Dynamic copy ---
-      const myCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
-      const tod = (typeof timeOfDay === 'function') ? timeOfDay() : 'ce soir';
-      const paused = Object.entries(servers).filter(([id, s]) => id !== currentUser && s.status === 'on-pause');
+      // --- Dynamic copy — picks per role ---
       const line1El = $('#greet-line1');
       const subEl   = $('#greet-sub');
-      const userName = (servers[currentUser] && servers[currentUser].name) ? servers[currentUser].name.split(' ')[0] : 'Yassir';
-      if (line1El) line1El.textContent = `Slm ${userName},`;
+      if (line1El) line1El.textContent = `Slm ${activeRole.name},`;
       if (subEl) {
-        let sub = `${myCount} table${myCount > 1 ? 's' : ''} ${tod} · bon service`;
-        if (paused.length > 0) sub = `${myCount} table${myCount > 1 ? 's' : ''} ${tod} · ${paused[0][1].name.split(' ')[0]} en pause`;
-        subEl.textContent = sub;
+        if (activeRole.restricted) {
+          // Non-server staff — generic welcome, no table-counting.
+          subEl.textContent = `Café Atlas · ${activeRole.role.toLowerCase()} · bon service`;
+        } else {
+          const myCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
+          const tod = (typeof timeOfDay === 'function') ? timeOfDay() : 'ce soir';
+          const paused = Object.entries(servers).filter(([id, s]) => id !== currentUser && s.status === 'on-pause');
+          let sub = `${myCount} table${myCount > 1 ? 's' : ''} ${tod} · bon service`;
+          if (paused.length > 0) sub = `${myCount} table${myCount > 1 ? 's' : ''} ${tod} · ${paused[0][1].name.split(' ')[0]} en pause`;
+          subEl.textContent = sub;
+        }
       }
 
       // --- Wrap <em> in .em-clip + measure natural width ---
@@ -3580,9 +3639,13 @@
         greetEl.setAttribute('aria-hidden', 'true');
         mainEl.classList.remove('is-pre-hidden');
         mainEl.classList.add('is-entering');
-        const tab = $('.tab-tables');
-        tab.classList.add('is-fresh');
-        setTimeout(() => tab.classList.remove('is-fresh'), 1300);
+        // The "fresh" stagger lives on tab-tables; only fire it if the user
+        // lands there (servers). Restricted roles land on profil.
+        if (!activeRole.restricted) {
+          const tab = $('.tab-tables');
+          tab.classList.add('is-fresh');
+          setTimeout(() => tab.classList.remove('is-fresh'), 1300);
+        }
         setTimeout(() => mainEl.classList.remove('is-entering'), 700);
       }, 2280);
     }
@@ -4399,11 +4462,140 @@
       const m = totalMin % 60;
       $('#profil-shift-duration').textContent = `${h}h ${String(m).padStart(2,'0')}`;
 
-      const all = Object.values(tables);
-      const active = all.filter(t => t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam').length;
-      const paid = all.filter(t => t.status === 'khlass').length + tablesPaid;
-      $('#profil-tables-active').textContent = `${active} / ${all.length}`;
-      $('#profil-tables-paid').textContent = paid;
+      // Tables stats — only meaningful for the serveur.
+      if (!activeRole.restricted) {
+        const all = Object.values(tables);
+        const active = all.filter(t => t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam').length;
+        const paid = all.filter(t => t.status === 'khlass').length + tablesPaid;
+        $('#profil-tables-active').textContent = `${active} / ${all.length}`;
+        $('#profil-tables-paid').textContent = paid;
+      }
+      renderHours();
+    }
+
+    /* ===========================================================
+       SCHEDULE + HOURS — profil tab (Mon..Sun)
+       -----------------------------------------------------------
+       Per-role weekly schedule and rolling hours-worked. Yassir sees
+       his evening service shifts; Mounir sees day shifts. The today
+       cell highlights live and the hours-today tile reflects the
+       current shift's elapsed time.
+       =========================================================== */
+    const SCHEDULE_DATA = {
+      yassir: {
+        // Mon → Sun
+        week: [
+          { in: '17:00', out: '23:00' },
+          { in: '17:00', out: '23:00' },
+          null,
+          { in: '17:00', out: '23:00' },
+          { in: '11:00', out: '23:00' },
+          { in: '11:00', out: '23:00' },
+          { in: '11:00', out: '19:00' },
+        ],
+        monthHours: '142h 30',
+      },
+      mounir: {
+        week: [
+          { in: '08:00', out: '16:00' },
+          { in: '08:00', out: '16:00' },
+          { in: '08:00', out: '16:00' },
+          null,
+          { in: '08:00', out: '16:00' },
+          { in: '08:00', out: '16:00' },
+          null,
+        ],
+        monthHours: '156h 00',
+      },
+    };
+
+    function shiftHHMM(s) {
+      if (!s) return null;
+      const [h1, m1] = s.in.split(':').map(Number);
+      const [h2, m2] = s.out.split(':').map(Number);
+      const mins = (h2 * 60 + m2) - (h1 * 60 + m1);
+      return `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}`;
+    }
+    function shiftMinutes(s) {
+      if (!s) return 0;
+      const [h1, m1] = s.in.split(':').map(Number);
+      const [h2, m2] = s.out.split(':').map(Number);
+      return (h2 * 60 + m2) - (h1 * 60 + m1);
+    }
+
+    function renderSchedule() {
+      const sched = SCHEDULE_DATA[activeRole.id];
+      const week  = $('#kg-week');
+      if (!sched || !week) return;
+      // Mon=0 … Sun=6 (we display the week starting Monday).
+      const today    = new Date();
+      const todayIdx = (today.getDay() + 6) % 7;
+      const monday   = new Date(today);
+      monday.setDate(today.getDate() - todayIdx);
+      const short = ['Ltn', 'Tlt', 'Lrb', 'Lkh', 'Ljm', 'Sbt', 'Lhd'];
+
+      week.innerHTML = sched.week.map((s, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const isToday = i === todayIdx;
+        const isRest  = !s;
+        return `<div class="kg-day${isToday ? ' is-today' : ''}${isRest ? ' is-rest' : ''}">
+          <div class="kg-day-name">${short[i]}</div>
+          <div class="kg-day-num">${d.getDate()}</div>
+          <div class="kg-day-hours">${isRest ? 'Repos' : shiftHHMM(s)}</div>
+        </div>`;
+      }).join('');
+
+      // "Prochain service" — the next non-rest day after today.
+      let nextIdx = -1, wrap = false;
+      for (let i = todayIdx + 1; i < 7; i++) {
+        if (sched.week[i]) { nextIdx = i; break; }
+      }
+      if (nextIdx === -1) {
+        for (let i = 0; i <= todayIdx; i++) {
+          if (sched.week[i]) { nextIdx = i; wrap = true; break; }
+        }
+      }
+      const dayEl  = $('#kg-sched-next-day');
+      const timeEl = $('#kg-sched-next-time');
+      const wrapEl = $('#kg-sched-next');
+      if (nextIdx >= 0 && dayEl && timeEl) {
+        const dafrFull = ['Ltnin', 'Tlata', 'Larb3a', 'Lkhmis', 'Ljm3a', 'Sbt', 'Lhad'];
+        const prefix = wrap                          ? 'Semaine prochaine'
+                     : (nextIdx === todayIdx + 1)    ? 'Demain'
+                     : (nextIdx === todayIdx + 2)    ? 'Après-demain'
+                     :                                  dafrFull[nextIdx];
+        dayEl.textContent = `${prefix} · ${dafrFull[nextIdx]}`;
+        const s = sched.week[nextIdx];
+        timeEl.textContent = `${s.in} → ${s.out}`;
+        if (wrapEl) wrapEl.style.display = '';
+      } else if (wrapEl) {
+        wrapEl.style.display = 'none';
+      }
+    }
+
+    function renderHours() {
+      const sched = SCHEDULE_DATA[activeRole.id];
+      if (!sched) return;
+      // Today — live elapsed since shift start.
+      const todayEl = $('#kg-h-today');
+      let todayMin = 0;
+      if (shiftStart) {
+        todayMin = Math.max(0, Math.floor((Date.now() - shiftStart.getTime()) / 60000));
+      }
+      if (todayEl) todayEl.textContent = `${Math.floor(todayMin / 60)}h ${String(todayMin % 60).padStart(2, '0')}`;
+
+      // This week — sum of completed earlier days + today's elapsed.
+      const today    = new Date();
+      const todayIdx = (today.getDay() + 6) % 7;
+      let weekMin = todayMin;
+      for (let i = 0; i < todayIdx; i++) weekMin += shiftMinutes(sched.week[i]);
+      const weekEl = $('#kg-h-week');
+      if (weekEl) weekEl.textContent = `${Math.floor(weekMin / 60)}h ${String(weekMin % 60).padStart(2, '0')}`;
+
+      // This month — demo static.
+      const monthEl = $('#kg-h-month');
+      if (monthEl) monthEl.textContent = sched.monthHours;
     }
 
     /* Update topbar shift meta every minute */
@@ -4415,6 +4607,7 @@
       const m = totalMin % 60;
       $('#tb-shift-meta').textContent = `En service · ${h}h ${String(m).padStart(2,'0')}`;
       if (currentTab === 'profil') renderProfil();
+      else                          renderHours();
     }
     setInterval(updateShiftMeta, 30000);
 
