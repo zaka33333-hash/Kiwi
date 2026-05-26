@@ -338,6 +338,25 @@
       letter-spacing: 0.04em;
     }
 
+    /* Secondary path: consult schedule from home without clocking in.
+       Discreet text-link below the primary action so it doesn't compete. */
+    .ci-secondary {
+      background: transparent;
+      border: 0;
+      font-family: inherit;
+      font-size: 13px;
+      color: rgba(247,245,240,0.55);
+      letter-spacing: 0.01em;
+      padding: 6px 12px;
+      margin-top: 2px;
+      cursor: pointer;
+      transition: color 180ms ease;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .ci-secondary:hover { color: var(--paper-cream); }
+    .ci-secondary:active { color: var(--mint); }
+    .ci-secondary svg { width: 14px; height: 14px; }
+
     /* ===========================================================
        NFC TAP ZONE (clock-in screen)
        -----------------------------------------------------------
@@ -1320,6 +1339,86 @@
        drop it so the profil view fills the screen. */
     body.is-role-restricted .bottom-tabs { display: none !important; }
     body.is-role-restricted .content { padding-bottom: 0; }
+
+    /* ===========================================================
+       Browse mode — employee opens app from home to check schedule
+       without clocking in. No NFC tap, no shiftStart, no bottom tabs.
+       Locks the view to a read-only profil with schedule + hours.
+       =========================================================== */
+    body.is-browse-mode .shift-card,
+    body.is-browse-mode .kg-rank,
+    body.is-browse-mode .kg-rec,
+    body.is-browse-mode .kg-defi,
+    body.is-browse-mode .profil-clockout { display: none !important; }
+    body.is-browse-mode .bottom-tabs { display: none !important; }
+    body.is-browse-mode .content { padding-bottom: 0; }
+    /* Topbar shows "Hors service" in browse mode — use the standby color. */
+    body.is-browse-mode .tb-dot {
+      background: rgba(10,15,13,0.25);
+      box-shadow: none;
+      animation: none;
+    }
+
+    /* Off-shift banner — explains they're consulting, not on-shift,
+       with a primary CTA to clock in for real and a secondary logout. */
+    .offshift-banner {
+      background: linear-gradient(135deg, rgba(11,110,79,0.06), rgba(11,110,79,0.02));
+      border: 1px solid rgba(11,110,79,0.18);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .offshift-banner-head {
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .offshift-banner-icon {
+      flex: 0 0 36px; width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(11,110,79,0.1);
+      color: var(--forest-deep);
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .offshift-banner-icon svg { width: 18px; height: 18px; }
+    .offshift-banner-text { flex: 1; min-width: 0; }
+    .offshift-banner-title {
+      font-size: 14px; font-weight: 600; color: var(--ink);
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+    }
+    .offshift-banner-sub {
+      margin-top: 3px;
+      font-size: 12px; color: var(--ink-4);
+      line-height: 1.4;
+    }
+    .offshift-banner-actions {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .offshift-cta {
+      flex: 1;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--gradient);
+      color: #fff;
+      font-size: 14px; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 6px 16px rgba(63,182,122,0.20);
+      transition: transform 150ms ease;
+    }
+    .offshift-cta:active { transform: scale(0.98); }
+    .offshift-cta svg { width: 16px; height: 16px; }
+    .offshift-logout {
+      background: transparent;
+      border: 0;
+      color: var(--ink-4);
+      font-size: 13px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: color 180ms ease;
+    }
+    .offshift-logout:hover { color: var(--ink); }
+    /* Banner only shows in browse mode; in normal mode the shift-card takes the slot. */
+    .offshift-banner { display: none; }
+    body.is-browse-mode .offshift-banner { display: flex; }
 
     /* a) Niveau / Grade */
     .kg-rank-top {
@@ -2697,6 +2796,11 @@
               <i data-lucide="check"></i>
             </span>
           </button>
+          <button class="ci-secondary" id="ci-browse-link" type="button"
+                  aria-label="Consulter l'application sans pointer">
+            <i data-lucide="eye"></i>
+            <span>Consulter sans pointer</span>
+          </button>
           <div class="ci-restaurant">Maarif · Casablanca</div>
         </div>
       </section>
@@ -2748,6 +2852,27 @@
               <div class="profil-info">
                 <div class="profil-name">Yassir K.</div>
                 <div class="profil-role">Serveur · Café Atlas</div>
+              </div>
+            </div>
+
+            <div class="offshift-banner" id="offshift-banner">
+              <div class="offshift-banner-head">
+                <div class="offshift-banner-icon" aria-hidden="true">
+                  <i data-lucide="moon"></i>
+                </div>
+                <div class="offshift-banner-text">
+                  <div class="offshift-banner-title">Vous n'êtes pas en service</div>
+                  <div class="offshift-banner-sub">Consultation seulement · pointez votre arrivée pour commencer.</div>
+                </div>
+              </div>
+              <div class="offshift-banner-actions">
+                <button class="offshift-cta" id="offshift-clockin" type="button">
+                  <i data-lucide="log-in"></i>
+                  <span>Pointer mon arrivée</span>
+                </button>
+                <button class="offshift-logout" id="offshift-logout" type="button">
+                  Se déconnecter
+                </button>
               </div>
             </div>
 
@@ -3574,6 +3699,69 @@
           runGreetingFlash(main);
         }, 380);
       }, 640);
+    });
+
+    /* ===========================================================
+       BROWSE MODE — consult schedule from home without clocking in
+       -----------------------------------------------------------
+       Employee taps "Consulter sans pointer" on the clock-in screen.
+       We jump straight to a read-only profil view:
+         · no shiftStart (no live duration ticking)
+         · body.is-browse-mode hides shift-card, gamification, tabs
+         · off-shift banner shows a "Pointer mon arrivée" CTA that
+           returns to the normal clock-in flow if they're actually
+           at the restaurant.
+       =========================================================== */
+    function enterBrowseMode() {
+      document.body.classList.add('is-browse-mode');
+      // Hard guarantee: no shift in flight when consulting from home.
+      shiftStart = null;
+
+      $$('.screen').forEach(s => s.classList.remove('is-active', 'is-leaving'));
+      const main = $('#screen-main');
+      main.classList.add('is-active');
+      main.classList.remove('is-pre-hidden', 'is-entering');
+
+      applyRoleToMain();
+      // Force profil tab — schedule + hours is the only sensible view
+      // when off-shift, regardless of role.
+      setTab('profil');
+      renderSchedule();
+      renderHours();
+      try { renderAll(); } catch (e) {}
+      // Topbar shift-meta: replace "En service · 0h 00" with "Hors service"
+      const tbMeta = $('#tb-shift-meta');
+      if (tbMeta) tbMeta.textContent = 'Hors service';
+      lucide.createIcons();
+    }
+
+    function exitBrowseMode() {
+      document.body.classList.remove('is-browse-mode');
+      // Reset topbar back to default for the next clock-in cycle.
+      const tbMeta = $('#tb-shift-meta');
+      if (tbMeta) tbMeta.textContent = 'En service · 0h 00';
+    }
+
+    // Entry point on clock-in screen
+    $('#ci-browse-link').addEventListener('click', () => {
+      enterBrowseMode();
+    });
+
+    // "Pointer mon arrivée" CTA inside the off-shift banner — bounce back
+    // to clock-in screen so the employee can tap NFC + clock in for real.
+    $('#offshift-clockin').addEventListener('click', () => {
+      exitBrowseMode();
+      resetNfc();
+      applyRoleToClockin();
+      showScreen('screen-clockin');
+      lucide.createIcons();
+    });
+
+    // "Se déconnecter" — full logout back to PIN screen.
+    $('#offshift-logout').addEventListener('click', () => {
+      exitBrowseMode();
+      // Reuse the existing logout reset (clears tables/cart state too)
+      clockOut();
     });
 
     /* ---------- Greeting flash sequence (post clock-in) ---------- */
