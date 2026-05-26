@@ -349,7 +349,7 @@
     .nfc-zone {
       display: flex; flex-direction: column; align-items: center;
       gap: 11px;
-      margin: 6px 0 18px;
+      margin: 0;
       cursor: pointer;
       user-select: none;
     }
@@ -2662,6 +2662,26 @@
           <div class="ci-tagline">— version serveur</div>
         </div>
 
+        <div class="nfc-zone" id="nfc-zone" role="button" tabindex="0"
+             aria-label="Approchez votre téléphone du lecteur NFC">
+          <div class="nfc-disc">
+            <svg class="nfc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <!-- Phone body on the left -->
+              <rect x="3" y="3.5" width="9" height="17" rx="1.8"/>
+              <line x1="5.5" y1="17.5" x2="9.5" y2="17.5"/>
+              <!-- Two concentric arcs emanating to the right (NFC waves) -->
+              <path d="M15 9a4.5 4.5 0 0 1 0 6"/>
+              <path d="M18.5 6a8 8 0 0 1 0 12"/>
+            </svg>
+            <svg class="nfc-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="nfc-caption" id="nfc-caption">Approchez votre téléphone du lecteur NFC</div>
+        </div>
+
         <div class="ci-mid">
           <div class="ci-greeting">Slm <em>Yassir</em></div>
           <div class="ci-role">Serveur · Café Atlas</div>
@@ -2670,25 +2690,6 @@
         </div>
 
         <div class="ci-bottom">
-          <div class="nfc-zone" id="nfc-zone" role="button" tabindex="0"
-               aria-label="Approchez votre téléphone du lecteur NFC">
-            <div class="nfc-disc">
-              <svg class="nfc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <!-- Phone body on the left -->
-                <rect x="3" y="3.5" width="9" height="17" rx="1.8"/>
-                <line x1="5.5" y1="17.5" x2="9.5" y2="17.5"/>
-                <!-- Two concentric arcs emanating to the right (NFC waves) -->
-                <path d="M15 9a4.5 4.5 0 0 1 0 6"/>
-                <path d="M18.5 6a8 8 0 0 1 0 12"/>
-              </svg>
-              <svg class="nfc-check-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </div>
-            <div class="nfc-caption" id="nfc-caption">Approchez votre téléphone du lecteur NFC</div>
-          </div>
           <button class="ci-btn" id="ci-button" disabled>
             <i data-lucide="log-in"></i>
             <span>Pointer l'arrivée</span>
