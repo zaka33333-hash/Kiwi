@@ -943,18 +943,57 @@
     exitFusion();
   }
 
-  /* ═══════════════ FUSION MODE — sci-fi transition + state swap ═══════════════ */
+  /* ═══════════════ FUSION MODE — glass melt transition + state swap ═══════════════ */
 
-  // Build the overlay's internal markup fresh on each activation so the CRT
-  // screen-open animation replays from t=0 (toggling .active reflows it).
-  function buildOverlayMarkup(overlay) {
+  // Build the overlay's internal markup fresh on each activation so every
+  // glass-melt animation (incl. the SMIL <animate> elements driving the SVG
+  // turbulence/displacement filter) replays from t=0.
+  function buildOverlayMarkup(overlay, opts = {}) {
+    const isExit = !!opts.exit;
+    // Entry vs exit: same filter shape, slightly tighter displacement on exit
+    // so the surface "snaps back into place" rather than fully liquefying.
+    const meltDuration = isExit ? 900 : 1100;
+    const turbValues   = isExit
+      ? '0.024 0.038; 0.034 0.054; 0.018 0.026; 0.012 0.020'
+      : '0.020 0.030; 0.038 0.058; 0.026 0.040; 0.014 0.022';
+    const scaleValues  = isExit
+      ? '0; 18; 32; 14; 4; 0'
+      : '0; 14; 40; 22; 6; 0';
+
     overlay.innerHTML = `
-      <div class="fo-crt-seed"></div>
-      <div class="fo-crt-line top"></div>
-      <div class="fo-crt-line bot"></div>
+      <svg class="fo-svg-filters" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="kiwi-melt-distort" x="-8%" y="-8%" width="116%" height="116%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.020 0.030" numOctaves="2" seed="4" result="turb">
+              <animate attributeName="baseFrequency"
+                       values="${turbValues}"
+                       keyTimes="0; 0.4; 0.75; 1"
+                       dur="${meltDuration}ms"
+                       fill="freeze"
+                       begin="0s" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="0">
+              <animate attributeName="scale"
+                       values="${scaleValues}"
+                       keyTimes="0; 0.10; 0.40; 0.65; 0.85; 1"
+                       dur="${meltDuration}ms"
+                       fill="freeze"
+                       begin="0s" />
+            </feDisplacementMap>
+          </filter>
+        </defs>
+      </svg>
+      <div class="fo-frost"></div>
+      <div class="fo-gloss"></div>
+      <div class="fo-glow-frame"></div>
       <div class="fo-label">
         <span class="fo-mark">kiwi</span>
-        <span class="fo-ultra">✦</span>
+        <span class="fo-ultra">
+          <span class="fo-ultra-r">✦</span>
+          <span class="fo-ultra-b">✦</span>
+          <span class="fo-ultra-g">✦</span>
+          <span class="fo-ultra-core">✦</span>
+        </span>
       </div>
     `;
   }
@@ -977,25 +1016,43 @@
       return;
     }
 
-    // Reset + build fresh markup so the CRT + Kiwi lockup replay from t=0.
+    /* GLASS MELT ACTIVATION (matches the .fo-* CSS + SVG filter timings):
+     *   t=0.00  overlay fades in (280ms), violet-blue radial wash
+     *   t=0.00  SVG turbulence/displacement filter applied to .main + .sidebar
+     *            + .topbar via body.fusion-glass-melt — UI liquefies
+     *   t=0.00  glass frost layer fades in (backdrop-blur ramps to 10px)
+     *   t=0.06  diagonal gloss highlight sweeps across the surface
+     *   t=0.28  ripple wave expands outward from centre
+     *   t=0.44  displacement peaks (scale ~40), heaviest melt frame
+     *   t=0.90  body.fusion-mode + body.fusion-reconstruct ON — palette
+     *            swaps to Atlas Dark and cards "liquid-settle" under the
+     *            distortion (blur lift + saturation decay)
+     *   t=1.10  body.fusion-glass-melt OFF — displacement filter drops,
+     *            UI crisp again
+     *   t=1.10  glow-frame stabilises (inset edge glow fades in)
+     *   t=1.24  kiwi lockup fades in (blur 8px → 0)
+     *   t=1.60  ✦ star prismatic refraction begins (R/B fan apart, white
+     *            core flashes, mint settles)
+     *   t=2.10  body.fusion-reconstruct OFF (card stagger done)
+     *   t=3.30  overlay fades out, Ultra dashboard revealed
+     *   t=3.80  cleanup
+     */
+
+    // Build the overlay markup first — this places the SVG filter defs in
+    // the DOM so the CSS `filter: url(#kiwi-melt-distort)` below resolves.
     overlay.classList.remove('exiting');
-    buildOverlayMarkup(overlay);
-    // Force reflow before flipping .active so the fade triggers cleanly.
-    overlay.offsetHeight;
+    buildOverlayMarkup(overlay, { exit: false });
+    overlay.offsetHeight; // reflow → SMIL animations + CSS keyframes replay
+
+    // Activate the overlay AND apply the displacement filter in the same tick
+    // so the SVG <animate> begins at t=0 aligned with the rest of the scene.
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('fusion-glass-melt');
 
-    /* Smart-TV screen-open (matches the .fo-crt + .fo-label CSS timing):
-     *   t=0.00  dark wash fades in, CRT scanline ignites at centre
-     *   t=0.55  the screen "opens" — two bright lines split apart
-     *   t=0.85  the Kiwi lockup fades in, ✦ Ultra star pops in at t=1.18
-     *   t=1.45  palette + data swap UNDER the wash (Go Ultra engaged)
-     *   t=1.70  ✦ shine pulse starts (1.6s · double-twinkle)
-     *   t=3.10  wash fades out, Go Ultra dashboard revealed
-     *   t=3.60  cleanup
-     */
+    // Engage Ultra under the glass distortion — palette swaps, cards reform.
     setTimeout(() => {
-      document.body.classList.add('fusion-mode');
+      document.body.classList.add('fusion-mode', 'fusion-reconstruct');
       // Engage the existing dark theme so every modal/drawer/menu (defined
       // in theme.css) re-skins automatically. body.fusion-mode then layers
       // the Atlas Dark brand tokens on top of the dark surface tokens.
@@ -1004,20 +1061,33 @@
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
-    }, 1450);
+    }, 900);
 
-    // Hold the lockup so the ✦ shine (starts t=1.7s, 1.6s long) plays
-    // through, then fade the overlay out and clear markup.
+    // Drop the displacement filter once the new state is locked in — UI
+    // crisp again, glow-frame takes over from here.
+    setTimeout(() => {
+      document.body.classList.remove('fusion-glass-melt');
+    }, 1100);
+
+    // Card stagger ends ~1040ms after the class is added (320ms delay + 720ms
+    // duration on the latest block); strip the class so it doesn't replay on
+    // future re-renders.
+    setTimeout(() => {
+      document.body.classList.remove('fusion-reconstruct');
+    }, 2100);
+
+    // Hold the lockup so the ✦ refracted shine (starts t=1.6s, 1.7s long)
+    // plays through, then fade the overlay out and clear markup.
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 3100);
+    }, 3300);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 3600);
+    }, 3800);
   }
 
   function exitFusion(opts = {}) {
@@ -1041,26 +1111,29 @@
 
     fusionAnimating = true;
 
-    // Smart-TV screen-close back to the single-venue view — the screen
-    // collapses CRT-style while the palette reverts underneath.
+    /* GLASS MELT EXIT — surface re-liquefies briefly, then re-solidifies as
+     * the palette reverts to the standard theme.
+     *   t=0.00  overlay fades in, glass-melt filter applied to UI
+     *   t=0.10  gloss sheen sweeps back, frost ramps up
+     *   t=0.30  ripple wave expands outward (one ring this time)
+     *   t=0.75  body.fusion-mode OFF — palette + data revert under distortion
+     *   t=0.95  body.fusion-glass-melt OFF — filter drops, UI crisp
+     *   t=1.40  overlay fades out
+     *   t=1.95  cleanup
+     */
     overlay.classList.remove('exiting');
-    overlay.innerHTML = `
-      <div class="fo-crt-line top-exit"></div>
-      <div class="fo-crt-line bot-exit"></div>
-      <div class="fo-crt-seed exit"></div>
-    `;
+    buildOverlayMarkup(overlay, { exit: true });
+    // On exit we don't need the lockup centred — hide it so the user reads
+    // "the surface melts away to reveal the underlying view" rather than
+    // "another logo flashes".
+    const exitLabel = overlay.querySelector('.fo-label');
+    if (exitLabel) exitLabel.style.display = 'none';
     overlay.offsetHeight; // reflow → animations replay
+
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('fusion-glass-melt');
 
-    /* Smart-TV screen-close (matches the .fo-crt exit CSS timing):
-     *   t=0.00  dark wash fades in over the Go Ultra dashboard
-     *   t=0.10  two CRT lines slide IN from the edges → meet at centre
-     *   t=0.80  the centre scanline ignites, then collapses to a point
-     *   t=1.05  palette + data revert UNDER the wash
-     *   t=1.55  wash fades out, single-venue dashboard revealed
-     *   t=2.10  cleanup
-     */
     setTimeout(() => {
       document.body.classList.remove('fusion-mode');
       document.documentElement.removeAttribute('data-theme');
@@ -1068,18 +1141,22 @@
       try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
-    }, 1050);
+    }, 750);
+
+    setTimeout(() => {
+      document.body.classList.remove('fusion-glass-melt');
+    }, 950);
 
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 1550);
+    }, 1400);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 2100);
+    }, 1950);
   }
 
   function registerHandlers() {
@@ -1821,8 +1898,8 @@
       try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
     }
     currentVenue = (REAL_VENUES.includes(stored) || customIds.has(stored)) ? stored : DEFAULT_VENUE;
-    // Defensive: strip any stale fusion-mode class + dark theme attribute.
-    document.body.classList.remove('fusion-mode');
+    // Defensive: strip any stale fusion classes + dark theme attribute.
+    document.body.classList.remove('fusion-mode', 'fusion-glass-melt', 'fusion-reconstruct');
     document.documentElement.removeAttribute('data-theme');
 
     registerHandlers();
