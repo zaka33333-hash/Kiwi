@@ -1801,15 +1801,11 @@
     body.is-unlocked .view-salle .plan-canvas.is-active {
       animation: rise-fade 600ms 260ms cubic-bezier(0.32, 0.72, 0, 1) both;
     }
-    body.is-unlocked .view-salle .plan-canvas .tbl-cell {
-      animation: rise-fade 480ms cubic-bezier(0.32, 0.72, 0, 1) both;
-    }
-    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(1) { animation-delay: 340ms; }
-    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(2) { animation-delay: 360ms; }
-    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(3) { animation-delay: 380ms; }
-    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(4) { animation-delay: 400ms; }
-    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(5) { animation-delay: 420ms; }
-    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(n+6) { animation-delay: 440ms; }
+    /* NOTE: per-cell stagger animation removed. Earlier versions used
+       `animation: rise-fade ... both` on every .tbl-cell, but Chrome pauses
+       the animation timer while .plan-canvas is display:none, leaving the
+       étage cells stuck at opacity 0 when you switched floors. Tables now
+       appear with the canvas itself. */
 
     /* ===========================================================
        === Shift lifecycle ===  (clock-in screen · Clôture de caisse)
