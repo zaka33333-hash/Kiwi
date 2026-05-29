@@ -5040,7 +5040,6 @@
         <div class="tbl-cell ${shapeClass}" data-table="${id}" style="${style}" role="button" tabindex="0" aria-label="Table ${id}, ${label}, ${t.covers} couverts">
           <div class="tbl ${sizeClass}" data-status="${t.status}">
             ${dot}
-            ${serverBadge}
             <div class="tbl-head">
               <span class="tbl-num">${id}</span>
               <span class="tbl-covers">${t.covers}p</span>
@@ -5048,6 +5047,7 @@
             <div class="tbl-status">${label}</div>
             ${elapsed}
           </div>
+          ${serverBadge}
           ${chairsHTML}
         </div>
       `;
