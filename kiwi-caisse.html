@@ -123,7 +123,24 @@
       padding: 22px 18px 18px;
       gap: 18px;
       min-height: 0;
+      /* When the viewport is short (laptop / windowed Chrome) the sidebar
+         content overflows. Chrome doesn't let flex children scroll without an
+         explicit overflow declaration — Safari is more forgiving. Without
+         this the "Fin de service" button at the bottom is unreachable. */
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
+    /* Dark-theme scrollbar for the sidebar (WebKit + Firefox) */
+    .sidebar { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent; }
+    .sidebar::-webkit-scrollbar { width: 8px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.14);
+      border-radius: 4px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); background-clip: padding-box; }
 
     .brand-row { display: flex; flex-direction: column; gap: 10px; }
     /* Dashboard-style logo: paper text + separate mint dot (not a period) */
