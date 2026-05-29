@@ -517,13 +517,11 @@
         0 3px 6px -1px rgba(20,15,10,0.18),
         0 1px 2px rgba(20,15,10,0.06);
     }
-    .tbl-cell.is-round .tbl-head,
-    .tbl-cell.is-round .tbl-status,
-    .tbl-cell.is-round .tbl-elapsed {
-      text-align: center;
-    }
     .tbl-cell.is-round .tbl-head {
-      justify-content: center; gap: 5px;
+      text-align: center;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2px;
     }
     /* Server badge: pinned at top-of-circle instead of bounding-box corner */
     .tbl-cell.is-round .tbl-server {
@@ -533,56 +531,69 @@
     /* Square table — same as rect, just hint via dimensions */
     .tbl-cell.is-square .tbl { border-radius: 4px; }
 
-    .tbl-head {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 9px; line-height: 1;
-    }
-    .tbl-num { font-weight: 700; letter-spacing: 0.01em; font-size: 10px; }
-    .tbl-covers { color: var(--ink-4); font-weight: 500; }
+    /* Status & elapsed text are hidden — color encodes status, badge encodes
+       server. The cell shows only: table number + covers count + server avatar
+       + (if urgent) the pulsing red dot. */
+    .tbl-status,
+    .tbl-elapsed { display: none !important; }
 
-    .tbl-status {
-      font-size: 10.5px; font-weight: 500;
-      text-align: center;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-    }
-    .tbl-elapsed {
-      font-size: 9px;
-      text-align: center;
+    /* The number is THE label on the floor plan. Centered, large, prominent. */
+    .tbl-head {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1px;
+      flex: 1;
       font-feature-settings: "tnum" 1;
     }
-    /* Small 2-tops — even tighter typography */
-    .tbl-cell .tbl.size-2 .tbl-status { font-size: 9.5px; }
-    .tbl-cell .tbl.size-2 .tbl-head   { font-size: 8.5px; }
-    /* Round centerpiece — give the labels more presence */
-    .tbl-cell.is-round .tbl-status { font-size: 11px; font-weight: 600; margin-top: 2px; }
-    .tbl-cell.is-round .tbl-elapsed { font-size: 10px; margin-top: 1px; }
-
-    /* khawya */
-    .tbl[data-status="khawya"] {
-      background: var(--paper-mute);
-      border: 1px solid var(--line);
+    .tbl-num {
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      font-size: 17px;
+      line-height: 1;
+      color: inherit;
     }
-    .tbl[data-status="khawya"] .tbl-status { color: var(--ink-4); }
-    .tbl[data-status="khawya"] .tbl-elapsed { display: none; }
+    .tbl-covers {
+      font-family: var(--serif, 'Instrument Serif', serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 1;
+      opacity: 0.7;
+    }
+    /* Small 2-tops — fit-to-cell */
+    .tbl-cell .tbl.size-2 .tbl-num    { font-size: 14px; }
+    .tbl-cell .tbl.size-2 .tbl-covers { font-size: 10.5px; }
+    /* 6-tops and round centerpiece — extra presence */
+    .tbl-cell.is-round.size-6 .tbl-num,
+    .tbl-cell .tbl.size-6 .tbl-num    { font-size: 20px; }
+    .tbl-cell .tbl.size-6 .tbl-covers { font-size: 13px; }
 
-    /* ka-yaklo */
+    /* khawya — empty table, pops on floor with clean white + crisp border */
+    .tbl[data-status="khawya"] {
+      background: #FFFFFF;
+      border: 1.5px solid #C8C5BD;
+      color: #1A1F1C;
+    }
+    .tbl[data-status="khawya"] .tbl-num    { color: #4A453E; }
+    .tbl[data-status="khawya"] .tbl-covers { color: #968D7F; }
+
+    /* ka-yaklo — occupied, mint tint */
     .tbl[data-status="ka-yaklo"] {
       background: var(--mint-tint);
-      border: 1px solid var(--mint-edge);
+      border: 1.5px solid var(--mint-edge);
+      color: var(--forest);
     }
-    .tbl[data-status="ka-yaklo"] .tbl-status { color: var(--forest); }
-    .tbl[data-status="ka-yaklo"] .tbl-elapsed { color: var(--forest); }
+    .tbl[data-status="ka-yaklo"] .tbl-num    { color: var(--forest); }
+    .tbl[data-status="ka-yaklo"] .tbl-covers { color: #437B5C; }
 
     /* bgha-ykhlass — urgent, deep forest, pulsing */
     .tbl[data-status="bgha-ykhlass"] {
       background: var(--forest);
-      border: 1px solid transparent;
+      border: 1.5px solid transparent;
       color: #fff;
       animation: urgent-pulse 2s ease-in-out infinite;
     }
-    .tbl[data-status="bgha-ykhlass"] .tbl-status { color: #fff; font-size: 13px; font-weight: 700; }
-    .tbl[data-status="bgha-ykhlass"] .tbl-elapsed { color: rgba(255,255,255,.7); }
+    .tbl[data-status="bgha-ykhlass"] .tbl-num    { color: #fff; }
     .tbl[data-status="bgha-ykhlass"] .tbl-covers { color: rgba(255,255,255,.7); }
     .tbl[data-status="bgha-ykhlass"] .urgent-dot {
       position: absolute; top: 8px; right: 8px;
@@ -600,20 +611,19 @@
     /* ka-tkhdam — payment in progress */
     .tbl[data-status="ka-tkhdam"] {
       background: var(--emerald);
-      border: 1px solid transparent;
+      border: 1.5px solid transparent;
       color: #fff;
     }
-    .tbl[data-status="ka-tkhdam"] .tbl-status { color: #fff; font-weight: 600; }
-    .tbl[data-status="ka-tkhdam"] .tbl-elapsed { color: rgba(255,255,255,.85); }
-    .tbl[data-status="ka-tkhdam"] .tbl-covers { color: rgba(255,255,255,.8); }
+    .tbl[data-status="ka-tkhdam"] .tbl-num    { color: #fff; }
+    .tbl[data-status="ka-tkhdam"] .tbl-covers { color: rgba(255,255,255,.85); }
 
     /* khlass — paid, fading */
     .tbl[data-status="khlass"] {
       background: #fff;
       border: 2px solid var(--emerald);
     }
-    .tbl[data-status="khlass"] .tbl-status { color: var(--emerald); font-weight: 600; }
-    .tbl[data-status="khlass"] .tbl-elapsed { display: none; }
+    .tbl[data-status="khlass"] .tbl-num    { color: var(--emerald); }
+    .tbl[data-status="khlass"] .tbl-covers { color: #5C9F7B; }
 
     .tbl.is-selected {
       box-shadow: 0 0 0 3px rgba(63,182,122,.25);
@@ -2150,26 +2160,28 @@
        =========================================================== */
     .tbl-server {
       position: absolute;
-      top: -7px; right: -7px;
-      width: 20px; height: 20px; border-radius: 50%;
-      font-size: 9.5px; font-weight: 700; color: #fff;
+      top: -10px; right: -10px;
+      width: 26px; height: 26px; border-radius: 50%;
+      font-size: 11px; font-weight: 700; color: #fff;
       display: inline-flex; align-items: center; justify-content: center;
-      border: 2px solid #fff;
-      box-shadow: 0 1px 3px rgba(0,0,0,.18);
+      border: 2.5px solid #fff;
+      box-shadow:
+        0 2px 5px rgba(20,15,10,0.22),
+        0 0 0 1px rgba(20,15,10,0.06);
       letter-spacing: 0.02em;
-      z-index: 2;
+      z-index: 3;
     }
-    .tbl-server.is-pause { filter: grayscale(.6) opacity(.55); }
-    /* On empty / paid-out tables: dimmer + smaller so the section ownership
+    .tbl-server.is-pause { filter: grayscale(.5) opacity(.6); }
+    /* On empty / paid-out tables: slightly dimmer so the section ownership
        is visible without competing with the table's idle look */
     .tbl-server.is-idle {
-      opacity: 0.6;
-      width: 17px; height: 17px;
-      font-size: 8.5px;
-      border-color: rgba(255,255,255,0.92);
-      box-shadow: 0 1px 2px rgba(0,0,0,.12);
+      opacity: 0.75;
+      width: 22px; height: 22px;
+      font-size: 10px;
+      border-color: #fff;
+      box-shadow: 0 1.5px 3px rgba(20,15,10,0.18);
     }
-    .tbl-server.is-off { filter: grayscale(.85) opacity(.45); }
+    .tbl-server.is-off { filter: grayscale(.85) opacity(.5); }
 
     /* ===========================================================
        SIDEBAR — TEAM BUTTON
