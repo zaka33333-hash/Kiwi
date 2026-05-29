@@ -299,97 +299,331 @@
       overflow: hidden;
     }
     .view.is-active { display: flex; }
-    .view-salle { gap: 16px; overflow-y: auto; }
+    .view-salle { gap: 12px; overflow: hidden; }
 
-    .zone { display: flex; flex-direction: column; gap: 10px; }
-    .zone-head {
-      display: flex; align-items: baseline; justify-content: space-between;
-      gap: 12px;
+    /* ---------- Floor toggle (rez-de-chaussée / 1er étage) ---------- */
+    .plan-head-left {
+      display: flex; align-items: center; gap: 14px;
     }
-    .zone-label {
-      font-size: 11px; color: var(--ink-4);
-      letter-spacing: 0.06em;
+    .floor-toggle {
+      display: inline-flex;
+      background: var(--paper-mute);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .floor-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 12px; font-weight: 500;
+      color: var(--ink-3);
+      border: none; background: transparent;
+      cursor: pointer;
+      transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+    }
+    .floor-pill i, .floor-pill svg { width: 13px; height: 13px; }
+    .floor-pill i, .floor-pill svg, .floor-pill span, .floor-pill sup { pointer-events: none; }
+    .floor-pill sup { font-size: 9px; vertical-align: super; margin-right: 1px; }
+    .floor-pill:hover { color: var(--ink); }
+    .floor-pill.is-active {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: var(--shadow-1);
+    }
+
+    /* ---------- Plan canvas (one per floor) ---------- */
+    .plan-canvas {
+      position: relative;
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+    .plan-canvas.is-active { display: flex; }
+
+    /* ---------- Plan room (the architectural box) ---------- */
+    .plan-room {
+      position: relative;
+      width: 100%;
+      background:
+        /* faint grid for the architectural feel */
+        repeating-linear-gradient(0deg,   rgba(11,15,13,0.025) 0 1px, transparent 1px 32px),
+        repeating-linear-gradient(90deg,  rgba(11,15,13,0.025) 0 1px, transparent 1px 32px),
+        #FBF9F4;
+      border: 2px solid #C8C5BD;
+      border-radius: 14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+    }
+    .plan-room-rdc { flex: 0 0 56%; }
+    .plan-room-etage { flex: 1 1 auto; min-height: 0; }
+
+    .plan-room-label {
+      position: absolute;
+      top: 10px; left: 14px;
+      font-size: 11px; font-weight: 600;
+      color: var(--ink-3);
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      font-weight: 500;
+      z-index: 1;
+      pointer-events: none;
     }
-    .zone-count {
+    .plan-room-label em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      text-transform: none;
+      color: var(--ink-4);
+      letter-spacing: 0;
+      margin-left: 4px;
+    }
+    .plan-room-label sup { font-size: 8px; vertical-align: super; }
+
+    /* ---------- Terrasse (extérieur, sous la salle RDC) ---------- */
+    .plan-zone-terrasse {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      background:
+        repeating-linear-gradient(45deg,  rgba(125,242,176,0.05) 0 6px, transparent 6px 14px),
+        #F7F5EE;
+      border: 2px dashed #C8C5BD;
+      border-radius: 14px;
+    }
+    .terrasse-label {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--forest);
+    }
+    .terrasse-label i { width: 12px; height: 12px; }
+
+    /* ---------- Architectural fixtures ---------- */
+    .plan-fixture {
+      position: absolute;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--ink-3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 4px;
+      pointer-events: none;
+      user-select: none;
+    }
+    .fixture-label {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px;
+    }
+    .fixture-label i { width: 10px; height: 10px; }
+    .fixture-label-soft { font-weight: 400; color: var(--ink-4); }
+    .fixture-label-tiny  { font-size: 9px; color: var(--ink-4); letter-spacing: 0.06em; }
+    .fixture-label-vertical {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      letter-spacing: 0.12em;
+    }
+
+    /* Comptoir — solid dark bar */
+    .fixture-comptoir {
+      background: #1A1F1C;
+      color: #E8EAE6;
+      border-radius: 6px;
+      box-shadow: 0 1px 0 rgba(255,255,255,.05) inset;
+    }
+    .fixture-comptoir .fixture-label { color: rgba(255,255,255,.85); }
+
+    /* Escalier — hatched + arrow */
+    .fixture-escalier {
+      background:
+        repeating-linear-gradient(90deg, #ECE6D8 0 8px, transparent 8px 16px),
+        #F7F2E4;
+      border: 1px solid #D6CDB6;
+    }
+
+    /* Cuisine — service zone */
+    .fixture-cuisine {
+      background: #F0EBDE;
+      border: 1px dashed #C8C5BD;
+    }
+
+    /* Bar de service (étage) */
+    .fixture-bar-service {
+      background: #1A1F1C;
+      color: #E8EAE6;
+      border-radius: 4px;
+    }
+    .fixture-bar-service .fixture-label { color: rgba(255,255,255,.85); }
+
+    /* Porte d'entrée — gap dans le mur */
+    .fixture-door {
+      background: transparent;
+      border-left: 2px solid #FBF9F4; /* overrides the wall on that segment */
+    }
+    .fixture-door-label {
+      position: absolute;
+      left: 8px; top: 50%; transform: translateY(-50%);
+      font-size: 9px;
+      color: var(--ink-4);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* Banquette ronde — niche circulaire au centre de l'étage */
+    .fixture-banquette-ronde {
+      background:
+        radial-gradient(ellipse at center, #EBE0C7 0%, #DCC9A6 70%, #C9B687 100%);
+      border-radius: 50%;
+      border: 2px solid #B89E66;
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.4),
+        inset 0 -2px 8px rgba(0,0,0,.08);
+    }
+    .fixture-banquette-ronde .fixture-label {
+      position: absolute;
+      bottom: 8px; left: 50%; transform: translateX(-50%);
+      font-size: 9px;
+      color: #6B5A30;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+
+    /* Banquette longue (mur sud étage) */
+    .fixture-banquette-long {
+      background: linear-gradient(180deg, #DCC9A6 0%, #C9B687 100%);
+      border: 1px solid #B89E66;
+      border-radius: 4px;
+    }
+    .fixture-banquette-long .fixture-label-tiny {
+      color: #6B5A30; font-weight: 500;
+    }
+
+    /* Footer — compteur de tables sur l'étage actif */
+    .plan-footer {
+      display: flex; justify-content: flex-end;
+      padding: 0 4px;
       font-size: 11px; color: var(--ink-4);
       font-feature-settings: "tnum" 1;
-    }
-    .table-row {
-      display: flex; gap: 12px; align-items: flex-end;
-      flex-wrap: wrap;
-    }
-    .zone-divider {
-      height: 1px;
-      background: var(--line-soft);
-      margin: 4px 0 2px;
+      flex: 0 0 auto;
     }
 
-    /* ---------- Table cell (tabletop + chairs) ---------- */
+    /* ---------- Table layer (positioning context for absolute tables) ---------- */
+    .table-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .table-layer > * { pointer-events: auto; }
+
+    /* ---------- Table cell (absolute on the plan) ---------- */
     .tbl-cell {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 3px;
+      position: absolute;
       cursor: pointer;
       user-select: none;
-      transition: transform 150ms ease;
+      transition: transform 150ms ease, filter 150ms ease;
+      z-index: 2;
     }
-    .tbl-cell:hover { transform: translateY(-1px); }
+    .tbl-cell:hover { transform: translateY(-1px); filter: brightness(1.02); }
     .tbl-cell:active { transform: translateY(0); }
     .tbl-cell:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; border-radius: 8px; }
 
+    /* Chair pills surrounding the tabletop */
     .tbl-chairs {
-      display: flex;
-      justify-content: center;
-      gap: 5px;
-      height: 4px;
-      padding: 0 14px;
+      position: absolute;
+      display: flex; justify-content: center; gap: 4px;
+      pointer-events: none;
+    }
+    .tbl-chairs-top {
+      left: 8px; right: 8px; top: -7px;
+      height: 5px;
+    }
+    .tbl-chairs-bottom {
+      left: 8px; right: 8px; bottom: -7px;
+      height: 5px;
     }
     .chair {
-      flex: 0 1 16px;
-      min-width: 8px;
+      flex: 0 1 14px;
+      min-width: 6px;
       height: 100%;
-      background: #C8C5BD; /* warm muted grey, tones with paper palette */
+      background: #A8A39A;
       border-radius: 1.5px;
     }
-    /* For very wide tables (6-tops), let chairs spread a bit more */
-    .tbl-cell .tbl.size-6 ~ .tbl-chairs,
-    .tbl-cell:has(.tbl.size-6) .tbl-chairs { padding: 0 18px; gap: 6px; }
-    /* For small 2-tops, single chair stays centered */
-    .tbl-cell:has(.tbl.size-2) .tbl-chairs { padding: 0 22px; }
+    /* Chairs around round tables — radial layout via inline transforms */
+    .tbl-chairs-ring {
+      position: absolute; inset: -6px;
+      pointer-events: none;
+    }
+    .chair-radial {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 14px; height: 5px;
+      margin: -2.5px 0 0 -7px;
+      background: #A8A39A;
+      border-radius: 2px;
+      transform-origin: center;
+    }
 
     /* ---------- Tabletop ---------- */
     .tbl {
       position: relative;
-      width: 92px; height: 60px;
-      border-radius: 8px;
-      padding: 6px 8px;
+      width: 100%; height: 100%;
+      border-radius: 6px;
+      padding: 4px 6px;
       display: flex; flex-direction: column; justify-content: space-between;
       transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+      overflow: hidden;
     }
-
-    .tbl.size-6 { width: 124px; }
-    .tbl.size-2 { width: 76px; height: 54px; }
+    /* Round table shape */
+    .tbl-cell.is-round .tbl {
+      border-radius: 50%;
+      padding: 12% 14%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      gap: 1px;
+    }
+    .tbl-cell.is-round .tbl-head,
+    .tbl-cell.is-round .tbl-status,
+    .tbl-cell.is-round .tbl-elapsed {
+      text-align: center;
+    }
+    .tbl-cell.is-round .tbl-head {
+      justify-content: center; gap: 5px;
+    }
+    /* Server badge: pinned at top-of-circle instead of bounding-box corner */
+    .tbl-cell.is-round .tbl-server {
+      top: -8px; right: auto;
+      left: 50%; transform: translateX(-50%);
+    }
+    /* Square table — same as rect, just hint via dimensions */
+    .tbl-cell.is-square .tbl { border-radius: 4px; }
 
     .tbl-head {
       display: flex; justify-content: space-between; align-items: center;
-      font-size: 10px; line-height: 1;
+      font-size: 9px; line-height: 1;
     }
-    .tbl-num { font-weight: 700; letter-spacing: 0.01em; }
+    .tbl-num { font-weight: 700; letter-spacing: 0.01em; font-size: 10px; }
     .tbl-covers { color: var(--ink-4); font-weight: 500; }
 
     .tbl-status {
-      font-size: 12px; font-weight: 500;
+      font-size: 10.5px; font-weight: 500;
       text-align: center;
       letter-spacing: -0.01em;
+      white-space: nowrap;
     }
     .tbl-elapsed {
-      font-size: 10px;
+      font-size: 9px;
       text-align: center;
       font-feature-settings: "tnum" 1;
     }
+    /* Small 2-tops — even tighter typography */
+    .tbl-cell .tbl.size-2 .tbl-status { font-size: 9.5px; }
+    .tbl-cell .tbl.size-2 .tbl-head   { font-size: 8.5px; }
+    /* Round centerpiece — give the labels more presence */
+    .tbl-cell.is-round .tbl-status { font-size: 11px; font-weight: 600; margin-top: 2px; }
+    .tbl-cell.is-round .tbl-elapsed { font-size: 10px; margin-top: 1px; }
 
     /* khawya */
     .tbl[data-status="khawya"] {
@@ -1621,12 +1855,18 @@
     body.is-unlocked .sidebar > *:nth-child(4) { animation-delay: 220ms; }
     body.is-unlocked .sidebar > *:nth-child(5) { animation-delay: 280ms; }
     body.is-unlocked .main-head { animation: rise-fade 520ms 180ms cubic-bezier(0.32, 0.72, 0, 1) both; }
-    body.is-unlocked .view-salle .zone {
-      animation: rise-fade 600ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    body.is-unlocked .view-salle .plan-canvas.is-active {
+      animation: rise-fade 600ms 260ms cubic-bezier(0.32, 0.72, 0, 1) both;
     }
-    body.is-unlocked .view-salle .zone:nth-of-type(1) { animation-delay: 260ms; }
-    body.is-unlocked .view-salle .zone:nth-of-type(2) { animation-delay: 340ms; }
-    body.is-unlocked .view-salle .zone:nth-of-type(3) { animation-delay: 420ms; }
+    body.is-unlocked .view-salle .plan-canvas .tbl-cell {
+      animation: rise-fade 480ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(1) { animation-delay: 340ms; }
+    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(2) { animation-delay: 360ms; }
+    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(3) { animation-delay: 380ms; }
+    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(4) { animation-delay: 400ms; }
+    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(5) { animation-delay: 420ms; }
+    body.is-unlocked .view-salle .plan-canvas .tbl-cell:nth-child(n+6) { animation-delay: 440ms; }
 
     /* ===========================================================
        === Shift lifecycle ===  (clock-in screen · Clôture de caisse)
@@ -3449,7 +3689,17 @@
     <main class="main">
       <!-- Header — salle mode -->
       <div class="main-head" data-mode-section="salle">
-        <div class="main-title">Plan d'sala<em>— vue caissier</em></div>
+        <div class="plan-head-left">
+          <div class="main-title">Plan d'sala<em>— vue caissier</em></div>
+          <div class="floor-toggle" role="tablist" aria-label="Étage">
+            <button class="floor-pill is-active" role="tab" aria-selected="true" data-floor="0">
+              <i data-lucide="store"></i><span>Rez-de-chaussée</span>
+            </button>
+            <button class="floor-pill" role="tab" aria-selected="false" data-floor="1">
+              <i data-lucide="layers"></i><span>1<sup>er</sup> étage</span>
+            </button>
+          </div>
+        </div>
         <div class="legend" aria-label="Légende">
           <div class="legend-item"><span class="legend-swatch" style="background:#F4F4F2; border:1px solid #E5E5E5;"></span><span>Khawya</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#EBF5F0; border:1px solid #C5E0D3;"></span><span>Ka-yaklo</span></div>
@@ -3469,34 +3719,67 @@
         </div>
       </div>
 
-      <!-- ===== SALLE VIEW (single floor, 3 zones) ===== -->
+      <!-- ===== SALLE VIEW (plan de salle — 2 floors) ===== -->
       <section class="view view-salle is-active" data-mode-section="salle" aria-label="Plan de la salle">
-        <div class="zone">
-          <div class="zone-head">
-            <span class="zone-label">Salle principale</span>
-            <span class="zone-count" data-zone-count="salle"></span>
+
+        <!-- ── Rez-de-chaussée ── -->
+        <div class="plan-canvas is-active" data-floor="0" aria-hidden="false">
+          <!-- Bâtiment principal — comptoir + tables intérieures -->
+          <div class="plan-room plan-room-rdc">
+            <div class="plan-room-label">Café Atlas <em>· salle</em></div>
+            <!-- Comptoir (bar) -->
+            <div class="plan-fixture fixture-comptoir" style="left:18%; top:48%; width:38%; height:11%;">
+              <span class="fixture-label">Comptoir</span>
+            </div>
+            <!-- Escalier vers l'étage -->
+            <div class="plan-fixture fixture-escalier" style="left:78%; top:46%; width:14%; height:18%;">
+              <span class="fixture-label">Escalier <i data-lucide="arrow-up-right"></i></span>
+            </div>
+            <!-- Cuisine -->
+            <div class="plan-fixture fixture-cuisine" style="left:67%; top:8%; width:25%; height:24%;">
+              <span class="fixture-label">Cuisine</span>
+            </div>
+            <!-- Entrée (porte) -->
+            <div class="plan-fixture fixture-door" style="left:6%; top:60%; width:1px; height:18%;">
+              <span class="fixture-door-label">Entrée</span>
+            </div>
+            <div class="table-layer" data-zone="interieur"></div>
           </div>
-          <div class="table-row" data-zone="salle"></div>
+          <!-- Terrasse — extérieur, séparée par une bordure -->
+          <div class="plan-zone-terrasse">
+            <div class="plan-room-label terrasse-label"><i data-lucide="sun"></i> Terrasse <em>· extérieur</em></div>
+            <div class="table-layer" data-zone="terrasse"></div>
+          </div>
         </div>
 
-        <div class="zone-divider" aria-hidden="true"></div>
-
-        <div class="zone">
-          <div class="zone-head">
-            <span class="zone-label">Terrasse</span>
-            <span class="zone-count" data-zone-count="terrasse"></span>
+        <!-- ── 1er étage ── -->
+        <div class="plan-canvas" data-floor="1" aria-hidden="true">
+          <div class="plan-room plan-room-etage">
+            <div class="plan-room-label">Café Atlas <em>· 1<sup>er</sup> étage</em></div>
+            <!-- Banquette ronde — niche du milieu -->
+            <div class="plan-fixture fixture-banquette-ronde" style="left:38%; top:36%; width:24%; height:36%;">
+              <span class="fixture-label fixture-label-soft">Banquette ronde</span>
+            </div>
+            <!-- Banquette longue (sud) -->
+            <div class="plan-fixture fixture-banquette-long" style="left:14%; top:74%; width:72%; height:5%;">
+              <span class="fixture-label-tiny">Banquette</span>
+            </div>
+            <!-- Escalier (même coin que RDC pour cohérence) -->
+            <div class="plan-fixture fixture-escalier" style="left:78%; top:46%; width:14%; height:18%;">
+              <span class="fixture-label">Escalier <i data-lucide="arrow-down-right"></i></span>
+            </div>
+            <!-- Bar service (relais d'étage) -->
+            <div class="plan-fixture fixture-bar-service" style="left:6%; top:46%; width:6%; height:18%;">
+              <span class="fixture-label fixture-label-vertical">Bar</span>
+            </div>
+            <div class="table-layer" data-zone="etage"></div>
           </div>
-          <div class="table-row" data-zone="terrasse"></div>
         </div>
 
-        <div class="zone-divider" aria-hidden="true"></div>
-
-        <div class="zone">
-          <div class="zone-head">
-            <span class="zone-label">Étage</span>
-            <span class="zone-count" data-zone-count="etage"></span>
-          </div>
-          <div class="table-row" data-zone="etage"></div>
+        <!-- Compteur global d'étage -->
+        <div class="plan-footer">
+          <span class="plan-floor-count" data-floor-count="0"></span>
+          <span class="plan-floor-count" data-floor-count="1" hidden></span>
         </div>
       </section>
 
@@ -4272,37 +4555,53 @@
     function serverInitials(s) { return s.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase(); }
 
     /* ---------- Table data ---------- */
-    /* status: khawya | ka-yaklo | bgha-ykhlass | ka-tkhdam | khlass */
-    /* server: server id assigned (only meaningful when table is occupied) */
+    /* status: khawya | ka-yaklo | bgha-ykhlass | ka-tkhdam | khlass            */
+    /* server: server id assigned (only meaningful when table is occupied)      */
+    /* floor:  0 = rez-de-chaussée, 1 = 1er étage                               */
+    /* shape:  'rect' (default — chairs top/bottom) | 'round' | 'square'        */
+    /* x,y:    position on the plan canvas, in % of canvas width/height         */
+    /* w,h:    tabletop size in % of canvas width/height (no overrides for round
+                — h is computed from w to stay circular)                         */
     const tables = {
-      // Salle principale — Yassir's section
-      T1:  { zone: 'salle',    covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 45, server: 'YA' },
-      T2:  { zone: 'salle',    covers: 2, size: 2, status: 'bgha-ykhlass', elapsed: 12, server: 'YA' },
-      T3:  { zone: 'salle',    covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'YA' },
-      T4:  { zone: 'salle',    covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 22, server: 'YA' },
-      // Mehdi (en pause) — tables temporarily covered
-      T5:  { zone: 'salle',    covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 67, server: 'ME' },
-      T6:  { zone: 'salle',    covers: 5, size: 6, status: 'bgha-ykhlass', elapsed: 8,  server: 'ME' },
-      T7:  { zone: 'salle',    covers: 2, size: 2, status: 'khlass',       elapsed: 0,  server: 'ME' },
-      T8:  { zone: 'salle',    covers: 2, size: 2, status: 'khawya',       elapsed: 0,  server: 'ME' },
-      // Karim's section
-      T9:  { zone: 'salle',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 14, server: 'KA' },
-      T10: { zone: 'salle',    covers: 2, size: 2, status: 'khawya',       elapsed: 0,  server: 'KA' },
-      T11: { zone: 'salle',    covers: 3, size: 4, status: 'ka-yaklo',     elapsed: 31, server: 'KA' },
+      /* ─── Rez-de-chaussée ─────────────────────────────────────────────────
+         Comptoir intérieur (3 tables) + Terrasse extérieure (5 tables) = 8     */
+
+      // Inside, comptoir side — Mehdi & Karim's small tables
+      T7:  { floor: 0, zone: 'interieur', shape: 'square', covers: 2, size: 2, x: 22, y: 24, w: 8,  h: 15, status: 'khlass',       elapsed: 0,  server: 'ME' },
+      T8:  { floor: 0, zone: 'interieur', shape: 'square', covers: 2, size: 2, x: 36, y: 24, w: 8,  h: 15, status: 'khawya',       elapsed: 0,  server: 'ME' },
+      T9:  { floor: 0, zone: 'interieur', shape: 'square', covers: 2, size: 2, x: 50, y: 24, w: 8,  h: 15, status: 'ka-yaklo',     elapsed: 14, server: 'KA' },
 
       // Terrasse — Karim + Sofia
-      T12: { zone: 'terrasse', covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'KA' },
-      T13: { zone: 'terrasse', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 19, server: 'KA' },
-      T14: { zone: 'terrasse', covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'SO' },
-      T15: { zone: 'terrasse', covers: 4, size: 4, status: 'ka-yaklo',     elapsed: 55, server: 'SO' },
-      T16: { zone: 'terrasse', covers: 6, size: 6, status: 'ka-yaklo',     elapsed: 38, server: 'SO' },
+      T12: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 16, y: 74, w: 11, h: 16, status: 'khawya',       elapsed: 0,  server: 'KA' },
+      T13: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 32, y: 74, w: 11, h: 16, status: 'ka-yaklo',     elapsed: 19, server: 'KA' },
+      T14: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 48, y: 74, w: 11, h: 16, status: 'khawya',       elapsed: 0,  server: 'SO' },
+      T15: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 64, y: 74, w: 11, h: 16, status: 'ka-yaklo',     elapsed: 55, server: 'SO' },
+      T16: { floor: 0, zone: 'terrasse',  shape: 'rect',   covers: 6, size: 6, x: 79, y: 76, w: 16, h: 12, status: 'ka-yaklo',     elapsed: 38, server: 'SO' },
 
-      // Étage — Sofia
-      T17: { zone: 'etage',    covers: 4, size: 4, status: 'bgha-ykhlass', elapsed: 5,  server: 'SO' },
-      T18: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'SO' },
-      T19: { zone: 'etage',    covers: 2, size: 2, status: 'ka-yaklo',     elapsed: 28, server: 'YA' },
-      T20: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'YA' },
-      T21: { zone: 'etage',    covers: 4, size: 4, status: 'khawya',       elapsed: 0,  server: 'YA' },
+      /* ─── 1er étage ────────────────────────────────────────────────────────
+         13 tables : banquette ronde au centre + banquettes longues le long
+         des murs + 2-tops vers les fenêtres                                    */
+
+      // Window-side row (north wall) — Yassir's section
+      T1:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 11, y: 14, w: 11, h: 9,  status: 'ka-yaklo',     elapsed: 45, server: 'YA' },
+      T2:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 2, size: 2, x: 26, y: 14, w: 7,  h: 9,  status: 'bgha-ykhlass', elapsed: 12, server: 'YA' },
+      T3:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 37, y: 14, w: 11, h: 9,  status: 'khawya',       elapsed: 0,  server: 'YA' },
+      T4:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 52, y: 14, w: 11, h: 9,  status: 'ka-yaklo',     elapsed: 22, server: 'YA' },
+      T19: { floor: 1, zone: 'etage', shape: 'rect',   covers: 2, size: 2, x: 67, y: 14, w: 7,  h: 9,  status: 'ka-yaklo',     elapsed: 28, server: 'YA' },
+      T10: { floor: 1, zone: 'etage', shape: 'rect',   covers: 2, size: 2, x: 78, y: 14, w: 7,  h: 9,  status: 'khawya',       elapsed: 0,  server: 'KA' },
+
+      // Banquette ronde — centerpiece (Mehdi's table)
+      T5:  { floor: 1, zone: 'etage', shape: 'round',  covers: 6, size: 6, x: 41, y: 38, w: 18, h: 26, status: 'ka-yaklo',     elapsed: 67, server: 'ME' },
+
+      // Mid-room rectangles flanking the round table
+      T17: { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 14, y: 47, w: 11, h: 9,  status: 'bgha-ykhlass', elapsed: 5,  server: 'SO' },
+      T18: { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 75, y: 47, w: 11, h: 9,  status: 'khawya',       elapsed: 0,  server: 'SO' },
+
+      // Long banquette against the south wall (T6 + T11 share the bench)
+      T6:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 5, size: 6, x: 19, y: 78, w: 16, h: 9,  status: 'bgha-ykhlass', elapsed: 8,  server: 'ME' },
+      T11: { floor: 1, zone: 'etage', shape: 'rect',   covers: 3, size: 4, x: 39, y: 78, w: 11, h: 9,  status: 'ka-yaklo',     elapsed: 31, server: 'KA' },
+      T20: { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 54, y: 78, w: 11, h: 9,  status: 'khawya',       elapsed: 0,  server: 'YA' },
+      T21: { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 69, y: 78, w: 11, h: 9,  status: 'khawya',       elapsed: 0,  server: 'YA' },
     };
 
     /* ---------- Mock orders per table ---------- */
@@ -4360,12 +4659,45 @@
     }
 
     /* ---------- Floor plan rendering ---------- */
-    function chairsRow(count) {
-      return `<div class="tbl-chairs" aria-hidden="true">${'<span class="chair"></span>'.repeat(count)}</div>`;
+    function chairsRow(count, where) {
+      if (count <= 0) return '';
+      const chairs = '<span class="chair"></span>'.repeat(count);
+      return `<div class="tbl-chairs tbl-chairs-${where}" aria-hidden="true">${chairs}</div>`;
+    }
+
+    /* Place N chairs evenly around a round tabletop (anchored on the chair-ring) */
+    function chairsRound(count) {
+      const out = [];
+      for (let i = 0; i < count; i++) {
+        const deg = (360 / count) * i;            // 0° = top, clockwise
+        const rad = (deg - 90) * Math.PI / 180;
+        const left = (50 + 50 * Math.cos(rad)).toFixed(2);
+        const top  = (50 + 50 * Math.sin(rad)).toFixed(2);
+        out.push(`<div class="chair-radial" style="left:${left}%;top:${top}%;transform:translate(-50%,-50%) rotate(${deg.toFixed(1)}deg);"></div>`);
+      }
+      return `<div class="tbl-chairs-ring" aria-hidden="true">${out.join('')}</div>`;
+    }
+
+    /* Place chairs on each side of a square table (one chair per side, up to 4) */
+    function chairsSquare(count) {
+      const slots = [
+        { left: '50%', top: '0%',   deg: 0   },  // top
+        { left: '100%', top: '50%', deg: 90  },  // right
+        { left: '50%', top: '100%', deg: 180 },  // bottom
+        { left: '0%', top: '50%',   deg: 270 },  // left
+      ];
+      const used = slots.slice(0, Math.min(4, count));
+      const out = used.map(s =>
+        `<div class="chair-radial" style="left:${s.left};top:${s.top};transform:translate(-50%,-50%) rotate(${s.deg}deg);"></div>`
+      );
+      return `<div class="tbl-chairs-ring" aria-hidden="true">${out.join('')}</div>`;
     }
 
     function tableHTML(id, t) {
-      const sizeClass = t.size === 6 ? 'size-6' : (t.size === 2 ? 'size-2' : '');
+      const sizeClass = `size-${t.size}`;
+      const shape = t.shape || 'rect';
+      const shapeClass = shape === 'round' ? 'is-round' : (shape === 'square' ? 'is-square' : 'is-rect');
+
       const label = ({
         'khawya':       'Khawya',
         'ka-yaklo':     'Ka-yaklo',
@@ -4393,13 +4725,31 @@
         const why = isPause ? ' (en pause)' : isOff ? ' (hors service)' : '';
         serverBadge = `<span class="tbl-server ${cls}" style="background:${s.color};" title="Section de ${s.name}${why}">${serverInitials(s)}</span>`;
       }
-      // Distribute chairs around the tabletop: ceil on top, rest on bottom
-      const topChairs = Math.ceil(t.covers / 2);
-      const bottomChairs = t.covers - topChairs;
+
+      // Position + size on the plan canvas
+      let style = `left:${t.x}%;top:${t.y}%;width:${t.w}%;`;
+      if (shape === 'round') {
+        style += `aspect-ratio:1;`;
+      } else {
+        style += `height:${t.h}%;`;
+      }
+
+      // Chairs vary by shape
+      let chairsHTML;
+      if (shape === 'round') {
+        chairsHTML = chairsRound(t.covers);
+      } else if (shape === 'square') {
+        chairsHTML = chairsSquare(t.covers);
+      } else {
+        // rect — chairs on long sides (top + bottom)
+        const topChairs = Math.ceil(t.covers / 2);
+        const bottomChairs = t.covers - topChairs;
+        chairsHTML = `${chairsRow(topChairs, 'top')}${chairsRow(bottomChairs, 'bottom')}`;
+      }
+
       return `
-        <div class="tbl-cell" data-table="${id}" role="button" tabindex="0" aria-label="Table ${id}, ${label}, ${t.covers} couverts">
-          ${chairsRow(topChairs)}
-          <div class="tbl ${sizeClass}" data-status="${t.status}" style="position:relative;">
+        <div class="tbl-cell ${shapeClass}" data-table="${id}" style="${style}" role="button" tabindex="0" aria-label="Table ${id}, ${label}, ${t.covers} couverts">
+          <div class="tbl ${sizeClass}" data-status="${t.status}">
             ${dot}
             ${serverBadge}
             <div class="tbl-head">
@@ -4409,26 +4759,54 @@
             <div class="tbl-status">${label}</div>
             ${elapsed}
           </div>
-          ${chairsRow(bottomChairs)}
+          ${chairsHTML}
         </div>
       `;
     }
 
     function renderSalle() {
-      const zones = ['salle', 'terrasse', 'etage'];
-      zones.forEach(zoneName => {
-        const wrap = document.querySelector(`.view-salle .table-row[data-zone="${zoneName}"]`);
-        if (!wrap) return;
-        const ids = Object.keys(tables).filter(id => tables[id].zone === zoneName);
-        wrap.innerHTML = ids.map(id => tableHTML(id, tables[id])).join('');
+      // Clear all layers
+      document.querySelectorAll('.view-salle .table-layer').forEach(layer => layer.innerHTML = '');
 
-        // Count occupied / total
-        const occupied = ids.filter(id => tables[id].status !== 'khawya').length;
-        const countEl = document.querySelector(`.view-salle .zone-count[data-zone-count="${zoneName}"]`);
-        if (countEl) countEl.textContent = `${occupied} / ${ids.length} occupées`;
+      // Render each table into its zone layer on its floor
+      Object.keys(tables).forEach(id => {
+        const t = tables[id];
+        const layer = document.querySelector(
+          `.plan-canvas[data-floor="${t.floor}"] .table-layer[data-zone="${t.zone}"]`
+        );
+        if (layer) layer.insertAdjacentHTML('beforeend', tableHTML(id, t));
+      });
+
+      // Per-floor occupancy counter
+      [0, 1].forEach(floor => {
+        const floorIds = Object.keys(tables).filter(id => tables[id].floor === floor);
+        const occupied = floorIds.filter(id => tables[id].status !== 'khawya').length;
+        const el = document.querySelector(`.plan-floor-count[data-floor-count="${floor}"]`);
+        if (el) el.textContent = `${occupied} / ${floorIds.length} occupées`;
       });
     }
     renderSalle();
+
+    /* ---------- Floor switching (RDC ↔ 1er étage) ---------- */
+    function setFloor(floor) {
+      const f = String(floor);
+      document.querySelectorAll('.floor-pill').forEach(p => {
+        const isActive = p.dataset.floor === f;
+        p.classList.toggle('is-active', isActive);
+        p.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      document.querySelectorAll('.plan-canvas').forEach(c => {
+        const isActive = c.dataset.floor === f;
+        c.classList.toggle('is-active', isActive);
+        c.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+      });
+      document.querySelectorAll('.plan-floor-count').forEach(el => {
+        el.hidden = el.dataset.floorCount !== f;
+      });
+    }
+    document.querySelectorAll('.floor-pill').forEach(p =>
+      p.addEventListener('click', () => setFloor(p.dataset.floor))
+    );
 
     /* ---------- Mode switching (Salle ↔ Vente rapida ↔ Order) ---------- */
     let mode = 'salle';
@@ -4646,15 +5024,21 @@
       if (!old) return;
       old.outerHTML = tableHTML(id, t);
       lucide.createIcons();
-      // Update zone occupancy count
-      updateZoneCount(t.zone);
+      // Update floor occupancy count
+      updateFloorCount(t.floor);
     }
 
-    function updateZoneCount(zoneName) {
-      const ids = Object.keys(tables).filter(id => tables[id].zone === zoneName);
-      const occupied = ids.filter(id => tables[id].status !== 'khawya').length;
-      const countEl = document.querySelector(`.zone-count[data-zone-count="${zoneName}"]`);
-      if (countEl) countEl.textContent = `${occupied} / ${ids.length} occupées`;
+    function updateFloorCount(floor) {
+      const f = Number(floor);
+      const floorIds = Object.keys(tables).filter(id => tables[id].floor === f);
+      const occupied = floorIds.filter(id => tables[id].status !== 'khawya').length;
+      const countEl = document.querySelector(`.plan-floor-count[data-floor-count="${f}"]`);
+      if (countEl) countEl.textContent = `${occupied} / ${floorIds.length} occupées`;
+    }
+    // Back-compat alias (older code paths may still call updateZoneCount).
+    function updateZoneCount(_unused) {
+      // The plan no longer has per-zone counters; refresh both floors instead.
+      updateFloorCount(0); updateFloorCount(1);
     }
 
     function markPaid(id) {
