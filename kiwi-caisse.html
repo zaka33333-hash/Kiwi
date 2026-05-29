@@ -340,7 +340,7 @@
       flex: 1;
       display: none;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       min-height: 0;
     }
     .plan-canvas.is-active { display: flex; }
@@ -349,36 +349,52 @@
     .plan-room {
       position: relative;
       width: 100%;
-      background:
-        /* faint grid for the architectural feel */
-        repeating-linear-gradient(0deg,   rgba(11,15,13,0.025) 0 1px, transparent 1px 32px),
-        repeating-linear-gradient(90deg,  rgba(11,15,13,0.025) 0 1px, transparent 1px 32px),
-        #FBF9F4;
-      border: 2px solid #C8C5BD;
-      border-radius: 14px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+      border: 1.5px solid #2C2520;
+      border-radius: 16px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.7) inset,
+        0 0 0 1px rgba(44,37,32,0.06),
+        0 18px 40px -32px rgba(20,15,10,0.15);
+      overflow: hidden;
+      background: #FBF7EE;
     }
-    .plan-room-rdc { flex: 0 0 56%; }
+    .plan-room-rdc   { flex: 0 0 54%; }
     .plan-room-etage { flex: 1 1 auto; min-height: 0; }
+
+    /* SVG architectural background — fills the room, click-transparent */
+    .plan-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      display: block;
+    }
+    /* Keep SVG strokes pixel-crisp through arbitrary scaling */
+    .plan-bg [vector-effect],
+    .plan-bg * {
+      vector-effect: non-scaling-stroke;
+    }
 
     .plan-room-label {
       position: absolute;
-      top: 10px; left: 14px;
+      top: 12px; left: 18px;
+      font-family: var(--ui-sans, 'Inter Tight', system-ui, sans-serif);
       font-size: 11px; font-weight: 600;
-      color: var(--ink-3);
-      letter-spacing: 0.04em;
+      color: var(--ink);
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      z-index: 1;
+      z-index: 3;
       pointer-events: none;
     }
     .plan-room-label em {
-      font-family: var(--serif);
+      font-family: var(--serif, 'Instrument Serif', serif);
       font-style: italic;
       font-weight: 400;
       text-transform: none;
       color: var(--ink-4);
       letter-spacing: 0;
-      margin-left: 4px;
+      margin-left: 6px;
+      font-size: 13px;
     }
     .plan-room-label sup { font-size: 8px; vertical-align: super; }
 
@@ -387,126 +403,32 @@
       position: relative;
       flex: 1 1 auto;
       min-height: 0;
-      background:
-        repeating-linear-gradient(45deg,  rgba(125,242,176,0.05) 0 6px, transparent 6px 14px),
-        #F7F5EE;
-      border: 2px dashed #C8C5BD;
-      border-radius: 14px;
+      border: 1.5px dashed #A89770;
+      border-radius: 16px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.7) inset,
+        0 12px 24px -28px rgba(20,15,10,0.18);
+      overflow: hidden;
+      background: #F7F2E8;
     }
     .terrasse-label {
-      display: inline-flex; align-items: center; gap: 5px;
-      color: var(--forest);
+      color: #1F4A38;
     }
-    .terrasse-label i { width: 12px; height: 12px; }
+    .terrasse-label em { color: #5C5447; }
 
-    /* ---------- Architectural fixtures ---------- */
-    .plan-fixture {
-      position: absolute;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--ink-3);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border-radius: 4px;
-      pointer-events: none;
-      user-select: none;
-    }
-    .fixture-label {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 10px;
-    }
-    .fixture-label i { width: 10px; height: 10px; }
-    .fixture-label-soft { font-weight: 400; color: var(--ink-4); }
-    .fixture-label-tiny  { font-size: 9px; color: var(--ink-4); letter-spacing: 0.06em; }
-    .fixture-label-vertical {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      letter-spacing: 0.12em;
-    }
-
-    /* Comptoir — solid dark bar */
-    .fixture-comptoir {
-      background: #1A1F1C;
-      color: #E8EAE6;
-      border-radius: 6px;
-      box-shadow: 0 1px 0 rgba(255,255,255,.05) inset;
-    }
-    .fixture-comptoir .fixture-label { color: rgba(255,255,255,.85); }
-
-    /* Escalier — hatched + arrow */
-    .fixture-escalier {
-      background:
-        repeating-linear-gradient(90deg, #ECE6D8 0 8px, transparent 8px 16px),
-        #F7F2E4;
-      border: 1px solid #D6CDB6;
-    }
-
-    /* Cuisine — service zone */
-    .fixture-cuisine {
-      background: #F0EBDE;
-      border: 1px dashed #C8C5BD;
-    }
-
-    /* Bar de service (étage) */
-    .fixture-bar-service {
-      background: #1A1F1C;
-      color: #E8EAE6;
-      border-radius: 4px;
-    }
-    .fixture-bar-service .fixture-label { color: rgba(255,255,255,.85); }
-
-    /* Porte d'entrée — gap dans le mur */
-    .fixture-door {
-      background: transparent;
-      border-left: 2px solid #FBF9F4; /* overrides the wall on that segment */
-    }
-    .fixture-door-label {
-      position: absolute;
-      left: 8px; top: 50%; transform: translateY(-50%);
-      font-size: 9px;
-      color: var(--ink-4);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    /* Banquette ronde — niche circulaire au centre de l'étage */
-    .fixture-banquette-ronde {
-      background:
-        radial-gradient(ellipse at center, #EBE0C7 0%, #DCC9A6 70%, #C9B687 100%);
-      border-radius: 50%;
-      border: 2px solid #B89E66;
-      box-shadow:
-        inset 0 2px 0 rgba(255,255,255,.4),
-        inset 0 -2px 8px rgba(0,0,0,.08);
-    }
-    .fixture-banquette-ronde .fixture-label {
-      position: absolute;
-      bottom: 8px; left: 50%; transform: translateX(-50%);
-      font-size: 9px;
-      color: #6B5A30;
-      letter-spacing: 0.1em;
-      white-space: nowrap;
-    }
-
-    /* Banquette longue (mur sud étage) */
-    .fixture-banquette-long {
-      background: linear-gradient(180deg, #DCC9A6 0%, #C9B687 100%);
-      border: 1px solid #B89E66;
-      border-radius: 4px;
-    }
-    .fixture-banquette-long .fixture-label-tiny {
-      color: #6B5A30; font-weight: 500;
-    }
-
-    /* Footer — compteur de tables sur l'étage actif */
+    /* ---------- Footer — compteur de tables sur l'étage actif ---------- */
     .plan-footer {
-      display: flex; justify-content: flex-end;
-      padding: 0 4px;
+      display: flex; justify-content: flex-end; align-items: center;
+      padding: 2px 6px;
       font-size: 11px; color: var(--ink-4);
+      letter-spacing: 0.04em;
       font-feature-settings: "tnum" 1;
       flex: 0 0 auto;
+    }
+    .plan-floor-count::before {
+      content: "·";
+      margin-right: 8px;
+      opacity: 0.4;
     }
 
     /* ---------- Table layer (positioning context for absolute tables) ---------- */
@@ -529,39 +451,41 @@
     .tbl-cell:active { transform: translateY(0); }
     .tbl-cell:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; border-radius: 8px; }
 
-    /* Chair pills surrounding the tabletop */
+    /* Chair pills surrounding the tabletop. Top-down drawing: each chair is a
+       small rounded rectangle representing the chair-back/seat seen from above. */
     .tbl-chairs {
       position: absolute;
-      display: flex; justify-content: center; gap: 4px;
+      display: flex; justify-content: center; gap: 5px;
       pointer-events: none;
     }
-    .tbl-chairs-top {
-      left: 8px; right: 8px; top: -7px;
-      height: 5px;
-    }
-    .tbl-chairs-bottom {
-      left: 8px; right: 8px; bottom: -7px;
-      height: 5px;
-    }
+    .tbl-chairs-top    { left: 6px; right: 6px; top: -9px;    height: 7px; }
+    .tbl-chairs-bottom { left: 6px; right: 6px; bottom: -9px; height: 7px; }
     .chair {
-      flex: 0 1 14px;
-      min-width: 6px;
+      flex: 0 1 16px;
+      min-width: 8px;
+      max-width: 22px;
       height: 100%;
-      background: #A8A39A;
-      border-radius: 1.5px;
+      background: linear-gradient(180deg, #8C8377 0%, #5F574C 100%);
+      border-radius: 3px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.25) inset,
+        0 1px 1.5px rgba(20,15,10,0.18);
     }
     /* Chairs around round tables — radial layout via inline transforms */
     .tbl-chairs-ring {
-      position: absolute; inset: -6px;
+      position: absolute; inset: -8px;
       pointer-events: none;
     }
     .chair-radial {
       position: absolute;
       top: 50%; left: 50%;
-      width: 14px; height: 5px;
-      margin: -2.5px 0 0 -7px;
-      background: #A8A39A;
-      border-radius: 2px;
+      width: 16px; height: 7px;
+      margin: -3.5px 0 0 -8px;
+      background: linear-gradient(180deg, #8C8377 0%, #5F574C 100%);
+      border-radius: 3px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.25) inset,
+        0 1px 1.5px rgba(20,15,10,0.18);
       transform-origin: center;
     }
 
@@ -569,13 +493,17 @@
     .tbl {
       position: relative;
       width: 100%; height: 100%;
-      border-radius: 6px;
+      border-radius: 7px;
       padding: 4px 6px;
       display: flex; flex-direction: column; justify-content: space-between;
       transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
       overflow: hidden;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.6) inset,
+        0 2px 4px -1px rgba(20,15,10,0.14),
+        0 1px 2px rgba(20,15,10,0.06);
     }
-    /* Round table shape */
+    /* Round table shape — wood/marble vibe */
     .tbl-cell.is-round .tbl {
       border-radius: 50%;
       padding: 12% 14%;
@@ -583,6 +511,11 @@
       align-items: center; justify-content: center;
       text-align: center;
       gap: 1px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.7) inset,
+        0 0 0 1px rgba(44,37,32,0.04) inset,
+        0 3px 6px -1px rgba(20,15,10,0.18),
+        0 1px 2px rgba(20,15,10,0.06);
     }
     .tbl-cell.is-round .tbl-head,
     .tbl-cell.is-round .tbl-status,
@@ -3719,59 +3652,363 @@
         </div>
       </div>
 
-      <!-- ===== SALLE VIEW (plan de salle — 2 floors) ===== -->
+      <!-- ===== SALLE VIEW (plan de salle architectural — 2 floors) ===== -->
       <section class="view view-salle is-active" data-mode-section="salle" aria-label="Plan de la salle">
 
-        <!-- ── Rez-de-chaussée ── -->
+        <!-- ─────────────────────────────────────────────────────────────────
+             Rez-de-chaussée — salle intérieure + terrasse extérieure
+             ───────────────────────────────────────────────────────────────── -->
         <div class="plan-canvas is-active" data-floor="0" aria-hidden="false">
-          <!-- Bâtiment principal — comptoir + tables intérieures -->
+
+          <!-- ── Salle intérieure ── -->
           <div class="plan-room plan-room-rdc">
             <div class="plan-room-label">Café Atlas <em>· salle</em></div>
-            <!-- Comptoir (bar) -->
-            <div class="plan-fixture fixture-comptoir" style="left:18%; top:48%; width:38%; height:11%;">
-              <span class="fixture-label">Comptoir</span>
-            </div>
-            <!-- Escalier vers l'étage -->
-            <div class="plan-fixture fixture-escalier" style="left:78%; top:46%; width:14%; height:18%;">
-              <span class="fixture-label">Escalier <i data-lucide="arrow-up-right"></i></span>
-            </div>
-            <!-- Cuisine -->
-            <div class="plan-fixture fixture-cuisine" style="left:67%; top:8%; width:25%; height:24%;">
-              <span class="fixture-label">Cuisine</span>
-            </div>
-            <!-- Entrée (porte) -->
-            <div class="plan-fixture fixture-door" style="left:6%; top:60%; width:1px; height:18%;">
-              <span class="fixture-door-label">Entrée</span>
-            </div>
+
+            <svg class="plan-bg" viewBox="0 0 1600 800" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="walnut" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0"   stop-color="#2A332A"/>
+                  <stop offset="0.5" stop-color="#1F2820"/>
+                  <stop offset="1"   stop-color="#151D17"/>
+                </linearGradient>
+                <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#E8C88A"/>
+                  <stop offset="1" stop-color="#B89052"/>
+                </linearGradient>
+                <pattern id="zellige-rdc" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+                  <rect width="48" height="48" fill="#F2EBD6"/>
+                  <circle cx="24" cy="24" r="2.5" fill="#BFA86A" opacity="0.32"/>
+                  <circle cx="0"  cy="0"  r="2.5" fill="#BFA86A" opacity="0.32"/>
+                  <circle cx="48" cy="0"  r="2.5" fill="#BFA86A" opacity="0.32"/>
+                  <circle cx="0"  cy="48" r="2.5" fill="#BFA86A" opacity="0.32"/>
+                  <circle cx="48" cy="48" r="2.5" fill="#BFA86A" opacity="0.32"/>
+                </pattern>
+                <pattern id="floor-terrazzo" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+                  <rect width="60" height="60" fill="#FBF7EE"/>
+                  <circle cx="12" cy="18" r="1.2" fill="#C6BDA1" opacity="0.4"/>
+                  <circle cx="42" cy="8"  r="1"   fill="#A89770" opacity="0.35"/>
+                  <circle cx="50" cy="40" r="1.4" fill="#C6BDA1" opacity="0.4"/>
+                  <circle cx="22" cy="48" r="1"   fill="#8A7B5A" opacity="0.3"/>
+                  <circle cx="32" cy="28" r="1.2" fill="#A89770" opacity="0.35"/>
+                </pattern>
+              </defs>
+
+              <!-- Floor base -->
+              <rect width="1600" height="800" fill="url(#floor-terrazzo)"/>
+
+              <!-- North wall window indicators -->
+              <g vector-effect="non-scaling-stroke">
+                <line x1="40"  y1="14" x2="1080" y2="14" stroke="#C6BDA1" stroke-width="3"/>
+                <line x1="60"  y1="20" x2="220"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+                <line x1="260" y1="20" x2="540"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+                <line x1="580" y1="20" x2="860"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+                <line x1="900" y1="20" x2="1060" y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+              </g>
+
+              <!-- Cuisine (back-right) — zellige-hinted -->
+              <rect x="1100" y="40" width="460" height="290" rx="14" fill="url(#zellige-rdc)" stroke="#A89770" stroke-width="1.5" stroke-dasharray="6 4"/>
+              <text x="1330" y="200" text-anchor="middle" font-family="Inter Tight, system-ui" font-size="22" font-weight="500" letter-spacing="6" fill="#7D6E45">CUISINE</text>
+              <!-- Pass-through window between cuisine and main floor -->
+              <rect x="1098" y="296" width="60" height="40" fill="#FBF7EE" stroke="#A89770" stroke-width="1.5"/>
+              <text x="1128" y="358" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="13" fill="#7D6E45">pass</text>
+
+              <!-- Comptoir (long bar) — walnut + brass -->
+              <rect x="220" y="350" width="800" height="80" rx="8" fill="url(#walnut)"/>
+              <!-- Brass strip on top edge -->
+              <rect x="220" y="350" width="800" height="6" rx="3" fill="url(#brass)"/>
+              <!-- Subtle inner highlight -->
+              <rect x="226" y="358" width="788" height="2" fill="#3A4439" opacity="0.5"/>
+              <!-- Espresso machine -->
+              <rect x="640" y="324" width="80" height="28" rx="3" fill="#1A211B"/>
+              <circle cx="660" cy="338" r="4" fill="#C9A876"/>
+              <circle cx="680" cy="338" r="4" fill="#C9A876"/>
+              <circle cx="700" cy="338" r="4" fill="#C9A876"/>
+              <!-- Bar label -->
+              <text x="620" y="395" text-anchor="middle" font-family="Inter Tight, system-ui" font-size="13" font-weight="500" letter-spacing="7" fill="#E8C88A">COMPTOIR</text>
+
+              <!-- Bar stools (5 high stools facing the comptoir) -->
+              <g>
+                <circle cx="300" cy="478" r="18" fill="#3A332A" stroke="#1F1A14" stroke-width="2"/>
+                <circle cx="300" cy="478" r="10" fill="#5C4F3E"/>
+                <circle cx="440" cy="478" r="18" fill="#3A332A" stroke="#1F1A14" stroke-width="2"/>
+                <circle cx="440" cy="478" r="10" fill="#5C4F3E"/>
+                <circle cx="580" cy="478" r="18" fill="#3A332A" stroke="#1F1A14" stroke-width="2"/>
+                <circle cx="580" cy="478" r="10" fill="#5C4F3E"/>
+                <circle cx="720" cy="478" r="18" fill="#3A332A" stroke="#1F1A14" stroke-width="2"/>
+                <circle cx="720" cy="478" r="10" fill="#5C4F3E"/>
+                <circle cx="860" cy="478" r="18" fill="#3A332A" stroke="#1F1A14" stroke-width="2"/>
+                <circle cx="860" cy="478" r="10" fill="#5C4F3E"/>
+                <circle cx="1000" cy="478" r="18" fill="#3A332A" stroke="#1F1A14" stroke-width="2"/>
+                <circle cx="1000" cy="478" r="10" fill="#5C4F3E"/>
+              </g>
+
+              <!-- Stairs (back-right corner, below cuisine) -->
+              <g transform="translate(1240, 370)">
+                <rect width="280" height="380" rx="10" fill="#F0E8D6" stroke="#A89770" stroke-width="1.5"/>
+                <!-- Tread lines -->
+                <line x1="20" y1="44"  x2="260" y2="44"  stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="84"  x2="260" y2="84"  stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="124" x2="260" y2="124" stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="164" x2="260" y2="164" stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="204" x2="260" y2="204" stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="244" x2="260" y2="244" stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="284" x2="260" y2="284" stroke="#C4B493" stroke-width="1.5"/>
+                <!-- Up arrow -->
+                <path d="M 140 280 L 140 80 M 100 124 L 140 80 L 180 124"
+                      stroke="#7D6E45" stroke-width="4" fill="none"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="140" y="350" text-anchor="middle" font-family="Inter Tight, system-ui" font-size="12" font-weight="500" letter-spacing="5" fill="#7D6E45">ESCALIER</text>
+              </g>
+
+              <!-- Plant (corner near comptoir end) -->
+              <g transform="translate(1080, 700)">
+                <ellipse cx="0" cy="40" rx="34" ry="6" fill="#000" opacity="0.08"/>
+                <path d="M -28 4 L 28 4 L 22 44 L -22 44 Z" fill="#8B6B47"/>
+                <path d="M -28 4 L 28 4 L 26 12 L -26 12 Z" fill="#5C4730"/>
+                <path d="M 0 4 Q -36 -50 -42 -12" stroke="#3D5E48" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q -14 -64 -8 -36" stroke="#4F7560" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 14 -64 8 -36"  stroke="#3D5E48" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 36 -50 42 -12" stroke="#4F7560" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 0 -70 0 -38"   stroke="#2F4F3B" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </g>
+
+              <!-- Door arc (entrée, left wall) -->
+              <g>
+                <!-- Wall gap -->
+                <rect x="0" y="500" width="6" height="120" fill="#FBF7EE"/>
+                <!-- Swing arc -->
+                <path d="M 6 620 A 110 110 0 0 1 116 510" stroke="#A89770" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+                <!-- Door slab -->
+                <line x1="6" y1="620" x2="116" y2="620" stroke="#3D3530" stroke-width="3"/>
+                <text x="30" y="690" font-family="Inter Tight, system-ui" font-size="11" font-weight="500" letter-spacing="5" fill="#7D6E45">ENTRÉE</text>
+              </g>
+            </svg>
+
             <div class="table-layer" data-zone="interieur"></div>
           </div>
-          <!-- Terrasse — extérieur, séparée par une bordure -->
+
+          <!-- ── Terrasse — extérieur ── -->
           <div class="plan-zone-terrasse">
-            <div class="plan-room-label terrasse-label"><i data-lucide="sun"></i> Terrasse <em>· extérieur</em></div>
+            <div class="plan-room-label terrasse-label">Terrasse <em>· extérieur</em></div>
+
+            <svg class="plan-bg" viewBox="0 0 1600 500" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <pattern id="terrasse-tiles" x="0" y="0" width="42" height="42" patternUnits="userSpaceOnUse">
+                  <rect width="42" height="42" fill="#F7F2E8"/>
+                  <line x1="0" y1="0" x2="42" y2="0" stroke="#D8CDA8" stroke-width="0.4"/>
+                  <line x1="0" y1="0" x2="0"  y2="42" stroke="#D8CDA8" stroke-width="0.4"/>
+                </pattern>
+              </defs>
+
+              <rect width="1600" height="500" fill="url(#terrasse-tiles)"/>
+
+              <!-- Planters along the boundary line (top edge against building) -->
+              <g>
+                <rect x="60" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+                <ellipse cx="80" cy="32" rx="22" ry="14" fill="#4F7560"/>
+                <ellipse cx="80" cy="26" rx="14" ry="10" fill="#5C8367"/>
+
+                <rect x="220" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+                <ellipse cx="240" cy="32" rx="22" ry="14" fill="#3D5E48"/>
+                <ellipse cx="240" cy="26" rx="14" ry="10" fill="#4F7560"/>
+
+                <rect x="420" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+                <ellipse cx="440" cy="32" rx="22" ry="14" fill="#5C8367"/>
+                <ellipse cx="440" cy="26" rx="14" ry="10" fill="#7DA68A"/>
+
+                <rect x="620" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+                <ellipse cx="640" cy="32" rx="22" ry="14" fill="#4F7560"/>
+                <ellipse cx="640" cy="26" rx="14" ry="10" fill="#5C8367"/>
+
+                <rect x="900" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+                <ellipse cx="920" cy="32" rx="22" ry="14" fill="#3D5E48"/>
+                <ellipse cx="920" cy="26" rx="14" ry="10" fill="#4F7560"/>
+
+                <rect x="1340" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+                <ellipse cx="1360" cy="32" rx="22" ry="14" fill="#5C8367"/>
+                <ellipse cx="1360" cy="26" rx="14" ry="10" fill="#7DA68A"/>
+              </g>
+
+              <!-- Subtle awning shadow along the building edge -->
+              <rect x="0" y="0" width="1600" height="8" fill="#000" opacity="0.06"/>
+
+              <!-- Street boundary (south edge - dashed planter line) -->
+              <line x1="20" y1="480" x2="1580" y2="480" stroke="#C4B493" stroke-width="2" stroke-dasharray="14 8"/>
+            </svg>
+
             <div class="table-layer" data-zone="terrasse"></div>
           </div>
         </div>
 
-        <!-- ── 1er étage ── -->
+        <!-- ─────────────────────────────────────────────────────────────────
+             1er étage — banquette ronde centrale, banquette longue, bar
+             ───────────────────────────────────────────────────────────────── -->
         <div class="plan-canvas" data-floor="1" aria-hidden="true">
           <div class="plan-room plan-room-etage">
             <div class="plan-room-label">Café Atlas <em>· 1<sup>er</sup> étage</em></div>
-            <!-- Banquette ronde — niche du milieu -->
-            <div class="plan-fixture fixture-banquette-ronde" style="left:38%; top:36%; width:24%; height:36%;">
-              <span class="fixture-label fixture-label-soft">Banquette ronde</span>
-            </div>
-            <!-- Banquette longue (sud) -->
-            <div class="plan-fixture fixture-banquette-long" style="left:14%; top:74%; width:72%; height:5%;">
-              <span class="fixture-label-tiny">Banquette</span>
-            </div>
-            <!-- Escalier (même coin que RDC pour cohérence) -->
-            <div class="plan-fixture fixture-escalier" style="left:78%; top:46%; width:14%; height:18%;">
-              <span class="fixture-label">Escalier <i data-lucide="arrow-down-right"></i></span>
-            </div>
-            <!-- Bar service (relais d'étage) -->
-            <div class="plan-fixture fixture-bar-service" style="left:6%; top:46%; width:6%; height:18%;">
-              <span class="fixture-label fixture-label-vertical">Bar</span>
-            </div>
+
+            <svg class="plan-bg" viewBox="0 0 1600 1000" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="leather-forest" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0"   stop-color="#2F5946"/>
+                  <stop offset="0.55" stop-color="#1F4A38"/>
+                  <stop offset="1"   stop-color="#143828"/>
+                </linearGradient>
+                <linearGradient id="leather-highlight" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#E8C88A" stop-opacity="0.5"/>
+                  <stop offset="1" stop-color="#E8C88A" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="walnut-etage" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0"   stop-color="#2A332A"/>
+                  <stop offset="1"   stop-color="#151D17"/>
+                </linearGradient>
+                <radialGradient id="spotlight" cx="50%" cy="50%" r="50%">
+                  <stop offset="0"    stop-color="#FFE9B8" stop-opacity="0.18"/>
+                  <stop offset="0.55" stop-color="#FFE9B8" stop-opacity="0.05"/>
+                  <stop offset="1"    stop-color="#FFE9B8" stop-opacity="0"/>
+                </radialGradient>
+                <pattern id="floor-terrazzo-2" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+                  <rect width="60" height="60" fill="#FBF7EE"/>
+                  <circle cx="12" cy="18" r="1.2" fill="#C6BDA1" opacity="0.4"/>
+                  <circle cx="42" cy="8"  r="1"   fill="#A89770" opacity="0.35"/>
+                  <circle cx="50" cy="40" r="1.4" fill="#C6BDA1" opacity="0.4"/>
+                  <circle cx="22" cy="48" r="1"   fill="#8A7B5A" opacity="0.3"/>
+                  <circle cx="32" cy="28" r="1.2" fill="#A89770" opacity="0.35"/>
+                </pattern>
+              </defs>
+
+              <!-- Floor -->
+              <rect width="1600" height="1000" fill="url(#floor-terrazzo-2)"/>
+
+              <!-- Spotlight over banquette ronde -->
+              <ellipse cx="800" cy="500" rx="380" ry="320" fill="url(#spotlight)"/>
+
+              <!-- North wall window indicators -->
+              <g vector-effect="non-scaling-stroke">
+                <line x1="40"  y1="14" x2="1400" y2="14" stroke="#C6BDA1" stroke-width="3"/>
+                <line x1="80"  y1="20" x2="320"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+                <line x1="360" y1="20" x2="660"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+                <line x1="700" y1="20" x2="1000" y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+                <line x1="1040" y1="20" x2="1380" y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+              </g>
+
+              <!-- Banquette ronde — 3/4 leather arc wrapping the round table -->
+              <g transform="translate(800, 500)">
+                <!-- Outer leather curve (open at the south, ~110°→70° going north via west,east) -->
+                <path d="M -160 90 A 220 220 0 1 1 160 90"
+                      stroke="url(#leather-forest)" stroke-width="60"
+                      stroke-linecap="round" fill="none"/>
+                <!-- Brass piping along top of cushion -->
+                <path d="M -160 90 A 220 220 0 1 1 160 90"
+                      stroke="url(#leather-highlight)" stroke-width="6"
+                      fill="none" transform="translate(0, -22)"/>
+                <!-- Cushion divisions (seating positions, ~3 segments on the arc) -->
+                <g stroke="#143828" stroke-width="1.6" stroke-linecap="round" opacity="0.5">
+                  <line x1="0"     y1="-220" x2="0"     y2="-160"/>
+                  <line x1="-156"  y1="-156" x2="-114"  y2="-114"/>
+                  <line x1="156"   y1="-156" x2="114"   y2="-114"/>
+                  <line x1="-220"  y1="0"    x2="-160"  y2="0"/>
+                  <line x1="220"   y1="0"    x2="160"   y2="0"/>
+                </g>
+                <!-- Label -->
+                <text x="0" y="170" text-anchor="middle"
+                      font-family="Instrument Serif, serif" font-style="italic"
+                      font-size="20" fill="#1F4A38" opacity="0.7">banquette ronde</text>
+              </g>
+
+              <!-- Banquette longue (south wall) -->
+              <g transform="translate(180, 855)">
+                <rect width="980" height="56" rx="10" fill="url(#leather-forest)"/>
+                <!-- Brass piping along top -->
+                <rect width="980" height="4" rx="2" fill="url(#leather-highlight)" opacity="0.6"/>
+                <!-- Cushion divisions (4 cushions for 4 tables in front) -->
+                <line x1="245" y1="6"  x2="245" y2="50" stroke="#143828" stroke-width="1.4" opacity="0.5"/>
+                <line x1="490" y1="6"  x2="490" y2="50" stroke="#143828" stroke-width="1.4" opacity="0.5"/>
+                <line x1="735" y1="6"  x2="735" y2="50" stroke="#143828" stroke-width="1.4" opacity="0.5"/>
+                <!-- Stitch line top -->
+                <line x1="14" y1="3" x2="966" y2="3" stroke="#C9A876" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>
+              </g>
+
+              <!-- Banquette ronde d'angle (S-E corner, for T23 group table) -->
+              <g transform="translate(1290, 800)">
+                <!-- Half-circle bench against the corner -->
+                <path d="M -130 0 A 130 130 0 0 1 130 0"
+                      stroke="url(#leather-forest)" stroke-width="48"
+                      stroke-linecap="round" fill="none"/>
+                <path d="M -130 0 A 130 130 0 0 1 130 0"
+                      stroke="url(#leather-highlight)" stroke-width="4"
+                      fill="none" opacity="0.5" transform="translate(0, -18)"/>
+                <text x="0" y="35" text-anchor="middle"
+                      font-family="Instrument Serif, serif" font-style="italic"
+                      font-size="14" fill="#1F4A38" opacity="0.65">banquette d'angle</text>
+              </g>
+
+              <!-- Bar service (west wall) -->
+              <g transform="translate(20, 380)">
+                <rect width="60" height="280" rx="6" fill="url(#walnut-etage)"/>
+                <rect width="6" height="280" rx="3" fill="url(#brass)"/>
+                <!-- Bottles silhouette -->
+                <rect x="18" y="40" width="10" height="32" rx="2" fill="#5C4730" opacity="0.6"/>
+                <rect x="34" y="36" width="10" height="36" rx="2" fill="#3D3530" opacity="0.6"/>
+                <rect x="18" y="92" width="10" height="32" rx="2" fill="#5C4730" opacity="0.6"/>
+                <rect x="34" y="96" width="10" height="28" rx="2" fill="#3D3530" opacity="0.6"/>
+                <!-- BAR label, rotated -->
+                <text transform="translate(34, 240) rotate(-90)"
+                      text-anchor="middle"
+                      font-family="Inter Tight, system-ui" font-size="11" font-weight="500" letter-spacing="6"
+                      fill="#E8C88A">SERVICE</text>
+                <!-- Bar stools facing the bar -->
+                <circle cx="106" cy="100" r="14" fill="#3A332A" stroke="#1F1A14" stroke-width="1.6"/>
+                <circle cx="106" cy="100" r="7"  fill="#5C4F3E"/>
+                <circle cx="106" cy="180" r="14" fill="#3A332A" stroke="#1F1A14" stroke-width="1.6"/>
+                <circle cx="106" cy="180" r="7"  fill="#5C4F3E"/>
+              </g>
+
+              <!-- Stairs (back-right, matching RDC corner) -->
+              <g transform="translate(1340, 320)">
+                <rect width="240" height="360" rx="10" fill="#F0E8D6" stroke="#A89770" stroke-width="1.5"/>
+                <!-- Tread lines -->
+                <line x1="20" y1="44"  x2="220" y2="44"  stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="84"  x2="220" y2="84"  stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="124" x2="220" y2="124" stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="164" x2="220" y2="164" stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="204" x2="220" y2="204" stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="244" x2="220" y2="244" stroke="#C4B493" stroke-width="1.5"/>
+                <line x1="20" y1="284" x2="220" y2="284" stroke="#C4B493" stroke-width="1.5"/>
+                <!-- Down arrow -->
+                <path d="M 120 80 L 120 270 M 80 230 L 120 270 L 160 230"
+                      stroke="#7D6E45" stroke-width="4" fill="none"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="120" y="332" text-anchor="middle"
+                      font-family="Inter Tight, system-ui" font-size="12" font-weight="500" letter-spacing="5"
+                      fill="#7D6E45">ESCALIER</text>
+              </g>
+
+              <!-- Plants (north-east corner, near window+stairs) -->
+              <g transform="translate(1260, 200)">
+                <ellipse cx="0" cy="40" rx="28" ry="5" fill="#000" opacity="0.07"/>
+                <path d="M -22 4 L 22 4 L 18 38 L -18 38 Z" fill="#8B6B47"/>
+                <path d="M -22 4 L 22 4 L 20 11 L -20 11 Z" fill="#5C4730"/>
+                <path d="M 0 4 Q -28 -38 -32 -8"  stroke="#3D5E48" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q -10 -52 -6 -26"  stroke="#4F7560" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 10 -52 6 -26"    stroke="#3D5E48" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 28 -38 32 -8"    stroke="#4F7560" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 0 -56 0 -28"     stroke="#2F4F3B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </g>
+
+              <!-- Plant (south-west corner, near bar service) -->
+              <g transform="translate(140, 720)">
+                <ellipse cx="0" cy="40" rx="28" ry="5" fill="#000" opacity="0.07"/>
+                <path d="M -22 4 L 22 4 L 18 38 L -18 38 Z" fill="#8B6B47"/>
+                <path d="M -22 4 L 22 4 L 20 11 L -20 11 Z" fill="#5C4730"/>
+                <path d="M 0 4 Q -28 -38 -32 -8"  stroke="#4F7560" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q -10 -52 -6 -26"  stroke="#3D5E48" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 10 -52 6 -26"    stroke="#4F7560" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 28 -38 32 -8"    stroke="#3D5E48" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                <path d="M 0 4 Q 0 -56 0 -28"     stroke="#2F4F3B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </g>
+            </svg>
+
             <div class="table-layer" data-zone="etage"></div>
           </div>
         </div>
@@ -4555,53 +4792,59 @@
     function serverInitials(s) { return s.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase(); }
 
     /* ---------- Table data ---------- */
-    /* status: khawya | ka-yaklo | bgha-ykhlass | ka-tkhdam | khlass            */
-    /* server: server id assigned (only meaningful when table is occupied)      */
-    /* floor:  0 = rez-de-chaussée, 1 = 1er étage                               */
-    /* shape:  'rect' (default — chairs top/bottom) | 'round' | 'square'        */
-    /* x,y:    position on the plan canvas, in % of canvas width/height         */
-    /* w,h:    tabletop size in % of canvas width/height (no overrides for round
-                — h is computed from w to stay circular)                         */
+    /* status:  khawya | ka-yaklo | bgha-ykhlass | ka-tkhdam | khlass            */
+    /* server:  server id assigned (only meaningful when table is occupied)      */
+    /* floor:   0 = rez-de-chaussée, 1 = 1er étage                               */
+    /* shape:   'rect' | 'round' | 'square'                                      */
+    /* anchor:  'banquette-south' (banquette to the south, chairs north only)   */
+    /*          'banquette-ronde' (3/4 leather bench wraps north, chairs south) */
+    /*          undefined = chairs all around                                    */
+    /* x,y:     top-left position, in % of containing room                       */
+    /* w,h:     tabletop size, in % of room (round tables ignore h — square)    */
     const tables = {
       /* ─── Rez-de-chaussée ─────────────────────────────────────────────────
-         Comptoir intérieur (3 tables) + Terrasse extérieure (5 tables) = 8     */
+         Intérieur (4) + Terrasse extérieure (5) = 9 tables                     */
 
-      // Inside, comptoir side — Mehdi & Karim's small tables
-      T7:  { floor: 0, zone: 'interieur', shape: 'square', covers: 2, size: 2, x: 22, y: 24, w: 8,  h: 15, status: 'khlass',       elapsed: 0,  server: 'ME' },
-      T8:  { floor: 0, zone: 'interieur', shape: 'square', covers: 2, size: 2, x: 36, y: 24, w: 8,  h: 15, status: 'khawya',       elapsed: 0,  server: 'ME' },
-      T9:  { floor: 0, zone: 'interieur', shape: 'square', covers: 2, size: 2, x: 50, y: 24, w: 8,  h: 15, status: 'ka-yaklo',     elapsed: 14, server: 'KA' },
+      // Inside, by the front window — Mehdi & Karim's tables
+      T7:  { floor: 0, zone: 'interieur', shape: 'round',  covers: 2, size: 2, x: 22, y: 12, w: 7,  h: 13, status: 'khlass',       elapsed: 0,  server: 'ME' },
+      T8:  { floor: 0, zone: 'interieur', shape: 'round',  covers: 2, size: 2, x: 33, y: 12, w: 7,  h: 13, status: 'khawya',       elapsed: 0,  server: 'ME' },
+      T22: { floor: 0, zone: 'interieur', shape: 'round',  covers: 4, size: 4, x: 47, y: 11, w: 11, h: 20, status: 'ka-yaklo',     elapsed: 28, server: 'ME' },
+      T9:  { floor: 0, zone: 'interieur', shape: 'round',  covers: 2, size: 2, x: 14, y: 78, w: 7,  h: 13, status: 'ka-yaklo',     elapsed: 14, server: 'KA' },
 
       // Terrasse — Karim + Sofia
-      T12: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 16, y: 74, w: 11, h: 16, status: 'khawya',       elapsed: 0,  server: 'KA' },
-      T13: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 32, y: 74, w: 11, h: 16, status: 'ka-yaklo',     elapsed: 19, server: 'KA' },
-      T14: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 48, y: 74, w: 11, h: 16, status: 'khawya',       elapsed: 0,  server: 'SO' },
-      T15: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 64, y: 74, w: 11, h: 16, status: 'ka-yaklo',     elapsed: 55, server: 'SO' },
-      T16: { floor: 0, zone: 'terrasse',  shape: 'rect',   covers: 6, size: 6, x: 79, y: 76, w: 16, h: 12, status: 'ka-yaklo',     elapsed: 38, server: 'SO' },
+      T12: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 6,  y: 24, w: 11, h: 52, status: 'khawya',       elapsed: 0,  server: 'KA' },
+      T13: { floor: 0, zone: 'terrasse',  shape: 'round',  covers: 4, size: 4, x: 21, y: 24, w: 13, h: 52, status: 'ka-yaklo',     elapsed: 19, server: 'KA' },
+      T14: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 38, y: 24, w: 11, h: 52, status: 'khawya',       elapsed: 0,  server: 'SO' },
+      T15: { floor: 0, zone: 'terrasse',  shape: 'square', covers: 4, size: 4, x: 53, y: 24, w: 11, h: 52, status: 'ka-yaklo',     elapsed: 55, server: 'SO' },
+      T16: { floor: 0, zone: 'terrasse',  shape: 'round',  covers: 6, size: 6, x: 72, y: 16, w: 18, h: 68, status: 'ka-yaklo',     elapsed: 38, server: 'SO' },
 
       /* ─── 1er étage ────────────────────────────────────────────────────────
-         13 tables : banquette ronde au centre + banquettes longues le long
-         des murs + 2-tops vers les fenêtres                                    */
+         14 tables : 6 fenêtres, banquette ronde centre + flanc, banquette
+         longue sud (4), banquette d'angle ronde groupe                          */
 
       // Window-side row (north wall) — Yassir's section
-      T1:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 11, y: 14, w: 11, h: 9,  status: 'ka-yaklo',     elapsed: 45, server: 'YA' },
-      T2:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 2, size: 2, x: 26, y: 14, w: 7,  h: 9,  status: 'bgha-ykhlass', elapsed: 12, server: 'YA' },
-      T3:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 37, y: 14, w: 11, h: 9,  status: 'khawya',       elapsed: 0,  server: 'YA' },
-      T4:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 52, y: 14, w: 11, h: 9,  status: 'ka-yaklo',     elapsed: 22, server: 'YA' },
-      T19: { floor: 1, zone: 'etage', shape: 'rect',   covers: 2, size: 2, x: 67, y: 14, w: 7,  h: 9,  status: 'ka-yaklo',     elapsed: 28, server: 'YA' },
-      T10: { floor: 1, zone: 'etage', shape: 'rect',   covers: 2, size: 2, x: 78, y: 14, w: 7,  h: 9,  status: 'khawya',       elapsed: 0,  server: 'KA' },
+      T1:  { floor: 1, zone: 'etage', shape: 'rect',  covers: 4, size: 4, x: 12, y: 8,  w: 11, h: 11, status: 'ka-yaklo',     elapsed: 45, server: 'YA' },
+      T2:  { floor: 1, zone: 'etage', shape: 'round', covers: 2, size: 2, x: 26, y: 7,  w: 8,  h: 14, status: 'bgha-ykhlass', elapsed: 12, server: 'YA' },
+      T3:  { floor: 1, zone: 'etage', shape: 'rect',  covers: 4, size: 4, x: 38, y: 8,  w: 11, h: 11, status: 'khawya',       elapsed: 0,  server: 'YA' },
+      T4:  { floor: 1, zone: 'etage', shape: 'rect',  covers: 4, size: 4, x: 51, y: 8,  w: 11, h: 11, status: 'ka-yaklo',     elapsed: 22, server: 'YA' },
+      T19: { floor: 1, zone: 'etage', shape: 'round', covers: 2, size: 2, x: 65, y: 7,  w: 8,  h: 14, status: 'ka-yaklo',     elapsed: 28, server: 'YA' },
+      T10: { floor: 1, zone: 'etage', shape: 'round', covers: 2, size: 2, x: 76, y: 7,  w: 8,  h: 14, status: 'khawya',       elapsed: 0,  server: 'KA' },
 
-      // Banquette ronde — centerpiece (Mehdi's table)
-      T5:  { floor: 1, zone: 'etage', shape: 'round',  covers: 6, size: 6, x: 41, y: 38, w: 18, h: 26, status: 'ka-yaklo',     elapsed: 67, server: 'ME' },
+      // Banquette ronde — centerpiece (Mehdi's table, anchored to the C-arc)
+      T5:  { floor: 1, zone: 'etage', shape: 'round', covers: 6, size: 6, x: 44, y: 41, w: 12, h: 19, anchor: 'banquette-ronde', status: 'ka-yaklo', elapsed: 67, server: 'ME' },
 
-      // Mid-room rectangles flanking the round table
-      T17: { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 14, y: 47, w: 11, h: 9,  status: 'bgha-ykhlass', elapsed: 5,  server: 'SO' },
-      T18: { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 75, y: 47, w: 11, h: 9,  status: 'khawya',       elapsed: 0,  server: 'SO' },
+      // Mid-room round tables flanking the banquette ronde
+      T17: { floor: 1, zone: 'etage', shape: 'round', covers: 4, size: 4, x: 17, y: 44, w: 11, h: 18, status: 'bgha-ykhlass', elapsed: 5,  server: 'SO' },
+      T18: { floor: 1, zone: 'etage', shape: 'round', covers: 4, size: 4, x: 70, y: 44, w: 11, h: 18, status: 'khawya',       elapsed: 0,  server: 'SO' },
 
-      // Long banquette against the south wall (T6 + T11 share the bench)
-      T6:  { floor: 1, zone: 'etage', shape: 'rect',   covers: 5, size: 6, x: 19, y: 78, w: 16, h: 9,  status: 'bgha-ykhlass', elapsed: 8,  server: 'ME' },
-      T11: { floor: 1, zone: 'etage', shape: 'rect',   covers: 3, size: 4, x: 39, y: 78, w: 11, h: 9,  status: 'ka-yaklo',     elapsed: 31, server: 'KA' },
-      T20: { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 54, y: 78, w: 11, h: 9,  status: 'khawya',       elapsed: 0,  server: 'YA' },
-      T21: { floor: 1, zone: 'etage', shape: 'rect',   covers: 4, size: 4, x: 69, y: 78, w: 11, h: 9,  status: 'khawya',       elapsed: 0,  server: 'YA' },
+      // Long banquette against the south wall — 4 tables share the bench
+      T6:  { floor: 1, zone: 'etage', shape: 'rect',  covers: 5, size: 6, x: 12, y: 74, w: 16, h: 9,  anchor: 'banquette-south', status: 'bgha-ykhlass', elapsed: 8,  server: 'ME' },
+      T11: { floor: 1, zone: 'etage', shape: 'rect',  covers: 3, size: 4, x: 30, y: 74, w: 11, h: 9,  anchor: 'banquette-south', status: 'ka-yaklo',     elapsed: 31, server: 'KA' },
+      T20: { floor: 1, zone: 'etage', shape: 'rect',  covers: 4, size: 4, x: 43, y: 74, w: 11, h: 9,  anchor: 'banquette-south', status: 'khawya',       elapsed: 0,  server: 'YA' },
+      T21: { floor: 1, zone: 'etage', shape: 'rect',  covers: 4, size: 4, x: 56, y: 74, w: 11, h: 9,  anchor: 'banquette-south', status: 'khawya',       elapsed: 0,  server: 'YA' },
+
+      // Banquette ronde d'angle — second group table (south-east corner)
+      T23: { floor: 1, zone: 'etage', shape: 'round', covers: 6, size: 6, x: 73, y: 71, w: 14, h: 22, anchor: 'banquette-ronde', status: 'khawya', elapsed: 0,  server: 'SO' },
     };
 
     /* ---------- Mock orders per table ---------- */
@@ -4665,11 +4908,17 @@
       return `<div class="tbl-chairs tbl-chairs-${where}" aria-hidden="true">${chairs}</div>`;
     }
 
-    /* Place N chairs evenly around a round tabletop (anchored on the chair-ring) */
-    function chairsRound(count) {
+    /* Place N chairs on an arc segment of a round tabletop.
+       startDeg, endDeg measured clockwise from the top (0°). Pass 0..360 for full ring. */
+    function chairsArc(count, startDeg, endDeg) {
       const out = [];
+      const span = endDeg - startDeg;
+      // For a closed (full) ring, step = span/count. For an open arc, count chairs
+      // are placed evenly INSIDE the arc (with half a step of margin at each end).
+      const closed = (span >= 360 - 0.001);
+      const step = closed ? span / count : span / (count + 1);
       for (let i = 0; i < count; i++) {
-        const deg = (360 / count) * i;            // 0° = top, clockwise
+        const deg = closed ? (startDeg + step * i) : (startDeg + step * (i + 1));
         const rad = (deg - 90) * Math.PI / 180;
         const left = (50 + 50 * Math.cos(rad)).toFixed(2);
         const top  = (50 + 50 * Math.sin(rad)).toFixed(2);
@@ -4678,13 +4927,15 @@
       return `<div class="tbl-chairs-ring" aria-hidden="true">${out.join('')}</div>`;
     }
 
+    function chairsRound(count) { return chairsArc(count, 0, 360); }
+
     /* Place chairs on each side of a square table (one chair per side, up to 4) */
     function chairsSquare(count) {
       const slots = [
-        { left: '50%', top: '0%',   deg: 0   },  // top
-        { left: '100%', top: '50%', deg: 90  },  // right
-        { left: '50%', top: '100%', deg: 180 },  // bottom
-        { left: '0%', top: '50%',   deg: 270 },  // left
+        { left: '50%', top: '0%',   deg: 0   },
+        { left: '100%', top: '50%', deg: 90  },
+        { left: '50%', top: '100%', deg: 180 },
+        { left: '0%', top: '50%',   deg: 270 },
       ];
       const used = slots.slice(0, Math.min(4, count));
       const out = used.map(s =>
@@ -4734,9 +4985,22 @@
         style += `height:${t.h}%;`;
       }
 
-      // Chairs vary by shape
+      // Chairs vary by shape AND banquette anchoring.
+      // Banquette IS the seating on the anchored side — chairs only show on the open side.
       let chairsHTML;
-      if (shape === 'round') {
+      const anchor = t.anchor;
+      if (anchor === 'banquette-south') {
+        // Bench is south of the table → chairs only on the north (top) edge.
+        const n = Math.max(1, Math.ceil(t.covers / 2));
+        chairsHTML = chairsRow(n, 'top');
+      } else if (anchor === 'banquette-north') {
+        const n = Math.max(1, Math.ceil(t.covers / 2));
+        chairsHTML = chairsRow(n, 'bottom');
+      } else if (anchor === 'banquette-ronde') {
+        // Round table inside a 3/4 C-arc opening south → chairs on the south arc only.
+        const n = Math.max(1, Math.ceil(t.covers / 2));
+        chairsHTML = chairsArc(n, 130, 230);   // ~100° arc centered on south
+      } else if (shape === 'round') {
         chairsHTML = chairsRound(t.covers);
       } else if (shape === 'square') {
         chairsHTML = chairsSquare(t.covers);
