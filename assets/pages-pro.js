@@ -52,6 +52,10 @@ handlers['nav-accueil'] = () => {
   // (instead of going through each drawer's close()).
   window.__kiwiScrollLocks = 0;
   document.documentElement.classList.remove('kiwi-locked');
+  // Pin the sidebar selector on Accueil — full-page handlers wrap this and
+  // also call their own showDashboard() teardown, so by the time those run
+  // the canonical activePage is already 'accueil'.
+  window.Kiwi?.setActivePage?.('accueil');
   // Glide back to top of the main view.
   window.scrollTo({ top: 0, behavior: 'smooth' });
   toast(NAV_ACCUEIL_STR[trLang()] || NAV_ACCUEIL_STR.fr, { type: 'info', duration: 1200 });
