@@ -282,7 +282,7 @@
       header: 'Restauration',
       i18nHeader: 'sidebar.section.restaurant',
       items: [
-        { nav: 'tables', label: 'Tables & additions',   i18n: 'sidebar.restaurant.tables', tag: 'LIVE', icon: ICONS.tables },
+        { nav: 'tables', label: 'Plan de salle',        i18n: 'sidebar.restaurant.tables', tag: 'LIVE', icon: ICONS.tables },
         { nav: 'menu',   label: 'Menu & modificateurs', i18n: 'sidebar.restaurant.menu',                icon: ICONS.menu },
         { nav: 'kds',    label: 'Écran cuisine (KDS)',  i18n: 'sidebar.restaurant.kds',                 icon: ICONS.kds },
         { nav: 'stock',  label: 'Stock & approvisionnement', i18n: 'sidebar.restaurant.stock',          icon: ICONS.stock },

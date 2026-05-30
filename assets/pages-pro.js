@@ -2842,555 +2842,2270 @@ function wireDismiss(m) {
   });
 }
 
-/* ─── User-added tables (demo state · resets on refresh) ────────────────────
- * The "+ Ajouter une table" modal pushes new tables here. The nav-tables
- * floor plan renderer spreads them into its TABLES array on each open so
- * they appear in the grid. No localStorage — refresh wipes them. */
-const _addedTables = [];
-let _nextTableId = 13;
-function _addTable(t) { _addedTables.push(t); _nextTableId = Math.max(_nextTableId, parseInt((t.id || '').replace(/^T/, ''), 10) + 1) || _nextTableId; }
-
 /* ═══════════════════════════════════════════════════════════════════════════
- * 1 ·  TABLES & ADDITIONS  ·  width 1080
+ * 1 ·  PLAN DE SALLE  ·  layout designer + server assignment + rotation
+ *   Three modes share one canvas:
+ *     • Layout       — drag tables, add zones, edit table props, templates
+ *     • Assignation  — drag servers onto tables, color overlay, per-server stats
+ *     • Rotation     — periodic rotation strategy with preview + fairness
+ *   State persists in localStorage (kiwiPlanDeSalle) so refreshes survive.
+ *   Resetting wipes back to the venue's default template.
  * ═══════════════════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════════════════
- * 1 ·  TABLES & PLAN DE SALLE  ·  owner-focused · width 1120
- *   ─ Cashier/server surfaces (encaisser, split bill, fusion d'additions)
- *     live on the Android app for waiters & caisse — NOT on the owner's
- *     dashboard. This drawer is the operator's strategic command of the
- *     floor: layout editing, server-section assignment, performance heat,
- *     incoming reservations, AI capacity insights.
- * ═══════════════════════════════════════════════════════════════════════════ */
-handlers['nav-tables'] = () => {
-  const TABLES = [
-    { id: 'T1',  zone: 'Salle',    state: 'occupied',    seats: 4, mins: 18, rev: 1840, turns: 3, server: 'FK', section: 'A' },
-    { id: 'T2',  zone: 'Salle',    state: 'paid',        seats: 2, mins: 0,  rev: 980,  turns: 4, server: 'HJ', section: 'A' },
-    { id: 'T3',  zone: 'Salle',    state: 'libre',       seats: 4, rev: 320,  turns: 1, server: 'HJ', section: 'A', flag: 'dead' },
-    { id: 'T4',  zone: 'Salle',    state: 'pay-pending', seats: 4, mins: 32, rev: 1620, turns: 2, server: 'FK', section: 'A' },
-    { id: 'T5',  zone: 'Salle',    state: 'occupied',    seats: 2, mins: 6,  rev: 740,  turns: 3, server: 'SB', section: 'B' },
-    { id: 'T6',  zone: 'Salle',    state: 'cleaning',    seats: 4, mins: 0,  rev: 1280, turns: 3, server: 'YA', section: 'B' },
-    { id: 'T7',  zone: 'Salle',    state: 'libre',       seats: 6, rev: 2640, turns: 3, server: 'MM', section: 'B', flag: 'top' },
-    { id: 'T8',  zone: 'Salle',    state: 'occupied',    seats: 2, mins: 12, rev: 680,  turns: 4, server: 'HJ', section: 'A' },
-    { id: 'T9',  zone: 'Salle',    state: 'occupied',    seats: 4, mins: 24, rev: 1980, turns: 2, server: 'MM', section: 'B' },
-    { id: 'T10', zone: 'Salle',    state: 'libre',       seats: 2, rev: 380,  turns: 1, server: 'SB', section: 'B', flag: 'dead' },
-    { id: 'T11', zone: 'Salle',    state: 'occupied',    seats: 6, mins: 41, rev: 2410, turns: 2, server: 'FK', section: 'A' },
-    { id: 'T12', zone: 'Salle',    state: 'pay-pending', seats: 4, mins: 28, rev: 1540, turns: 2, server: 'SB', section: 'B' },
-    { id: 'TR1', zone: 'Terrasse', state: 'occupied',    seats: 2, mins: 9,  rev: 920,  turns: 4, server: 'YA', section: 'C' },
-    { id: 'TR2', zone: 'Terrasse', state: 'libre',       seats: 4, rev: 1480, turns: 2, server: 'YA', section: 'C' },
-    { id: 'TR3', zone: 'Terrasse', state: 'occupied',    seats: 4, mins: 36, rev: 2120, turns: 3, server: 'MM', section: 'C' },
-    { id: 'TR4', zone: 'Terrasse', state: 'libre',       seats: 2, rev: 640,  turns: 2, server: 'YA', section: 'C' },
-    /* Demo-added tables from the "+ Ajouter une table" modal — appended
-     * here so they paint inside the appropriate zone grid. */
-    ..._addedTables,
-  ];
-  const STAFF = [
-    { i: 'FK', cls: 'a', name: 'Fatima Khalki',  section: 'A', tables: ['T1','T4','T11'], rev: 5870 },
-    { i: 'HJ', cls: 'b', name: 'Hamid Jelloul',  section: 'A', tables: ['T2','T3','T8'],  rev: 2340 },
-    { i: 'SB', cls: 'c', name: 'Sofia Belkadi',  section: 'B', tables: ['T5','T10','T12'], rev: 2660 },
-    { i: 'YA', cls: 'd', name: 'Youssef Amrani', section: 'C', tables: ['T6','TR1','TR2','TR4'], rev: 3040 },
-    { i: 'MM', cls: 'a', name: 'Mehdi Mansouri', section: 'B', tables: ['T7','T9','TR3'], rev: 6740 },
-  ];
-  const SECTIONS = [
-    { k: 'A', name: 'Salle A',  color: 'var(--atlas)',     server: 'FK', co: 'Fatima' },
-    { k: 'B', name: 'Salle B',  color: 'var(--riad)',      server: 'MM', co: 'Mehdi' },
-    { k: 'C', name: 'Terrasse', color: 'var(--warning)',   server: 'YA', co: 'Youssef' },
-  ];
-  const RESAS = [
-    { time: '19:30', name: 'Famille El Idrissi', party: 4, table: 'T11', tag: 'habitué',     note: 'Aime T11 — proche fenêtre' },
-    { time: '19:45', name: 'M. & Mme Benani',    party: 2, table: 'TR1', tag: 'anniversaire', note: '15 ans de mariage · dessert offert' },
-    { time: '20:00', name: 'Groupe Bouazza',     party: 6, table: 'T7',  tag: 'VIP',         note: '3e visite cette semaine · vin rouge ouvert' },
-    { time: '20:15', name: 'Walking-in prévu',   party: 2, table: '—',   tag: 'walk-in',     note: 'Sur projection · garder T5 ou T8 libre' },
-    { time: '20:30', name: 'Hassan Chakir',      party: 4, table: 'T1',  tag: '1re visite',  note: 'Pas de coriandre' },
-    { time: '21:00', name: 'Table Senhaji',      party: 4, table: 'T9',  tag: 'régulier',    note: 'Préfère terrasse si dispo' },
-  ];
-  const AI_INSIGHTS = [
-    { tone: 'opp',  ic: '↗', title: 'T7 est votre meilleur 6-couverts',     desc: '6 740 MAD générés ce mois · 3,2× la moyenne. Toujours bookable, ne jamais joindre.', action: { label: 'Verrouiller T7', toast: 'T7 marquée comme table prioritaire · ne sera plus jointe par défaut.' } },
-    { tone: 'warn', ic: '⊘', title: 'T3 + T10 sont des "sièges morts"',     desc: 'Rotation 1,2/jour · revenu/couvert 30 % en dessous moyenne. Fusionner en un 4-couverts récupère 1,8 m².', action: { label: 'Simuler la fusion', toast: 'Simulation : +12 % capacité utile · −1,8 m² · gain estimé 480 MAD/jour.' } },
-    { tone: 'idea', ic: 'AI', title: 'Service du soir saturé à 20:00',     desc: 'Pic prévu 20:00–21:00 · 92 % d\'occupation. Décaler 2 résas vers 19:15 fluidifierait la cuisine.', action: { label: 'Appeler les clients', toast: 'Brief envoyé à l\'équipe service · 2 clients à recontacter.' } },
-  ];
-  const stateLabel = (s) => ({ occupied: 'occupée', libre: 'libre', 'pay-pending': 'addition', cleaning: 'nettoyage', paid: 'payée' })[s] || s;
+const PDS_LS_KEY = 'kiwiPlanDeSalle';
+const PDS_GRID = 16;          /* snap-to-grid unit (px) */
+const PDS_CANVAS_W = 880;
+const PDS_CANVAS_H = 540;
 
-  const occupied = TABLES.filter(t => t.state === 'occupied' || t.state === 'pay-pending').length;
-  const free = TABLES.filter(t => t.state === 'libre').length;
-  const cleaning = TABLES.filter(t => t.state === 'cleaning').length;
-  const covers = TABLES.filter(t => t.state === 'occupied' || t.state === 'pay-pending').reduce((s, t) => s + (t.seats || 0), 0);
-  const topTable = [...TABLES].sort((a,b) => (b.rev||0) - (a.rev||0))[0];
-  const deadSeats = TABLES.filter(t => t.flag === 'dead');
-  const revPerCover = Math.round(TABLES.reduce((s,t) => s + (t.rev||0), 0) / TABLES.reduce((s,t) => s + (t.seats||0), 0));
+/* ─── Static i18n table — every label, status, role, template name ───────── */
+const PDS_STR = {
+  fr: {
+    title: 'Plan de salle',
+    subtitle: (name, n, occ) => `${name} · ${n} tables · ${occ} occupées en service`,
+    tagPdS: 'PLAN DE SALLE',
+    /* Modes */
+    modeLayout: 'Aménagement',
+    modeAssign: 'Affectation',
+    modeRotate: 'Rotation',
+    modeLayoutDesc: 'Glissez les tables · clic pour éditer · ajoutez murs, portes et plantes pour visualiser le restaurant.',
+    modeAssignDesc: 'Glissez un serveur sur une table pour l\'affecter · cliquez une table pour réassigner.',
+    modeRotateDesc: 'Faites tourner les serveurs entre zones et tables pour éviter la lassitude — équité automatique.',
+    /* Top bar */
+    save: 'Sauvegarder',
+    saved: 'Plan enregistré',
+    savedDesc: 'Disposition, zones, serveurs et rotation sauvegardés dans le navigateur.',
+    reset: 'Réinitialiser',
+    resetTitle: 'Réinitialiser le plan ?',
+    resetDesc: 'Supprime toutes les tables, zones et affectations · charge le template par défaut. Action irréversible.',
+    resetCancel: 'Annuler',
+    resetConfirm: 'Réinitialiser',
+    resetDone: 'Plan réinitialisé',
+    resetDoneDesc: 'Template par défaut chargé · 16 tables, 3 zones.',
+    templates: 'Templates',
+    export: 'Exporter le plan',
+    exportToast: 'Plan exporté',
+    exportDesc: 'PDF A3 · 1 page · prêt pour impression ou WhatsApp.',
+    /* KPIs */
+    kpiTables: 'TABLES',
+    kpiCovers: 'COUVERTS',
+    kpiZones: 'ZONES',
+    kpiServers: 'SERVEURS',
+    /* Zones */
+    addZone: 'Ajouter une zone',
+    addZoneDesc: 'Une nouvelle zone apparaîtra dans les onglets · vous pourrez la peupler de tables.',
+    zoneName: 'Nom de la zone',
+    zoneAdd: 'Créer',
+    zoneAdded: 'Zone ajoutée',
+    zoneAddedDesc: (n) => `Zone "${n}" créée · cliquez pour la sélectionner.`,
+    renameZone: 'Renommer',
+    renameZoneTitle: 'Renommer la zone',
+    deleteZone: 'Supprimer la zone',
+    deleteZoneTitle: 'Supprimer cette zone ?',
+    deleteZoneDesc: (n, c) => `La zone "${n}" et ses ${c} tables seront retirées du plan. Action irréversible.`,
+    deleteZoneOk: 'Supprimer',
+    deleteZoneDone: 'Zone supprimée',
+    deleteZoneNoLast: 'Dernière zone',
+    deleteZoneNoLastDesc: 'Vous devez garder au moins une zone active.',
+    zoneRenamedDesc: (n) => `Zone renommée en "${n}".`,
+    /* Add table palette */
+    paletteTitle: 'Ajouter une table',
+    paletteHint: 'Cliquez pour ajouter — la table apparaît au centre de la zone.',
+    structTitle: 'Éléments structurels',
+    structHint: 'Murs, portes, fenêtres et plantes — purement visuels.',
+    elWall: 'Mur',
+    elDoor: 'Porte',
+    elWindow: 'Fenêtre',
+    elColumn: 'Colonne',
+    elPlant: 'Plante',
+    tRound: 'Ronde',
+    tSquare: 'Carrée',
+    tRect: 'Rectangulaire',
+    tBar: 'Bar / Comptoir',
+    tHigh: 'Mange-debout',
+    seats: 'places',
+    addedTableToast: (id) => `Table ${id} ajoutée`,
+    addedTableDesc: (s, z) => `${s} couverts · ${z} · glissez-la pour la positionner.`,
+    addedElementToast: 'Élément ajouté',
+    addedElementDesc: 'Glissez-le pour positionner · cliquez pour pivoter.',
+    /* Snap */
+    snapOn: 'Aimanter',
+    snapOff: 'Libre',
+    snapHint: 'Aimanter aligne les tables sur la grille',
+    /* Table inspector */
+    inspectorTitle: (id) => `Table ${id}`,
+    inspectorNum: 'Numéro',
+    inspectorType: 'Type',
+    inspectorSeats: 'Places',
+    inspectorStatus: 'Statut',
+    inspectorNotes: 'Notes',
+    inspectorServer: 'Serveur affecté',
+    inspectorRotate: 'Pivoter',
+    inspectorDuplicate: 'Dupliquer',
+    inspectorDelete: 'Supprimer',
+    inspectorDone: 'Modifications enregistrées',
+    inspectorUnassigned: 'Aucun',
+    statusFree: 'Libre',
+    statusOccupied: 'Occupée',
+    statusReserved: 'Réservée',
+    statusCleaning: 'À nettoyer',
+    /* Selection / bulk */
+    selection: 'Sélection',
+    bulkAlignH: 'Aligner horiz.',
+    bulkAlignV: 'Aligner vert.',
+    bulkDistH: 'Distribuer horiz.',
+    bulkDistV: 'Distribuer vert.',
+    bulkDelete: 'Supprimer',
+    bulkClear: 'Désélectionner',
+    bulkSetStatus: 'Statut',
+    bulkOkAlign: 'Tables alignées',
+    bulkOkDist: 'Tables distribuées uniformément',
+    bulkOkDelete: (n) => `${n} tables supprimées`,
+    bulkOkStatus: (n, s) => `${n} tables marquées ${s}`,
+    bulkHintNone: 'Maintenez Maj et cliquez pour sélectionner plusieurs tables · au moins 2 pour aligner.',
+    /* Templates */
+    templatesTitle: 'Templates de salle',
+    templatesDesc: 'Démarrez avec une disposition pré-construite · vous pourrez la modifier ensuite.',
+    tplBistro: 'Bistro · 30 couverts',
+    tplBistroDesc: '8 tables intérieures + petite terrasse · 1 zone bar',
+    tplResto: 'Restaurant · 60 couverts',
+    tplRestoDesc: 'Salle principale 12 tables, terrasse, salon privé',
+    tplCafe: 'Café · 20 couverts',
+    tplCafeDesc: '6 mange-debout, comptoir, 3 tables ronde',
+    tplBrasserie: 'Brasserie terrasse · 80 couverts',
+    tplBrasserieDesc: 'Grande terrasse 10 tables, salle 8 tables, bar',
+    tplBlank: 'Plan vierge',
+    tplBlankDesc: 'Commencez de zéro · une seule zone vide',
+    tplApply: 'Charger ce template',
+    tplApplyConfirm: (n) => `Charger "${n}" ?`,
+    tplApplyConfirmDesc: 'Le plan actuel sera remplacé. Pensez à exporter d\'abord si nécessaire.',
+    tplLoaded: (n) => `${n} chargé`,
+    tplLoadedDesc: 'Disposition initiale prête · personnalisez librement.',
+    /* Empty state */
+    emptyTitle: 'Commencez par choisir un template',
+    emptyDesc: 'Ou créez votre première table — vous pouvez tout modifier ensuite.',
+    emptyChoose: 'Choisir un template',
+    emptyBlank: 'Démarrer vierge',
+    /* Assignation mode */
+    rosterTitle: 'Équipe en service',
+    rosterHint: 'Glissez une pastille vers une table ou une zone',
+    rosterShift: 'Shift soir',
+    rosterUnassigned: 'Non affecté',
+    rosterTables: (n) => `${n} tables`,
+    rosterCovers: (n) => `${n} couverts`,
+    clearAssign: 'Effacer toutes les affectations',
+    clearAssignTitle: 'Effacer toutes les affectations ?',
+    clearAssignDesc: 'Aucun serveur ne sera affecté à aucune table. Les affectations seront vides jusqu\'à réassignation.',
+    clearAssignOk: 'Effacer',
+    clearAssignDone: 'Affectations effacées',
+    clearAssignDoneDesc: 'Toutes les tables sont libres d\'affectation serveur.',
+    assignDone: (s, t) => `${s} affecté à ${t}`,
+    assignDoneDesc: 'Coloré sur le plan · synchronisé avec l\'app serveur.',
+    unassignDone: (t) => `${t} libérée d'affectation`,
+    /* Rotation */
+    rotateTitle: 'Configurer la rotation',
+    rotateCTA: 'Configurer',
+    rotateDesc: 'Quand vos serveurs alternent, ils restent motivés et apprennent toutes les tables.',
+    rotatePeriod: 'Période',
+    rotateDaily: 'Chaque jour',
+    rotateShift: 'Chaque shift',
+    rotateWeekly: 'Chaque semaine',
+    rotateCustom: 'Personnalisée',
+    rotateStrategy: 'Stratégie',
+    rotZones: 'Rotation des zones',
+    rotZonesDesc: 'Les serveurs tournent entre zones (recommandé)',
+    rotTables: 'Rotation des tables',
+    rotTablesDesc: 'Round-robin sur toutes les tables',
+    rotPairs: 'Permutation par paires',
+    rotPairsDesc: 'Vous choisissez les paires manuellement',
+    rotPreview: 'Aperçu des 3 prochaines rotations',
+    rotFairness: 'Équité par serveur',
+    rotApply: 'Appliquer la rotation',
+    rotApplied: 'Rotation appliquée',
+    rotAppliedDesc: 'Tous les serveurs notifiés sur leur app · plan mis à jour.',
+    rotNow: 'Tourner maintenant',
+    rotNowDone: 'Rotation effectuée',
+    rotNowDoneDesc: 'Nouvelles affectations actives · serveurs notifiés.',
+    rotHistoryTitle: 'Historique de la semaine',
+    rotHistoryHint: 'Vérifiez visuellement que personne ne reste sur la même zone trop longtemps.',
+    rotNoneTitle: 'Aucune rotation configurée',
+    rotNoneDesc: 'Configurez une rotation pour éviter que vos serveurs restent sur la même table pendant des mois.',
+    rotNoneCTA: 'Configurer',
+    fairnessLow: 'a trop fait cette zone — son tour arrive',
+    fairnessHigh: 'rotation équilibrée',
+    /* Status legend */
+    legendTitle: 'Statuts',
+    /* Generic */
+    cancel: 'Annuler',
+    close: 'Fermer',
+    save2: 'Enregistrer',
+    /* Days of week */
+    days: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+    soonAvailable: 'Bientôt disponible',
+  },
+  en: {
+    title: 'Floor Plan',
+    subtitle: (name, n, occ) => `${name} · ${n} tables · ${occ} in service`,
+    tagPdS: 'FLOOR PLAN',
+    modeLayout: 'Layout',
+    modeAssign: 'Assignment',
+    modeRotate: 'Rotation',
+    modeLayoutDesc: 'Drag tables · click to edit · add walls, doors and plants to visualize the room.',
+    modeAssignDesc: 'Drag a server onto a table to assign · click a table to reassign.',
+    modeRotateDesc: 'Rotate servers across zones and tables so they don\'t burn out — fairness built-in.',
+    save: 'Save',
+    saved: 'Plan saved',
+    savedDesc: 'Layout, zones, servers and rotation saved in your browser.',
+    reset: 'Reset',
+    resetTitle: 'Reset the plan?',
+    resetDesc: 'Removes all tables, zones and assignments · loads the default template. Cannot be undone.',
+    resetCancel: 'Cancel',
+    resetConfirm: 'Reset',
+    resetDone: 'Plan reset',
+    resetDoneDesc: 'Default template loaded · 16 tables, 3 zones.',
+    templates: 'Templates',
+    export: 'Export plan',
+    exportToast: 'Plan exported',
+    exportDesc: 'A3 PDF · 1 page · ready for print or WhatsApp.',
+    kpiTables: 'TABLES',
+    kpiCovers: 'COVERS',
+    kpiZones: 'ZONES',
+    kpiServers: 'SERVERS',
+    addZone: 'Add a zone',
+    addZoneDesc: 'A new zone will appear in the tabs · you can populate it with tables.',
+    zoneName: 'Zone name',
+    zoneAdd: 'Create',
+    zoneAdded: 'Zone added',
+    zoneAddedDesc: (n) => `Zone "${n}" created · click to select it.`,
+    renameZone: 'Rename',
+    renameZoneTitle: 'Rename zone',
+    deleteZone: 'Delete zone',
+    deleteZoneTitle: 'Delete this zone?',
+    deleteZoneDesc: (n, c) => `Zone "${n}" and its ${c} tables will be removed. Cannot be undone.`,
+    deleteZoneOk: 'Delete',
+    deleteZoneDone: 'Zone deleted',
+    deleteZoneNoLast: 'Last zone',
+    deleteZoneNoLastDesc: 'You must keep at least one active zone.',
+    zoneRenamedDesc: (n) => `Zone renamed to "${n}".`,
+    paletteTitle: 'Add a table',
+    paletteHint: 'Click to add — the table appears at the center of the zone.',
+    structTitle: 'Structural elements',
+    structHint: 'Walls, doors, windows and plants — visual only.',
+    elWall: 'Wall',
+    elDoor: 'Door',
+    elWindow: 'Window',
+    elColumn: 'Column',
+    elPlant: 'Plant',
+    tRound: 'Round',
+    tSquare: 'Square',
+    tRect: 'Rectangular',
+    tBar: 'Bar / Counter',
+    tHigh: 'High table',
+    seats: 'seats',
+    addedTableToast: (id) => `Table ${id} added`,
+    addedTableDesc: (s, z) => `${s} seats · ${z} · drag to position.`,
+    addedElementToast: 'Element added',
+    addedElementDesc: 'Drag to position · click to rotate.',
+    snapOn: 'Snap',
+    snapOff: 'Free',
+    snapHint: 'Snap aligns tables to the grid',
+    inspectorTitle: (id) => `Table ${id}`,
+    inspectorNum: 'Number',
+    inspectorType: 'Type',
+    inspectorSeats: 'Seats',
+    inspectorStatus: 'Status',
+    inspectorNotes: 'Notes',
+    inspectorServer: 'Assigned server',
+    inspectorRotate: 'Rotate',
+    inspectorDuplicate: 'Duplicate',
+    inspectorDelete: 'Delete',
+    inspectorDone: 'Changes saved',
+    inspectorUnassigned: 'None',
+    statusFree: 'Free',
+    statusOccupied: 'Occupied',
+    statusReserved: 'Reserved',
+    statusCleaning: 'Cleaning',
+    selection: 'Selection',
+    bulkAlignH: 'Align horiz.',
+    bulkAlignV: 'Align vert.',
+    bulkDistH: 'Distribute horiz.',
+    bulkDistV: 'Distribute vert.',
+    bulkDelete: 'Delete',
+    bulkClear: 'Deselect',
+    bulkSetStatus: 'Status',
+    bulkOkAlign: 'Tables aligned',
+    bulkOkDist: 'Tables distributed evenly',
+    bulkOkDelete: (n) => `${n} tables deleted`,
+    bulkOkStatus: (n, s) => `${n} tables set to ${s}`,
+    bulkHintNone: 'Hold Shift and click to select multiple tables · at least 2 to align.',
+    templatesTitle: 'Room templates',
+    templatesDesc: 'Start from a pre-built layout · you can modify it after.',
+    tplBistro: 'Bistro · 30 covers',
+    tplBistroDesc: '8 indoor tables + small terrace · 1 bar zone',
+    tplResto: 'Restaurant · 60 covers',
+    tplRestoDesc: 'Main hall 12 tables, terrace, private room',
+    tplCafe: 'Café · 20 covers',
+    tplCafeDesc: '6 high tables, counter, 3 round tables',
+    tplBrasserie: 'Brasserie terrace · 80 covers',
+    tplBrasserieDesc: 'Large terrace 10 tables, hall 8 tables, bar',
+    tplBlank: 'Blank plan',
+    tplBlankDesc: 'Start from scratch · one empty zone',
+    tplApply: 'Load this template',
+    tplApplyConfirm: (n) => `Load "${n}"?`,
+    tplApplyConfirmDesc: 'The current plan will be replaced. Export first if needed.',
+    tplLoaded: (n) => `${n} loaded`,
+    tplLoadedDesc: 'Initial layout ready · customize freely.',
+    emptyTitle: 'Start by choosing a template',
+    emptyDesc: 'Or create your first table — you can change everything later.',
+    emptyChoose: 'Choose a template',
+    emptyBlank: 'Start blank',
+    rosterTitle: 'Team on shift',
+    rosterHint: 'Drag a chip onto a table or a zone',
+    rosterShift: 'Evening shift',
+    rosterUnassigned: 'Unassigned',
+    rosterTables: (n) => `${n} tables`,
+    rosterCovers: (n) => `${n} covers`,
+    clearAssign: 'Clear all assignments',
+    clearAssignTitle: 'Clear all assignments?',
+    clearAssignDesc: 'No server will be assigned to any table. Assignments will be empty until reassigned.',
+    clearAssignOk: 'Clear',
+    clearAssignDone: 'Assignments cleared',
+    clearAssignDoneDesc: 'All tables are now free of server assignment.',
+    assignDone: (s, t) => `${s} assigned to ${t}`,
+    assignDoneDesc: 'Highlighted on the plan · synced with the server app.',
+    unassignDone: (t) => `${t} unassigned`,
+    rotateTitle: 'Configure rotation',
+    rotateCTA: 'Configure',
+    rotateDesc: 'When your servers alternate, they stay motivated and learn every table.',
+    rotatePeriod: 'Period',
+    rotateDaily: 'Every day',
+    rotateShift: 'Every shift',
+    rotateWeekly: 'Every week',
+    rotateCustom: 'Custom',
+    rotateStrategy: 'Strategy',
+    rotZones: 'Zone rotation',
+    rotZonesDesc: 'Servers rotate across zones (recommended)',
+    rotTables: 'Table rotation',
+    rotTablesDesc: 'Round-robin on all tables',
+    rotPairs: 'Manual pair swap',
+    rotPairsDesc: 'You choose the pairs manually',
+    rotPreview: 'Preview of next 3 rotations',
+    rotFairness: 'Fairness per server',
+    rotApply: 'Apply rotation',
+    rotApplied: 'Rotation applied',
+    rotAppliedDesc: 'All servers notified on their app · plan updated.',
+    rotNow: 'Rotate now',
+    rotNowDone: 'Rotation done',
+    rotNowDoneDesc: 'New assignments active · servers notified.',
+    rotHistoryTitle: 'This week history',
+    rotHistoryHint: 'Visually check that nobody stays on the same zone too long.',
+    rotNoneTitle: 'No rotation configured',
+    rotNoneDesc: 'Set up a rotation so servers don\'t stay on the same table for months.',
+    rotNoneCTA: 'Configure',
+    fairnessLow: 'has done this zone too much — turn coming up',
+    fairnessHigh: 'balanced rotation',
+    legendTitle: 'Statuses',
+    cancel: 'Cancel',
+    close: 'Close',
+    save2: 'Save',
+    days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    soonAvailable: 'Coming soon',
+  },
+  ar: {
+    title: 'مخطط القاعة',
+    subtitle: (name, n, occ) => `${name} · ${n} طاولة · ${occ} قيد الخدمة`,
+    tagPdS: 'مخطط القاعة',
+    modeLayout: 'التصميم',
+    modeAssign: 'الإسناد',
+    modeRotate: 'التدوير',
+    modeLayoutDesc: 'اسحب الطاولات · انقر للتعديل · أضف الجدران والأبواب والنباتات لتخيل القاعة.',
+    modeAssignDesc: 'اسحب نادلًا فوق طاولة لإسنادها · انقر طاولة لإعادة الإسناد.',
+    modeRotateDesc: 'قم بتدوير النوادل بين المناطق والطاولات حتى لا يملّوا — العدالة تلقائية.',
+    save: 'حفظ',
+    saved: 'تم حفظ المخطط',
+    savedDesc: 'تم حفظ الترتيب والمناطق والنوادل والتدوير في المتصفح.',
+    reset: 'إعادة تعيين',
+    resetTitle: 'إعادة تعيين المخطط؟',
+    resetDesc: 'يحذف كل الطاولات والمناطق والإسنادات · يحمّل القالب الافتراضي. لا يمكن التراجع.',
+    resetCancel: 'إلغاء',
+    resetConfirm: 'إعادة تعيين',
+    resetDone: 'تمت إعادة تعيين المخطط',
+    resetDoneDesc: 'تم تحميل القالب الافتراضي · 16 طاولة، 3 مناطق.',
+    templates: 'القوالب',
+    export: 'تصدير المخطط',
+    exportToast: 'تم تصدير المخطط',
+    exportDesc: 'PDF بحجم A3 · صفحة واحدة · جاهز للطباعة أو WhatsApp.',
+    kpiTables: 'الطاولات',
+    kpiCovers: 'المقاعد',
+    kpiZones: 'المناطق',
+    kpiServers: 'النوادل',
+    addZone: 'إضافة منطقة',
+    addZoneDesc: 'ستظهر منطقة جديدة في التبويبات · يمكنك ملؤها بالطاولات.',
+    zoneName: 'اسم المنطقة',
+    zoneAdd: 'إنشاء',
+    zoneAdded: 'تمت إضافة المنطقة',
+    zoneAddedDesc: (n) => `تم إنشاء المنطقة "${n}" · انقر لاختيارها.`,
+    renameZone: 'إعادة تسمية',
+    renameZoneTitle: 'إعادة تسمية المنطقة',
+    deleteZone: 'حذف المنطقة',
+    deleteZoneTitle: 'حذف هذه المنطقة؟',
+    deleteZoneDesc: (n, c) => `سيتم حذف المنطقة "${n}" و${c} طاولاتها. لا يمكن التراجع.`,
+    deleteZoneOk: 'حذف',
+    deleteZoneDone: 'تم حذف المنطقة',
+    deleteZoneNoLast: 'المنطقة الأخيرة',
+    deleteZoneNoLastDesc: 'يجب الإبقاء على منطقة نشطة واحدة على الأقل.',
+    zoneRenamedDesc: (n) => `تمت إعادة تسمية المنطقة إلى "${n}".`,
+    paletteTitle: 'إضافة طاولة',
+    paletteHint: 'انقر للإضافة — تظهر الطاولة في وسط المنطقة.',
+    structTitle: 'العناصر الهيكلية',
+    structHint: 'جدران، أبواب، نوافذ ونباتات — للعرض فقط.',
+    elWall: 'جدار',
+    elDoor: 'باب',
+    elWindow: 'نافذة',
+    elColumn: 'عمود',
+    elPlant: 'نبتة',
+    tRound: 'مستديرة',
+    tSquare: 'مربعة',
+    tRect: 'مستطيلة',
+    tBar: 'بار / كاونتر',
+    tHigh: 'طاولة عالية',
+    seats: 'مقاعد',
+    addedTableToast: (id) => `تمت إضافة الطاولة ${id}`,
+    addedTableDesc: (s, z) => `${s} مقاعد · ${z} · اسحبها للموقع.`,
+    addedElementToast: 'تمت إضافة العنصر',
+    addedElementDesc: 'اسحب للموقع · انقر للتدوير.',
+    snapOn: 'محاذاة',
+    snapOff: 'حر',
+    snapHint: 'المحاذاة تصفّ الطاولات على الشبكة',
+    inspectorTitle: (id) => `طاولة ${id}`,
+    inspectorNum: 'الرقم',
+    inspectorType: 'النوع',
+    inspectorSeats: 'المقاعد',
+    inspectorStatus: 'الحالة',
+    inspectorNotes: 'ملاحظات',
+    inspectorServer: 'النادل المعين',
+    inspectorRotate: 'تدوير',
+    inspectorDuplicate: 'نسخ',
+    inspectorDelete: 'حذف',
+    inspectorDone: 'تم حفظ التعديلات',
+    inspectorUnassigned: 'لا أحد',
+    statusFree: 'متاحة',
+    statusOccupied: 'مشغولة',
+    statusReserved: 'محجوزة',
+    statusCleaning: 'للتنظيف',
+    selection: 'المحدد',
+    bulkAlignH: 'محاذاة أفقيًا',
+    bulkAlignV: 'محاذاة عموديًا',
+    bulkDistH: 'توزيع أفقي',
+    bulkDistV: 'توزيع عمودي',
+    bulkDelete: 'حذف',
+    bulkClear: 'إلغاء التحديد',
+    bulkSetStatus: 'الحالة',
+    bulkOkAlign: 'تمت محاذاة الطاولات',
+    bulkOkDist: 'تم توزيع الطاولات بالتساوي',
+    bulkOkDelete: (n) => `تم حذف ${n} طاولة`,
+    bulkOkStatus: (n, s) => `تم تعيين ${n} طاولة على ${s}`,
+    bulkHintNone: 'اضغط Shift وانقر لاختيار عدة طاولات · 2 على الأقل للمحاذاة.',
+    templatesTitle: 'قوالب القاعة',
+    templatesDesc: 'ابدأ بترتيب جاهز · يمكنك تعديله لاحقًا.',
+    tplBistro: 'بيسترو · 30 مقعدًا',
+    tplBistroDesc: '8 طاولات داخلية + شرفة صغيرة · منطقة بار واحدة',
+    tplResto: 'مطعم · 60 مقعدًا',
+    tplRestoDesc: 'قاعة رئيسية 12 طاولة، شرفة، صالون خاص',
+    tplCafe: 'مقهى · 20 مقعدًا',
+    tplCafeDesc: '6 طاولات عالية، كاونتر، 3 طاولات مستديرة',
+    tplBrasserie: 'شرفة برآسري · 80 مقعدًا',
+    tplBrasserieDesc: 'شرفة كبيرة 10 طاولات، قاعة 8 طاولات، بار',
+    tplBlank: 'مخطط فارغ',
+    tplBlankDesc: 'ابدأ من الصفر · منطقة فارغة واحدة',
+    tplApply: 'تحميل هذا القالب',
+    tplApplyConfirm: (n) => `تحميل "${n}"؟`,
+    tplApplyConfirmDesc: 'سيتم استبدال المخطط الحالي. صدّر أولًا إن أردت.',
+    tplLoaded: (n) => `تم تحميل ${n}`,
+    tplLoadedDesc: 'الترتيب الأولي جاهز · خصّص بحرية.',
+    emptyTitle: 'ابدأ باختيار قالب',
+    emptyDesc: 'أو أنشئ أول طاولة — يمكنك تعديل كل شيء لاحقًا.',
+    emptyChoose: 'اختر قالبًا',
+    emptyBlank: 'ابدأ فارغًا',
+    rosterTitle: 'الفريق في الخدمة',
+    rosterHint: 'اسحب الشارة فوق طاولة أو منطقة',
+    rosterShift: 'وردية المساء',
+    rosterUnassigned: 'غير معيّن',
+    rosterTables: (n) => `${n} طاولات`,
+    rosterCovers: (n) => `${n} مقاعد`,
+    clearAssign: 'مسح كل الإسنادات',
+    clearAssignTitle: 'مسح كل الإسنادات؟',
+    clearAssignDesc: 'لن يكون أي نادل مسندًا لأي طاولة. ستبقى فارغة حتى إعادة الإسناد.',
+    clearAssignOk: 'مسح',
+    clearAssignDone: 'تم مسح الإسنادات',
+    clearAssignDoneDesc: 'كل الطاولات حرة من إسناد النوادل الآن.',
+    assignDone: (s, t) => `تم إسناد ${s} للطاولة ${t}`,
+    assignDoneDesc: 'مميز على المخطط · متزامن مع تطبيق النادل.',
+    unassignDone: (t) => `تم تحرير ${t}`,
+    rotateTitle: 'إعداد التدوير',
+    rotateCTA: 'إعداد',
+    rotateDesc: 'حين يتناوب النوادل، يبقون متحفزين ويتعلمون كل الطاولات.',
+    rotatePeriod: 'الفترة',
+    rotateDaily: 'كل يوم',
+    rotateShift: 'كل وردية',
+    rotateWeekly: 'كل أسبوع',
+    rotateCustom: 'مخصص',
+    rotateStrategy: 'الاستراتيجية',
+    rotZones: 'تدوير المناطق',
+    rotZonesDesc: 'النوادل يتنقلون بين المناطق (موصى به)',
+    rotTables: 'تدوير الطاولات',
+    rotTablesDesc: 'دورة كاملة على جميع الطاولات',
+    rotPairs: 'تبادل أزواج يدوي',
+    rotPairsDesc: 'تختار أنت الأزواج يدويًا',
+    rotPreview: 'معاينة آخر 3 تدويرات قادمة',
+    rotFairness: 'العدالة لكل نادل',
+    rotApply: 'تطبيق التدوير',
+    rotApplied: 'تم تطبيق التدوير',
+    rotAppliedDesc: 'تم إعلام كل النوادل عبر تطبيقهم · تم تحديث المخطط.',
+    rotNow: 'دوّر الآن',
+    rotNowDone: 'تم التدوير',
+    rotNowDoneDesc: 'الإسنادات الجديدة نشطة · النوادل تلقوا الإشعار.',
+    rotHistoryTitle: 'سجل هذا الأسبوع',
+    rotHistoryHint: 'تحقق بصريًا أن أحدًا لا يبقى في نفس المنطقة طويلًا.',
+    rotNoneTitle: 'لم يتم إعداد تدوير',
+    rotNoneDesc: 'اضبط تدويرًا حتى لا يبقى النوادل على نفس الطاولة لأشهر.',
+    rotNoneCTA: 'إعداد',
+    fairnessLow: 'عمل هذه المنطقة كثيرًا — جاء دوره',
+    fairnessHigh: 'تدوير متوازن',
+    legendTitle: 'الحالات',
+    cancel: 'إلغاء',
+    close: 'إغلاق',
+    save2: 'حفظ',
+    days: ['اث', 'ثل', 'أر', 'خم', 'جم', 'سب', 'أح'],
+    soonAvailable: 'قريبًا',
+  },
+};
 
-  /* ─── Floor: each table rendered with state + section accent ─── */
-  const sectionColor = (sec) => SECTIONS.find(s => s.k === sec)?.color || 'var(--n-300)';
-  const tableCard = (t, viewMode) => {
-    const sec = sectionColor(t.section);
-    const heat = viewMode === 'perf' ? Math.min(1, (t.rev || 0) / 2800) : 0;
-    const heatBg = viewMode === 'perf'
-      ? `linear-gradient(180deg, rgba(11,110,79,${0.06 + heat*0.32}) 0%, rgba(11,110,79,${0.02 + heat*0.18}) 100%)`
-      : '';
-    const resa = RESAS.find(r => r.table === t.id);
-    const showResa = viewMode === 'resa' && resa;
-    const flagBadge = t.flag === 'top' ? `<span class="tbl-flag top" title="Meilleure table">★</span>` : t.flag === 'dead' ? `<span class="tbl-flag dead" title="Siège mort">⊘</span>` : '';
-    return `
-      <div class="tbl owner-tbl ${t.state === 'libre' ? '' : t.state}" data-tbl="${t.id}" style="${viewMode === 'sect' ? `border-left:4px solid ${sec};` : ''}${heatBg ? `background:${heatBg};` : ''}">
-        ${flagBadge}
-        <div class="tbl-n">${t.id}</div>
-        ${viewMode === 'perf' ? `
-          <div class="tbl-state mono" style="color:var(--atlas); font-weight:600;">${(t.rev||0).toLocaleString('fr-FR')} MAD</div>
-          <div class="tbl-state" style="font-size:10.5px; color:var(--n-500);">${t.turns} rotations · ${t.seats} couv.</div>
-        ` : viewMode === 'sect' ? `
-          <div class="tbl-state">${t.seats} couv. · section ${t.section}</div>
-          <div class="tbl-state mono" style="font-size:10.5px; color:${sec}; font-weight:600;">${STAFF.find(s => s.i === t.server)?.name.split(' ')[0] || '—'}</div>
-        ` : showResa ? `
-          <div class="tbl-state" style="color:var(--atlas); font-weight:600;">${resa.time} · ${resa.name.split(' ')[0]}</div>
-          <div class="tbl-state" style="font-size:10.5px; color:var(--n-500);">${resa.party} couv. · ${resa.tag}</div>
-        ` : `
-          <div class="tbl-state">${t.state === 'libre' ? `${t.seats} couv. · libre` : t.state === 'cleaning' ? 'nettoyage' : t.state === 'paid' ? 'payée' : `${t.seats} couv. · ${t.mins} min`}</div>
-          ${t.state !== 'libre' && t.state !== 'cleaning' ? `<div class="tbl-state mono" style="font-size:10.5px; color:var(--n-500);">serveur ${t.server}</div>` : ''}
-        `}
-      </div>
-    `;
+/* ─── Default roster — used when no team data is provided ────────────────── */
+const PDS_DEFAULT_STAFF = [
+  { id: 'KR', name: 'Karim Rifai',     color: '#0B6E4F' },
+  { id: 'YS', name: 'Yasmine Senhaji', color: '#D99A2B' },
+  { id: 'OM', name: 'Omar Maalouf',    color: '#053B2C' },
+  { id: 'SK', name: 'Soukaina Belkadi',color: '#A85F00' },
+  { id: 'MH', name: 'Mehdi Mansouri',  color: '#1A8FE3' },
+  { id: 'NR', name: 'Nora Akkari',     color: '#C0306E' },
+  { id: 'AY', name: 'Ayoub Tazi',      color: '#5A6CDB' },
+  { id: 'IM', name: 'Imane Lahlou',    color: '#0B8A7B' },
+];
+
+/* ─── Table types — each has a default size + shape + seats ─────────────── */
+const PDS_TABLE_TYPES = {
+  round2:  { shape: 'round', seats: 2, w: 72,  h: 72,  label: (T) => `${T.tRound} 2` },
+  round4:  { shape: 'round', seats: 4, w: 88,  h: 88,  label: (T) => `${T.tRound} 4` },
+  round6:  { shape: 'round', seats: 6, w: 104, h: 104, label: (T) => `${T.tRound} 6` },
+  round8:  { shape: 'round', seats: 8, w: 120, h: 120, label: (T) => `${T.tRound} 8` },
+  sq2:     { shape: 'square', seats: 2, w: 72,  h: 72,  label: (T) => `${T.tSquare} 2` },
+  sq4:     { shape: 'square', seats: 4, w: 88,  h: 88,  label: (T) => `${T.tSquare} 4` },
+  rect4:   { shape: 'rect', seats: 4,  w: 112, h: 64, label: (T) => `${T.tRect} 4` },
+  rect6:   { shape: 'rect', seats: 6,  w: 144, h: 64, label: (T) => `${T.tRect} 6` },
+  rect8:   { shape: 'rect', seats: 8,  w: 176, h: 64, label: (T) => `${T.tRect} 8` },
+  rect10:  { shape: 'rect', seats: 10, w: 208, h: 64, label: (T) => `${T.tRect} 10` },
+  bar:     { shape: 'rect', seats: 1, w: 56, h: 56, label: (T) => T.tBar },
+  high:    { shape: 'round', seats: 2, w: 64, h: 64, label: (T) => T.tHigh },
+};
+
+/* ─── Structural elements (purely visual) ──────────────────────────────── */
+const PDS_EL_TYPES = {
+  wall:   { w: 200, h: 8,  color: '#2C2520' },
+  door:   { w: 64,  h: 8,  color: '#0B6E4F' },
+  window: { w: 96,  h: 6,  color: '#1A8FE3' },
+  column: { w: 22,  h: 22, color: '#2C2520' },
+  plant:  { w: 30,  h: 30, color: '#0B8A7B' },
+};
+
+/* ─── State manager · loaded from localStorage on demand ──────────────── */
+function pdsLoad() {
+  try {
+    const raw = localStorage.getItem(PDS_LS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.zones && parsed.tables && parsed.staff) return parsed;
+    }
+  } catch (e) { /* fall through to default */ }
+  return pdsDefaultState();
+}
+function pdsSave(state) {
+  try { localStorage.setItem(PDS_LS_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function pdsDefaultState() {
+  /* Default — Café Atlas layout — 16 tables across 3 zones */
+  const zones = [
+    { id: 'z1', name: 'Salle principale' },
+    { id: 'z2', name: 'Terrasse' },
+    { id: 'z3', name: 'Bar' },
+  ];
+  const mk = (id, zone, type, x, y, num, status, server, notes) => ({
+    id, zone, type, x, y, num, status: status || 'free', server: server || null, notes: notes || '', rot: 0,
+  });
+  const tables = [
+    mk('t1',  'z1', 'round4', 80,  80,  '1', 'occupied', 'KR', ''),
+    mk('t2',  'z1', 'round4', 240, 80,  '2', 'free', 'KR', ''),
+    mk('t3',  'z1', 'round2', 400, 80,  '3', 'reserved', 'KR', 'Famille El Idrissi · 20:00'),
+    mk('t4',  'z1', 'sq4',    560, 80,  '4', 'occupied', 'YS', ''),
+    mk('t5',  'z1', 'round6', 80,  240, '5', 'free', 'YS', ''),
+    mk('t6',  'z1', 'round4', 256, 240, '6', 'cleaning', 'YS', ''),
+    mk('t7',  'z1', 'rect6',  416, 240, '7', 'occupied', 'OM', ''),
+    mk('t8',  'z1', 'round2', 624, 240, '8', 'free', 'OM', ''),
+    mk('t9',  'z1', 'rect8',  176, 400, '9', 'occupied', 'OM', ''),
+    mk('t10', 'z1', 'round4', 416, 400, '10', 'free', 'SK', ''),
+    mk('t11', 'z1', 'sq2',    576, 400, '11', 'occupied', 'SK', ''),
+    mk('t12', 'z1', 'round4', 720, 400, '12', 'reserved', 'SK', 'M. Benani · 20:30'),
+    mk('t13', 'z2', 'round2', 96,  96,  'T1', 'occupied', 'MH', ''),
+    mk('t14', 'z2', 'round4', 240, 96,  'T2', 'free', 'MH', ''),
+    mk('t15', 'z2', 'round4', 400, 96,  'T3', 'occupied', 'NR', ''),
+    mk('t16', 'z2', 'round6', 576, 96,  'T4', 'free', 'NR', ''),
+    mk('t17', 'z2', 'rect4',  144, 256, 'T5', 'free', 'AY', ''),
+    mk('t18', 'z2', 'rect4',  368, 256, 'T6', 'occupied', 'AY', ''),
+    mk('t19', 'z2', 'round4', 576, 256, 'T7', 'free', 'IM', ''),
+    mk('t20', 'z3', 'bar',    96,  120, 'B1', 'occupied', 'KR', ''),
+    mk('t21', 'z3', 'bar',    176, 120, 'B2', 'occupied', 'KR', ''),
+    mk('t22', 'z3', 'bar',    256, 120, 'B3', 'free', 'KR', ''),
+    mk('t23', 'z3', 'high',   400, 200, 'B4', 'occupied', 'YS', ''),
+    mk('t24', 'z3', 'high',   500, 200, 'B5', 'free', 'YS', ''),
+  ];
+  /* Pre-populate a sample week of history so Rotation mode has something to show */
+  const history = [
+    { day: 0, label: 'Lun', servers: { KR: 'z1', YS: 'z2', OM: 'z1', SK: 'z3', MH: 'z2' } },
+    { day: 1, label: 'Mar', servers: { KR: 'z2', YS: 'z1', OM: 'z3', SK: 'z1', MH: 'z2' } },
+    { day: 2, label: 'Mer', servers: { KR: 'z1', YS: 'z3', OM: 'z1', SK: 'z2', MH: 'z1' } },
+    { day: 3, label: 'Jeu', servers: { KR: 'z3', YS: 'z1', OM: 'z2', SK: 'z1', MH: 'z2' } },
+    { day: 4, label: 'Ven', servers: { KR: 'z2', YS: 'z2', OM: 'z1', SK: 'z3', MH: 'z1' } },
+  ];
+  return {
+    zones,
+    activeZone: 'z1',
+    tables,
+    elements: [],
+    staff: PDS_DEFAULT_STAFF.slice(),
+    rotation: { period: 'shift', strategy: 'zones', enabled: true },
+    history,
+    snap: true,
+    mode: 'layout',
   };
+}
 
-  /* ─── Top-of-floor view tabs ─── */
-  const renderFloor = (view) => `
-    <div class="floor-meta">
-      <div class="floor-tabs" data-floor-tabs>
-        <button class="ft ${view==='live'?'active':''}" data-fview="live">État live</button>
-        <button class="ft ${view==='perf'?'active':''}" data-fview="perf">Performance</button>
-        <button class="ft ${view==='sect'?'active':''}" data-fview="sect">Sections</button>
-        <button class="ft ${view==='resa'?'active':''}" data-fview="resa">Réservations</button>
+/* ─── Templates catalog — wipes state, repopulates ────────────────────── */
+function pdsTemplate(key) {
+  const mk = (id, zone, type, x, y, num) => ({ id, zone, type, x, y, num, status: 'free', server: null, notes: '', rot: 0 });
+  const blank = {
+    zones: [{ id: 'z1', name: 'Salle' }],
+    activeZone: 'z1', tables: [], elements: [],
+    staff: PDS_DEFAULT_STAFF.slice(),
+    rotation: { period: 'shift', strategy: 'zones', enabled: false },
+    history: [],
+    snap: true,
+    mode: 'layout',
+  };
+  if (key === 'blank') return blank;
+  if (key === 'bistro') {
+    return {
+      ...blank,
+      zones: [
+        { id: 'z1', name: 'Salle' },
+        { id: 'z2', name: 'Terrasse' },
+        { id: 'z3', name: 'Bar' },
+      ],
+      tables: [
+        mk('t1','z1','round4', 96,  96,  '1'),
+        mk('t2','z1','round4', 256, 96,  '2'),
+        mk('t3','z1','sq2',    416, 96,  '3'),
+        mk('t4','z1','round4', 96,  256, '4'),
+        mk('t5','z1','sq4',    256, 256, '5'),
+        mk('t6','z1','rect6',  416, 256, '6'),
+        mk('t7','z1','round2', 96,  400, '7'),
+        mk('t8','z1','round4', 256, 400, '8'),
+        mk('t9','z2','round2', 96,  96,  'T1'),
+        mk('t10','z2','round2',240, 96, 'T2'),
+        mk('t11','z2','round4',384, 96, 'T3'),
+        mk('t12','z3','bar',   96, 120, 'B1'),
+        mk('t13','z3','bar',  176, 120, 'B2'),
+        mk('t14','z3','high', 320, 200, 'B3'),
+      ],
+    };
+  }
+  if (key === 'resto') {
+    return {
+      ...blank,
+      zones: [
+        { id: 'z1', name: 'Salle principale' },
+        { id: 'z2', name: 'Terrasse' },
+        { id: 'z3', name: 'Salon privé' },
+      ],
+      tables: [
+        ...Array.from({ length: 12 }, (_, i) => mk(`m${i+1}`, 'z1', i%3===0?'round6':i%3===1?'round4':'sq4',
+          96 + (i%4)*180, 96 + Math.floor(i/4)*150, String(i+1))),
+        ...Array.from({ length: 8 }, (_, i) => mk(`te${i+1}`, 'z2', i<4?'round2':'round4',
+          96 + (i%4)*150, 96 + Math.floor(i/4)*150, `T${i+1}`)),
+        mk('p1','z3','rect10',144,144,'P1'),
+        mk('p2','z3','round4',160,330,'P2'),
+        mk('p3','z3','round4',440,330,'P3'),
+      ],
+    };
+  }
+  if (key === 'cafe') {
+    return {
+      ...blank,
+      zones: [
+        { id: 'z1', name: 'Salle' },
+        { id: 'z2', name: 'Comptoir' },
+      ],
+      tables: [
+        mk('h1','z1','high',96,96,'1'),
+        mk('h2','z1','high',208,96,'2'),
+        mk('h3','z1','high',320,96,'3'),
+        mk('h4','z1','high',96,208,'4'),
+        mk('h5','z1','high',208,208,'5'),
+        mk('h6','z1','high',320,208,'6'),
+        mk('r1','z1','round4',464,128,'7'),
+        mk('r2','z1','round4',464,288,'8'),
+        mk('r3','z1','round4',624,208,'9'),
+        mk('b1','z2','bar',96,80,'C1'),
+        mk('b2','z2','bar',176,80,'C2'),
+        mk('b3','z2','bar',256,80,'C3'),
+        mk('b4','z2','bar',336,80,'C4'),
+      ],
+    };
+  }
+  if (key === 'brasserie') {
+    return {
+      ...blank,
+      zones: [
+        { id: 'z1', name: 'Salle' },
+        { id: 'z2', name: 'Terrasse XL' },
+        { id: 'z3', name: 'Bar' },
+      ],
+      tables: [
+        ...Array.from({ length: 8 }, (_, i) => mk(`s${i+1}`, 'z1', i%2 ? 'round4' : 'sq4',
+          96 + (i%4)*160, 96 + Math.floor(i/4)*180, String(i+1))),
+        ...Array.from({ length: 10 }, (_, i) => mk(`te${i+1}`, 'z2', i%3===0 ? 'round6' : 'round4',
+          80 + (i%5)*160, 96 + Math.floor(i/5)*200, `T${i+1}`)),
+        mk('b1','z3','bar', 96,120,'B1'),
+        mk('b2','z3','bar',176,120,'B2'),
+        mk('b3','z3','bar',256,120,'B3'),
+        mk('b4','z3','bar',336,120,'B4'),
+        mk('h1','z3','high',480,200,'H1'),
+        mk('h2','z3','high',576,200,'H2'),
+      ],
+    };
+  }
+  return blank;
+}
+
+/* ─── nav-tables handler — main entry point ────────────────────────── */
+handlers['nav-tables'] = () => {
+  const T = PDS_STR[trLang()] || PDS_STR.fr;
+  const v = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
+  const state = pdsLoad();
+
+  /* Quick counters used in the subtitle + KPI strip */
+  const nTables = state.tables.length;
+  const nOcc = state.tables.filter(t => t.status === 'occupied').length;
+  const nCovers = state.tables.reduce((s, t) => s + (PDS_TABLE_TYPES[t.type]?.seats || 0), 0);
+
+  const dr = fullpage({
+    title: T.title,
+    subtitle: T.subtitle(v.name, nTables, nOcc),
+    width: 1240,
+    body: pdsRenderBody(state, T),
+    foot: pdsRenderFoot(state, T),
+  });
+  wireDismiss(dr);
+  if (!dr || !dr.el) return;
+
+  /* Bootstrap mode + interactivity. Re-rendering goes through pdsRefresh()
+   * which preserves the same drawer.el. */
+  pdsAttach(dr.el, state, T, dr);
+};
+
+/* ═══ RENDERER ══════════════════════════════════════════════════════ */
+function pdsRenderBody(state, T) {
+  const nTables = state.tables.length;
+  const nCovers = state.tables.reduce((s, t) => s + (PDS_TABLE_TYPES[t.type]?.seats || 0), 0);
+  const nZones = state.zones.length;
+  const nServers = state.staff.length;
+  return `
+    <style>${PDS_INLINE_CSS}</style>
+    <div class="p-kpis pds-kpis">
+      <div class="p-kpi"><div class="l">${T.kpiTables}</div><div class="v">${nTables}</div><div class="d">${state.tables.filter(t=>t.status==='occupied').length} occ. · ${state.tables.filter(t=>t.status==='reserved').length} rés.</div></div>
+      <div class="p-kpi"><div class="l">${T.kpiCovers}</div><div class="v">${nCovers}</div><div class="d">capacité totale</div></div>
+      <div class="p-kpi"><div class="l">${T.kpiZones}</div><div class="v">${nZones}</div><div class="d">${state.zones.map(z=>z.name).slice(0,2).join(' · ')}${nZones>2?' …':''}</div></div>
+      <div class="p-kpi"><div class="l">${T.kpiServers}</div><div class="v">${nServers}</div><div class="d">${T.rosterShift.toLowerCase()}</div></div>
+    </div>
+
+    <div class="pds-toolbar">
+      <div class="pds-modes" data-pds-modes>
+        <button class="pds-mode ${state.mode==='layout'?'active':''}" data-pds-mode="layout">${T.modeLayout}</button>
+        <button class="pds-mode ${state.mode==='assign'?'active':''}" data-pds-mode="assign">${T.modeAssign}</button>
+        <button class="pds-mode ${state.mode==='rotate'?'active':''}" data-pds-mode="rotate">${T.modeRotate}</button>
       </div>
-      <div class="floor-legend-box">
-        ${view==='live' ? `
-          <span class="floor-legend">
-            <span><i style="background:var(--atlas);"></i>occupée</span>
-            <span><i style="background:var(--warning);"></i>addition</span>
-            <span><i style="background:var(--info);"></i>nettoyage</span>
-            <span><i style="background:var(--success);"></i>payée</span>
-            <span><i style="background:var(--n-300);"></i>libre</span>
-          </span>
-        ` : view==='perf' ? `<span style="font-size:11px; color:var(--n-500);">Plus vert = plus de revenu généré · cumul 30 j</span>`
-          : view==='sect' ? `<span style="font-size:11px; color:var(--n-500);">3 sections · glissez une table pour la réassigner</span>`
-          : `<span style="font-size:11px; color:var(--n-500);">6 réservations ce soir · 20 couverts attendus</span>`
-        }
+      <div class="pds-mode-desc" data-pds-mode-desc>${
+        state.mode === 'layout' ? T.modeLayoutDesc :
+        state.mode === 'assign' ? T.modeAssignDesc : T.modeRotateDesc
+      }</div>
+      <div class="pds-zone-tabs" data-pds-zones>
+        ${state.zones.map(z => `
+          <button class="pds-zone ${z.id===state.activeZone?'active':''}" data-pds-zone="${z.id}">
+            <span>${z.name}</span>
+            <em>${state.tables.filter(t => t.zone === z.id).length}</em>
+          </button>
+        `).join('')}
+        <button class="pds-zone pds-zone-add" data-pds-action="add-zone" title="${T.addZone}">+</button>
       </div>
     </div>
 
-    <div class="floor-zone" style="margin-top:14px;">SALLE INTÉRIEURE</div>
-    <div class="floor" style="grid-template-columns:repeat(6,1fr);">
-      ${TABLES.filter(t => t.zone === 'Salle').map(t => tableCard(t, view)).join('')}
-    </div>
-
-    <div class="floor-zone">TERRASSE</div>
-    <div class="floor" style="grid-template-columns:repeat(4,1fr);">
-      ${TABLES.filter(t => t.zone === 'Terrasse').map(t => tableCard(t, view)).join('')}
+    <div class="pds-stage" data-pds-stage>
+      ${pdsRenderStage(state, T)}
     </div>
   `;
+}
 
-  /* ─── Full-page body ─── */
-  const dr = fullpage({
-    title: 'Plan de salle & stratégie · Café Atlas',
-    subtitle: `${occupied}/${TABLES.length} occupées · ${covers} couverts en service · ${free} libres · top : ${topTable.id} (${topTable.rev.toLocaleString('fr-FR')} MAD)`,
-    width: 1120,
-    body: `
-      <style>
-        .owner-tbl { cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; position:relative; }
-        .owner-tbl:hover { transform:translateY(-2px); box-shadow:0 8px 22px -12px rgba(11,110,79,0.22); }
-        .tbl-flag { position:absolute; top:6px; right:6px; width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; font-family:var(--mono); }
-        .tbl-flag.top  { background:var(--mint); color:var(--riad); }
-        .tbl-flag.dead { background:var(--n-200); color:var(--n-600); }
-        .floor-tabs { display:flex; gap:4px; padding:3px; background:var(--paper-soft); border-radius:10px; }
-        .floor-tabs .ft { background:transparent; border:none; padding:7px 14px; border-radius:7px; font-size:12px; font-weight:500; color:var(--n-600); cursor:pointer; transition:.18s; letter-spacing:0.01em; }
-        .floor-tabs .ft:hover { color:var(--ink); }
-        .floor-tabs .ft.active { background:var(--paper); color:var(--ink); box-shadow:0 1px 3px rgba(10,15,13,0.06); font-weight:600; }
-        .floor-legend-box { display:flex; align-items:center; }
-        .layout-presets { display:flex; gap:6px; align-items:center; }
-        .layout-presets .lp { padding:7px 12px; border:1px solid var(--n-200); background:var(--paper); border-radius:8px; font-size:12px; cursor:pointer; color:var(--n-700); transition:.18s; }
-        .layout-presets .lp:hover { border-color:var(--atlas); color:var(--atlas); }
-        .layout-presets .lp.active { background:var(--riad); color:var(--paper); border-color:var(--riad); font-weight:600; }
-        .ai-card { background:linear-gradient(180deg, rgba(125,242,176,0.10) 0%, rgba(11,110,79,0.04) 100%); border:1px solid rgba(11,110,79,0.18); border-radius:12px; padding:14px; }
-        .ai-row { display:flex; gap:12px; padding:12px 0; border-top:1px dashed rgba(11,110,79,0.18); }
-        .ai-row:first-child { border-top:none; padding-top:4px; }
-        .ai-ic { width:30px; height:30px; border-radius:50%; background:var(--mint); color:var(--riad); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; font-family:var(--mono); flex-shrink:0; }
-        .ai-row.warn .ai-ic { background:var(--warning); color:var(--paper); }
-        .ai-row.opp  .ai-ic { background:var(--mint); }
-        .ai-body { flex:1; }
-        .ai-body h5 { font-size:13px; font-weight:600; margin:0 0 4px; color:var(--ink); }
-        .ai-body p  { font-size:12px; color:var(--n-600); line-height:1.5; margin:0 0 8px; }
-        .ai-body .kb { padding:5px 10px; font-size:11px; }
-        .ai-brand { display:flex; align-items:center; gap:6px; font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--atlas); margin-bottom:10px; text-transform:uppercase; }
-        .ai-brand::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--mint); box-shadow:0 0 8px rgba(125,242,176,0.6); }
-        .resa-row { display:grid; grid-template-columns:54px 1fr auto; gap:10px; padding:10px 0; border-top:1px solid var(--n-200); align-items:center; font-size:13px; }
-        .resa-row:first-child { border-top:none; padding-top:4px; }
-        .resa-time { font-family:var(--mono); font-weight:600; color:var(--ink); font-size:12.5px; }
-        .resa-name { font-weight:500; }
-        .resa-meta { font-size:11px; color:var(--n-500); margin-top:2px; display:flex; gap:6px; align-items:center; }
-        .resa-chip { padding:2px 7px; border-radius:99px; font-size:9.5px; font-weight:600; font-family:var(--mono); letter-spacing:0.04em; text-transform:uppercase; }
-        .resa-chip.habitue  { background:rgba(11,110,79,0.10); color:var(--atlas); }
-        .resa-chip.anniversaire { background:rgba(255,182,77,0.16); color:#a85d00; }
-        .resa-chip.vip { background:var(--riad); color:var(--mint); }
-        .resa-chip.walkin { background:var(--n-200); color:var(--n-700); }
-        .resa-chip.regulier { background:rgba(11,110,79,0.10); color:var(--atlas); }
-        .resa-chip.first { background:rgba(125,242,176,0.30); color:var(--riad); }
-        .resa-tbl { font-family:var(--mono); font-size:12px; color:var(--atlas); font-weight:600; }
-        .perf-row { display:grid; grid-template-columns:36px 1fr auto; gap:10px; align-items:center; padding:8px 0; font-size:13px; }
-        .perf-row + .perf-row { border-top:1px solid var(--n-200); }
-        .perf-id { font-family:var(--mono); font-weight:700; color:var(--ink); font-size:12.5px; }
-        .perf-bar { height:6px; background:var(--n-200); border-radius:3px; overflow:hidden; }
-        .perf-bar > i { display:block; height:100%; background:linear-gradient(90deg, var(--atlas), var(--mint)); border-radius:3px; }
-        .perf-amt { font-family:var(--mono); font-size:12px; color:var(--atlas); font-weight:600; }
-        .sect-card { background:var(--paper); border:1px solid var(--n-200); border-radius:10px; padding:12px; }
-        .sect-head { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; margin-bottom:8px; }
-        .sect-dot { width:10px; height:10px; border-radius:3px; }
-        .sect-meta { font-size:11px; color:var(--n-500); margin-top:6px; line-height:1.5; }
-      </style>
-
-      <div class="p-kpis">
-        <div class="p-kpi"><div class="l">EN SERVICE</div><div class="v">${occupied}<span class="u">/ ${TABLES.length}</span></div><div class="d up">${covers} couverts · vélocité 42 min</div></div>
-        <div class="p-kpi"><div class="l">REVENU / COUVERT</div><div class="v">${revPerCover.toLocaleString('fr-FR')}<span class="u"> MAD</span></div><div class="d up">+ 8 % vs cible mensuelle</div></div>
-        <div class="p-kpi"><div class="l">MEILLEURE TABLE</div><div class="v" style="color:var(--atlas);">${topTable.id}</div><div class="d">${topTable.rev.toLocaleString('fr-FR')} MAD · ${topTable.turns} rot/jour</div></div>
-        <div class="p-kpi"><div class="l">SIÈGES MORTS</div><div class="v" style="color:var(--warning);">${deadSeats.length}</div><div class="d">${deadSeats.map(t => t.id).join(', ')} · à optimiser</div></div>
+function pdsRenderStage(state, T) {
+  if (state.mode === 'rotate') return pdsRenderRotateStage(state, T);
+  /* Layout + Assignation share the same canvas; Assignation overlays a roster. */
+  const tablesInZone = state.tables.filter(t => t.zone === state.activeZone);
+  const isEmpty = tablesInZone.length === 0 && state.elements.filter(e => e.zone === state.activeZone).length === 0;
+  return `
+    <div class="pds-stage-grid pds-stage-${state.mode}">
+      <div class="pds-rail" data-pds-rail>
+        ${state.mode === 'layout' ? pdsRenderLayoutRail(state, T) : pdsRenderAssignRail(state, T)}
       </div>
-
-      <div class="p-toolbar">
-        <div class="layout-presets">
-          <span style="font-size:11px; color:var(--n-500); letter-spacing:0.06em; font-family:var(--mono); margin-right:4px;">PLAN</span>
-          <button class="lp" data-action="tables-layout-midi">Service midi</button>
-          <button class="lp active" data-action="tables-layout-soir">Service soir</button>
-          <button class="lp" data-action="tables-layout-event">Événement</button>
-        </div>
-        <div style="flex:1;"></div>
-        <button class="kb ghost" data-action="tables-edit-mode">✎ Modifier le plan</button>
-        <button class="kb ghost" data-action="tables-rebalance">Auto-équilibrer</button>
-        <button class="kb atlas" data-action="tables-new">+ Ajouter une table</button>
-      </div>
-
-      <div class="p-divider-l">Plan de salle</div>
-
-      <div data-floor-container>
-        ${renderFloor('live')}
-      </div>
-
-      <div class="p-grid-2" style="display:grid; grid-template-columns:1.05fr 1fr; gap:14px; margin-top:18px;">
-        <div class="p-card">
-          <div class="head">
-            <h4>Sections & affectation serveurs</h4>
-            <div class="meta">SHIFT SOIR · ${STAFF.length} ACTIFS</div>
+      <div class="pds-canvas-wrap">
+        <div class="pds-canvas-bar">
+          <div class="pds-legend">
+            <span class="pds-legend-title">${T.legendTitle}</span>
+            <span class="pds-pill pds-pill-free">${T.statusFree}</span>
+            <span class="pds-pill pds-pill-occupied">${T.statusOccupied}</span>
+            <span class="pds-pill pds-pill-reserved">${T.statusReserved}</span>
+            <span class="pds-pill pds-pill-cleaning">${T.statusCleaning}</span>
           </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-            ${SECTIONS.map(sec => {
-              const tbls = TABLES.filter(t => t.section === sec.k);
-              const totalSeats = tbls.reduce((s,t) => s + t.seats, 0);
-              const staff = STAFF.find(s => s.i === sec.server);
+          <label class="pds-snap" title="${T.snapHint}">
+            <input type="checkbox" data-pds-snap ${state.snap?'checked':''}/>
+            <span>${state.snap ? T.snapOn : T.snapOff}</span>
+          </label>
+        </div>
+        <div class="pds-canvas" data-pds-canvas style="width:${PDS_CANVAS_W}px; height:${PDS_CANVAS_H}px;">
+          ${isEmpty ? pdsRenderEmpty(state, T) : ''}
+          ${state.elements.filter(e => e.zone === state.activeZone).map(e => pdsRenderElement(e, state, T)).join('')}
+          ${tablesInZone.map(t => pdsRenderTable(t, state, T)).join('')}
+          <div class="pds-bulk" data-pds-bulk hidden></div>
+        </div>
+      </div>
+      <div class="pds-inspector" data-pds-inspector>
+        ${pdsRenderInspectorEmpty(state, T)}
+      </div>
+    </div>
+  `;
+}
+
+function pdsRenderEmpty(state, T) {
+  return `
+    <div class="pds-empty">
+      <h4>${T.emptyTitle}</h4>
+      <p>${T.emptyDesc}</p>
+      <div style="display:flex; gap:8px; justify-content:center;">
+        <button class="kb atlas" data-pds-action="open-templates">${T.emptyChoose}</button>
+        <button class="kb ghost" data-pds-action="add-table-default">${T.emptyBlank}</button>
+      </div>
+    </div>
+  `;
+}
+
+/* Layout rail — palette + structural elements + templates link */
+function pdsRenderLayoutRail(state, T) {
+  const types = ['round2','round4','round6','round8','sq2','sq4','rect4','rect6','rect8','rect10','bar','high'];
+  return `
+    <div class="pds-rail-card">
+      <div class="pds-rail-title">${T.paletteTitle}</div>
+      <div class="pds-rail-hint">${T.paletteHint}</div>
+      <div class="pds-palette">
+        ${types.map(k => {
+          const t = PDS_TABLE_TYPES[k];
+          return `
+            <button class="pds-pal-item" data-pds-action="add-table" data-pds-type="${k}" title="${t.label(T)}">
+              <span class="pds-pal-shape pds-pal-${t.shape}" style="width:${Math.min(t.w/2, 28)}px; height:${Math.min(t.h/2, 28)}px;"></span>
+              <span class="pds-pal-label">${t.label(T)}</span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    </div>
+    <div class="pds-rail-card">
+      <div class="pds-rail-title">${T.structTitle}</div>
+      <div class="pds-rail-hint">${T.structHint}</div>
+      <div class="pds-palette pds-palette-el">
+        ${[
+          ['wall', T.elWall],
+          ['door', T.elDoor],
+          ['window', T.elWindow],
+          ['column', T.elColumn],
+          ['plant', T.elPlant],
+        ].map(([k, label]) => `
+          <button class="pds-pal-item pds-pal-el" data-pds-action="add-el" data-pds-eltype="${k}">
+            <span class="pds-pal-icon pds-pal-el-${k}"></span>
+            <span class="pds-pal-label">${label}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="pds-rail-card">
+      <button class="kb atlas pds-rail-cta" data-pds-action="open-templates">${T.templates}</button>
+      <button class="kb ghost pds-rail-cta" data-pds-action="rename-zone">${T.renameZone}</button>
+      <button class="kb ghost pds-rail-cta pds-rail-danger" data-pds-action="delete-zone">${T.deleteZone}</button>
+    </div>
+  `;
+}
+
+/* Assignation rail — roster of servers */
+function pdsRenderAssignRail(state, T) {
+  return `
+    <div class="pds-rail-card">
+      <div class="pds-rail-title">${T.rosterTitle}</div>
+      <div class="pds-rail-hint">${T.rosterHint}</div>
+      <div class="pds-roster">
+        ${state.staff.map(s => {
+          const tbls = state.tables.filter(t => t.server === s.id);
+          const seats = tbls.reduce((acc, t) => acc + (PDS_TABLE_TYPES[t.type]?.seats || 0), 0);
+          return `
+            <div class="pds-chip" draggable="false" data-pds-chip="${s.id}" style="--chip:${s.color};">
+              <span class="pds-chip-dot"></span>
+              <span class="pds-chip-body">
+                <b>${s.name}</b>
+                <em>${T.rosterTables(tbls.length)} · ${T.rosterCovers(seats)}</em>
+              </span>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+    <div class="pds-rail-card">
+      <button class="kb ghost pds-rail-cta pds-rail-danger" data-pds-action="clear-assign">${T.clearAssign}</button>
+    </div>
+  `;
+}
+
+/* Empty inspector */
+function pdsRenderInspectorEmpty(state, T) {
+  if (state.mode === 'assign') {
+    return `
+      <div class="pds-rail-card pds-inspect-empty">
+        <div class="pds-rail-title">${T.modeAssign}</div>
+        <div class="pds-rail-hint">${T.modeAssignDesc}</div>
+        ${pdsRenderAssignSummary(state, T)}
+      </div>
+    `;
+  }
+  return `
+    <div class="pds-rail-card pds-inspect-empty">
+      <div class="pds-rail-title">${T.selection}</div>
+      <div class="pds-rail-hint">${T.bulkHintNone}</div>
+    </div>
+  `;
+}
+
+function pdsRenderAssignSummary(state, T) {
+  /* Tables per server — quick overview when no table is selected */
+  return `
+    <div class="pds-assign-sum">
+      ${state.staff.map(s => {
+        const tbls = state.tables.filter(t => t.server === s.id);
+        return `<div class="pds-asum-row" style="--chip:${s.color};">
+          <span class="pds-asum-dot"></span>
+          <span class="pds-asum-name">${s.name.split(' ')[0]}</span>
+          <span class="pds-asum-n">${tbls.length}</span>
+        </div>`;
+      }).join('')}
+      ${state.tables.filter(t => !t.server).length > 0 ? `
+        <div class="pds-asum-row pds-asum-unassigned">
+          <span class="pds-asum-dot" style="--chip:#9CA3AF;"></span>
+          <span class="pds-asum-name">${T.rosterUnassigned}</span>
+          <span class="pds-asum-n">${state.tables.filter(t => !t.server).length}</span>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function pdsRenderInspector(state, T, table) {
+  const type = PDS_TABLE_TYPES[table.type];
+  const sv = state.staff.find(s => s.id === table.server);
+  return `
+    <div class="pds-rail-card pds-inspect">
+      <div class="pds-rail-title">${T.inspectorTitle(table.num)}</div>
+      <div class="pds-form-row">
+        <label>${T.inspectorNum}</label>
+        <input class="kf-input pds-input" data-pds-field="num" value="${table.num}"/>
+      </div>
+      <div class="pds-form-row">
+        <label>${T.inspectorType}</label>
+        <select class="kf-input pds-input" data-pds-field="type">
+          ${Object.entries(PDS_TABLE_TYPES).map(([k,v]) => `<option value="${k}" ${k===table.type?'selected':''}>${v.label(T)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="pds-form-row">
+        <label>${T.inspectorStatus}</label>
+        <div class="pds-status-pills" data-pds-status-row>
+          ${['free','occupied','reserved','cleaning'].map(st => `
+            <button class="pds-status-pill pds-pill-${st} ${table.status===st?'active':''}" data-pds-status="${st}">
+              ${T['status' + st.charAt(0).toUpperCase() + st.slice(1)]}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+      <div class="pds-form-row">
+        <label>${T.inspectorServer}</label>
+        <select class="kf-input pds-input" data-pds-field="server">
+          <option value="">${T.inspectorUnassigned}</option>
+          ${state.staff.map(s => `<option value="${s.id}" ${s.id===table.server?'selected':''}>${s.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="pds-form-row">
+        <label>${T.inspectorNotes}</label>
+        <input class="kf-input pds-input" data-pds-field="notes" value="${table.notes || ''}" placeholder="—"/>
+      </div>
+      <div class="pds-inspect-actions">
+        <button class="kb ghost" data-pds-action="table-rotate" data-pds-id="${table.id}">${T.inspectorRotate}</button>
+        <button class="kb ghost" data-pds-action="table-duplicate" data-pds-id="${table.id}">${T.inspectorDuplicate}</button>
+        <button class="kb ghost pds-rail-danger" data-pds-action="table-delete" data-pds-id="${table.id}">${T.inspectorDelete}</button>
+      </div>
+    </div>
+  `;
+}
+
+function pdsRenderBulkInspector(state, T, selectedIds) {
+  return `
+    <div class="pds-rail-card pds-inspect">
+      <div class="pds-rail-title">${T.selection} · ${selectedIds.length}</div>
+      <div class="pds-form-row">
+        <label>${T.bulkSetStatus}</label>
+        <div class="pds-status-pills">
+          ${['free','occupied','reserved','cleaning'].map(st => `
+            <button class="pds-status-pill pds-pill-${st}" data-pds-action="bulk-status" data-pds-status="${st}">
+              ${T['status' + st.charAt(0).toUpperCase() + st.slice(1)]}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+      <div class="pds-inspect-actions" style="margin-top:6px;">
+        <button class="kb ghost" data-pds-action="bulk-align-h">${T.bulkAlignH}</button>
+        <button class="kb ghost" data-pds-action="bulk-align-v">${T.bulkAlignV}</button>
+        <button class="kb ghost" data-pds-action="bulk-dist-h">${T.bulkDistH}</button>
+        <button class="kb ghost" data-pds-action="bulk-dist-v">${T.bulkDistV}</button>
+      </div>
+      <div class="pds-inspect-actions">
+        <button class="kb ghost" data-pds-action="bulk-clear">${T.bulkClear}</button>
+        <button class="kb ghost pds-rail-danger" data-pds-action="bulk-delete">${T.bulkDelete}</button>
+      </div>
+    </div>
+  `;
+}
+
+/* Render a single table on the canvas */
+function pdsRenderTable(t, state, T) {
+  const type = PDS_TABLE_TYPES[t.type];
+  if (!type) return '';
+  const sv = state.staff.find(s => s.id === t.server);
+  const colorStripe = (state.mode === 'assign' && sv) ? sv.color : '';
+  const initials = sv ? sv.name.split(' ').map(p => p[0]).join('').slice(0,2) : '';
+  return `
+    <div class="pds-table pds-shape-${type.shape} pds-status-${t.status} ${state.mode==='assign' && sv?'pds-has-server':''}"
+         data-pds-table="${t.id}"
+         style="left:${t.x}px; top:${t.y}px; width:${type.w}px; height:${type.h}px; transform:rotate(${t.rot||0}deg); ${colorStripe?`--server:${colorStripe};`:''}">
+      <span class="pds-tnum">${t.num}</span>
+      <span class="pds-tseats">${type.seats}</span>
+      ${state.mode==='assign' && sv ? `<span class="pds-tserver" style="background:${sv.color};">${initials}</span>` : ''}
+    </div>
+  `;
+}
+
+function pdsRenderElement(e, state, T) {
+  const type = PDS_EL_TYPES[e.type];
+  return `
+    <div class="pds-el pds-el-${e.type}"
+         data-pds-el="${e.id}"
+         style="left:${e.x}px; top:${e.y}px; width:${type.w}px; height:${type.h}px; transform:rotate(${e.rot||0}deg);"
+         title="${T[`el${e.type.charAt(0).toUpperCase()+e.type.slice(1)}`] || e.type}"></div>
+  `;
+}
+
+/* Rotation mode stage — separate from canvas */
+function pdsRenderRotateStage(state, T) {
+  const rot = state.rotation;
+  const periodLabel = rot.period === 'daily' ? T.rotateDaily :
+                     rot.period === 'shift' ? T.rotateShift :
+                     rot.period === 'weekly' ? T.rotateWeekly : T.rotateCustom;
+  const strategyLabel = rot.strategy === 'zones' ? T.rotZones :
+                       rot.strategy === 'tables' ? T.rotTables : T.rotPairs;
+  /* Compute preview — 3 rotations forward */
+  const preview = pdsRotationPreview(state, 3);
+  /* Compute fairness per server — count of unique zones over the last week */
+  const fairness = pdsFairness(state);
+  return `
+    <div class="pds-rotate">
+      <div class="pds-rotate-grid">
+        <div class="pds-rail-card">
+          <div class="pds-rail-title">${T.rotateTitle}</div>
+          <div class="pds-rail-hint">${T.rotateDesc}</div>
+          <div class="pds-rot-meta">
+            <div><span class="pds-rot-lbl">${T.rotatePeriod}</span><span class="pds-rot-val">${periodLabel}</span></div>
+            <div><span class="pds-rot-lbl">${T.rotateStrategy}</span><span class="pds-rot-val">${strategyLabel}</span></div>
+          </div>
+          <div class="pds-rot-actions">
+            <button class="kb atlas" data-pds-action="rotate-configure">${T.rotateCTA}</button>
+            <button class="kb ghost" data-pds-action="rotate-now">${T.rotNow}</button>
+          </div>
+        </div>
+        <div class="pds-rail-card">
+          <div class="pds-rail-title">${T.rotPreview}</div>
+          <div class="pds-rail-hint">${rot.strategy === 'zones' ? T.rotZonesDesc : rot.strategy === 'tables' ? T.rotTablesDesc : T.rotPairsDesc}</div>
+          <div class="pds-rot-preview">
+            ${preview.map((step, idx) => `
+              <div class="pds-rot-step">
+                <div class="pds-rot-step-h">+${idx+1}</div>
+                ${state.staff.slice(0, 6).map(s => {
+                  const next = step[s.id];
+                  const zone = state.zones.find(z => z.id === next);
+                  return `<div class="pds-rot-line" style="--chip:${s.color};">
+                    <span class="pds-asum-dot"></span>
+                    <b>${s.name.split(' ')[0]}</b>
+                    <em>${zone?.name || '—'}</em>
+                  </div>`;
+                }).join('')}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="pds-rail-card">
+          <div class="pds-rail-title">${T.rotFairness}</div>
+          <div class="pds-rail-hint">${T.rotHistoryHint}</div>
+          <div class="pds-fair">
+            ${state.staff.slice(0, 6).map(s => {
+              const f = fairness[s.id] || { score: 100, hot: null };
+              const cls = f.score >= 70 ? 'high' : f.score >= 50 ? 'mid' : 'low';
               return `
-                <div class="sect-card">
-                  <div class="sect-head"><span class="sect-dot" style="background:${sec.color};"></span>${sec.name}</div>
-                  <div style="font-size:11.5px; color:var(--n-700);"><b>${tbls.length} tables</b> · ${totalSeats} couverts</div>
-                  <div class="sect-meta">Serveur · <b style="color:var(--ink);">${sec.co}</b><br/>Revenu shift · <span class="mono" style="color:var(--atlas);">${staff.rev.toLocaleString('fr-FR')} MAD</span></div>
+                <div class="pds-fair-row" style="--chip:${s.color};">
+                  <span class="pds-asum-dot"></span>
+                  <span class="pds-fair-name">${s.name.split(' ')[0]}</span>
+                  <span class="pds-fair-bar"><i class="pds-fair-${cls}" style="width:${f.score}%;"></i></span>
+                  <span class="pds-fair-pct">${f.score}%</span>
                 </div>
+                <div class="pds-fair-note">${f.hot ? `<b>${state.zones.find(z=>z.id===f.hot)?.name || f.hot}</b> · ${T.fairnessLow}` : T.fairnessHigh}</div>
               `;
             }).join('')}
           </div>
-          <div style="display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--n-200); align-items:center;">
-            <span style="font-size:11.5px; color:var(--n-500); flex:1;">Charge bien équilibrée · écart max 18 % entre sections.</span>
-            <button class="kb ghost" style="padding:5px 10px; font-size:11px;" data-action="tables-section-edit">Reconfigurer</button>
-          </div>
         </div>
-
-        <div class="p-card ai-card" style="margin:0;">
-          <div class="ai-brand">Kiwi AI · stratégie de salle</div>
-          ${AI_INSIGHTS.map(ai => `
-            <div class="ai-row ${ai.tone}">
-              <div class="ai-ic">${ai.ic}</div>
-              <div class="ai-body">
-                <h5>${ai.title}</h5>
-                <p>${ai.desc}</p>
-                <button class="kb ghost" onclick="window.Kiwi.toast('${ai.action.label}',{type:'info',desc:${JSON.stringify(ai.action.toast)}})">${ai.action.label}</button>
-              </div>
+      </div>
+      <div class="pds-rail-card pds-rot-history">
+        <div class="pds-rail-title">${T.rotHistoryTitle}</div>
+        <div class="pds-rail-hint">${T.rotHistoryHint}</div>
+        <div class="pds-history-grid">
+          <div class="pds-hist-h">
+            <span></span>
+            ${(state.history || []).map(d => `<span>${d.label}</span>`).join('')}
+          </div>
+          ${state.staff.slice(0, 6).map(s => `
+            <div class="pds-hist-row" style="--chip:${s.color};">
+              <span class="pds-hist-name"><span class="pds-asum-dot"></span>${s.name.split(' ')[0]}</span>
+              ${(state.history || []).map(d => {
+                const z = d.servers[s.id];
+                const zname = state.zones.find(zo => zo.id === z)?.name || '—';
+                const tag = z === 'z1' ? 'a' : z === 'z2' ? 'b' : z === 'z3' ? 'c' : 'd';
+                return `<span class="pds-hist-cell pds-hist-${tag}" title="${zname}">${zname.slice(0,1)}</span>`;
+              }).join('')}
             </div>
           `).join('')}
         </div>
       </div>
-
-      <div class="p-grid-2" style="display:grid; grid-template-columns:1.05fr 1fr; gap:14px; margin-top:14px;">
-        <div class="p-card">
-          <div class="head">
-            <h4>Réservations à venir · ce soir</h4>
-            <div class="meta">6 RÉSAS · 20 COUVERTS</div>
-          </div>
-          ${RESAS.map(r => `
-            <div class="resa-row">
-              <div class="resa-time">${r.time}</div>
-              <div>
-                <div class="resa-name">${r.name} <span style="color:var(--n-500); font-weight:400;">· ${r.party} couv.</span></div>
-                <div class="resa-meta">
-                  <span class="resa-chip ${r.tag==='habitué'?'habitue':r.tag==='1re visite'?'first':r.tag==='walk-in'?'walkin':r.tag}">${r.tag}</span>
-                  ${r.note}
-                </div>
-              </div>
-              <div class="resa-tbl">${r.table}</div>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="p-card">
-          <div class="head">
-            <h4>Performance par table · 30 j</h4>
-            <div class="meta">REVENU CUMULÉ</div>
-          </div>
-          ${[...TABLES].sort((a,b) => (b.rev||0)-(a.rev||0)).slice(0,8).map(t => {
-            const max = topTable.rev;
-            const pct = Math.round(((t.rev||0)/max)*100);
-            return `
-              <div class="perf-row">
-                <div class="perf-id">${t.id}</div>
-                <div>
-                  <div style="font-size:11px; color:var(--n-500); margin-bottom:4px;">${t.seats} couv. · ${t.turns} rot/jour ${t.flag==='dead'?'· <span style="color:var(--warning);">siège mort</span>':t.flag==='top'?'· <span style="color:var(--atlas);">★ top</span>':''}</div>
-                  <div class="perf-bar"><i style="width:${pct}%;"></i></div>
-                </div>
-                <div class="perf-amt">${(t.rev||0).toLocaleString('fr-FR')}</div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `,
-    foot: `
-      <div style="display:flex; gap:8px; justify-content:space-between; width:100%; align-items:center;">
-        <span style="font-family:var(--mono); font-size:11px; color:var(--n-500); letter-spacing:0.06em;">PLAN ENREGISTRÉ · MAJ AUTO</span>
-        <div style="display:flex; gap:8px;">
-          <button class="kb ghost" data-action="tables-export-plan">Exporter le plan</button>
-          <button class="kb ghost" data-dismiss>Fermer</button>
-        </div>
-      </div>
-    `
-  });
-
-  wireDismiss(dr);
-
-  /* ─── View-tab switching: re-render floor inline ─── */
-  let currentView = 'live';
-  const rebindTabs = () => {
-    const tabs = dr.el.querySelectorAll('[data-floor-tabs] .ft');
-    tabs.forEach(tb => {
-      tb.onclick = () => {
-        currentView = tb.getAttribute('data-fview');
-        const container = dr.el.querySelector('[data-floor-container]');
-        if (container) container.innerHTML = renderFloor(currentView);
-        rebindTabs();
-        rebindTableClicks();
-      };
-    });
-  };
-
-  /* ─── Click any table → open Insights modal (owner POV, NOT encaisser) ─── */
-  const rebindTableClicks = () => {
-    dr.el.querySelectorAll('.owner-tbl').forEach(el => {
-      el.onclick = () => {
-        const id = el.getAttribute('data-tbl');
-        const t = TABLES.find(x => x.id === id);
-        if (t) openTableInsights(t);
-      };
-    });
-  };
-
-  setTimeout(() => {
-    rebindTabs();
-    rebindTableClicks();
-  }, 0);
-};
-
-/* ─── Table Insights — owner-perspective table profile ───────────────────── */
-function openTableInsights(t) {
-  const STAFF_NAMES = { FK: 'Fatima Khalki', HJ: 'Hamid Jelloul', SB: 'Sofia Belkadi', YA: 'Youssef Amrani', MM: 'Mehdi Mansouri' };
-  const nextResa = ({
-    T1: '20:30 · Hassan Chakir · 4 couverts',
-    T7: '20:00 · Groupe Bouazza · 6 couverts · VIP',
-    T9: '21:00 · Table Senhaji · 4 couverts',
-    T11: '19:30 · Famille El Idrissi · 4 couverts · habitué',
-    TR1: '19:45 · M. & Mme Benani · 2 couverts · anniversaire',
-  })[t.id] || 'aucune réservation ce soir';
-  const aiTip = t.flag === 'top'
-    ? 'Table-vedette · à protéger des fusions et à proposer en priorité aux VIP.'
-    : t.flag === 'dead'
-      ? 'Sous-performe · revenu/couvert 30 % en dessous moyenne. Envisager une fusion ou un repositionnement.'
-      : t.seats >= 6
-        ? 'Grande table · rotation lente mais ticket élevé. Idéale pour les groupes en soirée.'
-        : 'Performance moyenne · bonne rotation. Stable, peu d\'optimisation à faire.';
-
-  wireDismiss(modal({
-    tag: `TABLE ${t.id}`,
-    title: `${t.id} · ${t.zone} · ${t.seats} couverts`,
-    desc: `${stateLabelOwner(t.state)} · serveur assigné : ${STAFF_NAMES[t.server] || '—'}`,
-    width: 560,
-    body: `
-      <style>
-        .ti-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-        .ti-stat { background:var(--paper-soft); border-radius:10px; padding:12px 14px; }
-        .ti-stat .l { font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-bottom:4px; }
-        .ti-stat .v { font-size:20px; font-weight:600; color:var(--ink); }
-        .ti-stat .v.atlas { color:var(--atlas); }
-        .ti-stat .d { font-size:11px; color:var(--n-500); margin-top:2px; }
-        .ti-section { padding-top:14px; margin-top:14px; border-top:1px solid var(--n-200); }
-        .ti-section h5 { font-size:11px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin:0 0 8px; }
-        .ti-row { font-size:13px; color:var(--n-700); padding:6px 0; display:flex; justify-content:space-between; }
-        .ti-row b { color:var(--ink); }
-        .ti-ai { background:linear-gradient(180deg, rgba(125,242,176,0.12) 0%, rgba(11,110,79,0.04) 100%); border:1px solid rgba(11,110,79,0.18); border-radius:10px; padding:12px 14px; margin-top:14px; }
-        .ti-ai-brand { font-size:10px; font-family:var(--mono); letter-spacing:0.1em; color:var(--atlas); display:flex; align-items:center; gap:6px; margin-bottom:6px; }
-        .ti-ai-brand::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--mint); }
-        .ti-ai p { font-size:12.5px; line-height:1.5; color:var(--n-700); margin:0; }
-      </style>
-
-      <div class="ti-grid">
-        <div class="ti-stat"><div class="l">REVENU 30 J</div><div class="v atlas">${(t.rev||0).toLocaleString('fr-FR')} <span style="font-size:13px; color:var(--n-500);">MAD</span></div><div class="d">cumul mensuel</div></div>
-        <div class="ti-stat"><div class="l">ROTATIONS / JOUR</div><div class="v">${t.turns}</div><div class="d">${t.turns >= 3 ? 'bonne velocité' : 'rotation lente'}</div></div>
-        <div class="ti-stat"><div class="l">REVENU / COUVERT</div><div class="v">${Math.round((t.rev||0)/(t.seats*30)).toLocaleString('fr-FR')}<span style="font-size:13px; color:var(--n-500);"> MAD</span></div><div class="d">par siège · jour moyen</div></div>
-        <div class="ti-stat"><div class="l">ÉTAT ACTUEL</div><div class="v" style="color:${t.state==='occupied'?'var(--atlas)':t.state==='pay-pending'?'var(--warning)':t.state==='cleaning'?'var(--info)':'var(--n-500)'};">${stateLabelOwner(t.state)}</div><div class="d">${t.state === 'occupied' || t.state === 'pay-pending' ? `assise il y a ${t.mins} min` : '—'}</div></div>
-      </div>
-
-      <div class="ti-section">
-        <h5>Affectation</h5>
-        <div class="ti-row"><span>Section</span><b>${({A:'Salle A',B:'Salle B',C:'Terrasse'})[t.section] || '—'}</b></div>
-        <div class="ti-row"><span>Serveur</span><b>${STAFF_NAMES[t.server] || '—'}</b></div>
-        <div class="ti-row"><span>Prochaine réservation</span><b style="color:var(--atlas);">${nextResa}</b></div>
-      </div>
-
-      <div class="ti-ai">
-        <div class="ti-ai-brand">Kiwi AI · recommandation</div>
-        <p>${aiTip}</p>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Fermer</button>
-      <button class="kb ghost" data-dismiss onclick="window.Kiwi.toast('Réassignation de ${t.id}',{type:'info',desc:'Choisissez un nouveau serveur dans Sections.'})">Réassigner serveur</button>
-      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('${t.id} marquée comme prioritaire',{type:'success',desc:'Apparaîtra en haut des suggestions de réservation.'})">Marquer prioritaire</button>
-    `
-  }));
-}
-function stateLabelOwner(s) {
-  return ({ occupied: 'En service', libre: 'Libre', 'pay-pending': 'Addition en cours', cleaning: 'En nettoyage', paid: 'Payée, en repos' })[s] || s;
+    </div>
+  `;
 }
 
-/* ─── Auxiliary owner-level handlers ─────────────────────────────────────── */
-handlers['tables-new'] = () => {
-  const defaultId = `T${_nextTableId}`;
-  const m = modal({
-    tag: 'AJOUTER',
-    title: 'Ajouter une table au plan',
-    desc: 'Configurez la nouvelle table puis glissez-la sur le plan en mode édition.',
-    width: 520,
-    body: `
-      <div class="kf-group">
-        <label class="kf-label">Identifiant</label>
-        <input class="kf-input" data-tn-id value="${defaultId}" />
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Couverts</label>
-        <div class="tn-row" data-tn-seats style="display:flex; gap:6px;">
-          ${[1, 2, 4, 6, 8, 10].map((n, i) => `<button type="button" class="kb ${i===2?'atlas':'ghost'}" data-seats="${n}" style="flex:1; justify-content:center;">${n}</button>`).join('')}
-        </div>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Section</label>
-        <div class="tn-row" data-tn-section style="display:flex; gap:6px;">
-          <button type="button" class="kb atlas" data-section="A" style="flex:1; justify-content:center;">Salle A</button>
-          <button type="button" class="kb ghost" data-section="B" style="flex:1; justify-content:center;">Salle B</button>
-          <button type="button" class="kb ghost" data-section="C" style="flex:1; justify-content:center;">Terrasse</button>
-        </div>
-      </div>
-      <div class="kf-help">La table sera ajoutée au plan en cours et synchronisée sur l'app serveur.</div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-tn-confirm>Ajouter la table</button>
-    `
+/* Compute next 3 rotation steps */
+function pdsRotationPreview(state, count) {
+  const zoneIds = state.zones.map(z => z.id);
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    const step = {};
+    state.staff.slice(0, 6).forEach((s, idx) => {
+      const offset = (idx + i + 1) % zoneIds.length;
+      step[s.id] = zoneIds[offset];
+    });
+    result.push(step);
+  }
+  return result;
+}
+
+/* Compute fairness — % of unique zones touched this week */
+function pdsFairness(state) {
+  const fair = {};
+  const history = state.history || [];
+  const zoneIds = state.zones.map(z => z.id);
+  state.staff.forEach(s => {
+    const seen = new Set();
+    const count = {};
+    history.forEach(d => {
+      const z = d.servers[s.id];
+      if (z) {
+        seen.add(z);
+        count[z] = (count[z] || 0) + 1;
+      }
+    });
+    /* Score = uniqueness × balance · 100; "hot" zone = >= 60% */
+    const totalDays = history.length || 1;
+    const uniqueRatio = zoneIds.length ? seen.size / zoneIds.length : 1;
+    const maxCount = Math.max(...Object.values(count), 0);
+    const maxRatio = maxCount / totalDays;
+    let score = Math.round((uniqueRatio * 70) + ((1 - maxRatio) * 30));
+    score = Math.max(0, Math.min(100, score));
+    let hot = null;
+    Object.entries(count).forEach(([z, c]) => {
+      if (c / totalDays >= 0.6) hot = z;
+    });
+    fair[s.id] = { score, hot };
   });
-  wireDismiss(m);
-  if (!m || !m.el) return;
-  /* Pill selection — single-select within each row. Click toggles the
-   * active button to .atlas and resets siblings to .ghost. */
-  m.el.addEventListener('click', (e) => {
-    const seatBtn = e.target.closest('[data-seats]');
-    const secBtn  = e.target.closest('[data-section]');
-    if (seatBtn) {
-      seatBtn.parentElement.querySelectorAll('[data-seats]').forEach(b => { b.classList.remove('atlas'); b.classList.add('ghost'); });
-      seatBtn.classList.remove('ghost'); seatBtn.classList.add('atlas');
-    } else if (secBtn) {
-      secBtn.parentElement.querySelectorAll('[data-section]').forEach(b => { b.classList.remove('atlas'); b.classList.add('ghost'); });
-      secBtn.classList.remove('ghost'); secBtn.classList.add('atlas');
+  return fair;
+}
+
+function pdsRenderFoot(state, T) {
+  return `
+    <div class="pds-foot">
+      <div class="pds-foot-meta">
+        <span class="mono">PLAN · ${state.tables.length} TABLES · ${state.zones.length} ZONES</span>
+      </div>
+      <div class="pds-foot-actions">
+        <button class="kb ghost" data-pds-action="export">${T.export}</button>
+        <button class="kb ghost pds-rail-danger" data-pds-action="reset">${T.reset}</button>
+        <button class="kb atlas" data-pds-action="save">${T.save}</button>
+        <button class="kb ghost" data-dismiss>${T.close}</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ═══ INTERACTIVITY ═════════════════════════════════════════════════ */
+function pdsAttach(root, state, T, dr) {
+  /* Re-renders body + foot in-place, then re-binds events. Used after
+   * every state mutation. */
+  const refresh = () => {
+    const body = root.querySelector('.kiwi-drawer-body');
+    const foot = root.querySelector('.kiwi-drawer-foot');
+    if (body) body.innerHTML = pdsRenderBody(state, T);
+    if (foot) foot.innerHTML = pdsRenderFoot(state, T);
+    bind();
+  };
+
+  /* ── Selection store ──────────────────────────────────────────── */
+  let selection = new Set();
+
+  /* ── Event bindings ───────────────────────────────────────────── */
+  const bind = () => {
+    /* Mode switcher */
+    root.querySelectorAll('[data-pds-mode]').forEach(btn => {
+      btn.onclick = () => {
+        const m = btn.getAttribute('data-pds-mode');
+        if (state.mode === m) return;
+        state.mode = m;
+        selection.clear();
+        refresh();
+      };
+    });
+
+    /* Zone tabs */
+    root.querySelectorAll('[data-pds-zone]').forEach(btn => {
+      btn.onclick = () => {
+        const z = btn.getAttribute('data-pds-zone');
+        if (state.activeZone === z) return;
+        state.activeZone = z;
+        selection.clear();
+        refresh();
+      };
+    });
+
+    /* Snap toggle */
+    const snap = root.querySelector('[data-pds-snap]');
+    if (snap) snap.onchange = () => { state.snap = snap.checked; refresh(); };
+
+    /* Action delegation */
+    root.querySelectorAll('[data-pds-action]').forEach(btn => {
+      btn.onclick = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const action = btn.getAttribute('data-pds-action');
+        pdsHandleAction(action, btn, state, T, root, dr, refresh, selection);
+      };
+    });
+
+    /* Table click / drag (Layout + Assign) */
+    if (state.mode !== 'rotate') {
+      root.querySelectorAll('[data-pds-table]').forEach(el => {
+        const id = el.getAttribute('data-pds-table');
+        pdsAttachDrag(el, id, state, T, root, refresh, selection);
+        el.onclick = (ev) => {
+          if (ev.detail === 0) return; /* keyboard-triggered click without coords */
+        };
+      });
+      root.querySelectorAll('[data-pds-el]').forEach(el => {
+        const id = el.getAttribute('data-pds-el');
+        pdsAttachElDrag(el, id, state, T, root, refresh);
+      });
+      /* Assign mode — wire chip drop */
+      if (state.mode === 'assign') {
+        root.querySelectorAll('[data-pds-chip]').forEach(chip => {
+          pdsAttachChipDrag(chip, chip.getAttribute('data-pds-chip'), state, T, root, refresh);
+        });
+      }
     }
-  });
-  /* Confirm — read inputs, push to _addedTables, re-render floor plan. */
-  const confirmBtn = m.el.querySelector('[data-tn-confirm]');
-  confirmBtn?.addEventListener('click', () => {
-    const idInput  = m.el.querySelector('[data-tn-id]');
-    const seatsBtn = m.el.querySelector('[data-tn-seats] .atlas');
-    const secBtnEl = m.el.querySelector('[data-tn-section] .atlas');
-    const id      = (idInput?.value || '').trim() || defaultId;
-    const seats   = parseInt(seatsBtn?.dataset.seats || '4', 10);
-    const section = secBtnEl?.dataset.section || 'A';
-    const zone    = section === 'C' ? 'Terrasse' : 'Salle';
-    const secLabel = section === 'C' ? 'Terrasse' : `Salle ${section}`;
-    /* Default server assignment matches the section's primary server in
-     * the floor plan: Fatima (A), Mehdi (B), Youssef (C). */
-    const serverByZone = { A: 'FK', B: 'MM', C: 'YA' };
-    _addTable({
-      id, zone, state: 'libre',
-      seats, rev: 0, turns: 0,
-      server: serverByZone[section] || 'FK',
-      section,
-      _userAdded: true,
+
+    /* Inspector inputs */
+    root.querySelectorAll('[data-pds-field]').forEach(input => {
+      const inspect = input.closest('.pds-inspect');
+      if (!inspect) return;
+      const tableEl = root.querySelector('.pds-table.is-selected');
+      const tid = tableEl ? tableEl.getAttribute('data-pds-table') : null;
+      if (!tid) return;
+      const t = state.tables.find(tt => tt.id === tid);
+      if (!t) return;
+      input.onchange = () => {
+        const f = input.getAttribute('data-pds-field');
+        if (f === 'num') t.num = input.value.trim() || t.num;
+        else if (f === 'type') t.type = input.value;
+        else if (f === 'server') t.server = input.value || null;
+        else if (f === 'notes') t.notes = input.value;
+        Kiwi.toast(T.inspectorDone, { type: 'success', duration: 1200 });
+        refresh();
+        /* Re-select the same table after refresh */
+        setTimeout(() => {
+          const newEl = root.querySelector(`[data-pds-table="${tid}"]`);
+          if (newEl) { newEl.classList.add('is-selected'); openInspector(tid); }
+        }, 0);
+      };
     });
-    m.close();
-    toast(`Table ${id} ajoutée`, { type: 'success', desc: `${seats} couverts · ${secLabel} · visible sur le plan.` });
-    if (confetti) confetti();
-    /* Refresh the floor plan to show the new table. nav-tables opens a
-     * fullpage drawer — re-invoking it rebuilds the grid with the new
-     * entry. The brief reflow reads as "table appears". */
-    setTimeout(() => handlers['nav-tables']?.(), 80);
+    /* Status pill row inside inspector */
+    root.querySelectorAll('[data-pds-status]').forEach(btn => {
+      if (btn.getAttribute('data-pds-action')) return; /* handled elsewhere */
+      btn.onclick = () => {
+        const tableEl = root.querySelector('.pds-table.is-selected');
+        const tid = tableEl ? tableEl.getAttribute('data-pds-table') : null;
+        if (!tid) return;
+        const t = state.tables.find(tt => tt.id === tid);
+        if (!t) return;
+        t.status = btn.getAttribute('data-pds-status');
+        refresh();
+        setTimeout(() => {
+          const newEl = root.querySelector(`[data-pds-table="${tid}"]`);
+          if (newEl) { newEl.classList.add('is-selected'); openInspector(tid); }
+        }, 0);
+      };
+    });
+  };
+
+  /* Open inspector for table id */
+  const openInspector = (id) => {
+    const t = state.tables.find(tt => tt.id === id);
+    const inspector = root.querySelector('[data-pds-inspector]');
+    if (!inspector) return;
+    if (!t) { inspector.innerHTML = pdsRenderInspectorEmpty(state, T); return; }
+    inspector.innerHTML = pdsRenderInspector(state, T, t);
+    bind();
+  };
+  /* Open bulk inspector */
+  const openBulkInspector = () => {
+    const inspector = root.querySelector('[data-pds-inspector]');
+    if (!inspector) return;
+    if (selection.size === 0) {
+      inspector.innerHTML = pdsRenderInspectorEmpty(state, T);
+    } else if (selection.size === 1) {
+      const id = [...selection][0];
+      openInspector(id);
+      return;
+    } else {
+      inspector.innerHTML = pdsRenderBulkInspector(state, T, [...selection]);
+    }
+    bind();
+  };
+
+  /* Wire selection-aware methods onto state so action handlers can use them */
+  state._openInspector = openInspector;
+  state._openBulkInspector = openBulkInspector;
+  state._selection = selection;
+  state._refresh = refresh;
+
+  bind();
+}
+
+/* ═══ DRAG SYSTEM (pointer events, CSS transforms) ══════════════════ */
+function pdsAttachDrag(el, id, state, T, root, refresh, selection) {
+  let dragging = false;
+  let startX, startY, origX, origY, transformX, transformY;
+  const t = state.tables.find(tt => tt.id === id);
+  if (!t) return;
+
+  el.addEventListener('pointerdown', (ev) => {
+    if (ev.button !== 0) return;
+    /* Selection logic */
+    if (ev.shiftKey) {
+      if (selection.has(id)) {
+        selection.delete(id);
+        el.classList.remove('is-selected');
+      } else {
+        selection.add(id);
+        el.classList.add('is-selected');
+      }
+      state._openBulkInspector();
+      ev.preventDefault();
+      return;
+    } else {
+      /* Plain click — clear selection, pick this one */
+      if (!selection.has(id) || selection.size > 1) {
+        selection.clear();
+        root.querySelectorAll('.pds-table.is-selected').forEach(n => n.classList.remove('is-selected'));
+      }
+      selection.add(id);
+      el.classList.add('is-selected');
+      state._openInspector(id);
+    }
+    dragging = true;
+    startX = ev.clientX; startY = ev.clientY;
+    origX = t.x; origY = t.y;
+    transformX = 0; transformY = 0;
+    el.setPointerCapture(ev.pointerId);
+    el.classList.add('is-dragging');
+    ev.preventDefault();
   });
-};
 
-handlers['tables-edit-mode'] = () => {
-  Kiwi.toast('Mode édition activé', { type: 'info', desc: 'Glissez les tables pour repositionner · double-clic pour éditer les couverts.' });
-};
+  el.addEventListener('pointermove', (ev) => {
+    if (!dragging) return;
+    transformX = ev.clientX - startX;
+    transformY = ev.clientY - startY;
+    el.style.transform = `translate(${transformX}px, ${transformY}px) rotate(${t.rot||0}deg)`;
+  });
 
-handlers['tables-rebalance'] = () => {
-  wireDismiss(modal({
-    tag: 'AUTO-ÉQUILIBRER',
-    title: 'Rééquilibrer les sections',
-    desc: 'Kiwi AI propose une nouvelle répartition pour égaliser la charge des serveurs.',
-    width: 520,
-    body: `
-      <div class="p-card" style="margin:0;">
-        <div class="head"><h4>3 réassignations suggérées</h4><span class="meta">SHIFT SOIR</span></div>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="padding:10px 0; border-top:1px solid var(--n-200); font-size:13px; display:flex; justify-content:space-between;"><span>T11 · Salle A · <b>Fatima</b> → <b>Mehdi</b></span><span style="font-family:var(--mono); color:var(--success);">−18 % charge</span></li>
-          <li style="padding:10px 0; border-top:1px solid var(--n-200); font-size:13px; display:flex; justify-content:space-between;"><span>TR3 · Terrasse · <b>Mehdi</b> → <b>Youssef</b></span><span style="font-family:var(--mono); color:var(--success);">−12 % charge</span></li>
-          <li style="padding:10px 0; border-top:1px solid var(--n-200); font-size:13px; display:flex; justify-content:space-between;"><span>T5 · Salle B · <b>Sofia</b> → <b>Hamid</b></span><span style="font-family:var(--mono); color:var(--success);">−8 % charge</span></li>
-        </ul>
-      </div>
-      <div style="margin-top:12px; padding:10px 12px; background:var(--paper-soft); border-radius:10px; font-size:12px; color:var(--n-600);">
-        Écart de charge après équilibrage : <b style="color:var(--atlas);">7 %</b> (vs 22 % actuel).
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Garder tel quel</button>
-      <button class="kb atlas" data-dismiss onclick="window.Kiwi.toast('Sections rééquilibrées',{type:'success',desc:'3 tables réassignées · serveurs notifiés sur leur app.'})">Appliquer</button>
-    `
-  }));
-};
+  const finish = (ev) => {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('is-dragging');
+    let nx = origX + transformX;
+    let ny = origY + transformY;
+    if (state.snap) {
+      nx = Math.round(nx / PDS_GRID) * PDS_GRID;
+      ny = Math.round(ny / PDS_GRID) * PDS_GRID;
+    }
+    /* Clamp to canvas */
+    const type = PDS_TABLE_TYPES[t.type];
+    nx = Math.max(0, Math.min(PDS_CANVAS_W - type.w, nx));
+    ny = Math.max(0, Math.min(PDS_CANVAS_H - type.h, ny));
+    /* If shift-multi-drag, move all selected by the same delta */
+    if (selection.size > 1 && selection.has(id)) {
+      const dx = nx - origX;
+      const dy = ny - origY;
+      state.tables.forEach(tt => {
+        if (selection.has(tt.id) && tt.id !== id) {
+          const ttype = PDS_TABLE_TYPES[tt.type];
+          tt.x = Math.max(0, Math.min(PDS_CANVAS_W - ttype.w, tt.x + dx));
+          tt.y = Math.max(0, Math.min(PDS_CANVAS_H - ttype.h, tt.y + dy));
+        }
+      });
+    }
+    t.x = nx;
+    t.y = ny;
+    /* Smooth commit: update style then full refresh (which will reset transform) */
+    el.style.left = nx + 'px';
+    el.style.top = ny + 'px';
+    el.style.transform = `rotate(${t.rot||0}deg)`;
+    refresh();
+    /* Re-select after refresh */
+    setTimeout(() => {
+      selection.forEach(sid => {
+        const newEl = root.querySelector(`[data-pds-table="${sid}"]`);
+        if (newEl) newEl.classList.add('is-selected');
+      });
+      if (selection.size > 1) state._openBulkInspector();
+      else if (selection.size === 1) state._openInspector([...selection][0]);
+    }, 0);
+  };
+  el.addEventListener('pointerup', finish);
+  el.addEventListener('pointercancel', finish);
+}
 
-handlers['tables-section-edit'] = () => {
-  Kiwi.toast('Reconfiguration des sections', { type: 'info', desc: 'Glissez les tables d\'une section à l\'autre directement sur le plan.' });
-};
+function pdsAttachElDrag(el, id, state, T, root, refresh) {
+  let dragging = false;
+  let startX, startY, origX, origY;
+  const elObj = state.elements.find(e => e.id === id);
+  if (!elObj) return;
+  let lastTap = 0;
+  el.addEventListener('pointerdown', (ev) => {
+    if (ev.button !== 0) return;
+    /* Double-click rotates element */
+    const now = Date.now();
+    if (now - lastTap < 280) {
+      elObj.rot = (elObj.rot || 0) + 90;
+      refresh();
+      lastTap = 0;
+      return;
+    }
+    lastTap = now;
+    dragging = true;
+    startX = ev.clientX; startY = ev.clientY;
+    origX = elObj.x; origY = elObj.y;
+    el.setPointerCapture(ev.pointerId);
+    el.classList.add('is-dragging');
+    ev.preventDefault();
+  });
+  el.addEventListener('pointermove', (ev) => {
+    if (!dragging) return;
+    el.style.transform = `translate(${ev.clientX - startX}px, ${ev.clientY - startY}px) rotate(${elObj.rot||0}deg)`;
+  });
+  const finish = (ev) => {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('is-dragging');
+    let nx = origX + (ev.clientX - startX);
+    let ny = origY + (ev.clientY - startY);
+    if (state.snap) {
+      nx = Math.round(nx / PDS_GRID) * PDS_GRID;
+      ny = Math.round(ny / PDS_GRID) * PDS_GRID;
+    }
+    const type = PDS_EL_TYPES[elObj.type];
+    nx = Math.max(0, Math.min(PDS_CANVAS_W - type.w, nx));
+    ny = Math.max(0, Math.min(PDS_CANVAS_H - type.h, ny));
+    elObj.x = nx; elObj.y = ny;
+    refresh();
+  };
+  el.addEventListener('pointerup', finish);
+  el.addEventListener('pointercancel', finish);
+}
 
-handlers['tables-layout-midi']  = () => Kiwi.toast('Plan midi chargé',  { type: 'success', desc: '14 tables actives · pas de terrasse étendue.' });
-handlers['tables-layout-soir']  = () => Kiwi.toast('Plan soir chargé',  { type: 'success', desc: '16 tables actives · terrasse complète.' });
-handlers['tables-layout-event'] = () => Kiwi.toast('Plan événement',     { type: 'info', desc: 'Configuration banquet · 1 grande tablée de 18 couverts.' });
+/* Server chip drag — drop on a table or a zone tab */
+function pdsAttachChipDrag(chip, sid, state, T, root, refresh) {
+  let dragging = false;
+  let startX, startY;
+  let ghost = null;
+  const create = (ev) => {
+    dragging = true;
+    startX = ev.clientX; startY = ev.clientY;
+    chip.setPointerCapture(ev.pointerId);
+    /* Build a floating ghost following the cursor */
+    ghost = chip.cloneNode(true);
+    ghost.classList.add('pds-chip-ghost');
+    ghost.style.position = 'fixed';
+    ghost.style.left = ev.clientX + 'px';
+    ghost.style.top = ev.clientY + 'px';
+    ghost.style.pointerEvents = 'none';
+    ghost.style.zIndex = '9999';
+    ghost.style.opacity = '0.9';
+    document.body.appendChild(ghost);
+    chip.classList.add('is-dragging');
+    ev.preventDefault();
+  };
+  chip.addEventListener('pointerdown', create);
+  chip.addEventListener('pointermove', (ev) => {
+    if (!dragging || !ghost) return;
+    ghost.style.left = ev.clientX + 'px';
+    ghost.style.top = ev.clientY + 'px';
+  });
+  const finish = (ev) => {
+    if (!dragging) return;
+    dragging = false;
+    chip.classList.remove('is-dragging');
+    /* Hide the ghost so elementFromPoint reads what's under the cursor */
+    if (ghost) ghost.style.display = 'none';
+    const target = document.elementFromPoint(ev.clientX, ev.clientY);
+    if (ghost) { ghost.remove(); ghost = null; }
+    if (target) {
+      const tableEl = target.closest('[data-pds-table]');
+      const zoneEl = target.closest('[data-pds-zone]');
+      if (tableEl) {
+        const tid = tableEl.getAttribute('data-pds-table');
+        const t = state.tables.find(tt => tt.id === tid);
+        if (t) {
+          t.server = sid;
+          const sv = state.staff.find(s => s.id === sid);
+          Kiwi.toast(T.assignDone(sv?.name.split(' ')[0] || sid, t.num), { type: 'success', desc: T.assignDoneDesc });
+          refresh();
+          return;
+        }
+      } else if (zoneEl) {
+        const zid = zoneEl.getAttribute('data-pds-zone');
+        /* Assign chip to every table in that zone */
+        let count = 0;
+        state.tables.forEach(t => { if (t.zone === zid) { t.server = sid; count++; } });
+        const zname = state.zones.find(z => z.id === zid)?.name || '';
+        const sv = state.staff.find(s => s.id === sid);
+        Kiwi.toast(`${sv?.name.split(' ')[0] || sid} → ${zname}`, { type: 'success', desc: `${count} tables affectées.` });
+        refresh();
+        return;
+      }
+    }
+    /* No drop target — small bounce-back toast (skip if too short of a drag) */
+    if (Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY) < 6) {
+      /* Treated as click — open assign-chip menu */
+      Kiwi.toast(state.staff.find(s => s.id === sid)?.name || sid, { type: 'info', desc: T.rosterHint, duration: 1400 });
+    }
+  };
+  chip.addEventListener('pointerup', finish);
+  chip.addEventListener('pointercancel', (ev) => {
+    if (ghost) { ghost.remove(); ghost = null; }
+    chip.classList.remove('is-dragging');
+    dragging = false;
+  });
+}
 
-handlers['tables-export-plan'] = () => {
-  Kiwi.toast('Plan exporté en PDF', { type: 'success', desc: 'Plan-de-salle-CafeAtlas-Soir.pdf · 1 page A3.' });
-};
+/* ═══ ACTION HANDLERS ═════════════════════════════════════════════════ */
+function pdsHandleAction(action, btn, state, T, root, dr, refresh, selection) {
+  const toast = Kiwi.toast;
+  const modal = Kiwi.modal;
+  const drawer = Kiwi.drawer;
+  const newTableId = () => 'tbl' + Math.random().toString(36).slice(2, 8);
+  const newElId = () => 'el' + Math.random().toString(36).slice(2, 8);
+
+  switch (action) {
+    case 'save': {
+      pdsSave(state);
+      toast(T.saved, { type: 'success', desc: T.savedDesc });
+      break;
+    }
+    case 'reset': {
+      wireDismiss(modal({
+        tag: T.tagPdS,
+        title: T.resetTitle,
+        desc: T.resetDesc,
+        width: 480,
+        body: '',
+        foot: `
+          <button class="kb ghost" data-dismiss>${T.resetCancel}</button>
+          <button class="kb atlas" data-dismiss data-pds-reset-confirm>${T.resetConfirm}</button>
+        `,
+      }));
+      const m = document.querySelector('.kiwi-modal:last-of-type [data-pds-reset-confirm]');
+      if (m) m.addEventListener('click', () => {
+        const fresh = pdsDefaultState();
+        Object.keys(state).forEach(k => delete state[k]);
+        Object.assign(state, fresh);
+        pdsSave(state);
+        refresh();
+        toast(T.resetDone, { type: 'success', desc: T.resetDoneDesc });
+      });
+      break;
+    }
+    case 'export': {
+      toast(T.exportToast, { type: 'success', desc: T.exportDesc });
+      break;
+    }
+    case 'add-zone': {
+      const m = modal({
+        tag: T.tagPdS,
+        title: T.addZone,
+        desc: T.addZoneDesc,
+        width: 480,
+        body: `
+          <div class="kf-group">
+            <label class="kf-label">${T.zoneName}</label>
+            <input class="kf-input" data-pds-zone-name autofocus placeholder="${T.zoneName}" value=""/>
+          </div>
+        `,
+        foot: `
+          <button class="kb ghost" data-dismiss>${T.cancel}</button>
+          <button class="kb atlas" data-pds-zone-confirm>${T.zoneAdd}</button>
+        `,
+      });
+      wireDismiss(m);
+      if (!m || !m.el) break;
+      const confirm = m.el.querySelector('[data-pds-zone-confirm]');
+      confirm?.addEventListener('click', () => {
+        const input = m.el.querySelector('[data-pds-zone-name]');
+        const name = (input?.value || '').trim() || `Zone ${state.zones.length + 1}`;
+        const id = 'z' + (Date.now().toString(36).slice(-4));
+        state.zones.push({ id, name });
+        state.activeZone = id;
+        m.close();
+        refresh();
+        toast(T.zoneAdded, { type: 'success', desc: T.zoneAddedDesc(name) });
+      });
+      break;
+    }
+    case 'rename-zone': {
+      const z = state.zones.find(zz => zz.id === state.activeZone);
+      if (!z) break;
+      const m = modal({
+        tag: T.tagPdS,
+        title: T.renameZoneTitle,
+        desc: '',
+        width: 480,
+        body: `
+          <div class="kf-group">
+            <label class="kf-label">${T.zoneName}</label>
+            <input class="kf-input" data-pds-zone-rename autofocus value="${z.name}"/>
+          </div>
+        `,
+        foot: `
+          <button class="kb ghost" data-dismiss>${T.cancel}</button>
+          <button class="kb atlas" data-pds-zone-rename-confirm>${T.save2}</button>
+        `,
+      });
+      wireDismiss(m);
+      if (!m || !m.el) break;
+      const confirm = m.el.querySelector('[data-pds-zone-rename-confirm]');
+      confirm?.addEventListener('click', () => {
+        const input = m.el.querySelector('[data-pds-zone-rename]');
+        const name = (input?.value || '').trim();
+        if (!name) { m.close(); return; }
+        z.name = name;
+        m.close();
+        refresh();
+        toast(T.renameZone, { type: 'success', desc: T.zoneRenamedDesc(name) });
+      });
+      break;
+    }
+    case 'delete-zone': {
+      if (state.zones.length <= 1) {
+        toast(T.deleteZoneNoLast, { type: 'warn', desc: T.deleteZoneNoLastDesc });
+        break;
+      }
+      const z = state.zones.find(zz => zz.id === state.activeZone);
+      if (!z) break;
+      const count = state.tables.filter(t => t.zone === z.id).length;
+      const m = modal({
+        tag: T.tagPdS,
+        title: T.deleteZoneTitle,
+        desc: T.deleteZoneDesc(z.name, count),
+        width: 480,
+        body: '',
+        foot: `
+          <button class="kb ghost" data-dismiss>${T.cancel}</button>
+          <button class="kb atlas pds-rail-danger" data-pds-zone-del-confirm>${T.deleteZoneOk}</button>
+        `,
+      });
+      wireDismiss(m);
+      if (!m || !m.el) break;
+      const confirm = m.el.querySelector('[data-pds-zone-del-confirm]');
+      confirm?.addEventListener('click', () => {
+        state.tables = state.tables.filter(t => t.zone !== z.id);
+        state.elements = state.elements.filter(e => e.zone !== z.id);
+        state.zones = state.zones.filter(zz => zz.id !== z.id);
+        state.activeZone = state.zones[0]?.id;
+        m.close();
+        refresh();
+        toast(T.deleteZoneDone, { type: 'success', desc: `${z.name}` });
+      });
+      break;
+    }
+    case 'open-templates': {
+      const tplKeys = ['bistro','resto','cafe','brasserie','blank'];
+      const m = drawer({
+        title: T.templatesTitle,
+        subtitle: T.templatesDesc,
+        width: 560,
+        body: `
+          <div class="pds-tpls">
+            ${tplKeys.map(k => `
+              <div class="pds-tpl">
+                <div class="pds-tpl-h">
+                  <div>
+                    <h4>${T['tpl' + k.charAt(0).toUpperCase() + k.slice(1)]}</h4>
+                    <p>${T['tpl' + k.charAt(0).toUpperCase() + k.slice(1) + 'Desc']}</p>
+                  </div>
+                  <button class="kb atlas" data-pds-tpl="${k}">${T.tplApply}</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `,
+        foot: `<button class="kb ghost" data-dismiss>${T.close}</button>`,
+      });
+      wireDismiss(m);
+      if (!m || !m.el) break;
+      m.el.querySelectorAll('[data-pds-tpl]').forEach(b => {
+        b.addEventListener('click', () => {
+          const k = b.getAttribute('data-pds-tpl');
+          const tplName = T['tpl' + k.charAt(0).toUpperCase() + k.slice(1)];
+          /* Confirm */
+          const c = modal({
+            tag: T.tagPdS,
+            title: T.tplApplyConfirm(tplName),
+            desc: T.tplApplyConfirmDesc,
+            width: 460,
+            body: '',
+            foot: `
+              <button class="kb ghost" data-dismiss>${T.cancel}</button>
+              <button class="kb atlas" data-dismiss data-pds-tpl-confirm>${T.tplApply}</button>
+            `,
+          });
+          wireDismiss(c);
+          if (!c || !c.el) return;
+          c.el.querySelector('[data-pds-tpl-confirm]')?.addEventListener('click', () => {
+            const fresh = pdsTemplate(k);
+            Object.keys(state).forEach(kk => delete state[kk]);
+            Object.assign(state, fresh);
+            m.close();
+            refresh();
+            toast(T.tplLoaded(tplName), { type: 'success', desc: T.tplLoadedDesc });
+          });
+        });
+      });
+      break;
+    }
+    case 'add-table':
+    case 'add-table-default': {
+      const type = action === 'add-table-default' ? 'round4' : btn.getAttribute('data-pds-type');
+      const cfg = PDS_TABLE_TYPES[type] || PDS_TABLE_TYPES.round4;
+      const inZone = state.tables.filter(t => t.zone === state.activeZone);
+      /* Place at center of zone, offset by # tables to avoid overlap */
+      const baseX = Math.round((PDS_CANVAS_W - cfg.w) / 2 / PDS_GRID) * PDS_GRID;
+      const baseY = Math.round((PDS_CANVAS_H - cfg.h) / 2 / PDS_GRID) * PDS_GRID;
+      const offset = (inZone.length % 6) * 16;
+      const num = String(state.tables.length + 1);
+      const newT = {
+        id: newTableId(),
+        zone: state.activeZone,
+        type,
+        x: baseX + offset,
+        y: baseY + offset,
+        num,
+        status: 'free',
+        server: null,
+        notes: '',
+        rot: 0,
+      };
+      state.tables.push(newT);
+      refresh();
+      toast(T.addedTableToast(num), { type: 'success', desc: T.addedTableDesc(cfg.seats, state.zones.find(z=>z.id===state.activeZone)?.name || '') });
+      setTimeout(() => {
+        const el = root.querySelector(`[data-pds-table="${newT.id}"]`);
+        if (el) {
+          selection.clear();
+          selection.add(newT.id);
+          el.classList.add('is-selected');
+          state._openInspector(newT.id);
+        }
+      }, 0);
+      break;
+    }
+    case 'add-el': {
+      const type = btn.getAttribute('data-pds-eltype');
+      const cfg = PDS_EL_TYPES[type];
+      const baseX = Math.round((PDS_CANVAS_W - cfg.w) / 2 / PDS_GRID) * PDS_GRID;
+      const baseY = Math.round((PDS_CANVAS_H - cfg.h) / 2 / PDS_GRID) * PDS_GRID;
+      state.elements.push({ id: newElId(), zone: state.activeZone, type, x: baseX, y: baseY, rot: 0 });
+      refresh();
+      toast(T.addedElementToast, { type: 'success', desc: T.addedElementDesc });
+      break;
+    }
+    case 'clear-assign': {
+      const m = modal({
+        tag: T.tagPdS,
+        title: T.clearAssignTitle,
+        desc: T.clearAssignDesc,
+        width: 480,
+        body: '',
+        foot: `
+          <button class="kb ghost" data-dismiss>${T.cancel}</button>
+          <button class="kb atlas pds-rail-danger" data-dismiss data-pds-clear-confirm>${T.clearAssignOk}</button>
+        `,
+      });
+      wireDismiss(m);
+      const confirm = m?.el?.querySelector('[data-pds-clear-confirm]');
+      confirm?.addEventListener('click', () => {
+        state.tables.forEach(t => { t.server = null; });
+        refresh();
+        toast(T.clearAssignDone, { type: 'success', desc: T.clearAssignDoneDesc });
+      });
+      break;
+    }
+    case 'rotate-configure': {
+      const m = modal({
+        tag: T.tagPdS,
+        title: T.rotateTitle,
+        desc: T.rotateDesc,
+        width: 580,
+        body: `
+          <div class="pds-rot-cfg">
+            <div class="kf-group">
+              <label class="kf-label">${T.rotatePeriod}</label>
+              <div class="pds-pillrow" data-pds-period>
+                ${[['daily', T.rotateDaily],['shift', T.rotateShift],['weekly', T.rotateWeekly],['custom', T.rotateCustom]].map(([k,l]) => `
+                  <button class="pds-cfg-pill ${state.rotation.period===k?'active':''}" data-pds-p="${k}">${l}</button>
+                `).join('')}
+              </div>
+            </div>
+            <div class="kf-group">
+              <label class="kf-label">${T.rotateStrategy}</label>
+              <div class="pds-strat-cards" data-pds-strat>
+                ${[['zones',T.rotZones,T.rotZonesDesc],['tables',T.rotTables,T.rotTablesDesc],['pairs',T.rotPairs,T.rotPairsDesc]].map(([k,l,d]) => `
+                  <button class="pds-strat-card ${state.rotation.strategy===k?'active':''}" data-pds-s="${k}">
+                    <b>${l}</b>
+                    <em>${d}</em>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+            <div class="kf-help">${T.rotPreview}</div>
+          </div>
+        `,
+        foot: `
+          <button class="kb ghost" data-dismiss>${T.cancel}</button>
+          <button class="kb atlas" data-dismiss data-pds-rot-apply>${T.rotApply}</button>
+        `,
+      });
+      wireDismiss(m);
+      if (!m || !m.el) break;
+      let chosenP = state.rotation.period;
+      let chosenS = state.rotation.strategy;
+      m.el.querySelectorAll('[data-pds-p]').forEach(b => {
+        b.addEventListener('click', () => {
+          chosenP = b.getAttribute('data-pds-p');
+          m.el.querySelectorAll('[data-pds-p]').forEach(o => o.classList.remove('active'));
+          b.classList.add('active');
+        });
+      });
+      m.el.querySelectorAll('[data-pds-s]').forEach(b => {
+        b.addEventListener('click', () => {
+          chosenS = b.getAttribute('data-pds-s');
+          m.el.querySelectorAll('[data-pds-s]').forEach(o => o.classList.remove('active'));
+          b.classList.add('active');
+        });
+      });
+      m.el.querySelector('[data-pds-rot-apply]')?.addEventListener('click', () => {
+        state.rotation = { period: chosenP, strategy: chosenS, enabled: true };
+        refresh();
+        toast(T.rotApplied, { type: 'success', desc: T.rotAppliedDesc });
+      });
+      break;
+    }
+    case 'rotate-now': {
+      /* Apply 1 step of the preview, then push to history */
+      const preview = pdsRotationPreview(state, 1)[0];
+      if (preview) {
+        /* In zone mode, reassign every table in zone Z to the server now on Z */
+        if (state.rotation.strategy === 'zones') {
+          Object.entries(preview).forEach(([sid, zid]) => {
+            state.tables.forEach(t => {
+              /* Tables in zid get this server */
+              if (t.zone === zid) t.server = sid;
+            });
+          });
+        } else {
+          /* Tables / pairs — round-robin shuffle of server property across tables */
+          const sids = state.staff.map(s => s.id);
+          state.tables.forEach((t, i) => { t.server = sids[i % sids.length]; });
+        }
+        /* Append to history */
+        state.history = state.history || [];
+        state.history.push({ day: state.history.length, label: T.days[state.history.length % 7], servers: preview });
+        if (state.history.length > 7) state.history.shift();
+      }
+      refresh();
+      toast(T.rotNowDone, { type: 'success', desc: T.rotNowDoneDesc });
+      break;
+    }
+    /* ── Inspector actions ─────────────────────────────────────── */
+    case 'table-rotate': {
+      const id = btn.getAttribute('data-pds-id');
+      const t = state.tables.find(tt => tt.id === id);
+      if (!t) break;
+      t.rot = ((t.rot || 0) + 45) % 360;
+      refresh();
+      setTimeout(() => state._openInspector(id), 0);
+      break;
+    }
+    case 'table-duplicate': {
+      const id = btn.getAttribute('data-pds-id');
+      const t = state.tables.find(tt => tt.id === id);
+      if (!t) break;
+      const newT = { ...t, id: newTableId(), x: t.x + 24, y: t.y + 24, num: t.num + '·' };
+      state.tables.push(newT);
+      refresh();
+      toast(T.addedTableToast(newT.num), { type: 'success', desc: T.addedTableDesc(PDS_TABLE_TYPES[newT.type]?.seats || 0, state.zones.find(z=>z.id===newT.zone)?.name || '') });
+      break;
+    }
+    case 'table-delete': {
+      const id = btn.getAttribute('data-pds-id');
+      const idx = state.tables.findIndex(tt => tt.id === id);
+      if (idx >= 0) {
+        const t = state.tables[idx];
+        state.tables.splice(idx, 1);
+        selection.delete(id);
+        refresh();
+        toast(`Table ${t.num} · supprimée`, { type: 'warn', duration: 1400 });
+      }
+      break;
+    }
+    /* ── Bulk actions ──────────────────────────────────────────── */
+    case 'bulk-align-h': {
+      if (selection.size < 2) break;
+      const ids = [...selection];
+      const ys = ids.map(id => state.tables.find(t => t.id === id)?.y).filter(v => v != null);
+      const avg = Math.round(ys.reduce((a,b) => a+b, 0) / ys.length / PDS_GRID) * PDS_GRID;
+      ids.forEach(id => { const t = state.tables.find(tt => tt.id === id); if (t) t.y = avg; });
+      refresh();
+      toast(T.bulkOkAlign, { type: 'success', duration: 1200 });
+      break;
+    }
+    case 'bulk-align-v': {
+      if (selection.size < 2) break;
+      const ids = [...selection];
+      const xs = ids.map(id => state.tables.find(t => t.id === id)?.x).filter(v => v != null);
+      const avg = Math.round(xs.reduce((a,b) => a+b, 0) / xs.length / PDS_GRID) * PDS_GRID;
+      ids.forEach(id => { const t = state.tables.find(tt => tt.id === id); if (t) t.x = avg; });
+      refresh();
+      toast(T.bulkOkAlign, { type: 'success', duration: 1200 });
+      break;
+    }
+    case 'bulk-dist-h': {
+      if (selection.size < 3) { toast(T.bulkHintNone, { type: 'info', duration: 1400 }); break; }
+      const ids = [...selection];
+      const arr = ids.map(id => state.tables.find(t => t.id === id)).filter(Boolean).sort((a,b) => a.x - b.x);
+      const span = arr[arr.length-1].x - arr[0].x;
+      const step = span / (arr.length - 1);
+      arr.forEach((t, i) => { t.x = Math.round((arr[0].x + step * i) / PDS_GRID) * PDS_GRID; });
+      refresh();
+      toast(T.bulkOkDist, { type: 'success', duration: 1200 });
+      break;
+    }
+    case 'bulk-dist-v': {
+      if (selection.size < 3) { toast(T.bulkHintNone, { type: 'info', duration: 1400 }); break; }
+      const ids = [...selection];
+      const arr = ids.map(id => state.tables.find(t => t.id === id)).filter(Boolean).sort((a,b) => a.y - b.y);
+      const span = arr[arr.length-1].y - arr[0].y;
+      const step = span / (arr.length - 1);
+      arr.forEach((t, i) => { t.y = Math.round((arr[0].y + step * i) / PDS_GRID) * PDS_GRID; });
+      refresh();
+      toast(T.bulkOkDist, { type: 'success', duration: 1200 });
+      break;
+    }
+    case 'bulk-delete': {
+      const n = selection.size;
+      state.tables = state.tables.filter(t => !selection.has(t.id));
+      selection.clear();
+      refresh();
+      toast(T.bulkOkDelete(n), { type: 'warn', duration: 1400 });
+      break;
+    }
+    case 'bulk-clear': {
+      selection.clear();
+      root.querySelectorAll('.pds-table.is-selected').forEach(el => el.classList.remove('is-selected'));
+      state._openBulkInspector();
+      break;
+    }
+    case 'bulk-status': {
+      const st = btn.getAttribute('data-pds-status');
+      const n = selection.size;
+      selection.forEach(id => { const t = state.tables.find(tt => tt.id === id); if (t) t.status = st; });
+      refresh();
+      toast(T.bulkOkStatus(n, T['status' + st.charAt(0).toUpperCase() + st.slice(1)]), { type: 'success', duration: 1400 });
+      break;
+    }
+    default: {
+      Kiwi.toast(action, { type: 'info', desc: T.soonAvailable, duration: 1400 });
+    }
+  }
+}
+
+/* ═══ INLINE CSS · scoped to .pds-* ══════════════════════════════════ */
+const PDS_INLINE_CSS = `
+  .pds-kpis { margin-bottom: 14px; }
+  .pds-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .pds-modes { display:flex; gap:4px; padding:3px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:11px; }
+  .pds-mode { background:transparent; border:none; padding:8px 14px; border-radius:8px; font-size:12.5px; font-weight:500; color:var(--n-600); cursor:pointer; transition:.18s letter-spacing:0.01em; }
+  .pds-mode:hover { color:var(--ink); }
+  .pds-mode.active { background:var(--ink); color:var(--paper); font-weight:600; box-shadow:0 1px 2px rgba(10,15,13,0.16); }
+  .pds-mode-desc { flex:1; font-size:12px; color:var(--n-600); padding:0 6px; min-width:240px; }
+  .pds-zone-tabs { display:flex; gap:4px; padding:3px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:10px; }
+  .pds-zone { background:transparent; border:none; padding:7px 12px; border-radius:7px; font-size:12px; font-weight:500; color:var(--n-700); cursor:pointer; display:flex; align-items:center; gap:6px; transition:.16s; }
+  .pds-zone em { font-style:normal; font-family:var(--mono); font-size:10px; color:var(--n-500); }
+  .pds-zone:hover { color:var(--ink); }
+  .pds-zone.active { background:var(--paper); color:var(--ink); box-shadow:0 1px 3px rgba(10,15,13,0.08); font-weight:600; }
+  .pds-zone.active em { color:var(--atlas); font-weight:600; }
+  .pds-zone-add { padding:7px 10px; color:var(--atlas); font-weight:700; font-size:14px; }
+  .pds-zone-add:hover { background:var(--paper); }
+
+  .pds-stage-grid { display:grid; grid-template-columns: 220px 1fr 240px; gap:14px; }
+  @media (max-width: 1100px) { .pds-stage-grid { grid-template-columns: 200px 1fr; } .pds-inspector { grid-column: 1 / -1; } }
+
+  .pds-rail { display:flex; flex-direction:column; gap:10px; }
+  .pds-rail-card { background:var(--paper-soft); border:1px solid var(--n-200); border-radius:12px; padding:14px; }
+  html[data-theme="dark"] .pds-rail-card { background:var(--paper-muted); }
+  .pds-rail-title { font-size:11px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-bottom:6px; }
+  .pds-rail-hint { font-size:11.5px; color:var(--n-600); line-height:1.45; margin-bottom:10px; }
+  .pds-rail-cta { width:100%; margin-bottom:6px; justify-content:center; }
+  .pds-rail-cta:last-child { margin-bottom:0; }
+  .pds-rail-danger { color:var(--danger); }
+  .pds-rail-danger:hover { border-color:var(--danger); }
+
+  .pds-palette { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .pds-palette-el { grid-template-columns:1fr; }
+  .pds-pal-item { background:var(--paper); border:1px solid var(--n-200); border-radius:9px; padding:8px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; font-family:inherit; transition:.16s; min-height:62px; }
+  .pds-pal-item:hover { border-color:var(--atlas); transform:translateY(-1px); box-shadow:0 4px 12px -8px rgba(11,110,79,0.3); }
+  .pds-pal-shape { background:var(--n-200); border:1.5px solid var(--n-400); display:block; }
+  .pds-pal-round { border-radius:50%; }
+  .pds-pal-square { border-radius:3px; }
+  .pds-pal-rect { border-radius:3px; }
+  .pds-pal-label { font-size:10.5px; color:var(--n-700); font-weight:500; letter-spacing:0.01em; text-align:center; }
+  .pds-pal-icon { width:24px; height:24px; }
+  .pds-pal-el-wall { background:#2C2520; height:5px !important; margin-top:9px; width:24px; }
+  .pds-pal-el-door { background:var(--atlas); height:5px !important; margin-top:9px; width:18px; border-radius:1px; }
+  .pds-pal-el-window { background:#1A8FE3; height:4px !important; margin-top:10px; width:22px; border-radius:1px; }
+  .pds-pal-el-column { background:#2C2520; width:14px !important; height:14px !important; margin-top:5px; border-radius:50%; }
+  .pds-pal-el-plant { background:radial-gradient(circle, #0B8A7B 0 60%, transparent 65%); width:20px !important; height:20px !important; margin-top:2px; }
+
+  .pds-canvas-wrap { display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .pds-canvas-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:10px; flex-wrap:wrap; }
+  .pds-legend { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .pds-legend-title { font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-right:4px; }
+  .pds-pill { font-size:10px; font-family:var(--mono); letter-spacing:0.06em; padding:3px 8px; border-radius:99px; text-transform:uppercase; font-weight:600; }
+  .pds-pill-free { background:rgba(10,15,13,0.06); color:var(--n-700); }
+  .pds-pill-occupied { background:rgba(11,110,79,0.14); color:var(--atlas); }
+  .pds-pill-reserved { background:rgba(217,154,43,0.18); color:#A85F00; }
+  .pds-pill-cleaning { background:rgba(26,143,227,0.15); color:#0F6FBF; }
+  .pds-snap { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--n-700); cursor:pointer; user-select:none; padding:4px 8px; border-radius:7px; }
+  .pds-snap input { accent-color:var(--atlas); }
+
+  .pds-canvas { position:relative; border:1.5px solid var(--n-300); border-radius:14px; overflow:hidden; touch-action:none; user-select:none;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle, rgba(10,15,13,0.08) 1px, transparent 1.4px);
+    background-size: ${PDS_GRID}px ${PDS_GRID}px;
+    background-position: -1px -1px;
+    box-shadow: inset 0 0 0 1px rgba(10,15,13,0.03);
+  }
+
+  .pds-empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:20px; }
+  .pds-empty h4 { margin:0; font-size:18px; letter-spacing:-0.02em; }
+  .pds-empty p { font-size:13px; color:var(--n-600); max-width:340px; margin:0; line-height:1.5; }
+
+  .pds-table { position:absolute; display:flex; align-items:center; justify-content:center; flex-direction:column; cursor:pointer; transition:box-shadow .16s, border-color .16s;
+    background: var(--paper); border:1.5px solid var(--n-400); color:var(--ink); font-family:var(--mono); font-feature-settings:"tnum" 1;
+    will-change: transform; user-select:none;
+  }
+  .pds-table.pds-shape-round { border-radius:50%; }
+  .pds-table.pds-shape-square { border-radius:8px; }
+  .pds-table.pds-shape-rect { border-radius:8px; }
+  .pds-table .pds-tnum { font-size:14px; font-weight:700; letter-spacing:-0.02em; }
+  .pds-table .pds-tseats { font-size:9.5px; color:var(--n-500); letter-spacing:0.04em; margin-top:1px; }
+  .pds-table:hover { border-color:var(--atlas); box-shadow:0 8px 20px -12px rgba(11,110,79,0.32); }
+  .pds-table.is-selected { border-color:var(--atlas); border-width:2.5px; box-shadow:0 0 0 3px rgba(11,110,79,0.18); }
+  .pds-table.is-dragging { z-index:5; box-shadow:0 14px 30px -10px rgba(10,15,13,0.32); cursor:grabbing; }
+  .pds-table.pds-status-free { background:var(--paper); border-color:var(--n-400); }
+  .pds-table.pds-status-occupied { background:rgba(11,110,79,0.12); border-color:var(--atlas); color:var(--atlas); }
+  .pds-table.pds-status-occupied .pds-tseats { color:var(--atlas); opacity:0.7; }
+  .pds-table.pds-status-reserved { background:rgba(217,154,43,0.14); border-color:#D99A2B; color:#A85F00; }
+  .pds-table.pds-status-reserved .pds-tseats { color:#A85F00; opacity:0.7; }
+  .pds-table.pds-status-cleaning { background:rgba(26,143,227,0.10); border-color:#1A8FE3; color:#0F6FBF; }
+  .pds-table.pds-status-cleaning .pds-tseats { color:#0F6FBF; opacity:0.7; }
+  .pds-table.pds-has-server { border-color: var(--server) !important; border-width:2.5px !important; box-shadow:inset 0 0 0 1px rgba(10,15,13,0.04); }
+  .pds-tserver { position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; color:var(--paper); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; letter-spacing:0.04em; box-shadow:0 2px 6px rgba(10,15,13,0.22); border:1.5px solid var(--paper); font-family:var(--mono); }
+
+  .pds-el { position:absolute; background: var(--n-700); border-radius:2px; cursor:grab; will-change: transform; }
+  .pds-el.pds-el-wall { background:#2C2520; height:8px; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.2); }
+  .pds-el.pds-el-door { background:var(--atlas); border-radius:2px; height:8px; }
+  .pds-el.pds-el-window { background:linear-gradient(180deg,#1A8FE3,#0F6FBF); height:6px; border-radius:2px; }
+  .pds-el.pds-el-column { background:#2C2520; border-radius:50%; box-shadow:0 0 0 2px rgba(255,255,255,0.5) inset; }
+  .pds-el.pds-el-plant { background:radial-gradient(circle, #0B8A7B 0 60%, transparent 65%); border-radius:50%; }
+  .pds-el.is-dragging { cursor:grabbing; z-index:4; }
+
+  .pds-inspector { display:flex; flex-direction:column; gap:10px; }
+  .pds-inspect { padding:14px; }
+  .pds-form-row { margin-bottom:10px; }
+  .pds-form-row > label { display:block; font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-bottom:5px; font-weight:600; }
+  .pds-input { width:100%; padding:7px 9px; font-size:12.5px; }
+  .pds-status-pills { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+  .pds-status-pill { padding:6px 8px; border:1.5px solid transparent; background:transparent; border-radius:7px; font-size:10.5px; font-weight:600; cursor:pointer; font-family:var(--mono); letter-spacing:0.04em; text-transform:uppercase; transition:.16s; }
+  .pds-status-pill.pds-pill-free { background:rgba(10,15,13,0.06); color:var(--n-700); border-color:transparent; }
+  .pds-status-pill.pds-pill-occupied { background:rgba(11,110,79,0.10); color:var(--atlas); }
+  .pds-status-pill.pds-pill-reserved { background:rgba(217,154,43,0.12); color:#A85F00; }
+  .pds-status-pill.pds-pill-cleaning { background:rgba(26,143,227,0.10); color:#0F6FBF; }
+  .pds-status-pill:hover { transform:translateY(-1px); }
+  .pds-status-pill.active { border-color: currentColor; box-shadow:0 0 0 1px currentColor inset; }
+  .pds-inspect-actions { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; }
+  .pds-inspect-actions .kb { padding:7px 8px; font-size:11.5px; justify-content:center; }
+
+  .pds-inspect-empty .pds-rail-hint { line-height:1.55; }
+
+  .pds-roster { display:flex; flex-direction:column; gap:5px; }
+  .pds-chip { display:flex; align-items:center; gap:9px; padding:8px 10px; background:var(--paper); border:1px solid var(--n-200); border-radius:10px; cursor:grab; transition:.16s; }
+  .pds-chip:hover { transform:translateY(-1px); border-color:var(--chip); box-shadow:0 4px 12px -8px var(--chip); }
+  .pds-chip.is-dragging { cursor:grabbing; opacity:0.5; }
+  .pds-chip-ghost { padding:8px 10px; background:var(--paper); border:1px solid var(--chip); border-radius:10px; transform:translate(-50%, -50%) rotate(-2deg); box-shadow:0 14px 30px -10px rgba(10,15,13,0.45); }
+  .pds-chip-dot { width:14px; height:14px; border-radius:50%; background:var(--chip); flex-shrink:0; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.4); }
+  .pds-chip-body { display:flex; flex-direction:column; line-height:1.25; min-width:0; flex:1; }
+  .pds-chip-body b { font-size:12.5px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pds-chip-body em { font-style:normal; font-size:10.5px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.02em; margin-top:1px; }
+
+  .pds-assign-sum { display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+  .pds-asum-row { display:flex; align-items:center; gap:8px; padding:6px 4px; font-size:12px; }
+  .pds-asum-dot { width:9px; height:9px; border-radius:50%; background:var(--chip); flex-shrink:0; }
+  .pds-asum-name { flex:1; color:var(--ink); }
+  .pds-asum-n { font-family:var(--mono); font-size:11.5px; color:var(--n-600); font-weight:600; }
+  .pds-asum-unassigned .pds-asum-name { color:var(--n-500); font-style:italic; }
+
+  .pds-tpls { display:flex; flex-direction:column; gap:10px; }
+  .pds-tpl { background:var(--paper-soft); border:1px solid var(--n-200); border-radius:12px; padding:14px; }
+  .pds-tpl-h { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+  .pds-tpl-h h4 { margin:0 0 4px; font-size:14.5px; font-weight:600; letter-spacing:-0.015em; }
+  .pds-tpl-h p { margin:0; font-size:12px; color:var(--n-600); line-height:1.5; }
+
+  .pds-rotate { display:flex; flex-direction:column; gap:14px; }
+  .pds-rotate-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  @media (max-width: 1100px) { .pds-rotate-grid { grid-template-columns:1fr; } }
+  .pds-rot-meta { display:flex; flex-direction:column; gap:6px; margin:6px 0 10px; }
+  .pds-rot-meta > div { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--paper); border:1px solid var(--n-200); border-radius:9px; font-size:12.5px; }
+  .pds-rot-lbl { font-size:10.5px; font-family:var(--mono); letter-spacing:0.08em; color:var(--n-500); text-transform:uppercase; }
+  .pds-rot-val { font-weight:600; color:var(--ink); }
+  .pds-rot-actions { display:flex; gap:6px; }
+  .pds-rot-actions .kb { flex:1; justify-content:center; }
+  .pds-rot-preview { display:flex; flex-direction:column; gap:8px; }
+  .pds-rot-step { background:var(--paper); border:1px solid var(--n-200); border-radius:10px; padding:10px; }
+  .pds-rot-step-h { font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--atlas); text-transform:uppercase; font-weight:700; margin-bottom:6px; }
+  .pds-rot-line { display:grid; grid-template-columns:14px 1fr auto; gap:6px; align-items:center; font-size:11.5px; padding:2px 0; }
+  .pds-rot-line .pds-asum-dot { width:9px; height:9px; }
+  .pds-rot-line b { font-weight:600; }
+  .pds-rot-line em { font-style:normal; font-size:11px; color:var(--n-500); font-family:var(--mono); }
+
+  .pds-fair { display:flex; flex-direction:column; gap:4px; }
+  .pds-fair-row { display:grid; grid-template-columns:14px 1fr 70px 36px; gap:6px; align-items:center; font-size:11.5px; }
+  .pds-fair-name { font-weight:600; color:var(--ink); }
+  .pds-fair-bar { height:5px; background:var(--n-200); border-radius:3px; overflow:hidden; }
+  .pds-fair-bar > i { display:block; height:100%; border-radius:3px; }
+  .pds-fair-bar .pds-fair-high { background:linear-gradient(90deg, var(--atlas), var(--mint)); }
+  .pds-fair-bar .pds-fair-mid { background:linear-gradient(90deg, #D99A2B, #F2C24B); }
+  .pds-fair-bar .pds-fair-low { background:linear-gradient(90deg, #C0306E, #E45990); }
+  .pds-fair-pct { font-family:var(--mono); font-size:10.5px; color:var(--n-600); text-align:right; font-weight:600; }
+  .pds-fair-note { font-size:10.5px; color:var(--n-500); padding:0 0 4px 20px; line-height:1.4; }
+  .pds-fair-note b { color:var(--ink); }
+
+  .pds-rot-history { padding:14px; }
+  .pds-history-grid { display:flex; flex-direction:column; gap:4px; }
+  .pds-hist-h, .pds-hist-row { display:grid; grid-template-columns: 100px repeat(7, 1fr); gap:4px; align-items:center; }
+  .pds-hist-h > span { font-size:10.5px; font-family:var(--mono); letter-spacing:0.08em; color:var(--n-500); text-transform:uppercase; text-align:center; }
+  .pds-hist-h > span:first-child { text-align:left; }
+  .pds-hist-name { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink); }
+  .pds-hist-cell { height:24px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:var(--paper); font-family:var(--mono); }
+  .pds-hist-a { background:var(--atlas); }
+  .pds-hist-b { background:#D99A2B; color:var(--paper); }
+  .pds-hist-c { background:#1A8FE3; }
+  .pds-hist-d { background:var(--n-400); color:var(--ink); }
+
+  .pds-rot-cfg { display:flex; flex-direction:column; gap:14px; }
+  .pds-pillrow { display:flex; gap:6px; flex-wrap:wrap; }
+  .pds-cfg-pill { padding:7px 12px; border:1px solid var(--n-200); background:var(--paper); border-radius:8px; font-size:12px; cursor:pointer; color:var(--n-700); transition:.18s; font-family:inherit; }
+  .pds-cfg-pill:hover { border-color:var(--atlas); }
+  .pds-cfg-pill.active { background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600; }
+  .pds-strat-cards { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  @media (max-width: 720px) { .pds-strat-cards { grid-template-columns:1fr; } }
+  .pds-strat-card { background:var(--paper); border:1.5px solid var(--n-200); border-radius:10px; padding:12px; text-align:left; cursor:pointer; transition:.16s; font-family:inherit; }
+  .pds-strat-card:hover { border-color:var(--atlas); }
+  .pds-strat-card.active { border-color:var(--atlas); background:rgba(11,110,79,0.06); box-shadow:0 0 0 1.5px var(--atlas); }
+  .pds-strat-card b { display:block; font-size:13px; font-weight:600; color:var(--ink); margin-bottom:3px; }
+  .pds-strat-card em { display:block; font-style:normal; font-size:11.5px; color:var(--n-600); line-height:1.4; }
+
+  .pds-foot { display:flex; justify-content:space-between; align-items:center; gap:8px; width:100%; }
+  .pds-foot-meta { font-size:11px; color:var(--n-500); letter-spacing:0.06em; }
+  .pds-foot-meta .mono { font-family:var(--mono); }
+  .pds-foot-actions { display:flex; gap:8px; }
+
+  html[dir="rtl"] .pds-zone-tabs, html[dir="rtl"] .pds-modes { flex-direction:row-reverse; }
+`;
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * 2 ·  MENU & MODIFICATEURS  ·  width 980
