@@ -2844,8 +2844,12 @@
     animation: fo-ambient-in 1.4s ease forwards 1.4s;
   }
   body.fusion-mode .app,
-  body.fusion-mode .topbar,
-  body.fusion-mode .sidebar { position: relative; z-index: 1; }
+  body.fusion-mode .topbar { position: relative; z-index: 1; }
+  /* Sidebar keeps its base position:sticky — forcing it to relative here
+     broke scroll-pinning in Ultra and made the panel drift off-screen as
+     you scrolled. We only need to lift its stacking context above the
+     ambient glow (z-index:0), which sticky elements support natively. */
+  body.fusion-mode .sidebar { z-index: 1; }
   @keyframes fo-ambient-in {
     from { opacity: 0; }
     to   { opacity: 1; }
