@@ -1,59 +1,72 @@
 /* ═══════════════════════════════════════════════════════════════════════════
- * Kiwi · ÉQUIPE — team & profile management page (sidebar destination)
+ * Kiwi · ÉQUIPE — team & profile management (full-page surface)
  *
- * Replaces the prior shift-timeline focused Équipe drawer. The page is now
- * scoped exclusively to:
+ * Sidebar destination. Replaces the drawer-based version with a full-page
+ * surface that reuses the dashboard's existing `.eq-*` design system
+ * (see dashboard.html ~line 2860+). Same brand language as Stock /
+ * Menu / Plan de Salle.
  *
- *   1. PROFILS    — add / view / edit / delete team members. Every employee
- *                   attribute lives here (identity, contact, password, role,
- *                   contract, base salary, hourly rate, languages, ID, address,
- *                   emergency contact, notes).
- *   2. HEURES     — period-bound hours-worked data entry (this/quinzaine/
- *                   month/custom). Feeds Paie & Planning. Quick-entry modal,
- *                   period validation, CSV export.
+ * Scope:
+ *   1. PROFILS    — add / view / edit / delete team members. Every
+ *                   employee attribute lives here (identity, contact,
+ *                   password, role, contract, base salary, hourly rate,
+ *                   languages, CIN, address, emergency contact, notes).
+ *   2. HEURES     — period-bound hours-worked data entry (week / quinzaine
+ *                   / month). Quick-entry modal, period validation.
  *   3. RÔLES      — venue-type-aware function & department catalogue. A
- *                   restaurant owner never sees "Masseur"; a pharmacy never
- *                   sees "Serveur". Reactive — switching the venue refreshes
- *                   all dropdowns; selections kept when still valid.
+ *                   restaurant owner never sees "Masseur"; a pharmacy
+ *                   never sees "Serveur". Reactive — switching the
+ *                   venue refreshes all dropdowns.
  *
- * Shift PLANNING (week grid, double / morning / evening tags, gap alerts,
- * tip distribution, payslips) lives on Paie & Planning — this page never
- * duplicates that.
- *
- * State is in-memory (window.__kiwiTeamV2) and wipes on page reload, per
- * brief. All buttons route through Kiwi.handlers (delegated via interactive.js).
+ * State is in-memory (window.__kiwiTeamV2) and wipes on page reload.
+ * Loads AFTER venues.js, so this file's nav-equipe handler wins.
  * ─────────────────────────────────────────────────────────────────────────── */
 (function () {
   'use strict';
   if (!window.Kiwi || !window.Kiwi.handlers) return;
   const Kiwi = window.Kiwi;
-  const { handlers, drawer, modal, toast } = Kiwi;
+  const { handlers, modal, toast } = Kiwi;
 
   /* ═══════════════ i18n — local pack ═══════════════ */
   const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
   const STR = {
     fr: {
-      title: 'Équipe & profils',
-      sub: (name, n) => `${name} · ${n} membres · gestion centrale des comptes employés`,
-      // Tabs
+      breadcrumb: 'Équipe',
+      title: 'Équipe',
+      subDate: (d) => `Service du ${d}`,
       tabProfiles: 'Profils',
       tabHours:    'Heures travaillées',
-      // Profiles header
-      countTotal: 'membres',
       addMember: 'Ajouter un membre',
+      exportCsv: 'Exporter CSV',
       searchPh:  'Rechercher un nom, un poste, un département…',
-      filterAll: 'Tous',
-      filterDept: 'Département',
-      filterContract: 'Type de contrat',
-      filterLang: 'Langue',
+      filterAllDept: 'Tous les départements',
+      filterAllContract: 'Tous les contrats',
+      filterAllLang: 'Toutes les langues',
       noMatch: 'Aucun membre ne correspond aux filtres.',
-      // Member card
+      // Stats
+      statTotal: 'TOTAL MEMBRES',
+      statTotalSub: (n, name) => `${n} actifs · ${name}`,
+      statPresent: 'EN SERVICE AUJOURD\'HUI',
+      statPresentSub: 'membres pointés (estimation)',
+      statPayroll: 'MASSE SALARIALE · MOIS',
+      statPayrollSub: 'salaires de base cumulés',
+      statHours: 'HEURES PÉRIODE EN COURS',
+      statHoursSub: 'heures saisies sur la période',
+      // Members table
+      secAllMembers: 'Tous les membres',
+      secAllMembersBadge: (n) => `${n} affiché${n === 1 ? '' : 's'}`,
+      colMember: 'Membre',
+      colFunction: 'Fonction',
+      colDepartment: 'Département',
+      colContract: 'Contrat',
+      colLanguages: 'Langues',
+      colSalary: 'Salaire base',
+      colActions: 'Actions',
+      // Profile modal
       viewProfile: 'Voir le profil',
-      // Profile drawer
-      profileSub: (role, dept) => `${role} · ${dept}`,
       editBtn:   'Modifier',
       deleteBtn: 'Supprimer',
-      // Sections
+      profileSub: (role, dept) => `${role} · ${dept}`,
       secIdentity:    'Identité',
       secContact:     'Contact',
       secAccess:      'Accès Kiwi Caisse',
@@ -63,7 +76,6 @@
       secSkills:      'Compétences',
       secEmergency:   "Contact d'urgence",
       secNotes:       'Notes',
-      // Field labels
       firstName: 'Prénom',
       lastName:  'Nom',
       email:     'Email',
@@ -84,40 +96,32 @@
       emergencyName:  "Nom du contact",
       emergencyPhone: 'Téléphone du contact',
       notes:     'Notes libres',
-      // Contract types
       ctCdi: 'CDI', ctCdd: 'CDD', ctStage: 'Stage', ctFreelance: 'Freelance', ctInterim: 'Intérim',
-      // Languages
       langFr: 'Français', langAr: 'Arabe', langEn: 'Anglais', langEs: 'Espagnol', langTz: 'Tamazight', langDr: 'Darija',
-      // Add / edit modal
       addTitle:  'Nouveau membre',
       editTitle: 'Modifier le membre',
       photoLabel:'Photo',
       uploadPhoto:'Téléverser une photo',
       placeholder: { firstName: 'Sara', lastName: 'Belkadi', email: 'sara@kiwi.ma', phone: '6XX XX XX XX', address: 'Rue 12, Maarif, Casablanca', cin: 'BK 384721', emergencyName: 'Karim Belkadi', emergencyPhone: '6XX XX XX XX', notes: 'Allergie crustacés · disponibilité étendue le week-end' },
-      // Validation
       vRequired: 'Prénom, nom et fonction requis',
       vInvalidEmail: 'Email invalide',
       vEndAfterStart: "La date de fin doit être après la date de début",
-      // Submit / actions
       submitAdd:  'Ajouter le membre',
       submitEdit: 'Enregistrer les modifications',
       cancel: 'Annuler',
-      // Confirmation deletes
       delTitle: 'Supprimer ce membre ?',
       delDesc:  'Action irréversible. Le compte Kiwi Caisse sera désactivé immédiatement.',
       delConfirm: 'Supprimer',
-      // Toasts
       tAdded:    (n) => `${n} ajouté·e à l'équipe`,
       tAddedDesc:(p) => `Identifiants envoyés · mot de passe ${p}`,
       tUpdated:  (n) => `${n} · profil mis à jour`,
       tDeleted:  (n) => `${n} a été retiré·e de l'équipe`,
       tPwdCopied:'Mot de passe copié',
       tPwdGen:   'Nouveau mot de passe généré',
-      // Hours tab
+      // Hours pane
       hPeriodWeek: 'Cette semaine',
       hPeriodFort: 'Quinzaine',
       hPeriodMonth:'Ce mois',
-      hPeriodCustom:'Personnalisé',
       hQuickEntry:'Saisie rapide',
       hExport:    'Exporter CSV',
       hImport:    'Importer CSV',
@@ -127,16 +131,13 @@
       hPay:       'Salaire calculé',
       hLocked:    'Période verrouillée',
       hPeriodLabel: (start, end) => `Du ${start} au ${end}`,
-      hSelfSum:   (h, mad) => `${h} h · ${mad} MAD`,
       hFooterLabel: 'Total période',
-      // Quick-entry modal
       qeTitle: 'Saisie rapide · heures',
       qeMember:'Membre',
       qeDate:  'Date',
       qeHours: 'Heures travaillées',
       qeNote:  'Note (optionnel)',
       qeSave:  'Enregistrer',
-      // Toasts hours
       tHourSaved: (n, h, d) => `${h} h enregistrées · ${n} · ${d}`,
       tExport:    'Export CSV généré',
       tExportDesc:'Fichier prêt à être envoyé à votre comptable.',
@@ -144,26 +145,44 @@
       tImportDesc:'Glissez votre fichier · vérification automatique des en-têtes.',
       tValidated: (start, end) => `Période verrouillée · du ${start} au ${end}`,
       tValidatedDesc: 'Heures envoyées à Paie & Planning · masse salariale recalculée.',
-      // Empty member name fallback
       placeholderPwd: '••••••••',
+      monthName: ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'],
+      dayName:   ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'],
     },
     en: {
-      title: 'Team & profiles',
-      sub: (name, n) => `${name} · ${n} members · central staff account management`,
+      breadcrumb: 'Team',
+      title: 'Team',
+      subDate: (d) => `Service · ${d}`,
       tabProfiles: 'Profiles',
       tabHours:    'Hours worked',
-      countTotal: 'members',
       addMember: 'Add a member',
+      exportCsv: 'Export CSV',
       searchPh:  'Search by name, role, department…',
-      filterAll: 'All',
-      filterDept: 'Department',
-      filterContract: 'Contract type',
-      filterLang: 'Language',
+      filterAllDept: 'All departments',
+      filterAllContract: 'All contracts',
+      filterAllLang: 'All languages',
       noMatch: 'No member matches the filters.',
+      statTotal: 'TOTAL MEMBERS',
+      statTotalSub: (n, name) => `${n} active · ${name}`,
+      statPresent: 'ON SHIFT TODAY',
+      statPresentSub: 'members clocked in (estimate)',
+      statPayroll: 'PAYROLL · MONTH',
+      statPayrollSub: 'cumulative base salaries',
+      statHours: 'HOURS · CURRENT PERIOD',
+      statHoursSub: 'hours logged for the period',
+      secAllMembers: 'All members',
+      secAllMembersBadge: (n) => `${n} shown`,
+      colMember: 'Member',
+      colFunction: 'Function',
+      colDepartment: 'Department',
+      colContract: 'Contract',
+      colLanguages: 'Languages',
+      colSalary: 'Base salary',
+      colActions: 'Actions',
       viewProfile: 'View profile',
-      profileSub: (role, dept) => `${role} · ${dept}`,
       editBtn:   'Edit',
       deleteBtn: 'Remove',
+      profileSub: (role, dept) => `${role} · ${dept}`,
       secIdentity:    'Identity',
       secContact:     'Contact',
       secAccess:      'Kiwi Caisse access',
@@ -218,7 +237,6 @@
       hPeriodWeek: 'This week',
       hPeriodFort: 'Fortnight',
       hPeriodMonth:'This month',
-      hPeriodCustom:'Custom',
       hQuickEntry:'Quick entry',
       hExport:    'Export CSV',
       hImport:    'Import CSV',
@@ -228,7 +246,6 @@
       hPay:       'Computed pay',
       hLocked:    'Period locked',
       hPeriodLabel: (start, end) => `From ${start} to ${end}`,
-      hSelfSum:   (h, mad) => `${h} h · ${mad} MAD`,
       hFooterLabel: 'Period total',
       qeTitle: 'Quick entry · hours',
       qeMember:'Member',
@@ -244,24 +261,43 @@
       tValidated: (start, end) => `Period locked · from ${start} to ${end}`,
       tValidatedDesc: 'Hours sent to Payroll & Planning · wage cost recomputed.',
       placeholderPwd: '••••••••',
+      monthName: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+      dayName:   ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
     },
     ar: {
-      title: 'الفريق والملفات',
-      sub: (name, n) => `${name} · ${n} أعضاء · إدارة مركزية لحسابات الموظفين`,
+      breadcrumb: 'الفريق',
+      title: 'الفريق',
+      subDate: (d) => `خدمة · ${d}`,
       tabProfiles: 'الملفات',
       tabHours:    'ساعات العمل',
-      countTotal: 'أعضاء',
       addMember: 'إضافة عضو',
+      exportCsv: 'تصدير CSV',
       searchPh:  'بحث بالاسم، المنصب، القسم…',
-      filterAll: 'الكل',
-      filterDept: 'القسم',
-      filterContract: 'نوع العقد',
-      filterLang: 'اللغة',
+      filterAllDept: 'كل الأقسام',
+      filterAllContract: 'كل العقود',
+      filterAllLang: 'كل اللغات',
       noMatch: 'لا يوجد عضو يطابق الفلاتر.',
+      statTotal: 'إجمالي الأعضاء',
+      statTotalSub: (n, name) => `${n} نشط · ${name}`,
+      statPresent: 'في الخدمة اليوم',
+      statPresentSub: 'أعضاء مسجلون (تقدير)',
+      statPayroll: 'كتلة الأجور · الشهر',
+      statPayrollSub: 'مجموع الرواتب الأساسية',
+      statHours: 'ساعات · الفترة الحالية',
+      statHoursSub: 'ساعات مسجلة في الفترة',
+      secAllMembers: 'كل الأعضاء',
+      secAllMembersBadge: (n) => `${n} معروض`,
+      colMember: 'العضو',
+      colFunction: 'الوظيفة',
+      colDepartment: 'القسم',
+      colContract: 'العقد',
+      colLanguages: 'اللغات',
+      colSalary: 'الراتب الأساسي',
+      colActions: 'إجراءات',
       viewProfile: 'عرض الملف',
-      profileSub: (role, dept) => `${role} · ${dept}`,
       editBtn:   'تعديل',
       deleteBtn: 'حذف',
+      profileSub: (role, dept) => `${role} · ${dept}`,
       secIdentity:    'الهوية',
       secContact:     'الاتصال',
       secAccess:      'الوصول لـ Kiwi Caisse',
@@ -316,7 +352,6 @@
       hPeriodWeek: 'هذا الأسبوع',
       hPeriodFort: 'نصف شهر',
       hPeriodMonth:'هذا الشهر',
-      hPeriodCustom:'مخصص',
       hQuickEntry:'إدخال سريع',
       hExport:    'تصدير CSV',
       hImport:    'استيراد CSV',
@@ -326,7 +361,6 @@
       hPay:       'الأجر المحتسب',
       hLocked:    'الفترة مقفلة',
       hPeriodLabel: (start, end) => `من ${start} إلى ${end}`,
-      hSelfSum:   (h, mad) => `${h} ساعة · ${mad} درهم`,
       hFooterLabel: 'إجمالي الفترة',
       qeTitle: 'إدخال سريع · ساعات',
       qeMember:'العضو',
@@ -342,18 +376,13 @@
       tValidated: (start, end) => `الفترة مقفلة · من ${start} إلى ${end}`,
       tValidatedDesc: 'تم إرسال الساعات إلى الرواتب والتخطيط · أعيد حساب كتلة الأجور.',
       placeholderPwd: '••••••••',
+      monthName: ['يناير','فبراير','مارس','أبريل','ماي','يونيو','يوليوز','غشت','شتنبر','أكتوبر','نونبر','دجنبر'],
+      dayName:   ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],
     },
   };
   const t = () => STR[trLang()] || STR.fr;
 
-  /* ═══════════════ VENUE-AWARE ROLE CATALOGUE ═══════════════
-   * Maps every supported venue.type to its allowed list of
-   * { departments, functions }. The map is exhaustive — a
-   * restaurant owner literally cannot see "Masseur"; a pharmacy
-   * never sees "Serveur". Custom venues + the synthetic "fusion"
-   * type fall back to the union (every option), so multi-site
-   * mode is forgiving.
-   * ───────────────────────────────────────────────────────────── */
+  /* ═══════════════ VENUE-AWARE ROLE CATALOGUE ═══════════════ */
   const CATALOG = {
     restaurant: {
       departments: ['Cuisine', 'Salle', 'Bar', 'Caisse', 'Plonge', 'Pâtisserie', 'Management'],
@@ -379,13 +408,11 @@
       departments: ['Rayons', 'Caisse', 'Stock', 'Management'],
       functions:   ['Vendeur', 'Caissier', 'Magasinier', 'Réassortisseur', 'Manager'],
     },
-    // Existing real venues use these types — map them in.
     boutique: {
       departments: ['Vente', 'Vitrine', 'Caisse', 'Stock', 'Management'],
       functions:   ['Vendeur conseil', 'Caissier', 'Magasinier', 'Visual merchandiser', 'Manager'],
     },
   };
-  // Synthetic types (fusion, custom) — take the union so nothing is locked.
   function unionCatalog() {
     const allDept = new Set(), allFn = new Set();
     Object.values(CATALOG).forEach(c => {
@@ -399,15 +426,11 @@
     return CATALOG[venueType] || unionCatalog();
   }
 
-  /* ═══════════════ MOCK SEED PER VENUE TYPE ═══════════════
-   * On first open we hydrate a venue-appropriate roster so the
-   * page looks alive. Members carry the venueType they were
-   * seeded for so subsequent venue-switching can re-seed
-   * the right set on demand.
-   * ─────────────────────────────────────────────────────────── */
+  /* ═══════════════ MOCK SEED ═══════════════ */
   const CONTRACT_TYPES = ['CDI', 'CDD', 'Stage', 'Freelance', 'Intérim'];
   const LANGS = ['Français', 'Arabe', 'Anglais', 'Espagnol', 'Tamazight', 'Darija'];
   const AVATAR_TONES = ['a', 'b', 'c', 'd'];
+  const AVATAR_COLORS = { a: 'var(--atlas)', b: 'var(--riad)', c: '#B26B0F', d: '#2B5C68' };
 
   function makePwd(len = 12) {
     const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ', a = 'abcdefghijkmnopqrstuvwxyz', n = '23456789', s = '@!#$%&*';
@@ -424,9 +447,6 @@
   }
 
   function seedFor(venueType) {
-    const cat = catalogFor(venueType);
-    const pickDept = (i) => cat.departments[i % cat.departments.length];
-    const pickFn   = (i) => cat.functions[i % cat.functions.length];
     const SEEDS = {
       restaurant: [
         ['Fatima',  'Khalki',    'Management',  'Manager',           'CDI',      8400, 95, ['Français','Arabe','Anglais']],
@@ -519,14 +539,13 @@
     });
   }
 
-  /* ═══════════════ HOURS STATE (per-venue) ═══════════════ */
+  /* ═══════════════ HOURS SEED ═══════════════ */
   function seedHours(members, periodDays) {
     const map = {};
     members.forEach(m => {
       map[m.id] = {};
       for (let d = 0; d < periodDays.length; d++) {
         const date = periodDays[d];
-        // realistic-ish hours: 4-9h on most days, 0 on one off-day
         const isOff = (Math.floor(Math.random() * 7) === 0);
         map[m.id][date] = isOff ? 0 : (4 + Math.floor(Math.random() * 5)) + (Math.random() < 0.3 ? 0.5 : 0);
       }
@@ -549,22 +568,17 @@
   function pad(n) { return String(n).padStart(2, '0'); }
   function fmtFr(d) { return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`; }
   function toISO(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
-  function buildPeriod(kind, customStart, customEnd) {
+  function buildPeriod(kind) {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     let start, end;
     if (kind === 'fortnight') {
       const day = today.getDay();
-      // Monday-anchored fortnight
       start = new Date(today); start.setDate(today.getDate() - ((day + 6) % 7) - 7);
       end = new Date(start); end.setDate(start.getDate() + 13);
     } else if (kind === 'month') {
       start = new Date(today.getFullYear(), today.getMonth(), 1);
       end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    } else if (kind === 'custom') {
-      start = customStart ? new Date(customStart) : new Date(today);
-      end = customEnd ? new Date(customEnd) : new Date(today);
     } else {
-      // week (Mon–Sun)
       const day = today.getDay();
       start = new Date(today); start.setDate(today.getDate() - ((day + 6) % 7));
       end = new Date(start); end.setDate(start.getDate() + 6);
@@ -575,30 +589,28 @@
     return { start: toISO(start), end: toISO(end), startFr: fmtFr(start), endFr: fmtFr(end), days };
   }
 
-  /* ═══════════════ TAB STATE ═══════════════ */
-  let activeTab = 'profiles';            // 'profiles' | 'hours'
+  function todayLongLabel() {
+    const T = t();
+    const d = new Date();
+    return `${T.dayName[d.getDay()]} ${d.getDate()} ${T.monthName[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  /* ═══════════════ STATE ═══════════════ */
+  let activeTab = 'profiles';
   let activeFilters = { search: '', dept: '', contract: '', lang: '' };
-  let currentDrawer = null;              // {el, close}
-  let unsubscribeVenue = null;           // venue-change subscription
+  let pageActive = false;
+  let unsubscribeVenue = null;
+  let unsubscribeLang = null;
 
-  /* ═══════════════ HELPERS — rendering primitives ═══════════════ */
+  /* ═══════════════ HELPERS ═══════════════ */
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const memberFullName = (m) => `${m.firstName || ''} ${m.lastName || ''}`.trim() || '—';
 
-  function svgPlus() { return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>'; }
-  function svgSearch() { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>'; }
-  function svgEdit() { return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>'; }
-  function svgTrash() { return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>'; }
-  function svgCopy() { return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>'; }
-  function svgRefresh() { return '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.64A9 9 0 0020.49 15"/></svg>'; }
-  function svgDownload() { return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M5 10l7 7 7-7M5 21h14"/></svg>'; }
-  function svgUpload() { return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9M5 14l7-7 7 7M5 3h14"/></svg>'; }
-  function svgCheck() { return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg>'; }
-  function svgLock() { return '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>'; }
-  function svgEye() { return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'; }
+  function fmtMad(n) {
+    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(Math.round(n || 0)) + ' MAD';
+  }
 
-  function memberFullName(m) { return `${m.firstName || ''} ${m.lastName || ''}`.trim() || '—'; }
-
-  function memberMatchesFilters(m, T) {
+  function memberMatchesFilters(m) {
     const { search, dept, contract, lang } = activeFilters;
     if (search) {
       const q = search.toLowerCase();
@@ -611,101 +623,137 @@
     return true;
   }
 
-  /* ═══════════════ ENTRY POINT — open drawer ═══════════════
-   * Both venues.js and pages-pro.js install their own nav-equipe handler;
-   * venues.js even re-asserts its handler on the window 'load' event after
-   * every other deferred script has executed. To win, we install ours twice:
-   * once at IIFE eval (so it wins over the IIFE-time assignments in
-   * pages.js / pages-pro.js) and once on 'load' AFTER venues.js's load
-   * listener (listeners fire in registration order, and team.js loads after
-   * venues.js).
-   * ─────────────────────────────────────────────────────────── */
-  function installNavEquipe() {
-    if (!window.Kiwi || !window.Kiwi.handlers) return;
-    window.Kiwi.handlers['nav-equipe'] = openTeamDrawer;
-  }
-  window.addEventListener('load', () => {
-    // Slight delay so any other `load` listener has finished re-asserting.
-    setTimeout(installNavEquipe, 0);
-  });
-  // Also install immediately so handlers triggered before 'load' still work.
-  installNavEquipe();
-
-  function openTeamDrawer() {
-    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
-    const venueType = venue.type || 'restaurant';
-    ensureVenueData(venueType);
-
-    const T = t();
-    const dr = drawer({
-      title: T.title,
-      subtitle: '…',
-      width: 1080,
-      body: `<div data-team-root></div>`,
-    });
-    currentDrawer = dr;
-    activeTab = 'profiles';
-    activeFilters = { search: '', dept: '', contract: '', lang: '' };
-    window.__kiwiTeamV2.periodKind = 'week';
-    window.__kiwiTeamV2.periodLocked = false;
-
-    /* Subscribe to venue switches so the page re-paints automatically. */
-    if (unsubscribeVenue) { try { unsubscribeVenue(); } catch (_) {} unsubscribeVenue = null; }
-    if (window.KiwiVenue?.subscribe) {
-      unsubscribeVenue = window.KiwiVenue.subscribe(() => {
-        if (!currentDrawer || !currentDrawer.el || !document.body.contains(currentDrawer.el)) {
-          if (unsubscribeVenue) { unsubscribeVenue(); unsubscribeVenue = null; }
-          return;
-        }
-        const v2 = window.KiwiVenue.getCurrentVenueData();
-        const t2 = v2?.type || 'restaurant';
-        ensureVenueData(t2);
-        renderRoot();
-      });
-    }
-
-    /* Wipe subscription when the drawer is closed (avoids ghost subscribers). */
-    const origClose = dr.close;
-    dr.close = function () {
-      if (unsubscribeVenue) { try { unsubscribeVenue(); } catch (_) {} unsubscribeVenue = null; }
-      currentDrawer = null;
-      origClose.apply(this, arguments);
-    };
-    // also re-bind close button (was already wired by drawer() impl, but the
-    // close fn ref we own now is the wrapped one — re-bind to keep parity).
-    const xBtn = dr.el.querySelector('.kiwi-drawer-close');
-    if (xBtn) xBtn.onclick = dr.close;
-    dr.el.__kiwiClose = dr.close;
-
-    renderRoot();
+  /* ═══════════════ SVG ICONS ═══════════════ */
+  const svgIcon = (path, sz = 14) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+  const IC = {
+    plus:     '<path d="M12 5v14M5 12h14"/>',
+    search:   '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>',
+    edit:     '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>',
+    trash:    '<path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>',
+    eye:      '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+    refresh:  '<path d="M1 4v6h6M23 20v-6h-6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.64A9 9 0 0020.49 15"/>',
+    copy:     '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>',
+    download: '<path d="M12 3v12M5 10l7 7 7-7M5 21h14"/>',
+    upload:   '<path d="M12 21V9M5 14l7-7 7 7M5 3h14"/>',
+    check:    '<path d="M5 12l5 5L20 7"/>',
+    lock:     '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
+    users:    '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>',
+    userCheck:'<path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M17 11l2 2 4-4"/>',
+    wallet:   '<path d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2v-1"/><path d="M21 12h-5a2 2 0 100 4h5"/>',
+    timer:    '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6M12 2v3"/>',
+    calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>',
   };
 
-  /* ═══════════════ TOP-LEVEL RENDER ═══════════════ */
-  function renderRoot() {
-    if (!currentDrawer || !currentDrawer.el) return;
+  /* ═══════════════ PAGE SHOW / HIDE ═══════════════ */
+  function showPage() {
+    const T = t();
+    pageActive = true;
+    document.body.classList.remove('page-menu', 'page-payroll', 'page-stock');
+    document.body.classList.add('page-equipe');
+    const bc = document.querySelector('.breadcrumb');
+    if (bc) bc.innerHTML = `Accueil <span class="sep">/</span> <b>${esc(T.breadcrumb)}</b>`;
+    window.Kiwi?.setActivePage?.('equipe');
+    document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+    document.querySelector('.sidebar nav a[data-nav="equipe"]')?.classList.add('active');
+    window.scrollTo({ top: 0 });
+
+    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
+    ensureVenueData(venue.type || 'restaurant');
+
+    /* Re-render when the venue or language changes. */
+    if (!unsubscribeVenue && window.KiwiVenue?.subscribe) {
+      unsubscribeVenue = window.KiwiVenue.subscribe(() => {
+        if (!pageActive) return;
+        const v2 = window.KiwiVenue.getCurrentVenueData();
+        ensureVenueData(v2?.type || 'restaurant');
+        render();
+      });
+    }
+    if (!unsubscribeLang && window.KiwiI18n?.onLangChange) {
+      window.KiwiI18n.onLangChange(() => { if (pageActive) render(); });
+      unsubscribeLang = true;
+    }
+    render();
+  }
+
+  function showDashboard() {
+    if (!pageActive) return;
+    pageActive = false;
+    document.body.classList.remove('page-equipe');
+    const bc = document.querySelector('.breadcrumb');
+    if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+    if (unsubscribeVenue) { try { unsubscribeVenue(); } catch (_) {} unsubscribeVenue = null; }
+    window.Kiwi?.setActivePage?.('accueil');
+  }
+
+  /* ═══════════════ RENDER ═══════════════ */
+  function render() {
+    const root = document.querySelector('[data-equipe-root]');
+    if (!root) return;
+    root.removeAttribute('hidden');
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
     const venueType = venue.type || 'restaurant';
     const members = getMembers(venueType);
-
-    /* subtitle */
-    const subEl = currentDrawer.el.querySelector('.kiwi-drawer-head p');
-    if (subEl) subEl.textContent = T.sub(venue.name, members.length);
-
-    const root = currentDrawer.el.querySelector('[data-team-root]');
-    if (!root) return;
     root.innerHTML = `
-      <style>${TEAM_CSS}</style>
+      ${renderHeader(T, venue, members)}
       ${renderTabs(T)}
-      <div data-team-pane>${activeTab === 'profiles' ? renderProfilesPane(T, venue, venueType, members) : renderHoursPane(T, venue, venueType, members)}</div>
+      ${activeTab === 'profiles' ? renderProfilesPane(T, venue, venueType, members) : renderHoursPane(T, venue, venueType, members)}
+    `;
+    /* Re-bind the live search field after each render. */
+    const sb = root.querySelector('[data-kt-search]');
+    if (sb) sb.addEventListener('input', (e) => {
+      activeFilters.search = e.target.value;
+      clearTimeout(window.__kiwiTeamSearchTimer);
+      window.__kiwiTeamSearchTimer = setTimeout(() => {
+        rerenderProfilesGrid();
+      }, 120);
+    });
+  }
+
+  function rerenderProfilesGrid() {
+    if (activeTab !== 'profiles') return;
+    const root = document.querySelector('[data-equipe-root]');
+    if (!root) return;
+    const T = t();
+    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
+    const venueType = venue.type || 'restaurant';
+    const members = getMembers(venueType);
+    const target = root.querySelector('[data-kt-grid-host]');
+    if (!target) return;
+    const visible = members.filter(memberMatchesFilters);
+    target.innerHTML = visible.length === 0
+      ? `<div class="eq-section" style="text-align:center; color:var(--n-500); padding:36px 14px;">${esc(T.noMatch)}</div>`
+      : renderMembersTable(T, visible);
+    /* Also keep the badge count fresh */
+    const badge = root.querySelector('[data-kt-count-badge]');
+    if (badge) badge.textContent = T.secAllMembersBadge(visible.length);
+  }
+
+  /* ═══════════════ HEADER ═══════════════ */
+  function renderHeader(T, venue, members) {
+    return `
+      <div class="eq-head">
+        <div>
+          <div class="eq-title">${esc(T.title)}</div>
+          <div class="eq-date">${esc(T.subDate(todayLongLabel()))}</div>
+        </div>
+        <div class="eq-head-acts">
+          <button class="btn-slim" type="button" data-action="kt-export-csv">${svgIcon(IC.download, 13)}<span>${esc(T.exportCsv)}</span></button>
+          <button class="btn-slim primary" type="button" data-action="kt-add-member">${svgIcon(IC.plus, 13)}<span>${esc(T.addMember)}</span></button>
+        </div>
+      </div>
     `;
   }
 
+  /* ═══════════════ TABS ═══════════════ */
   function renderTabs(T) {
     return `
-      <div class="kt-tabs">
-        <button class="kt-tab${activeTab === 'profiles' ? ' on' : ''}" data-action="kt-tab" data-arg="profiles">${T.tabProfiles}</button>
-        <button class="kt-tab${activeTab === 'hours'    ? ' on' : ''}" data-action="kt-tab" data-arg="hours">${T.tabHours}</button>
+      <div class="eq-filters">
+        <div class="eq-pill-row">
+          <button class="eq-pill${activeTab === 'profiles' ? ' on' : ''}" type="button" data-action="kt-tab" data-arg="profiles">${esc(T.tabProfiles)}</button>
+          <button class="eq-pill${activeTab === 'hours'    ? ' on' : ''}" type="button" data-action="kt-tab" data-arg="hours">${esc(T.tabHours)}</button>
+        </div>
       </div>
     `;
   }
@@ -713,72 +761,122 @@
   /* ═══════════════ PROFILES PANE ═══════════════ */
   function renderProfilesPane(T, venue, venueType, members) {
     const cat = catalogFor(venueType);
-    const visible = members.filter(m => memberMatchesFilters(m, T));
-    const deptOpts = ['<option value="">' + esc(T.filterDept + ' · ' + T.filterAll) + '</option>',
-      ...cat.departments.map(d => `<option value="${esc(d)}"${activeFilters.dept === d ? ' selected' : ''}>${esc(d)}</option>`)].join('');
-    const ctOpts = ['<option value="">' + esc(T.filterContract + ' · ' + T.filterAll) + '</option>',
-      ...CONTRACT_TYPES.map(c => `<option value="${esc(c)}"${activeFilters.contract === c ? ' selected' : ''}>${esc(c)}</option>`)].join('');
-    const langOpts = ['<option value="">' + esc(T.filterLang + ' · ' + T.filterAll) + '</option>',
-      ...LANGS.map(l => `<option value="${esc(l)}"${activeFilters.lang === l ? ' selected' : ''}>${esc(l)}</option>`)].join('');
+    /* Stats */
+    const totalMembers = members.length;
+    const present = Math.max(0, Math.round(totalMembers * 0.75));
+    const monthlyPayroll = members.reduce((acc, m) => acc + (m.baseSalary || 0), 0);
+    const period = buildPeriod(window.__kiwiTeamV2.periodKind || 'week');
+    const hours = getHours(venueType);
+    let totalHours = 0;
+    members.forEach(m => {
+      const row = hours[m.id] || {};
+      period.days.forEach(d => totalHours += (+row[d] || 0));
+    });
+    const tile = (label, value, sub, vClass) => `
+      <div class="eq-stat">
+        <div class="eq-stat-l"><span>${esc(label)}</span></div>
+        <div class="eq-stat-v ${vClass || ''}">${value}</div>
+        <div class="eq-stat-sub">${esc(sub)}</div>
+      </div>`;
+    const stats = `
+      <div class="eq-stats">
+        ${tile(T.statTotal,   String(totalMembers),                   T.statTotalSub(totalMembers, venue.name))}
+        ${tile(T.statPresent, String(present),                        T.statPresentSub)}
+        ${tile(T.statPayroll, fmtMad(monthlyPayroll),                 T.statPayrollSub)}
+        ${tile(T.statHours,   totalHours.toFixed(1).replace('.', ',') + ' h', T.statHoursSub)}
+      </div>
+    `;
+
+    /* Filter pill rows */
+    const deptList = ['<button class="eq-pill' + (!activeFilters.dept ? ' on' : '') + '" type="button" data-action="kt-filter-dept" data-arg="">' + esc(T.filterAllDept) + '</button>',
+      ...cat.departments.map(d => `<button class="eq-pill${activeFilters.dept === d ? ' on' : ''}" type="button" data-action="kt-filter-dept" data-arg="${esc(d)}">${esc(d)}</button>`)].join('');
+    const ctList = ['<button class="eq-pill' + (!activeFilters.contract ? ' on' : '') + '" type="button" data-action="kt-filter-contract" data-arg="">' + esc(T.filterAllContract) + '</button>',
+      ...CONTRACT_TYPES.map(c => `<button class="eq-pill${activeFilters.contract === c ? ' on' : ''}" type="button" data-action="kt-filter-contract" data-arg="${esc(c)}">${esc(c)}</button>`)].join('');
+    const langList = ['<button class="eq-pill' + (!activeFilters.lang ? ' on' : '') + '" type="button" data-action="kt-filter-lang" data-arg="">' + esc(T.filterAllLang) + '</button>',
+      ...LANGS.map(l => `<button class="eq-pill${activeFilters.lang === l ? ' on' : ''}" type="button" data-action="kt-filter-lang" data-arg="${esc(l)}">${esc(l)}</button>`)].join('');
+
+    const visible = members.filter(memberMatchesFilters);
 
     return `
-      <!-- Header row: count + CTA -->
-      <div class="kt-pheader">
-        <div class="kt-count">
-          <div class="num">${members.length}</div>
-          <div class="lbl">${esc(T.countTotal)} · ${esc(venue.name)}</div>
-        </div>
-        <button class="kb primary" data-action="kt-add-member">${svgPlus()}${esc(T.addMember)}</button>
-      </div>
+      ${stats}
 
-      <!-- Search & filters -->
-      <div class="kt-filterbar">
-        <div class="kt-search">
-          <span class="ic">${svgSearch()}</span>
+      <div class="eq-section">
+        <div class="eq-section-head">
+          <h3>${esc(T.secAllMembers)}</h3>
+          <span class="eq-count-badge" data-kt-count-badge>${esc(T.secAllMembersBadge(visible.length))}</span>
+        </div>
+
+        <div class="kt-searchbar">
+          <span class="kt-searchbar-ic">${svgIcon(IC.search, 14)}</span>
           <input type="text" placeholder="${esc(T.searchPh)}" value="${esc(activeFilters.search)}" data-kt-search />
         </div>
-        <select data-kt-filter="dept">${deptOpts}</select>
-        <select data-kt-filter="contract">${ctOpts}</select>
-        <select data-kt-filter="lang">${langOpts}</select>
-      </div>
 
-      ${visible.length === 0
-        ? `<div class="kt-empty">${esc(T.noMatch)}</div>`
-        : `<div class="kt-grid">${visible.map(m => renderMemberCard(T, m)).join('')}</div>`}
+        <div class="eq-filters" style="margin-top:14px;">
+          <div class="eq-pill-row">${deptList}</div>
+          <div class="eq-pill-row">${ctList}</div>
+          <div class="eq-pill-row">${langList}</div>
+        </div>
+
+        <div data-kt-grid-host style="margin-top:14px;">
+          ${visible.length === 0
+            ? `<div style="padding:36px 14px;text-align:center;color:var(--n-500);font-size:13px;background:var(--paper-soft);border:1px dashed var(--n-300);border-radius:12px;">${esc(T.noMatch)}</div>`
+            : renderMembersTable(T, visible)}
+        </div>
+      </div>
     `;
   }
 
-  function renderMemberCard(T, m) {
-    const ini = initials(m.firstName, m.lastName);
-    const contractTone = m.contract === 'CDI' ? 'ok' : (m.contract === 'CDD' || m.contract === 'Stage') ? 'pend' : 'neutral';
+  function renderMembersTable(T, list) {
+    const rows = list.map(m => {
+      const ini = initials(m.firstName, m.lastName);
+      const tone = m.avatarTone || 'a';
+      const contractTone = m.contract === 'CDI' ? 'ok' : (m.contract === 'CDD' || m.contract === 'Stage') ? 'pend' : 'neutral';
+      const contractCls = contractTone === 'ok' ? 'kt-tag kt-tag-ok'
+        : contractTone === 'pend' ? 'kt-tag kt-tag-pend'
+        : 'kt-tag kt-tag-neutral';
+      const langChips = (m.languages || []).slice(0, 3).map(l => `<span class="kt-langchip">${esc(l)}</span>`).join('') + ((m.languages || []).length > 3 ? `<span class="kt-langchip">+${(m.languages || []).length - 3}</span>` : '');
+      return `
+        <tr class="eq-row-in">
+          <td>
+            <div class="eq-member">
+              <span class="eq-av md" style="background:${AVATAR_COLORS[tone] || AVATAR_COLORS.a}">${esc(ini)}</span>
+              <div>
+                <div class="eq-member-name">${esc(memberFullName(m))}</div>
+                <div class="eq-member-role">${esc(m.email || '—')}</div>
+              </div>
+            </div>
+          </td>
+          <td><div class="kt-cell-strong">${esc(m.function)}</div></td>
+          <td><span class="eq-venue-badge">${esc(m.department)}</span></td>
+          <td><span class="${contractCls}">${esc(m.contract || '—')}</span></td>
+          <td><div class="kt-chips">${langChips || '<span class="eq-cell-empty">—</span>'}</div></td>
+          <td><div class="eq-salary-v">${fmtMad(m.baseSalary)}</div><div class="eq-salary-sub">${(m.hourlyRate || 0).toLocaleString('fr-FR')} MAD/h</div></td>
+          <td>
+            <div class="eq-actions">
+              <button class="eq-icon-btn" type="button" data-action="kt-view-profile" data-arg="${esc(m.id)}" aria-label="${esc(T.viewProfile)}" title="${esc(T.viewProfile)}">${svgIcon(IC.eye, 14)}</button>
+              <button class="eq-icon-btn" type="button" data-action="kt-edit-member"  data-arg="${esc(m.id)}" aria-label="${esc(T.editBtn)}" title="${esc(T.editBtn)}">${svgIcon(IC.edit, 14)}</button>
+              <button class="eq-icon-btn" type="button" data-action="kt-delete-member" data-arg="${esc(m.id)}" aria-label="${esc(T.deleteBtn)}" title="${esc(T.deleteBtn)}" style="color:var(--n-500);">${svgIcon(IC.trash, 14)}</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
     return `
-      <div class="kt-card" data-action="kt-view-profile" data-arg="${esc(m.id)}" tabindex="0">
-        <div class="kt-card-head">
-          <div class="kt-av ${esc(m.avatarTone || 'a')}">${esc(ini)}</div>
-          <div class="kt-card-id">
-            <div class="kt-card-name">${esc(memberFullName(m))}</div>
-            <div class="kt-card-sub">${esc(m.function)} · ${esc(m.department)}</div>
-          </div>
-          <span class="chip ${contractTone}" style="font-size:10.5px; align-self:flex-start;">${esc(m.contract || '—')}</span>
-        </div>
-        <div class="kt-card-meta">
-          <div class="kt-meta">
-            <div class="kt-meta-l">SALAIRE</div>
-            <div class="kt-meta-v mono">${(m.baseSalary || 0).toLocaleString('fr-FR')} MAD</div>
-          </div>
-          <div class="kt-meta">
-            <div class="kt-meta-l">TAUX/H</div>
-            <div class="kt-meta-v mono">${(m.hourlyRate || 0).toLocaleString('fr-FR')} MAD</div>
-          </div>
-          <div class="kt-meta">
-            <div class="kt-meta-l">LANGUES</div>
-            <div class="kt-meta-v">${(m.languages || []).slice(0, 3).map(l => `<span class="kt-langchip">${esc(l)}</span>`).join('') || '—'}</div>
-          </div>
-        </div>
-        <div class="kt-card-foot">
-          <button class="kt-btn-ghost" data-action="kt-view-profile" data-arg="${esc(m.id)}">${svgEye()} ${esc(T.viewProfile)}</button>
-          <button class="kt-btn-ghost" data-action="kt-edit-member" data-arg="${esc(m.id)}">${svgEdit()} ${esc(T.editBtn)}</button>
-        </div>
+      <div class="eq-table-wrap">
+        <table class="eq-table">
+          <thead>
+            <tr>
+              <th>${esc(T.colMember)}</th>
+              <th>${esc(T.colFunction)}</th>
+              <th>${esc(T.colDepartment)}</th>
+              <th>${esc(T.colContract)}</th>
+              <th>${esc(T.colLanguages)}</th>
+              <th>${esc(T.colSalary)}</th>
+              <th class="eq-num">${esc(T.colActions)}</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
       </div>
     `;
   }
@@ -789,19 +887,19 @@
     const periodKind = root.periodKind || 'week';
     const period = buildPeriod(periodKind);
     const hours = getHours(venueType);
-    /* Ensure rows exist for every member (when seed cycles) */
+    /* Ensure rows exist for every member */
     members.forEach(m => {
       if (!hours[m.id]) hours[m.id] = {};
       period.days.forEach(d => { if (hours[m.id][d] == null) hours[m.id][d] = 0; });
     });
-    /* Reverse: trim cells outside period for memory cleanliness */
 
     const locked = root.periodLocked;
     let grandHours = 0, grandPay = 0;
 
     const headDays = period.days.map(d => {
       const dt = new Date(d);
-      return `<th class="kt-day-head"><span class="d">${pad(dt.getDate())}</span><span class="m">${dt.toLocaleDateString('fr-FR', { weekday: 'short' })}</span></th>`;
+      const dayLbl = dt.toLocaleDateString(trLang() === 'en' ? 'en-US' : 'fr-FR', { weekday: 'short' });
+      return `<th class="kt-day-head"><span class="d">${pad(dt.getDate())}</span><span class="m">${dayLbl}</span></th>`;
     }).join('');
 
     const rows = members.map(m => {
@@ -818,10 +916,11 @@
       const pay = total * (m.hourlyRate || 0);
       grandHours += total;
       grandPay += pay;
+      const tone = m.avatarTone || 'a';
       return `
         <tr>
           <td class="kt-h-member">
-            <div class="kt-av ${esc(m.avatarTone || 'a')}" style="width:30px; height:30px; font-size:11.5px;">${esc(initials(m.firstName, m.lastName))}</div>
+            <span class="eq-av sm" style="background:${AVATAR_COLORS[tone] || AVATAR_COLORS.a}">${esc(initials(m.firstName, m.lastName))}</span>
             <div>
               <div class="n">${esc(memberFullName(m))}</div>
               <div class="r">${esc(m.function)}</div>
@@ -834,49 +933,52 @@
       `;
     }).join('');
 
-    const periodButtons = [
+    const periodPills = [
       ['week',      T.hPeriodWeek],
       ['fortnight', T.hPeriodFort],
       ['month',     T.hPeriodMonth],
-      ['custom',    T.hPeriodCustom],
-    ].map(([k, label]) => `<button class="kt-pbtn${periodKind === k ? ' on' : ''}" data-action="kt-period" data-arg="${k}">${esc(label)}</button>`).join('');
+    ].map(([k, label]) => `<button class="eq-pill${periodKind === k ? ' on' : ''}" type="button" data-action="kt-period" data-arg="${k}">${esc(label)}</button>`).join('');
 
     return `
-      <!-- Top: period picker + actions -->
-      <div class="kt-hbar">
-        <div class="kt-pset">${periodButtons}</div>
-        <div class="kt-hbar-right">
-          <button class="kb ghost" data-action="kt-quick-entry">${svgPlus()}${esc(T.hQuickEntry)}</button>
-          <button class="kb ghost" data-action="kt-export-csv">${svgDownload()}${esc(T.hExport)}</button>
-          <button class="kb ghost" data-action="kt-import-csv">${svgUpload()}${esc(T.hImport)}</button>
-          <button class="kb ${locked ? 'ghost' : 'atlas'}" data-action="kt-validate-period" ${locked ? 'disabled' : ''}>
-            ${locked ? svgLock() : svgCheck()}${esc(locked ? T.hLocked : T.hValidate)}
-          </button>
+      <div class="eq-section">
+        <div class="eq-section-head">
+          <h3>${esc(T.tabHours)}</h3>
+          <span class="eq-count-badge">${esc(T.hPeriodLabel(period.startFr, period.endFr))}${locked ? ' · ' + esc(T.hLocked) : ''}</span>
         </div>
-      </div>
 
-      <div class="kt-h-periodlabel">${esc(T.hPeriodLabel(period.startFr, period.endFr))}${locked ? ' · <span style="color:var(--warning); font-weight:600;">' + esc(T.hLocked) + '</span>' : ''}</div>
+        <div class="kt-hbar">
+          <div class="eq-pill-row">${periodPills}</div>
+          <div class="kt-hbar-right">
+            <button class="btn-slim" type="button" data-action="kt-quick-entry">${svgIcon(IC.plus, 13)}<span>${esc(T.hQuickEntry)}</span></button>
+            <button class="btn-slim" type="button" data-action="kt-export-csv">${svgIcon(IC.download, 13)}<span>${esc(T.hExport)}</span></button>
+            <button class="btn-slim" type="button" data-action="kt-import-csv">${svgIcon(IC.upload, 13)}<span>${esc(T.hImport)}</span></button>
+            <button class="btn-slim ${locked ? '' : 'primary'}" type="button" data-action="kt-validate-period" ${locked ? 'disabled' : ''}>
+              ${locked ? svgIcon(IC.lock, 13) : svgIcon(IC.check, 13)}<span>${esc(locked ? T.hLocked : T.hValidate)}</span>
+            </button>
+          </div>
+        </div>
 
-      <div class="kt-h-tablewrap">
-        <table class="kt-h-table">
-          <thead>
-            <tr>
-              <th class="kt-h-memberhead">${esc(T.hMember)}</th>
-              ${headDays}
-              <th class="kt-h-totalhead">${esc(T.hTotal)}</th>
-              <th class="kt-h-totalhead">${esc(T.hPay)}</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-          <tfoot>
-            <tr>
-              <td class="kt-h-foot-label">${esc(T.hFooterLabel)}</td>
-              <td colspan="${period.days.length}"></td>
-              <td class="kt-h-foot-tot mono"><b>${grandHours.toFixed(2).replace('.', ',')}</b><span>h</span></td>
-              <td class="kt-h-foot-tot mono"><b>${grandPay.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</b><span>MAD</span></td>
-            </tr>
-          </tfoot>
-        </table>
+        <div class="kt-h-tablewrap">
+          <table class="kt-h-table">
+            <thead>
+              <tr>
+                <th class="kt-h-memberhead">${esc(T.hMember)}</th>
+                ${headDays}
+                <th class="kt-h-totalhead">${esc(T.hTotal)}</th>
+                <th class="kt-h-totalhead">${esc(T.hPay)}</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+            <tfoot>
+              <tr>
+                <td class="kt-h-foot-label">${esc(T.hFooterLabel)}</td>
+                <td colspan="${period.days.length}"></td>
+                <td class="kt-h-foot-tot mono"><b>${grandHours.toFixed(2).replace('.', ',')}</b><span>h</span></td>
+                <td class="kt-h-foot-tot mono"><b>${grandPay.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</b><span>MAD</span></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     `;
   }
@@ -885,57 +987,44 @@
   handlers['kt-tab'] = (_el, kind) => {
     if (kind === 'profiles' || kind === 'hours') {
       activeTab = kind;
-      renderRoot();
+      render();
     }
   };
+  handlers['kt-filter-dept']     = (_el, v) => { activeFilters.dept = v || ''; render(); };
+  handlers['kt-filter-contract'] = (_el, v) => { activeFilters.contract = v || ''; render(); };
+  handlers['kt-filter-lang']     = (_el, v) => { activeFilters.lang = v || ''; render(); };
 
-  // Filter / search wiring lives outside [data-action] because they are inputs
-  // — bind via delegated input listener on the drawer root.
+  /* Live-edit of an hour cell — keeps focus, only refreshes totals. */
   document.addEventListener('input', (e) => {
-    if (!currentDrawer || !currentDrawer.el || !currentDrawer.el.contains(e.target)) return;
     const t2 = e.target;
-    if (t2.matches('[data-kt-search]')) {
-      activeFilters.search = t2.value;
-      // Only re-render the grid for snappier typing — but full re-render is fine here.
-      // Debounce minimally
-      clearTimeout(window.__kiwiTeamSearchTimer);
-      window.__kiwiTeamSearchTimer = setTimeout(renderRoot, 120);
-    }
-    if (t2.matches('[data-kt-filter]')) {
-      const kind = t2.getAttribute('data-kt-filter');
-      activeFilters[kind] = t2.value;
-      renderRoot();
-    }
-    if (t2.matches('[data-kt-hour]')) {
-      if (window.__kiwiTeamV2.periodLocked) return;
-      const mid = t2.getAttribute('data-mid');
-      const day = t2.getAttribute('data-day');
-      const venue = window.KiwiVenue?.getCurrentVenueData?.();
-      const vt = venue?.type || 'restaurant';
-      const hours = window.__kiwiTeamV2.hoursByVenue[vt] || (window.__kiwiTeamV2.hoursByVenue[vt] = {});
-      if (!hours[mid]) hours[mid] = {};
-      const val = Math.max(0, Math.min(24, parseFloat(t2.value) || 0));
-      hours[mid][day] = val;
-      // Re-render totals row but keep input focus by rerendering just totals
-      updateHourTotals();
-    }
+    if (!t2.matches || !t2.matches('[data-kt-hour]')) return;
+    if (!pageActive) return;
+    if (window.__kiwiTeamV2.periodLocked) return;
+    const mid = t2.getAttribute('data-mid');
+    const day = t2.getAttribute('data-day');
+    const venue = window.KiwiVenue?.getCurrentVenueData?.();
+    const vt = venue?.type || 'restaurant';
+    const hours = window.__kiwiTeamV2.hoursByVenue[vt] || (window.__kiwiTeamV2.hoursByVenue[vt] = {});
+    if (!hours[mid]) hours[mid] = {};
+    const val = Math.max(0, Math.min(24, parseFloat(t2.value) || 0));
+    hours[mid][day] = val;
+    updateHourTotals();
   });
 
-  // Recompute totals + period footer without losing input focus.
   function updateHourTotals() {
-    if (!currentDrawer || !currentDrawer.el) return;
+    const root = document.querySelector('[data-equipe-root]');
+    if (!root) return;
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
     const vt = venue.type || 'restaurant';
     const members = getMembers(vt);
     const hours = getHours(vt);
     let grandH = 0, grandP = 0;
-    members.forEach(m => {
+    members.forEach((m, idx) => {
       const row = hours[m.id] || {};
       const tot = Object.values(row).reduce((a, b) => a + (+b || 0), 0);
       const pay = tot * (m.hourlyRate || 0);
       grandH += tot; grandP += pay;
-      // Locate row cells
-      const tr = currentDrawer.el.querySelectorAll('table.kt-h-table tbody tr')[members.indexOf(m)];
+      const tr = root.querySelectorAll('table.kt-h-table tbody tr')[idx];
       if (tr) {
         const totalCell = tr.querySelector('.kt-h-total b');
         const payCell   = tr.querySelector('.kt-h-pay b');
@@ -943,21 +1032,19 @@
         if (payCell)   payCell.textContent   = pay.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
       }
     });
-    const footTot = currentDrawer.el.querySelectorAll('table.kt-h-table tfoot .kt-h-foot-tot b');
+    const footTot = root.querySelectorAll('table.kt-h-table tfoot .kt-h-foot-tot b');
     if (footTot[0]) footTot[0].textContent = grandH.toFixed(2).replace('.', ',');
     if (footTot[1]) footTot[1].textContent = grandP.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
   }
 
-  /* ═══════════════ ADD / EDIT MEMBER MODAL ═══════════════ */
+  /* ═══════════════ ADD / EDIT MEMBER MODAL (UNCHANGED) ═══════════════ */
   function openMemberModal(memberId) {
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant', name: 'Café Atlas' };
     const venueType = venue.type || 'restaurant';
     const cat = catalogFor(venueType);
     const editing = !!memberId;
-    const existing = editing
-      ? (getMembers(venueType).find(m => m.id === memberId) || null)
-      : null;
+    const existing = editing ? (getMembers(venueType).find(m => m.id === memberId) || null) : null;
     if (editing && !existing) return;
     const m = existing || {
       id: 'mem-' + Math.random().toString(36).slice(2, 9),
@@ -982,10 +1069,9 @@
     };
     const isCddOrStage = (c) => c === 'CDD' || c === 'Stage';
 
-    const fnOpts = cat.functions.map(f => `<option value="${esc(f)}"${m.function === f ? ' selected' : ''}>${esc(f)}</option>`).join('');
+    const fnOpts   = cat.functions.map(f => `<option value="${esc(f)}"${m.function === f ? ' selected' : ''}>${esc(f)}</option>`).join('');
     const deptOpts = cat.departments.map(d => `<option value="${esc(d)}"${m.department === d ? ' selected' : ''}>${esc(d)}</option>`).join('');
-    const ctOpts = CONTRACT_TYPES.map(c => `<option value="${esc(c)}"${m.contract === c ? ' selected' : ''}>${esc(c)}</option>`).join('');
-
+    const ctOpts   = CONTRACT_TYPES.map(c => `<option value="${esc(c)}"${m.contract === c ? ' selected' : ''}>${esc(c)}</option>`).join('');
     const langChips = LANGS.map(l => {
       const on = (m.languages || []).includes(l);
       return `<button type="button" class="kt-lang-chip${on ? ' on' : ''}" data-action="kt-lang-toggle" data-arg="${esc(l)}">${esc(l)}</button>`;
@@ -993,16 +1079,15 @@
 
     const mdl = modal({
       title: editing ? T.editTitle : T.addTitle,
-      width: 620,
+      width: 640,
       body: `
         <style>${MODAL_CSS}</style>
         <form data-kt-form data-mid="${esc(m.id)}" data-editing="${editing ? '1' : '0'}">
-          <!-- Identity -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.secIdentity)}</div>
             <div class="kt-frow">
               <div class="kt-photo">
-                <div class="av-disp ${esc(m.avatarTone || 'a')}" data-kt-avdisp>${esc(initials(m.firstName, m.lastName)) || '?'}</div>
+                <div class="av-disp" data-kt-avdisp style="background:${AVATAR_COLORS[m.avatarTone] || AVATAR_COLORS.a}">${esc(initials(m.firstName, m.lastName)) || '?'}</div>
                 <button type="button" class="kt-photo-btn" data-action="kt-upload-photo">${esc(T.uploadPhoto)}</button>
               </div>
               <div class="kt-fgrow">
@@ -1015,7 +1100,6 @@
             </div>
           </div>
 
-          <!-- Contact -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.secContact)}</div>
             <div class="kt-fgrid-2">
@@ -1025,20 +1109,18 @@
             <label><span class="l">${esc(T.address)}</span><input type="text" name="address" value="${esc(m.address)}" placeholder="${esc(T.placeholder.address)}" /></label>
           </div>
 
-          <!-- Access -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.secAccess)}</div>
             <label class="kt-pwd-label">
               <span class="l">${esc(T.password)}</span>
               <div class="kt-pwd-row">
                 <input type="text" name="password" value="${esc(m.password)}" data-kt-pwd />
-                <button type="button" class="kt-fbtn-ghost" data-action="kt-pwd-gen">${svgRefresh()} ${esc(T.generate)}</button>
-                <button type="button" class="kt-fbtn-ghost" data-action="kt-pwd-copy">${svgCopy()} ${esc(T.copy)}</button>
+                <button type="button" class="kt-fbtn-ghost" data-action="kt-pwd-gen">${svgIcon(IC.refresh, 11)} ${esc(T.generate)}</button>
+                <button type="button" class="kt-fbtn-ghost" data-action="kt-pwd-copy">${svgIcon(IC.copy, 11)} ${esc(T.copy)}</button>
               </div>
             </label>
           </div>
 
-          <!-- Role -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.secRole)}</div>
             <div class="kt-fgrid-2">
@@ -1051,7 +1133,6 @@
             </div>
           </div>
 
-          <!-- Contract -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.secContract)}</div>
             <div class="kt-fgrid-3">
@@ -1063,7 +1144,6 @@
             </div>
           </div>
 
-          <!-- Compensation -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.secComp)}</div>
             <div class="kt-fgrid-2">
@@ -1072,13 +1152,11 @@
             </div>
           </div>
 
-          <!-- Skills / languages -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.languages)}</div>
             <div class="kt-langwrap" data-kt-langs>${langChips}</div>
           </div>
 
-          <!-- Emergency contact -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.secEmergency)}</div>
             <div class="kt-fgrid-2">
@@ -1087,7 +1165,6 @@
             </div>
           </div>
 
-          <!-- Notes -->
           <div class="kt-fsec">
             <div class="kt-fseclabel">${esc(T.secNotes)}</div>
             <label><textarea name="notes" rows="3" placeholder="${esc(T.placeholder.notes)}">${esc(m.notes)}</textarea></label>
@@ -1096,14 +1173,10 @@
       `,
       foot: `
         <button class="kb ghost" data-dismiss>${esc(T.cancel)}</button>
-        <button class="kb atlas" data-action="kt-submit-member">${svgCheck()}${esc(editing ? T.submitEdit : T.submitAdd)}</button>
+        <button class="kb atlas" data-action="kt-submit-member">${svgIcon(IC.check, 13)}${esc(editing ? T.submitEdit : T.submitAdd)}</button>
       `,
     });
-
-    // wire dismiss buttons to close
     mdl.el.addEventListener('click', (e) => { if (e.target.closest('[data-dismiss]')) mdl.close(); });
-
-    // Stash pending state on the modal element for the submit/cancel handlers
     mdl.el.__ktState = {
       editing,
       memberId: m.id,
@@ -1115,9 +1188,8 @@
     window.__kiwiTeamModal = mdl;
   }
 
-  handlers['kt-add-member'] = () => openMemberModal(null);
+  handlers['kt-add-member']  = () => openMemberModal(null);
   handlers['kt-edit-member'] = (_el, id) => {
-    // close any open profile drawer first
     if (window.__kiwiTeamProfileDrawer) {
       try { window.__kiwiTeamProfileDrawer.close(); } catch (_) {}
       window.__kiwiTeamProfileDrawer = null;
@@ -1126,19 +1198,14 @@
   };
 
   handlers['kt-upload-photo'] = () => {
-    // Mocked — show a toast. We could open a file picker, but the brief
-    // says "mocked, accept any file or just show colored initials".
-    const T = t();
-    Kiwi.toast(T.uploadPhoto, { type: 'info', desc: trLang() === 'ar' ? 'محاكاة · يتم استخدام الأحرف الأولى الملونة بدلاً من ذلك.' : trLang() === 'en' ? 'Mocked · colored initials are used instead.' : 'Mocké · les initiales colorées sont utilisées à la place.' });
+    Kiwi.toast(t().uploadPhoto, { type: 'info', desc: trLang() === 'ar' ? 'محاكاة · يتم استخدام الأحرف الأولى الملونة بدلاً من ذلك.' : trLang() === 'en' ? 'Mocked · colored initials are used instead.' : 'Mocké · les initiales colorées sont utilisées à la place.' });
   };
-
   handlers['kt-pwd-gen'] = () => {
     const mdl = window.__kiwiTeamModal; if (!mdl || !mdl.el) return;
     const input = mdl.el.querySelector('[data-kt-pwd]');
     if (input) input.value = makePwd();
     Kiwi.toast(t().tPwdGen, { type: 'success' });
   };
-
   handlers['kt-pwd-copy'] = () => {
     const mdl = window.__kiwiTeamModal; if (!mdl || !mdl.el) return;
     const input = mdl.el.querySelector('[data-kt-pwd]');
@@ -1147,13 +1214,10 @@
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(v).catch(() => {});
     } else {
-      try {
-        input.select(); document.execCommand('copy');
-      } catch (_) {}
+      try { input.select(); document.execCommand('copy'); } catch (_) {}
     }
     Kiwi.toast(t().tPwdCopied, { type: 'success' });
   };
-
   handlers['kt-lang-toggle'] = (el, lang) => {
     const mdl = window.__kiwiTeamModal; if (!mdl || !mdl.el) return;
     const st = mdl.el.__ktState; if (!st) return;
@@ -1162,7 +1226,7 @@
     if (el) el.classList.toggle('on');
   };
 
-  // contract type → toggle end date visibility
+  /* Reactive end-date + avatar initials in the modal */
   document.addEventListener('change', (e) => {
     const mdl = window.__kiwiTeamModal;
     if (mdl && mdl.el && mdl.el.contains(e.target) && e.target.matches('[data-kt-contract]')) {
@@ -1172,7 +1236,6 @@
         else wrap.setAttribute('hidden', '');
       }
     }
-    // live avatar initials
     if (mdl && mdl.el && mdl.el.contains(e.target) && (e.target.name === 'firstName' || e.target.name === 'lastName')) {
       const form = mdl.el.querySelector('[data-kt-form]');
       if (form) {
@@ -1183,7 +1246,6 @@
       }
     }
   });
-  // also keep initials live during typing
   document.addEventListener('input', (e) => {
     const mdl = window.__kiwiTeamModal;
     if (mdl && mdl.el && mdl.el.contains(e.target) && (e.target.name === 'firstName' || e.target.name === 'lastName')) {
@@ -1204,18 +1266,14 @@
     const form = mdl.el.querySelector('[data-kt-form]'); if (!form) return;
     const data = Object.fromEntries(new FormData(form).entries());
 
-    // validation
     if (!data.firstName?.trim() || !data.lastName?.trim() || !data.function?.trim()) {
-      Kiwi.toast(T.vRequired, { type: 'pend' });
-      return;
+      Kiwi.toast(T.vRequired, { type: 'pend' }); return;
     }
     if (data.email && !/^\S+@\S+\.\S+$/.test(data.email)) {
-      Kiwi.toast(T.vInvalidEmail, { type: 'pend' });
-      return;
+      Kiwi.toast(T.vInvalidEmail, { type: 'pend' }); return;
     }
     if ((data.contract === 'CDD' || data.contract === 'Stage') && data.endDate && data.startDate && data.endDate < data.startDate) {
-      Kiwi.toast(T.vEndAfterStart, { type: 'pend' });
-      return;
+      Kiwi.toast(T.vEndAfterStart, { type: 'pend' }); return;
     }
 
     const venueType = st.venueType;
@@ -1251,20 +1309,16 @@
       Kiwi.toast(T.tUpdated(memberFullName(member)), { type: 'success' });
     } else {
       members.unshift(member);
-      // ensure hours map row exists
       const h = window.__kiwiTeamV2.hoursByVenue[venueType] || (window.__kiwiTeamV2.hoursByVenue[venueType] = {});
       h[member.id] = {};
       Kiwi.toast(T.tAdded(memberFullName(member)), { type: 'success', desc: T.tAddedDesc(member.password) });
     }
     mdl.close();
     window.__kiwiTeamModal = null;
-    renderRoot();
+    if (pageActive) render();
   };
 
-  /* ═══════════════ VIEW PROFILE MODAL ═══════════════
-   * Uses a modal (not a drawer) so it stacks on top of the Équipe drawer
-   * without closing it (the drawer() impl auto-dismisses any open drawer).
-   * ─────────────────────────────────────────────────────────── */
+  /* ═══════════════ VIEW PROFILE MODAL ═══════════════ */
   handlers['kt-view-profile'] = (_el, id) => {
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
@@ -1273,7 +1327,7 @@
     if (!m) return;
 
     const subtitle = T.profileSub(m.function, m.department);
-    const profileDrawer = modal({
+    const profileM = modal({
       title: memberFullName(m),
       desc: subtitle,
       width: 620,
@@ -1281,13 +1335,13 @@
         <style>${MODAL_CSS}</style>
         <div class="kt-profile">
           <div class="kt-profile-head">
-            <div class="kt-av ${esc(m.avatarTone || 'a')}" style="width:62px; height:62px; font-size:21px;">${esc(initials(m.firstName, m.lastName))}</div>
+            <div class="av-disp" style="background:${AVATAR_COLORS[m.avatarTone] || AVATAR_COLORS.a}; width:62px; height:62px; font-size:21px; border-radius:18px; display:flex; align-items:center; justify-content:center; color:var(--paper); font-family:var(--mono); font-weight:600;">${esc(initials(m.firstName, m.lastName))}</div>
             <div class="kt-profile-meta">
               <div class="kt-profile-name">${esc(memberFullName(m))}</div>
               <div class="kt-profile-role">${esc(m.function)} · ${esc(m.department)}</div>
               <div class="kt-profile-tags">
-                <span class="chip ${m.contract === 'CDI' ? 'ok' : (m.contract === 'CDD' || m.contract === 'Stage') ? 'pend' : 'neutral'}">${esc(m.contract)}</span>
-                ${(m.languages || []).slice(0, 4).map(l => `<span class="chip neutral" style="font-size:10.5px;">${esc(l)}</span>`).join('')}
+                <span class="kt-tag ${m.contract === 'CDI' ? 'kt-tag-ok' : (m.contract === 'CDD' || m.contract === 'Stage') ? 'kt-tag-pend' : 'kt-tag-neutral'}">${esc(m.contract)}</span>
+                ${(m.languages || []).slice(0, 4).map(l => `<span class="kt-langchip">${esc(l)}</span>`).join('')}
               </div>
             </div>
           </div>
@@ -1324,11 +1378,11 @@
         </div>
       `,
       foot: `
-        <button class="kb ghost" data-action="kt-delete-member" data-arg="${esc(m.id)}" style="color:var(--danger); border-color:rgba(176, 30, 30, 0.22);">${svgTrash()}${esc(T.deleteBtn)}</button>
-        <button class="kb primary" data-action="kt-edit-member" data-arg="${esc(m.id)}">${svgEdit()}${esc(T.editBtn)}</button>
+        <button class="kb ghost" data-action="kt-delete-member" data-arg="${esc(m.id)}" style="color:var(--danger);">${svgIcon(IC.trash, 13)}${esc(T.deleteBtn)}</button>
+        <button class="kb atlas" data-action="kt-edit-member" data-arg="${esc(m.id)}">${svgIcon(IC.edit, 13)}${esc(T.editBtn)}</button>
       `,
     });
-    window.__kiwiTeamProfileDrawer = profileDrawer;
+    window.__kiwiTeamProfileDrawer = profileM;
   };
 
   function profileSection(title, rows, prehtml) {
@@ -1353,10 +1407,10 @@
     const m = members.find(x => x.id === id); if (!m) return;
     const confirmM = modal({
       title: T.delTitle,
-      width: 440,
+      width: 460,
       body: `<p style="margin:0; color:var(--n-600); font-size:13px; line-height:1.55;">${esc(T.delDesc)}</p>
         <div style="margin-top:14px; padding:12px 14px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:10px; display:flex; gap:11px; align-items:center;">
-          <div class="kt-av ${esc(m.avatarTone || 'a')}" style="width:36px; height:36px; font-size:13px;">${esc(initials(m.firstName, m.lastName))}</div>
+          <span class="eq-av sm" style="background:${AVATAR_COLORS[m.avatarTone] || AVATAR_COLORS.a}">${esc(initials(m.firstName, m.lastName))}</span>
           <div>
             <div style="font-weight:600;">${esc(memberFullName(m))}</div>
             <div style="font-size:11.5px; color:var(--n-500);">${esc(m.function)} · ${esc(m.department)}</div>
@@ -1364,7 +1418,7 @@
         </div>`,
       foot: `
         <button class="kb ghost" data-dismiss>${esc(T.cancel)}</button>
-        <button class="kb" data-action="kt-confirm-delete" data-arg="${esc(id)}" style="background:var(--danger); color:#fff;">${svgTrash()}${esc(T.delConfirm)}</button>
+        <button class="kb" data-action="kt-confirm-delete" data-arg="${esc(id)}" style="background:var(--danger); color:#fff;">${svgIcon(IC.trash, 13)}${esc(T.delConfirm)}</button>
       `,
     });
     confirmM.el.addEventListener('click', (e) => { if (e.target.closest('[data-dismiss]')) confirmM.close(); });
@@ -1379,22 +1433,20 @@
     const idx = members.findIndex(x => x.id === id);
     if (idx < 0) return;
     const removed = members.splice(idx, 1)[0];
-    // also remove their hours
     const h = window.__kiwiTeamV2.hoursByVenue[venueType] || {};
     delete h[id];
     if (window.__kiwiTeamConfirmModal) { try { window.__kiwiTeamConfirmModal.close(); } catch (_) {} window.__kiwiTeamConfirmModal = null; }
     if (window.__kiwiTeamProfileDrawer) { try { window.__kiwiTeamProfileDrawer.close(); } catch (_) {} window.__kiwiTeamProfileDrawer = null; }
     Kiwi.toast(T.tDeleted(memberFullName(removed)), { type: 'success' });
-    renderRoot();
+    if (pageActive) render();
   };
 
   /* ═══════════════ HOURS HANDLERS ═══════════════ */
   handlers['kt-period'] = (_el, kind) => {
-    if (!['week', 'fortnight', 'month', 'custom'].includes(kind)) return;
+    if (!['week', 'fortnight', 'month'].includes(kind)) return;
     const root = window.__kiwiTeamV2;
     root.periodKind = kind;
     root.periodLocked = false;
-    // Re-seed hours for the selected period across all members (only days that don't yet exist).
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
     const vt = venue.type || 'restaurant';
     const period = buildPeriod(kind);
@@ -1404,13 +1456,12 @@
       if (!hours[m.id]) hours[m.id] = {};
       period.days.forEach(d => {
         if (hours[m.id][d] == null) {
-          // mild realistic seed
           const isOff = (Math.floor(Math.random() * 7) === 0);
           hours[m.id][d] = isOff ? 0 : (4 + Math.floor(Math.random() * 5)) + (Math.random() < 0.3 ? 0.5 : 0);
         }
       });
     });
-    renderRoot();
+    render();
   };
 
   handlers['kt-quick-entry'] = () => {
@@ -1422,7 +1473,7 @@
     const today = toISO(new Date());
     const qe = modal({
       title: T.qeTitle,
-      width: 440,
+      width: 460,
       body: `
         <style>${MODAL_CSS}</style>
         <div class="kt-qe-form">
@@ -1438,7 +1489,7 @@
       `,
       foot: `
         <button class="kb ghost" data-dismiss>${esc(T.cancel)}</button>
-        <button class="kb atlas" data-action="kt-qe-save">${svgCheck()}${esc(T.qeSave)}</button>
+        <button class="kb atlas" data-action="kt-qe-save">${svgIcon(IC.check, 13)}${esc(T.qeSave)}</button>
       `,
     });
     qe.el.addEventListener('click', (e) => { if (e.target.closest('[data-dismiss]')) qe.close(); });
@@ -1460,7 +1511,7 @@
     const m = getMembers(vt).find(x => x.id === mid);
     qe.close();
     window.__kiwiTeamQuickEntry = null;
-    renderRoot();
+    if (pageActive) render();
     Kiwi.toast(T.tHourSaved(memberFullName(m || {}), hVal, date), { type: 'success' });
   };
 
@@ -1468,100 +1519,99 @@
     const T = t();
     Kiwi.toast(T.tExport, { type: 'success', desc: T.tExportDesc });
   };
-
   handlers['kt-import-csv'] = () => {
     const T = t();
     Kiwi.toast(T.tImport, { type: 'info', desc: T.tImportDesc });
   };
-
   handlers['kt-validate-period'] = () => {
     const T = t();
     const root = window.__kiwiTeamV2;
     if (root.periodLocked) return;
     root.periodLocked = true;
     const period = buildPeriod(root.periodKind);
-    renderRoot();
+    if (pageActive) render();
     Kiwi.toast(T.tValidated(period.startFr, period.endFr), { type: 'success', desc: T.tValidatedDesc });
   };
 
-  /* ═══════════════ STYLES ═══════════════
-   * Scoped via a unique kt- prefix so they don't bleed into other
-   * drawers. Injected directly into the drawer body / modal body so
-   * we don't need to touch dashboard.html.
-   * ─────────────────────────────────────────────────────────── */
-  const TEAM_CSS = `
-    .kt-tabs { display: inline-flex; gap: 2px; background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 10px; padding: 3px; margin-bottom: 14px; }
-    .kt-tab { padding: 8px 16px; border: 0; background: transparent; cursor: pointer; font-size: 12.5px; font-weight: 500; color: var(--n-600); border-radius: 8px; font-family: var(--sans); transition: all 140ms; }
-    .kt-tab:hover { color: var(--ink); }
-    .kt-tab.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(10,15,13,0.08); }
-    .kt-pheader { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 14px; gap: 16px; }
-    .kt-count .num { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: var(--ink); }
-    .kt-count .lbl { font-size: 11.5px; color: var(--n-500); margin-top: 5px; }
-    .kt-filterbar { display: grid; grid-template-columns: 1fr 180px 160px 140px; gap: 8px; margin-bottom: 14px; }
-    .kt-search { position: relative; }
-    .kt-search .ic { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--n-400); pointer-events: none; }
-    .kt-search input { width: 100%; padding: 10px 12px 10px 34px; border: 1px solid var(--n-300); border-radius: 9px; font-family: var(--sans); font-size: 13px; background: #fff; color: var(--ink); outline: none; transition: border-color 140ms, box-shadow 140ms; box-sizing: border-box; }
-    .kt-search input:focus { border-color: var(--atlas); box-shadow: 0 0 0 3px rgba(11,110,79,0.10); }
-    .kt-filterbar select { padding: 10px 30px 10px 12px; border: 1px solid var(--n-300); border-radius: 9px; font-family: var(--sans); font-size: 12.5px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236f6c65' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center; appearance: none; -webkit-appearance: none; color: var(--ink); outline: none; cursor: pointer; transition: border-color 140ms, box-shadow 140ms; }
-    .kt-filterbar select:focus { border-color: var(--atlas); box-shadow: 0 0 0 3px rgba(11,110,79,0.10); }
+  /* ═══════════════ NAV HANDLERS — override venues.js ═══════════════ */
+  function installNavHandlers() {
+    if (!window.Kiwi || !window.Kiwi.handlers) return;
+    const H = window.Kiwi.handlers;
+    H['nav-equipe'] = () => showPage();
+    const origAccueil = H['nav-accueil'];
+    H['nav-accueil'] = function () {
+      showDashboard();
+      if (origAccueil) { try { origAccueil.apply(this, arguments); } catch (_) {} }
+    };
+  }
+  /* Install at IIFE-time and again on 'load' so venues.js's late re-assertion loses. */
+  installNavHandlers();
+  window.addEventListener('load', () => setTimeout(installNavHandlers, 0));
 
-    .kt-empty { padding: 36px 14px; text-align: center; color: var(--n-500); font-size: 13px; background: var(--paper-soft); border: 1px dashed var(--n-300); border-radius: 12px; }
+  /* ═══════════════ SCOPED CSS — only patches what .eq-* doesn't cover ═══════════════ */
+  const PAGE_CSS = `
+    /* Search bar */
+    .dash-equipe .kt-searchbar { position: relative; }
+    .dash-equipe .kt-searchbar-ic { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--n-400); pointer-events: none; }
+    .dash-equipe .kt-searchbar input { width: 100%; padding: 11px 12px 11px 36px; border: 1px solid var(--n-200); border-radius: 10px; font-family: var(--sans); font-size: 13px; background: #fff; color: var(--ink); outline: none; box-sizing: border-box; transition: border-color 140ms, box-shadow 140ms; }
+    .dash-equipe .kt-searchbar input:focus { border-color: var(--atlas); box-shadow: 0 0 0 3px rgba(11,110,79,0.10); }
 
-    .kt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-    .kt-card { background: #fff; border: 1px solid var(--n-200); border-radius: 12px; padding: 14px 14px 12px; cursor: pointer; transition: border-color 160ms, box-shadow 160ms, transform 160ms; display: flex; flex-direction: column; gap: 12px; }
-    .kt-card:hover { border-color: var(--atlas); box-shadow: 0 1px 0 rgba(10,15,13,0.04), 0 12px 24px -14px rgba(10,15,13,0.18); transform: translateY(-1px); }
-    .kt-card:focus-visible { outline: 2px solid var(--atlas); outline-offset: 2px; }
-    .kt-card-head { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; }
-    .kt-av { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; font-family: var(--mono); font-weight: 600; color: var(--paper); }
-    .kt-av.a { background: var(--atlas); }
-    .kt-av.b { background: var(--riad); }
-    .kt-av.c { background: #B26B0F; }
-    .kt-av.d { background: #2B5C68; }
-    .kt-card-id .kt-card-name { font-weight: 600; font-size: 14px; letter-spacing: -0.005em; color: var(--ink); }
-    .kt-card-id .kt-card-sub { font-size: 11.5px; color: var(--n-500); margin-top: 3px; }
-    .kt-card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; padding-top: 4px; border-top: 1px dashed var(--n-200); padding-bottom: 0; }
-    .kt-card-meta .kt-meta { padding-top: 8px; }
-    .kt-meta-l { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.10em; color: var(--n-500); margin-bottom: 3px; }
-    .kt-meta-v { font-size: 12px; color: var(--ink); display: flex; flex-wrap: wrap; gap: 4px; }
-    .kt-meta-v.mono { font-family: var(--mono); font-weight: 600; font-size: 12.5px; }
-    .kt-langchip { background: var(--paper-soft); border: 1px solid var(--n-200); padding: 1.5px 6px; border-radius: 5px; font-size: 10px; color: var(--n-700); }
-    .kt-card-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding-top: 4px; }
-    .kt-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--n-200); background: #fff; color: var(--n-700); font-size: 12px; cursor: pointer; transition: all 140ms; font-family: var(--sans); }
-    .kt-btn-ghost:hover { color: var(--ink); border-color: var(--n-300); background: var(--paper-soft); }
+    /* Tag chips (contract type) */
+    .dash-equipe .kt-tag { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.04em; }
+    .dash-equipe .kt-tag-ok      { background: var(--mint-soft); color: var(--atlas); border: 1px solid rgba(11,110,79,0.18); }
+    .dash-equipe .kt-tag-pend    { background: #FFF4E3; color: #946100; border: 1px solid #F4D6A3; }
+    .dash-equipe .kt-tag-neutral { background: var(--paper-soft); color: var(--n-600); border: 1px solid var(--n-200); }
+    .dash-equipe .kt-langchip { background: var(--paper-soft); border: 1px solid var(--n-200); padding: 2px 7px; border-radius: 5px; font-size: 10.5px; color: var(--n-700); }
+    .dash-equipe .kt-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .dash-equipe .kt-cell-strong { font-weight: 500; color: var(--ink); }
 
-    /* HOURS PANE */
-    .kt-hbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-    .kt-pset { display: inline-flex; gap: 2px; background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 10px; padding: 3px; }
-    .kt-pbtn { padding: 7px 13px; border: 0; background: transparent; cursor: pointer; font-size: 12px; color: var(--n-600); border-radius: 8px; font-family: var(--sans); transition: all 140ms; }
-    .kt-pbtn:hover { color: var(--ink); }
-    .kt-pbtn.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(10,15,13,0.06); font-weight: 500; }
-    .kt-hbar-right { display: inline-flex; gap: 6px; flex-wrap: wrap; }
-    .kt-h-periodlabel { font-size: 11.5px; color: var(--n-500); margin-bottom: 10px; font-family: var(--mono); letter-spacing: 0.02em; }
-    .kt-h-tablewrap { border: 1px solid var(--n-200); border-radius: 12px; overflow-x: auto; background: #fff; }
-    .kt-h-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-    .kt-h-table thead th { background: var(--paper-soft); padding: 10px 8px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.10em; color: var(--n-500); font-weight: 500; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--n-200); position: sticky; top: 0; }
-    .kt-h-table .kt-day-head { text-align: center; min-width: 52px; }
-    .kt-h-table .kt-day-head .d { display: block; font-size: 12.5px; color: var(--ink); font-weight: 600; }
-    .kt-h-table .kt-day-head .m { display: block; font-size: 9.5px; color: var(--n-500); text-transform: lowercase; letter-spacing: 0.04em; margin-top: 2px; }
-    .kt-h-table tbody td { border-top: 1px solid var(--n-200); padding: 9px 8px; vertical-align: middle; }
-    .kt-h-table .kt-h-member { display: flex; align-items: center; gap: 9px; min-width: 180px; }
-    .kt-h-table .kt-h-member .n { font-weight: 600; font-size: 12.5px; }
-    .kt-h-table .kt-h-member .r { font-size: 10.5px; color: var(--n-500); }
-    .kt-h-table .kt-day-cell { text-align: center; padding: 7px 4px; }
-    .kt-h-table .kt-day-cell input { width: 48px; padding: 5px 4px; border: 1px solid var(--n-200); border-radius: 6px; font-family: var(--mono); font-size: 12px; background: #fff; color: var(--ink); text-align: center; outline: none; -moz-appearance: textfield; }
-    .kt-h-table .kt-day-cell input::-webkit-outer-spin-button, .kt-h-table .kt-day-cell input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .kt-h-table .kt-day-cell input:focus { border-color: var(--atlas); box-shadow: 0 0 0 2px rgba(11,110,79,0.12); }
-    .kt-h-table .kt-day-cell.today { background: rgba(125, 242, 176, 0.10); }
-    .kt-h-table .kt-day-cell.locked input { background: var(--paper-soft); color: var(--n-500); cursor: not-allowed; }
-    .kt-h-table .kt-h-total, .kt-h-table .kt-h-pay { text-align: right; min-width: 80px; padding-right: 14px; }
-    .kt-h-table .kt-h-total b, .kt-h-table .kt-h-pay b { font-size: 13px; color: var(--ink); }
-    .kt-h-table .kt-h-total span, .kt-h-table .kt-h-pay span { color: var(--n-500); font-size: 10px; margin-left: 3px; font-weight: 400; }
-    .kt-h-table tfoot td { padding: 11px 8px; background: var(--paper-soft); border-top: 2px solid var(--ink); font-size: 12.5px; }
-    .kt-h-table .kt-h-foot-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.10em; color: var(--n-700); text-transform: uppercase; padding-left: 16px; }
-    .kt-h-table .kt-h-foot-tot b { font-size: 14px; color: var(--ink); }
-    .kt-h-table .kt-h-foot-tot span { color: var(--n-500); font-size: 10px; margin-left: 3px; font-weight: 400; }
+    /* Hours tab — table */
+    .dash-equipe .kt-hbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .dash-equipe .kt-hbar-right { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+    .dash-equipe .kt-h-tablewrap { border: 1px solid var(--n-200); border-radius: 12px; overflow-x: auto; background: #fff; }
+    .dash-equipe .kt-h-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .dash-equipe .kt-h-table thead th { background: var(--paper-soft); padding: 11px 9px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.10em; color: var(--n-500); font-weight: 500; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--n-200); position: sticky; top: 0; }
+    .dash-equipe .kt-h-table .kt-day-head { text-align: center; min-width: 54px; }
+    .dash-equipe .kt-h-table .kt-day-head .d { display: block; font-size: 12.5px; color: var(--ink); font-weight: 600; }
+    .dash-equipe .kt-h-table .kt-day-head .m { display: block; font-size: 9.5px; color: var(--n-500); text-transform: lowercase; letter-spacing: 0.04em; margin-top: 2px; }
+    .dash-equipe .kt-h-table tbody td { border-top: 1px solid var(--n-200); padding: 9px 9px; vertical-align: middle; }
+    .dash-equipe .kt-h-table .kt-h-member { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+    .dash-equipe .kt-h-table .kt-h-member .n { font-weight: 600; font-size: 12.5px; color: var(--ink); }
+    .dash-equipe .kt-h-table .kt-h-member .r { font-size: 10.5px; color: var(--n-500); margin-top: 1px; }
+    .dash-equipe .kt-h-table .kt-day-cell { text-align: center; padding: 7px 4px; }
+    .dash-equipe .kt-h-table .kt-day-cell input { width: 50px; padding: 5px 4px; border: 1px solid var(--n-200); border-radius: 6px; font-family: var(--mono); font-size: 12px; background: #fff; color: var(--ink); text-align: center; outline: none; -moz-appearance: textfield; }
+    .dash-equipe .kt-h-table .kt-day-cell input::-webkit-outer-spin-button, .dash-equipe .kt-h-table .kt-day-cell input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .dash-equipe .kt-h-table .kt-day-cell input:focus { border-color: var(--atlas); box-shadow: 0 0 0 2px rgba(11,110,79,0.12); }
+    .dash-equipe .kt-h-table .kt-day-cell.today { background: rgba(125, 242, 176, 0.10); }
+    .dash-equipe .kt-h-table .kt-day-cell.locked input { background: var(--paper-soft); color: var(--n-500); cursor: not-allowed; }
+    .dash-equipe .kt-h-table .kt-h-total, .dash-equipe .kt-h-table .kt-h-pay { text-align: right; min-width: 82px; padding-right: 14px; }
+    .dash-equipe .kt-h-table .kt-h-total b, .dash-equipe .kt-h-table .kt-h-pay b { font-size: 13px; color: var(--ink); }
+    .dash-equipe .kt-h-table .kt-h-total span, .dash-equipe .kt-h-table .kt-h-pay span { color: var(--n-500); font-size: 10px; margin-left: 3px; font-weight: 400; }
+    .dash-equipe .kt-h-table tfoot td { padding: 11px 9px; background: var(--paper-soft); border-top: 2px solid var(--ink); font-size: 12.5px; }
+    .dash-equipe .kt-h-table .kt-h-foot-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.10em; color: var(--n-700); text-transform: uppercase; padding-left: 16px; }
+    .dash-equipe .kt-h-table .kt-h-foot-tot b { font-size: 14px; color: var(--ink); }
+    .dash-equipe .kt-h-table .kt-h-foot-tot span { color: var(--n-500); font-size: 10px; margin-left: 3px; font-weight: 400; }
+
+    /* Fusion-mode overrides for the bits we added */
+    body.fusion-mode .dash-equipe .kt-searchbar input,
+    body.fusion-mode .dash-equipe .kt-h-tablewrap,
+    body.fusion-mode .dash-equipe .kt-h-table .kt-day-cell input { background: #0F0F0F !important; color: var(--paper); border-color: rgba(125,242,176,0.18) !important; }
+    body.fusion-mode .dash-equipe .kt-h-table thead th,
+    body.fusion-mode .dash-equipe .kt-h-table tfoot td { background: rgba(255,255,255,0.04) !important; color: var(--paper); }
+    body.fusion-mode .dash-equipe .kt-h-table .kt-day-cell.locked input { background: rgba(255,255,255,0.06) !important; color: var(--n-400); }
+    body.fusion-mode .dash-equipe .kt-tag-neutral { background: rgba(255,255,255,0.05); color: var(--n-300); border-color: rgba(125,242,176,0.12); }
+    body.fusion-mode .dash-equipe .kt-langchip { background: rgba(255,255,255,0.05); color: var(--n-300); border-color: rgba(125,242,176,0.12); }
   `;
 
+  /* Inject scoped page CSS once on first import */
+  if (!document.querySelector('style[data-kt-page-css]')) {
+    const styleEl = document.createElement('style');
+    styleEl.setAttribute('data-kt-page-css', '');
+    styleEl.textContent = PAGE_CSS;
+    document.head.appendChild(styleEl);
+  }
+
+  /* ═══════════════ MODAL CSS (kept from the previous design — user loved it) ═══════════════ */
   const MODAL_CSS = `
     [data-kt-form] .kt-fsec, .kt-profile .kt-pf-sec, .kt-qe-form, .kt-profile-head { margin-bottom: 18px; }
     [data-kt-form] .kt-fseclabel { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--n-500); text-transform: uppercase; margin-bottom: 9px; }
@@ -1586,10 +1636,6 @@
     [data-kt-form] .kt-fgrid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
     [data-kt-form] .kt-photo { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     [data-kt-form] .kt-photo .av-disp { width: 96px; height: 96px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 600; font-size: 32px; color: var(--paper); }
-    [data-kt-form] .kt-photo .av-disp.a { background: var(--atlas); }
-    [data-kt-form] .kt-photo .av-disp.b { background: var(--riad); }
-    [data-kt-form] .kt-photo .av-disp.c { background: #B26B0F; }
-    [data-kt-form] .kt-photo .av-disp.d { background: #2B5C68; }
     [data-kt-form] .kt-photo-btn { background: var(--paper-soft); border: 1px dashed var(--n-300); padding: 6px 10px; border-radius: 7px; font-size: 11px; color: var(--n-600); cursor: pointer; font-family: var(--sans); }
     [data-kt-form] .kt-photo-btn:hover { border-color: var(--atlas); color: var(--atlas); }
     [data-kt-form] .kt-pwd-label .kt-pwd-row { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; }
@@ -1602,8 +1648,6 @@
     [data-kt-form] [data-kt-end-wrap][hidden] { display: none; }
     .kt-qe-form .kt-fgrid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .kt-qe-form label { display: block; margin-bottom: 10px; }
-
-    /* PROFILE DRAWER */
     .kt-profile-head { display: grid; grid-template-columns: 62px 1fr; gap: 16px; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--n-200); margin-bottom: 18px; }
     .kt-profile-name { font-size: 19px; font-weight: 600; letter-spacing: -0.015em; color: var(--ink); }
     .kt-profile-role { font-size: 12.5px; color: var(--n-500); margin-top: 3px; }
@@ -1614,5 +1658,10 @@
     .kt-pf-row { display: grid; grid-template-columns: 160px 1fr; gap: 12px; align-items: baseline; padding: 4px 0; }
     .kt-pf-l { font-size: 12px; color: var(--n-500); }
     .kt-pf-v { font-size: 13px; color: var(--ink); word-break: break-word; }
+    .kt-tag { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.04em; }
+    .kt-tag-ok      { background: var(--mint-soft); color: var(--atlas); border: 1px solid rgba(11,110,79,0.18); }
+    .kt-tag-pend    { background: #FFF4E3; color: #946100; border: 1px solid #F4D6A3; }
+    .kt-tag-neutral { background: var(--paper-soft); color: var(--n-600); border: 1px solid var(--n-200); }
+    .kt-langchip { background: var(--paper-soft); border: 1px solid var(--n-200); padding: 2px 7px; border-radius: 5px; font-size: 10.5px; color: var(--n-700); }
   `;
 })();
