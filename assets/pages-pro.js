@@ -2820,6 +2820,8 @@ handlers['resv-buffer']     = () => toast('Buffer 15 min appliqué', { type: 'su
   const toast = Kiwi.toast;
   const menu = Kiwi.menu;
   const confetti = Kiwi.confetti;
+  /* Locale helper — every i18n lookup in this IIFE reads through trLang(). */
+  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
 /* ═══════════════════════════════════════════════════════════════════════════
  * Kiwi · Section 2a — restaurant vertical handlers
  * Replaces (or supplements) the existing `nav-tables` and `nav-menu`
@@ -2859,6 +2861,246 @@ const PDS_LS_KEY = 'kiwiPlanDeSalle';
 const PDS_GRID = 16;          /* snap-to-grid unit (px) */
 const PDS_CANVAS_W = 880;
 const PDS_CANVAS_H = 540;
+
+/* ─── SVG architectural backgrounds, per zone "scene" ─────────────────────
+ *   Each scene is a full-bleed SVG matching the caisse plan-bg vibe — terrazzo
+ *   floor + zellige hints + fixtures (comptoir, banquette, escalier, plantes).
+ *   The renderer picks a scene from zone.scene ('salle' | 'terrasse' | 'bar'
+ *   | 'etage' | 'prive' | 'blank').                                          */
+const PDS_SCENES = {
+  salle: `
+    <svg class="plan-bg" viewBox="0 0 1600 800" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="pds-walnut" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0"   stop-color="#2A332A"/>
+          <stop offset="0.5" stop-color="#1F2820"/>
+          <stop offset="1"   stop-color="#151D17"/>
+        </linearGradient>
+        <linearGradient id="pds-brass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E8C88A"/>
+          <stop offset="1" stop-color="#B89052"/>
+        </linearGradient>
+        <pattern id="pds-zellige" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+          <rect width="48" height="48" fill="#F2EBD6"/>
+          <circle cx="24" cy="24" r="2.5" fill="#BFA86A" opacity="0.32"/>
+          <circle cx="0"  cy="0"  r="2.5" fill="#BFA86A" opacity="0.32"/>
+          <circle cx="48" cy="0"  r="2.5" fill="#BFA86A" opacity="0.32"/>
+          <circle cx="0"  cy="48" r="2.5" fill="#BFA86A" opacity="0.32"/>
+          <circle cx="48" cy="48" r="2.5" fill="#BFA86A" opacity="0.32"/>
+        </pattern>
+        <pattern id="pds-terrazzo" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+          <rect width="60" height="60" fill="#FBF7EE"/>
+          <circle cx="12" cy="18" r="1.2" fill="#C6BDA1" opacity="0.4"/>
+          <circle cx="42" cy="8"  r="1"   fill="#A89770" opacity="0.35"/>
+          <circle cx="50" cy="40" r="1.4" fill="#C6BDA1" opacity="0.4"/>
+          <circle cx="22" cy="48" r="1"   fill="#8A7B5A" opacity="0.3"/>
+          <circle cx="32" cy="28" r="1.2" fill="#A89770" opacity="0.35"/>
+        </pattern>
+      </defs>
+      <rect width="1600" height="800" fill="url(#pds-terrazzo)"/>
+      <!-- North wall windows -->
+      <g vector-effect="non-scaling-stroke">
+        <line x1="40"  y1="14" x2="1560" y2="14" stroke="#C6BDA1" stroke-width="3"/>
+        <line x1="60"  y1="20" x2="380"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+        <line x1="420" y1="20" x2="780"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+        <line x1="820" y1="20" x2="1180" y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+        <line x1="1220" y1="20" x2="1540" y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+      </g>
+      <!-- Right wall: CUISINE (compact, narrow strip on the east edge) -->
+      <rect x="1480" y="80" width="115" height="500" rx="8" fill="url(#pds-zellige)" stroke="#A89770" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <text transform="translate(1540, 330) rotate(-90)" text-anchor="middle" font-family="Inter Tight, system-ui" font-size="16" font-weight="500" letter-spacing="8" fill="#7D6E45">CUISINE</text>
+      <!-- Pass-through window into cuisine -->
+      <rect x="1470" y="200" width="20" height="60" fill="#FBF7EE" stroke="#A89770" stroke-width="1.5"/>
+      <!-- South wall COMPTOIR (full width along the south wall, leaves the main floor clear) -->
+      <rect x="80" y="720" width="1240" height="56" rx="6" fill="url(#pds-walnut)"/>
+      <rect x="80" y="720" width="1240" height="5" rx="2.5" fill="url(#pds-brass)"/>
+      <rect x="84" y="725" width="1232" height="1.5" fill="#3A4439" opacity="0.5"/>
+      <rect x="680" y="700" width="80" height="20" rx="3" fill="#1A211B"/>
+      <circle cx="700" cy="710" r="3" fill="#C9A876"/>
+      <circle cx="720" cy="710" r="3" fill="#C9A876"/>
+      <circle cx="740" cy="710" r="3" fill="#C9A876"/>
+      <text x="700" y="760" text-anchor="middle" font-family="Inter Tight, system-ui" font-size="12" font-weight="500" letter-spacing="6" fill="#E8C88A">COMPTOIR</text>
+      <!-- Escalier — bottom-right corner, compact -->
+      <g transform="translate(1340, 700)">
+        <rect width="130" height="80" rx="6" fill="#F0E8D6" stroke="#A89770" stroke-width="1.2"/>
+        <line x1="10" y1="20" x2="120" y2="20" stroke="#C4B493" stroke-width="1"/>
+        <line x1="10" y1="38" x2="120" y2="38" stroke="#C4B493" stroke-width="1"/>
+        <line x1="10" y1="56" x2="120" y2="56" stroke="#C4B493" stroke-width="1"/>
+        <path d="M 65 64 L 65 14 M 50 28 L 65 14 L 80 28" stroke="#7D6E45" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <!-- Plante — top-left corner, small -->
+      <g transform="translate(60, 70)">
+        <ellipse cx="0" cy="32" rx="24" ry="5" fill="#000" opacity="0.07"/>
+        <path d="M -20 4 L 20 4 L 16 36 L -16 36 Z" fill="#8B6B47"/>
+        <path d="M -20 4 L 20 4 L 18 10 L -18 10 Z" fill="#5C4730"/>
+        <path d="M 0 4 Q -26 -36 -32 -6"  stroke="#3D5E48" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 0 4 Q -10 -52 -6 -26"  stroke="#4F7560" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 0 4 Q 10 -52 6 -26"    stroke="#3D5E48" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 0 4 Q 26 -36 32 -6"    stroke="#4F7560" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 0 4 Q 0 -56 0 -28"     stroke="#2F4F3B" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Entrée — left wall door arc -->
+      <g>
+        <rect x="0" y="380" width="6" height="100" fill="#FBF7EE"/>
+        <path d="M 6 480 A 80 80 0 0 1 86 400" stroke="#A89770" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
+        <line x1="6" y1="480" x2="86" y2="480" stroke="#3D3530" stroke-width="2.5"/>
+        <text x="14" y="525" font-family="Inter Tight, system-ui" font-size="10" font-weight="500" letter-spacing="4" fill="#7D6E45">ENTRÉE</text>
+      </g>
+    </svg>
+  `,
+  terrasse: `
+    <svg class="plan-bg" viewBox="0 0 1600 800" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="pds-tiles" x="0" y="0" width="42" height="42" patternUnits="userSpaceOnUse">
+          <rect width="42" height="42" fill="#F7F2E8"/>
+          <line x1="0" y1="0" x2="42" y2="0" stroke="#D8CDA8" stroke-width="0.4"/>
+          <line x1="0" y1="0" x2="0"  y2="42" stroke="#D8CDA8" stroke-width="0.4"/>
+        </pattern>
+      </defs>
+      <rect width="1600" height="800" fill="url(#pds-tiles)"/>
+      <g>
+        <rect x="60"  y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+        <ellipse cx="80"  cy="32" rx="22" ry="14" fill="#4F7560"/>
+        <ellipse cx="80"  cy="26" rx="14" ry="10" fill="#5C8367"/>
+        <rect x="260" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+        <ellipse cx="280" cy="32" rx="22" ry="14" fill="#3D5E48"/>
+        <ellipse cx="280" cy="26" rx="14" ry="10" fill="#4F7560"/>
+        <rect x="500" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+        <ellipse cx="520" cy="32" rx="22" ry="14" fill="#5C8367"/>
+        <ellipse cx="520" cy="26" rx="14" ry="10" fill="#7DA68A"/>
+        <rect x="740" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+        <ellipse cx="760" cy="32" rx="22" ry="14" fill="#4F7560"/>
+        <ellipse cx="760" cy="26" rx="14" ry="10" fill="#5C8367"/>
+        <rect x="1080" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+        <ellipse cx="1100" cy="32" rx="22" ry="14" fill="#3D5E48"/>
+        <ellipse cx="1100" cy="26" rx="14" ry="10" fill="#4F7560"/>
+        <rect x="1380" y="14" width="40" height="62" rx="3" fill="#8B6B47"/>
+        <ellipse cx="1400" cy="32" rx="22" ry="14" fill="#5C8367"/>
+        <ellipse cx="1400" cy="26" rx="14" ry="10" fill="#7DA68A"/>
+      </g>
+      <rect x="0" y="0" width="1600" height="8" fill="#000" opacity="0.06"/>
+      <line x1="20" y1="780" x2="1580" y2="780" stroke="#C4B493" stroke-width="2" stroke-dasharray="14 8"/>
+      <text x="800" y="770" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="14" fill="#A89770">trottoir</text>
+    </svg>
+  `,
+  bar: `
+    <svg class="plan-bg" viewBox="0 0 1600 800" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="pds-walnut-bar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0"   stop-color="#2A332A"/>
+          <stop offset="1"   stop-color="#151D17"/>
+        </linearGradient>
+        <linearGradient id="pds-brass-bar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E8C88A"/>
+          <stop offset="1" stop-color="#B89052"/>
+        </linearGradient>
+        <pattern id="pds-terrazzo-bar" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+          <rect width="60" height="60" fill="#FBF7EE"/>
+          <circle cx="12" cy="18" r="1.2" fill="#C6BDA1" opacity="0.4"/>
+          <circle cx="42" cy="8"  r="1"   fill="#A89770" opacity="0.35"/>
+          <circle cx="50" cy="40" r="1.4" fill="#C6BDA1" opacity="0.4"/>
+        </pattern>
+      </defs>
+      <rect width="1600" height="800" fill="url(#pds-terrazzo-bar)"/>
+      <!-- North wall comptoir — long bar -->
+      <rect x="120" y="60" width="1360" height="80" rx="6" fill="url(#pds-walnut-bar)"/>
+      <rect x="120" y="60" width="1360" height="5" rx="2.5" fill="url(#pds-brass-bar)"/>
+      <!-- Espresso machine in middle -->
+      <rect x="730" y="30" width="120" height="36" rx="4" fill="#1A211B"/>
+      <circle cx="760" cy="48" r="5" fill="#C9A876"/>
+      <circle cx="790" cy="48" r="5" fill="#C9A876"/>
+      <circle cx="820" cy="48" r="5" fill="#C9A876"/>
+      <text x="780" y="115" text-anchor="middle" font-family="Inter Tight, system-ui" font-size="14" font-weight="500" letter-spacing="8" fill="#E8C88A">COMPTOIR · BAR</text>
+      <!-- South wall windows -->
+      <g vector-effect="non-scaling-stroke">
+        <line x1="40"  y1="786" x2="1560" y2="786" stroke="#C6BDA1" stroke-width="2" stroke-dasharray="22 8"/>
+      </g>
+    </svg>
+  `,
+  etage: `
+    <svg class="plan-bg" viewBox="0 0 1600 800" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="pds-leather-forest" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0"   stop-color="#2F5946"/>
+          <stop offset="0.55" stop-color="#1F4A38"/>
+          <stop offset="1"   stop-color="#143828"/>
+        </linearGradient>
+        <linearGradient id="pds-leather-highlight" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E8C88A" stop-opacity="0.5"/>
+          <stop offset="1" stop-color="#E8C88A" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="pds-spotlight" cx="50%" cy="50%" r="50%">
+          <stop offset="0"    stop-color="#FFE9B8" stop-opacity="0.18"/>
+          <stop offset="0.55" stop-color="#FFE9B8" stop-opacity="0.05"/>
+          <stop offset="1"    stop-color="#FFE9B8" stop-opacity="0"/>
+        </radialGradient>
+        <pattern id="pds-terrazzo-etage" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+          <rect width="60" height="60" fill="#FBF7EE"/>
+          <circle cx="12" cy="18" r="1.2" fill="#C6BDA1" opacity="0.4"/>
+          <circle cx="42" cy="8"  r="1"   fill="#A89770" opacity="0.35"/>
+          <circle cx="50" cy="40" r="1.4" fill="#C6BDA1" opacity="0.4"/>
+          <circle cx="22" cy="48" r="1"   fill="#8A7B5A" opacity="0.3"/>
+          <circle cx="32" cy="28" r="1.2" fill="#A89770" opacity="0.35"/>
+        </pattern>
+      </defs>
+      <rect width="1600" height="800" fill="url(#pds-terrazzo-etage)"/>
+      <ellipse cx="800" cy="400" rx="340" ry="260" fill="url(#pds-spotlight)"/>
+      <g vector-effect="non-scaling-stroke">
+        <line x1="40"  y1="14" x2="1400" y2="14" stroke="#C6BDA1" stroke-width="3"/>
+        <line x1="80"  y1="20" x2="320"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+        <line x1="360" y1="20" x2="660"  y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+        <line x1="700" y1="20" x2="1000" y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+        <line x1="1040" y1="20" x2="1380" y2="20" stroke="#A89770" stroke-width="1" stroke-dasharray="22 6"/>
+      </g>
+      <g transform="translate(800, 400)">
+        <path d="M -160 90 A 220 220 0 1 1 160 90" stroke="url(#pds-leather-forest)" stroke-width="60" stroke-linecap="round" fill="none"/>
+        <path d="M -160 90 A 220 220 0 1 1 160 90" stroke="url(#pds-leather-highlight)" stroke-width="6" fill="none" transform="translate(0, -22)"/>
+        <text x="0" y="160" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="18" fill="#1F4A38" opacity="0.7">banquette ronde</text>
+      </g>
+      <g transform="translate(180, 700)">
+        <rect width="980" height="56" rx="10" fill="url(#pds-leather-forest)"/>
+        <rect width="980" height="4" rx="2" fill="url(#pds-leather-highlight)" opacity="0.6"/>
+      </g>
+    </svg>
+  `,
+  prive: `
+    <svg class="plan-bg" viewBox="0 0 1600 800" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="pds-zellige-prive" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+          <rect width="48" height="48" fill="#F2EBD6"/>
+          <circle cx="24" cy="24" r="2.5" fill="#BFA86A" opacity="0.32"/>
+          <circle cx="0"  cy="0"  r="2.5" fill="#BFA86A" opacity="0.32"/>
+          <circle cx="48" cy="0"  r="2.5" fill="#BFA86A" opacity="0.32"/>
+        </pattern>
+      </defs>
+      <rect width="1600" height="800" fill="url(#pds-zellige-prive)"/>
+      <rect x="40" y="40" width="1520" height="720" rx="20" fill="none" stroke="#A89770" stroke-width="2" stroke-dasharray="14 8"/>
+      <text x="800" y="780" text-anchor="middle" font-family="Instrument Serif, serif" font-style="italic" font-size="14" fill="#A89770">salon privé · accès rideau</text>
+    </svg>
+  `,
+  blank: `
+    <svg class="plan-bg" viewBox="0 0 1600 800" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <pattern id="pds-blank-grid" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+          <rect width="48" height="48" fill="#FBF7EE"/>
+          <circle cx="24" cy="24" r="0.8" fill="#C6BDA1" opacity="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="1600" height="800" fill="url(#pds-blank-grid)"/>
+    </svg>
+  `,
+};
+function pdsScene(zone) {
+  const key = (zone?.scene) || (
+    /terr/i.test(zone?.name || '') ? 'terrasse' :
+    /bar|compt/i.test(zone?.name || '') ? 'bar' :
+    /étage|etage|1er|1\.ère|first/i.test(zone?.name || '') ? 'etage' :
+    /priv|salon/i.test(zone?.name || '') ? 'prive' :
+    /salle|principale|main|dining/i.test(zone?.name || '') ? 'salle' :
+    'blank'
+  );
+  return PDS_SCENES[key] || PDS_SCENES.blank;
+}
 
 /* ─── Static i18n table — every label, status, role, template name ───────── */
 const PDS_STR = {
@@ -3044,6 +3286,21 @@ const PDS_STR = {
     /* Days of week */
     days: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
     soonAvailable: 'Bientôt disponible',
+    /* Scene picker (zone backdrop) */
+    sceneLabel: 'Décor',
+    sceneSalle: 'Salle intérieure',
+    sceneTerrasse: 'Terrasse extérieure',
+    sceneBar: 'Bar / Comptoir',
+    sceneEtage: 'Étage / Mezzanine',
+    scenePrive: 'Salon privé',
+    sceneBlank: 'Vierge',
+    /* Floor toggle */
+    floorRDC: 'Rez-de-chaussée',
+    floorEtage: '1ᵉʳ étage',
+    /* Room labels */
+    roomLabel: (zone) => `${zone} · vue propriétaire`,
+    viewOwner: 'vue propriétaire',
+    floorCount: (occ, total) => `${total} tables · ${occ} occupées`,
   },
   en: {
     title: 'Floor Plan',
@@ -3212,6 +3469,19 @@ const PDS_STR = {
     save2: 'Save',
     days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     soonAvailable: 'Coming soon',
+    /* Scene picker */
+    sceneLabel: 'Backdrop',
+    sceneSalle: 'Indoor dining',
+    sceneTerrasse: 'Outdoor terrace',
+    sceneBar: 'Bar / Counter',
+    sceneEtage: 'Mezzanine / Upper',
+    scenePrive: 'Private room',
+    sceneBlank: 'Blank',
+    floorRDC: 'Ground floor',
+    floorEtage: 'Upper floor',
+    roomLabel: (zone) => `${zone} · owner view`,
+    viewOwner: 'owner view',
+    floorCount: (occ, total) => `${total} tables · ${occ} occupied`,
   },
   ar: {
     title: 'مخطط القاعة',
@@ -3380,6 +3650,19 @@ const PDS_STR = {
     save2: 'حفظ',
     days: ['اث', 'ثل', 'أر', 'خم', 'جم', 'سب', 'أح'],
     soonAvailable: 'قريبًا',
+    /* Scene picker */
+    sceneLabel: 'الديكور',
+    sceneSalle: 'صالة داخلية',
+    sceneTerrasse: 'تراس خارجي',
+    sceneBar: 'حانة / كاونتر',
+    sceneEtage: 'الطابق العلوي',
+    scenePrive: 'صالون خاص',
+    sceneBlank: 'فارغ',
+    floorRDC: 'الطابق الأرضي',
+    floorEtage: 'الطابق الأول',
+    roomLabel: (zone) => `${zone} · رؤية المالك`,
+    viewOwner: 'رؤية المالك',
+    floorCount: (occ, total) => `${total} طاولة · ${occ} مشغولة`,
   },
 };
 
@@ -3435,11 +3718,11 @@ function pdsSave(state) {
   try { localStorage.setItem(PDS_LS_KEY, JSON.stringify(state)); } catch (e) {}
 }
 function pdsDefaultState() {
-  /* Default — Café Atlas layout — 16 tables across 3 zones */
+  /* Default — Café Atlas layout — 24 tables across 3 zones (caisse parity) */
   const zones = [
-    { id: 'z1', name: 'Salle principale' },
-    { id: 'z2', name: 'Terrasse' },
-    { id: 'z3', name: 'Bar' },
+    { id: 'z1', name: 'Salle principale', scene: 'salle' },
+    { id: 'z2', name: 'Terrasse',         scene: 'terrasse' },
+    { id: 'z3', name: 'Bar',              scene: 'bar' },
   ];
   const mk = (id, zone, type, x, y, num, status, server, notes) => ({
     id, zone, type, x, y, num, status: status || 'free', server: server || null, notes: notes || '', rot: 0,
@@ -3495,7 +3778,7 @@ function pdsDefaultState() {
 function pdsTemplate(key) {
   const mk = (id, zone, type, x, y, num) => ({ id, zone, type, x, y, num, status: 'free', server: null, notes: '', rot: 0 });
   const blank = {
-    zones: [{ id: 'z1', name: 'Salle' }],
+    zones: [{ id: 'z1', name: 'Salle', scene: 'salle' }],
     activeZone: 'z1', tables: [], elements: [],
     staff: PDS_DEFAULT_STAFF.slice(),
     rotation: { period: 'shift', strategy: 'zones', enabled: false },
@@ -3508,9 +3791,9 @@ function pdsTemplate(key) {
     return {
       ...blank,
       zones: [
-        { id: 'z1', name: 'Salle' },
-        { id: 'z2', name: 'Terrasse' },
-        { id: 'z3', name: 'Bar' },
+        { id: 'z1', name: 'Salle',    scene: 'salle' },
+        { id: 'z2', name: 'Terrasse', scene: 'terrasse' },
+        { id: 'z3', name: 'Bar',      scene: 'bar' },
       ],
       tables: [
         mk('t1','z1','round4', 96,  96,  '1'),
@@ -3534,9 +3817,9 @@ function pdsTemplate(key) {
     return {
       ...blank,
       zones: [
-        { id: 'z1', name: 'Salle principale' },
-        { id: 'z2', name: 'Terrasse' },
-        { id: 'z3', name: 'Salon privé' },
+        { id: 'z1', name: 'Salle principale', scene: 'salle' },
+        { id: 'z2', name: 'Terrasse',         scene: 'terrasse' },
+        { id: 'z3', name: 'Salon privé',      scene: 'prive' },
       ],
       tables: [
         ...Array.from({ length: 12 }, (_, i) => mk(`m${i+1}`, 'z1', i%3===0?'round6':i%3===1?'round4':'sq4',
@@ -3553,8 +3836,8 @@ function pdsTemplate(key) {
     return {
       ...blank,
       zones: [
-        { id: 'z1', name: 'Salle' },
-        { id: 'z2', name: 'Comptoir' },
+        { id: 'z1', name: 'Salle',    scene: 'salle' },
+        { id: 'z2', name: 'Comptoir', scene: 'bar' },
       ],
       tables: [
         mk('h1','z1','high',96,96,'1'),
@@ -3577,9 +3860,9 @@ function pdsTemplate(key) {
     return {
       ...blank,
       zones: [
-        { id: 'z1', name: 'Salle' },
-        { id: 'z2', name: 'Terrasse XL' },
-        { id: 'z3', name: 'Bar' },
+        { id: 'z1', name: 'Salle',       scene: 'salle' },
+        { id: 'z2', name: 'Terrasse XL', scene: 'terrasse' },
+        { id: 'z3', name: 'Bar',         scene: 'bar' },
       ],
       tables: [
         ...Array.from({ length: 8 }, (_, i) => mk(`s${i+1}`, 'z1', i%2 ? 'round4' : 'sq4',
@@ -3618,6 +3901,15 @@ handlers['nav-tables'] = () => {
   });
   wireDismiss(dr);
   if (!dr || !dr.el) return;
+
+  /* Sidebar pin: highlight "Plan de salle" while this page is open,
+   * snap back to Accueil when the drawer closes (matches Équipe/Stock). */
+  window.Kiwi?.setActivePage?.('tables');
+  const prevClose = dr.close;
+  dr.close = () => {
+    window.Kiwi?.setActivePage?.('accueil');
+    prevClose();
+  };
 
   /* Bootstrap mode + interactivity. Re-rendering goes through pdsRefresh()
    * which preserves the same drawer.el. */
@@ -3671,6 +3963,10 @@ function pdsRenderStage(state, T) {
   /* Layout + Assignation share the same canvas; Assignation overlays a roster. */
   const tablesInZone = state.tables.filter(t => t.zone === state.activeZone);
   const isEmpty = tablesInZone.length === 0 && state.elements.filter(e => e.zone === state.activeZone).length === 0;
+  const zone = state.zones.find(z => z.id === state.activeZone) || state.zones[0];
+  const occ = tablesInZone.filter(t => t.status === 'occupied').length;
+  const scene = pdsScene(zone);
+  const isTerrasse = (zone?.scene === 'terrasse');
   return `
     <div class="pds-stage-grid pds-stage-${state.mode}">
       <div class="pds-rail" data-pds-rail>
@@ -3680,21 +3976,30 @@ function pdsRenderStage(state, T) {
         <div class="pds-canvas-bar">
           <div class="pds-legend">
             <span class="pds-legend-title">${T.legendTitle}</span>
-            <span class="pds-pill pds-pill-free">${T.statusFree}</span>
-            <span class="pds-pill pds-pill-occupied">${T.statusOccupied}</span>
-            <span class="pds-pill pds-pill-reserved">${T.statusReserved}</span>
-            <span class="pds-pill pds-pill-cleaning">${T.statusCleaning}</span>
+            <span class="pds-legend-item"><span class="pds-legend-swatch pds-sw-free"></span>${T.statusFree}</span>
+            <span class="pds-legend-item"><span class="pds-legend-swatch pds-sw-occupied"></span>${T.statusOccupied}</span>
+            <span class="pds-legend-item"><span class="pds-legend-swatch pds-sw-reserved"></span>${T.statusReserved}</span>
+            <span class="pds-legend-item"><span class="pds-legend-swatch pds-sw-cleaning"></span>${T.statusCleaning}</span>
           </div>
           <label class="pds-snap" title="${T.snapHint}">
             <input type="checkbox" data-pds-snap ${state.snap?'checked':''}/>
             <span>${state.snap ? T.snapOn : T.snapOff}</span>
           </label>
         </div>
-        <div class="pds-canvas" data-pds-canvas style="width:${PDS_CANVAS_W}px; height:${PDS_CANVAS_H}px;">
-          ${isEmpty ? pdsRenderEmpty(state, T) : ''}
-          ${state.elements.filter(e => e.zone === state.activeZone).map(e => pdsRenderElement(e, state, T)).join('')}
-          ${tablesInZone.map(t => pdsRenderTable(t, state, T)).join('')}
-          <div class="pds-bulk" data-pds-bulk hidden></div>
+        <div class="pds-plan-canvas">
+          <div class="pds-plan-room ${isTerrasse ? 'is-terrasse' : ''}" data-pds-room>
+            <div class="pds-plan-label">${zone?.name || ''} <em>· ${T.viewOwner || 'vue propriétaire'}</em></div>
+            ${scene}
+            <div class="pds-canvas" data-pds-canvas style="width:${PDS_CANVAS_W}px; height:${PDS_CANVAS_H}px;">
+              ${isEmpty ? pdsRenderEmpty(state, T) : ''}
+              ${state.elements.filter(e => e.zone === state.activeZone).map(e => pdsRenderElement(e, state, T)).join('')}
+              ${tablesInZone.map(t => pdsRenderTable(t, state, T)).join('')}
+              <div class="pds-bulk" data-pds-bulk hidden></div>
+            </div>
+          </div>
+          <div class="pds-plan-footer">
+            <span class="pds-plan-floor-count">${T.floorCount(occ, tablesInZone.length)}</span>
+          </div>
         </div>
       </div>
       <div class="pds-inspector" data-pds-inspector>
@@ -3799,12 +4104,39 @@ function pdsRenderInspectorEmpty(state, T) {
         <div class="pds-rail-hint">${T.modeAssignDesc}</div>
         ${pdsRenderAssignSummary(state, T)}
       </div>
+      ${pdsRenderScenePicker(state, T)}
     `;
   }
   return `
     <div class="pds-rail-card pds-inspect-empty">
       <div class="pds-rail-title">${T.selection}</div>
       <div class="pds-rail-hint">${T.bulkHintNone}</div>
+    </div>
+    ${pdsRenderScenePicker(state, T)}
+  `;
+}
+
+/* ─── Scene picker — switches the architectural backdrop of the active zone */
+function pdsRenderScenePicker(state, T) {
+  const zone = state.zones.find(z => z.id === state.activeZone) || state.zones[0];
+  const current = zone?.scene || 'blank';
+  const opts = [
+    ['salle',    T.sceneSalle],
+    ['terrasse', T.sceneTerrasse],
+    ['bar',      T.sceneBar],
+    ['etage',    T.sceneEtage],
+    ['prive',    T.scenePrive],
+    ['blank',    T.sceneBlank],
+  ];
+  return `
+    <div class="pds-rail-card">
+      <div class="pds-rail-title">${T.sceneLabel}</div>
+      <div class="pds-rail-hint">${zone?.name || ''}</div>
+      <div class="pds-scene-grid" data-pds-scene-grid>
+        ${opts.map(([k, label]) => `
+          <button class="pds-scene-pill ${k===current?'active':''}" data-pds-action="set-scene" data-pds-scene="${k}">${label}</button>
+        `).join('')}
+      </div>
     </div>
   `;
 }
@@ -3906,20 +4238,96 @@ function pdsRenderBulkInspector(state, T, selectedIds) {
   `;
 }
 
-/* Render a single table on the canvas */
+/* ─── Chair rendering — mirrors caisse: row of chair-pills for rect tables,
+ *   ring of radial chairs for round/square tables. ───────────────────────── */
+function pdsChairsRow(count, where) {
+  if (count <= 0) return '';
+  const chairs = '<span class="pds-chair"></span>'.repeat(count);
+  return `<div class="pds-tbl-chairs pds-tbl-chairs-${where}" aria-hidden="true">${chairs}</div>`;
+}
+function pdsChairsArc(count, startDeg, endDeg) {
+  const out = [];
+  const span = endDeg - startDeg;
+  const closed = (span >= 360 - 0.001);
+  const step = closed ? span / count : span / (count + 1);
+  for (let i = 0; i < count; i++) {
+    const deg = closed ? (startDeg + step * i) : (startDeg + step * (i + 1));
+    const rad = (deg - 90) * Math.PI / 180;
+    const left = (50 + 50 * Math.cos(rad)).toFixed(2);
+    const top  = (50 + 50 * Math.sin(rad)).toFixed(2);
+    out.push(`<div class="pds-chair-radial" style="left:${left}%;top:${top}%;transform:translate(-50%,-50%) rotate(${deg.toFixed(1)}deg);"></div>`);
+  }
+  return `<div class="pds-tbl-chairs-ring" aria-hidden="true">${out.join('')}</div>`;
+}
+function pdsChairsRound(count)  { return pdsChairsArc(count, 0, 360); }
+function pdsChairsSquare(count) {
+  const slots = [
+    { left: '50%',  top: '0%',   deg: 0   },
+    { left: '100%', top: '50%',  deg: 90  },
+    { left: '50%',  top: '100%', deg: 180 },
+    { left: '0%',   top: '50%',  deg: 270 },
+  ];
+  const used = slots.slice(0, Math.min(4, count));
+  const out = used.map(s =>
+    `<div class="pds-chair-radial" style="left:${s.left};top:${s.top};transform:translate(-50%,-50%) rotate(${s.deg}deg);"></div>`
+  );
+  return `<div class="pds-tbl-chairs-ring" aria-hidden="true">${out.join('')}</div>`;
+}
+
+/* Render a single table on the canvas — caisse architectural language. */
 function pdsRenderTable(t, state, T) {
   const type = PDS_TABLE_TYPES[t.type];
   if (!type) return '';
   const sv = state.staff.find(s => s.id === t.server);
+  const initials = sv ? sv.name.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase() : '';
+
+  /* Chair layout — same logic as caisse:
+   *   rect → chair pills on top + bottom (long sides)
+   *   round → full radial ring of chairs
+   *   square → one chair per side (max 4)
+   *   bar / high → no chairs (stools live in the bg)                       */
+  let chairsHTML = '';
+  if (t.type === 'bar' || t.type === 'high') {
+    chairsHTML = ''; /* bar stool — chairs implicit in fixture */
+  } else if (type.shape === 'round') {
+    chairsHTML = pdsChairsRound(type.seats);
+  } else if (type.shape === 'square') {
+    chairsHTML = pdsChairsSquare(type.seats);
+  } else {
+    /* rect — chairs on top + bottom */
+    const topChairs    = Math.ceil(type.seats / 2);
+    const bottomChairs = type.seats - topChairs;
+    chairsHTML = `${pdsChairsRow(topChairs, 'top')}${pdsChairsRow(bottomChairs, 'bottom')}`;
+  }
+
+  /* Server badge — caisse-style circle pinned to a corner, color = server.
+   *   Shown in BOTH layout + assign modes when a server is set (so the
+   *   owner can see ownership at a glance even in layout mode).            */
+  const serverBadge = sv ? `<span class="pds-tbl-server" style="background:${sv.color};" title="${sv.name}">${initials}</span>` : '';
+
+  /* Shape class for the inner .pds-tbl */
+  const shapeClass = type.shape === 'round'  ? 'pds-is-round'  :
+                     type.shape === 'square' ? 'pds-is-square' :
+                     t.type === 'bar' || t.type === 'high'     ? 'pds-is-bar' : 'pds-is-rect';
+  const sizeClass = `pds-size-${type.seats}`;
+  /* Color overlay in assign mode — picks server color for border */
   const colorStripe = (state.mode === 'assign' && sv) ? sv.color : '';
-  const initials = sv ? sv.name.split(' ').map(p => p[0]).join('').slice(0,2) : '';
+  const colorVar    = colorStripe ? ` --pds-server:${colorStripe};` : '';
+
   return `
-    <div class="pds-table pds-shape-${type.shape} pds-status-${t.status} ${state.mode==='assign' && sv?'pds-has-server':''}"
+    <div class="pds-tbl-cell ${shapeClass} ${state.mode==='assign' && sv?'pds-has-server':''}"
          data-pds-table="${t.id}"
-         style="left:${t.x}px; top:${t.y}px; width:${type.w}px; height:${type.h}px; transform:rotate(${t.rot||0}deg); ${colorStripe?`--server:${colorStripe};`:''}">
-      <span class="pds-tnum">${t.num}</span>
-      <span class="pds-tseats">${type.seats}</span>
-      ${state.mode==='assign' && sv ? `<span class="pds-tserver" style="background:${sv.color};">${initials}</span>` : ''}
+         role="button" tabindex="0"
+         aria-label="Table ${t.num}, ${type.seats} ${T.seats}"
+         style="left:${t.x}px; top:${t.y}px; width:${type.w}px; height:${type.h}px; transform:rotate(${t.rot||0}deg);${colorVar}">
+      <div class="pds-tbl ${sizeClass}" data-status="${t.status}">
+        <div class="pds-tbl-head">
+          <span class="pds-tbl-num">${t.num}</span>
+          <span class="pds-tbl-covers">${type.seats}p</span>
+        </div>
+      </div>
+      ${serverBadge}
+      ${chairsHTML}
     </div>
   `;
 }
@@ -4166,7 +4574,7 @@ function pdsAttach(root, state, T, dr) {
     root.querySelectorAll('[data-pds-field]').forEach(input => {
       const inspect = input.closest('.pds-inspect');
       if (!inspect) return;
-      const tableEl = root.querySelector('.pds-table.is-selected');
+      const tableEl = root.querySelector('.pds-tbl-cell.is-selected');
       const tid = tableEl ? tableEl.getAttribute('data-pds-table') : null;
       if (!tid) return;
       const t = state.tables.find(tt => tt.id === tid);
@@ -4190,7 +4598,7 @@ function pdsAttach(root, state, T, dr) {
     root.querySelectorAll('[data-pds-status]').forEach(btn => {
       if (btn.getAttribute('data-pds-action')) return; /* handled elsewhere */
       btn.onclick = () => {
-        const tableEl = root.querySelector('.pds-table.is-selected');
+        const tableEl = root.querySelector('.pds-tbl-cell.is-selected');
         const tid = tableEl ? tableEl.getAttribute('data-pds-table') : null;
         if (!tid) return;
         const t = state.tables.find(tt => tt.id === tid);
@@ -4264,7 +4672,7 @@ function pdsAttachDrag(el, id, state, T, root, refresh, selection) {
       /* Plain click — clear selection, pick this one */
       if (!selection.has(id) || selection.size > 1) {
         selection.clear();
-        root.querySelectorAll('.pds-table.is-selected').forEach(n => n.classList.remove('is-selected'));
+        root.querySelectorAll('.pds-tbl-cell.is-selected').forEach(n => n.classList.remove('is-selected'));
       }
       selection.add(id);
       el.classList.add('is-selected');
@@ -4888,7 +5296,7 @@ function pdsHandleAction(action, btn, state, T, root, dr, refresh, selection) {
     }
     case 'bulk-clear': {
       selection.clear();
-      root.querySelectorAll('.pds-table.is-selected').forEach(el => el.classList.remove('is-selected'));
+      root.querySelectorAll('.pds-tbl-cell.is-selected').forEach(el => el.classList.remove('is-selected'));
       state._openBulkInspector();
       break;
     }
@@ -4898,6 +5306,16 @@ function pdsHandleAction(action, btn, state, T, root, dr, refresh, selection) {
       selection.forEach(id => { const t = state.tables.find(tt => tt.id === id); if (t) t.status = st; });
       refresh();
       toast(T.bulkOkStatus(n, T['status' + st.charAt(0).toUpperCase() + st.slice(1)]), { type: 'success', duration: 1400 });
+      break;
+    }
+    case 'set-scene': {
+      const sceneKey = btn.getAttribute('data-pds-scene');
+      const zone = state.zones.find(z => z.id === state.activeZone);
+      if (zone) {
+        zone.scene = sceneKey;
+        refresh();
+        toast(T.sceneLabel + ' · ' + (T['scene' + sceneKey.charAt(0).toUpperCase() + sceneKey.slice(1)] || sceneKey), { type: 'success', duration: 1200 });
+      }
       break;
     }
     default: {
@@ -4955,8 +5373,14 @@ const PDS_INLINE_CSS = `
 
   .pds-canvas-wrap { display:flex; flex-direction:column; gap:10px; min-width:0; }
   .pds-canvas-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:10px; flex-wrap:wrap; }
-  .pds-legend { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .pds-legend { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .pds-legend-title { font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-right:4px; }
+  .pds-legend-item { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--n-700); letter-spacing:0.01em; font-family:var(--sans, inherit); font-weight:500; }
+  .pds-legend-swatch { width:12px; height:12px; border-radius:3px; display:inline-block; border:1px solid transparent; box-shadow:0 1px 2px rgba(10,15,13,0.12); }
+  .pds-sw-free      { background:#FFFFFF; border-color:#C8C5BD; }
+  .pds-sw-occupied  { background:#EBF5F0; border-color:#C5E0D3; }
+  .pds-sw-reserved  { background:#FFF1D6; border-color:#E8C88A; }
+  .pds-sw-cleaning  { background:#1F5D3C; }
   .pds-pill { font-size:10px; font-family:var(--mono); letter-spacing:0.06em; padding:3px 8px; border-radius:99px; text-transform:uppercase; font-weight:600; }
   .pds-pill-free { background:rgba(10,15,13,0.06); color:var(--n-700); }
   .pds-pill-occupied { background:rgba(11,110,79,0.14); color:var(--atlas); }
@@ -4965,40 +5389,241 @@ const PDS_INLINE_CSS = `
   .pds-snap { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--n-700); cursor:pointer; user-select:none; padding:4px 8px; border-radius:7px; }
   .pds-snap input { accent-color:var(--atlas); }
 
-  .pds-canvas { position:relative; border:1.5px solid var(--n-300); border-radius:14px; overflow:hidden; touch-action:none; user-select:none;
-    background-color: var(--paper);
-    background-image:
-      radial-gradient(circle, rgba(10,15,13,0.08) 1px, transparent 1.4px);
-    background-size: ${PDS_GRID}px ${PDS_GRID}px;
-    background-position: -1px -1px;
-    box-shadow: inset 0 0 0 1px rgba(10,15,13,0.03);
+  /* ═════ ARCHITECTURAL ROOM — mirrors kiwi-caisse plan de salle ═════════════
+     A cream "paper" floor framed by a 1.5px ink border with an inset highlight
+     and a soft warm shadow. SVG backdrop draws the fixtures (comptoir,
+     escalier, plantes, fenêtres). The inner .pds-canvas absorbs all the
+     pointer events for table dragging — it is positioned over the SVG. */
+  .pds-plan-canvas { position:relative; display:flex; flex-direction:column; gap:6px; min-width:0; min-height:0; }
+  .pds-plan-room {
+    position:relative;
+    width: ${PDS_CANVAS_W}px;
+    height: ${PDS_CANVAS_H}px;
+    max-width: 100%;
+    margin: 0 auto;
+    border:1.5px solid #2C2520;
+    border-radius:16px;
+    overflow:hidden;
+    background:#FBF7EE;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.7) inset,
+      0 0 0 1px rgba(44,37,32,0.06),
+      0 18px 40px -32px rgba(20,15,10,0.15);
+  }
+  .pds-plan-room.is-terrasse {
+    border-style:dashed;
+    border-color:#A89770;
+    background:#F7F2E8;
+  }
+  .pds-plan-room .plan-bg {
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    pointer-events:none; display:block;
+  }
+  .pds-plan-room .plan-bg * { vector-effect: non-scaling-stroke; }
+  .pds-plan-label {
+    position:absolute; top:10px; left:16px;
+    font-family:var(--sans, "Inter Tight", system-ui, sans-serif);
+    font-size:11px; font-weight:600;
+    color:#1A1F1C;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    z-index:4;
+    pointer-events:none;
+  }
+  .pds-plan-label em {
+    font-family:var(--serif, "Instrument Serif", serif);
+    font-style:italic; font-weight:400;
+    text-transform:none;
+    color:#5C5447;
+    letter-spacing:0;
+    margin-left:6px;
+    font-size:13px;
+  }
+  .pds-plan-room.is-terrasse .pds-plan-label { color:#1F4A38; }
+  .pds-plan-footer {
+    display:flex; justify-content:flex-end; align-items:center;
+    padding:2px 6px;
+    font-size:11px; color:#5C5447;
+    letter-spacing:0.04em;
+    font-feature-settings:"tnum" 1;
+    flex:0 0 auto;
+  }
+  .pds-plan-floor-count { font-family:var(--mono); }
+
+  /* The canvas sits ON TOP of the SVG backdrop, transparent, capturing
+     pointer events for table dragging. Same dimensions as plan-room. */
+  .pds-canvas {
+    position:absolute;
+    inset:0;
+    margin:0;
+    border:none; border-radius:14px;
+    overflow:visible;
+    touch-action:none; user-select:none;
+    background:transparent;
+    z-index:2;
   }
 
-  .pds-empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:20px; }
-  .pds-empty h4 { margin:0; font-size:18px; letter-spacing:-0.02em; }
+  .pds-empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:20px; background:rgba(255,255,255,0.7); border-radius:14px; z-index:3; backdrop-filter: blur(2px); }
+  .pds-empty h4 { margin:0; font-size:18px; letter-spacing:-0.02em; color:var(--ink); }
   .pds-empty p { font-size:13px; color:var(--n-600); max-width:340px; margin:0; line-height:1.5; }
 
-  .pds-table { position:absolute; display:flex; align-items:center; justify-content:center; flex-direction:column; cursor:pointer; transition:box-shadow .16s, border-color .16s;
-    background: var(--paper); border:1.5px solid var(--n-400); color:var(--ink); font-family:var(--mono); font-feature-settings:"tnum" 1;
-    will-change: transform; user-select:none;
+  /* ═════ TABLES — architectural language mirrored from kiwi-caisse ═══════
+     Tables are absolute on the canvas. Each .pds-tbl-cell contains:
+       • .pds-tbl       — the tabletop (wood/marble vibe via shadows)
+       • .pds-tbl-num   — large bold number
+       • .pds-tbl-covers— italic seat count (instrument serif)
+       • .pds-tbl-chairs / .pds-chair  — chair pills around the table
+       • .pds-tbl-server — corner badge with server initials + color        */
+  .pds-tbl-cell {
+    position:absolute;
+    cursor:pointer; user-select:none;
+    transition: transform 150ms ease, filter 150ms ease;
+    z-index:2;
   }
-  .pds-table.pds-shape-round { border-radius:50%; }
-  .pds-table.pds-shape-square { border-radius:8px; }
-  .pds-table.pds-shape-rect { border-radius:8px; }
-  .pds-table .pds-tnum { font-size:14px; font-weight:700; letter-spacing:-0.02em; }
-  .pds-table .pds-tseats { font-size:9.5px; color:var(--n-500); letter-spacing:0.04em; margin-top:1px; }
-  .pds-table:hover { border-color:var(--atlas); box-shadow:0 8px 20px -12px rgba(11,110,79,0.32); }
-  .pds-table.is-selected { border-color:var(--atlas); border-width:2.5px; box-shadow:0 0 0 3px rgba(11,110,79,0.18); }
-  .pds-table.is-dragging { z-index:5; box-shadow:0 14px 30px -10px rgba(10,15,13,0.32); cursor:grabbing; }
-  .pds-table.pds-status-free { background:var(--paper); border-color:var(--n-400); }
-  .pds-table.pds-status-occupied { background:rgba(11,110,79,0.12); border-color:var(--atlas); color:var(--atlas); }
-  .pds-table.pds-status-occupied .pds-tseats { color:var(--atlas); opacity:0.7; }
-  .pds-table.pds-status-reserved { background:rgba(217,154,43,0.14); border-color:#D99A2B; color:#A85F00; }
-  .pds-table.pds-status-reserved .pds-tseats { color:#A85F00; opacity:0.7; }
-  .pds-table.pds-status-cleaning { background:rgba(26,143,227,0.10); border-color:#1A8FE3; color:#0F6FBF; }
-  .pds-table.pds-status-cleaning .pds-tseats { color:#0F6FBF; opacity:0.7; }
-  .pds-table.pds-has-server { border-color: var(--server) !important; border-width:2.5px !important; box-shadow:inset 0 0 0 1px rgba(10,15,13,0.04); }
-  .pds-tserver { position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; color:var(--paper); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; letter-spacing:0.04em; box-shadow:0 2px 6px rgba(10,15,13,0.22); border:1.5px solid var(--paper); font-family:var(--mono); }
+  .pds-tbl-cell:hover { transform: translateY(-1px); filter: brightness(1.02); }
+  .pds-tbl-cell:active { transform: translateY(0); }
+  .pds-tbl-cell:focus-visible { outline: 2px solid #1F5D3C; outline-offset: 3px; border-radius: 8px; }
+
+  .pds-tbl-chairs {
+    position:absolute;
+    display:flex; justify-content:center; gap:5px;
+    pointer-events:none;
+  }
+  .pds-tbl-chairs-top    { left:6px; right:6px; top:-9px;    height:7px; }
+  .pds-tbl-chairs-bottom { left:6px; right:6px; bottom:-9px; height:7px; }
+  .pds-chair {
+    flex:0 1 16px; min-width:8px; max-width:22px;
+    height:100%;
+    background:linear-gradient(180deg, #8C8377 0%, #5F574C 100%);
+    border-radius:3px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.25) inset,
+      0 1px 1.5px rgba(20,15,10,0.18);
+  }
+  .pds-tbl-chairs-ring { position:absolute; inset:-8px; pointer-events:none; }
+  .pds-chair-radial {
+    position:absolute; top:50%; left:50%;
+    width:16px; height:7px;
+    margin:-3.5px 0 0 -8px;
+    background:linear-gradient(180deg, #8C8377 0%, #5F574C 100%);
+    border-radius:3px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.25) inset,
+      0 1px 1.5px rgba(20,15,10,0.18);
+    transform-origin:center;
+  }
+
+  /* Tabletop */
+  .pds-tbl {
+    position:relative;
+    width:100%; height:100%;
+    border-radius:7px;
+    padding:4px 6px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+    overflow:hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 2px 4px -1px rgba(20,15,10,0.14),
+      0 1px 2px rgba(20,15,10,0.06);
+  }
+  .pds-tbl-cell.pds-is-round .pds-tbl {
+    border-radius:50%;
+    padding:12% 14%;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center; gap:1px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.7) inset,
+      0 0 0 1px rgba(44,37,32,0.04) inset,
+      0 3px 6px -1px rgba(20,15,10,0.18),
+      0 1px 2px rgba(20,15,10,0.06);
+  }
+  .pds-tbl-cell.pds-is-round .pds-tbl-head {
+    text-align:center;
+    flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:2px;
+  }
+  .pds-tbl-cell.pds-is-round .pds-tbl-server {
+    top:-8px; right:auto;
+    left:50%; transform:translateX(-50%);
+  }
+  .pds-tbl-cell.pds-is-square .pds-tbl { border-radius:4px; }
+  .pds-tbl-cell.pds-is-bar    .pds-tbl { border-radius:4px; }
+
+  .pds-tbl-head {
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:1px; flex:1;
+    font-feature-settings:"tnum" 1;
+  }
+  .pds-tbl-num    { font-weight:700; letter-spacing:0.01em; font-size:17px; line-height:1; color:inherit; }
+  .pds-tbl-covers { font-family:var(--serif, "Instrument Serif", serif); font-style:italic; font-weight:400; font-size:12px; line-height:1; opacity:0.7; }
+
+  /* Status color encodings — mirrors caisse khawya / ka-yaklo etc. */
+  .pds-tbl[data-status="free"] {
+    background:#FFFFFF;
+    border:1.5px solid #C8C5BD;
+    color:#1A1F1C;
+  }
+  .pds-tbl[data-status="free"] .pds-tbl-num    { color:#4A453E; }
+  .pds-tbl[data-status="free"] .pds-tbl-covers { color:#968D7F; }
+
+  .pds-tbl[data-status="occupied"] {
+    background:#EBF5F0;
+    border:1.5px solid #C5E0D3;
+    color:#1F5D3C;
+  }
+  .pds-tbl[data-status="occupied"] .pds-tbl-num    { color:#1F5D3C; }
+  .pds-tbl[data-status="occupied"] .pds-tbl-covers { color:#437B5C; }
+
+  .pds-tbl[data-status="reserved"] {
+    background:#FFF1D6;
+    border:1.5px solid #E8C88A;
+    color:#7D5A1A;
+  }
+  .pds-tbl[data-status="reserved"] .pds-tbl-num    { color:#7D5A1A; }
+  .pds-tbl[data-status="reserved"] .pds-tbl-covers { color:#A88A4C; }
+
+  .pds-tbl[data-status="cleaning"] {
+    background:#1F5D3C;
+    border:1.5px solid transparent;
+    color:#fff;
+  }
+  .pds-tbl[data-status="cleaning"] .pds-tbl-num    { color:#fff; }
+  .pds-tbl[data-status="cleaning"] .pds-tbl-covers { color:rgba(255,255,255,0.78); }
+
+  /* Selection — green outline ring (does not touch the table shape) */
+  .pds-tbl-cell.is-selected .pds-tbl {
+    box-shadow:
+      0 0 0 3px rgba(11,110,79,0.28),
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 2px 4px -1px rgba(20,15,10,0.14);
+  }
+  .pds-tbl-cell.is-dragging { z-index:5; cursor:grabbing; }
+  .pds-tbl-cell.is-dragging .pds-tbl { box-shadow: 0 14px 30px -10px rgba(10,15,13,0.32); }
+
+  /* Server color overlay (assign mode) — picks server color for tabletop border */
+  .pds-tbl-cell.pds-has-server .pds-tbl { border-color: var(--pds-server, currentColor); border-width:2px; }
+
+  /* Server badge — caisse style: circle pinned to corner, white ring */
+  .pds-tbl-server {
+    position:absolute;
+    top:-10px; right:-10px;
+    width:26px; height:26px; border-radius:50%;
+    font-size:11px; font-weight:700; color:#fff;
+    display:inline-flex; align-items:center; justify-content:center;
+    border:2.5px solid #fff;
+    box-shadow:
+      0 2px 5px rgba(20,15,10,0.22),
+      0 0 0 1px rgba(20,15,10,0.06);
+    letter-spacing:0.02em;
+    z-index:3;
+    pointer-events:none;
+    font-family:var(--sans, "Inter Tight", system-ui, sans-serif);
+  }
 
   .pds-el { position:absolute; background: var(--n-700); border-radius:2px; cursor:grab; will-change: transform; }
   .pds-el.pds-el-wall { background:#2C2520; height:8px; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.2); }
@@ -5102,6 +5727,20 @@ const PDS_INLINE_CSS = `
   .pds-strat-card.active { border-color:var(--atlas); background:rgba(11,110,79,0.06); box-shadow:0 0 0 1.5px var(--atlas); }
   .pds-strat-card b { display:block; font-size:13px; font-weight:600; color:var(--ink); margin-bottom:3px; }
   .pds-strat-card em { display:block; font-style:normal; font-size:11.5px; color:var(--n-600); line-height:1.4; }
+
+  .pds-scene-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+  .pds-scene-pill {
+    padding:8px 8px;
+    background:var(--paper); border:1px solid var(--n-200); border-radius:8px;
+    font-size:11.5px; font-weight:500; color:var(--n-700);
+    cursor:pointer; transition:.16s; font-family:inherit;
+    letter-spacing:-0.005em; text-align:left;
+  }
+  .pds-scene-pill:hover { border-color:var(--atlas); color:var(--ink); transform: translateY(-1px); }
+  .pds-scene-pill.active {
+    background:var(--ink); color:var(--paper); border-color:var(--ink);
+    font-weight:600; box-shadow:0 1px 2px rgba(10,15,13,0.16);
+  }
 
   .pds-foot { display:flex; justify-content:space-between; align-items:center; gap:8px; width:100%; }
   .pds-foot-meta { font-size:11px; color:var(--n-500); letter-spacing:0.06em; }
