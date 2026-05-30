@@ -631,6 +631,9 @@
     document.body.classList.add('page-stock');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = `Accueil <span class="sep">/</span> <b>${esc(t('breadcrumb'))}</b>`;
+    /* Pin sidebar selector on Stock via Kiwi.setActivePage — drawers/modals
+     * opened from here close back into this highlight, not Accueil. */
+    window.Kiwi?.setActivePage?.('stock');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('.sidebar nav a[data-nav="stock"]')?.classList.add('active');
     window.scrollTo({ top: 0 });
@@ -647,6 +650,7 @@
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
     if (stDemoClockUnsub) { try { stDemoClockUnsub(); } catch (_) {} stDemoClockUnsub = null; }
+    window.Kiwi?.setActivePage?.('accueil');
   }
 
   /* ═══════════════════════════════════════════════════════════════════════

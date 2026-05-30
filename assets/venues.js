@@ -2049,6 +2049,10 @@
     document.body.classList.add('page-equipe');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Équipe</b>';
+    /* Pin the sidebar selector on Équipe via the single source of truth so
+     * drawers opened from here close back into the right highlight. The
+     * direct DOM toggle stays as a belt-and-braces fallback. */
+    window.Kiwi?.setActivePage?.('equipe');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('.sidebar nav a[data-nav="equipe"]')?.classList.add('active');
     window.scrollTo({ top: 0 });
@@ -2060,6 +2064,7 @@
     document.body.classList.remove('page-equipe');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+    window.Kiwi?.setActivePage?.('accueil');
   }
 
   /* Wire the Équipe handlers onto Kiwi.handlers. venues.js loads after
@@ -3086,6 +3091,9 @@
     document.body.classList.add('page-menu');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Menu &amp; modificateurs</b>';
+    /* Pin sidebar selector on Menu via Kiwi.setActivePage — drawers/modals
+     * opened from here close back into this highlight, not Accueil. */
+    window.Kiwi?.setActivePage?.('menu');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('.sidebar nav a[data-nav="menu"]')?.classList.add('active');
     window.scrollTo({ top: 0 });
@@ -3096,6 +3104,7 @@
     document.body.classList.remove('page-menu');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+    window.Kiwi?.setActivePage?.('accueil');
   }
   function miWireHandlers() {
     const H = window.Kiwi && window.Kiwi.handlers;
@@ -4176,6 +4185,9 @@
     document.body.classList.add('page-payroll');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Paie &amp; Planning</b>';
+    /* Pin sidebar selector on Paie via Kiwi.setActivePage — drawers/modals
+     * opened from here close back into this highlight, not Accueil. */
+    window.Kiwi?.setActivePage?.('payroll');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('.sidebar nav a[data-nav="payroll"]')?.classList.add('active');
     window.scrollTo({ top: 0 });
@@ -4187,6 +4199,7 @@
     document.body.classList.remove('page-payroll');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+    window.Kiwi?.setActivePage?.('accueil');
   }
 
   /* ═══════════ RENDER ═══════════ */
