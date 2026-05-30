@@ -792,8 +792,6 @@
       ...cat.departments.map(d => `<button class="eq-pill${activeFilters.dept === d ? ' on' : ''}" type="button" data-action="kt-filter-dept" data-arg="${esc(d)}">${esc(d)}</button>`)].join('');
     const ctList = ['<button class="eq-pill' + (!activeFilters.contract ? ' on' : '') + '" type="button" data-action="kt-filter-contract" data-arg="">' + esc(T.filterAllContract) + '</button>',
       ...CONTRACT_TYPES.map(c => `<button class="eq-pill${activeFilters.contract === c ? ' on' : ''}" type="button" data-action="kt-filter-contract" data-arg="${esc(c)}">${esc(c)}</button>`)].join('');
-    const langList = ['<button class="eq-pill' + (!activeFilters.lang ? ' on' : '') + '" type="button" data-action="kt-filter-lang" data-arg="">' + esc(T.filterAllLang) + '</button>',
-      ...LANGS.map(l => `<button class="eq-pill${activeFilters.lang === l ? ' on' : ''}" type="button" data-action="kt-filter-lang" data-arg="${esc(l)}">${esc(l)}</button>`)].join('');
 
     const visible = members.filter(memberMatchesFilters);
 
@@ -814,7 +812,6 @@
         <div class="eq-filters" style="margin-top:14px;">
           <div class="eq-pill-row">${deptList}</div>
           <div class="eq-pill-row">${ctList}</div>
-          <div class="eq-pill-row">${langList}</div>
         </div>
 
         <div data-kt-grid-host style="margin-top:14px;">
@@ -992,7 +989,6 @@
   };
   handlers['kt-filter-dept']     = (_el, v) => { activeFilters.dept = v || ''; render(); };
   handlers['kt-filter-contract'] = (_el, v) => { activeFilters.contract = v || ''; render(); };
-  handlers['kt-filter-lang']     = (_el, v) => { activeFilters.lang = v || ''; render(); };
 
   /* Live-edit of an hour cell — keeps focus, only refreshes totals. */
   document.addEventListener('input', (e) => {
