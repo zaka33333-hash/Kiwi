@@ -4,8 +4,9 @@
  * Usage:
  *   <html lang="fr"> is default. Elements with data-i18n="key" are swapped.
  *   Language switch: click span[data-lang] inside .lang; or call setLang('en'|'ar'|'fr').
- *   Theme toggle: button.theme-tg; or call setTheme('dark'|'light').
- *   Both are persisted via localStorage.
+ *   Theme is locked to light for the user surface. setTheme('dark') still works
+ *   programmatically (Go Ultra / fusion-mode flips data-theme on <html>), but no
+ *   user-facing toggle is exposed anywhere.
  * ─────────────────────────────────────────────────────────────────────────── */
 (() => {
   'use strict';
@@ -340,10 +341,6 @@
       'wal.title.3': '. In your pocket.',
       'wal.desc': 'Pay at 2,000+ merchants with a QR code. Send money to friends in 2 seconds. Split the bill without calculating. Get your Kiwi Card in 30 seconds.',
       'wal.cta': 'Download the app',
-
-      /* Theme + lang */
-      'theme.light': 'Light mode',
-      'theme.dark': 'Dark mode',
 
       /* Pitch deck · headlines only (body copy falls back to FR) */
       'pd.s2.eyebrow': 'The problem',
@@ -934,10 +931,6 @@
       'wal.desc': 'ادفعوا عند أكثر من 2 000 تاجر عبر QR. أرسلوا المال لأصدقائكم في ثانيتين. قسّموا الفاتورة دون حساب. اطلبوا بطاقة كيوي في 30 ثانية.',
       'wal.cta': 'تحميل التطبيق',
 
-      /* Theme */
-      'theme.light': 'وضع النهار',
-      'theme.dark': 'وضع الليل',
-
       /* Pitch deck · headlines only (body copy falls back to FR) */
       'pd.s2.eyebrow': 'المشكل',
       'pd.s2.title': 'التاجر المغربي يدفع<br/>ليُخدم <em>بشكل سيّئ</em>.',
@@ -1199,10 +1192,6 @@
     }
   };
 
-  /* ─── SVG icons for theme toggle ─── */
-  const SUN_SVG = '<svg class="sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
-  const MOON_SVG = '<svg class="moon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-
   /* ─── Capture originals (FR) ─── */
   const ORIG = {};
   const ORIG_ATTR = new WeakMap(); // el -> { attr: frValue }
@@ -1258,33 +1247,18 @@
     });
   }
 
-  /* ─── setTheme ─── */
+  /* ─── setTheme ───
+   * Kept programmatic-only — Go Ultra / fusion-mode (venues.js) flips the
+   * <html data-theme="dark"> attribute to layer the dark surface tokens under
+   * its brand palette. No user-facing toggle is exposed anywhere. */
   function setTheme(theme) {
     if (!['dark','light'].includes(theme)) theme = 'light';
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('kiwiTheme', theme);
-    // Update toggles title
-    document.querySelectorAll('.theme-tg').forEach(btn => {
-      btn.setAttribute('aria-label', theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre');
-      btn.setAttribute('title', theme === 'dark' ? (T[getLang()]?.['theme.light'] || 'Mode clair') : (T[getLang()]?.['theme.dark'] || 'Mode sombre'));
-    });
   }
 
   function getLang() { return localStorage.getItem('kiwiLang') || 'fr'; }
   function getTheme() { return localStorage.getItem('kiwiTheme') || 'light'; }
-
-  /* ─── Build theme toggle button (injected into navs that don't have one) ─── */
-  function buildToggleButton() {
-    const btn = document.createElement('button');
-    btn.className = 'theme-tg';
-    btn.innerHTML = SUN_SVG + MOON_SVG;
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setTheme(getTheme() === 'dark' ? 'light' : 'dark');
-    });
-    return btn;
-  }
 
   /* ─── Initialize ─── */
   function init() {

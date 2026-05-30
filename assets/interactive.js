@@ -1328,7 +1328,6 @@ ar: {
     'settings': () => {
       const I18 = window.KiwiI18n;
       const lang = (I18 && I18.getLang && I18.getLang()) || 'fr';
-      const theme = (I18 && I18.getTheme && I18.getTheme()) || 'light';
       const LANGNAME = { fr: 'Français', en: 'English', ar: 'العربية' };
       const setOn = (k) => { try { return localStorage.getItem('kiwiSet:' + k) !== '0'; } catch (_) { return true; } };
       const sec = (t) => `<div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-weight:500; font-family:var(--mono); margin-bottom:10px;">${t}</div>`;
@@ -1355,7 +1354,6 @@ ar: {
           ${sec('PRÉFÉRENCES')}
           <div style="display:flex; flex-direction:column; gap:2px;">
             ${settingsRow('🌍', 'Langue', LANGNAME[lang] || 'Français', { action: 'settings-lang' })}
-            ${settingsRow('🌓', 'Mode sombre', theme === 'dark' ? 'Activé' : 'Désactivé', { action: 'settings-theme' })}
             ${settingsRow('🔔', 'Notifications WhatsApp', 'Résumé quotidien 19h', { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
             ${settingsRow('💰', 'Devise d\'affichage', 'MAD · Dirham marocain', { action: 'settings-soon' })}
           </div>
@@ -1412,14 +1410,6 @@ ar: {
         { label: 'English',  active: cur === 'en', onClick: () => pick('en') },
         { label: 'العربية',  active: cur === 'ar', onClick: () => pick('ar') },
       ]);
-    },
-
-    'settings-theme': (el) => {
-      const I18 = window.KiwiI18n;
-      const next = ((I18 && I18.getTheme && I18.getTheme()) === 'dark') ? 'light' : 'dark';
-      if (I18 && I18.setTheme) I18.setTheme(next);
-      const v = el && el.querySelector('.kset-val');
-      if (v) v.textContent = next === 'dark' ? 'Activé' : 'Désactivé';
     },
 
     'settings-toggle': (el, arg) => {
