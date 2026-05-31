@@ -3263,6 +3263,46 @@
   .mi-mods-table tr:last-child td { border-bottom: 0; }
   .mi-mods-table .mq { font-family: var(--mono); color: var(--n-500); font-size: 11.5px; }
   .mi-mod-cat { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--mono); color: var(--n-500); }
+
+  /* MENU MODIFIERS — groups */
+  .mi-groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; margin-top: 4px; }
+  .mi-group-card { background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; transition: border-color 140ms, transform 140ms; }
+  .mi-group-card:hover { border-color: var(--n-400); }
+  .mi-group-card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .mi-group-card-name { font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-right: 2px; }
+  .mi-group-card-pill { font-size: 10.5px; padding: 3px 8px; border-radius: 999px; font-weight: 500; line-height: 1.2; }
+  .mi-group-card-pill.req { background: rgba(201,74,58,0.12); color: var(--danger); }
+  .mi-group-card-pill.opt { background: var(--n-100); color: var(--n-600); }
+  .mi-group-card-pill.mode { background: var(--mint-soft); color: var(--atlas); font-family: var(--mono); }
+  .mi-group-card-opts { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+  .mi-group-opt-pill { font-size: 11.5px; padding: 4px 9px; border-radius: 999px; background: #fff; border: 1px solid var(--n-200); color: var(--n-600); white-space: nowrap; }
+  .mi-group-opt-pill .price { color: var(--atlas); font-weight: 500; margin-left: 4px; font-family: var(--mono); }
+  .mi-group-card-scope { font-size: 11.5px; color: var(--n-500); margin: 0 0 10px; line-height: 1.4; }
+  .mi-group-card-acts { display: flex; gap: 6px; margin-top: auto; padding-top: 4px; border-top: 1px solid var(--n-200); }
+  .mi-group-card-acts .btn-slim { font-size: 11px; padding: 5px 9px; }
+  .mi-group-card-acts .btn-slim.danger { color: var(--danger); border-color: var(--n-200); }
+  .mi-group-card-acts .btn-slim.danger:hover { background: rgba(201,74,58,0.06); border-color: var(--danger); }
+
+  /* Item-modal embedded group picker */
+  .mi-item-groups { background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 12px; padding: 12px 14px; }
+  .mi-item-groups-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .mi-item-group-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-top: 1px solid var(--n-200); }
+  .mi-item-group-row:first-of-type { border-top: 0; }
+  .mi-item-group-row input[type="checkbox"] { margin-top: 2px; cursor: pointer; width: 16px; height: 16px; accent-color: var(--atlas); flex-shrink: 0; }
+  .mi-item-group-row input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.5; }
+  .mi-item-group-row .info { flex: 1; min-width: 0; }
+  .mi-item-group-row .info .n { font-size: 13px; font-weight: 500; color: var(--ink); }
+  .mi-item-group-row .info .meta { font-size: 11px; color: var(--n-500); margin-top: 1px; letter-spacing: 0.01em; }
+  .mi-item-group-row .info .opts-line { font-size: 11.5px; color: var(--n-600); margin-top: 4px; line-height: 1.4; }
+  .mi-item-group-row .info .inherit { font-size: 9.5px; color: var(--info); font-weight: 600; margin-top: 4px; letter-spacing: 0.06em; text-transform: uppercase; font-family: var(--mono); }
+  .mi-item-group-row .actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+  /* Group editor — option rows and scope toggle */
+  .mi-grp-opt-row { display: grid; grid-template-columns: 16px 1fr 130px 28px; gap: 8px; align-items: center; padding: 6px 0; }
+  .mi-grp-opt-drag { color: var(--n-400); cursor: grab; user-select: none; text-align: center; font-size: 12px; line-height: 1; letter-spacing: -0.1em; }
+  .mi-grp-opt-drag:active { cursor: grabbing; }
+  .mi-toggle.mi-toggle-scope { display: flex; width: 100%; }
+  .mi-toggle.mi-toggle-scope button { flex: 1; }
   .mi-stations { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 8px; }
   .mi-station { position: relative; background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 10px; padding: 11px 12px; cursor: pointer; transition: border-color 140ms, transform 140ms; }
   .mi-station:hover { border-color: var(--n-400); transform: translateY(-1px); }

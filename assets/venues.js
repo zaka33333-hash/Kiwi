@@ -2960,14 +2960,66 @@
     'patisserie':     { dot: 'on',      meta: 'Opérationnelle' },
     'glacier':        { dot: 'off',     meta: 'Station fermée' },
   };
-  const MI_MODIFIERS = [
-    { name: 'Sans glace', cat: 'boissons', price: 0, demand: 142 },
-    { name: 'Supplément frites', cat: 'sandwiches', price: 15, demand: 86 },
-    { name: 'Pain sans gluten', cat: 'sandwiches', price: 8, demand: 24 },
-    { name: "Lait d'amande", cat: 'boissons', price: 5, demand: 38 },
-    { name: 'Cuisson : saignant / à point / bien cuit', cat: 'tajines', price: 0, demand: null, note: '3 options' },
-    { name: 'Allergies : noix, gluten, lactose', cat: 'tous', price: 0, demand: null, note: 'notes' },
+  /* Option groups — each group has multiple options with optional price delta.
+   * Groups can be assigned to a whole sub-section (every item in that category
+   * inherits the group), to individual items (item-scoped overrides), or be
+   * global (every item gets it). Replaces the legacy flat MI_MODIFIERS table. */
+  const MI_MOD_GROUPS = [
+    {
+      id: 'g-cuisson',
+      name: 'Cuisson',
+      required: true,
+      minSel: 1, maxSel: 1,
+      options: [
+        { id: 'o-saignant',  name: 'Saignant',  price: 0 },
+        { id: 'o-apoint',    name: 'À point',   price: 0 },
+        { id: 'o-biencuit',  name: 'Bien cuit', price: 0 },
+      ],
+      scope: { subsections: ['tajines'], items: [] },
+    },
+    {
+      id: 'g-supp-frites',
+      name: 'Suppléments',
+      required: false,
+      minSel: 0, maxSel: 3,
+      options: [
+        { id: 'o-frites',  name: 'Frites supplémentaires', price: 15 },
+        { id: 'o-fromage', name: 'Fromage fondu',          price: 8 },
+        { id: 'o-bacon',   name: 'Bacon',                  price: 12 },
+        { id: 'o-oeuf',    name: 'Œuf au plat',            price: 6 },
+      ],
+      scope: { subsections: ['sandwiches'], items: [] },
+    },
+    {
+      id: 'g-lait',
+      name: 'Type de lait',
+      required: true,
+      minSel: 1, maxSel: 1,
+      options: [
+        { id: 'o-entier',  name: 'Lait entier',    price: 0 },
+        { id: 'o-demi',    name: 'Demi-écrémé',    price: 0 },
+        { id: 'o-amande',  name: "Lait d'amande",  price: 5 },
+        { id: 'o-avoine',  name: "Lait d'avoine",  price: 5 },
+        { id: 'o-soja',    name: 'Lait de soja',   price: 5 },
+      ],
+      scope: { subsections: ['boissons'], items: [] },
+    },
+    {
+      id: 'g-allergies',
+      name: 'Allergies & restrictions',
+      required: false,
+      minSel: 0, maxSel: 5,
+      options: [
+        { id: 'o-gluten',  name: 'Sans gluten',  price: 0 },
+        { id: 'o-noix',    name: 'Sans noix',    price: 0 },
+        { id: 'o-lactose', name: 'Sans lactose', price: 0 },
+        { id: 'o-piment',  name: 'Sans piment',  price: 0 },
+      ],
+      scope: { subsections: [], items: [] },
+      isGlobal: true,
+    },
   ];
+  let miModGroupIdCounter = 100;
   const MI_86_FREQ = [
     { name: 'Tajine agneau pruneaux', count: 8, reason: 'rupture viande ×5, rupture épices ×3' },
     { name: 'Pastilla seafood', count: 6, reason: 'rupture poisson' },
@@ -3002,11 +3054,15 @@
     chev:     '<path d="M9 18l6-6-6-6"/>',
     info:     '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
     sort:     '<path d="M3 6h12M3 12h9M3 18h6M17 8V20M17 20l4-4M17 20l-4-4"/>',
+    /* Stove-burner glyph — Stations tab + edit-station headers. */
+    station:  '<rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><circle cx="16" cy="13" r="2"/><path d="M3 10h18"/>',
+    printer:  '<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><rect x="6" y="15" width="12" height="6" rx="1"/>',
+    kds:      '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
   };
   const miSvg = (k, sz = 14) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${MI_IC[k] || ''}</svg>`;
 
   /* ── State (in-memory; resets on reload) ──────────────────────────────── */
-  let miTab = 'menu';            // menu | perf | hours | alerts | compare
+  let miTab = 'menu';            // menu | stations | perf | hours | alerts | compare
   let miVenueFilter = 'cafeAtlas';
   let miSearch = '';
   let miCatFilter = 'all';
@@ -3080,6 +3136,80 @@
     });
   }
 
+  /* ── Option-groups helpers ────────────────────────────────────────────── */
+  /* Find a group by id (used by handlers + group editor). */
+  function miGroupById(id) { return MI_MOD_GROUPS.find(g => g.id === id); }
+  /* All groups applying to a given item — global + matching subsection + explicit per-item. */
+  function miGroupsForItem(item) {
+    if (!item) return [];
+    return MI_MOD_GROUPS.filter(g =>
+      g.isGlobal === true ||
+      (g.scope.items || []).includes(item.id) ||
+      (g.scope.subsections || []).includes(item.category)
+    );
+  }
+  /* Reason a group applies to an item — for the inherit badge in the item modal. */
+  function miGroupAttachReason(group, item) {
+    if (!group || !item) return null;
+    if ((group.scope.items || []).includes(item.id)) return 'item';
+    if ((group.scope.subsections || []).includes(item.category)) return 'subsection';
+    if (group.isGlobal) return 'global';
+    return null;
+  }
+  /* Number of items across all venues that a group is attached to (by either
+   * subsection inheritance OR explicit per-item scope OR global). */
+  function miGroupItemReach(group) {
+    if (!group) return 0;
+    let total = 0;
+    for (const v of REAL_VENUES) {
+      for (const it of (MENU[v] || [])) {
+        if (group.isGlobal ||
+            (group.scope.items || []).includes(it.id) ||
+            (group.scope.subsections || []).includes(it.category)) total++;
+      }
+    }
+    return total;
+  }
+  /* Human-friendly "applied to" line for a group card footer. */
+  function miGroupScopeLabel(group) {
+    if (!group) return '';
+    if (group.isGlobal) return 'Global · tous les articles (' + miGroupItemReach(group) + ')';
+    const subs = (group.scope.subsections || []).map(miCatLabel);
+    const itemCount = (group.scope.items || []).length;
+    const parts = [];
+    if (subs.length) parts.push('Sous-section' + (subs.length > 1 ? 's' : '') + ' : ' + subs.join(', '));
+    if (itemCount) parts.push(itemCount + ' article' + (itemCount > 1 ? 's' : '') + ' individuel' + (itemCount > 1 ? 's' : ''));
+    return parts.length ? parts.join(' · ') : 'Aucune affectation — non visible en caisse';
+  }
+  /* Drop an item from every subsection-scope it inherited from, so the user
+   * can override at the per-item level. Returns nothing. */
+  function miOverrideGroupOnItem(group, item) {
+    if (!group || !item) return;
+    /* If the group reached this item via subsection inheritance, capture the
+     * inheritance shadow on the item itself so other items in the same
+     * subsection stay unchanged. We do this by removing the item's subsection
+     * from this group's subsections list AND re-attaching every other item
+     * in that subsection by id. */
+    const venue = item.venue || miMenuVenue();
+    const inherited = (group.scope.subsections || []).includes(item.category);
+    if (!inherited) return;
+    const siblings = (MENU[venue] || []).filter(i => i.category === item.category && i.id !== item.id);
+    /* Multi-venue safeguard — also expand siblings across other venues whose
+     * subsection name matches. Subsections are venue-scoped in practice, but
+     * the group's scope.subsections is a flat list, so be defensive. */
+    for (const v of REAL_VENUES) {
+      if (v === venue) continue;
+      for (const i of (MENU[v] || [])) {
+        if (i.category === item.category && i.id !== item.id) siblings.push(i);
+      }
+    }
+    group.scope.subsections = (group.scope.subsections || []).filter(s => s !== item.category);
+    group.scope.items = group.scope.items || [];
+    for (const sib of siblings) {
+      if (!group.scope.items.includes(sib.id)) group.scope.items.push(sib.id);
+    }
+  }
+
   /* ═══════════ NAVIGATION ═══════════ */
   function miShowPage() {
     miTab = 'menu';
@@ -3141,7 +3271,36 @@
       { label: 'Nom (A→Z)', onClick: () => {} },
     ]);
     H['mi-mods-toggle']  = () => { miModsCollapsed = !miModsCollapsed; const c = document.querySelector('[data-mi-mods]'); if (c) c.classList.toggle('collapsed', miModsCollapsed); };
-    H['mi-add-mod']      = () => miOpenModifierModal();
+    H['mi-add-group']    = () => miOpenGroupModal(null);
+    H['mi-edit-group']   = (_el, id) => miOpenGroupModal(miGroupById(id));
+    H['mi-dup-group']    = (_el, id) => miDuplicateGroup(id);
+    H['mi-del-group']    = (_el, id) => miConfirmDeleteGroup(id);
+    /* Per-item toggle handler — driven from inside the item modal. The
+     * itemId is read from a data-* on the row to keep the markup uncoupled
+     * from the modal's lifecycle. */
+    H['mi-item-toggle-group'] = (el, gid) => {
+      const flipped = miToggleGroupOnItem(el.dataset.itemId, gid);
+      /* Re-render the section inline so the inherit badges and the row
+       * order reflect the new state. */
+      const it = miFindItem(el.dataset.itemId);
+      const host = document.querySelector('[data-mi-item-groups-wrap]');
+      if (it && host) host.innerHTML = miItemGroupsSectionHtml(it);
+      return flipped;
+    };
+    /* Inside the item modal — these read the current item id from data-arg. */
+    H['mi-item-add-group']  = (_el, itemId) => {
+      /* Close the current item modal first so the group editor doesn't stack
+       * on top — the group editor will re-open the item modal on save. */
+      const back = document.querySelector('.kiwi-backdrop:last-child');
+      if (back) back.querySelector('.kiwi-modal-close')?.click();
+      miOpenGroupModal(null, { attachToItemId: itemId });
+    };
+    H['mi-item-edit-group'] = (el, gid) => {
+      const itemId = el.dataset.itemId;
+      const back = document.querySelector('.kiwi-backdrop:last-child');
+      if (back) back.querySelector('.kiwi-modal-close')?.click();
+      miOpenGroupModal(miGroupById(gid), { attachToItemId: itemId });
+    };
     H['mi-station']      = (_el, id) => Kiwi.toast(`Configuration de la station ${id}`, { type: 'info', desc: 'Routage, imprimante, écran KDS.' });
     H['mi-add-station']  = () => miOpenAddStationModal();
     H['mi-remove-station'] = (_el, id) => miRemoveStation(id);
@@ -3200,6 +3359,7 @@
     const active86 = mi86.length;
     const tabs = [
       ['menu', 'Menu & modificateurs', 'menu'],
+      ['stations', 'Stations cuisine', 'station'],
       ['perf', 'Performance', 'trending'],
       ['hours', 'Heures de pointe', 'clock'],
       ['alerts', 'Alertes 86', 'alert'],
@@ -3217,11 +3377,12 @@
 
   function miTabHtml() {
     switch (miTab) {
-      case 'perf':    return miTab2Html();
-      case 'hours':   return miTab3Html();
-      case 'alerts':  return miTab4Html();
-      case 'compare': return miTab5Html();
-      default:        return miTab1Html();
+      case 'stations': return miStationsTabHtml();
+      case 'perf':     return miTab2Html();
+      case 'hours':    return miTab3Html();
+      case 'alerts':   return miTab4Html();
+      case 'compare':  return miTab5Html();
+      default:         return miTab1Html();
     }
   }
 
@@ -3305,14 +3466,41 @@
         : miListHtml(list))
       : `<div style="text-align:center;color:var(--n-500);padding:36px;font-size:13px;">${emptyMsg}</div>`;
 
-    /* Modifiers */
-    const modRows = MI_MODIFIERS.map(m => `
-      <tr>
-        <td><b style="font-weight:600;">${eqEsc(m.name)}</b></td>
-        <td><span class="mi-mod-cat">${m.cat}</span></td>
-        <td class="mq">${m.price > 0 ? '+ ' + m.price + ' MAD' : (m.note === 'notes' ? 'sans frais' : '0 MAD')}</td>
-        <td class="mq">${m.demand != null ? eqFrInt(m.demand) + ' demandes/mois' : (m.note || '—')}</td>
-      </tr>`).join('');
+    /* Modifier option groups — polished cards instead of a flat table.
+     * Each card shows mode/required pills, options with price deltas, and
+     * a scope readout so the owner can see where the group applies. */
+    const groupsHtml = MI_MOD_GROUPS.length ? MI_MOD_GROUPS.map(g => {
+      const reqPill = g.required
+        ? '<span class="mi-group-card-pill req">Obligatoire</span>'
+        : '<span class="mi-group-card-pill opt">Optionnel</span>';
+      const modePill = (g.maxSel || 1) <= 1
+        ? '<span class="mi-group-card-pill mode">Unique</span>'
+        : `<span class="mi-group-card-pill mode">Multi · max ${g.maxSel}</span>`;
+      const globalPill = g.isGlobal ? '<span class="mi-group-card-pill mode" style="background:var(--paper-muted);color:var(--n-600);">Global</span>' : '';
+      const optsHtml = (g.options || []).map(o => {
+        const price = (Number(o.price) || 0) > 0
+          ? `<span class="price">+${eqFrInt(Number(o.price))} MAD</span>`
+          : '';
+        return `<span class="mi-group-opt-pill">${eqEsc(o.name)}${price}</span>`;
+      }).join('');
+      return `
+        <div class="mi-group-card">
+          <div class="mi-group-card-head">
+            <span class="mi-group-card-name">${eqEsc(g.name)}</span>
+            ${reqPill}${modePill}${globalPill}
+          </div>
+          <div class="mi-group-card-opts">${optsHtml || '<span style="font-size:11.5px;color:var(--n-500);">Aucune option</span>'}</div>
+          <div class="mi-group-card-scope">Appliqué à : ${eqEsc(miGroupScopeLabel(g))}</div>
+          <div class="mi-group-card-acts">
+            <button class="btn-slim" data-action="mi-edit-group" data-arg="${g.id}">${miSvg('edit', 12)}<span>Modifier</span></button>
+            <button class="btn-slim" data-action="mi-dup-group" data-arg="${g.id}">${miSvg('copy', 12)}<span>Dupliquer</span></button>
+            <button class="btn-slim danger" data-action="mi-del-group" data-arg="${g.id}">${miSvg('trash', 12)}<span>Supprimer</span></button>
+          </div>
+        </div>`;
+    }).join('') : `<div style="grid-column:1/-1;text-align:center;color:var(--n-500);padding:24px;font-size:13px;">Aucun groupe d'options — créez-en un avec « Nouveau groupe d'options ».</div>`;
+    const groupsApplied = MI_MOD_GROUPS.filter(g => g.isGlobal || (g.scope.subsections || []).length || (g.scope.items || []).length).length;
+    const groupsGlobal = MI_MOD_GROUPS.filter(g => g.isGlobal).length;
+    const groupsStats = `<div class="mi-section-sub">${MI_MOD_GROUPS.length} groupe${MI_MOD_GROUPS.length > 1 ? 's' : ''} · ${groupsApplied} appliqué${groupsApplied > 1 ? 's' : ''} · ${groupsGlobal} global${groupsGlobal > 1 ? 'aux' : ''}</div>`;
 
     /* Stations — session-mutable list (add / remove) */
     const stationIds = miGetStations(venue);
@@ -3348,10 +3536,11 @@
           <div class="mi-collapse-head" data-action="mi-mods-toggle">
             <span class="chev">${miSvg('chev', 15)}</span><h3>Modificateurs &amp; options</h3>
           </div>
+          <button class="btn-slim primary" data-action="mi-add-group">${miSvg('plus', 13)}<span>Nouveau groupe d'options</span></button>
         </div>
+        ${groupsStats}
         <div class="mi-collapse-body">
-          <table class="mi-mods-table"><tbody>${modRows}</tbody></table>
-          <button class="btn-slim" style="margin-top:14px;" data-action="mi-add-mod">${miSvg('plus', 13)}<span>Nouveau modificateur</span></button>
+          <div class="mi-groups-grid">${groupsHtml}</div>
         </div>
       </div>
 
@@ -3900,6 +4089,68 @@
   }
 
   /* ═══════════ MODALS ═══════════ */
+  /* Build the "Options & modificateurs" section that lives inside the item
+   * modal. Re-renderable in place via [data-mi-item-groups-wrap]. Lists
+   * applicable groups (subsection-inherited + per-item + global) at the top
+   * with checkboxes pre-checked; followed by available global/subsection
+   * groups not yet attached. Also has the "+ Ajouter un groupe" CTA. */
+  function miItemGroupsSectionHtml(item) {
+    if (!item) return '';
+    const attached = miGroupsForItem(item);
+    /* Non-attached groups — surface them so the user can attach with one
+     * checkbox click. */
+    const detached = MI_MOD_GROUPS.filter(g => !attached.includes(g));
+    /* Card row for a single group. */
+    const rowHtml = (g, isAttached) => {
+      const reason = isAttached ? miGroupAttachReason(g, item) : null;
+      const inheritBadge = reason === 'subsection'
+        ? `<div class="inherit">Hérité de la sous-section ${eqEsc(miCatLabel(item.category))}</div>`
+        : reason === 'global'
+          ? `<div class="inherit">Groupe global</div>`
+          : '';
+      const meta = (g.required ? 'Obligatoire' : 'Optionnel') + ' · '
+        + ((g.maxSel || 1) <= 1 ? 'Unique' : 'Multi · max ' + g.maxSel)
+        + ' · ' + ((g.options || []).length) + ' option' + ((g.options || []).length > 1 ? 's' : '');
+      const optsLine = (g.options || []).map(o => {
+        const price = (Number(o.price) || 0) > 0 ? ` (+${eqFrInt(Number(o.price))} MAD)` : '';
+        return eqEsc(o.name) + price;
+      }).join(' · ');
+      const lockedNote = (reason === 'global') ? ' disabled title="Groupe global — décrocher via le bouton Modifier"' : '';
+      return `
+        <div class="mi-item-group-row">
+          <input type="checkbox"${isAttached ? ' checked' : ''}${lockedNote}
+                 data-action="mi-item-toggle-group" data-arg="${g.id}" data-item-id="${item.id}"
+                 aria-label="${eqEsc(g.name)}"/>
+          <div class="info">
+            <div class="n">${eqEsc(g.name)}</div>
+            <div class="meta">${meta}</div>
+            <div class="opts-line">${optsLine || '<em style="color:var(--n-400);">Aucune option</em>'}</div>
+            ${inheritBadge}
+          </div>
+          <div class="actions">
+            <button class="mi-ic-btn" data-action="mi-item-edit-group" data-arg="${g.id}" data-item-id="${item.id}" aria-label="Modifier le groupe" title="Modifier">${miSvg('edit', 12)}</button>
+          </div>
+        </div>`;
+    };
+    const attachedRows = attached.map(g => rowHtml(g, true)).join('') ||
+      `<div style="font-size:12px;color:var(--n-500);padding:6px 0;">Aucun groupe attaché. Cochez un groupe ci-dessous ou créez-en un nouveau.</div>`;
+    const detachedRows = detached.map(g => rowHtml(g, false)).join('');
+    return `
+      <div class="mi-item-groups">
+        <div class="mi-item-groups-head">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink);">Options &amp; modificateurs</div>
+            <div style="font-size:11.5px;color:var(--n-500);margin-top:3px;">${attached.length} groupe${attached.length > 1 ? 's' : ''} attaché${attached.length > 1 ? 's' : ''} · ${MI_MOD_GROUPS.length} disponible${MI_MOD_GROUPS.length > 1 ? 's' : ''}</div>
+          </div>
+          <button class="btn-slim primary" data-action="mi-item-add-group" data-arg="${item.id}">${miSvg('plus', 12)}<span>Ajouter un groupe</span></button>
+        </div>
+        ${attachedRows}
+        ${detached.length ? `
+          <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--n-500);font-family:var(--mono);margin:14px 0 4px;">Groupes disponibles</div>
+          ${detachedRows}
+        ` : ''}
+      </div>`;
+  }
   function miOpenItemModal(item) {
     const editing = !!item;
     const venue = editing ? (item.venue || miMenuVenue()) : miMenuVenue();
@@ -3913,10 +4164,23 @@
     if (editing && item.station && !stList.includes(item.station)) stList.unshift(item.station);
     const stOpts = stList.map(s => `<option value="${s}"${preStation === s ? ' selected' : ''}>${s}</option>`).join('');
     const chip = (t, on) => `<span class="mi-chip${on ? ' on' : ''}" data-mi-chip="${t}">${MI_TAG_LABEL[t] || t}</span>`;
+    /* Group picker — only meaningful for existing items (a brand-new item
+     * has no id yet, so it can't be attached). For new items we show a
+     * helper line explaining where this lives once the item is created. */
+    const groupsSectionHtml = editing
+      ? miItemGroupsSectionHtml(item)
+      : `<div class="mi-item-groups">
+           <div class="mi-item-groups-head">
+             <div>
+               <div style="font-size:13px;font-weight:600;color:var(--ink);">Options &amp; modificateurs</div>
+               <div style="font-size:11.5px;color:var(--n-500);margin-top:3px;">Disponible après création — vous pourrez ensuite associer ou créer des groupes d'options.</div>
+             </div>
+           </div>
+         </div>`;
     const m = Kiwi.modal({
       tag: editing ? 'MODIFIER' : 'NOUVEL ARTICLE',
       title: editing ? 'Modifier · ' + item.name : 'Nouvel article',
-      width: 640,
+      width: 660,
       body: `
         <div class="kf-group"><label class="kf-label">Nom de l'article</label><input class="kf-input" data-mif="name" value="${editing ? eqEsc(item.name) : ''}" placeholder="Ex. Tajine kefta"/></div>
         <div class="kf-row">
@@ -3936,6 +4200,7 @@
         </div>
         <div class="kf-group"><label class="kf-label">Tags</label><div class="mi-chips" data-mi-tags>${MI_TAGS.map(t => chip(t, editing && (item.tags || []).includes(t))).join('')}</div></div>
         <div class="kf-group"><label class="kf-label">Description (optionnel)</label><textarea class="kf-input" data-mif="desc" rows="2" placeholder="Description courte affichée sur le menu…"></textarea></div>
+        <div class="kf-group" data-mi-item-groups-wrap>${groupsSectionHtml}</div>
         <div class="kf-row">
           <div class="kf-group"><label class="kf-label">Photo</label><div class="mi-photo-drop" data-mi-photo>${miSvg('upload', 16)} &nbsp;Glisser une image ou cliquer</div></div>
           <div class="kf-group"><label class="kf-label">Disponibilité</label>
@@ -4015,33 +4280,347 @@
     const back = document.querySelector('.kiwi-backdrop:last-child');
     if (back) back.querySelector('[data-mi-cancel]').onclick = () => back.querySelector('.kiwi-modal-close').click();
   }
-  function miOpenModifierModal() {
+  /* ── Group editor + group management ──────────────────────────────────── */
+  /* Build a single editable option row (drag-handle · name input · price · trash). */
+  function miGroupOptRow(opt) {
+    const o = opt || { id: '', name: '', price: 0 };
+    return `
+      <div class="mi-grp-opt-row" data-mi-opt-row data-opt-id="${eqEsc(o.id || '')}">
+        <span class="mi-grp-opt-drag" aria-label="Réordonner" title="Glisser pour réordonner">⋮⋮</span>
+        <input class="kf-input" data-mi-opt-name placeholder="Nom de l'option" value="${eqEsc(o.name || '')}"/>
+        <div class="eq-m-suffix">
+          <input class="kf-input" type="number" min="0" step="1" data-mi-opt-price value="${Number(o.price) || 0}" style="padding-right:48px;"/>
+          <span class="sfx">MAD</span>
+        </div>
+        <button type="button" class="mi-ic-btn danger" data-mi-opt-del aria-label="Retirer l'option">${miSvg('trash', 12)}</button>
+      </div>`;
+  }
+  /* Rich group editor. `opts.attachToItemId` (optional) pre-scopes a new group
+   * to the given item and re-opens its parent item modal on save. */
+  function miOpenGroupModal(group, opts) {
+    opts = opts || {};
+    const editing = !!group;
+    /* Snapshot if editing — used for cancel. We mutate live; no rollback path
+     * is needed because of the snapshot pattern.  */
+    const initial = editing ? JSON.parse(JSON.stringify(group)) : null;
+    /* Determine initial scope — explicit per-item, subsection, or global. */
+    let initialScope = 'item';
+    let initialSubsection = MI_CAT_ORDER[0] || '';
+    if (editing) {
+      if (group.isGlobal) initialScope = 'global';
+      else if ((group.scope.subsections || []).length) {
+        initialScope = 'subsection';
+        initialSubsection = group.scope.subsections[0];
+      } else initialScope = 'item';
+    } else if (!opts.attachToItemId) {
+      /* Brand-new group from the Menu tab — default to subsection scope. */
+      initialScope = 'subsection';
+      if (miCatFilter !== 'all' && miCatFilter) initialSubsection = miCatFilter;
+    }
+    /* Build the subsection select from base + custom categories across venues
+     * (in practice subsections are venue-scoped, but the data model is flat
+     * so we de-dup by id and label by miCatLabel). */
+    const allSubIds = [...new Set([...MI_CAT_ORDER, ...miCustomCats.map(c => c.id)])];
+    const subOpts = allSubIds.map(c => `<option value="${c}"${initialSubsection === c ? ' selected' : ''}>${miCatLabel(c)}</option>`).join('');
+    /* Mode + required defaults. */
+    const initialMaxSel = editing ? Math.max(1, Number(group.maxSel) || 1) : 1;
+    const initialRequired = editing ? !!group.required : false;
+    const initialMinSel = editing ? Math.max(0, Number(group.minSel) || 0) : 0;
+    const initialOpts = editing ? group.options.slice() : [
+      { id: '', name: '', price: 0 },
+      { id: '', name: '', price: 0 },
+    ];
+    const optsRowsHtml = initialOpts.map(miGroupOptRow).join('');
+
+    const attachItem = opts.attachToItemId ? miFindItem(opts.attachToItemId) : null;
+    const scopeHelp = attachItem
+      ? `<div class="kf-help">Par défaut, ce nouveau groupe sera attaché à <b style="color:var(--ink);">${eqEsc(attachItem.name)}</b>. Modifiez la portée ci-dessous pour l'élargir.</div>`
+      : '';
+
     const m = Kiwi.modal({
-      tag: 'MODIFICATEUR',
-      title: 'Nouveau modificateur',
-      width: 480,
+      tag: editing ? 'GROUPE D\'OPTIONS' : 'NOUVEAU GROUPE',
+      title: editing ? 'Modifier · ' + group.name : 'Nouveau groupe d\'options',
+      width: 620,
       body: `
-        <div class="kf-group"><label class="kf-label">Nom du modificateur</label><input class="kf-input" data-mmf="name" placeholder="Ex. Supplément avocat"/></div>
+        <div class="kf-group">
+          <label class="kf-label">Nom du groupe</label>
+          <input class="kf-input" data-mgf="name" placeholder="Ex. Cuisson · Suppléments · Type de lait" value="${editing ? eqEsc(group.name) : ''}"/>
+        </div>
         <div class="kf-row">
-          <div class="kf-group"><label class="kf-label">Catégorie liée</label>
-            <select class="kf-input" data-mmf="cat"><option value="tous">Toutes</option>${MI_CAT_ORDER.map(c => `<option value="${c}">${miCatLabel(c)}</option>`).join('')}</select>
+          <div class="kf-group">
+            <label class="kf-label">Choix requis</label>
+            <div class="mi-toggle" data-mg-required>
+              <button type="button" data-req="0"${!initialRequired ? ' class="on"' : ''}>Optionnel</button>
+              <button type="button" data-req="1"${initialRequired ? ' class="on"' : ''}>Obligatoire</button>
+            </div>
           </div>
-          <div class="kf-group"><label class="kf-label">Prix</label>
-            <div class="eq-m-suffix"><input class="kf-input" type="number" data-mmf="price" value="0" style="padding-right:48px;"/><span class="sfx">MAD</span></div>
+          <div class="kf-group">
+            <label class="kf-label">Mode de sélection</label>
+            <div class="mi-toggle" data-mg-mode>
+              <button type="button" data-mode="single"${initialMaxSel <= 1 ? ' class="on"' : ''}>Unique</button>
+              <button type="button" data-mode="multi"${initialMaxSel > 1 ? ' class="on"' : ''}>Multiple</button>
+            </div>
           </div>
-        </div>`,
-      foot: '<button class="kb ghost" data-mi-cancel>Annuler</button><button class="eq-cta-gradient" data-mi-save>Ajouter</button>',
+        </div>
+        <div class="kf-row" data-mg-multi-row${initialMaxSel <= 1 ? ' style="display:none;"' : ''}>
+          <div class="kf-group">
+            <label class="kf-label">Min. sélection</label>
+            <input class="kf-input" type="number" min="0" step="1" data-mgf="minSel" value="${initialMinSel}"/>
+            <div class="kf-help">Laisser à 0 pour rendre toutes les options facultatives.</div>
+          </div>
+          <div class="kf-group">
+            <label class="kf-label">Max. sélection</label>
+            <input class="kf-input" type="number" min="1" step="1" data-mgf="maxSel" value="${Math.max(2, initialMaxSel)}"/>
+          </div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Portée</label>
+          <div class="mi-toggle mi-toggle-scope" data-mg-scope>
+            <button type="button" data-scope="item"${initialScope === 'item' ? ' class="on"' : ''}>Cet article uniquement</button>
+            <button type="button" data-scope="subsection"${initialScope === 'subsection' ? ' class="on"' : ''}>Une sous-section</button>
+            <button type="button" data-scope="global"${initialScope === 'global' ? ' class="on"' : ''}>Tous les articles</button>
+          </div>
+          <div class="kf-help" data-mg-scope-help>${
+            attachItem
+              ? 'Attaché à : ' + eqEsc(attachItem.name)
+              : (editing
+                  ? 'Modifier la portée mettra à jour tous les articles concernés.'
+                  : 'Choisissez où ce groupe doit apparaître.')
+          }</div>
+        </div>
+        <div class="kf-group" data-mg-sub-row${initialScope === 'subsection' ? '' : ' style="display:none;"'}>
+          <label class="kf-label">Sous-section ciblée</label>
+          <select class="kf-input" data-mgf="subsection">${subOpts}</select>
+        </div>
+        ${scopeHelp}
+        <div class="kf-group" style="margin-top:6px;">
+          <label class="kf-label">Options proposées</label>
+          <div data-mg-opts>${optsRowsHtml}</div>
+          <button type="button" class="btn-slim" style="margin-top:8px;" data-mg-add-opt>${miSvg('plus', 12)}<span>Ajouter une option</span></button>
+        </div>
+      `,
+      foot: editing
+        ? `<button class="kb ghost" data-mi-cancel>Annuler</button>
+           <button class="kb danger" data-mg-del style="margin-right:auto;">Supprimer le groupe</button>
+           <button class="eq-cta-gradient" data-mi-save>Enregistrer</button>`
+        : '<button class="kb ghost" data-mi-cancel>Annuler</button><button class="eq-cta-gradient" data-mi-save>Créer le groupe</button>',
     });
-    m.el.querySelector('[data-mi-cancel]').onclick = m.close;
-    m.el.querySelector('[data-mi-save]').onclick = () => {
-      const name = m.el.querySelector('[data-mmf="name"]').value.trim();
-      if (!name) { m.el.querySelector('[data-mmf="name"]').classList.add('eq-invalid'); return; }
-      const price = Number(m.el.querySelector('[data-mmf="price"]').value) || 0;
-      MI_MODIFIERS.push({ name, cat: m.el.querySelector('[data-mmf="cat"]').value, price, demand: 0 });
-      m.close();
-      Kiwi.toast('Modificateur ajouté', { type: 'success', desc: name });
-      if (miTab === 'menu') miRenderTab1Body();
+
+    const el = s => m.el.querySelector(s);
+    const els = s => m.el.querySelectorAll(s);
+
+    /* Required toggle. */
+    els('[data-mg-required] button').forEach(b => b.onclick = () => {
+      els('[data-mg-required] button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+    });
+    /* Mode toggle — show/hide min/max row + flip multi default. */
+    els('[data-mg-mode] button').forEach(b => b.onclick = () => {
+      els('[data-mg-mode] button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      const multi = b.dataset.mode === 'multi';
+      el('[data-mg-multi-row]').style.display = multi ? '' : 'none';
+      if (multi) {
+        const max = el('[data-mgf="maxSel"]');
+        if (!max.value || Number(max.value) < 2) max.value = 3;
+      }
+    });
+    /* Scope radio toggle — show/hide subsection select. */
+    els('[data-mg-scope] button').forEach(b => b.onclick = () => {
+      els('[data-mg-scope] button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      const isSub = b.dataset.scope === 'subsection';
+      el('[data-mg-sub-row]').style.display = isSub ? '' : 'none';
+      const helper = el('[data-mg-scope-help]');
+      if (helper) {
+        helper.innerHTML = b.dataset.scope === 'global'
+          ? 'Le groupe sera appliqué à <b style="color:var(--ink);">tous les articles</b> du menu.'
+          : b.dataset.scope === 'subsection'
+            ? 'Le groupe sera hérité par <b style="color:var(--ink);">tous les articles</b> de la sous-section choisie.'
+            : (attachItem
+              ? 'Attaché à : <b style="color:var(--ink);">' + eqEsc(attachItem.name) + '</b>'
+              : 'Le groupe sera attaché à un ou plusieurs articles individuels.');
+      }
+    });
+    /* Option row interactions — delegated. */
+    el('[data-mg-opts]').addEventListener('click', e => {
+      const del = e.target.closest('[data-mi-opt-del]');
+      if (del) {
+        const row = del.closest('[data-mi-opt-row]');
+        if (m.el.querySelectorAll('[data-mi-opt-row]').length <= 1) {
+          Kiwi.toast('Au moins une option requise', { type: 'warn' });
+          return;
+        }
+        row.remove();
+      }
+    });
+    el('[data-mg-add-opt]').onclick = () => {
+      const wrap = el('[data-mg-opts]');
+      wrap.insertAdjacentHTML('beforeend', miGroupOptRow(null));
+      const last = wrap.querySelector('[data-mi-opt-row]:last-child input[data-mi-opt-name]');
+      if (last) last.focus();
     };
+
+    /* Cancel — closes without saving (live state was not mutated; we save
+     * into the group object only on Save). */
+    el('[data-mi-cancel]').onclick = m.close;
+
+    /* Delete (editing only) — confirm + remove from the array + close. */
+    if (editing) {
+      el('[data-mg-del]').onclick = () => {
+        m.close();
+        miConfirmDeleteGroup(group.id);
+      };
+    }
+
+    /* Save — validate, mutate group (or push new), close, re-render. */
+    el('[data-mi-save]').onclick = () => {
+      const name = el('[data-mgf="name"]').value.trim();
+      let ok = true;
+      if (!name) { el('[data-mgf="name"]').classList.add('eq-invalid'); ok = false; }
+      const rows = [...m.el.querySelectorAll('[data-mi-opt-row]')];
+      const newOpts = [];
+      rows.forEach(r => {
+        const nm = r.querySelector('[data-mi-opt-name]').value.trim();
+        const pr = Number(r.querySelector('[data-mi-opt-price]').value) || 0;
+        const oldId = r.dataset.optId;
+        if (!nm) { r.querySelector('[data-mi-opt-name]').classList.add('eq-invalid'); ok = false; return; }
+        if (pr < 0) { r.querySelector('[data-mi-opt-price]').classList.add('eq-invalid'); ok = false; return; }
+        newOpts.push({
+          id: oldId || ('o-' + (++miModGroupIdCounter) + '-' + newOpts.length),
+          name: nm,
+          price: pr,
+        });
+      });
+      if (!newOpts.length) { Kiwi.toast('Aucune option', { type: 'warn', desc: 'Ajoutez au moins une option.' }); return; }
+      if (!ok) { Kiwi.toast('Champs invalides', { type: 'warn', desc: 'Vérifiez les noms et les prix.' }); return; }
+
+      const required = el('[data-mg-required] button.on')?.dataset.req === '1';
+      const mode = el('[data-mg-mode] button.on')?.dataset.mode || 'single';
+      const scope = el('[data-mg-scope] button.on')?.dataset.scope || 'item';
+      let maxSel = mode === 'single' ? 1 : Math.max(2, Number(el('[data-mgf="maxSel"]').value) || newOpts.length);
+      let minSel = required ? Math.max(1, Number(el('[data-mgf="minSel"]')?.value) || 1) : Math.max(0, Number(el('[data-mgf="minSel"]')?.value) || 0);
+      if (mode === 'single') minSel = required ? 1 : 0;
+      if (minSel > maxSel) minSel = maxSel;
+
+      let scopeObj = { subsections: [], items: [] };
+      let isGlobal = false;
+      if (scope === 'global') { isGlobal = true; }
+      else if (scope === 'subsection') {
+        const sub = el('[data-mgf="subsection"]').value;
+        if (sub) scopeObj.subsections = [sub];
+      } else {
+        /* item scope — keep existing per-item if editing, optionally add the
+         * pre-attach item from opts.attachToItemId. */
+        if (editing && group.scope && (group.scope.items || []).length) {
+          scopeObj.items = group.scope.items.slice();
+        }
+        if (opts.attachToItemId && !scopeObj.items.includes(opts.attachToItemId)) {
+          scopeObj.items.push(opts.attachToItemId);
+        }
+      }
+
+      if (editing) {
+        group.name = name;
+        group.required = required;
+        group.minSel = minSel;
+        group.maxSel = maxSel;
+        group.options = newOpts;
+        group.scope = scopeObj;
+        group.isGlobal = isGlobal;
+        m.close();
+        Kiwi.toast('Groupe mis à jour', { type: 'success', desc: name });
+      } else {
+        const id = 'g-' + (++miModGroupIdCounter);
+        MI_MOD_GROUPS.push({
+          id, name, required, minSel, maxSel,
+          options: newOpts, scope: scopeObj, isGlobal,
+        });
+        m.close();
+        Kiwi.toast('Groupe créé', { type: 'success', desc: name });
+      }
+
+      /* Re-render whichever surface the user is looking at. */
+      if (document.body.classList.contains('page-menu') && miTab === 'menu') miRenderTab1Body();
+      /* If we came from an item modal (attachToItemId set), re-open it so the
+       * user sees the new/updated state without losing context. */
+      if (opts.attachToItemId) {
+        const it = miFindItem(opts.attachToItemId);
+        if (it) miOpenItemModal(it);
+      }
+    };
+
+    /* Clear invalid as the user types. */
+    m.el.querySelectorAll('[data-mgf],[data-mi-opt-name],[data-mi-opt-price]')
+      .forEach(f => f.addEventListener('input', () => f.classList.remove('eq-invalid')));
+  }
+  /* Duplicate a group — appears next to it in the grid. */
+  function miDuplicateGroup(id) {
+    const g = miGroupById(id);
+    if (!g) return;
+    const copy = JSON.parse(JSON.stringify(g));
+    copy.id = 'g-' + (++miModGroupIdCounter);
+    copy.name = g.name + ' (copie)';
+    /* Don't carry over the item-level attachments on the duplicate — the user
+     * will most likely want a clean slate to retarget. */
+    copy.scope = { subsections: g.scope.subsections.slice(), items: [] };
+    const idx = MI_MOD_GROUPS.indexOf(g);
+    MI_MOD_GROUPS.splice(idx + 1, 0, copy);
+    Kiwi.toast('Groupe dupliqué', { type: 'success', desc: copy.name });
+    if (miTab === 'menu') miRenderTab1Body();
+  }
+  /* Delete-with-confirm — pattern matches miDeleteItem. */
+  function miConfirmDeleteGroup(id) {
+    const g = miGroupById(id);
+    if (!g) return;
+    const reach = miGroupItemReach(g);
+    Kiwi.modal({
+      title: `Supprimer « ${g.name} » ?`,
+      width: 460,
+      body: `<p style="font-size:13px;color:var(--n-600);line-height:1.55;margin:0;">${reach
+        ? `Ce groupe est actuellement appliqué à <b style="color:var(--ink);">${reach} article${reach > 1 ? 's' : ''}</b>. Sa suppression retirera les options de tous ces articles.`
+        : 'Aucun article n\'utilise ce groupe.'} Cette action est réversible jusqu'au prochain rechargement.</p>`,
+      foot: '<button class="kb ghost" data-mi-cancel>Annuler</button><button class="kb danger" data-mi-confirm>Supprimer</button>',
+    });
+    const back = document.querySelector('.kiwi-backdrop:last-child');
+    if (!back) return;
+    back.querySelector('[data-mi-cancel]').onclick = () => back.querySelector('.kiwi-modal-close').click();
+    back.querySelector('[data-mi-confirm]').onclick = () => {
+      back.querySelector('.kiwi-modal-close').click();
+      const idx = MI_MOD_GROUPS.indexOf(g);
+      if (idx > -1) MI_MOD_GROUPS.splice(idx, 1);
+      Kiwi.toast('Groupe supprimé', { type: 'success', desc: g.name });
+      if (document.body.classList.contains('page-menu') && miTab === 'menu') miRenderTab1Body();
+    };
+  }
+  /* Item-modal toggle handler — flip a group's attachment to a specific item.
+   * Driven from the checkboxes inside the item modal's "Options & modificateurs"
+   * section. The visual checkbox state is the source of truth for the toggle. */
+  function miToggleGroupOnItem(itemId, groupId) {
+    const it = miFindItem(itemId);
+    const g = miGroupById(groupId);
+    if (!it || !g) return;
+    const reason = miGroupAttachReason(g, it);
+    /* Already checked? Then we're un-checking. */
+    if (reason) {
+      if (reason === 'item') {
+        g.scope.items = (g.scope.items || []).filter(x => x !== it.id);
+      } else if (reason === 'subsection') {
+        /* User is overriding subsection inheritance — drop this item from
+         * the subsection scope by promoting siblings to per-item scope. */
+        miOverrideGroupOnItem(g, it);
+      } else if (reason === 'global') {
+        Kiwi.toast('Groupe global', { type: 'info', desc: 'Modifiez la portée du groupe pour le détacher.' });
+        return false;
+      }
+      Kiwi.toast('Groupe retiré', { type: 'info', desc: `${g.name} · ${it.name}` });
+      return false;
+    }
+    /* Not yet attached — add to per-item scope. */
+    g.scope.items = g.scope.items || [];
+    if (!g.scope.items.includes(it.id)) g.scope.items.push(it.id);
+    Kiwi.toast('Groupe ajouté', { type: 'success', desc: `${g.name} · ${it.name}` });
+    return true;
   }
   function miOpenMark86Modal() {
     const venue = miMenuVenue();
