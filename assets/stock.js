@@ -35,7 +35,7 @@
       sub: (n, sup, val) => `${n} articles suivis · ${sup} fournisseurs actifs · valeur stock ${val}`,
       btnScan: 'Scanner une facture',
       btnCount: 'Inventaire physique',
-      btnAdd: '+ Nouvel article',
+      btnAdd: 'Nouvel article',
       tabOverview: "Vue d'ensemble",
       tabItems: 'Articles & stock',
       tabSuppliers: 'Fournisseurs',
@@ -196,7 +196,41 @@
       addItemSupplier: 'Fournisseur principal', addItemPar: 'Par level', addItemReorder: 'Niveau de réappro',
       addItemCost: 'Coût unitaire (MAD)',
       addItemBtn: "Ajouter au catalogue",
+      addItemStock: 'Stock actuel',
       addItemToast: (name) => `${name} ajouté au catalogue (démo · réinitialisé au refresh)`,
+      // Edit / delete item
+      editItemTitle: "Modifier l'article",
+      editItemBtn: 'Enregistrer les modifications',
+      editItemToast: (name) => `${name} mis à jour (démo · réinitialisé au refresh)`,
+      deleteItemTitle: 'Supprimer cet article ?',
+      deleteItemBody: (name) => `Vous êtes sur le point de supprimer « ${name} » du catalogue. Cette action s'applique à la session démo et sera réinitialisée au refresh.`,
+      deleteItemBtn: "Supprimer l'article",
+      deleteItemToast: (name) => `${name} supprimé du catalogue`,
+      mItDelete: "Supprimer l'article",
+      addCatOpt: '+ Nouvelle catégorie…',
+      addCatTitle: 'Nouvelle catégorie',
+      addCatName: 'Nom de la catégorie',
+      addCatBtn: 'Créer la catégorie',
+      addCatToast: (name) => `Catégorie « ${name} » créée`,
+      addCatInline: 'Confirmer',
+      addCatPillTitle: 'Ajouter une catégorie',
+      // Suppliers
+      addSupCta: 'Ajouter un fournisseur',
+      addSupTitle: 'Nouveau fournisseur',
+      addSupBtn: 'Ajouter le fournisseur',
+      addSupToast: (name) => `${name} ajouté à vos fournisseurs (démo · réinitialisé au refresh)`,
+      editSupTitle: 'Modifier le fournisseur',
+      editSupBtn: 'Enregistrer les modifications',
+      editSupToast: (name) => `${name} mis à jour`,
+      deleteSupTitle: 'Supprimer ce fournisseur ?',
+      deleteSupBody: (name) => `Vous êtes sur le point de supprimer « ${name} ». Les articles existants conservent leur référence textuelle.`,
+      deleteSupBtn: 'Supprimer le fournisseur',
+      deleteSupToast: (name) => `${name} supprimé`,
+      supName: 'Nom', supCat: 'Catégorie', supPhone: 'Téléphone', supLoc: 'Ville · localisation',
+      supPay: 'Conditions de paiement', supDeliv: 'Fréquence de livraison',
+      supRating: 'Note (1-5)', supSpend: 'Dépense mensuelle estimée (MAD)',
+      // Tooltip on row icon buttons
+      titleEdit: 'Modifier', titleDelete: 'Supprimer',
       // Fusion-mode toggle
       venueAll: 'Tous', venueAtlas: 'Café Atlas', venueMaison: 'Maison Mansour', venueSpa: 'Spa Bahia',
     },
@@ -206,7 +240,7 @@
       sub: (n, sup, val) => `${n} tracked items · ${sup} active suppliers · stock value ${val}`,
       btnScan: 'Scan invoice',
       btnCount: 'Physical count',
-      btnAdd: '+ New item',
+      btnAdd: 'New item',
       tabOverview: 'Overview',
       tabItems: 'Items & stock',
       tabSuppliers: 'Suppliers',
@@ -340,14 +374,45 @@
       addItemSupplier: 'Primary supplier', addItemPar: 'Par level', addItemReorder: 'Reorder level',
       addItemCost: 'Unit cost (MAD)',
       addItemBtn: 'Add to catalogue',
+      addItemStock: 'Current stock',
       addItemToast: (name) => `${name} added to catalogue (demo · resets on refresh)`,
+      editItemTitle: 'Edit item',
+      editItemBtn: 'Save changes',
+      editItemToast: (name) => `${name} updated (demo · resets on refresh)`,
+      deleteItemTitle: 'Delete this item?',
+      deleteItemBody: (name) => `You are about to remove "${name}" from the catalogue. This change is local to the demo session and resets on refresh.`,
+      deleteItemBtn: 'Delete item',
+      deleteItemToast: (name) => `${name} removed from catalogue`,
+      mItDelete: 'Delete item',
+      addCatOpt: '+ New category…',
+      addCatTitle: 'New category',
+      addCatName: 'Category name',
+      addCatBtn: 'Create category',
+      addCatToast: (name) => `Category "${name}" created`,
+      addCatInline: 'Confirm',
+      addCatPillTitle: 'Add category',
+      addSupCta: 'Add supplier',
+      addSupTitle: 'New supplier',
+      addSupBtn: 'Add supplier',
+      addSupToast: (name) => `${name} added to your suppliers (demo · resets on refresh)`,
+      editSupTitle: 'Edit supplier',
+      editSupBtn: 'Save changes',
+      editSupToast: (name) => `${name} updated`,
+      deleteSupTitle: 'Delete this supplier?',
+      deleteSupBody: (name) => `You are about to remove "${name}". Existing items keep their text reference.`,
+      deleteSupBtn: 'Delete supplier',
+      deleteSupToast: (name) => `${name} removed`,
+      supName: 'Name', supCat: 'Category', supPhone: 'Phone', supLoc: 'City · location',
+      supPay: 'Payment terms', supDeliv: 'Delivery frequency',
+      supRating: 'Rating (1-5)', supSpend: 'Estimated monthly spend (MAD)',
+      titleEdit: 'Edit', titleDelete: 'Delete',
       venueAll: 'All', venueAtlas: 'Café Atlas', venueMaison: 'Maison Mansour', venueSpa: 'Spa Bahia',
     },
     ar: {
       breadcrumb: 'المخزون والتموين',
       title: 'المخزون والتموين',
       sub: (n, sup, val) => `${n} منتجًا متابعًا · ${sup} موردًا نشطًا · قيمة المخزون ${val}`,
-      btnScan: 'مسح فاتورة', btnCount: 'جرد فعلي', btnAdd: '+ منتج جديد',
+      btnScan: 'مسح فاتورة', btnCount: 'جرد فعلي', btnAdd: 'منتج جديد',
       tabOverview: 'نظرة عامة', tabItems: 'المنتجات والمخزون', tabSuppliers: 'الموردون',
       tabOrders: 'الطلبيات', tabForecast: 'توقعات الذكاء الاصطناعي',
       ultra: '✦ ULTRA',
@@ -474,7 +539,38 @@
       addItemSupplier: 'المورد الرئيسي', addItemPar: 'الحد', addItemReorder: 'حد إعادة التموين',
       addItemCost: 'تكلفة الوحدة (درهم)',
       addItemBtn: 'إضافة للكتالوج',
+      addItemStock: 'المخزون الحالي',
       addItemToast: (name) => `${name} تمت إضافته للكتالوج (تجريبي · يُعاد عند التحديث)`,
+      editItemTitle: 'تعديل المنتج',
+      editItemBtn: 'حفظ التعديلات',
+      editItemToast: (name) => `${name} تم تحديثه (تجريبي · يُعاد عند التحديث)`,
+      deleteItemTitle: 'حذف هذا المنتج؟',
+      deleteItemBody: (name) => `أنت على وشك حذف «${name}» من الكتالوج. هذا التغيير محلي للجلسة التجريبية ويُعاد عند التحديث.`,
+      deleteItemBtn: 'حذف المنتج',
+      deleteItemToast: (name) => `${name} تم حذفه من الكتالوج`,
+      mItDelete: 'حذف المنتج',
+      addCatOpt: '+ فئة جديدة…',
+      addCatTitle: 'فئة جديدة',
+      addCatName: 'اسم الفئة',
+      addCatBtn: 'إنشاء الفئة',
+      addCatToast: (name) => `تم إنشاء الفئة «${name}»`,
+      addCatInline: 'تأكيد',
+      addCatPillTitle: 'إضافة فئة',
+      addSupCta: 'إضافة مورد',
+      addSupTitle: 'مورد جديد',
+      addSupBtn: 'إضافة المورد',
+      addSupToast: (name) => `${name} تمت إضافته لمورديك (تجريبي · يُعاد عند التحديث)`,
+      editSupTitle: 'تعديل المورد',
+      editSupBtn: 'حفظ التعديلات',
+      editSupToast: (name) => `${name} تم تحديثه`,
+      deleteSupTitle: 'حذف هذا المورد؟',
+      deleteSupBody: (name) => `أنت على وشك حذف «${name}». المنتجات الموجودة تحتفظ بمرجعها النصي.`,
+      deleteSupBtn: 'حذف المورد',
+      deleteSupToast: (name) => `${name} تم حذفه`,
+      supName: 'الاسم', supCat: 'الفئة', supPhone: 'الهاتف', supLoc: 'المدينة · الموقع',
+      supPay: 'شروط الدفع', supDeliv: 'وتيرة التسليم',
+      supRating: 'التقييم (1-5)', supSpend: 'الإنفاق الشهري المقدر (درهم)',
+      titleEdit: 'تعديل', titleDelete: 'حذف',
       venueAll: 'الكل', venueAtlas: 'مقهى أطلس', venueMaison: 'ميزون منصور', venueSpa: 'سبا باهية',
     },
   };
@@ -504,6 +600,17 @@
   const stSentSuggested = false;
   let stPageActive = false;
   let stDemoClockUnsub = null;
+
+  /* Per-session mutable overlay on top of read-only venue inventory/suppliers.
+   * Adds, edits, and deletes live here until reload — matches the rest of the
+   * dashboard's "fake data resets on reload" demo contract. */
+  let stUserItems       = [];                 // brand-new items created this session
+  const stItemOverrides = Object.create(null); // edits to existing items, keyed by id
+  const stDeletedItems  = new Set();          // soft-deleted item ids
+  let stUserSuppliers   = [];                 // brand-new suppliers created this session
+  const stSupOverrides  = Object.create(null); // edits to existing suppliers, keyed by id
+  const stDeletedSups   = new Set();          // soft-deleted supplier ids
+  let stUserCategories  = [];                 // owner-added categories [{ id, label }]
 
   /* ═══════════════════════════════════════════════════════════════════════
    * Lucide icons inline
@@ -564,7 +671,12 @@
     const months = lang() === 'en' ? monthsEn : lang() === 'ar' ? monthsAr : monthsFr;
     return `${d.getDate()} ${months[d.getMonth()]}`;
   };
-  const catLabel = (c) => t(`cat.${c}`) || c;
+  const catLabel = (c) => {
+    const built = t(`cat.${c}`);
+    if (built && built !== `cat.${c}`) return built;
+    const usr = stUserCategories.find(x => x.id === c);
+    return usr ? usr.label : c;
+  };
 
   /* ═══════════════════════════════════════════════════════════════════════
    * Data access
@@ -575,20 +687,47 @@
   function currentVenueId() {
     return window.KiwiVenue?.getVenue?.() || 'cafeAtlas';
   }
+  function applyItemOverlay(items) {
+    const filtered = items.filter(it => !stDeletedItems.has(it.id));
+    return filtered.map(it => (stItemOverrides[it.id] ? { ...it, ...stItemOverrides[it.id] } : it));
+  }
   function getInv() {
     const V = window.KiwiVenue;
-    if (!V?.getInventory) return [];
+    if (!V?.getInventory) return [...stUserItems];
+    let base;
     if (isFusion()) {
-      if (stVenueFilter && stVenueFilter !== 'all') return V.getInventory(stVenueFilter);
-      return [
+      if (stVenueFilter && stVenueFilter !== 'all') base = V.getInventory(stVenueFilter);
+      else base = [
         ...V.getInventory('cafeAtlas'),
         ...V.getInventory('maisonMansour'),
         ...V.getInventory('spaBahia'),
       ];
+    } else {
+      base = V.getInventory(currentVenueId());
     }
-    return V.getInventory(currentVenueId());
+    return [...applyItemOverlay(base), ...stUserItems.filter(it => !stDeletedItems.has(it.id))];
   }
-  function getSup() { return window.KiwiVenue?.getSuppliers?.() || []; }
+  function getSup() {
+    const base = window.KiwiVenue?.getSuppliers?.() || [];
+    const filtered = base
+      .filter(s => !stDeletedSups.has(s.id))
+      .map(s => (stSupOverrides[s.id] ? { ...s, ...stSupOverrides[s.id] } : s));
+    return [...filtered, ...stUserSuppliers.filter(s => !stDeletedSups.has(s.id))];
+  }
+  function allCategories() {
+    // Built-in slugs (mirror cat pill row + select options) + user-added.
+    const builtin = [
+      { id: 'viandes',      label: t('catViandes') },
+      { id: 'poissons',     label: t('catPoissons') },
+      { id: 'legumes',      label: t('catLegumes') },
+      { id: 'epicerie',     label: t('catEpicerie') },
+      { id: 'epices',       label: t('catEpices') },
+      { id: 'laitiers',     label: t('catLaitiers') },
+      { id: 'boissons',     label: t('catBoissons') },
+      { id: 'consommables', label: t('catConsommables') },
+    ];
+    return [...builtin, ...stUserCategories];
+  }
 
   /* ═══════════════════════════════════════════════════════════════════════
    * Computed metrics
@@ -993,6 +1132,7 @@
     const catPill = (id, label) => `<button class="st-cat-pill${stCatFilter === id ? ' on' : ''}" type="button" data-action="stock-cat-filter" data-cat="${id}">${esc(label)}</button>`;
     const statPill = (id, label) => `<button class="st-cat-pill${stStatusFilter === id ? ' on' : ''}" type="button" data-action="stock-status-filter" data-status="${id}">${esc(label)}</button>`;
     const viewBtn = (id, label) => `<button class="st-view-btn${stItemView === id ? ' on' : ''}" type="button" data-action="stock-view" data-view="${id}">${esc(label)}</button>`;
+    const cats = allCategories();
     return `
       <div class="st-toolbar">
         <div class="st-search-row">
@@ -1007,14 +1147,8 @@
         </div>
         <div class="st-filter-row" style="display:flex; gap:5px; background:var(--paper-soft); padding:4px; border-radius:999px; border:1px solid var(--n-200); width:fit-content; max-width:100%; flex-wrap:wrap;">
           ${catPill('all', t('catAll'))}
-          ${catPill('viandes', t('catViandes'))}
-          ${catPill('poissons', t('catPoissons'))}
-          ${catPill('legumes', t('catLegumes'))}
-          ${catPill('epicerie', t('catEpicerie'))}
-          ${catPill('epices', t('catEpices'))}
-          ${catPill('laitiers', t('catLaitiers'))}
-          ${catPill('boissons', t('catBoissons'))}
-          ${catPill('consommables', t('catConsommables'))}
+          ${cats.map(c => catPill(c.id, c.label)).join('')}
+          <button class="st-cat-pill" type="button" data-action="stock-add-cat" title="${esc(t('addCatPillTitle'))}" aria-label="${esc(t('addCatPillTitle'))}" style="font-weight:700;">+</button>
         </div>
         <div class="st-filter-row" style="display:flex; gap:5px; background:var(--paper-soft); padding:4px; border-radius:999px; border:1px solid var(--n-200); width:fit-content; max-width:100%;">
           ${statPill('all', t('statAll'))}
@@ -1141,7 +1275,7 @@
             <button class="st-icon-btn" type="button" data-action="stock-item-detail" data-item-id="${esc(it.id)}" title="${esc(t('btnDetail'))}">${svg('eye', 14)}</button>
             <button class="st-icon-btn" type="button" data-action="stock-reorder" data-item-id="${esc(it.id)}" title="${esc(t('btnReorder'))}">${svg('plus', 14)}</button>
             <button class="st-icon-btn" type="button" data-action="stock-edit-item" data-item-id="${esc(it.id)}" title="${esc(t('mItEdit'))}">${svg('edit', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-item-more" data-item-id="${esc(it.id)}" title="Plus">${svg('moreH', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-delete-item" data-item-id="${esc(it.id)}" title="${esc(t('titleDelete'))}" style="color:#9a1f1f;">${svg('x', 14)}</button>
           </div>
         </td>
       </tr>
@@ -1184,9 +1318,12 @@
     const trendCls = weightedPrice > 1 ? 'up' : weightedPrice < -1 ? 'down' : '';
     return `
       <div class="st-section">
-        <div class="st-section-head">
-          <h3>${esc(t('supTitle'))}</h3>
-          <span class="st-section-sub">${esc(t('supSub', sup.length))}</span>
+        <div class="st-section-head" style="justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
+            <h3>${esc(t('supTitle'))}</h3>
+            <span class="st-section-sub">${esc(t('supSub', sup.length))}</span>
+          </div>
+          <button class="st-btn primary" type="button" data-action="stock-add-supplier">${svg('plus', 13)}<span>${esc(t('addSupCta'))}</span></button>
         </div>
         <div class="st-sup-stats">
           <div class="st-sup-stat"><div class="l">${esc(t('supStatActive'))}</div><div class="v">${sup.length}</div></div>
@@ -1244,7 +1381,9 @@
             <button class="st-icon-btn" type="button" data-action="stock-call-supplier" data-name="${esc(s.name)}" data-phone="${esc(s.contact)}" title="${esc(t('mSupCall'))}">${svg('phone', 14)}</button>
             <button class="st-icon-btn" type="button" data-action="stock-wa-supplier" data-name="${esc(s.name)}" title="${esc(t('mSupWa'))}">${svg('messageCircle', 14)}</button>
             <button class="st-icon-btn" type="button" data-action="stock-supplier-detail" data-supplier-id="${esc(s.id)}" title="${esc(t('btnDetail'))}">${svg('eye', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-edit-supplier" data-supplier-id="${esc(s.id)}" title="${esc(t('titleEdit'))}">${svg('edit', 14)}</button>
             <button class="st-icon-btn" type="button" data-action="stock-new-po" data-supplier-id="${esc(s.id)}" title="${esc(t('mSupOrd'))}">${svg('plus', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-delete-supplier" data-supplier-id="${esc(s.id)}" title="${esc(t('titleDelete'))}" style="color:#9a1f1f;">${svg('x', 14)}</button>
           </div>
         </td>
       </tr>
@@ -1920,7 +2059,7 @@
     const days = daysOfStock(it);
     const altSups = getSup().filter(s => s.category === it.category && !it.supplier.toLowerCase().includes(s.name.toLowerCase())).slice(0, 3);
 
-    window.Kiwi.modal({
+    const m = window.Kiwi.modal({
       title: it.name,
       desc: `${catLabel(it.category)} · ${st === 'ok' ? t('stOk') : st === 'low' ? t('stLow') : t('stOut')}`,
       width: 720,
@@ -1972,18 +2111,29 @@
       `,
       foot: `
         <button class="st-btn" data-stock-mark-86 data-item-name="${esc(it.name)}">${esc(t('mItMark'))}</button>
+        <button class="st-btn" data-stock-detail-edit data-item-id="${esc(it.id)}">${svg('edit', 12)}<span>${esc(t('mItEdit'))}</span></button>
+        <button class="st-btn" data-stock-detail-delete data-item-id="${esc(it.id)}" style="color:#9a1f1f; border-color:rgba(154,31,31,0.35);">${esc(t('mItDelete'))}</button>
         <button class="st-btn" data-dismiss-modal>${esc(t('mItClose'))}</button>
         <button class="st-btn primary" data-stock-reorder data-item-id="${esc(it.id)}">${esc(t('mItOrder'))}</button>
       `,
     });
-    requestAnimationFrame(() => {
-      document.querySelector('[data-stock-mark-86]')?.addEventListener('click', (e) => {
-        window.Kiwi.toast(`${e.currentTarget.dataset.itemName} marqué 86 sur 6 terminaux`, { type: 'info' });
-      });
-      document.querySelector('[data-stock-reorder]')?.addEventListener('click', (e) => {
-        document.querySelector('.kiwi-backdrop')?.remove();
-        openQuickOrder(e.currentTarget.dataset.itemId);
-      });
+    const scope = m?.el || topBackdrop();
+    scope?.querySelector('[data-stock-mark-86]')?.addEventListener('click', (e) => {
+      window.Kiwi.toast(`${e.currentTarget.dataset.itemName} marqué 86 sur 6 terminaux`, { type: 'info' });
+    });
+    scope?.querySelector('[data-stock-reorder]')?.addEventListener('click', (e) => {
+      scope.remove();
+      openQuickOrder(e.currentTarget.dataset.itemId);
+    });
+    scope?.querySelector('[data-stock-detail-edit]')?.addEventListener('click', (e) => {
+      const id = e.currentTarget.dataset.itemId;
+      scope.remove();
+      openEditItem(id);
+    });
+    scope?.querySelector('[data-stock-detail-delete]')?.addEventListener('click', (e) => {
+      const id = e.currentTarget.dataset.itemId;
+      scope.remove();
+      confirmDeleteItem(id);
     });
   }
 
@@ -2013,59 +2163,376 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
-   * MODAL · Add item
+   * MODAL · Add / Edit item
+   * Shared form. existingId === null → add, otherwise edit overlay.
    * ═══════════════════════════════════════════════════════════════════════ */
-  function openAddItem() {
-    window.Kiwi.modal({
-      title: t('addItemTitle'),
+  function renderCatOptions(selectedId) {
+    const opts = allCategories().map(c =>
+      `<option value="${esc(c.id)}" ${c.id === selectedId ? 'selected' : ''}>${esc(c.label)}</option>`
+    ).join('');
+    return `${opts}<option value="__new__">${esc(t('addCatOpt'))}</option>`;
+  }
+  function renderSupOptions(selectedSupplierName) {
+    return getSup().map(s => {
+      const label = `${s.name} · ${s.location || ''}`.trim().replace(/ ·\s*$/, '');
+      const sel = selectedSupplierName && (selectedSupplierName === s.name || selectedSupplierName.startsWith(s.name)) ? 'selected' : '';
+      return `<option value="${esc(label)}" ${sel}>${esc(label)}</option>`;
+    }).join('');
+  }
+  /* Return the modal container of the most-recently-opened backdrop,
+   * so multiple stacked modals don't collide on the selectors above. */
+  function topBackdrop() {
+    const all = document.querySelectorAll('.kiwi-backdrop');
+    return all.length ? all[all.length - 1] : null;
+  }
+  /* Wire the [data-dismiss-modal] cancel buttons inside this scope to close
+   * the modal — interactive.js doesn't bind these globally. */
+  function wireDismiss(scope) {
+    if (!scope) return;
+    scope.querySelectorAll('[data-dismiss-modal]').forEach(b => {
+      b.addEventListener('click', () => scope.querySelector('.kiwi-modal-close')?.click());
+    });
+  }
+  function wireCatNewToggle(scope) {
+    const root = scope || topBackdrop() || document;
+    const sel = root.querySelector('[data-stock-add-cat]');
+    const inlineWrap = root.querySelector('[data-stock-newcat-wrap]');
+    const inlineInput = root.querySelector('[data-stock-newcat-name]');
+    const inlineBtn = root.querySelector('[data-stock-newcat-confirm]');
+    if (!sel || !inlineWrap) return;
+    sel.addEventListener('change', () => {
+      if (sel.value === '__new__') {
+        inlineWrap.style.display = '';
+        inlineInput?.focus();
+      } else {
+        inlineWrap.style.display = 'none';
+      }
+    });
+    inlineBtn?.addEventListener('click', () => {
+      const raw = (inlineInput?.value || '').trim();
+      if (!raw) { inlineInput?.focus(); return; }
+      const id = 'usr-cat-' + raw.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 20) + '-' + Date.now().toString(36).slice(-4);
+      stUserCategories.push({ id, label: raw });
+      // Rebuild the select preserving "+ Nouvelle…" option last, select new id.
+      sel.innerHTML = renderCatOptions(id);
+      inlineWrap.style.display = 'none';
+      inlineInput.value = '';
+      window.Kiwi.toast(t('addCatToast', raw), { type: 'success' });
+    });
+  }
+  function openAddItem() { openItemForm(null); }
+  function openEditItem(itemId) {
+    const it = getInv().find(x => x.id === itemId);
+    if (it) openItemForm(it);
+  }
+  function openItemForm(existing) {
+    const isEdit = !!existing;
+    const title = isEdit ? t('editItemTitle') : t('addItemTitle');
+    const cta = isEdit ? t('editItemBtn') : t('addItemBtn');
+    const units = ['kg','g','L','unité','boîte','paquet','botte','pot','bouteille','paire'];
+    const unitOptions = units.map(u => `<option ${existing?.unit === u ? 'selected' : ''}>${esc(u)}</option>`).join('');
+    const m = window.Kiwi.modal({
+      title,
       width: 560,
       body: `
         <div class="st-mb-field" style="margin-bottom:12px;">
           <label class="st-mb-label">${esc(t('addItemName'))}</label>
-          <input class="st-mb-input" type="text" placeholder="Ex. Olives noires" data-stock-add-name />
+          <input class="st-mb-input" type="text" placeholder="Ex. Olives noires" value="${esc(existing?.name || '')}" data-stock-add-name />
         </div>
         <div class="st-mb-row">
           <div class="st-mb-field">
             <label class="st-mb-label">${esc(t('addItemCat'))}</label>
             <select class="st-mb-input" data-stock-add-cat>
-              <option value="viandes">${esc(t('catViandes'))}</option>
-              <option value="poissons">${esc(t('catPoissons'))}</option>
-              <option value="legumes" selected>${esc(t('catLegumes'))}</option>
-              <option value="epicerie">${esc(t('catEpicerie'))}</option>
-              <option value="epices">${esc(t('catEpices'))}</option>
-              <option value="laitiers">${esc(t('catLaitiers'))}</option>
-              <option value="boissons">${esc(t('catBoissons'))}</option>
-              <option value="consommables">${esc(t('catConsommables'))}</option>
+              ${renderCatOptions(existing?.category || 'legumes')}
             </select>
+            <div data-stock-newcat-wrap style="display:none; margin-top:8px; display:flex; gap:6px;">
+              <input class="st-mb-input" type="text" placeholder="${esc(t('addCatName'))}" data-stock-newcat-name style="flex:1;" />
+              <button class="st-btn primary" type="button" data-stock-newcat-confirm>${esc(t('addCatInline'))}</button>
+            </div>
           </div>
           <div class="st-mb-field">
             <label class="st-mb-label">${esc(t('addItemUnit'))}</label>
-            <select class="st-mb-input">
-              <option>kg</option><option>g</option><option>L</option><option>unité</option><option>boîte</option><option>paquet</option><option>botte</option>
-            </select>
+            <select class="st-mb-input" data-stock-add-unit>${unitOptions}</select>
           </div>
         </div>
         <div class="st-mb-field" style="margin-bottom:12px;">
           <label class="st-mb-label">${esc(t('addItemSupplier'))}</label>
-          <select class="st-mb-input">
-            ${getSup().map(s => `<option>${esc(s.name)} · ${esc(s.location)}</option>`).join('')}
+          <select class="st-mb-input" data-stock-add-sup>
+            ${renderSupOptions(existing?.supplier)}
           </select>
         </div>
         <div class="st-mb-row three">
-          <div class="st-mb-field"><label class="st-mb-label">${esc(t('addItemPar'))}</label><input class="st-mb-input mono" type="number" min="0" step="0.5" placeholder="0" /></div>
-          <div class="st-mb-field"><label class="st-mb-label">${esc(t('addItemReorder'))}</label><input class="st-mb-input mono" type="number" min="0" step="0.5" placeholder="0" /></div>
-          <div class="st-mb-field"><label class="st-mb-label">${esc(t('addItemCost'))}</label><input class="st-mb-input mono" type="number" min="0" step="0.5" placeholder="0" /></div>
+          <div class="st-mb-field"><label class="st-mb-label">${esc(t('addItemStock'))}</label><input class="st-mb-input mono" type="number" min="0" step="0.5" placeholder="0" value="${existing != null ? esc(currentStockFor(existing)) : ''}" data-stock-add-current /></div>
+          <div class="st-mb-field"><label class="st-mb-label">${esc(t('addItemPar'))}</label><input class="st-mb-input mono" type="number" min="0" step="0.5" placeholder="0" value="${esc(existing?.parLevel ?? '')}" data-stock-add-par /></div>
+          <div class="st-mb-field"><label class="st-mb-label">${esc(t('addItemReorder'))}</label><input class="st-mb-input mono" type="number" min="0" step="0.5" placeholder="0" value="${esc(existing?.reorderLevel ?? '')}" data-stock-add-reorder /></div>
+        </div>
+        <div class="st-mb-field" style="margin-bottom:12px;">
+          <label class="st-mb-label">${esc(t('addItemCost'))}</label>
+          <input class="st-mb-input mono" type="number" min="0" step="0.5" placeholder="0" value="${esc(existing?.costPerUnit ?? '')}" data-stock-add-cost />
         </div>
       `,
-      foot: `<button class="st-btn" data-dismiss-modal>${esc(STR[lang()].btnCancel || 'Annuler')}</button><button class="st-btn primary" data-stock-add-confirm>${esc(t('addItemBtn'))}</button>`,
+      foot: `<button class="st-btn" data-dismiss-modal>${esc(STR[lang()].btnCancel || 'Annuler')}</button><button class="st-btn primary" data-stock-add-confirm>${esc(cta)}</button>`,
     });
-    requestAnimationFrame(() => {
-      document.querySelector('[data-stock-add-confirm]')?.addEventListener('click', () => {
-        const name = document.querySelector('[data-stock-add-name]')?.value?.trim() || 'Nouvel article';
-        document.querySelector('.kiwi-backdrop')?.remove();
+    const scope = m?.el || topBackdrop();
+    wireDismiss(scope);
+    /* Attach listeners synchronously — the modal markup is already in DOM by now
+     * (interactive.js's modal() appendChild is synchronous) so we don't need rAF. */
+    try { wireCatNewToggle(scope); } catch (err) { console.error('wireCatNewToggle failed', err); }
+    scope?.querySelector('[data-stock-add-confirm]')?.addEventListener('click', () => {
+        const name = (scope.querySelector('[data-stock-add-name]')?.value || '').trim();
+        if (!name) { scope.querySelector('[data-stock-add-name]')?.focus(); return; }
+        const catSel = scope.querySelector('[data-stock-add-cat]');
+        let category = catSel?.value || 'legumes';
+        if (category === '__new__') category = existing?.category || 'legumes';
+        const unit = scope.querySelector('[data-stock-add-unit]')?.value || 'unité';
+        const supplier = scope.querySelector('[data-stock-add-sup]')?.value || (existing?.supplier || '');
+        const cur = parseFloat(scope.querySelector('[data-stock-add-current]')?.value);
+        const par = parseFloat(scope.querySelector('[data-stock-add-par]')?.value);
+        const reorder = parseFloat(scope.querySelector('[data-stock-add-reorder]')?.value);
+        const cost = parseFloat(scope.querySelector('[data-stock-add-cost]')?.value);
+        const parLevel = isNaN(par) ? 0 : par;
+        const reorderLevel = isNaN(reorder) ? Math.max(0, Math.round(parLevel * 0.4)) : reorder;
+        const costPerUnit = isNaN(cost) ? 0 : cost;
+        const currentStock = isNaN(cur) ? (existing ? currentStockFor(existing) : parLevel) : cur;
+
+        if (isEdit) {
+          // Edit path: update overlay (or user item directly)
+          if (existing.id.startsWith('usr-')) {
+            const i = stUserItems.findIndex(x => x.id === existing.id);
+            if (i >= 0) {
+              stUserItems[i] = {
+                ...stUserItems[i],
+                name, category, unit, supplier,
+                parLevel, reorderLevel, costPerUnit, currentStock,
+              };
+            }
+          } else {
+            stItemOverrides[existing.id] = {
+              ...(stItemOverrides[existing.id] || {}),
+              name, category, unit, supplier,
+              parLevel, reorderLevel, costPerUnit, currentStock,
+            };
+            // Reflect current stock in stStockOverrides so statusOf/daysOfStock pick it up.
+            stStockOverrides[existing.id] = currentStock;
+          }
+          scope.remove();
+          window.Kiwi.toast(t('editItemToast', name), { type: 'success' });
+          if (stPageActive) render();
+          return;
+        }
+
+        // Add path: build a real item that matches the venues.js shape so
+        // currentStockFor / statusOf / variance / daysOfStock all behave.
+        const today = new Date('2026-05-23').toISOString().slice(0, 10);
+        const status = currentStock <= 0 ? 'out' : (currentStock < reorderLevel ? 'low' : 'ok');
+        const item = {
+          id: 'usr-' + Date.now().toString(36),
+          name, category, unit, supplier,
+          currentStock,
+          parLevel, reorderLevel, costPerUnit,
+          lastDelivery: today,
+          deliveryFrequency: '—',
+          usageThisWeek: 0,
+          theoreticalUsage: 0,
+          status,
+        };
+        stUserItems.push(item);
+        scope.remove();
         window.Kiwi.toast(t('addItemToast', name), { type: 'success' });
+        if (stPageActive) render();
       });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * MODAL · Confirm delete item
+   * ═══════════════════════════════════════════════════════════════════════ */
+  function confirmDeleteItem(itemId) {
+    const it = getInv().find(x => x.id === itemId);
+    if (!it) return;
+    const m = window.Kiwi.modal({
+      title: t('deleteItemTitle'),
+      width: 480,
+      body: `<p style="margin:0; color:var(--n-700); line-height:1.55;">${esc(t('deleteItemBody', it.name))}</p>`,
+      foot: `<button class="st-btn" data-dismiss-modal>${esc(STR[lang()].btnCancel || 'Annuler')}</button><button class="st-btn primary" style="background:#b32a2a; border-color:#9a1f1f;" data-stock-delete-confirm>${esc(t('deleteItemBtn'))}</button>`,
     });
+    const scope = m?.el || topBackdrop();
+    wireDismiss(scope);
+    scope?.querySelector('[data-stock-delete-confirm]')?.addEventListener('click', () => {
+      if (it.id.startsWith('usr-')) {
+        stUserItems = stUserItems.filter(x => x.id !== it.id);
+      } else {
+        stDeletedItems.add(it.id);
+      }
+      scope.remove();
+      window.Kiwi.toast(t('deleteItemToast', it.name), { type: 'info' });
+      if (stPageActive) render();
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * MODAL · Add / Edit supplier
+   * ═══════════════════════════════════════════════════════════════════════ */
+  function openAddSupplier() { openSupplierForm(null); }
+  function openEditSupplier(id) {
+    const s = getSup().find(x => x.id === id);
+    if (s) openSupplierForm(s);
+  }
+  function openSupplierForm(existing) {
+    const isEdit = !!existing;
+    const title = isEdit ? t('editSupTitle') : t('addSupTitle');
+    const cta = isEdit ? t('editSupBtn') : t('addSupBtn');
+    const catOptions = allCategories().map(c =>
+      `<option value="${esc(c.id)}" ${existing?.category === c.id ? 'selected' : ''}>${esc(c.label)}</option>`
+    ).join('');
+    const m = window.Kiwi.modal({
+      title,
+      width: 600,
+      body: `
+        <div class="st-mb-row">
+          <div class="st-mb-field">
+            <label class="st-mb-label">${esc(t('supName'))}</label>
+            <input class="st-mb-input" type="text" placeholder="Ex. Olives du Souss" value="${esc(existing?.name || '')}" data-stock-sup-name />
+          </div>
+          <div class="st-mb-field">
+            <label class="st-mb-label">${esc(t('supCat'))}</label>
+            <select class="st-mb-input" data-stock-sup-cat>${catOptions}</select>
+          </div>
+        </div>
+        <div class="st-mb-row">
+          <div class="st-mb-field">
+            <label class="st-mb-label">${esc(t('supPhone'))}</label>
+            <input class="st-mb-input mono" type="text" placeholder="+212 …" value="${esc(existing?.contact || '')}" data-stock-sup-phone />
+          </div>
+          <div class="st-mb-field">
+            <label class="st-mb-label">${esc(t('supLoc'))}</label>
+            <input class="st-mb-input" type="text" placeholder="Casablanca" value="${esc(existing?.location || '')}" data-stock-sup-loc />
+          </div>
+        </div>
+        <div class="st-mb-row">
+          <div class="st-mb-field">
+            <label class="st-mb-label">${esc(t('supPay'))}</label>
+            <select class="st-mb-input" data-stock-sup-pay>
+              ${['Comptant','Net 7','Net 15','Net 30','Net 45'].map(p =>
+                `<option ${existing?.paymentTerms === p ? 'selected' : ''}>${esc(p)}</option>`
+              ).join('')}
+            </select>
+          </div>
+          <div class="st-mb-field">
+            <label class="st-mb-label">${esc(t('supDeliv'))}</label>
+            <input class="st-mb-input" type="text" placeholder="hebdomadaire · mardi-vendredi…" value="${esc(existing?.deliverySchedule || '')}" data-stock-sup-deliv />
+          </div>
+        </div>
+        <div class="st-mb-row">
+          <div class="st-mb-field">
+            <label class="st-mb-label">${esc(t('supRating'))}</label>
+            <input class="st-mb-input mono" type="number" min="1" max="5" step="0.1" placeholder="4.5" value="${esc(existing?.rating ?? '')}" data-stock-sup-rating />
+          </div>
+          <div class="st-mb-field">
+            <label class="st-mb-label">${esc(t('supSpend'))}</label>
+            <input class="st-mb-input mono" type="number" min="0" step="50" placeholder="0" value="${esc(existing?.monthlySpend ?? '')}" data-stock-sup-spend />
+          </div>
+        </div>
+      `,
+      foot: `<button class="st-btn" data-dismiss-modal>${esc(STR[lang()].btnCancel || 'Annuler')}</button><button class="st-btn primary" data-stock-sup-confirm>${esc(cta)}</button>`,
+    });
+    const scope = m?.el || topBackdrop();
+    wireDismiss(scope);
+    scope?.querySelector('[data-stock-sup-confirm]')?.addEventListener('click', () => {
+      const name = (scope.querySelector('[data-stock-sup-name]')?.value || '').trim();
+      if (!name) { scope.querySelector('[data-stock-sup-name]')?.focus(); return; }
+      const category = scope.querySelector('[data-stock-sup-cat]')?.value || 'epicerie';
+      const contact = (scope.querySelector('[data-stock-sup-phone]')?.value || '').trim();
+      const location = (scope.querySelector('[data-stock-sup-loc]')?.value || '').trim();
+      const paymentTerms = scope.querySelector('[data-stock-sup-pay]')?.value || 'Net 30';
+      const deliverySchedule = (scope.querySelector('[data-stock-sup-deliv]')?.value || '—').trim();
+      const ratingRaw = parseFloat(scope.querySelector('[data-stock-sup-rating]')?.value);
+      const rating = isNaN(ratingRaw) ? 4.5 : Math.min(5, Math.max(1, ratingRaw));
+      const spendRaw = parseFloat(scope.querySelector('[data-stock-sup-spend]')?.value);
+      const monthlySpend = isNaN(spendRaw) ? 0 : spendRaw;
+
+      if (isEdit) {
+        if (existing.id.startsWith('usr-')) {
+          const i = stUserSuppliers.findIndex(x => x.id === existing.id);
+          if (i >= 0) stUserSuppliers[i] = { ...stUserSuppliers[i], name, category, contact, location, paymentTerms, deliverySchedule, rating, monthlySpend };
+        } else {
+          stSupOverrides[existing.id] = { ...(stSupOverrides[existing.id] || {}), name, category, contact, location, paymentTerms, deliverySchedule, rating, monthlySpend };
+        }
+        scope.remove();
+        window.Kiwi.toast(t('editSupToast', name), { type: 'success' });
+        if (stPageActive) render();
+        return;
+      }
+
+      const sup = {
+        id: 'usr-sup-' + Date.now().toString(36),
+        name, location, category, contact,
+        deliverySchedule,
+        avgInvoice: monthlySpend > 0 ? Math.round(monthlySpend / 4) : 0,
+        paymentTerms,
+        rating,
+        monthlySpend,
+        priceChangeLast30d: 0,
+      };
+      stUserSuppliers.push(sup);
+      scope.remove();
+      window.Kiwi.toast(t('addSupToast', name), { type: 'success' });
+      if (stPageActive) render();
+    });
+  }
+
+  function confirmDeleteSupplier(id) {
+    const s = getSup().find(x => x.id === id);
+    if (!s) return;
+    const m = window.Kiwi.modal({
+      title: t('deleteSupTitle'),
+      width: 480,
+      body: `<p style="margin:0; color:var(--n-700); line-height:1.55;">${esc(t('deleteSupBody', s.name))}</p>`,
+      foot: `<button class="st-btn" data-dismiss-modal>${esc(STR[lang()].btnCancel || 'Annuler')}</button><button class="st-btn primary" style="background:#b32a2a; border-color:#9a1f1f;" data-stock-sup-delete-confirm>${esc(t('deleteSupBtn'))}</button>`,
+    });
+    const scope = m?.el || topBackdrop();
+    wireDismiss(scope);
+    scope?.querySelector('[data-stock-sup-delete-confirm]')?.addEventListener('click', () => {
+      if (s.id.startsWith('usr-')) {
+        stUserSuppliers = stUserSuppliers.filter(x => x.id !== s.id);
+      } else {
+        stDeletedSups.add(s.id);
+      }
+      scope.remove();
+      window.Kiwi.toast(t('deleteSupToast', s.name), { type: 'info' });
+      if (stPageActive) render();
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * MODAL · Add category (from cat-pill row)
+   * ═══════════════════════════════════════════════════════════════════════ */
+  function openAddCategory() {
+    const m = window.Kiwi.modal({
+      title: t('addCatTitle'),
+      width: 440,
+      body: `
+        <div class="st-mb-field">
+          <label class="st-mb-label">${esc(t('addCatName'))}</label>
+          <input class="st-mb-input" type="text" placeholder="Ex. Surgelés" data-stock-cat-name />
+        </div>
+      `,
+      foot: `<button class="st-btn" data-dismiss-modal>${esc(STR[lang()].btnCancel || 'Annuler')}</button><button class="st-btn primary" data-stock-cat-confirm>${esc(t('addCatBtn'))}</button>`,
+    });
+    const scope = m?.el || topBackdrop();
+    wireDismiss(scope);
+    const input = scope?.querySelector('[data-stock-cat-name]');
+    input?.focus();
+    const submit = () => {
+      const raw = (input?.value || '').trim();
+      if (!raw) { input?.focus(); return; }
+      const id = 'usr-cat-' + raw.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 20) + '-' + Date.now().toString(36).slice(-4);
+      stUserCategories.push({ id, label: raw });
+      scope?.remove();
+      window.Kiwi.toast(t('addCatToast', raw), { type: 'success' });
+      if (stPageActive) render();
+    };
+    scope?.querySelector('[data-stock-cat-confirm]')?.addEventListener('click', submit);
+    input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -2136,18 +2603,25 @@
 
     // Item actions
     H['stock-item-detail'] = (el) => openItemDetail(el.dataset.itemId);
-    H['stock-edit-item'] = (el) => openItemDetail(el.dataset.itemId);
-    H['stock-item-more'] = (el) => window.Kiwi.toast('Plus d\'options · marquer 86, désactiver, historique des prix', { type: 'info' });
+    H['stock-edit-item'] = (el) => openEditItem(el.dataset.itemId);
+    H['stock-delete-item'] = (el) => confirmDeleteItem(el.dataset.itemId);
+    // "More" icon → open detail modal (which now has Modifier / Supprimer reachable from the footer).
+    H['stock-item-more'] = (el) => openItemDetail(el.dataset.itemId);
     H['stock-reorder'] = (el) => openQuickOrder(el.dataset.itemId);
     H['stock-urgent-order'] = (el) => openQuickOrder(el.dataset.itemId, { urgent: true });
     H['stock-mark-86'] = (el) => { stMarked86.add(el.dataset.itemName); window.Kiwi.toast(`${el.dataset.itemName} marqué 86 sur 6 terminaux`, { type: 'info' }); };
     H['stock-ignore-24h'] = (el) => window.Kiwi.toast(`Alerte ${el.dataset.itemName} ignorée pour 24h`, { type: 'info' });
+    // Category pill add
+    H['stock-add-cat'] = () => openAddCategory();
 
     // Supplier actions
     H['stock-supplier-detail'] = (el) => openSupplierProfile(el.dataset.supplierId);
     H['stock-call-supplier'] = (el) => window.Kiwi.toast(`Appel à ${el.dataset.name} · ${el.dataset.phone}`, { type: 'info' });
     H['stock-wa-supplier'] = (el) => window.Kiwi.toast(`Message WhatsApp envoyé à ${el.dataset.name}`, { type: 'success' });
     H['stock-new-po'] = (el) => window.Kiwi.toast('Nouvelle commande · sélectionnez les articles', { type: 'info' });
+    H['stock-add-supplier'] = () => openAddSupplier();
+    H['stock-edit-supplier'] = (el) => openEditSupplier(el.dataset.supplierId);
+    H['stock-delete-supplier'] = (el) => confirmDeleteSupplier(el.dataset.supplierId);
 
     // Orders
     H['stock-new-order'] = () => window.Kiwi.toast('Nouvelle commande · démarrez par un fournisseur', { type: 'info' });
