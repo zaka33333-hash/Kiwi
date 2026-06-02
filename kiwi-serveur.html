@@ -444,12 +444,15 @@
        MAIN APP — top bar, content, bottom tabs
        =========================================================== */
     .topbar {
-      flex: 0 0 var(--topbar-h);
-      height: var(--topbar-h);
+      flex: 0 0 auto;
+      height: calc(var(--topbar-h) + env(safe-area-inset-top));
+      box-sizing: border-box;
       background: #fff;
       border-bottom: 1px solid var(--line-soft);
       display: flex; align-items: center;
-      padding: 0 18px;
+      /* env(safe-area-inset-top) pushes the bar below the iOS status bar /
+         notch so its controls stay tappable (0 on desktop / non-notch). */
+      padding: env(safe-area-inset-top) 18px 0;
       gap: 12px;
     }
     .tb-avatar {
@@ -704,12 +707,15 @@
        TABLE DETAIL SCREEN
        =========================================================== */
     .td-header {
-      flex: 0 0 var(--topbar-h);
-      height: var(--topbar-h);
+      flex: 0 0 auto;
+      height: calc(var(--topbar-h) + env(safe-area-inset-top));
+      box-sizing: border-box;
       background: #fff;
       border-bottom: 1px solid var(--line-soft);
       display: flex; align-items: center;
-      padding: 0 12px;
+      /* Clear the iOS status bar / notch so the back arrow is tappable
+         (the bug: the arrow sat under the status bar and ate the tap). */
+      padding: env(safe-area-inset-top) 12px 0;
       gap: 8px;
     }
     .td-back {
@@ -2510,7 +2516,7 @@
     /* Welcome banner — auto-dismissing celebration */
     .welcome-banner {
       position: absolute;
-      top: calc(var(--topbar-h) + 14px);
+      top: calc(var(--topbar-h) + env(safe-area-inset-top) + 14px);
       left: 16px; right: 16px;
       background: var(--gradient);
       color: #fff;
