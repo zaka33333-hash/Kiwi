@@ -4225,34 +4225,57 @@
     </div>`;
   }
 
-  /* ─── Build the inventory-picker <select> for adding a new ingredient.
-   *      Lists every inventory item in the menu's venue plus the
-   *      registered placeholder costs. ─── */
-  function miRecInventoryOptions(it, draft) {
-    const used = new Set((draft.ingredients || []).map(i => i.invId).filter(Boolean));
-    let opts = '<option value="">— Choisir un ingrédient pour ajouter —</option>';
-    /* Real inventory items — scope to the venue this menu item lives in. */
+  /* ─── Build the inventory + placeholder catalog for autocomplete + name→id
+   *      reverse lookup. Returns:
+   *        { catalog: [{name, unit, costPerUnit, invId, source}], byName: Map }
+   *      Used by the datalist <option>s and the on-input matching that
+   *      tries to recognize free-text names as known inventory items. ─── */
+  function miRecBuildCatalog() {
+    const out = { catalog: [], byName: new Map() };
     const venue = miMenuVenue();
-    const inv   = (venue && window.KiwiVenue?.getInventory)
+    const inv = (venue && window.KiwiVenue?.getInventory)
       ? (window.KiwiVenue.getInventory(venue) || [])
       : [];
     inv.forEach(item => {
-      if (used.has(item.id)) return;
-      opts += `<option value="${item.id}">${eqEsc(item.name)} · ${eqFrInt(item.costPerUnit)} MAD/${eqEsc(item.unit)}</option>`;
+      const e = { name: item.name, unit: item.unit, costPerUnit: item.costPerUnit, invId: item.id, source: 'inventory' };
+      out.catalog.push(e);
+      out.byName.set(item.name.trim().toLowerCase(), e);
     });
-    /* Placeholder catalog (coffee/nutella/…) when an item isn't in INVENTORY yet. */
     const ph = window.KiwiRecipes.PLACEHOLDER_COSTS || {};
     Object.keys(ph).forEach(key => {
-      if (used.has(key)) return;
       const p = ph[key];
-      opts += `<option value="${key}">${eqEsc(p.name)} · ${eqFrInt(p.costPerUnit)} MAD/${eqEsc(p.unit)}</option>`;
+      const e = { name: p.name, unit: p.unit, costPerUnit: p.costPerUnit, invId: key, source: 'placeholder' };
+      out.catalog.push(e);
+      out.byName.set(p.name.trim().toLowerCase(), e);
     });
-    return opts;
+    return out;
   }
 
-  /* ─── Editable ingredients list inside the drawer. Names + units are
-   *      resolved from INVENTORY (read-only); only qty is freely editable
-   *      because ingredient → inventory mapping must stay consistent. ─── */
+  /* ─── A single <datalist> mounted once per drawer to power the
+   *      autocomplete on every ingredient name input. ─── */
+  function miRecDatalistHtml(catalog) {
+    const opts = catalog.catalog.map(e => {
+      const label = `${e.name} — ${eqFrInt(e.costPerUnit)} MAD/${e.unit}`;
+      return `<option value="${eqEsc(e.name)}" label="${eqEsc(label)}"></option>`;
+    }).join('');
+    return `<datalist id="kw-rec-ing-list">${opts}</datalist>`;
+  }
+
+  /* ─── Resolve display name + unit for an ingredient. If it already
+   *      stores its own `name`, that wins (user typed something custom).
+   *      Otherwise fall back to inventory lookup via invId. ─── */
+  function miRecIngDisplay(ing) {
+    if (ing.name) return { name: ing.name, unit: ing.unit || '' };
+    const ref = window.KiwiRecipes.resolveIngredient(ing.invId);
+    if (ref) return { name: ref.name, unit: ing.unit || ref.unit || '' };
+    return { name: '', unit: ing.unit || '' };
+  }
+
+  /* ─── Editable ingredients list — name + qty + unit are all freely
+   *      editable text inputs. Name has an inventory autocomplete
+   *      via <datalist>. Match on inventory auto-attaches an invId so
+   *      variance calculations work; free-text ingredients persist as
+   *      plain names (no cost contribution to theoretical). ─── */
   function miRecDrawerIngHtml(draft, it) {
     const head = `
       <div class="mi-rec-drawer-ing-head">
@@ -4263,36 +4286,38 @@
         <div class="mi-rec-drawer-ings">
           ${head}
           <div class="mi-rec-drawer-empty">
-            Aucun ingrédient pour l'instant. Choisissez-en un dans la liste ci-dessous.
+            Aucun ingrédient pour l'instant. Cliquez sur « + Ajouter un ingrédient » pour démarrer.
           </div>
-          ${miRecDrawerAddRowHtml(it, draft)}
+          ${miRecDrawerAddBtnHtml()}
         </div>`;
     }
     const rows = draft.ingredients.map((ing, idx) => {
-      const ref = window.KiwiRecipes.resolveIngredient(ing.invId) || { name: ing.invId || '?', unit: ing.unit || '' };
-      const isPlaceholder = ref.isPlaceholder;
+      const disp = miRecIngDisplay(ing);
+      const isPlaceholder = ing.invId && window.KiwiRecipes.PLACEHOLDER_COSTS?.[ing.invId];
+      const noCost = !ing.invId && (ing.name || '').trim();
       return `
         <div class="mi-rec-drawer-ing" data-mi-ing-row="${idx}">
-          <span class="mi-rec-ing-name-static">${eqEsc(ref.name)}${isPlaceholder ? ' <em class="mi-rec-ing-ph">placeholder</em>' : ''}</span>
+          <input type="text" class="mi-input mi-rec-ing-name" list="kw-rec-ing-list" data-mi-ing-field="name" value="${eqEsc(disp.name)}" placeholder="Nom de l'ingrédient" />
           <input type="number" class="mi-input mi-rec-ing-qty" data-mi-ing-field="qty" value="${ing.qty || 0}" step="0.001" min="0" placeholder="0" />
-          <span class="mi-rec-ing-unit-static">${eqEsc(ing.unit || ref.unit || '')}</span>
+          <input type="text" class="mi-input mi-rec-ing-unit" data-mi-ing-field="unit" value="${eqEsc(disp.unit)}" placeholder="g, ml, u…" />
           <button class="mi-rec-ing-del" data-mi-ing-del="${idx}" aria-label="Supprimer cet ingrédient">${miSvg('x', 13)}</button>
+          ${isPlaceholder ? '<div class="mi-rec-ing-foot">coût estimé</div>' : ''}
+          ${noCost ? '<div class="mi-rec-ing-foot mi-rec-ing-foot-warn">non suivi en stock — coût non pris en compte</div>' : ''}
         </div>`;
     }).join('');
     return `
       <div class="mi-rec-drawer-ings">
         ${head}
         ${rows}
-        ${miRecDrawerAddRowHtml(it, draft)}
+        ${miRecDrawerAddBtnHtml()}
       </div>`;
   }
 
-  /* ─── Inline picker row beneath the ingredients list. ─── */
-  function miRecDrawerAddRowHtml(it, draft) {
-    const opts = miRecInventoryOptions(it, draft);
+  /* ─── "+ Ajouter un ingrédient" button — appears below every list. ─── */
+  function miRecDrawerAddBtnHtml() {
     return `
       <div class="mi-rec-drawer-add">
-        <select class="mi-input mi-rec-add-picker" data-mi-rec-add-picker>${opts}</select>
+        <button type="button" class="btn-slim mi-rec-add-btn" data-mi-rec-add-ing>+ Ajouter un ingrédient</button>
       </div>`;
   }
 
@@ -4357,12 +4382,21 @@
 
   /* ─── Build the full drawer body. ─── */
   function miRecDrawerBodyHtml(it, draft, m, isComplete) {
+    const catalog = miRecBuildCatalog();
+    const yieldVal = Math.max(1, parseInt(draft.yield || 1, 10) || 1);
     return `
       <div class="mi-rec-drawer-body">
+        ${miRecDatalistHtml(catalog)}
         ${miRecDrawerStatusHtml(it, m, isComplete)}
         ${isComplete ? miRecVarianceExplain(it, m) : ''}
         <div class="mi-rec-drawer-section">
-          <h4>Ingrédients par portion</h4>
+          <h4>Composition de la recette</h4>
+          <div class="mi-rec-drawer-yield">
+            <label>Cette recette donne
+              <input type="number" min="1" step="1" class="mi-input mi-rec-yield-input" data-mi-rec-yield value="${yieldVal}" />
+              portion${yieldVal > 1 ? 's' : ''}
+            </label>
+          </div>
           <div class="mi-rec-drawer-ing-wrap">
             ${miRecDrawerIngHtml(draft, it)}
           </div>
@@ -4393,65 +4427,110 @@
     if (fresh) wrap.innerHTML = fresh.innerHTML;
   }
 
-  /* ─── Bind drawer interactions to the mutable draft object. ─── */
+  /* ─── Bind drawer interactions to the mutable draft object.
+   *
+   * Editing rules:
+   *  · qty   → set draft.ingredients[idx].qty, recompute costs
+   *  · name  → set draft.ingredients[idx].name; if name matches an
+   *            inventory item (case-insensitive), auto-attach invId
+   *            and seed unit (if unit not yet set). Recompute costs.
+   *  · unit  → set draft.ingredients[idx].unit
+   *  · yield → set draft.yield, recompute costs
+   *  · notes → set draft.notes
+   *
+   *  Add button (+ Ajouter) inserts a blank ingredient row.
+   *  Delete button removes the row.
+   * ─── */
   function miBindRecipeDrawer(rootEl, it, draft, m) {
-    /* Input → draft sync (qty / notes only — name/unit come from inventory). */
+    const catalog = miRecBuildCatalog();
+
+    /* Input → draft sync. */
     rootEl.addEventListener('input', (e) => {
       const t = e.target;
-      const field = t.dataset.miIngField;
-      if (field === 'qty') {
-        const row = t.closest('[data-mi-ing-row]');
-        if (!row) return;
-        const idx = parseInt(row.dataset.miIngRow, 10);
-        if (Number.isNaN(idx) || !draft.ingredients[idx]) return;
-        draft.ingredients[idx].qty = parseFloat(t.value) || 0;
+      /* Yield field. */
+      if (t.dataset.miRecYield !== undefined) {
+        const y = Math.max(1, parseInt(t.value, 10) || 1);
+        draft.yield = y;
         miRecDrawerRerenderCosts(rootEl, it, draft, m);
-      } else if (t.classList.contains('mi-rec-drawer-notes')) {
+        return;
+      }
+      /* Notes field. */
+      if (t.classList.contains('mi-rec-drawer-notes')) {
         draft.notes = t.value;
+        return;
+      }
+      /* Ingredient fields. */
+      const field = t.dataset.miIngField;
+      if (!field) return;
+      const row = t.closest('[data-mi-ing-row]');
+      if (!row) return;
+      const idx = parseInt(row.dataset.miIngRow, 10);
+      if (Number.isNaN(idx) || !draft.ingredients[idx]) return;
+      const ing = draft.ingredients[idx];
+      if (field === 'qty') {
+        ing.qty = parseFloat(t.value) || 0;
+        miRecDrawerRerenderCosts(rootEl, it, draft, m);
+      } else if (field === 'unit') {
+        ing.unit = t.value;
+      } else if (field === 'name') {
+        ing.name = t.value;
+        /* Try to auto-detect an inventory match. */
+        const match = catalog.byName.get(t.value.trim().toLowerCase());
+        if (match) {
+          ing.invId = match.invId;
+          if (!ing.unit) ing.unit = match.unit;
+          /* If user picked from datalist, sync the unit input visibly. */
+          const unitInput = row.querySelector('[data-mi-ing-field="unit"]');
+          if (unitInput && !unitInput.value) unitInput.value = match.unit;
+          miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        } else if (ing.invId) {
+          /* Name no longer matches — detach invId so cost stops counting. */
+          ing.invId = null;
+          miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        }
       }
     });
-    /* Change → ingredient picker dropdown. */
-    rootEl.addEventListener('change', (e) => {
-      const picker = e.target.closest('[data-mi-rec-add-picker]');
-      if (!picker || !picker.value) return;
-      const invId = picker.value;
-      const ref = window.KiwiRecipes.resolveIngredient(invId);
-      if (!ref) return;
-      draft.ingredients = draft.ingredients || [];
-      draft.ingredients.push({ invId, qty: 0, unit: ref.unit });
-      miRecDrawerRerenderIngs(rootEl, it, draft);
-      miRecDrawerRerenderCosts(rootEl, it, draft, m);
-      /* Focus the new qty input. */
-      requestAnimationFrame(() => {
-        const qtys = rootEl.querySelectorAll('.mi-rec-ing-qty');
-        const last = qtys[qtys.length - 1];
-        if (last) { last.focus(); last.select(); }
-      });
-    });
-    /* Click → delete ingredient. */
+
+    /* Click → add / delete. */
     rootEl.addEventListener('click', (e) => {
       const delBtn = e.target.closest('[data-mi-ing-del]');
-      if (!delBtn) return;
-      const idx = parseInt(delBtn.dataset.miIngDel, 10);
-      if (Number.isNaN(idx)) return;
-      draft.ingredients.splice(idx, 1);
-      miRecDrawerRerenderIngs(rootEl, it, draft);
-      miRecDrawerRerenderCosts(rootEl, it, draft, m);
+      if (delBtn) {
+        const idx = parseInt(delBtn.dataset.miIngDel, 10);
+        if (Number.isNaN(idx)) return;
+        draft.ingredients.splice(idx, 1);
+        miRecDrawerRerenderIngs(rootEl, it, draft);
+        miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        return;
+      }
+      if (e.target.closest('[data-mi-rec-add-ing]')) {
+        draft.ingredients = draft.ingredients || [];
+        draft.ingredients.push({ invId: null, name: '', qty: 0, unit: '' });
+        miRecDrawerRerenderIngs(rootEl, it, draft);
+        miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        requestAnimationFrame(() => {
+          const names = rootEl.querySelectorAll('.mi-rec-ing-name');
+          const last = names[names.length - 1];
+          if (last) last.focus();
+        });
+      }
     });
   }
 
   /* ─── Persist drafted recipe back to RECIPES_SESSION (in-memory only;
-   *      resets on page reload — demo behaviour). Ingredients are kept
-   *      only if they have a valid invId and a positive quantity. ─── */
+   *      resets on page reload — demo behaviour). An ingredient is kept
+   *      if it has either an invId or a non-empty name, AND a positive
+   *      quantity. Recipe is "complete" if at least one ingredient with
+   *      an invId is present (so variance has something to compute). ─── */
   function miSaveRecipeDraft(itemId, draft) {
     const cleaned = (draft.ingredients || []).filter(i =>
-      i && i.invId && (i.qty || 0) > 0
+      i && ((i.invId || (i.name || '').trim()) && (i.qty || 0) > 0)
     );
+    const hasInvLinked = cleaned.some(i => !!i.invId);
     const next = {
-      yield: draft.yield || 1,
+      yield: Math.max(1, parseInt(draft.yield || 1, 10) || 1),
       ingredients: cleaned,
       notes: draft.notes || '',
-      status: cleaned.length > 0 ? 'complete' : 'incomplete',
+      status: hasInvLinked ? 'complete' : 'incomplete',
       lastUpdated: new Date().toISOString().slice(0, 10),
       updatedBy: 'Vous',
     };
