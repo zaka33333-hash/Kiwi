@@ -4865,6 +4865,9 @@
 <script src="assets/pages-pro.js" defer fetchpriority="low"></script>
 <script src="assets/stock.js" defer fetchpriority="low"></script>
 <script src="assets/team.js" defer fetchpriority="low"></script>
+<!-- "Introducing Kiwi Marketing Suite" tease — fired by PIN 0505 after the
+     greeting fades. Self-contained overlay + animation, no first-paint cost. -->
+<script src="assets/marketing-suite-tease.js" defer fetchpriority="low"></script>
 
 <!-- PIN lock + greeting flash controller -->
 <script>
@@ -4914,6 +4917,11 @@
       /* PIN 0000 is the doorway to "your own dashboard" — any other
        * 4-digit PIN unlocks the Café Atlas demo. */
       if (val === '0000') window.__kiwiOnboard = true;
+      /* PIN 0505 is the "future updates preview" hook — after the
+       * normal Café-Atlas unlock + Bonjour Rachid greeting finishes,
+       * an Apple-keynote-style "Introducing Marketing Suite" reveal
+       * plays. See assets/marketing-suite-tease.js. */
+      if (val === '0505') window.__kiwiMarketingTease = true;
       /* Slight delay so the user sees the 4th cell fill before the celebration. */
       setTimeout(unlock, 140);
     }
@@ -5042,6 +5050,16 @@
       greet.setAttribute('aria-hidden', 'true');
       if (app)     app.classList.remove('kw-app-hidden');
       if (demoBar) demoBar.classList.remove('kw-bar-hidden');
+      /* PIN 0505 was entered → after the greeting's fade settles, fire
+       * the keynote-style "Introducing Marketing Suite" tease. The 900 ms
+       * extra delay (= 4100 ms after unlock) lets the greeting fully
+       * disappear and gives the dashboard one beat of stillness before
+       * the overlay slides in. */
+      if (window.__kiwiMarketingTease && window.KiwiMarketingTease) {
+        setTimeout(() => {
+          try { window.KiwiMarketingTease.play(); } catch (_) {}
+        }, 900);
+      }
     }, 3200);
 
     /* 4000 ms: greeting fully faded — remove from DOM. */
