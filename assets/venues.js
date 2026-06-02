@@ -3328,16 +3328,14 @@
     H['mi-rec-filter']   = (el) => { miRecFilter = el.dataset.filter || 'all'; miRenderTab1Body(); };
     H['mi-rec-sort']     = (el) => { miRecSort = el.value || 'variance'; miRenderTab1Body(); };
     H['mi-rec-search']   = (el) => { miRecSearch = (el.value || '').toLowerCase(); miRenderTab1Body(); };
-    H['mi-recipe-expand']= (_el, id) => {
-      if (miRecExpanded.has(id)) miRecExpanded.delete(id);
-      else miRecExpanded.add(id);
-      miRenderTab1Body();
-    };
-    /* Phase 2 stubs — Compléter / Modifier / Compléter avec IA all surface
-     * the same coming-soon toast. Wiring happens in Phase 2 (Recipe Editor). */
-    H['mi-rec-edit']     = () => Kiwi.toast('Disponible en phase 2 — Éditeur de recette', { type: 'info' });
-    H['mi-rec-complete'] = () => Kiwi.toast('Disponible en phase 2 — Éditeur de recette', { type: 'info' });
-    H['mi-rec-ai']       = () => Kiwi.toast('Disponible en phase 2 — Éditeur de recette', { type: 'info' });
+    /* Single entry point: Voir détails / Compléter / Modifier all route
+     * through miOpenRecipeDrawer. The first three aliases are kept for
+     * backward compatibility with any stale buttons still in the DOM. */
+    H['mi-rec-detail']   = (_el, id) => miOpenRecipeDrawer(id);
+    H['mi-recipe-expand']= (_el, id) => miOpenRecipeDrawer(id);
+    H['mi-rec-edit']     = (_el, id) => miOpenRecipeDrawer(id);
+    H['mi-rec-complete'] = (_el, id) => miOpenRecipeDrawer(id);
+    H['mi-rec-ai']       = () => Kiwi.toast('Assistant IA — bientôt', { type: 'info' });
   }
 
   /* ═══════════ RENDER ═══════════ */
@@ -4010,6 +4008,47 @@
     };
   }
 
+  /* Plain-language status + per-portion MAD line — the new owner-facing
+   * read of variance. Replaces "+45.6 pts" jargon with a clear status badge
+   * (Conforme / À surveiller / Coût trop élevé) and a money line in MAD per
+   * portion. Returns null when there's no recipe or no usage data yet. */
+  function miRecPlainStatus(it, m) {
+    if (!m || !m.hasRecipe || m.variancePct === null) return null;
+    const mag    = Math.abs(m.variancePct);
+    const units  = it.unitsThisMonth || 0;
+    const price  = it.price || 0;
+    const perPortion = units > 0 ? Math.abs(m.impact / units) : 0;
+    const actualCost = (m.fcAct / 100) * price;
+    const margin     = price - actualCost;
+    if (mag <= 5) {
+      return {
+        sev: 'ok',
+        label: 'Coût conforme',
+        money: `Vous gagnez ${eqFrInt(Math.max(0, Math.round(margin)))} MAD / portion`,
+        tail: null,
+      };
+    }
+    const isOver = m.variancePct > 0;
+    if (mag <= 15) {
+      return {
+        sev: 'warn',
+        label: isOver ? 'Marge sous tension' : 'Stock à vérifier',
+        money: isOver
+          ? `+${eqFrInt(Math.round(perPortion))} MAD coût / portion`
+          : `−${eqFrInt(Math.round(perPortion))} MAD vs recette`,
+        tail: null,
+      };
+    }
+    return {
+      sev: 'crit',
+      label: isOver ? 'Coût trop élevé' : 'Données suspectes',
+      money: isOver
+        ? `+${eqFrInt(Math.round(perPortion))} MAD coût / portion`
+        : `−${eqFrInt(Math.round(perPortion))} MAD vs recette`,
+      tail: isOver ? 'vérifier les portions cuisine' : 'vérifier le suivi du stock',
+    };
+  }
+
   /* Filtered + sorted list driving the rows + the "5 plats" insight card. */
   function miRecFilteredList(venueKey) {
     const all = window.KiwiRecipes.listRecipes(venueKey);
@@ -4100,55 +4139,363 @@
       </div>`;
   }
 
-  /* Single row markup for the recipe list. */
+  /* Single row markup for the recipe list — simplified Phase 1.5 layout:
+   *
+   *   [Name + complete/incomplete pill]   [Status badge + MAD line]   [Voir détails →]
+   *
+   * Replaces the prior 5-column finance-team layout. Detail/edit/complete
+   * all funnel into miOpenRecipeDrawer via mi-rec-detail. */
   function miRecRowHtml(row) {
     const it = row.it;
-    const r = row.recipe;
-    const m = row.m;
+    const r  = row.recipe;
+    const m  = row.m;
     const isComplete = r && r.status === 'complete';
-    const expanded = miRecExpanded.has(it.id);
-    const status = isComplete
-      ? `<span class="mi-recipe-status ok">✓ Complète · ${r.ingredients.length} ingrédients</span>`
-      : `<span class="mi-recipe-status warn">▲ À compléter</span>`;
-    const fcCell = m.fcTh != null
-      ? `<span class="mi-recipe-fc ${miRecFcClass(m.fcTh)}">${m.fcTh.toFixed(1)} %</span>`
-      : '<span class="mi-recipe-fc na">—</span>';
-    const actCell = m.fcAct != null
-      ? `<span class="mi-recipe-fc-act">${m.fcAct.toFixed(1)} %</span>`
-      : '<span class="mi-recipe-fc-act na">—</span>';
-    const varCell = m.variancePct != null
-      ? `<span class="mi-recipe-pip mi-recipe-pip-${miRecSevClass(m.variancePct)}">${m.variancePct >= 0 ? '+' : ''}${m.variancePct.toFixed(1)} pts</span>`
-      : '<span class="mi-recipe-pip na">—</span>';
-    const acts = isComplete
-      ? `
-        <button class="mi-ic-btn" data-action="mi-recipe-expand" data-arg="${it.id}" aria-label="${expanded ? 'Réduire' : 'Voir la recette'}">${miSvg('eye', 13)}</button>
-        <button class="mi-ic-btn" data-action="mi-rec-edit" data-arg="${it.id}" aria-label="Modifier la recette">${miSvg('edit', 13)}</button>`
-      : `
-        <button class="mi-ic-btn" data-action="mi-recipe-expand" data-arg="${it.id}" aria-label="${expanded ? 'Réduire' : 'Voir la recette'}">${miSvg('eye', 13)}</button>
-        <button class="btn-slim primary mi-recipe-complete-btn" data-action="mi-rec-complete" data-arg="${it.id}">Compléter</button>`;
+    const ingCount   = isComplete ? r.ingredients.length : 0;
+    const pillStatus = isComplete
+      ? `<span class="mi-recipe-status ok">✓ Complète · ${ingCount} ingrédient${ingCount > 1 ? 's' : ''}</span>`
+      : `<span class="mi-recipe-status warn">▲ Recette manquante</span>`;
+
+    /* Build the middle column: plain-status block for complete recipes,
+     * "À compléter" prompt for incomplete ones. */
+    let statusBlock = '';
+    if (isComplete) {
+      const ps = miRecPlainStatus(it, m);
+      if (ps) {
+        const tail = ps.tail
+          ? ` <span class="mi-recipe-money-tail">→ ${ps.tail}</span>`
+          : '';
+        statusBlock = `
+          <div class="mi-recipe-status-block">
+            <span class="mi-recipe-status-badge mi-recipe-status-badge-${ps.sev}">${ps.label}</span>
+            <div class="mi-recipe-money mi-recipe-money-${ps.sev}">${ps.money}${tail}</div>
+          </div>`;
+      } else {
+        statusBlock = `
+          <div class="mi-recipe-status-block">
+            <span class="mi-recipe-status-badge mi-recipe-status-badge-neutral">Pas encore de données</span>
+            <div class="mi-recipe-money mi-recipe-money-neutral">en attente des prochaines ventes</div>
+          </div>`;
+      }
+    } else {
+      statusBlock = `
+        <div class="mi-recipe-status-block">
+          <span class="mi-recipe-status-badge mi-recipe-status-badge-warn">À compléter</span>
+          <div class="mi-recipe-money mi-recipe-money-warn">activez le suivi des coûts pour ce plat</div>
+        </div>`;
+    }
+
+    /* Single action button. Complete → "Voir détails", incomplete → "Compléter". */
+    const cta = isComplete
+      ? `<button class="btn-slim mi-recipe-cta" data-action="mi-rec-detail" data-arg="${it.id}">Voir détails →</button>`
+      : `<button class="btn-slim primary mi-recipe-cta" data-action="mi-rec-detail" data-arg="${it.id}">Compléter →</button>`;
+
     return `
-      <div class="mi-recipe-row${expanded ? ' is-expanded' : ''}${isComplete ? '' : ' is-incomplete'}" data-mi-recipe="${it.id}">
+      <div class="mi-recipe-row${isComplete ? '' : ' is-incomplete'}" data-mi-recipe="${it.id}">
         <div class="mi-recipe-row-main">
           <div class="mi-recipe-id">
             <div class="mi-recipe-name">${eqEsc(it.name)}</div>
-            <div class="mi-recipe-meta"><span class="mi-recipe-cat">${miCatLabel(it.category)}</span>${status}</div>
+            <div class="mi-recipe-meta"><span class="mi-recipe-cat">${miCatLabel(it.category)}</span>${pillStatus}</div>
           </div>
-          <div class="mi-recipe-stat">
-            <div class="mi-recipe-stat-l">FC théo.</div>
-            <div class="mi-recipe-stat-v">${fcCell}</div>
-          </div>
-          <div class="mi-recipe-stat">
-            <div class="mi-recipe-stat-l">FC réel</div>
-            <div class="mi-recipe-stat-v">${actCell}</div>
-          </div>
-          <div class="mi-recipe-stat">
-            <div class="mi-recipe-stat-l">Variance</div>
-            <div class="mi-recipe-stat-v">${varCell}</div>
-          </div>
-          <div class="mi-recipe-acts">${acts}</div>
+          ${statusBlock}
+          <div class="mi-recipe-acts">${cta}</div>
         </div>
-        ${expanded ? miRecExpandHtml(it, r) : ''}
       </div>`;
+  }
+
+  /* ─── Plain-French variance explanation paragraph for the drawer. ─── */
+  function miRecVarianceExplain(it, m) {
+    if (!m || !m.hasRecipe || m.variancePct === null) return '';
+    const mag = Math.abs(m.variancePct);
+    if (mag <= 5) {
+      return `<div class="mi-rec-drawer-explain mi-rec-drawer-explain-ok">
+        Votre consommation réelle correspond bien à votre recette. Les portions
+        sont calibrées et le stock se déprécie comme prévu.
+      </div>`;
+    }
+    const sevClass = mag > 15 ? 'crit' : 'warn';
+    const isOver = m.variancePct > 0;
+    const intro = isOver
+      ? `Vous consommez <b>${mag.toFixed(0)}% de plus</b> que ce que la recette prévoit.`
+      : `Vous consommez <b>${mag.toFixed(0)}% de moins</b> que ce que la recette prévoit.`;
+    const causes = isOver
+      ? `Causes fréquentes&nbsp;: portions plus généreuses qu'indiqué, gaspillage en cuisine, ventes non encaissées, ou un ingrédient utilisé mais non listé dans la recette.`
+      : `Causes fréquentes&nbsp;: portions plus petites que prévu, recette qui surestime les quantités, ou un suivi de stock incomplet.`;
+    return `<div class="mi-rec-drawer-explain mi-rec-drawer-explain-${sevClass}">
+      ${intro} ${causes}
+    </div>`;
+  }
+
+  /* ─── Build the inventory-picker <select> for adding a new ingredient.
+   *      Lists every inventory item in the menu's venue plus the
+   *      registered placeholder costs. ─── */
+  function miRecInventoryOptions(it, draft) {
+    const used = new Set((draft.ingredients || []).map(i => i.invId).filter(Boolean));
+    let opts = '<option value="">— Choisir un ingrédient pour ajouter —</option>';
+    /* Real inventory items — scope to the venue this menu item lives in. */
+    const venue = miMenuVenue();
+    const inv   = (venue && window.KiwiVenue?.getInventory)
+      ? (window.KiwiVenue.getInventory(venue) || [])
+      : [];
+    inv.forEach(item => {
+      if (used.has(item.id)) return;
+      opts += `<option value="${item.id}">${eqEsc(item.name)} · ${eqFrInt(item.costPerUnit)} MAD/${eqEsc(item.unit)}</option>`;
+    });
+    /* Placeholder catalog (coffee/nutella/…) when an item isn't in INVENTORY yet. */
+    const ph = window.KiwiRecipes.PLACEHOLDER_COSTS || {};
+    Object.keys(ph).forEach(key => {
+      if (used.has(key)) return;
+      const p = ph[key];
+      opts += `<option value="${key}">${eqEsc(p.name)} · ${eqFrInt(p.costPerUnit)} MAD/${eqEsc(p.unit)}</option>`;
+    });
+    return opts;
+  }
+
+  /* ─── Editable ingredients list inside the drawer. Names + units are
+   *      resolved from INVENTORY (read-only); only qty is freely editable
+   *      because ingredient → inventory mapping must stay consistent. ─── */
+  function miRecDrawerIngHtml(draft, it) {
+    const head = `
+      <div class="mi-rec-drawer-ing-head">
+        <span>Ingrédient</span><span>Quantité / portion</span><span>Unité</span><span></span>
+      </div>`;
+    if (!draft.ingredients || !draft.ingredients.length) {
+      return `
+        <div class="mi-rec-drawer-ings">
+          ${head}
+          <div class="mi-rec-drawer-empty">
+            Aucun ingrédient pour l'instant. Choisissez-en un dans la liste ci-dessous.
+          </div>
+          ${miRecDrawerAddRowHtml(it, draft)}
+        </div>`;
+    }
+    const rows = draft.ingredients.map((ing, idx) => {
+      const ref = window.KiwiRecipes.resolveIngredient(ing.invId) || { name: ing.invId || '?', unit: ing.unit || '' };
+      const isPlaceholder = ref.isPlaceholder;
+      return `
+        <div class="mi-rec-drawer-ing" data-mi-ing-row="${idx}">
+          <span class="mi-rec-ing-name-static">${eqEsc(ref.name)}${isPlaceholder ? ' <em class="mi-rec-ing-ph">placeholder</em>' : ''}</span>
+          <input type="number" class="mi-input mi-rec-ing-qty" data-mi-ing-field="qty" value="${ing.qty || 0}" step="0.001" min="0" placeholder="0" />
+          <span class="mi-rec-ing-unit-static">${eqEsc(ing.unit || ref.unit || '')}</span>
+          <button class="mi-rec-ing-del" data-mi-ing-del="${idx}" aria-label="Supprimer cet ingrédient">${miSvg('x', 13)}</button>
+        </div>`;
+    }).join('');
+    return `
+      <div class="mi-rec-drawer-ings">
+        ${head}
+        ${rows}
+        ${miRecDrawerAddRowHtml(it, draft)}
+      </div>`;
+  }
+
+  /* ─── Inline picker row beneath the ingredients list. ─── */
+  function miRecDrawerAddRowHtml(it, draft) {
+    const opts = miRecInventoryOptions(it, draft);
+    return `
+      <div class="mi-rec-drawer-add">
+        <select class="mi-input mi-rec-add-picker" data-mi-rec-add-picker>${opts}</select>
+      </div>`;
+  }
+
+  /* ─── Cost breakdown card inside the drawer. ─── */
+  function miRecDrawerCostsHtml(it, draft, m) {
+    const price = it.price || 0;
+    const portionCostTh = (window.KiwiRecipes.portionCost(draft) || 0);
+    const haveActual    = m && m.fcAct !== null;
+    const actualCost    = haveActual ? (m.fcAct / 100) * price : portionCostTh;
+    const marginActual  = price - actualCost;
+    const fcShown       = price > 0 ? (actualCost / price * 100).toFixed(1) : '—';
+    return `
+      <div class="mi-rec-drawer-section">
+        <h4>Combien ce plat vous rapporte vraiment</h4>
+        <div class="mi-rec-drawer-costs">
+          <div class="mi-rec-drawer-cost-row">
+            <span class="mi-rec-drawer-cost-l">Prix de vente</span>
+            <span class="mi-rec-drawer-cost-v">${eqFrInt(price)} MAD</span>
+          </div>
+          <div class="mi-rec-drawer-cost-row">
+            <span class="mi-rec-drawer-cost-l">Coût recette (théorique)</span>
+            <span class="mi-rec-drawer-cost-v">${portionCostTh.toFixed(2)} MAD</span>
+          </div>
+          <div class="mi-rec-drawer-cost-row">
+            <span class="mi-rec-drawer-cost-l">Coût réel observé</span>
+            <span class="mi-rec-drawer-cost-v">${actualCost.toFixed(2)} MAD ${haveActual ? `<small>(${fcShown} % du prix)</small>` : ''}</span>
+          </div>
+          <div class="mi-rec-drawer-cost-row mi-rec-drawer-cost-total">
+            <span class="mi-rec-drawer-cost-l">Vous gagnez</span>
+            <span class="mi-rec-drawer-cost-v">${marginActual.toFixed(2)} MAD / portion</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* ─── Status block at the top of the drawer. ─── */
+  function miRecDrawerStatusHtml(it, m, isComplete) {
+    if (!isComplete) {
+      return `
+        <div class="mi-rec-drawer-status mi-rec-drawer-status-warn">
+          <div class="mi-rec-drawer-status-l">Statut</div>
+          <div class="mi-rec-drawer-status-v">Recette à compléter</div>
+          <div class="mi-rec-drawer-status-m">Ajoutez les ingrédients ci-dessous pour activer le suivi des coûts sur ce plat.</div>
+        </div>`;
+    }
+    const ps = miRecPlainStatus(it, m);
+    if (!ps) {
+      return `
+        <div class="mi-rec-drawer-status">
+          <div class="mi-rec-drawer-status-l">Statut</div>
+          <div class="mi-rec-drawer-status-v">Pas encore de données de vente</div>
+          <div class="mi-rec-drawer-status-m">Le suivi des coûts s'activera dès les prochaines ventes de ce plat.</div>
+        </div>`;
+    }
+    return `
+      <div class="mi-rec-drawer-status mi-rec-drawer-status-${ps.sev}">
+        <div class="mi-rec-drawer-status-l">Statut</div>
+        <div class="mi-rec-drawer-status-v">${ps.label}</div>
+        <div class="mi-rec-drawer-status-m">${ps.money}${ps.tail ? ` · ${ps.tail}` : ''}</div>
+      </div>`;
+  }
+
+  /* ─── Build the full drawer body. ─── */
+  function miRecDrawerBodyHtml(it, draft, m, isComplete) {
+    return `
+      <div class="mi-rec-drawer-body">
+        ${miRecDrawerStatusHtml(it, m, isComplete)}
+        ${isComplete ? miRecVarianceExplain(it, m) : ''}
+        <div class="mi-rec-drawer-section">
+          <h4>Ingrédients par portion</h4>
+          <div class="mi-rec-drawer-ing-wrap">
+            ${miRecDrawerIngHtml(draft, it)}
+          </div>
+        </div>
+        ${miRecDrawerCostsHtml(it, draft, m)}
+        <div class="mi-rec-drawer-section">
+          <h4>Notes</h4>
+          <textarea class="mi-input mi-rec-drawer-notes" rows="2" placeholder="Préparation, allergènes, calibrage portion…">${eqEsc(draft.notes || '')}</textarea>
+        </div>
+      </div>`;
+  }
+
+  /* ─── Re-render only the ingredients sub-list (after add/delete/pick). ─── */
+  function miRecDrawerRerenderIngs(rootEl, it, draft) {
+    const wrap = rootEl.querySelector('.mi-rec-drawer-ing-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = miRecDrawerIngHtml(draft, it);
+  }
+
+  /* ─── Re-render the cost breakdown (qty change moves the marker). ─── */
+  function miRecDrawerRerenderCosts(rootEl, it, draft, m) {
+    const wrap = rootEl.querySelector('.mi-rec-drawer-costs');
+    if (!wrap) return;
+    const newHtml = miRecDrawerCostsHtml(it, draft, m);
+    const tmp = document.createElement('div');
+    tmp.innerHTML = newHtml;
+    const fresh = tmp.querySelector('.mi-rec-drawer-costs');
+    if (fresh) wrap.innerHTML = fresh.innerHTML;
+  }
+
+  /* ─── Bind drawer interactions to the mutable draft object. ─── */
+  function miBindRecipeDrawer(rootEl, it, draft, m) {
+    /* Input → draft sync (qty / notes only — name/unit come from inventory). */
+    rootEl.addEventListener('input', (e) => {
+      const t = e.target;
+      const field = t.dataset.miIngField;
+      if (field === 'qty') {
+        const row = t.closest('[data-mi-ing-row]');
+        if (!row) return;
+        const idx = parseInt(row.dataset.miIngRow, 10);
+        if (Number.isNaN(idx) || !draft.ingredients[idx]) return;
+        draft.ingredients[idx].qty = parseFloat(t.value) || 0;
+        miRecDrawerRerenderCosts(rootEl, it, draft, m);
+      } else if (t.classList.contains('mi-rec-drawer-notes')) {
+        draft.notes = t.value;
+      }
+    });
+    /* Change → ingredient picker dropdown. */
+    rootEl.addEventListener('change', (e) => {
+      const picker = e.target.closest('[data-mi-rec-add-picker]');
+      if (!picker || !picker.value) return;
+      const invId = picker.value;
+      const ref = window.KiwiRecipes.resolveIngredient(invId);
+      if (!ref) return;
+      draft.ingredients = draft.ingredients || [];
+      draft.ingredients.push({ invId, qty: 0, unit: ref.unit });
+      miRecDrawerRerenderIngs(rootEl, it, draft);
+      miRecDrawerRerenderCosts(rootEl, it, draft, m);
+      /* Focus the new qty input. */
+      requestAnimationFrame(() => {
+        const qtys = rootEl.querySelectorAll('.mi-rec-ing-qty');
+        const last = qtys[qtys.length - 1];
+        if (last) { last.focus(); last.select(); }
+      });
+    });
+    /* Click → delete ingredient. */
+    rootEl.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('[data-mi-ing-del]');
+      if (!delBtn) return;
+      const idx = parseInt(delBtn.dataset.miIngDel, 10);
+      if (Number.isNaN(idx)) return;
+      draft.ingredients.splice(idx, 1);
+      miRecDrawerRerenderIngs(rootEl, it, draft);
+      miRecDrawerRerenderCosts(rootEl, it, draft, m);
+    });
+  }
+
+  /* ─── Persist drafted recipe back to RECIPES_SESSION (in-memory only;
+   *      resets on page reload — demo behaviour). Ingredients are kept
+   *      only if they have a valid invId and a positive quantity. ─── */
+  function miSaveRecipeDraft(itemId, draft) {
+    const cleaned = (draft.ingredients || []).filter(i =>
+      i && i.invId && (i.qty || 0) > 0
+    );
+    const next = {
+      yield: draft.yield || 1,
+      ingredients: cleaned,
+      notes: draft.notes || '',
+      status: cleaned.length > 0 ? 'complete' : 'incomplete',
+      lastUpdated: new Date().toISOString().slice(0, 10),
+      updatedBy: 'Vous',
+    };
+    window.KiwiRecipes.setRecipe(itemId, next);
+  }
+
+  /* ─── Public entry point — open the recipe detail / edit drawer. ─── */
+  function miOpenRecipeDrawer(itemId) {
+    const it = miFindItem(itemId);
+    if (!it) return;
+    const recipe = window.KiwiRecipes.getRecipe(itemId);
+    const isComplete = recipe && recipe.status === 'complete';
+    const m = miRecRowMetrics(it, recipe);
+
+    /* Mutable draft — saved only on Enregistrer. */
+    const draft = recipe
+      ? JSON.parse(JSON.stringify(recipe))
+      : { yield: 1, ingredients: [], notes: '', status: 'incomplete' };
+    draft.ingredients = draft.ingredients || [];
+
+    const body = miRecDrawerBodyHtml(it, draft, m, isComplete);
+    const foot = `
+      <div class="kiwi-actions" style="display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn-slim" data-mi-rec-cancel>Annuler</button>
+        <button class="btn-slim primary" data-mi-rec-save>Enregistrer</button>
+      </div>`;
+
+    const d = Kiwi.drawer({
+      title: it.name,
+      subtitle: `${miCatLabel(it.category)} · ${eqFrInt(it.price)} MAD prix de vente`,
+      width: 560,
+      body,
+      foot,
+    });
+
+    miBindRecipeDrawer(d.el, it, draft, m);
+
+    d.el.querySelector('[data-mi-rec-cancel]')?.addEventListener('click', () => d.close());
+    d.el.querySelector('[data-mi-rec-save]')?.addEventListener('click', () => {
+      miSaveRecipeDraft(itemId, draft);
+      Kiwi.toast('Recette enregistrée — calculs mis à jour', { type: 'success' });
+      d.close();
+      miRenderTab1Body();
+    });
   }
 
   /* AI insight: top contributors to total variance. */
@@ -4170,14 +4517,15 @@
     const concentration  = totalImpactAll > 0 ? Math.round((top5Impact / totalImpactAll) * 100) : 0;
     const list = top5.map(r => {
       const sign = r.m.impact >= 0 ? '+' : '−';
-      return `${eqEsc(r.it.name)} (${(r.m.variancePct >= 0 ? '+' : '')}${r.m.variancePct.toFixed(1)} pts, ${sign}${eqFrInt(Math.abs(r.m.impact))} MAD/mois)`;
+      return `${eqEsc(r.it.name)} (${sign}${eqFrInt(Math.abs(r.m.impact))} MAD/mois)`;
     }).join(', ');
+    const dishWord = top5.length > 1 ? 'plats' : 'plat';
     return `
       <div class="mi-ai" data-recettes-scripted="contributors">
         <div class="mi-ai-eyebrow">Kiwi AI · Recettes</div>
-        <div class="mi-ai-t">${concentration} % de votre variance vient de ${top5.length} plat${top5.length > 1 ? 's' : ''}</div>
-        <div class="mi-ai-b">${list} cumulent ${eqFrInt(Math.round(top5Impact))} MAD de coût matière non expliqué ce mois.</div>
-        <div class="mi-ai-a">→ Concentrer l'audit portionnement sur ces ${top5.length} plat${top5.length > 1 ? 's' : ''} avec le chef pourrait récupérer 60-75 % de cet écart. Programme suggéré : 30 min de calibrage par plat, étalé sur deux semaines.</div>
+        <div class="mi-ai-t">${top5.length} ${dishWord} représente${top5.length > 1 ? 'nt' : ''} ${concentration} % de vos pertes ce mois</div>
+        <div class="mi-ai-b">${list} cumulent ${eqFrInt(Math.round(top5Impact))} MAD de coût non expliqué ce mois — argent perdu en cuisine ou en portion.</div>
+        <div class="mi-ai-a">→ Calibrer les portions de ces ${top5.length} ${dishWord} avec le chef (30 min par plat, sur 2 semaines) peut récupérer 60–75 % de cet écart.</div>
       </div>`;
   }
 
@@ -4213,8 +4561,8 @@
     const head = `
       <div class="mi-recettes-head">
         <div>
-          <div class="mi-title">Recettes &amp; compositions</div>
-          <div class="mi-sub">Définissez la composition exacte de chaque plat pour activer l'analyse de variance avancée</div>
+          <div class="mi-title">Recettes &amp; coûts par plat</div>
+          <div class="mi-sub">Définissez la composition de chaque plat pour suivre la marge réelle et repérer les pertes.</div>
         </div>
         <div class="mi-recettes-progress">
           <div class="mi-recettes-progress-l">${stats.complete} / ${stats.total} recettes complétées</div>
@@ -4222,33 +4570,39 @@
         </div>
       </div>`;
 
-    /* Variance pip + delta indicator. */
-    const fcDelta = (stats.avgVariancePct).toFixed(1);
-    const varianceSev = miRecSevClass(stats.avgVariancePct);
+    /* Count dishes flagged "Coût trop élevé / Données suspectes" (>15% gap). */
+    const atRisk = allRows.filter(r =>
+      r.m.hasRecipe && r.m.variancePct !== null && Math.abs(r.m.variancePct) > 15
+    ).length;
+    const atRiskSev = atRisk > 5 ? 'crit' : atRisk > 2 ? 'warn' : 'ok';
+    const atRiskSub = atRisk === 0
+      ? 'aucun plat ne sort des clous · bravo'
+      : atRisk === 1
+        ? '1 plat à vérifier en priorité'
+        : `${atRisk} plats à vérifier en priorité`;
 
     const kpis = `
       <div class="mi-kpi-grid mi-recettes-kpis">
         <div class="mi-kpi-card">
           <div class="mi-kpi-l">Recettes complètes</div>
           <div class="mi-kpi-v">${stats.complete}</div>
-          <div class="mi-kpi-sub">${stats.complete} article${stats.complete > 1 ? 's' : ''} avec composition exacte</div>
+          <div class="mi-kpi-sub">${stats.complete} plat${stats.complete > 1 ? 's' : ''} avec composition définie</div>
           <div class="mi-kpi-bar"><i style="width:${stats.completionPct}%"></i></div>
         </div>
         <div class="mi-kpi-card">
-          <div class="mi-kpi-l">Recettes manquantes</div>
+          <div class="mi-kpi-l">Recettes à compléter</div>
           <div class="mi-kpi-v mi-recipe-${stats.incomplete > 10 ? 'crit' : stats.incomplete > 5 ? 'warn' : 'ok'}">${stats.incomplete}</div>
-          <div class="mi-kpi-sub">à compléter pour précision maximale</div>
-          <button class="btn-slim primary mi-recettes-ai-btn" data-action="mi-rec-ai">Compléter avec IA</button>
+          <div class="mi-kpi-sub">plats sans suivi de coût pour l'instant</div>
         </div>
         <div class="mi-kpi-card">
-          <div class="mi-kpi-l">Coût matière moyen</div>
+          <div class="mi-kpi-l">Coût ingrédients moyen</div>
           <div class="mi-kpi-v ${miRecFcClass(stats.avgFoodCostPct)}">${stats.avgFoodCostPct.toFixed(1)} %</div>
-          <div class="mi-kpi-sub">moyenne sur recettes complètes</div>
+          <div class="mi-kpi-sub">part du prix de vente sur recettes complètes</div>
         </div>
         <div class="mi-kpi-card">
-          <div class="mi-kpi-l">Variance globale ce mois</div>
-          <div class="mi-kpi-v mi-recipe-${varianceSev}">${stats.avgVariancePct >= 0 ? '+' : ''}${fcDelta} pts</div>
-          <div class="mi-kpi-sub">écart théorique vs réel</div>
+          <div class="mi-kpi-l">Plats à risque</div>
+          <div class="mi-kpi-v mi-recipe-${atRiskSev}">${atRisk}</div>
+          <div class="mi-kpi-sub">${atRiskSub}</div>
         </div>
       </div>`;
 
