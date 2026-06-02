@@ -317,23 +317,37 @@
     position: relative;
     overflow: visible;
     text-align: right;
-    font-family: 'Instrument Serif', 'Inter Tight', serif;
-    font-style: italic;
+    /* Same family as the tail so verb + tail read as one sentence,
+       same baseline math, no visual disconnect. Weight 500 + mint
+       gives the emphasis without the Instrument Serif italic feel. */
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    font-weight: 500;
+    font-style: normal;
     color: #7DF2B0;
     text-shadow: 0 0 36px rgba(125,242,176,0.28);
-    letter-spacing: -0.02em;
-    height: 1em;
-    line-height: 1em;
-    /* Width is JS-controlled, animated via this transition. */
+    letter-spacing: -0.03em;
+    line-height: 1;
+    vertical-align: baseline;
+    /* Phantom glyph (::before, visibility:hidden) gives the container a real
+       text line-box and baseline — without it, absolute-positioned tokens
+       leave the container baseline-less and the verb drops below the tail. */
     transition: width 320ms cubic-bezier(0.32, 0.72, 0, 1);
     will-change: width;
+  }
+  .kw-msu__verb::before {
+    content: 'M';
+    display: inline-block;
+    width: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
   .kw-msu__verb-token {
     position: absolute;
     right: 0;
-    top: 0;
+    bottom: 0;
     display: inline-block;
     white-space: nowrap;
+    line-height: 1;
     transform: translateY(0);
     opacity: 1;
     filter: blur(0);
