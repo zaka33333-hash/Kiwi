@@ -628,15 +628,6 @@
       50%      { background-color: #2A6F4A; }
     }
 
-    /* ka-tkhdam — payment in progress */
-    .tbl[data-status="ka-tkhdam"] {
-      background: var(--emerald);
-      border: 1.5px solid transparent;
-      color: #fff;
-    }
-    .tbl[data-status="ka-tkhdam"] .tbl-num    { color: #fff; }
-    .tbl[data-status="ka-tkhdam"] .tbl-covers { color: rgba(255,255,255,.85); }
-
     /* khlass — paid, fading */
     .tbl[data-status="khlass"] {
       background: #fff;
@@ -850,7 +841,6 @@
     .rp-table { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.2; }
     .rp-substatus { font-size: 12px; margin-top: 4px; font-weight: 500; }
     .rp-substatus[data-flag="bgha-ykhlass"] { color: var(--forest); }
-    .rp-substatus[data-flag="ka-tkhdam"]    { color: var(--emerald); }
     .rp-substatus[data-flag="ka-yaklo"]     { color: var(--ink-3); }
     .rp-close {
       width: 28px; height: 28px;
@@ -3470,7 +3460,7 @@
   <!-- ============ PIN LOGIN SCREEN ============ -->
   <div class="pin-screen" id="pin-screen" role="dialog" aria-modal="true" aria-label="Code d'accès">
     <div class="pin-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
-    <div class="pin-greet">Sba7 lkhir, <b>Rachid</b></div>
+    <div class="pin-greet">Sba7 lkhir, <b>Othmane</b></div>
     <div class="pin-prompt">CODE D'ACCÈS · 4 CHIFFRES</div>
     <div class="pin-dots" id="pin-dots" aria-hidden="true">
       <span class="pin-dot"></span><span class="pin-dot"></span>
@@ -3502,7 +3492,7 @@
       <div class="clockin-tagline">— version commerçant</div>
     </div>
     <div class="clockin-mid">
-      <div class="clockin-greet">Sba7 lkhir <em>Rachid</em></div>
+      <div class="clockin-greet">Sba7 lkhir <em>Othmane</em></div>
       <div class="clockin-role">Caissier · Café Atlas</div>
       <div class="clockin-clock" id="ci-time">14:32</div>
       <div class="clockin-date" id="ci-date">Ljm3a 24 April</div>
@@ -3528,7 +3518,7 @@
   <!-- ============ GREETING FLASH (post-PIN, pre-shell) ============ -->
   <div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
     <div class="kiwi-greet-inner">
-      <h1><span id="greet-line1">Sba7 lkhir Rachid,</span> <em id="greet-em">3awd marhba.</em></h1>
+      <h1><span id="greet-line1">Sba7 lkhir Othmane,</span> <em id="greet-em">marhba.</em></h1>
       <div class="kiwi-greet-sub" id="greet-sub">Café Atlas · service ouvert</div>
     </div>
   </div>
@@ -3537,7 +3527,7 @@
   <div class="welcome-banner" id="welcome-banner" role="status" aria-live="polite" hidden>
     <span class="welcome-banner-icon"><i data-lucide="sparkles"></i></span>
     <div class="welcome-banner-text">
-      <div class="wb-line1" id="wb-line1">Sba7 lkhir Rachid</div>
+      <div class="wb-line1" id="wb-line1">Sba7 lkhir Othmane</div>
       <div class="wb-line2" id="wb-line2">3 serveurs 3la khidma · 11 tables ka-yaklo</div>
     </div>
   </div>
@@ -3574,7 +3564,7 @@
       </div>
 
       <div class="cashier-card">
-        <div class="cashier-name">Rachid B.</div>
+        <div class="cashier-name">Othmane N.</div>
         <div class="cashier-role">Caissier</div>
         <div class="cashier-divider"></div>
         <div id="clock-time" class="clock-time">14:32</div>
@@ -3665,7 +3655,6 @@
           <div class="legend-item"><span class="legend-swatch" style="background:#F4F4F2; border:1px solid #E5E5E5;"></span><span>Khawya</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#EBF5F0; border:1px solid #C5E0D3;"></span><span>Ka-yaklo</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#1F5D3C;"></span><span>Addition</span></div>
-          <div class="legend-item"><span class="legend-swatch" style="background:#3FB67A;"></span><span>Ka-tkhdam</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#fff; border:2px solid #3FB67A;"></span><span>Khlass</span></div>
         </div>
       </div>
@@ -4428,7 +4417,7 @@
     <div class="cloture-card">
       <div class="clo-eyebrow">Fin de service</div>
       <div class="clo-title" id="clo-title">Clôture de caisse</div>
-      <div class="clo-meta" id="clo-meta">Café Atlas · Rachid B.</div>
+      <div class="clo-meta" id="clo-meta">Café Atlas · Othmane N.</div>
       <div class="clo-rows" id="clo-rows"><!-- stat rows injected --></div>
       <div class="clo-drawer-box" id="clo-drawer-box">
         <div class="clo-drawer-title">Tiroir-caisse</div>
@@ -4820,7 +4809,7 @@
     function serverInitials(s) { return s.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase(); }
 
     /* ---------- Table data ---------- */
-    /* status:  khawya | ka-yaklo | bgha-ykhlass | ka-tkhdam | khlass            */
+    /* status:  khawya | ka-yaklo | bgha-ykhlass | khlass                        */
     /* server:  server id assigned (only meaningful when table is occupied)      */
     /* floor:   0 = rez-de-chaussée, 1 = 1er étage                               */
     /* shape:   'rect' | 'round' | 'square'                                      */
@@ -4981,10 +4970,9 @@
         'khawya':       'Khawya',
         'ka-yaklo':     'Ka-yaklo',
         'bgha-ykhlass': 'Addition',
-        'ka-tkhdam':    'Ka-tkhdam…',
         'khlass':       'Khlass ✓',
       })[t.status];
-      const elapsed = (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam')
+      const elapsed = (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass')
         ? `<div class="tbl-elapsed">${t.elapsed} mn</div>`
         : '';
       const dot = t.status === 'bgha-ykhlass' ? '<span class="urgent-dot" aria-hidden="true"></span>' : '';
@@ -5199,11 +5187,10 @@
       $('#rp-table').textContent = `${id} · ${t.covers} couverts`;
 
       const subEl = $('#rp-substatus');
-      const flag = t.status === 'ka-tkhdam' ? 'ka-tkhdam' : (t.status === 'bgha-ykhlass' ? 'bgha-ykhlass' : 'ka-yaklo');
+      const flag = t.status === 'bgha-ykhlass' ? 'bgha-ykhlass' : 'ka-yaklo';
       subEl.dataset.flag = flag;
       const subText = ({
         'bgha-ykhlass': `Addition · ${t.elapsed} mn`,
-        'ka-tkhdam':    `Ka-tkhdam · ${t.elapsed} mn`,
         'ka-yaklo':     `Ka-yaklo · ${t.elapsed} mn`,
       })[flag];
       subEl.textContent = subText;
@@ -5264,8 +5251,9 @@
 
     function openTable(id) {
       const t = tables[id];
-      // Move to ka-tkhdam (payment in progress)
-      t.status = 'ka-tkhdam';
+      // Keep the table's real status (Ka-yaklo / Addition) — the selection
+      // highlight already shows which bill is open, so there's no separate
+      // "payment in progress" status.
       selectedId = id;
       refreshTableNode(id);
 
@@ -5549,7 +5537,7 @@
       // Header
       $('#rp-table').textContent = editing ? `À emporter · #${vrapEditingNum}` : 'À emporter';
       const sub = $('#rp-substatus');
-      sub.dataset.flag = 'ka-tkhdam';
+      sub.dataset.flag = 'ka-yaklo';
       sub.textContent = editing
         ? `Commande #${vrapEditingNum} · ${itemCount} article${itemCount > 1 ? 's' : ''}`
         : `${itemCount} article${itemCount > 1 ? 's' : ''} · ${fmtMAD(net)}`;
@@ -5684,19 +5672,16 @@
         clearCart();
         return;
       }
-      // Salle mode: revert ka-tkhdam back to ka-yaklo so the table doesn't get stuck
-      if (selectedId) {
-        const t = tables[selectedId];
-        if (t.status === 'ka-tkhdam') {
-          t.status = 'ka-yaklo';
-          refreshTableNode(selectedId);
-        }
-      }
+      // Salle mode: just close the panel — the table keeps its real status.
       closeRightPanel();
     });
 
     $('#pay-split').addEventListener('click', () => {
-      if (mode === 'vrap') { toast('À emporter — paiement en une fois'); return; }
+      if (mode === 'vrap') {
+        if (!cart.length) { toast('Commande vide'); return; }
+        openSplitModal(null);
+        return;
+      }
       if (selectedId) openSplitModal(selectedId);
     });
     $$('.meta-btn').forEach(btn => {
@@ -6036,7 +6021,7 @@
     setInterval(() => {
       Object.keys(tables).forEach(id => {
         const t = tables[id];
-        if (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'ka-tkhdam') {
+        if (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass') {
           t.elapsed += 1;
           // Update DOM in place (cheaper than full re-render)
           const node = document.querySelector(`.tbl-cell[data-table="${id}"] .tbl-elapsed`);
@@ -6047,7 +6032,6 @@
             const flag = sub.dataset.flag;
             const map = {
               'bgha-ykhlass': 'Addition',
-              'ka-tkhdam':    'Ka-tkhdam',
               'ka-yaklo':     'Ka-yaklo',
             };
             sub.textContent = `${map[flag]} · ${t.elapsed} mn`;
@@ -6303,6 +6287,8 @@
 
     const splitState = {
       tableId: null,
+      isVrap: false,       // true when splitting an À emporter cart (no table)
+      sourceLabel: null,   // modal label — 'T3' for a mesa, 'À emporter' for vrap
       total: 0,
       itemTotals: {},      // { itemName: { totalQty, unitPrice } }
       splitMode: 'egal',   // 'egal' | 'article'
@@ -6322,8 +6308,19 @@
 
     /* ---- open ---- */
     function openSplitModal(tableId) {
-      const t = tables[tableId];
-      const lines = generateOrder(tableId, t);
+      // À emporter has no mesa — split the working cart instead of a table order.
+      const isVrap = (mode === 'vrap');
+      let lines, covers, sourceLabel;
+      if (isVrap) {
+        lines = cart.map(c => ({ name: c.name, qty: c.qty, total: c.price * c.qty }));
+        covers = 2;
+        sourceLabel = vrapEditingNum != null ? ('À emporter #' + vrapEditingNum) : 'À emporter';
+      } else {
+        const t = tables[tableId];
+        lines = generateOrder(tableId, t);
+        covers = t.covers || 2;
+        sourceLabel = tableId;
+      }
       const total = lines.reduce((s, l) => s + l.total, 0);
 
       // Aggregate per unique item name: split-pool shows one card per dish
@@ -6338,15 +6335,17 @@
       });
 
       Object.assign(splitState, {
-        tableId, total, itemTotals,
+        tableId: isVrap ? null : tableId,
+        isVrap, sourceLabel,
+        total, itemTotals,
         splitMode: 'egal',
-        numParts: Math.max(2, t.covers || 2),
+        numParts: Math.max(2, covers),
         tipMode: '0', customTipPct: 0,
-        numConvives: Math.max(2, t.covers || 2),
+        numConvives: Math.max(2, covers),
         perConvive: {}, activeConvive: 1, flow: null,
       });
 
-      $('#split-table-label').textContent = tableId;
+      $('#split-table-label').textContent = sourceLabel;
       $('#split-setup').hidden = false;
       $('#split-flow').hidden = true;
       $('#split-all-done').hidden = true;
@@ -6391,14 +6390,6 @@
       $('#split-modal').classList.remove('is-open');
       splitPayCallback = null;
       cashAmountOverride = null;
-      // If the table was opened into ka-tkhdam just for split, revert it
-      if (!skipRevert && splitState.tableId) {
-        const t = tables[splitState.tableId];
-        if (t && t.status === 'ka-tkhdam') {
-          t.status = 'bgha-ykhlass';
-          refreshTableNode(splitState.tableId);
-        }
-      }
     }
 
     /* ---- setup screen ---- */
@@ -6629,7 +6620,7 @@
 
       // Bind modal subtitle to the split context
       $$('[data-bind="table"]').forEach(el => el.textContent = `Part ${partIdx + 1}`);
-      $$('[data-bind="covers"]').forEach(el => el.textContent = splitState.tableId);
+      $$('[data-bind="covers"]').forEach(el => el.textContent = splitState.sourceLabel || splitState.tableId || '');
 
       if (method === 'carte') {
         $('#card-amount').textContent = fmtMADcents(part.amount);
@@ -6644,17 +6635,18 @@
 
     function markSplitPartPaid(partIdx, method) {
       const p = splitState.flow.parts[partIdx];
-      recordSale(p.amount, method === 'carte' ? 'card' : 'cash', (splitState.tableId || 'Table') + ' · part ' + (partIdx + 1));
+      recordSale(p.amount, method === 'carte' ? 'card' : 'cash', (splitState.sourceLabel || 'Table') + ' · part ' + (partIdx + 1));
       p.paid = true;
       p.payMethod = method;
       splitState.flow.paidCount++;
       renderSplitFlow();
 
       if (splitState.flow.paidCount >= splitState.flow.parts.length) {
-        // All parts settled — mark table paid
+        // All parts settled — finalize the sale
         $('#split-parts-list').style.opacity = '0.45';
         $('#split-all-done').hidden = false;
-        if (splitState.tableId) markPaid(splitState.tableId);
+        if (splitState.isVrap)       settleVrapPayment();
+        else if (splitState.tableId) markPaid(splitState.tableId);
         lucide.createIcons();
       }
     }
@@ -6905,12 +6897,12 @@
        CURRENT cashier's accountability starts, `posteOpeningFloat` is the
        drawer they took over. Each handover is logged for the Clôture. */
     const CASHIER_ROSTER = [
-      { id: 'rachid',  name: 'Rachid B.',  role: 'Caissier'  },
+      { id: 'othmane', name: 'Othmane N.', role: 'Caissier'  },
       { id: 'yassine', name: 'Yassine M.', role: 'Caissier'  },
       { id: 'salma',   name: 'Salma T.',   role: 'Caissière' },
       { id: 'mehdi',   name: 'Mehdi A.',   role: 'Caissier'  },
     ];
-    let   currentCashier    = { id: 'rachid', name: 'Rachid B.', role: 'Caissier' };
+    let   currentCashier    = { id: 'othmane', name: 'Othmane N.', role: 'Caissier' };
     let   posteOpenedAt     = null;   // current cashier's poste start
     let   posteOpeningFloat = 500;    // drawer the current cashier took over
     const handovers         = [];     // [{ id,time,fromName,toName,posteOpenedAt,expected,counted,ecart }]
@@ -7173,7 +7165,7 @@
       const greetWord = hour < 11 ? 'Sba7 lkhir' : (hour < 17 ? 'Salam' : 'Msa lkhir');
       const line1El = document.getElementById('greet-line1');
       const subEl   = document.getElementById('greet-sub');
-      if (line1El) line1El.textContent = `${greetWord} Rachid,`;
+      if (line1El) line1El.textContent = `${greetWord} Othmane,`;
       if (subEl)   subEl.innerHTML = `${onCount} serveur${onCount > 1 ? 's' : ''} 3la khidma <em>·</em> ${eatCount} table${eatCount > 1 ? 's' : ''} ka-yaklo`;
 
       // --- Wrap <em> in .em-clip and measure its natural width ---
@@ -7325,7 +7317,7 @@
       $('#cloture-modal').classList.remove('is-open');
       registerClosing = true;
       clearPersistedShift();
-      toast('Caisse fermée · à bientôt Rachid');
+      toast('Caisse fermée · à bientôt Othmane');
       setTimeout(() => location.reload(), 720);
     }
 
@@ -7948,8 +7940,8 @@
     $('#split-flow-close').addEventListener('click', () => {
       saveSplitFlow();
       const t = tables[splitState.tableId];
-      if (t && t.status === 'ka-tkhdam') {
-        t.status = 'bgha-ykhlass';
+      if (t && t.status !== 'khlass') {
+        t.status = 'bgha-ykhlass';   // backgrounded split → mesa shows Addition
         refreshTableNode(splitState.tableId);
       }
       $('#split-modal').classList.remove('is-open');
@@ -7994,8 +7986,8 @@
         // Background the split rather than block
         saveSplitFlow();
         const t = tables[splitState.tableId];
-        if (t && t.status === 'ka-tkhdam') {
-          t.status = 'bgha-ykhlass';
+        if (t && t.status !== 'khlass') {
+          t.status = 'bgha-ykhlass';   // backgrounded split → mesa shows Addition
           refreshTableNode(splitState.tableId);
         }
         $('#split-modal').classList.remove('is-open');
@@ -8662,8 +8654,8 @@
         if (!confirm('Annuler le split en cours? Les parts déjà payées seront conservées comme réglées.')) return;
         tableSplits.delete(selectedId);
         const t = tables[selectedId];
-        if (t.status === 'ka-tkhdam') {
-          t.status = 'bgha-ykhlass';
+        if (t && t.status !== 'khlass') {
+          t.status = 'bgha-ykhlass';   // split cancelled → mesa stays Addition
           refreshTableNode(selectedId);
         }
         renderRightPanel(selectedId);
@@ -9256,7 +9248,7 @@
       }
       if (d.currentCashier && d.currentCashier.name) {
         currentCashier = {
-          id:   d.currentCashier.id   || 'rachid',
+          id:   d.currentCashier.id   || 'othmane',
           name: d.currentCashier.name,
           role: d.currentCashier.role || 'Caissier',
         };
