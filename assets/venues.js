@@ -3058,11 +3058,15 @@
     station:  '<rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><circle cx="16" cy="13" r="2"/><path d="M3 10h18"/>',
     printer:  '<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><rect x="6" y="15" width="12" height="6" rx="1"/>',
     kds:      '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    /* Open-book glyph for the Recettes tab + recipe expand handles. */
+    book:     '<path d="M2 3h7a3 3 0 013 3v15M22 3h-7a3 3 0 00-3 3v15"/><path d="M2 3v15h7a3 3 0 013 3M22 3v15h-7a3 3 0 00-3 3"/>',
+    eye:      '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+    sparkle:  '<path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/><path d="M19 17l.7 2.3L22 20l-2.3.7L19 23l-.7-2.3L16 20l2.3-.7z"/>',
   };
   const miSvg = (k, sz = 14) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${MI_IC[k] || ''}</svg>`;
 
   /* ── State (in-memory; resets on reload) ──────────────────────────────── */
-  let miTab = 'menu';            // menu | stations | perf | hours | alerts | compare
+  let miTab = 'menu';            // menu | stations | recettes | perf | hours | alerts | compare
   let miVenueFilter = 'cafeAtlas';
   let miSearch = '';
   let miCatFilter = 'all';
@@ -3070,6 +3074,12 @@
   let miPeriod = 'midi';
   let miModsCollapsed = false;
   let miIdCounter = 0;
+  /* Recettes tab state — filter pills + sort + per-row expand. All resets on
+   * reload. miRecExpanded holds menu item IDs currently expanded inline. */
+  let miRecFilter = 'all';       // all | complete | incomplete | high-variance
+  let miRecSort = 'variance';    // variance | popularity | margin | status
+  let miRecSearch = '';
+  let miRecExpanded = new Set();
   /* Session-mutable station lists per venue (add/remove stations) and any
    * subsections created during the session. Lazy-initialised, reset on reload. */
   let miStations = {};
@@ -3314,6 +3324,20 @@
     H['mi-86-reactivate']= (_el, id) => miReactivate86(id);
     H['mi-86-history']   = (_el, name) => miOpen86History(name);
     H['mi-combo-toast']  = (_el, msg) => Kiwi.toast(msg || 'Action enregistrée', { type: 'success' });
+    /* ── Recettes tab handlers ── */
+    H['mi-rec-filter']   = (el) => { miRecFilter = el.dataset.filter || 'all'; miRenderTab1Body(); };
+    H['mi-rec-sort']     = (el) => { miRecSort = el.value || 'variance'; miRenderTab1Body(); };
+    H['mi-rec-search']   = (el) => { miRecSearch = (el.value || '').toLowerCase(); miRenderTab1Body(); };
+    H['mi-recipe-expand']= (_el, id) => {
+      if (miRecExpanded.has(id)) miRecExpanded.delete(id);
+      else miRecExpanded.add(id);
+      miRenderTab1Body();
+    };
+    /* Phase 2 stubs — Compléter / Modifier / Compléter avec IA all surface
+     * the same coming-soon toast. Wiring happens in Phase 2 (Recipe Editor). */
+    H['mi-rec-edit']     = () => Kiwi.toast('Disponible en phase 2 — Éditeur de recette', { type: 'info' });
+    H['mi-rec-complete'] = () => Kiwi.toast('Disponible en phase 2 — Éditeur de recette', { type: 'info' });
+    H['mi-rec-ai']       = () => Kiwi.toast('Disponible en phase 2 — Éditeur de recette', { type: 'info' });
   }
 
   /* ═══════════ RENDER ═══════════ */
@@ -3360,6 +3384,7 @@
     const tabs = [
       ['menu', 'Menu & modificateurs', 'menu'],
       ['stations', 'Stations cuisine', 'station'],
+      ['recettes', 'Recettes', 'book'],
       ['perf', 'Performance', 'trending'],
       ['hours', 'Heures de pointe', 'clock'],
       ['alerts', 'Alertes 86', 'alert'],
@@ -3378,6 +3403,7 @@
   function miTabHtml() {
     switch (miTab) {
       case 'stations': return miStationsTabHtml();
+      case 'recettes': return miRenderRecettesTab(miMenuVenue());
       case 'perf':     return miTab2Html();
       case 'hours':    return miTab3Html();
       case 'alerts':   return miTab4Html();
@@ -3936,6 +3962,358 @@
         <div class="mi-ai-b">Sur les 312 clients qui fréquentent plusieurs de vos sites, 184 vont à Café Atlas ET Spa Bahia. Leur ticket moyen Café Atlas est 168 MAD (+29 % vs moyenne). Ce sont des clients à fort pouvoir d'achat qui apprécient déjà votre écosystème.</div>
         <div class="mi-ai-a">→ Créer un forfait « Déjeuner Café Atlas + Soin Spa Bahia 60 min » à 580 MAD (vs 630 MAD séparément) ciblé à ces 184 clients pourrait générer ~22 000 MAD/mois additionnels.</div>
       </div>`;
+  }
+
+  /* ═══════════ TAB · RECETTES (Phase 1 — read-only inline display) ═════
+   *
+   *   Hybrid AI insights: top-line numbers come from KiwiRecipes (real
+   *   computation against MENU × RECIPES_SESSION × INVENTORY). The
+   *   surrounding narrative prose is scripted for the demo. Every scripted
+   *   block is tagged `data-recettes-scripted` so it's auditable.
+   *
+   *   Phase 1 surface: completion KPIs, item list with status + variance
+   *   pip, eye-toggle inline ingredient table. Compléter / Modifier /
+   *   Compléter avec IA buttons all toast "Disponible en phase 2".
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Severity class for variance % (matches engine bands). */
+  function miRecSevClass(pct) {
+    const mag = Math.abs(pct);
+    return mag > 15 ? 'crit' : mag > 5 ? 'warn' : 'ok';
+  }
+  /* FC ratio class (industry benchmark 28–32 %). */
+  function miRecFcClass(pct) {
+    return pct > 35 ? 'crit' : pct > 30 ? 'warn' : 'ok';
+  }
+  /* MAD formatter with sign — used inside variance pips and AI insights. */
+  function miRecMadSigned(n) {
+    const sign = n >= 0 ? '+' : '−';
+    return sign + eqFrInt(Math.abs(n)) + ' MAD';
+  }
+  /* Resolve a recipe row's *display* variance, food cost, and impact in
+   * a single pass — works for complete and incomplete recipes alike. */
+  function miRecRowMetrics(it, recipe) {
+    if (!recipe || recipe.status !== 'complete') {
+      return { hasRecipe: false, fcTh: null, fcAct: null, variancePct: null, impact: 0 };
+    }
+    const v = window.KiwiRecipes.varianceByRecipe(it.id);
+    if (!v) return { hasRecipe: true, fcTh: null, fcAct: null, variancePct: null, impact: 0 };
+    const variancePct = v.theoreticalFoodCostPct > 0
+      ? ((v.actualFoodCostPct - v.theoreticalFoodCostPct) / v.theoreticalFoodCostPct) * 100
+      : 0;
+    return {
+      hasRecipe: true,
+      fcTh: v.theoreticalFoodCostPct,
+      fcAct: v.actualFoodCostPct,
+      variancePct: +variancePct.toFixed(1),
+      impact: v.totalCostImpact,
+    };
+  }
+
+  /* Filtered + sorted list driving the rows + the "5 plats" insight card. */
+  function miRecFilteredList(venueKey) {
+    const all = window.KiwiRecipes.listRecipes(venueKey);
+    let rows = all.map(({ menuItem, recipe }) => {
+      const m = miRecRowMetrics(menuItem, recipe);
+      return { it: menuItem, recipe, m };
+    });
+    if (miRecFilter === 'complete') rows = rows.filter(r => r.recipe && r.recipe.status === 'complete');
+    else if (miRecFilter === 'incomplete') rows = rows.filter(r => !r.recipe || r.recipe.status !== 'complete');
+    else if (miRecFilter === 'high-variance') rows = rows.filter(r => r.m.variancePct !== null && Math.abs(r.m.variancePct) > 5);
+    const q = miRecSearch.trim().toLowerCase();
+    if (q) rows = rows.filter(r => r.it.name.toLowerCase().includes(q));
+    if (miRecSort === 'variance') {
+      rows.sort((a, b) => Math.abs(b.m.impact || 0) - Math.abs(a.m.impact || 0));
+    } else if (miRecSort === 'popularity') {
+      rows.sort((a, b) => (b.it.unitsThisMonth || 0) - (a.it.unitsThisMonth || 0));
+    } else if (miRecSort === 'margin') {
+      rows.sort((a, b) => miMarginPct(b.it) - miMarginPct(a.it));
+    } else if (miRecSort === 'status') {
+      rows.sort((a, b) => {
+        const av = (a.recipe && a.recipe.status === 'complete') ? 1 : 0;
+        const bv = (b.recipe && b.recipe.status === 'complete') ? 1 : 0;
+        return av - bv; // incomplete first
+      });
+    }
+    return rows;
+  }
+
+  /* Inline expanded ingredient table for a single recipe. */
+  function miRecExpandHtml(it, recipe) {
+    if (!recipe || recipe.status !== 'complete' || !recipe.ingredients.length) {
+      return `
+        <div class="mi-recipe-expand mi-recipe-expand-empty">
+          <p>Cette recette n'est pas encore complétée. Ajoutez les ingrédients et leurs quantités pour activer l'analyse de variance.</p>
+          <button class="btn-slim primary" data-action="mi-rec-complete" data-arg="${it.id}">Compléter la recette</button>
+        </div>`;
+    }
+    const v = window.KiwiRecipes.varianceByRecipe(it.id);
+    const portionCost = window.KiwiRecipes.portionCost(recipe);
+    const fcTh = it.price > 0 ? (portionCost / it.price * 100).toFixed(1) : '—';
+    const rows = (v ? v.ingredients : []).map(ing => {
+      const qDisp = ing.perPortion < 0.01 ? ing.perPortion.toFixed(4) : ing.perPortion.toFixed(3);
+      const sev = miRecSevClass(ing.deltaPct);
+      const deltaTxt = (ing.deltaPct >= 0 ? '+' : '') + ing.deltaPct.toFixed(1) + ' %';
+      return `
+        <tr>
+          <td>${eqEsc(ing.name)}${ing.isPlaceholder ? ' <span class="mi-recipe-placeholder">placeholder</span>' : ''}</td>
+          <td class="mono">${qDisp} ${eqEsc(ing.unit)}</td>
+          <td class="mono">${eqFrInt(ing.costPerUnit)} MAD/${eqEsc(ing.unit)}</td>
+          <td class="mono">${(ing.perPortion * ing.costPerUnit).toFixed(2)} MAD</td>
+          <td class="mono">${ing.theoretical.toFixed(2)}</td>
+          <td class="mono">${ing.actual.toFixed(2)}</td>
+          <td class="mono mi-recipe-delta mi-recipe-delta-${sev}">${deltaTxt}</td>
+        </tr>`;
+    }).join('');
+    const updated = recipe.lastUpdated
+      ? `Mise à jour le ${recipe.lastUpdated}${recipe.updatedBy ? ' par ' + eqEsc(recipe.updatedBy) : ''}`
+      : 'Recette générée par défaut';
+    const notes = recipe.notes ? `<div class="mi-recipe-notes"><b>Notes</b> · ${eqEsc(recipe.notes)}</div>` : '';
+    return `
+      <div class="mi-recipe-expand">
+        <div class="mi-recipe-expand-meta">
+          <span><b>Rendement</b> · ${recipe.yield || 1} portion${(recipe.yield || 1) > 1 ? 's' : ''}</span>
+          <span><b>Coût matière par portion</b> · ${portionCost.toFixed(2)} MAD</span>
+          <span><b>FC théorique</b> · ${fcTh} %</span>
+          <span class="mi-recipe-updated">${updated}</span>
+        </div>
+        <div class="mi-recipe-table-wrap">
+          <table class="mi-recipe-table">
+            <thead>
+              <tr>
+                <th>Ingrédient</th>
+                <th>Quantité / portion</th>
+                <th>Coût unitaire</th>
+                <th>Coût / portion</th>
+                <th>Théorique (kg/L/u)</th>
+                <th>Réel (kg/L/u)</th>
+                <th>Variance</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        ${notes}
+        <div class="mi-recipe-expand-foot">
+          <button class="btn-slim" data-action="mi-rec-edit" data-arg="${it.id}">Modifier la recette</button>
+        </div>
+      </div>`;
+  }
+
+  /* Single row markup for the recipe list. */
+  function miRecRowHtml(row) {
+    const it = row.it;
+    const r = row.recipe;
+    const m = row.m;
+    const isComplete = r && r.status === 'complete';
+    const expanded = miRecExpanded.has(it.id);
+    const status = isComplete
+      ? `<span class="mi-recipe-status ok">✓ Complète · ${r.ingredients.length} ingrédients</span>`
+      : `<span class="mi-recipe-status warn">▲ À compléter</span>`;
+    const fcCell = m.fcTh != null
+      ? `<span class="mi-recipe-fc ${miRecFcClass(m.fcTh)}">${m.fcTh.toFixed(1)} %</span>`
+      : '<span class="mi-recipe-fc na">—</span>';
+    const actCell = m.fcAct != null
+      ? `<span class="mi-recipe-fc-act">${m.fcAct.toFixed(1)} %</span>`
+      : '<span class="mi-recipe-fc-act na">—</span>';
+    const varCell = m.variancePct != null
+      ? `<span class="mi-recipe-pip mi-recipe-pip-${miRecSevClass(m.variancePct)}">${m.variancePct >= 0 ? '+' : ''}${m.variancePct.toFixed(1)} pts</span>`
+      : '<span class="mi-recipe-pip na">—</span>';
+    const acts = isComplete
+      ? `
+        <button class="mi-ic-btn" data-action="mi-recipe-expand" data-arg="${it.id}" aria-label="${expanded ? 'Réduire' : 'Voir la recette'}">${miSvg('eye', 13)}</button>
+        <button class="mi-ic-btn" data-action="mi-rec-edit" data-arg="${it.id}" aria-label="Modifier la recette">${miSvg('edit', 13)}</button>`
+      : `
+        <button class="mi-ic-btn" data-action="mi-recipe-expand" data-arg="${it.id}" aria-label="${expanded ? 'Réduire' : 'Voir la recette'}">${miSvg('eye', 13)}</button>
+        <button class="btn-slim primary mi-recipe-complete-btn" data-action="mi-rec-complete" data-arg="${it.id}">Compléter</button>`;
+    return `
+      <div class="mi-recipe-row${expanded ? ' is-expanded' : ''}${isComplete ? '' : ' is-incomplete'}" data-mi-recipe="${it.id}">
+        <div class="mi-recipe-row-main">
+          <div class="mi-recipe-id">
+            <div class="mi-recipe-name">${eqEsc(it.name)}</div>
+            <div class="mi-recipe-meta"><span class="mi-recipe-cat">${miCatLabel(it.category)}</span>${status}</div>
+          </div>
+          <div class="mi-recipe-stat">
+            <div class="mi-recipe-stat-l">FC théo.</div>
+            <div class="mi-recipe-stat-v">${fcCell}</div>
+          </div>
+          <div class="mi-recipe-stat">
+            <div class="mi-recipe-stat-l">FC réel</div>
+            <div class="mi-recipe-stat-v">${actCell}</div>
+          </div>
+          <div class="mi-recipe-stat">
+            <div class="mi-recipe-stat-l">Variance</div>
+            <div class="mi-recipe-stat-v">${varCell}</div>
+          </div>
+          <div class="mi-recipe-acts">${acts}</div>
+        </div>
+        ${expanded ? miRecExpandHtml(it, r) : ''}
+      </div>`;
+  }
+
+  /* AI insight: top contributors to total variance. */
+  function miRecInsightTopContributors(rows) {
+    const ranked = rows
+      .filter(r => r.m.hasRecipe && r.m.variancePct !== null && r.m.impact !== 0)
+      .sort((a, b) => Math.abs(b.m.impact) - Math.abs(a.m.impact));
+    const top5 = ranked.slice(0, 5);
+    if (!top5.length) {
+      return `
+        <div class="mi-ai" data-recettes-scripted="contributors">
+          <div class="mi-ai-eyebrow">Kiwi AI · Recettes</div>
+          <div class="mi-ai-t">Variance contenue · aucun plat n'écrase la moyenne</div>
+          <div class="mi-ai-b">Vos recettes complétées sont alignées sur leur coût matière théorique. Continuez à compléter les recettes manquantes pour affiner l'analyse.</div>
+        </div>`;
+    }
+    const totalImpactAll = ranked.reduce((s, r) => s + Math.abs(r.m.impact), 0);
+    const top5Impact     = top5.reduce((s, r) => s + Math.abs(r.m.impact), 0);
+    const concentration  = totalImpactAll > 0 ? Math.round((top5Impact / totalImpactAll) * 100) : 0;
+    const list = top5.map(r => {
+      const sign = r.m.impact >= 0 ? '+' : '−';
+      return `${eqEsc(r.it.name)} (${(r.m.variancePct >= 0 ? '+' : '')}${r.m.variancePct.toFixed(1)} pts, ${sign}${eqFrInt(Math.abs(r.m.impact))} MAD/mois)`;
+    }).join(', ');
+    return `
+      <div class="mi-ai" data-recettes-scripted="contributors">
+        <div class="mi-ai-eyebrow">Kiwi AI · Recettes</div>
+        <div class="mi-ai-t">${concentration} % de votre variance vient de ${top5.length} plat${top5.length > 1 ? 's' : ''}</div>
+        <div class="mi-ai-b">${list} cumulent ${eqFrInt(Math.round(top5Impact))} MAD de coût matière non expliqué ce mois.</div>
+        <div class="mi-ai-a">→ Concentrer l'audit portionnement sur ces ${top5.length} plat${top5.length > 1 ? 's' : ''} avec le chef pourrait récupérer 60-75 % de cet écart. Programme suggéré : 30 min de calibrage par plat, étalé sur deux semaines.</div>
+      </div>`;
+  }
+
+  /* AI insight: best-margin recipes (boissons typically). */
+  function miRecInsightBestMargins(rows) {
+    const drinkCats = new Set(['boissons','boisson','bar','drinks']);
+    const drinkRows = rows.filter(r => drinkCats.has((r.it.category || '').toLowerCase()) && r.m.hasRecipe);
+    if (drinkRows.length < 3) {
+      return `
+        <div class="mi-ai" data-recettes-scripted="margins">
+          <div class="mi-ai-eyebrow">Kiwi AI · Marges</div>
+          <div class="mi-ai-t">Activez plus de recettes pour identifier vos plats les plus rentables</div>
+          <div class="mi-ai-b">Avec moins de 3 recettes boissons complétées, l'analyse de marge brute par catégorie reste partielle. Complétez vos recettes pour débloquer cette vue.</div>
+        </div>`;
+    }
+    drinkRows.sort((a, b) => miMarginPct(b.it) - miMarginPct(a.it));
+    const top3 = drinkRows.slice(0, 3);
+    const list = top3.map(r => `${eqEsc(r.it.name)} (${Math.round(miMarginPct(r.it))} % de marge théorique)`).join(', ');
+    return `
+      <div class="mi-ai" data-recettes-scripted="margins">
+        <div class="mi-ai-eyebrow">Kiwi AI · Marges</div>
+        <div class="mi-ai-t">Vos recettes les plus rentables sont les boissons</div>
+        <div class="mi-ai-b">${list} sont vos articles les plus rentables. Leur variance est minimale — votre processus de préparation est bien calibré.</div>
+        <div class="mi-ai-a">→ Mettre en avant les cafés gourmands (café + dessert combo) sur le menu midi pourrait augmenter ce mix rentable de 15-20 %.</div>
+      </div>`;
+  }
+
+  /* Main render entry — wired in miTabHtml for case 'recettes'. */
+  function miRenderRecettesTab(venueKey) {
+    const stats = window.KiwiRecipes.recipeStats(venueKey);
+    const allRows = miRecFilteredList(venueKey);
+
+    const head = `
+      <div class="mi-recettes-head">
+        <div>
+          <div class="mi-title">Recettes &amp; compositions</div>
+          <div class="mi-sub">Définissez la composition exacte de chaque plat pour activer l'analyse de variance avancée</div>
+        </div>
+        <div class="mi-recettes-progress">
+          <div class="mi-recettes-progress-l">${stats.complete} / ${stats.total} recettes complétées</div>
+          <div class="mi-recettes-progress-bar"><i style="width:${stats.completionPct}%"></i></div>
+        </div>
+      </div>`;
+
+    /* Variance pip + delta indicator. */
+    const fcDelta = (stats.avgVariancePct).toFixed(1);
+    const varianceSev = miRecSevClass(stats.avgVariancePct);
+
+    const kpis = `
+      <div class="mi-kpi-grid mi-recettes-kpis">
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Recettes complètes</div>
+          <div class="mi-kpi-v">${stats.complete}</div>
+          <div class="mi-kpi-sub">${stats.complete} article${stats.complete > 1 ? 's' : ''} avec composition exacte</div>
+          <div class="mi-kpi-bar"><i style="width:${stats.completionPct}%"></i></div>
+        </div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Recettes manquantes</div>
+          <div class="mi-kpi-v mi-recipe-${stats.incomplete > 10 ? 'crit' : stats.incomplete > 5 ? 'warn' : 'ok'}">${stats.incomplete}</div>
+          <div class="mi-kpi-sub">à compléter pour précision maximale</div>
+          <button class="btn-slim primary mi-recettes-ai-btn" data-action="mi-rec-ai">Compléter avec IA</button>
+        </div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Coût matière moyen</div>
+          <div class="mi-kpi-v ${miRecFcClass(stats.avgFoodCostPct)}">${stats.avgFoodCostPct.toFixed(1)} %</div>
+          <div class="mi-kpi-sub">moyenne sur recettes complètes</div>
+        </div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Variance globale ce mois</div>
+          <div class="mi-kpi-v mi-recipe-${varianceSev}">${stats.avgVariancePct >= 0 ? '+' : ''}${fcDelta} pts</div>
+          <div class="mi-kpi-sub">écart théorique vs réel</div>
+        </div>
+      </div>`;
+
+    const filterPills = [
+      ['all', 'Tous'],
+      ['complete', 'Complétées'],
+      ['incomplete', 'À compléter'],
+      ['high-variance', 'Variance élevée'],
+    ].map(([k, l]) => `<button class="mi-pill${miRecFilter === k ? ' on' : ''}" data-action="mi-rec-filter" data-filter="${k}">${l}</button>`).join('');
+
+    const sortOpts = [
+      ['variance', 'Variance'],
+      ['popularity', 'Popularité'],
+      ['margin', 'Marge'],
+      ['status', 'Statut'],
+    ].map(([k, l]) => `<option value="${k}"${miRecSort === k ? ' selected' : ''}>${l}</option>`).join('');
+
+    const controls = `
+      <div class="mi-recettes-controls">
+        <div class="mi-recettes-search">
+          ${miSvg('search', 14)}
+          <input type="search" class="mi-search-input" placeholder="Rechercher un article…" value="${eqEsc(miRecSearch)}" oninput="window.KiwiVenue?.miRecSearchHook?.(this)" />
+        </div>
+        <div class="mi-pill-row">${filterPills}</div>
+        <label class="mi-recettes-sort">
+          <span>Trier par</span>
+          <select class="mi-input" onchange="window.KiwiVenue?.miRecSortHook?.(this)">${sortOpts}</select>
+        </label>
+      </div>`;
+
+    const list = allRows.length
+      ? `<div class="mi-recettes-list">${allRows.map(miRecRowHtml).join('')}</div>`
+      : `<div class="mi-recettes-empty">Aucun article pour cette recherche / ce filtre.</div>`;
+
+    const insights = `
+      <div class="mi-recettes-insights">
+        ${miRecInsightTopContributors(allRows)}
+        ${miRecInsightBestMargins(allRows)}
+      </div>`;
+
+    return `
+      <div class="mi-section mi-recettes-tab">
+        ${head}
+        ${kpis}
+        ${controls}
+        ${list}
+        ${insights}
+      </div>`;
+  }
+
+  /* Inputs and selects don't ride the global click-delegation bus, so we
+   * wire them via inline oninput/onchange hooks that call back into the
+   * module. Keeps the search field focused and the caret intact across
+   * the re-render that follows every keystroke. */
+  function miRecSearchHook(el) {
+    miRecSearch = (el.value || '').toLowerCase();
+    miRenderTab1Body();
+    setTimeout(() => {
+      const next = document.querySelector('.mi-recettes-search input');
+      if (next) { next.focus(); next.setSelectionRange(next.value.length, next.value.length); }
+    }, 0);
+  }
+  function miRecSortHook(el) {
+    miRecSort = el.value || 'variance';
+    miRenderTab1Body();
   }
 
   /* ═══════════ ITEM ACTIONS ═══════════ */
@@ -5184,9 +5562,602 @@
     { id: 'sup16', name: 'Bakery El Ouafy', location: 'Maarif', category: 'epicerie', contact: '+212 6 18 27 84 91', deliverySchedule: 'lundi · mercredi · vendredi', avgInvoice: 320, paymentTerms: 'Comptant', rating: 4.9, monthlySpend: 3840, priceChangeLast30d: 0 },
   ];
 
+  /* ═══════════════════════════════════════════════════════════════════════
+   *  PLACEHOLDER_COSTS — ingredients referenced in recipes that don't yet
+   *  exist in INVENTORY. Cost / unit used by the variance engine when an
+   *  ingredient ID doesn't resolve to an inv## entry. Owner can promote
+   *  any placeholder to a real inventory entry from Stock in Phase 2.
+   * ═══════════════════════════════════════════════════════════════════════ */
+  const PLACEHOLDER_COSTS = {
+    'placeholder-coffee':  { name: 'Café en grains', unit: 'kg', costPerUnit: 180 },
+    'placeholder-nutella': { name: 'Nutella',        unit: 'kg', costPerUnit: 190 },
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *  RECIPES — recipe cards bound to MENU items by ID.
+   *
+   *  Demo contract: pre-populated entries below load fresh on every page
+   *  reload. Edits during a session live in RECIPES_SESSION (declared
+   *  below). All variance calculations derive from RECIPES_SESSION at
+   *  runtime — never from RECIPES directly.
+   *
+   *  Schema:
+   *    { yield: <portions>,
+   *      ingredients: [{ invId, qty, unit }],
+   *      status: 'complete' | 'incomplete',
+   *      notes: string,
+   *      lastUpdated: 'YYYY-MM-DD' | null,
+   *      updatedBy: '<Staff name>' | null }
+   *
+   *  Pre-populated recipes (13 total):
+   *    cafeAtlas (10): ca-t01 ca-t02 ca-t03 ca-c01 ca-p01 ca-s01
+   *                    ca-b01 ca-b02 ca-b04 ca-d01
+   *    spaBahia  (3) : sp-s01 sp-s02 sp-s04
+   *    maisonMansour (3): mm-b01 mm-b02 mm-b03
+   *  Remaining items pre-populate as stubs with status 'incomplete'.
+   * ═══════════════════════════════════════════════════════════════════════ */
+  const RECIPES = {
+    /* ─── CAFÉ ATLAS · 10 pre-populated, 28 stubbed ─── */
+    'ca-t01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv01', qty: 0.180, unit: 'kg' },   // viande hachée bœuf
+        { invId: 'inv08', qty: 0.150, unit: 'kg' },   // tomates fraîches
+        { invId: 'inv09', qty: 0.080, unit: 'kg' },   // oignons
+        { invId: 'inv33', qty: 1,     unit: 'unité' },// œuf
+        { invId: 'inv20', qty: 0.030, unit: 'L' },    // huile d'olive
+        { invId: 'inv13', qty: 0.5,   unit: 'botte' },// coriandre
+        { invId: 'inv14', qty: 0.5,   unit: 'botte' },// persil
+        { invId: 'inv25', qty: 0.003, unit: 'kg' },   // cumin
+        { invId: 'inv26', qty: 0.003, unit: 'kg' },   // paprika
+      ],
+      status: 'complete', notes: 'Servir bien chaud avec pain rond.',
+      lastUpdated: '2026-05-12', updatedBy: 'Mohammed Karimi',
+    },
+    'ca-t02': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv02', qty: 0.250, unit: 'kg' },   // poulet entier
+        { invId: 'inv16', qty: 0.080, unit: 'kg' },   // citrons (confits)
+        { invId: 'inv09', qty: 0.080, unit: 'kg' },   // oignons
+        { invId: 'inv20', qty: 0.030, unit: 'L' },    // huile d'olive
+        { invId: 'inv13', qty: 0.5,   unit: 'botte' },// coriandre
+        { invId: 'inv14', qty: 0.5,   unit: 'botte' },// persil
+        { invId: 'inv27', qty: 0.004, unit: 'kg' },   // ras el hanout
+        { invId: 'inv28', qty: 0.020, unit: 'g' },    // safran (pincée)
+      ],
+      status: 'complete', notes: 'Marinade poulet 30min avant cuisson.',
+      lastUpdated: '2026-05-12', updatedBy: 'Mohammed Karimi',
+    },
+    'ca-t03': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv03', qty: 0.220, unit: 'kg' },   // agneau épaule
+        { invId: 'inv09', qty: 0.080, unit: 'kg' },   // oignons
+        { invId: 'inv20', qty: 0.030, unit: 'L' },    // huile d'olive
+        { invId: 'inv24', qty: 0.020, unit: 'kg' },   // sucre (pruneaux)
+        { invId: 'inv27', qty: 0.005, unit: 'kg' },   // ras el hanout
+        { invId: 'inv28', qty: 0.030, unit: 'g' },    // safran
+        { invId: 'inv32', qty: 0.020, unit: 'kg' },   // beurre
+      ],
+      status: 'complete', notes: 'Cuisson lente 2h. Pruneaux ajoutés en fin.',
+      lastUpdated: '2026-05-10', updatedBy: 'Mohammed Karimi',
+    },
+    'ca-c01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv22', qty: 0.180, unit: 'kg' },   // couscous fin
+        { invId: 'inv02', qty: 0.150, unit: 'kg' },   // poulet
+        { invId: 'inv03', qty: 0.100, unit: 'kg' },   // agneau
+        { invId: 'inv04', qty: 0.080, unit: 'kg' },   // merguez
+        { invId: 'inv11', qty: 0.080, unit: 'kg' },   // courgettes
+        { invId: 'inv12', qty: 0.080, unit: 'kg' },   // carottes
+        { invId: 'inv10', qty: 0.060, unit: 'kg' },   // pommes de terre
+        { invId: 'inv09', qty: 0.060, unit: 'kg' },   // oignons
+        { invId: 'inv20', qty: 0.030, unit: 'L' },    // huile d'olive
+        { invId: 'inv25', qty: 0.003, unit: 'kg' },   // cumin
+        { invId: 'inv27', qty: 0.004, unit: 'kg' },   // ras el hanout
+      ],
+      status: 'complete', notes: 'Vapeur 45min minimum.',
+      lastUpdated: '2026-05-08', updatedBy: 'Fatima Zahra Idrissi',
+    },
+    'ca-p01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv37', qty: 2,     unit: 'paquet' }, // pâte à pastilla (feuilles)
+        { invId: 'inv02', qty: 0.200, unit: 'kg' },   // poulet
+        { invId: 'inv33', qty: 2,     unit: 'unité' },// œufs
+        { invId: 'inv09', qty: 0.080, unit: 'kg' },   // oignons
+        { invId: 'inv24', qty: 0.020, unit: 'kg' },   // sucre glace
+        { invId: 'inv32', qty: 0.030, unit: 'kg' },   // beurre
+        { invId: 'inv28', qty: 0.020, unit: 'g' },    // safran
+      ],
+      status: 'complete', notes: 'Saupoudrer sucre glace + cannelle au service.',
+      lastUpdated: '2026-05-09', updatedBy: 'Fatima Zahra Idrissi',
+    },
+    'ca-s01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv38', qty: 1,     unit: 'unité' },// pain rond
+        { invId: 'inv01', qty: 0.120, unit: 'kg' },   // viande hachée
+        { invId: 'inv08', qty: 0.060, unit: 'kg' },   // tomates
+        { invId: 'inv09', qty: 0.040, unit: 'kg' },   // oignons
+        { invId: 'inv25', qty: 0.002, unit: 'kg' },   // cumin
+        { invId: 'inv26', qty: 0.002, unit: 'kg' },   // paprika
+      ],
+      status: 'complete', notes: 'Servir avec frites ou salade.',
+      lastUpdated: '2026-05-13', updatedBy: 'Youssef Bennani',
+    },
+    'ca-b01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv36', qty: 0.005, unit: 'kg' },   // thé vert vrac
+        { invId: 'inv15', qty: 0.25,  unit: 'botte' },// menthe fraîche
+        { invId: 'inv24', qty: 0.015, unit: 'kg' },   // sucre
+      ],
+      status: 'complete', notes: 'Thé infusé 3-5min. Trois services par théière.',
+      lastUpdated: '2026-05-14', updatedBy: 'Hamid Jelloul',
+    },
+    'ca-b02': {
+      yield: 1,
+      ingredients: [
+        { invId: 'placeholder-coffee', qty: 0.012, unit: 'kg' }, // café en grains
+      ],
+      status: 'complete', notes: 'Espresso double 30ml.',
+      lastUpdated: '2026-05-14', updatedBy: 'Hamid Jelloul',
+    },
+    'ca-b04': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv17', qty: 0.150, unit: 'kg' },   // avocats
+        { invId: 'inv29', qty: 0.200, unit: 'L' },    // lait
+        { invId: 'inv24', qty: 0.025, unit: 'kg' },   // sucre
+      ],
+      status: 'complete', notes: 'Mixer avocat mûr + lait + sucre. Servir frais.',
+      lastUpdated: '2026-05-11', updatedBy: 'Youssef Bennani',
+    },
+    'ca-d01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv23', qty: 0.060, unit: 'kg' },   // farine
+        { invId: 'inv29', qty: 0.150, unit: 'L' },    // lait
+        { invId: 'inv33', qty: 1,     unit: 'unité' },// œuf
+        { invId: 'inv32', qty: 0.010, unit: 'kg' },   // beurre
+        { invId: 'placeholder-nutella', qty: 0.040, unit: 'kg' }, // nutella
+      ],
+      status: 'complete', notes: 'Crêpe française fine, garniture chaude.',
+      lastUpdated: '2026-05-13', updatedBy: 'Rachid Alami',
+    },
+    /* ── Stubs (28 cafeAtlas items) ── */
+    'ca-e01': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e04': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e06': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-t04': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-t05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-c02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-c03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-p02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-p03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s04': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s06': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s07': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s08': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b06': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b07': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b08': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-d02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-d03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-d04': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-d05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+
+    /* ─── SPA BAHIA · 3 pre-populated (consumables), 3 stubs ─── */
+    'sp-s01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv-sp02', qty: 0.050, unit: 'kg' },   // savon noir
+        { invId: 'inv-sp03', qty: 0.5,   unit: 'unité' },// gant gommage (réutilisable, demi-vie)
+        { invId: 'inv-sp04', qty: 2,     unit: 'unité' },// serviettes éponge
+      ],
+      status: 'complete', notes: 'Gommage savon noir + rinçage + serviettes propres.',
+      lastUpdated: '2026-05-10', updatedBy: 'Karima Idrissi',
+    },
+    'sp-s02': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv-sp01', qty: 0.030, unit: 'L' },    // huile d'argan
+        { invId: 'inv-sp04', qty: 1,     unit: 'unité' },// serviette éponge
+        { invId: 'inv-sp05', qty: 1,     unit: 'unité' },// bougie aromatique
+      ],
+      status: 'complete', notes: 'Modelage corps entier · huile tiède.',
+      lastUpdated: '2026-05-10', updatedBy: 'Nour El Hassan',
+    },
+    'sp-s04': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv-sp01', qty: 0.050, unit: 'L' },    // huile d'argan
+        { invId: 'inv-sp02', qty: 0.025, unit: 'kg' },   // savon noir
+        { invId: 'inv-sp04', qty: 2,     unit: 'unité' },// serviettes éponge
+        { invId: 'inv-sp05', qty: 1,     unit: 'unité' },// bougie aromatique
+      ],
+      status: 'complete', notes: 'Rituel argan 90min · hammam + gommage + modelage.',
+      lastUpdated: '2026-05-09', updatedBy: 'Karima Idrissi',
+    },
+    'sp-s03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'sp-s05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'sp-s06': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+
+    /* ─── MAISON MANSOUR · 3 pre-populated (boissons d'accueil) ─── */
+    'mm-b01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv36', qty: 0.005, unit: 'kg' },   // thé vert vrac (partagé inv catalog)
+        { invId: 'inv15', qty: 0.20,  unit: 'botte' },// menthe
+        { invId: 'inv24', qty: 0.012, unit: 'kg' },   // sucre
+      ],
+      status: 'complete', notes: 'Boisson d\'accueil clients · service en argenterie.',
+      lastUpdated: '2026-05-12', updatedBy: 'Aicha Benali',
+    },
+    'mm-b02': {
+      yield: 1,
+      ingredients: [
+        { invId: 'placeholder-coffee', qty: 0.010, unit: 'kg' },
+      ],
+      status: 'complete', notes: 'Espresso simple offert clients VIP.',
+      lastUpdated: '2026-05-12', updatedBy: 'Aicha Benali',
+    },
+    'mm-b03': {
+      yield: 1,
+      ingredients: [
+        // Eau minérale 33cl — produit fini, achat direct
+      ],
+      status: 'complete', notes: 'Bouteille 33cl offerte essayage cabine.',
+      lastUpdated: '2026-05-12', updatedBy: 'Aicha Benali',
+    },
+  };
+
+  /* RECIPES_SESSION — mutable working copy. Variance + UI read from here.
+   * Re-derived from RECIPES on every page reload (correct demo behavior). */
+  let RECIPES_SESSION = JSON.parse(JSON.stringify(RECIPES));
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *  STAFF_DISH_RESPONSIBILITY — which staff member is accountable for which
+   *  menu items. Powers variancePerStaffMember() for the Phase 2 staff coach.
+   *  Verified against MENU.cafeAtlas / spaBahia / maisonMansour at write
+   *  time — every ID listed below exists in the corresponding MENU array.
+   * ═══════════════════════════════════════════════════════════════════════ */
+  const STAFF_DISH_RESPONSIBILITY = {
+    'ca01': ['ca-t01','ca-t02','ca-t03','ca-c01','ca-p01','ca-p02','ca-p03'],
+    'ca02': ['ca-t01','ca-t02','ca-s01','ca-s02','ca-s03'],
+    'ca03': ['ca-c01','ca-c02','ca-c03','ca-p01','ca-p02','ca-p03'],
+    'ca04': ['ca-e01','ca-e04','ca-e05'],
+    'ca05': ['ca-d01','ca-d02','ca-d03'],
+    'ca06': ['ca-e02','ca-e03','ca-e06'],
+    'sp01': ['sp-s01','sp-s04'],
+    'sp02': ['sp-s02','sp-s03'],
+    'mm01': ['mm-b01','mm-b02','mm-b03'],
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *  KiwiRecipes — variance + cost engine.
+   *
+   *  Pure functions: no DOM, no side effects. Every read goes through
+   *  RECIPES_SESSION + MENU + INVENTORY + STAFF at runtime, so updates to
+   *  the session state propagate without re-renders being needed in the
+   *  data layer.
+   *
+   *  Severity bands:
+   *    |Δ%| ≤ 5   → 'normal'
+   *    |Δ%| ≤ 15  → 'warning'
+   *    |Δ%| > 15  → 'critical'
+   *
+   *  Monthly window: we treat INVENTORY usageThisWeek × 4.33 as the
+   *  monthly actual usage (EQ_MONTH_WEEKS is reused implicitly: 4.33).
+   *  Theoretical comes from RECIPES_SESSION × MENU.unitsThisMonth.
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Find which venue an inventory ID belongs to. */
+  function recFindInventoryItem(invId) {
+    for (const v of REAL_VENUES) {
+      const arr = INVENTORY[v] || [];
+      const hit = arr.find(i => i.id === invId);
+      if (hit) return { item: hit, venue: v };
+    }
+    return null;
+  }
+  /* Resolve cost / unit / name for any ingredient reference (inv## or
+   * placeholder-*). Returns null if the reference is unknown. */
+  function recResolveIngredient(invId) {
+    if (PLACEHOLDER_COSTS[invId]) return { id: invId, name: PLACEHOLDER_COSTS[invId].name, unit: PLACEHOLDER_COSTS[invId].unit, costPerUnit: PLACEHOLDER_COSTS[invId].costPerUnit, isPlaceholder: true };
+    const found = recFindInventoryItem(invId);
+    if (!found) return null;
+    const { item } = found;
+    return { id: invId, name: item.name, unit: item.unit, costPerUnit: item.costPerUnit, isPlaceholder: false };
+  }
+  /* Cost of one portion (yield-adjusted) for a single recipe. */
+  function recPortionCost(recipe) {
+    if (!recipe || !recipe.ingredients || !recipe.ingredients.length) return 0;
+    const y = Math.max(1, recipe.yield || 1);
+    let total = 0;
+    for (const ing of recipe.ingredients) {
+      const ref = recResolveIngredient(ing.invId);
+      if (!ref) continue;
+      total += (ing.qty || 0) * ref.costPerUnit;
+    }
+    return total / y;
+  }
+  /* Find the MENU item for an id across all real venues. */
+  function recFindMenuItem(itemId) {
+    for (const v of REAL_VENUES) {
+      const it = (MENU[v] || []).find(x => x.id === itemId);
+      if (it) return { item: it, venue: v };
+    }
+    return null;
+  }
+
+  /* ─── Public-facing engine ─────────────────────────────────────────── */
+
+  function recGetRecipe(itemId) {
+    return RECIPES_SESSION[itemId] || null;
+  }
+  function recSetRecipe(itemId, recipe) {
+    if (!itemId || !recipe) return;
+    RECIPES_SESSION[itemId] = recipe;
+  }
+  function recListRecipes(venueKey) {
+    const items = MENU[venueKey] || [];
+    return items.map(it => ({ menuItem: it, recipe: RECIPES_SESSION[it.id] || null }));
+  }
+
+  function recRecipeStats(venueKey) {
+    const items = MENU[venueKey] || [];
+    let complete = 0;
+    let totalFcSum = 0; let totalFcCount = 0;
+    let totalVarSum = 0; let totalVarCount = 0;
+    for (const it of items) {
+      const r = RECIPES_SESSION[it.id];
+      if (!r) continue;
+      if (r.status === 'complete') {
+        complete++;
+        const cost = recPortionCost(r);
+        if (it.price > 0) { totalFcSum += (cost / it.price) * 100; totalFcCount++; }
+        const v = recVarianceByRecipe(it.id);
+        if (v && Number.isFinite(v.totalCostImpact) && it.unitsThisMonth > 0 && cost > 0) {
+          // Express variance as % of monthly recipe cost
+          const monthlyRecipeCost = cost * it.unitsThisMonth;
+          if (monthlyRecipeCost > 0) {
+            totalVarSum += (v.totalCostImpact / monthlyRecipeCost) * 100;
+            totalVarCount++;
+          }
+        }
+      }
+    }
+    const total = items.length;
+    const incomplete = total - complete;
+    return {
+      total,
+      complete,
+      incomplete,
+      completionPct: total > 0 ? Math.round((complete / total) * 100) : 0,
+      avgFoodCostPct: totalFcCount > 0 ? +(totalFcSum / totalFcCount).toFixed(1) : 0,
+      avgVariancePct: totalVarCount > 0 ? +(totalVarSum / totalVarCount).toFixed(1) : 0,
+    };
+  }
+
+  function recTheoreticalConsumption(invItemId, venueKey) {
+    const items = MENU[venueKey] || [];
+    let qty = 0;
+    for (const it of items) {
+      const r = RECIPES_SESSION[it.id];
+      if (!r || r.status !== 'complete') continue;
+      const y = Math.max(1, r.yield || 1);
+      const ing = (r.ingredients || []).find(x => x.invId === invItemId);
+      if (!ing) continue;
+      qty += (ing.qty / y) * (it.unitsThisMonth || 0);
+    }
+    const ref = recResolveIngredient(invItemId);
+    const unit = ref ? ref.unit : '';
+    const costMAD = ref ? qty * ref.costPerUnit : 0;
+    return { qty: +qty.toFixed(3), costMAD: +costMAD.toFixed(2), unit };
+  }
+
+  function recActualConsumption(invItemId, venueKey) {
+    const arr = INVENTORY[venueKey] || [];
+    const item = arr.find(i => i.id === invItemId);
+    if (!item) {
+      const ph = PLACEHOLDER_COSTS[invItemId];
+      // Placeholders have no measured actual — fall back to theoretical scaled
+      // by a small noise factor so the variance pip isn't misleadingly zero.
+      const th = recTheoreticalConsumption(invItemId, venueKey);
+      return { qty: +(th.qty * 1.04).toFixed(3), costMAD: +(th.costMAD * 1.04).toFixed(2), unit: ph ? ph.unit : '' };
+    }
+    // INVENTORY exposes usageThisWeek + theoreticalUsage — scale weekly to
+    // monthly via EQ_MONTH_WEEKS (4.33). Actual = usageThisWeek × 4.33.
+    const monthly = (item.usageThisWeek || 0) * EQ_MONTH_WEEKS;
+    return { qty: +monthly.toFixed(3), costMAD: +(monthly * item.costPerUnit).toFixed(2), unit: item.unit };
+  }
+
+  function recComputeVariance(invItemId, venueKey) {
+    const theoretical = recTheoreticalConsumption(invItemId, venueKey);
+    const actual      = recActualConsumption(invItemId, venueKey);
+    const deltaAbs    = actual.qty - theoretical.qty;
+    const deltaPct    = theoretical.qty > 0 ? (deltaAbs / theoretical.qty) * 100 : 0;
+    const ref         = recResolveIngredient(invItemId);
+    const costImpact  = ref ? deltaAbs * ref.costPerUnit : 0;
+    const mag         = Math.abs(deltaPct);
+    const severity    = mag > 15 ? 'critical' : (mag > 5 ? 'warning' : 'normal');
+    return {
+      theoretical,
+      actual,
+      deltaAbsolute: +deltaAbs.toFixed(3),
+      deltaPct: +deltaPct.toFixed(1),
+      costImpact: +costImpact.toFixed(2),
+      severity,
+    };
+  }
+
+  function recVarianceByRecipe(menuItemId) {
+    const found = recFindMenuItem(menuItemId);
+    if (!found) return null;
+    const { item, venue } = found;
+    const recipe = RECIPES_SESSION[menuItemId];
+    if (!recipe || recipe.status !== 'complete' || !recipe.ingredients.length) return null;
+
+    const y = Math.max(1, recipe.yield || 1);
+    const units = item.unitsThisMonth || 0;
+
+    const ingredients = [];
+    let totalTheoreticalCost = 0;
+    let totalActualCost = 0;
+    let totalCostImpact = 0;
+
+    for (const ing of recipe.ingredients) {
+      const ref = recResolveIngredient(ing.invId);
+      if (!ref) continue;
+      const perPortion = ing.qty / y;
+      const monthlyTheoretical = perPortion * units;
+      const theoreticalCost = monthlyTheoretical * ref.costPerUnit;
+      // For inventory items we have actuals; for placeholders we infer +4%
+      let monthlyActual = monthlyTheoretical * 1.04;
+      const inv = recFindInventoryItem(ing.invId);
+      if (inv) {
+        // Pro-rata: how much of this ingredient's monthly actual usage is
+        // attributable to this specific dish (by theoretical share)?
+        const totalTheoreticalForInv = recTheoreticalConsumption(ing.invId, venue).qty;
+        const actualForInv = recActualConsumption(ing.invId, venue).qty;
+        if (totalTheoreticalForInv > 0) {
+          monthlyActual = (monthlyTheoretical / totalTheoreticalForInv) * actualForInv;
+        }
+      }
+      const actualCost = monthlyActual * ref.costPerUnit;
+      const deltaPct = monthlyTheoretical > 0 ? ((monthlyActual - monthlyTheoretical) / monthlyTheoretical) * 100 : 0;
+      const impact = actualCost - theoreticalCost;
+
+      ingredients.push({
+        invId: ing.invId,
+        name: ref.name,
+        unit: ref.unit,
+        perPortion: +perPortion.toFixed(4),
+        theoretical: +monthlyTheoretical.toFixed(3),
+        actual: +monthlyActual.toFixed(3),
+        theoreticalCost: +theoreticalCost.toFixed(2),
+        actualCost: +actualCost.toFixed(2),
+        costPerUnit: ref.costPerUnit,
+        deltaPct: +deltaPct.toFixed(1),
+        costImpact: +impact.toFixed(2),
+        isPlaceholder: ref.isPlaceholder === true,
+      });
+      totalTheoreticalCost += theoreticalCost;
+      totalActualCost      += actualCost;
+      totalCostImpact      += impact;
+    }
+    const monthlyRevenue = (item.price || 0) * units;
+    const theoreticalFoodCostPct = monthlyRevenue > 0 ? (totalTheoreticalCost / monthlyRevenue) * 100 : 0;
+    const actualFoodCostPct      = monthlyRevenue > 0 ? (totalActualCost / monthlyRevenue) * 100 : 0;
+    const portionCost            = recPortionCost(recipe);
+
+    return {
+      menuItemId,
+      menuItemName: item.name,
+      venue,
+      yield: y,
+      portionCost: +portionCost.toFixed(2),
+      ingredients,
+      totalTheoreticalCost: +totalTheoreticalCost.toFixed(2),
+      totalActualCost: +totalActualCost.toFixed(2),
+      totalCostImpact: +totalCostImpact.toFixed(2),
+      theoreticalFoodCostPct: +theoreticalFoodCostPct.toFixed(1),
+      actualFoodCostPct: +actualFoodCostPct.toFixed(1),
+    };
+  }
+
+  function recVarianceByCategory(categoryKey, venueKey) {
+    const items = (MENU[venueKey] || []).filter(it => it.category === categoryKey);
+    let totalImpact = 0; let varianceSum = 0; let varianceCount = 0;
+    for (const it of items) {
+      const v = recVarianceByRecipe(it.id);
+      if (!v) continue;
+      totalImpact += v.totalCostImpact;
+      if (v.theoreticalFoodCostPct > 0) {
+        const pct = ((v.actualFoodCostPct - v.theoreticalFoodCostPct) / v.theoreticalFoodCostPct) * 100;
+        varianceSum += pct; varianceCount++;
+      }
+    }
+    return {
+      category: categoryKey,
+      venue: venueKey,
+      totalCostImpact: +totalImpact.toFixed(2),
+      avgVariancePct: varianceCount > 0 ? +(varianceSum / varianceCount).toFixed(1) : 0,
+    };
+  }
+
+  function recVariancePerStaffMember(staffId) {
+    const ids = STAFF_DISH_RESPONSIBILITY[staffId] || [];
+    let staffEntry = null;
+    for (const v of REAL_VENUES) {
+      const hit = (STAFF[v] || []).find(s => s.id === staffId);
+      if (hit) { staffEntry = hit; break; }
+    }
+    const dishes = [];
+    let varSum = 0; let varCount = 0; let totalImpact = 0;
+    for (const dishId of ids) {
+      const v = recVarianceByRecipe(dishId);
+      if (!v) {
+        // Surface incomplete dishes so the UI can prompt the staffer.
+        const found = recFindMenuItem(dishId);
+        if (found) dishes.push({ menuItemId: dishId, name: found.item.name, variancePct: null, costImpact: 0, status: 'incomplete' });
+        continue;
+      }
+      const pct = v.theoreticalFoodCostPct > 0
+        ? ((v.actualFoodCostPct - v.theoreticalFoodCostPct) / v.theoreticalFoodCostPct) * 100
+        : 0;
+      dishes.push({ menuItemId: dishId, name: v.menuItemName, variancePct: +pct.toFixed(1), costImpact: v.totalCostImpact, status: 'complete' });
+      varSum += pct; varCount++; totalImpact += v.totalCostImpact;
+    }
+    return {
+      staffId,
+      staffName: staffEntry ? staffEntry.name : null,
+      avgVariancePct: varCount > 0 ? +(varSum / varCount).toFixed(1) : 0,
+      totalCostImpact: +totalImpact.toFixed(2),
+      dishes,
+    };
+  }
+
+  /* Expose the engine on window. Stable function names; the Phase 2 editor
+   * and the Stock variance panel both consume this surface. */
+  window.KiwiRecipes = {
+    getRecipe:               recGetRecipe,
+    setRecipe:               recSetRecipe,
+    listRecipes:             recListRecipes,
+    recipeStats:             recRecipeStats,
+    theoreticalConsumption:  recTheoreticalConsumption,
+    actualConsumption:       recActualConsumption,
+    computeVariance:         recComputeVariance,
+    varianceByRecipe:        recVarianceByRecipe,
+    varianceByCategory:      recVarianceByCategory,
+    variancePerStaffMember:  recVariancePerStaffMember,
+    /* Constants / helpers — exposed for the Recettes tab + Stock page. */
+    resolveIngredient:       recResolveIngredient,
+    portionCost:             recPortionCost,
+    PLACEHOLDER_COSTS,
+  };
+
   /* ═══════════════ PUBLIC API ═══════════════ */
 
   window.KiwiVenue = {
+    /* Recettes tab live-search + sort hooks — invoked by inline oninput /
+     * onchange on the search input and sort <select>. They re-render the
+     * panel and restore the search field's focus + caret after the
+     * innerHTML reset that follows. */
+    miRecSearchHook,
+    miRecSortHook,
     getVenue,
     setVenue,
     getPlan: () => currentPlan,
