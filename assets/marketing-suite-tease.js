@@ -224,18 +224,19 @@
     filter: blur(0);
   }
   .kw-msu__eyebrow-text {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 11px;
-    letter-spacing: 0.4em;
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    font-weight: 500;
+    font-size: clamp(18px, 1.6vw, 26px);
+    letter-spacing: 0.34em;
     text-transform: uppercase;
     color: #7DF2B0;
-    text-shadow: 0 0 18px rgba(125,242,176,0.35);
+    text-shadow: 0 0 22px rgba(125,242,176,0.32);
   }
   .kw-msu__eyebrow-line {
-    width: 40px;
-    height: 1px;
+    width: 56px;
+    height: 1.5px;
     background: linear-gradient(90deg, transparent, #7DF2B0, transparent);
-    box-shadow: 0 0 12px rgba(125,242,176,0.6);
+    box-shadow: 0 0 14px rgba(125,242,176,0.6);
     transform: scaleX(0);
     transition: transform 400ms cubic-bezier(0.32, 0.72, 0, 1) 200ms;
   }
@@ -292,14 +293,14 @@
   .kw-msu__verbline {
     position: absolute;
     left: 50%; top: 50%;
-    transform: translate(-50%, -10%);
+    transform: translate(-50%, 4%);
     display: flex;
     align-items: baseline;
     justify-content: center;
-    gap: 0.28em;
+    gap: 0.22em;
     font-family: 'Inter Tight', system-ui, sans-serif;
     font-weight: 400;
-    font-size: clamp(56px, 9vw, 156px);
+    font-size: clamp(36px, 4.6vw, 78px);
     line-height: 1.0;
     letter-spacing: -0.03em;
     color: #F7F5F0;
