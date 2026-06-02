@@ -4308,13 +4308,23 @@
       lucide.createIcons();
     }
 
-    /* ---- back button ---- */
-    $('#td-back').addEventListener('click', () => {
+    /* Leave the table-detail screen and land cleanly on the FLOOR.
+       Bug fix: the back arrow / "Lancer" used to call showScreen('screen-main')
+       WITHOUT setTab('tables'). showScreen only toggles the full-screen layer —
+       not the inner tab panel — so after the take-order → menu flow (where
+       currentTab is 'menu') you were dropped onto the Menu panel still showing
+       "Commande pour Tx", with no back affordance. The screen felt frozen.
+       Always return to the Tables floor and clear the lingering order context. */
+    function returnToFloor() {
       activeTableId = null;
+      menuContextId = null;
       showScreen('screen-main');
-      renderTables();
+      setTab('tables');   // setTab renders the tables panel + hides the cart bar
       lucide.createIcons();
-    });
+    }
+
+    /* ---- back button ---- */
+    $('#td-back').addEventListener('click', returnToFloor);
 
     /* ---- footer actions ---- */
     $('#td-footer').addEventListener('click', (e) => {
@@ -4327,11 +4337,14 @@
         showScreen('screen-main');
         setTab('menu');
       } else if (action === 'lancer') {
-        // Send the order to the kitchen + bar terminals
-        dirtyOrders.delete(activeTableId);
-        renderTableDetail();
+        // Fire the order to the kitchen + bar terminals, then return to the
+        // floor — the server's work at this table is done for now. (Previously
+        // we stayed on the detail screen and the back arrow misrouted to the
+        // Menu panel, which read as a freeze.)
+        const sentId = activeTableId;
+        dirtyOrders.delete(sentId);
         // Count routing for a richer toast (food → cuisine, drinks → bar)
-        const order = tableOrders[activeTableId] || [];
+        const order = tableOrders[sentId] || [];
         const drinkCats = new Set(['boissons']);
         const foodIds = order.filter(l => {
           const m = menuItems.find(mm => mm.id === l.id);
@@ -4342,11 +4355,12 @@
           return m && drinkCats.has(m.cat);
         }).reduce((s, l) => s + l.qty, 0);
         const hasNotes = order.some(l => (l.note || '').trim());
-        let msg = `Mesa ${activeTableId} · commande envoyée`;
+        let msg = `Mesa ${sentId} · commande envoyée`;
         if (foodIds > 0 && drinkIds > 0)      msg += ` · cuisine + bar`;
         else if (foodIds > 0)                 msg += ` · cuisine`;
         else if (drinkIds > 0)                msg += ` · bar`;
         if (hasNotes)                         msg += ` · notes transmises`;
+        returnToFloor();
         toast(msg);
       } else if (action === 'ask-bill') {
         const t = tables[activeTableId];
@@ -4365,9 +4379,7 @@
         delete tableOrders[id];
         dirtyOrders.delete(id);
         tableSplits.delete(id);
-        activeTableId = null;
-        showScreen('screen-main');
-        renderTables();
+        returnToFloor();
         toast(`Mesa ${id} fermée`);
       } else if (action === 'resume-split') {
         // Reopen the split modal directly on the flow screen
@@ -5055,8 +5067,7 @@
       }, 4000);
       // Update views
       if (activeTableId === id) {
-        activeTableId = null;
-        showScreen('screen-main');
+        returnToFloor();   // land on the floor, not a stale tab panel
       }
       if (currentTab === 'tables')   renderTables();
       if (currentTab === 'paiement') renderPaiement();
