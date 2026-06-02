@@ -3287,13 +3287,14 @@ const PDS_STR = {
     days: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
     soonAvailable: 'Bientôt disponible',
     /* Scene picker (zone backdrop) */
-    sceneLabel: 'Décor',
+    sceneLabel: 'Décor de la zone',
+    sceneHint: (n) => `Change l'arrière-plan visuel de${n ? ` « ${n} »` : ' cette zone'} — purement esthétique, n'affecte pas vos tables.`,
     sceneSalle: 'Salle intérieure',
     sceneTerrasse: 'Terrasse extérieure',
     sceneBar: 'Bar / Comptoir',
     sceneEtage: 'Étage / Mezzanine',
     scenePrive: 'Salon privé',
-    sceneBlank: 'Vierge',
+    sceneBlank: 'Vierge (sans fixtures)',
     /* Floor toggle */
     floorRDC: 'Rez-de-chaussée',
     floorEtage: '1ᵉʳ étage',
@@ -3470,13 +3471,14 @@ const PDS_STR = {
     days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     soonAvailable: 'Coming soon',
     /* Scene picker */
-    sceneLabel: 'Backdrop',
+    sceneLabel: 'Zone backdrop',
+    sceneHint: (n) => `Change the visual backdrop of${n ? ` "${n}"` : ' this zone'} — purely cosmetic, doesn't affect your tables.`,
     sceneSalle: 'Indoor dining',
     sceneTerrasse: 'Outdoor terrace',
     sceneBar: 'Bar / Counter',
     sceneEtage: 'Mezzanine / Upper',
     scenePrive: 'Private room',
-    sceneBlank: 'Blank',
+    sceneBlank: 'Blank (no fixtures)',
     floorRDC: 'Ground floor',
     floorEtage: 'Upper floor',
     roomLabel: (zone) => `${zone} · owner view`,
@@ -3651,13 +3653,14 @@ const PDS_STR = {
     days: ['اث', 'ثل', 'أر', 'خم', 'جم', 'سب', 'أح'],
     soonAvailable: 'قريبًا',
     /* Scene picker */
-    sceneLabel: 'الديكور',
+    sceneLabel: 'ديكور المنطقة',
+    sceneHint: (n) => `غيّر الخلفية البصرية${n ? ` لمنطقة "${n}"` : ' لهذه المنطقة'} — تجميلي فقط، لا يؤثر على طاولاتك.`,
     sceneSalle: 'صالة داخلية',
     sceneTerrasse: 'تراس خارجي',
     sceneBar: 'حانة / كاونتر',
     sceneEtage: 'الطابق العلوي',
     scenePrive: 'صالون خاص',
-    sceneBlank: 'فارغ',
+    sceneBlank: 'فارغ (بدون تجهيزات)',
     floorRDC: 'الطابق الأرضي',
     floorEtage: 'الطابق الأول',
     roomLabel: (zone) => `${zone} · رؤية المالك`,
@@ -4116,10 +4119,13 @@ function pdsRenderInspectorEmpty(state, T) {
   `;
 }
 
-/* ─── Scene picker — switches the architectural backdrop of the active zone */
+/* ─── Scene picker — switches the architectural backdrop of the active zone.
+ *   Single select dropdown with explanatory hint, instead of a 6-pill grid.
+ *   (Pills made it look like the zone name "Bar" was a value, and the
+ *   "Bar / Comptoir" pill inside created a confusing recursion.) */
 function pdsRenderScenePicker(state, T) {
   const zone = state.zones.find(z => z.id === state.activeZone) || state.zones[0];
-  const current = zone?.scene || 'blank';
+  const current = zone?.scene || pdsScenePickerDefault(zone);
   const opts = [
     ['salle',    T.sceneSalle],
     ['terrasse', T.sceneTerrasse],
@@ -4129,16 +4135,25 @@ function pdsRenderScenePicker(state, T) {
     ['blank',    T.sceneBlank],
   ];
   return `
-    <div class="pds-rail-card">
+    <div class="pds-rail-card pds-scene-card">
       <div class="pds-rail-title">${T.sceneLabel}</div>
-      <div class="pds-rail-hint">${zone?.name || ''}</div>
-      <div class="pds-scene-grid" data-pds-scene-grid>
-        ${opts.map(([k, label]) => `
-          <button class="pds-scene-pill ${k===current?'active':''}" data-pds-action="set-scene" data-pds-scene="${k}">${label}</button>
-        `).join('')}
-      </div>
+      <div class="pds-rail-hint">${T.sceneHint(zone?.name || '')}</div>
+      <select class="kf-input pds-input pds-scene-select" data-pds-scene-select aria-label="${T.sceneLabel}">
+        ${opts.map(([k, label]) => `<option value="${k}" ${k===current?'selected':''}>${label}</option>`).join('')}
+      </select>
     </div>
   `;
+}
+/* Best-guess scene if the zone has none stored (mirrors pdsScene fallback). */
+function pdsScenePickerDefault(zone) {
+  return (
+    /terr/i.test(zone?.name || '') ? 'terrasse' :
+    /bar|compt/i.test(zone?.name || '') ? 'bar' :
+    /étage|etage|1er|1\.ère|first/i.test(zone?.name || '') ? 'etage' :
+    /priv|salon/i.test(zone?.name || '') ? 'prive' :
+    /salle|principale|main|dining/i.test(zone?.name || '') ? 'salle' :
+    'blank'
+  );
 }
 
 function pdsRenderAssignSummary(state, T) {
@@ -4169,7 +4184,12 @@ function pdsRenderInspector(state, T, table) {
   const sv = state.staff.find(s => s.id === table.server);
   return `
     <div class="pds-rail-card pds-inspect">
-      <div class="pds-rail-title">${T.inspectorTitle(table.num)}</div>
+      <div class="pds-inspect-head">
+        <div class="pds-rail-title">${T.inspectorTitle(table.num)}</div>
+        <button class="pds-inspect-close" data-pds-action="deselect" title="${T.bulkClear}" aria-label="${T.bulkClear}">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
       <div class="pds-form-row">
         <label>${T.inspectorNum}</label>
         <input class="kf-input pds-input" data-pds-field="num" value="${table.num}"/>
@@ -4213,7 +4233,12 @@ function pdsRenderInspector(state, T, table) {
 function pdsRenderBulkInspector(state, T, selectedIds) {
   return `
     <div class="pds-rail-card pds-inspect">
-      <div class="pds-rail-title">${T.selection} · ${selectedIds.length}</div>
+      <div class="pds-inspect-head">
+        <div class="pds-rail-title">${T.selection} · ${selectedIds.length}</div>
+        <button class="pds-inspect-close" data-pds-action="deselect" title="${T.bulkClear}" aria-label="${T.bulkClear}">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
       <div class="pds-form-row">
         <label>${T.bulkSetStatus}</label>
         <div class="pds-status-pills">
@@ -4611,6 +4636,31 @@ function pdsAttach(root, state, T, dr) {
         }, 0);
       };
     });
+
+    /* Scene picker — select dropdown changes the active zone's backdrop */
+    const sceneSel = root.querySelector('[data-pds-scene-select]');
+    if (sceneSel) {
+      sceneSel.onchange = () => {
+        const zone = state.zones.find(z => z.id === state.activeZone);
+        if (!zone) return;
+        zone.scene = sceneSel.value;
+        const label = T['scene' + sceneSel.value.charAt(0).toUpperCase() + sceneSel.value.slice(1)] || sceneSel.value;
+        refresh();
+        Kiwi.toast(T.sceneLabel + ' · ' + label, { type: 'success', duration: 1200 });
+      };
+    }
+
+    /* Click on empty canvas floor — clears selection (deselects all tables) */
+    const canvas = root.querySelector('[data-pds-canvas]');
+    if (canvas) {
+      canvas.onclick = (ev) => {
+        if (ev.target !== canvas) return; /* clicked a table/element child — ignore */
+        if (selection.size === 0) return;
+        selection.clear();
+        root.querySelectorAll('.pds-tbl-cell.is-selected').forEach(el => el.classList.remove('is-selected'));
+        openBulkInspector();
+      };
+    }
   };
 
   /* Open inspector for table id */
@@ -4643,6 +4693,29 @@ function pdsAttach(root, state, T, dr) {
   state._openBulkInspector = openBulkInspector;
   state._selection = selection;
   state._refresh = refresh;
+
+  /* Escape key — first press clears table selection, second press lets the
+   *   drawer's own Escape handler close the page. Capture phase so we win
+   *   the race against the drawer when a table is selected. */
+  const onEscape = (ev) => {
+    if (ev.key !== 'Escape') return;
+    if (selection.size === 0) return; /* let the drawer close itself */
+    if (!root.isConnected) return;    /* drawer already gone — bail */
+    selection.clear();
+    root.querySelectorAll('.pds-tbl-cell.is-selected').forEach(el => el.classList.remove('is-selected'));
+    openBulkInspector();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+  };
+  document.addEventListener('keydown', onEscape, true);
+  /* Clean up the keydown listener when the drawer is dismissed. */
+  if (dr && typeof dr.close === 'function') {
+    const prev = dr.close;
+    dr.close = function() {
+      document.removeEventListener('keydown', onEscape, true);
+      return prev.apply(this, arguments);
+    };
+  }
 
   bind();
 }
@@ -5309,6 +5382,7 @@ function pdsHandleAction(action, btn, state, T, root, dr, refresh, selection) {
       break;
     }
     case 'set-scene': {
+      /* Legacy pill handler — kept in case any old markup still ships set-scene. */
       const sceneKey = btn.getAttribute('data-pds-scene');
       const zone = state.zones.find(z => z.id === state.activeZone);
       if (zone) {
@@ -5316,6 +5390,14 @@ function pdsHandleAction(action, btn, state, T, root, dr, refresh, selection) {
         refresh();
         toast(T.sceneLabel + ' · ' + (T['scene' + sceneKey.charAt(0).toUpperCase() + sceneKey.slice(1)] || sceneKey), { type: 'success', duration: 1200 });
       }
+      break;
+    }
+    case 'deselect': {
+      /* Close inspector × button — clears the current selection and returns
+       *   to the empty inspector / décor picker pane. */
+      selection.clear();
+      root.querySelectorAll('.pds-tbl-cell.is-selected').forEach(el => el.classList.remove('is-selected'));
+      state._openBulkInspector();
       break;
     }
     default: {
@@ -5635,6 +5717,18 @@ const PDS_INLINE_CSS = `
 
   .pds-inspector { display:flex; flex-direction:column; gap:10px; }
   .pds-inspect { padding:14px; }
+  .pds-inspect-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
+  .pds-inspect-head .pds-rail-title { margin-bottom:0; }
+  .pds-inspect-close {
+    background:transparent; border:1px solid var(--n-200); border-radius:7px;
+    width:24px; height:24px; padding:0;
+    display:inline-flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--n-600); transition:.16s;
+    flex-shrink:0;
+  }
+  .pds-inspect-close:hover { background:var(--paper); color:var(--ink); border-color:var(--n-400); }
+  .pds-inspect-close:active { transform:translateY(1px); }
+  .pds-inspect-close svg { display:block; }
   .pds-form-row { margin-bottom:10px; }
   .pds-form-row > label { display:block; font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-bottom:5px; font-weight:600; }
   .pds-input { width:100%; padding:7px 9px; font-size:12.5px; }
