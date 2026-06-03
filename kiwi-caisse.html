@@ -397,6 +397,31 @@
     .wl-pref-chip.is-active { background: var(--forest); color: #fff; }
     /* hide the addition panel in waitlist mode — the list spans full width */
     body[data-mode="waitlist"] .rightpanel { display: none; }
+    /* waitlist · table picker */
+    .modal.modal-seat { width: 460px; max-width: calc(100vw - 48px); }
+    .wl-seat-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      margin: 4px 0 10px; max-height: 320px; overflow-y: auto;
+    }
+    .wl-table-opt {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+      padding: 14px 8px; border-radius: var(--r-lg);
+      background: var(--paper-mute); border: 1.5px solid transparent;
+      transition: background 150ms ease, border-color 150ms ease, transform 120ms ease;
+    }
+    .wl-table-opt:hover { background: #ECEAE5; }
+    .wl-table-opt:active { transform: scale(0.97); }
+    .wl-table-opt.is-pref { background: var(--mint-tint); border-color: var(--mint-edge); }
+    .wl-table-id { font-size: 17px; font-weight: 700; color: var(--ink); }
+    .wl-table-meta { font-size: 10.5px; color: var(--ink-3); }
+    .wl-table-tag {
+      position: absolute; top: -7px; right: -5px;
+      background: var(--forest); color: #fff;
+      font-size: 8.5px; font-weight: 700;
+      padding: 2px 7px; border-radius: 999px;
+    }
+    .wl-seat-empty { grid-column: 1 / -1; text-align: center; color: var(--ink-4); font-size: 13px; padding: 24px 0; }
 
     /* ---------- Floor toggle (rez-de-chaussée / 1er étage) ---------- */
     .plan-head-left {
@@ -3437,6 +3462,39 @@
     .kit-zoom .kit-nm { font-size: 18px; }
     .kit-zoom .kit-act { padding: 18px; font-size: 17px; }
 
+    /* ── Recipe popup · cuisinier taps a dish on a ticket → ingredients + prep ─ */
+    .kit-item.has-recipe { cursor: pointer; transition: background 120ms; border-radius: 6px; padding: 2px 4px; margin: -2px -4px; }
+    .kit-item.has-recipe:hover { background: var(--paper-soft); }
+    .kit-recipe-ico { width: 14px; height: 14px; flex-shrink: 0; color: var(--ink-4); margin-left: auto; opacity: 0; transition: opacity 140ms, color 140ms; align-self: center; }
+    .kit-item.has-recipe:hover .kit-recipe-ico { opacity: 1; color: var(--ink); }
+    .kit-zoom .kit-recipe-ico { width: 18px; height: 18px; opacity: 0.5; }
+    .kit-zoom .kit-item.has-recipe:hover .kit-recipe-ico { opacity: 1; }
+    .kit-recipe-backdrop { position: fixed; inset: 0; z-index: 700; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(10,15,13,0.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); opacity: 0; transition: opacity 200ms ease; }
+    .kit-recipe-backdrop.in { opacity: 1; }
+    .kit-recipe { width: 480px; max-width: 100%; max-height: calc(100vh - 48px); background: #fff; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 32px 70px -20px rgba(10,15,13,0.6); transform: scale(0.86); transition: transform 260ms cubic-bezier(0.34,1.3,0.64,1); color: var(--ink); }
+    .kit-recipe-backdrop.in .kit-recipe { transform: scale(1); }
+    .kit-recipe-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 20px 22px 16px; border-bottom: 1px solid var(--line); }
+    .kit-recipe-eyebrow { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace); font-weight: 700; margin-bottom: 5px; }
+    .kit-recipe-title { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); line-height: 1.2; }
+    .kit-recipe-close { width: 34px; height: 34px; flex-shrink: 0; padding: 0; border: 1px solid var(--line); background: var(--paper-soft); border-radius: 10px; cursor: pointer; color: var(--ink-3); display: flex; align-items: center; justify-content: center; transition: color 120ms, border-color 120ms; }
+    .kit-recipe-close:hover { color: var(--ink); border-color: var(--ink-4); }
+    .kit-recipe-close svg { width: 16px; height: 16px; }
+    .kit-recipe-body { padding: 16px 22px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+    .kit-recipe-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .kit-recipe-yield { font-size: 11.5px; font-weight: 600; padding: 4px 10px; background: rgba(11,110,79,0.12); color: var(--accent); border-radius: 99px; }
+    .kit-recipe-section-t { font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-3); font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace); font-weight: 700; margin-bottom: 10px; }
+    .kit-recipe-ings { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .kit-recipe-ing { display: flex; align-items: baseline; gap: 14px; font-size: 14.5px; line-height: 1.4; padding-bottom: 9px; border-bottom: 1px dashed var(--line); }
+    .kit-recipe-ing:last-child { border-bottom: 0; padding-bottom: 0; }
+    .kit-recipe-ing-q { font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace); font-feature-settings: "tnum" 1; font-weight: 700; color: var(--accent); min-width: 84px; font-size: 14px; }
+    .kit-recipe-ing-n { color: var(--ink); font-weight: 500; }
+    .kit-recipe-prep { font-size: 14px; line-height: 1.55; color: var(--ink-2); padding: 12px 14px; background: var(--paper-soft); border-radius: 10px; border-left: 3px solid var(--accent); }
+    .kit-recipe-foot { font-size: 11px; color: var(--ink-3); padding-top: 8px; border-top: 1px solid var(--line); margin-top: 4px; }
+    .kit-recipe-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 28px 12px; text-align: center; color: var(--ink-3); }
+    .kit-recipe-empty svg { width: 36px; height: 36px; opacity: 0.5; }
+    .kit-recipe-empty-t { font-size: 15px; font-weight: 600; color: var(--ink); }
+    .kit-recipe-empty-b { font-size: 13px; line-height: 1.5; max-width: 280px; }
+
     /* Per-dish kitchen note — a compact input under each cart / order line */
     .rp-item-note {
       grid-column: 1 / -1;
@@ -4293,6 +4351,19 @@
         <button class="ma-btn primary" id="wl-confirm" style="flex:2;">
           <i data-lucide="user-plus"></i> Ajouter
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ WAITLIST · TABLE PICKER MODAL ============ -->
+  <div class="modal-veil" id="wl-seat-modal" role="dialog" aria-modal="true" aria-labelledby="wl-seat-title">
+    <div class="modal modal-seat">
+      <div class="split-badge">Choisir une table</div>
+      <h3 class="modal-title" id="wl-seat-title" style="margin-bottom:2px;"><span id="wl-seat-name">Client</span></h3>
+      <p class="modal-subtle" id="wl-seat-sub" style="margin:0 0 14px;">—</p>
+      <div class="wl-seat-grid" id="wl-seat-grid"></div>
+      <div class="nt-actions">
+        <button class="ma-btn secondary" id="wl-seat-cancel" style="flex:1;">Annuler</button>
       </div>
     </div>
   </div>
@@ -5528,6 +5599,7 @@
     let waitlist = [];           // [{ id, name, size, pref, addedAt }]
     let wlSeq = 0;
     let wlDraft = { name: '', size: 2, pref: 'peu-importe' };
+    let wlSeatId = null;         // party being seated via the table picker
 
     /* Réduction amount for the À emporter cart, clamped to the gross. */
     function vrapDiscountAmount(gross) {
@@ -6300,23 +6372,62 @@
       lucide.createIcons();
     }
 
-    /* Pick an empty (khawya) table, preferring the requested zone. */
-    function wlFindFreeTable(pref) {
-      const ids = Object.keys(tables);
-      const zoneMatch = pref !== 'peu-importe'
-        ? ids.find(id => tables[id].status === 'khawya' && tables[id].zone === pref)
-        : null;
-      return zoneMatch || ids.find(id => tables[id].status === 'khawya') || null;
+    /* "Attabler" — open the table picker so the hostess chooses the table. */
+    function openSeatModal(id) {
+      const e = waitlist.find(w => w.id === id);
+      if (!e) return;
+      wlSeatId = id;
+      $('#wl-seat-name').textContent = e.name;
+      const pref = WL_PREFS[e.pref] || WL_PREFS['peu-importe'];
+      $('#wl-seat-sub').textContent = `${e.size} pers. · préférence : ${pref.label}`;
+      renderSeatGrid(e);
+      $('#wl-seat-modal').classList.add('is-open');
+      lucide.createIcons();
     }
 
-    function seatWaitlist(id) {
-      const idx = waitlist.findIndex(e => e.id === id);
+    function renderSeatGrid(e) {
+      const grid = $('#wl-seat-grid');
+      const ids = Object.keys(tables).filter(id => tables[id].status === 'khawya');
+      // preferred-zone tables first, then smaller tables first
+      ids.sort((a, b) => {
+        const ap = (e.pref !== 'peu-importe' && tables[a].zone === e.pref) ? 0 : 1;
+        const bp = (e.pref !== 'peu-importe' && tables[b].zone === e.pref) ? 0 : 1;
+        if (ap !== bp) return ap - bp;
+        return (tables[a].size || 0) - (tables[b].size || 0);
+      });
+      if (!ids.length) {
+        grid.innerHTML = `<div class="wl-seat-empty">Aucune table libre pour le moment.</div>`;
+        return;
+      }
+      grid.innerHTML = ids.map(id => {
+        const t = tables[id];
+        const zoneLabel = (WL_PREFS[t.zone] || {}).label || t.zone;
+        const cap = t.size || t.covers || 2;
+        const isPref = e.pref !== 'peu-importe' && t.zone === e.pref;
+        return `<button class="wl-table-opt${isPref ? ' is-pref' : ''}" data-seat-table="${id}">
+          ${isPref ? '<span class="wl-table-tag">préférée</span>' : ''}
+          <span class="wl-table-id">${id}</span>
+          <span class="wl-table-meta">${zoneLabel} · ${cap} pl.</span>
+        </button>`;
+      }).join('');
+    }
+
+    function seatAtTable(tableId) {
+      $('#wl-seat-modal').classList.remove('is-open');
+      const idx = waitlist.findIndex(w => w.id === wlSeatId);
+      wlSeatId = null;
       if (idx < 0) return;
       const e = waitlist[idx];
-      const freeTable = wlFindFreeTable(e.pref);
+      const t = tables[tableId];
+      if (t && t.status === 'khawya') {   // occupy the chosen table on the floor
+        t.status  = 'ka-yaklo';
+        t.covers  = e.size;
+        t.elapsed = 0;
+        refreshTableNode(tableId);
+      }
       waitlist.splice(idx, 1);
       renderWaitlist();
-      toast(freeTable ? `${e.name} · ${freeTable} attribuée` : `${e.name} attablé·e ✓`);
+      toast(`${e.name} · installé·e à ${tableId}`);
     }
 
     function removeWaitlist(id) {
@@ -6341,9 +6452,15 @@
     $('#wl-name') && $('#wl-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmWaitlistAdd(); });
     $('#waitlist-list') && $('#waitlist-list').addEventListener('click', (e) => {
       const seat = e.target.closest('[data-wl-seat]');
-      if (seat) { seatWaitlist(parseInt(seat.dataset.wlSeat)); return; }
+      if (seat) { openSeatModal(parseInt(seat.dataset.wlSeat)); return; }
       const rem = e.target.closest('[data-wl-remove]');
       if (rem) { removeWaitlist(parseInt(rem.dataset.wlRemove)); return; }
+    });
+    document.getElementById('wl-seat-modal').addEventListener('click', (e) => {
+      const opt = e.target.closest('[data-seat-table]');
+      if (opt) { seatAtTable(opt.dataset.seatTable); return; }
+      if (e.target.closest('#wl-seat-cancel') || e.target === $('#wl-seat-modal'))
+        { $('#wl-seat-modal').classList.remove('is-open'); wlSeatId = null; return; }
     });
     // keep wait times fresh while the waitlist is on screen
     setInterval(() => { if (mode === 'waitlist') renderWaitlist(); }, 30000);
@@ -8933,6 +9050,157 @@
     const KDS_CAT_STATION = { entrees: 'salade', tajines: 'cuisson', couscous: 'cuisson',
       pastillas: 'cuisson', sandwiches: 'cuisson', boissons: 'boissons', desserts: 'pastry' };
 
+    /* Recipe catalog for the KDS recipe popup. Keyed by dish name (the same
+     * string the kitchen ticket renders). Each entry has a yield (portions
+     * the listed quantities produce), an ingredients list (qty + name), and
+     * a prep one-liner. Used to train new cuisiniers — they tap a dish on
+     * a ticket and the recipe appears. */
+    const KDS_RECIPES = {
+      'Couscous royal': { yield: 1, ingredients: [
+        { q: '150 g',  n: 'Semoule fine' },
+        { q: '400 ml', n: 'Bouillon de légumes' },
+        { q: '180 g',  n: 'Agneau épaule' },
+        { q: '150 g',  n: 'Poulet entier' },
+        { q: '80 g',   n: 'Carottes' },
+        { q: '80 g',   n: 'Courgettes' },
+        { q: '60 g',   n: 'Navets' },
+        { q: '40 g',   n: 'Pois chiches' },
+      ], prep: 'Cuisson vapeur 35-40 min · agneau d\'abord, poulet 15 min plus tard, légumes en couscoussier. Beurre + bouillon sur la semoule au service.' },
+      'Tajine kefta œuf': { yield: 1, ingredients: [
+        { q: '180 g',  n: 'Viande hachée bœuf' },
+        { q: '2 u',    n: 'Œufs' },
+        { q: '120 g',  n: 'Tomates concassées' },
+        { q: '50 g',   n: 'Oignons hachés' },
+        { q: '4 g',    n: 'Persil' },
+        { q: '3 g',    n: 'Épices kefta' },
+        { q: '10 ml',  n: 'Huile d\'olive' },
+      ], prep: 'Boulettes de 25 g, mijotage 12 min dans sauce tomate-épices, œufs cassés en surface 3 min avant service. Couvrir cuvette tajine au service.' },
+      'Tajine poulet citron': { yield: 1, ingredients: [
+        { q: '200 g',  n: 'Poulet entier (cuisses)' },
+        { q: '40 g',   n: 'Citrons confits' },
+        { q: '15 g',   n: 'Olives violettes' },
+        { q: '40 g',   n: 'Oignons émincés' },
+        { q: '3 g',    n: 'Safran (pistils)' },
+        { q: '3 g',    n: 'Gingembre' },
+        { q: '10 ml',  n: 'Huile d\'olive' },
+      ], prep: 'Mariner poulet 20 min (safran + gingembre + ail). Mijoter 35 min, ajouter citrons + olives en fin de cuisson. Réduire sauce 5 min.' },
+      'Tajine agneau pruneaux': { yield: 1, ingredients: [
+        { q: '220 g',  n: 'Agneau épaule' },
+        { q: '80 g',   n: 'Pruneaux dénoyautés' },
+        { q: '15 g',   n: 'Amandes effilées' },
+        { q: '20 g',   n: 'Sucre' },
+        { q: '50 g',   n: 'Oignons' },
+        { q: '5 g',    n: 'Cannelle' },
+      ], prep: 'Sauter agneau, mijoter 50 min avec oignons + épices. Pruneaux trempés ajoutés 15 min avant fin avec sucre. Amandes grillées au moment du service.' },
+      'Pastilla poulet': { yield: 1, ingredients: [
+        { q: '3 feuilles', n: 'Brick' },
+        { q: '180 g',  n: 'Poulet effiloché' },
+        { q: '2 u',    n: 'Œufs' },
+        { q: '40 g',   n: 'Amandes grillées' },
+        { q: '30 g',   n: 'Beurre fondu' },
+        { q: '15 g',   n: 'Sucre glace' },
+        { q: '2 g',    n: 'Cannelle' },
+      ], prep: 'Cuisson poulet (oignons + safran) 25 min. Brouiller œufs dans le jus. Monter pastilla beurre + amandes, four 8-10 min à 200°C. Saupoudrer sucre + cannelle au service.' },
+      'Briouates viande': { yield: 4, ingredients: [
+        { q: '8 feuilles', n: 'Brick' },
+        { q: '240 g',  n: 'Viande hachée bœuf' },
+        { q: '40 g',   n: 'Oignons hachés' },
+        { q: '6 g',    n: 'Persil' },
+        { q: '4 g',    n: 'Cumin' },
+        { q: '20 g',   n: 'Beurre fondu' },
+      ], prep: 'Farce viande + oignons + épices 8 min. Pliage triangle classique, badigeonner beurre. Friture 2 min par face dans huile chaude. Servir bien chaud.' },
+      'Méchoui': { yield: 1, ingredients: [
+        { q: '240 g',  n: 'Agneau épaule' },
+        { q: '8 g',    n: 'Beurre rance (smen)' },
+        { q: '4 g',    n: 'Cumin' },
+        { q: '3 g',    n: 'Sel marin' },
+        { q: '2 g',    n: 'Paprika' },
+      ], prep: 'Frotter agneau au smen + épices, rôtir 18-22 min à 220°C selon cuisson demandée. Reposer 4 min sous papier alu. Servir avec cumin + sel à part.' },
+      'Salade marocaine': { yield: 1, ingredients: [
+        { q: '120 g',  n: 'Tomates' },
+        { q: '80 g',   n: 'Concombre' },
+        { q: '40 g',   n: 'Oignon rouge' },
+        { q: '8 g',    n: 'Persil' },
+        { q: '8 g',    n: 'Coriandre' },
+        { q: '10 ml',  n: 'Huile d\'olive' },
+        { q: '5 ml',   n: 'Jus de citron' },
+      ], prep: 'Couper tomates + concombre en petits dés (5 mm), oignon finement émincé. Herbes ciselées au dernier moment. Assaisonner juste avant service.' },
+      'Caviar d\'aubergine': { yield: 1, ingredients: [
+        { q: '180 g',  n: 'Aubergines' },
+        { q: '15 ml',  n: 'Huile d\'olive' },
+        { q: '6 g',    n: 'Ail haché' },
+        { q: '8 g',    n: 'Persil' },
+        { q: '5 ml',   n: 'Jus de citron' },
+        { q: '2 g',    n: 'Cumin' },
+      ], prep: 'Aubergines rôties 25 min à 200°C, chair évidée et écrasée fourchette. Mélanger huile + ail + cumin + citron. Servir frais avec pain.' },
+      'Msemen beurre & miel': { yield: 2, ingredients: [
+        { q: '140 g',  n: 'Farine T55' },
+        { q: '20 g',   n: 'Semoule fine' },
+        { q: '90 ml',  n: 'Eau tiède' },
+        { q: '3 g',    n: 'Sel' },
+        { q: '20 g',   n: 'Beurre' },
+        { q: '30 ml',  n: 'Miel' },
+      ], prep: 'Pétrir pâte 5 min, repos 20 min. Étaler très fin, pliage 4 fois avec beurre fondu. Cuisson plancha 1 min par face. Servir avec beurre + miel séparément.' },
+      'Crêpe complète': { yield: 1, ingredients: [
+        { q: '90 g',   n: 'Pâte à crêpe blé noir' },
+        { q: '1 u',    n: 'Œuf' },
+        { q: '40 g',   n: 'Jambon' },
+        { q: '50 g',   n: 'Fromage râpé' },
+        { q: '10 g',   n: 'Beurre' },
+      ], prep: 'Étaler pâte fine sur bilig 220°C. Casser œuf au centre, parsemer jambon + fromage. Plier en 4 quand le fromage fond. Servir aussitôt.' },
+      'Cornes de gazelle': { yield: 6, ingredients: [
+        { q: '200 g',  n: 'Amandes en poudre' },
+        { q: '100 g',  n: 'Sucre glace' },
+        { q: '15 ml',  n: 'Eau de fleur d\'oranger' },
+        { q: '150 g',  n: 'Farine T55' },
+        { q: '60 g',   n: 'Beurre fondu' },
+        { q: '50 ml',  n: 'Eau' },
+      ], prep: 'Pâte d\'amande : amandes + sucre + fleur d\'oranger. Pâte fine étalée, garniture en cornes, soudure pincée. Cuisson 12 min à 170°C, blanches.' },
+      'Sandwich kefta': { yield: 1, ingredients: [
+        { q: '1 u',    n: 'Pain rond (kesra)' },
+        { q: '150 g',  n: 'Viande hachée bœuf' },
+        { q: '40 g',   n: 'Oignons' },
+        { q: '30 g',   n: 'Tomates' },
+        { q: '5 ml',   n: 'Harissa douce' },
+        { q: '4 g',    n: 'Cumin' },
+      ], prep: 'Boulettes plates grillées 4 min par face. Pain tiède ouvert, garnir kefta + tomates + oignons. Filet harissa selon goût.' },
+      'Thé à la menthe': { yield: 1, ingredients: [
+        { q: '4 g',    n: 'Thé vert Gunpowder' },
+        { q: '15 g',   n: 'Menthe fraîche' },
+        { q: '12 g',   n: 'Sucre' },
+        { q: '250 ml', n: 'Eau bouillante' },
+      ], prep: 'Rincer thé à l\'eau bouillante 30 s, jeter cette eau. Infuser thé + sucre 3 min, ajouter menthe 2 min. Servir avec hauteur (oxygéner).' },
+      'Café noir double': { yield: 1, ingredients: [
+        { q: '18 g',   n: 'Café arabica moulu' },
+        { q: '60 ml',  n: 'Eau filtrée' },
+      ], prep: 'Mouture fine, extraction 25-30 s à 9 bar. Pré-infusion 4 s avant extraction principale. Servir aussitôt en tasse réchauffée.' },
+      'Orange pressée': { yield: 1, ingredients: [
+        { q: '3 u',    n: 'Oranges fraîches' },
+      ], prep: 'Presser à l\'extracteur juste avant service. Ne pas filtrer (pulpe). Servir glacé dans verre 300 ml.' },
+      'Limonade traditionnelle': { yield: 1, ingredients: [
+        { q: '40 ml',  n: 'Jus de citron frais' },
+        { q: '20 g',   n: 'Sucre' },
+        { q: '200 ml', n: 'Eau plate fraîche' },
+        { q: '3 g',    n: 'Zeste de citron' },
+        { q: '4 g',    n: 'Menthe' },
+      ], prep: 'Dissoudre sucre dans eau tiède, ajouter jus + zeste. Refroidir avec glaçons. Décorer menthe au service.' },
+      'Cocktail mocktail': { yield: 1, ingredients: [
+        { q: '60 ml',  n: 'Jus d\'ananas' },
+        { q: '40 ml',  n: 'Jus de cranberry' },
+        { q: '20 ml',  n: 'Sirop de grenadine' },
+        { q: '15 ml',  n: 'Jus de citron vert' },
+        { q: '60 ml',  n: 'Eau pétillante' },
+      ], prep: 'Shaker tous les jus avec glaçons 12 s. Filtrer dans verre highball glacé. Compléter eau pétillante au sommet. Pailles + rondelle citron.' },
+      'Jus d\'orange': { yield: 1, ingredients: [
+        { q: '3 u',    n: 'Oranges fraîches' },
+      ], prep: 'Presser à l\'extracteur juste avant service. Servir glacé dans verre 300 ml.' },
+    };
+
+    function kdsHasRecipe(name) {
+      const r = KDS_RECIPES[name];
+      return !!(r && r.ingredients && r.ingredients.length);
+    }
+
     const kdsOrders   = [];
     let   kdsOrderSeq = 52;
     let   kdsActiveStation = 'all';
@@ -9000,6 +9268,8 @@
       check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>',
       eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
       note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+      book: '<svg class="kit-recipe-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+      close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     };
 
     function kdsTypeChip(o) {
@@ -9015,7 +9285,8 @@
       const items = o.items.map(i => {
         const off = kdsActiveStation !== 'all' && !i.stations.includes(kdsActiveStation);
         const note = (i.note || '').trim();
-        return `<li class="kit-item${off ? ' kit-item-off' : ''}"><span class="kit-q">${i.q}</span><span class="kit-nm">${kdsEsc(i.n)}${note ? `<span class="kit-inote">${KDS_SVG.note}<span>${kdsEsc(note)}</span></span>` : ''}</span></li>`;
+        const hasRec = kdsHasRecipe(i.n);
+        return `<li class="kit-item${off ? ' kit-item-off' : ''}${hasRec ? ' has-recipe' : ''}"${hasRec ? ` data-kit-recipe="${kdsEsc(i.n)}"` : ''}><span class="kit-q">${i.q}</span><span class="kit-nm">${kdsEsc(i.n)}${note ? `<span class="kit-inote">${KDS_SVG.note}<span>${kdsEsc(note)}</span></span>` : ''}</span>${hasRec ? KDS_SVG.book : ''}</li>`;
       }).join('');
       const act = isReady ? ''
         : isNew ? `<button class="kit-act kit-act-accept" data-kit-accept="${o.num}">Accepter</button>`
@@ -9118,7 +9389,72 @@
         if (acc) { kdsAccept(Number(acc.dataset.kitAccept)); close(); return; }
         const rdy = e.target.closest('[data-kit-ready]');
         if (rdy) { kdsReady(Number(rdy.dataset.kitReady)); close(); return; }
+        const rec = e.target.closest('[data-kit-recipe]');
+        if (rec) { kdsOpenRecipe(rec.dataset.kitRecipe); return; }
         if (!e.target.closest('.kit-zoom')) close();
+      });
+    }
+
+    /* Recipe popup — opens when cuisinier taps a dish on a ticket. Shows
+     * ingredients (qty + name) and a one-line prep note. The "fingertip
+     * recipe" pattern that lets new staff prepare any plate without
+     * memorising the menu. */
+    function kdsOpenRecipe(dishName) {
+      document.querySelectorAll('.kit-recipe-backdrop').forEach(b => b.remove());
+      const r = KDS_RECIPES[dishName];
+      const bd = document.createElement('div');
+      bd.className = 'kit-recipe-backdrop';
+      let body;
+      if (!r) {
+        body = `
+          <div class="kit-recipe-empty">
+            ${KDS_SVG.book}
+            <div class="kit-recipe-empty-t">Recette pas encore définie</div>
+            <div class="kit-recipe-empty-b">Demandez au chef de la compléter dans Menu › Recettes pour la voir ici.</div>
+          </div>`;
+      } else {
+        const yld = r.yield || 1;
+        const rows = r.ingredients.map(ing =>
+          `<li class="kit-recipe-ing"><span class="kit-recipe-ing-q">${kdsEsc(ing.q)}</span><span class="kit-recipe-ing-n">${kdsEsc(ing.n)}</span></li>`
+        ).join('');
+        body = `
+          <div class="kit-recipe-meta">
+            <span class="kit-recipe-yield">Rendement · ${yld} portion${yld > 1 ? 's' : ''}</span>
+          </div>
+          <div class="kit-recipe-section">
+            <div class="kit-recipe-section-t">Ingrédients</div>
+            <ul class="kit-recipe-ings">${rows}</ul>
+          </div>
+          ${r.prep ? `
+            <div class="kit-recipe-section">
+              <div class="kit-recipe-section-t">Préparation</div>
+              <div class="kit-recipe-prep">${kdsEsc(r.prep)}</div>
+            </div>
+          ` : ''}
+          <div class="kit-recipe-foot">Tapez sur un plat pour réafficher sa recette à tout moment.</div>`;
+      }
+      bd.innerHTML = `
+        <div class="kit-recipe" role="dialog" aria-labelledby="kit-recipe-title">
+          <div class="kit-recipe-head">
+            <div>
+              <div class="kit-recipe-eyebrow">Recette · par portion</div>
+              <h3 id="kit-recipe-title" class="kit-recipe-title">${kdsEsc(dishName)}</h3>
+            </div>
+            <button class="kit-recipe-close" data-kit-recipe-close aria-label="Fermer">${KDS_SVG.close}</button>
+          </div>
+          <div class="kit-recipe-body">${body}</div>
+        </div>`;
+      document.body.appendChild(bd);
+      requestAnimationFrame(() => bd.classList.add('in'));
+      let closing = false;
+      const close = () => {
+        if (closing) return;
+        closing = true;
+        bd.classList.remove('in');
+        setTimeout(() => bd.remove(), 260);
+      };
+      bd.addEventListener('click', (e) => {
+        if (e.target.closest('[data-kit-recipe-close]') || !e.target.closest('.kit-recipe')) close();
       });
     }
 
@@ -9168,6 +9504,8 @@
       }
       const eye = e.target.closest('[data-kit-eye]');
       if (eye) { const o = kdsOrders.find(x => x.num === Number(eye.dataset.kitEye)); if (o) kdsOpenZoom(o); return; }
+      const rec = e.target.closest('[data-kit-recipe]');
+      if (rec) { kdsOpenRecipe(rec.dataset.kitRecipe); return; }
       const acc = e.target.closest('[data-kit-accept]');
       if (acc) { kdsAccept(Number(acc.dataset.kitAccept)); return; }
       const rdy = e.target.closest('[data-kit-ready]');
