@@ -1,0 +1,1319 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+
+  <!-- Make it look like an app on phones -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Café Atlas" />
+  <meta name="theme-color" content="#F7F5F0" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <title>Café Atlas — Commande</title>
+  <meta name="description" content="Commandez depuis votre table · Café Atlas" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <style>
+    /* =========================================================
+       Tokens — same brand system as kiwi-serveur
+       ========================================================= */
+    :root {
+      --forest:       #1F5D3C;
+      --forest-deep:  #164A2F;
+      --emerald:      #3FB67A;
+      --mint:         #7DF2B0;
+      --mint-tint:    #EBF5F0;
+      --mint-edge:    #C5E0D3;
+
+      --paper:        #FAFAF8;
+      --paper-cream:  #F7F5F0;
+      --paper-soft:   #F7F7F5;
+      --paper-mute:   #F4F4F2;
+
+      --ink:          #111111;
+      --ink-2:        #4A4A4A;
+      --ink-3:        #6B6B6B;
+      --ink-4:        #9A9A9A;
+      --line:         #E5E5E5;
+      --line-soft:    #EEEEEE;
+
+      --sans:  "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --serif: "Instrument Serif", "Times New Roman", serif;
+      --mono:  "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+
+      --shadow-card: 0 1px 2px rgba(17,17,17,.04), 0 4px 10px rgba(17,17,17,.05);
+      --gradient: linear-gradient(135deg, #1F5D3C 0%, #3FB67A 100%);
+
+      /* Safe-area aware top/bottom — works on iOS standalone too */
+      --safe-top:    max(env(safe-area-inset-top), 12px);
+      --safe-bottom: max(env(safe-area-inset-bottom), 12px);
+    }
+
+    /* =========================================================
+       App-like baseline
+       ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%;
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper-cream);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      letter-spacing: -0.005em;
+      overscroll-behavior: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body { overflow: hidden; }
+    button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+    input { font-family: inherit; }
+
+    .app {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh; /* dynamic viewport — accounts for iOS URL bar */
+      overflow: hidden;
+      background: var(--paper-cream);
+    }
+
+    /* =========================================================
+       Screen system — one is .is-active at a time
+       ========================================================= */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      background: var(--paper-cream);
+      overflow: hidden;
+    }
+    .screen.is-active { display: flex; }
+    .screen.is-leaving {
+      animation: screen-leave 360ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+    @keyframes screen-leave {
+      0%   { transform: translateX(0);     opacity: 1; }
+      100% { transform: translateX(-24%);  opacity: 0; }
+    }
+    .screen.is-entering {
+      animation: screen-enter 460ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes screen-enter {
+      0%   { transform: translateX(20%); opacity: 0; }
+      100% { transform: translateX(0);   opacity: 1; }
+    }
+
+    /* =========================================================
+       GREETING FLASH — ported from kiwi-serveur
+       ========================================================= */
+    .kiwi-greet {
+      position: absolute; inset: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, #F8F7F3 0%, #F1EFE8 55%, #ECEAE3 100%);
+      opacity: 0; pointer-events: none;
+      transition: opacity 600ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: opacity;
+      padding: var(--safe-top) 22px var(--safe-bottom);
+    }
+    .kiwi-greet::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(60% 50% at 15% 30%, rgba(31,93,60,0.10), transparent 60%),
+        radial-gradient(50% 45% at 85% 80%, rgba(125,242,176,0.10), transparent 60%);
+      pointer-events: none;
+    }
+    .kiwi-greet.is-visible { opacity: 1; }
+    .kiwi-greet-inner {
+      position: relative; z-index: 1;
+      text-align: center;
+      transform: translateY(22px) scale(0.97);
+      opacity: 0;
+      transition: transform 700ms cubic-bezier(0.32, 0.72, 0, 1), opacity 700ms ease;
+    }
+    .kiwi-greet.is-visible .kiwi-greet-inner {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    .kiwi-greet h1 {
+      margin: 0; line-height: 1.22;
+      font-size: 28px; font-weight: 600; letter-spacing: -0.030em;
+      color: var(--ink);
+      text-shadow: 0 2px 6px rgba(10,15,13,0.05);
+      white-space: nowrap;
+    }
+    .kiwi-greet h1 em {
+      font-family: var(--serif); font-style: italic; font-weight: 400;
+      color: var(--forest);
+      display: inline;
+    }
+    .kiwi-greet h1 .em-clip {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      max-width: 0;
+      white-space: nowrap;
+      vertical-align: top;
+      transition: max-width 1080ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .kiwi-greet h1 .em-clip.is-revealed { max-width: var(--em-w, 480px); }
+    .kiwi-greet h1 .em-clip.is-typing::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 18%; bottom: 16%;
+      width: 2px;
+      background: var(--forest);
+      animation: kw-greet-cursor 0.7s steps(1) infinite;
+    }
+    @keyframes kw-greet-cursor {
+      0%, 55%   { opacity: 1; }
+      56%, 100% { opacity: 0; }
+    }
+    .kiwi-greet-sub {
+      font-family: var(--mono); font-size: 10.5px;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ink-3);
+      margin-top: 22px;
+    }
+    .kiwi-greet-sub em {
+      font-family: var(--serif); font-style: italic;
+      text-transform: none; letter-spacing: normal;
+      color: var(--forest);
+      font-size: 13px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .kiwi-greet, .kiwi-greet-inner { transition: opacity 180ms ease !important; }
+      .kiwi-greet h1 .em-clip { transition: none !important; }
+      .kiwi-greet h1 .em-clip.is-revealed { max-width: var(--em-w, 480px) !important; }
+      .kiwi-greet h1 .em-clip.is-typing::after { animation: none !important; opacity: 0; }
+    }
+
+    /* =========================================================
+       TABLE-NUMBER ENTRY screen
+       ========================================================= */
+    .screen-table {
+      padding: var(--safe-top) 24px var(--safe-bottom);
+      justify-content: space-between;
+      align-items: center;
+      background:
+        radial-gradient(70% 40% at 50% -10%, rgba(31,93,60,0.06), transparent 60%),
+        var(--paper-cream);
+    }
+    .table-top {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+    }
+    .brand-mark {
+      display: inline-flex; align-items: baseline; gap: 5px;
+      font-weight: 700; font-size: 30px;
+      letter-spacing: -0.05em;
+      color: var(--ink);
+    }
+    .brand-mark i {
+      width: 7px; height: 7px;
+      background: var(--forest);
+      border-radius: 50%;
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+    .brand-tag {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--ink-3);
+    }
+
+    .table-mid {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+    .table-ask {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .table-ask em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--forest);
+    }
+    .table-num-display {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 4px;
+      min-height: 88px;
+    }
+    .table-digit {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 78px;
+      line-height: 1;
+      color: var(--forest);
+      letter-spacing: -0.02em;
+      animation: digit-pop 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .table-digit.is-placeholder {
+      color: var(--ink-4);
+      font-family: var(--sans);
+      font-style: normal;
+      font-weight: 300;
+      font-size: 70px;
+      animation: none;
+    }
+    @keyframes digit-pop {
+      0%   { transform: translateY(-12px) scale(0.7); opacity: 0; }
+      100% { transform: translateY(0)     scale(1);   opacity: 1; }
+    }
+    .table-hint {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+      margin: 0;
+    }
+
+    .numpad {
+      width: 100%;
+      max-width: 320px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 0 auto;
+    }
+    .num-key {
+      aspect-ratio: 1.55 / 1;
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--ink);
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--line-soft);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+    .num-key:active {
+      transform: scale(0.94);
+      background: var(--paper-mute);
+    }
+    .num-key.key-back { color: var(--ink-3); }
+    .num-key.key-back svg { width: 22px; height: 22px; }
+    .num-key.key-empty {
+      background: transparent;
+      box-shadow: none;
+      border: 0;
+      pointer-events: none;
+    }
+
+    .continue-btn {
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 17px 22px;
+      background: var(--ink-4);
+      color: var(--paper-cream);
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: background 200ms ease, transform 200ms ease;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+    .continue-btn.is-ready {
+      background: var(--ink);
+      pointer-events: auto;
+      opacity: 1;
+    }
+    .continue-btn:active { transform: scale(0.98); }
+    .continue-btn svg { width: 16px; height: 16px; }
+
+    /* =========================================================
+       MENU screen
+       ========================================================= */
+    .screen-menu {
+      padding-top: var(--safe-top);
+      background: var(--paper-cream);
+    }
+    .menu-top {
+      padding: 12px 22px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--paper-cream);
+      position: sticky;
+      top: 0;
+      z-index: 4;
+    }
+    .menu-cafe {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .menu-cafe .name {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .menu-cafe .ctx {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .table-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+      border-radius: 999px;
+      color: var(--forest);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .table-badge svg { width: 12px; height: 12px; }
+
+    .menu-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 22px 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .menu-tabs::-webkit-scrollbar { display: none; }
+    .menu-tab {
+      flex: 0 0 auto;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      color: var(--ink-2);
+      white-space: nowrap;
+      transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+    }
+    .menu-tab.is-active {
+      background: var(--ink);
+      color: var(--paper-cream);
+      border-color: var(--ink);
+    }
+
+    .menu-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 22px calc(140px + var(--safe-bottom));
+      display: grid;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .menu-item {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+    }
+    .item-img {
+      width: 64px; height: 64px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex: 0 0 64px;
+    }
+    .item-img svg { width: 28px; height: 28px; }
+    .item-img.coffee { background: linear-gradient(135deg, #6F4A2E 0%, #B68A5E 100%); }
+    .item-img.pastry { background: linear-gradient(135deg, #C99A4F 0%, #F2D08B 100%); }
+    .item-img.savory { background: linear-gradient(135deg, #6A8C3F 0%, #B4D281 100%); }
+    .item-img.drink  { background: linear-gradient(135deg, #2D7F8C 0%, #6FC6D2 100%); }
+    .item-body { min-width: 0; }
+    .item-name {
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .item-desc {
+      font-size: 11.5px;
+      color: var(--ink-3);
+      line-height: 1.35;
+      margin-top: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .item-price {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-2);
+      margin-top: 4px;
+      letter-spacing: -0.01em;
+    }
+    .item-add {
+      width: 34px; height: 34px;
+      border-radius: 999px;
+      background: var(--forest);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 500;
+      transition: transform 180ms ease, background 180ms ease;
+      box-shadow: 0 2px 8px rgba(31,93,60,0.25);
+    }
+    .item-add:active { transform: scale(0.92); }
+    .item-add.is-popped {
+      animation: add-pop 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes add-pop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.25); background: var(--emerald); }
+      100% { transform: scale(1); }
+    }
+
+    /* Sticky cart pill */
+    .cart-pill {
+      position: absolute;
+      left: 22px; right: 22px;
+      bottom: calc(20px + var(--safe-bottom));
+      z-index: 80;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--ink);
+      color: var(--paper-cream);
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.28), 0 4px 10px rgba(0,0,0,0.16);
+      transform: translateY(140%);
+      opacity: 0;
+      transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1), opacity 280ms ease;
+    }
+    .cart-pill.is-visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .cart-pill .cart-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cart-count-chip {
+      width: 24px; height: 24px;
+      border-radius: 999px;
+      background: var(--mint);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      font-feature-settings: "tnum" 1;
+    }
+    .cart-total {
+      font-family: var(--mono);
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+
+    /* Toast */
+    .toast {
+      position: absolute;
+      left: 22px; right: 22px;
+      top: calc(var(--safe-top) + 12px);
+      padding: 10px 14px;
+      background: rgba(20,20,20,0.92);
+      color: var(--paper-cream);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 260ms ease, transform 260ms cubic-bezier(0.32, 0.72, 0, 1);
+      z-index: 180;
+      pointer-events: none;
+    }
+    .toast.is-visible { opacity: 1; transform: translateY(0); }
+    .toast svg { width: 14px; height: 14px; color: var(--mint); }
+
+    /* =========================================================
+       CART SHEET
+       ========================================================= */
+    .cart-sheet {
+      position: absolute;
+      inset: 0;
+      z-index: 220;
+      pointer-events: none;
+    }
+    .cart-sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,10,0);
+      transition: background 280ms ease;
+    }
+    .cart-sheet-panel {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      padding: 12px 22px calc(28px + var(--safe-bottom));
+      max-height: 82%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 0 -20px 40px rgba(0,0,0,0.18);
+    }
+    .cart-sheet.is-open { pointer-events: auto; }
+    .cart-sheet.is-open .cart-sheet-backdrop { background: rgba(10,10,10,0.5); }
+    .cart-sheet.is-open .cart-sheet-panel { transform: translateY(0); }
+    .cart-handle {
+      width: 36px; height: 4px;
+      border-radius: 999px;
+      background: var(--line);
+      margin: 0 auto 14px;
+    }
+    .cart-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+    }
+    .cart-subtitle {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin: 0 0 16px;
+    }
+    .cart-items {
+      list-style: none;
+      padding: 0; margin: 0;
+      overflow-y: auto;
+      flex: 1;
+      display: grid;
+      gap: 8px;
+    }
+    .cart-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--paper-mute);
+      border-radius: 12px;
+    }
+    .cart-row .label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .cart-row .qty {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cart-row .qty button {
+      width: 30px; height: 30px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cart-row .qty button:active { transform: scale(0.92); }
+    .cart-row .qty span {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      font-feature-settings: "tnum" 1;
+      min-width: 12px; text-align: center;
+    }
+    .cart-row .row-price {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--ink-2);
+      min-width: 60px;
+      text-align: right;
+    }
+    .cart-empty {
+      padding: 30px 0;
+      text-align: center;
+      color: var(--ink-3);
+      font-size: 13.5px;
+    }
+    .cart-totals {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 14px;
+    }
+    .cart-totals .grand {
+      font-family: var(--mono);
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .cart-note {
+      font-size: 11.5px;
+      color: var(--ink-3);
+      margin: 6px 0 0;
+      text-align: center;
+    }
+    .send-btn {
+      margin-top: 14px;
+      width: 100%;
+      padding: 16px 18px;
+      background: var(--gradient);
+      color: #fff;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 200ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .send-btn:active { transform: scale(0.98); }
+    .send-btn:disabled { opacity: 0.45; pointer-events: none; }
+    .send-btn svg { width: 16px; height: 16px; }
+    .send-btn.is-loading .label { opacity: 0; }
+    .send-btn.is-loading svg.send-icon { opacity: 0; }
+    .send-btn.is-loading::after {
+      content: "";
+      position: absolute;
+      width: 20px; height: 20px;
+      border: 2.6px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: send-spin 0.7s linear infinite;
+    }
+    @keyframes send-spin { to { transform: rotate(360deg); } }
+
+    /* =========================================================
+       SUCCESS screen (order sent to kitchen)
+       ========================================================= */
+    .screen-success {
+      background: var(--gradient);
+      color: #fff;
+      padding: var(--safe-top) 28px var(--safe-bottom);
+      justify-content: space-between;
+      align-items: center;
+    }
+    .screen-success.is-active { display: flex; }
+    .success-top {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 22px;
+      width: 100%;
+    }
+    .success-check {
+      width: 84px; height: 84px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(0.6);
+      opacity: 0;
+      animation: check-pop 540ms cubic-bezier(0.34, 1.56, 0.64, 1) 140ms forwards;
+    }
+    .success-check svg {
+      width: 40px; height: 40px;
+      stroke-width: 3;
+    }
+    @keyframes check-pop {
+      0%   { transform: scale(0.6); opacity: 0; }
+      60%  { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(1);   opacity: 1; }
+    }
+    .success-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.22;
+    }
+    .success-title em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--mint);
+    }
+    .success-eta {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .success-eta em {
+      font-family: var(--serif);
+      font-style: italic;
+      letter-spacing: normal;
+      font-size: 13px;
+      text-transform: none;
+      opacity: 1;
+      color: var(--mint);
+    }
+    .success-recap {
+      background: rgba(255,255,255,0.10);
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.45;
+      max-width: 320px;
+      width: 100%;
+      backdrop-filter: blur(6px);
+    }
+    .success-recap .recap-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+    .success-bottom {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 8px;
+    }
+    .success-note {
+      font-size: 12px;
+      text-align: center;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+      margin: 0 0 8px;
+      padding: 0 8px;
+    }
+    .success-cta {
+      width: 100%;
+      padding: 16px 22px;
+      background: #fff;
+      color: var(--forest);
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 200ms ease;
+    }
+    .success-cta:active { transform: scale(0.98); }
+    .success-cta svg { width: 16px; height: 16px; }
+
+    .success-secondary {
+      width: 100%;
+      padding: 14px 22px;
+      background: transparent;
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app" id="app">
+
+    <!-- ============ GREETING FLASH (overlay) ============ -->
+    <div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
+      <div class="kiwi-greet-inner">
+        <h1><span id="greet-line1">Bonjour,</span><br><em id="greet-em">bienvenue au café Atlas.</em></h1>
+        <div class="kiwi-greet-sub" id="greet-sub">Médina · Tanger · <em>commandez depuis votre table</em></div>
+      </div>
+    </div>
+
+    <!-- ============ TABLE-NUMBER ENTRY ============ -->
+    <section class="screen screen-table is-active" id="screen-table">
+      <div class="table-top">
+        <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
+        <div class="brand-tag">— Médina, Tanger</div>
+      </div>
+
+      <div class="table-mid">
+        <p class="table-ask">Quel est votre <em>numéro de table</em> ?</p>
+        <div class="table-num-display" id="table-display">
+          <span class="table-digit is-placeholder">—</span>
+        </div>
+        <p class="table-hint">Le numéro est gravé sur le bois de la table</p>
+      </div>
+
+      <div class="numpad" id="numpad" role="group" aria-label="Clavier numérique">
+        <button class="num-key" data-key="1">1</button>
+        <button class="num-key" data-key="2">2</button>
+        <button class="num-key" data-key="3">3</button>
+        <button class="num-key" data-key="4">4</button>
+        <button class="num-key" data-key="5">5</button>
+        <button class="num-key" data-key="6">6</button>
+        <button class="num-key" data-key="7">7</button>
+        <button class="num-key" data-key="8">8</button>
+        <button class="num-key" data-key="9">9</button>
+        <span class="num-key key-empty" aria-hidden="true"></span>
+        <button class="num-key" data-key="0">0</button>
+        <button class="num-key key-back" data-key="back" aria-label="Effacer">
+          <i data-lucide="delete"></i>
+        </button>
+      </div>
+
+      <button class="continue-btn" id="continue-btn" type="button">
+        <span>Continuer</span>
+        <i data-lucide="arrow-right"></i>
+      </button>
+    </section>
+
+    <!-- ============ MENU ============ -->
+    <section class="screen screen-menu" id="screen-menu">
+
+      <div class="menu-top">
+        <div class="menu-cafe">
+          <div class="name">Café Atlas</div>
+          <div class="ctx">Médina · Tanger</div>
+        </div>
+        <span class="table-badge">
+          <i data-lucide="utensils"></i>
+          <span>Table <span id="table-num-label">—</span></span>
+        </span>
+      </div>
+
+      <div class="menu-tabs" role="tablist">
+        <button class="menu-tab is-active" data-tab="all">Tout</button>
+        <button class="menu-tab" data-tab="coffee">Café</button>
+        <button class="menu-tab" data-tab="pastry">Pâtisserie</button>
+        <button class="menu-tab" data-tab="savory">Salé</button>
+        <button class="menu-tab" data-tab="drink">Boissons</button>
+      </div>
+
+      <div class="menu-list" id="menu-list"></div>
+
+      <button class="cart-pill" id="cart-pill" type="button">
+        <span class="cart-left">
+          <span class="cart-count-chip" id="cart-count">0</span>
+          <span>Voir ma commande</span>
+        </span>
+        <span class="cart-total" id="cart-total">0 MAD</span>
+      </button>
+    </section>
+
+    <!-- ============ SUCCESS (order sent to kitchen) ============ -->
+    <section class="screen screen-success" id="screen-success">
+      <div class="success-top">
+        <div class="success-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h1 class="success-title">Commande envoyée<br/><em>en cuisine.</em></h1>
+        <div class="success-eta">Table <span id="success-table">—</span> · prêt dans <em>4–6 min</em></div>
+        <div class="success-recap">
+          <div class="recap-title">Votre commande</div>
+          <div id="success-items">—</div>
+        </div>
+      </div>
+      <div class="success-bottom">
+        <p class="success-note">Le paiement se fait à votre table. Vous pouvez ajouter d'autres articles si vous voulez.</p>
+        <button class="success-cta" id="restart-btn" type="button">
+          <i data-lucide="plus"></i>
+          <span>Ajouter à ma commande</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ Toast ============ -->
+    <div class="toast" id="toast" aria-live="polite">
+      <i data-lucide="check"></i>
+      <span id="toast-text">Ajouté</span>
+    </div>
+
+    <!-- ============ Cart sheet (overlay) ============ -->
+    <div class="cart-sheet" id="cart-sheet" aria-hidden="true">
+      <div class="cart-sheet-backdrop" data-close-cart></div>
+      <div class="cart-sheet-panel">
+        <div class="cart-handle" data-close-cart></div>
+        <h2 class="cart-title">Votre commande</h2>
+        <div class="cart-subtitle">Table <span id="cart-table">—</span> · Café Atlas</div>
+        <ul class="cart-items" id="cart-items">
+          <li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>
+        </ul>
+        <div class="cart-totals">
+          <span>Total</span>
+          <span class="grand" id="cart-grand">0 MAD</span>
+        </div>
+        <p class="cart-note">Paiement à la table après votre dernière commande.</p>
+        <button class="send-btn" id="send-btn" type="button" disabled>
+          <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          <span class="label">Envoyer en cuisine</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ============ helpers ============ */
+    const $  = (s, c = document) => c.querySelector(s);
+    const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+
+    /* ============ menu data ============ */
+    const MENU = [
+      { id: 'espresso',     cat: 'coffee', name: 'Espresso',          desc: 'Court, intense, torréfaction du jour',           price: 12, icon: 'coffee' },
+      { id: 'noss-noss',    cat: 'coffee', name: 'Noss-noss',          desc: 'Moitié café, moitié lait chaud — la fierté locale', price: 16, icon: 'coffee' },
+      { id: 'cappuccino',   cat: 'coffee', name: 'Cappuccino',        desc: 'Mousse onctueuse, cacao en option',              price: 22, icon: 'coffee' },
+      { id: 'the-menthe',   cat: 'drink',  name: 'Thé à la menthe',   desc: 'Théière en argent, menthe fraîche, sucre à part', price: 22, icon: 'glass-water' },
+      { id: 'msemen',       cat: 'pastry', name: 'Msemen au miel',    desc: 'Crêpe feuilletée chaude, miel d\'oranger',       price: 18, icon: 'croissant' },
+      { id: 'briouate',     cat: 'pastry', name: 'Briouate aux amandes', desc: 'Pâte filo, amandes, eau de fleur d\'oranger', price: 14, icon: 'cookie' },
+      { id: 'croissant',    cat: 'pastry', name: 'Croissant beurre',  desc: 'Pur beurre · cuit ce matin',                     price: 12, icon: 'croissant' },
+      { id: 'sandwich-thon',cat: 'savory', name: 'Sandwich thon-olives', desc: 'Pain maison, thon, olives noires, harissa',  price: 32, icon: 'sandwich' },
+      { id: 'panini',       cat: 'savory', name: 'Panini fromage-tomate', desc: 'Ciabatta, mozzarella, tomate confite',      price: 28, icon: 'sandwich' },
+      { id: 'fresh-orange', cat: 'drink',  name: 'Jus d\'orange pressé', desc: 'Pressé minute, sans sucre ajouté',           price: 18, icon: 'glass-water' },
+      { id: 'avocado',      cat: 'drink',  name: 'Smoothie avocat-banane', desc: 'Lait d\'amande, miel, cardamome',          price: 26, icon: 'glass-water' },
+      { id: 'sparkling',    cat: 'drink',  name: 'Eau pétillante Oulmès', desc: '33cl · servie fraîche',                      price:  8, icon: 'glass-water' },
+    ];
+    const ICON_CLASS = {
+      coffee: 'coffee',
+      croissant: 'pastry',
+      cookie: 'pastry',
+      sandwich: 'savory',
+      'glass-water': 'drink',
+    };
+
+    /* ============ state ============ */
+    let tableNumber = '';
+    const cart = new Map();
+
+    /* ============ greeting flash (ported from kiwi-serveur) ============ */
+    function runGreetingFlash() {
+      const greetEl = $('[data-kiwi-greet]');
+      if (!greetEl) return;
+
+      let emClip = null;
+      const greetH1 = greetEl.querySelector('h1');
+      const greetEm = greetH1 && greetH1.querySelector('em');
+      if (greetEm && !greetEm.parentNode.classList.contains('em-clip')) {
+        const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 6;
+        emClip = document.createElement('span');
+        emClip.className = 'em-clip';
+        emClip.style.setProperty('--em-w', naturalW + 'px');
+        greetEm.parentNode.insertBefore(emClip, greetEm);
+        emClip.appendChild(greetEm);
+      } else if (greetEm) {
+        emClip = greetEm.parentNode;
+        emClip.classList.remove('is-revealed', 'is-typing');
+        void emClip.offsetWidth;
+      }
+
+      greetEl.classList.add('is-visible');
+      greetEl.setAttribute('aria-hidden', 'false');
+
+      setTimeout(() => emClip && emClip.classList.add('is-revealed', 'is-typing'), 900);
+      setTimeout(() => emClip && emClip.classList.remove('is-typing'), 2000);
+      setTimeout(() => {
+        greetEl.classList.remove('is-visible');
+        greetEl.setAttribute('aria-hidden', 'true');
+      }, 2900);
+    }
+
+    /* ============ table-number entry ============ */
+    function pressKey(key) {
+      if (key === 'back') {
+        tableNumber = tableNumber.slice(0, -1);
+      } else if (/^\d$/.test(key)) {
+        if (tableNumber.length >= 3) return; // cap at 3 digits
+        // avoid leading zero
+        if (tableNumber === '' && key === '0') return;
+        tableNumber += key;
+      }
+      renderTableDisplay();
+      updateContinueState();
+    }
+    function renderTableDisplay() {
+      const disp = $('#table-display');
+      if (!tableNumber) {
+        disp.innerHTML = `<span class="table-digit is-placeholder">—</span>`;
+        return;
+      }
+      disp.innerHTML = tableNumber.split('').map(d => `<span class="table-digit">${d}</span>`).join('');
+    }
+    function updateContinueState() {
+      const btn = $('#continue-btn');
+      btn.classList.toggle('is-ready', tableNumber.length > 0);
+    }
+
+    /* ============ screen transitions ============ */
+    function gotoScreen(targetId) {
+      const cur = $('.screen.is-active');
+      const next = document.getElementById(targetId);
+      if (!cur || !next || cur === next) return;
+      next.classList.add('is-active', 'is-entering');
+      setTimeout(() => next.classList.remove('is-entering'), 480);
+      cur.classList.add('is-leaving');
+      setTimeout(() => {
+        cur.classList.remove('is-active', 'is-leaving');
+      }, 360);
+    }
+
+    /* ============ menu render ============ */
+    function renderMenu(filter = 'all') {
+      const list = $('#menu-list');
+      const items = MENU.filter(m => filter === 'all' || m.cat === filter);
+      list.innerHTML = items.map(m => `
+        <article class="menu-item">
+          <div class="item-img ${ICON_CLASS[m.icon] || 'coffee'}">
+            <i data-lucide="${m.icon}"></i>
+          </div>
+          <div class="item-body">
+            <div class="item-name">${m.name}</div>
+            <div class="item-desc">${m.desc}</div>
+            <div class="item-price">${m.price} MAD</div>
+          </div>
+          <button class="item-add" type="button" data-add="${m.id}" aria-label="Ajouter ${m.name}">+</button>
+        </article>
+      `).join('');
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    /* ============ cart logic ============ */
+    const priceOf = id => MENU.find(m => m.id === id)?.price || 0;
+    const nameOf  = id => MENU.find(m => m.id === id)?.name || '';
+    function totals() {
+      let count = 0, total = 0;
+      cart.forEach((qty, id) => { count += qty; total += qty * priceOf(id); });
+      return { count, total };
+    }
+    function refreshCartUI() {
+      const { count, total } = totals();
+      const pill = $('#cart-pill');
+      $('#cart-count').textContent = count;
+      $('#cart-total').textContent = `${total} MAD`;
+      $('#cart-grand').textContent = `${total} MAD`;
+      pill.classList.toggle('is-visible', count > 0);
+      $('#send-btn').disabled = count === 0;
+
+      const itemsEl = $('#cart-items');
+      if (count === 0) {
+        itemsEl.innerHTML = `<li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>`;
+        return;
+      }
+      itemsEl.innerHTML = [...cart.entries()].map(([id, qty]) => `
+        <li class="cart-row">
+          <span class="label">${nameOf(id)}</span>
+          <span class="qty">
+            <button type="button" data-dec="${id}" aria-label="Retirer">−</button>
+            <span>${qty}</span>
+            <button type="button" data-inc="${id}" aria-label="Ajouter">+</button>
+          </span>
+          <span class="row-price">${qty * priceOf(id)} MAD</span>
+        </li>
+      `).join('');
+    }
+    function addToCart(id) {
+      cart.set(id, (cart.get(id) || 0) + 1);
+      refreshCartUI();
+      showToast(`${nameOf(id)} · ajouté`);
+    }
+    function decFromCart(id) {
+      const q = (cart.get(id) || 0) - 1;
+      if (q <= 0) cart.delete(id); else cart.set(id, q);
+      refreshCartUI();
+    }
+
+    /* ============ toast ============ */
+    let toastTimer = null;
+    function showToast(text) {
+      const t = $('#toast');
+      $('#toast-text').textContent = text;
+      t.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('is-visible'), 1400);
+    }
+
+    /* ============ cart sheet ============ */
+    function openCart() {
+      $('#cart-sheet').classList.add('is-open');
+      $('#cart-sheet').setAttribute('aria-hidden', 'false');
+    }
+    function closeCart() {
+      $('#cart-sheet').classList.remove('is-open');
+      $('#cart-sheet').setAttribute('aria-hidden', 'true');
+    }
+
+    /* ============ send order ============ */
+    function sendOrder() {
+      const btn = $('#send-btn');
+      btn.classList.add('is-loading');
+      // Capture summary BEFORE clearing
+      const summary = [...cart.entries()]
+        .map(([id, qty]) => `${qty}× ${nameOf(id)}`)
+        .join(' · ');
+      setTimeout(() => {
+        btn.classList.remove('is-loading');
+        closeCart();
+        $('#success-table').textContent = tableNumber;
+        $('#success-items').textContent = summary || '—';
+        gotoScreen('screen-success');
+      }, 1100);
+    }
+
+    /* ============ restart (back to menu after order sent) ============ */
+    function restartMenu() {
+      cart.clear();
+      refreshCartUI();
+      // Reset tab to "Tout"
+      $$('.menu-tab').forEach(t => t.classList.toggle('is-active', t.dataset.tab === 'all'));
+      renderMenu('all');
+      gotoScreen('screen-menu');
+    }
+
+    /* ============ continue from table-entry to menu ============ */
+    function commitTable() {
+      if (!tableNumber) return;
+      $('#table-num-label').textContent = tableNumber;
+      $('#cart-table').textContent = tableNumber;
+      gotoScreen('screen-menu');
+    }
+
+    /* ============ wire it up ============ */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMenu('all');
+      refreshCartUI();
+      if (window.lucide) window.lucide.createIcons();
+
+      // Browsers auto-scroll the offset-parent to bring a focused button into view
+      // (even with overflow:hidden) — this made the cart-sheet panel peek up from
+      // the bottom after numpad taps. preventDefault on mousedown stops focus from
+      // moving to the button; the click still fires normally.
+      const appEl = document.querySelector('.app');
+      appEl.addEventListener('mousedown', e => {
+        if (e.target.closest('button, [data-close-cart]')) e.preventDefault();
+      });
+      // Snap back if anything else scrolls .app.
+      appEl.addEventListener('scroll', () => {
+        if (appEl.scrollTop || appEl.scrollLeft) { appEl.scrollTop = 0; appEl.scrollLeft = 0; }
+      }, { passive: true });
+
+      // Delegated clicks
+      document.addEventListener('click', e => {
+        // Numpad
+        const key = e.target.closest('[data-key]');
+        if (key) { pressKey(key.dataset.key); key.blur(); return; }
+        // Continue
+        if (e.target.closest('#continue-btn')) { commitTable(); return; }
+        // Add to cart
+        const addBtn = e.target.closest('[data-add]');
+        if (addBtn) {
+          addToCart(addBtn.dataset.add);
+          addBtn.classList.remove('is-popped');
+          void addBtn.offsetWidth;
+          addBtn.classList.add('is-popped');
+          return;
+        }
+        // Cart qty
+        const incBtn = e.target.closest('[data-inc]');
+        if (incBtn) { addToCart(incBtn.dataset.inc); return; }
+        const decBtn = e.target.closest('[data-dec]');
+        if (decBtn) { decFromCart(decBtn.dataset.dec); return; }
+        // Tabs
+        const tab = e.target.closest('.menu-tab');
+        if (tab) {
+          $$('.menu-tab').forEach(t => t.classList.remove('is-active'));
+          tab.classList.add('is-active');
+          renderMenu(tab.dataset.tab);
+          return;
+        }
+        // Cart pill / sheet
+        if (e.target.closest('#cart-pill')) { openCart(); return; }
+        if (e.target.closest('[data-close-cart]')) { closeCart(); return; }
+        // Send
+        if (e.target.closest('#send-btn')) { sendOrder(); return; }
+        // Restart after success
+        if (e.target.closest('#restart-btn')) { restartMenu(); return; }
+      });
+
+      // Greeting plays on landing
+      requestAnimationFrame(() => setTimeout(runGreetingFlash, 280));
+    });
+  </script>
+</body>
+</html>
