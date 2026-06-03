@@ -1680,7 +1680,7 @@
       const base = q * it.costPerUnit;
       return base + (exp ? 120 : 0);
     };
-    window.Kiwi.modal({
+    const m = window.Kiwi.modal({
       title: t('mQoTitle'),
       tag: exp ? 'URGENT' : '',
       desc: `${esc(it.name)} · ${esc(catLabel(it.category))}`,
@@ -1733,6 +1733,7 @@
     });
     // Wire up the modal
     requestAnimationFrame(() => {
+      wireDismiss(m?.el || topBackdrop());
       const dec = document.querySelector('[data-stock-qo-dec]');
       const inc = document.querySelector('[data-stock-qo-inc]');
       const qty = document.querySelector('[data-stock-qo-qty]');
@@ -1756,7 +1757,7 @@
         const expChecked = document.querySelector('[data-stock-qo-mode][value="express"]')?.checked;
         const supName = supSel?.value || sup;
         const when = expChecked ? `aujourd'hui 18h` : t('ramTomorrow') + ' 08h';
-        document.querySelector('.kiwi-backdrop')?.remove();
+        closeTopModal();
         window.Kiwi.toast(t('mQoToast', supName, when), { type: 'success', duration: 4200 });
       });
     });
@@ -1766,13 +1767,13 @@
    * MODAL · Scan invoice
    * ═══════════════════════════════════════════════════════════════════════ */
   function openInvoiceScan() {
-    window.Kiwi.modal({
+    const m = window.Kiwi.modal({
       title: t('mScanTitle'),
       width: 640,
       body: `<div data-stock-scan-stage>${renderScanStage1()}</div>`,
       foot: `<button class="st-btn" data-dismiss-modal>${esc(STR[lang()].btnCancel || 'Annuler')}</button>`,
     });
-    requestAnimationFrame(() => wireScanStage1());
+    requestAnimationFrame(() => { wireDismiss(m?.el || topBackdrop()); wireScanStage1(); });
   }
 
   function renderScanStage1() {
@@ -1852,7 +1853,7 @@
         const it = inv.find(x => x.id === id);
         if (it) stStockOverrides[id] = (stStockOverrides[id] != null ? stStockOverrides[id] : it.currentStock) + q;
       });
-      document.querySelector('.kiwi-backdrop')?.remove();
+      closeTopModal();
       window.Kiwi.toast(t('mScanToast'), { type: 'success', duration: 3800 });
       if (stPageActive) render();
     });
@@ -1863,7 +1864,7 @@
    * ═══════════════════════════════════════════════════════════════════════ */
   function openPhysicalCount() {
     const items = getInv();
-    window.Kiwi.modal({
+    const m = window.Kiwi.modal({
       title: t('mCountTitle'),
       desc: t('mCountSub'),
       width: 760,
@@ -1902,7 +1903,7 @@
       `,
       foot: `<button class="st-btn" data-dismiss-modal>${esc(t('mCountSave'))}</button><button class="st-btn primary" data-stock-pc-validate disabled>${esc(t('mCountValidate'))}</button>`,
     });
-    requestAnimationFrame(() => wirePhysicalCount(items));
+    requestAnimationFrame(() => { wireDismiss(m?.el || topBackdrop()); wirePhysicalCount(items); });
   }
 
   function wirePhysicalCount(items) {
@@ -1955,7 +1956,7 @@
         const v = parseFloat(inp.value);
         if (!isNaN(v)) stStockOverrides[inp.dataset.pcReal] = v;
       });
-      document.querySelector('.kiwi-backdrop')?.remove();
+      closeTopModal();
       window.Kiwi.toast(t('mCountToast', fmtMad(totalCostVar)), { type: 'success', duration: 4200 });
       if (stPageActive) render();
     });
@@ -1973,7 +1974,7 @@
     // Mock price history — 6 months
     const ph = [s.avgInvoice * 0.95, s.avgInvoice * 0.97, s.avgInvoice * 1.0, s.avgInvoice * 0.99, s.avgInvoice * 1.02, s.avgInvoice];
 
-    window.Kiwi.modal({
+    const m = window.Kiwi.modal({
       title: s.name,
       desc: `${s.location} · ${catLabel(s.category)} · ★ ${s.rating.toFixed(1)}`,
       width: 720,
@@ -2014,6 +2015,7 @@
       `,
     });
     requestAnimationFrame(() => {
+      wireDismiss(m?.el || topBackdrop());
       document.querySelector('[data-stock-call-supplier]')?.addEventListener('click', (e) => {
         window.Kiwi.toast(`Appel à ${e.currentTarget.dataset.name} · ${e.currentTarget.dataset.phone}`, { type: 'info' });
       });
@@ -2021,7 +2023,7 @@
         window.Kiwi.toast(`Message WhatsApp envoyé à ${e.currentTarget.dataset.name}`, { type: 'success' });
       });
       document.querySelector('[data-stock-new-po]')?.addEventListener('click', () => {
-        document.querySelector('.kiwi-backdrop')?.remove();
+        closeTopModal();
         window.Kiwi.toast('Nouvelle commande · sélectionnez les articles', { type: 'info' });
       });
     });
@@ -2192,6 +2194,13 @@
     scope.querySelectorAll('[data-dismiss-modal]').forEach(b => {
       b.addEventListener('click', () => scope.querySelector('.kiwi-modal-close')?.click());
     });
+  }
+  /* Properly close the top stock modal so unlockPageScroll() runs. The bug
+   * fix for the scroll-lock leak: direct `.kiwi-backdrop?.remove()` skips
+   * the modal helper's close handler — counter stays > 0, html.kiwi-locked
+   * stays on, page won't scroll until reload. Click the wired X instead. */
+  function closeTopModal() {
+    (topBackdrop() || document).querySelector('.kiwi-modal-close')?.click();
   }
   function wireCatNewToggle(scope) {
     const root = scope || topBackdrop() || document;
