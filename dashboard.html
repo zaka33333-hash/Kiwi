@@ -2868,7 +2868,11 @@
   body.page-equipe .page-head,
   body.page-equipe .dash-date-range,
   body.page-equipe .dash-standard,
-  body.page-equipe .dash-fusion { display: none !important; }
+  body.page-equipe .dash-fusion,
+  body.page-equipe .dash-finance,
+  body.page-equipe .dash-menu,
+  body.page-equipe .dash-stock,
+  body.page-equipe .dash-payroll { display: none !important; }
   body.page-equipe .dash-equipe { display: block; animation: fade-in 220ms ease-out; }
   /* The .app shell is a grid (260px 1fr). A plain 1fr track takes its
    * content's min-content as an automatic minimum, so a wide child can blow
@@ -3154,7 +3158,10 @@
   body.page-menu .dash-date-range,
   body.page-menu .dash-standard,
   body.page-menu .dash-fusion,
-  body.page-menu .dash-equipe { display: none !important; }
+  body.page-menu .dash-equipe,
+  body.page-menu .dash-finance,
+  body.page-menu .dash-stock,
+  body.page-menu .dash-payroll { display: none !important; }
   /* padding:24px 0 0 overrides the global `section { padding:96px 0 }`
      marketing rule that .dash-menu (a <section>) would otherwise inherit —
      keeps the title close to the topbar. */
@@ -3689,11 +3696,138 @@
   body.page-stock .dash-fusion,
   body.page-stock .dash-equipe,
   body.page-stock .dash-menu,
-  body.page-stock .dash-payroll { display: none !important; }
+  body.page-stock .dash-payroll,
+  body.page-stock .dash-finance { display: none !important; }
   body.page-stock .dash-stock { display: block; min-width: 0; padding: 24px 0 0; animation: fade-in 220ms ease-out; }
   @media (min-width: 1101px) {
     body.page-stock .app { grid-template-columns: 260px minmax(0, 1fr); }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   * MARGES & BUDGET — full-page financial visibility (body.page-finance)
+   * Rendered by assets/finance.js · classes prefixed .fin-*.
+   * Same visibility-gate pattern as page-stock above.
+   * ═══════════════════════════════════════════════════════════════════════ */
+  .dash-finance { display: none; }
+  body.page-finance .page-head,
+  body.page-finance .dash-date-range,
+  body.page-finance .dash-standard,
+  body.page-finance .dash-fusion,
+  body.page-finance .dash-equipe,
+  body.page-finance .dash-menu,
+  body.page-finance .dash-payroll,
+  body.page-finance .dash-stock { display: none !important; }
+  body.page-finance .dash-finance { display: block; min-width: 0; padding: 24px 0 0; animation: fade-in 220ms ease-out; }
+  @media (min-width: 1101px) {
+    body.page-finance .app { grid-template-columns: 260px minmax(0, 1fr); }
+  }
+  .fin-page { display: flex; flex-direction: column; gap: 18px; padding: 0 24px 32px; max-width: 1400px; margin: 0 auto; }
+  .fin-head { display: flex; align-items: flex-end; justify-content: space-between; margin: 18px 0 6px; gap: 16px; flex-wrap: wrap; }
+  .fin-title { font-size: 34px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); line-height: 1.1; }
+  .fin-sub { font-size: 13.5px; color: var(--n-500); margin-top: 6px; font-family: var(--mono); letter-spacing: 0.01em; }
+  .fin-card { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 18px 20px; }
+  .fin-eyebrow { display: flex; justify-content: space-between; align-items: baseline; font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-weight: 700; margin-bottom: 14px; gap: 10px; flex-wrap: wrap; }
+  .fin-eyebrow > span:first-child { color: var(--ink); }
+  .fin-eyebrow-sub { font-size: 10px; color: var(--n-500); font-weight: 500; letter-spacing: 0.06em; }
+  .fin-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); grid-template-areas: "pnl col" "service service" "price price"; gap: 16px; }
+  .fin-grid > .fin-pnl     { grid-area: pnl; }
+  .fin-grid > .fin-col     { grid-area: col; display: flex; flex-direction: column; gap: 16px; }
+  .fin-grid > .fin-service { grid-area: service; }
+  .fin-grid > .fin-price   { grid-area: price; }
+  @media (max-width: 980px) { .fin-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pnl" "col" "service" "price"; } }
+
+  /* ── P&L card ── */
+  .fin-pnl-rows { display: flex; flex-direction: column; gap: 0; }
+  .fin-pnl-row { display: grid; grid-template-columns: 1fr auto 60px auto; gap: 14px; align-items: baseline; padding: 11px 0; border-bottom: 1px dashed var(--n-200); }
+  .fin-pnl-row:last-child { border-bottom: 0; }
+  .fin-pnl-row-sub { color: var(--n-700); font-size: 13.5px; }
+  .fin-pnl-row-sub .fin-pnl-v { color: var(--n-700); font-weight: 500; }
+  .fin-pnl-total { background: var(--paper); margin: 6px -20px -8px; padding: 14px 20px; border-bottom: 0; border-top: 1px solid var(--n-200); border-radius: 0 0 14px 14px; }
+  .fin-pnl-l { font-size: 13.5px; color: var(--n-700); }
+  .fin-pnl-row > .fin-pnl-l { color: var(--ink); font-weight: 500; }
+  .fin-pnl-total .fin-pnl-l { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+  .fin-pnl-v { font-size: 16px; font-weight: 600; color: var(--ink); text-align: right; font-feature-settings: "tnum" 1; }
+  .fin-pnl-total .fin-pnl-v { font-size: 20px; color: var(--atlas); letter-spacing: -0.015em; }
+  .fin-pnl-p { font-size: 12px; font-family: var(--mono); color: var(--n-500); text-align: right; font-feature-settings: "tnum" 1; }
+  .fin-pnl-total .fin-pnl-p { color: var(--atlas); font-weight: 600; }
+  .fin-pip { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 600; letter-spacing: -0.005em; }
+  .fin-pip-ok   { background: rgba(11,110,79,0.10);  color: var(--atlas); }
+  .fin-pip-warn { background: rgba(217,154,43,0.14); color: var(--warning); }
+  .fin-pip-crit { background: rgba(201,74,58,0.12);  color: var(--danger); }
+  .fin-pnl-foot { font-size: 12.5px; color: var(--n-600); margin-top: 14px; line-height: 1.5; }
+  .fin-pnl-foot b { color: var(--ink); font-weight: 600; }
+
+  /* ── Budget card ── */
+  .fin-budget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .fin-budget-stat { background: var(--paper); border-radius: 10px; padding: 12px 14px; }
+  .fin-budget-stat-l { font-size: 10px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-weight: 600; }
+  .fin-budget-stat-v { font-size: 19px; font-weight: 600; color: var(--ink); margin-top: 4px; font-feature-settings: "tnum" 1; letter-spacing: -0.01em; }
+  .fin-budget-bar { height: 9px; background: var(--paper); border-radius: 99px; overflow: hidden; }
+  .fin-budget-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--atlas), var(--mint)); border-radius: 99px; transition: width 600ms cubic-bezier(0.32,0.72,0,1); }
+  .fin-budget-bar-l { font-size: 11px; font-family: var(--mono); color: var(--n-500); text-align: right; margin-top: 4px; font-weight: 600; }
+  .fin-budget-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+  .fin-budget-row { font-size: 12.5px; color: var(--n-700); line-height: 1.5; }
+  .fin-budget-row b { color: var(--ink); font-weight: 600; }
+  .fin-budget-verdict { margin-top: 12px; padding: 10px 12px; border-radius: 9px; font-size: 12.5px; line-height: 1.45; border-left: 3px solid var(--n-300); background: var(--paper); }
+  .fin-budget-verdict b { color: var(--ink); font-weight: 600; }
+  .fin-budget-verdict-ok   { border-left-color: var(--atlas);   color: var(--atlas); }
+  .fin-budget-verdict-warn { border-left-color: var(--warning); color: var(--warning); }
+  .fin-budget-verdict-bad  { border-left-color: var(--danger);  color: var(--danger); }
+
+  /* ── Break-even card ── */
+  .fin-bev-fixed { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+  .fin-bev-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; font-size: 13px; color: var(--n-700); border-bottom: 1px dashed var(--n-200); }
+  .fin-bev-row:last-child { border-bottom: 0; }
+  .fin-bev-row span:last-child { font-weight: 600; color: var(--ink); font-feature-settings: "tnum" 1; }
+  .fin-bev-row-total { margin-top: 4px; padding-top: 9px; border-top: 1px solid var(--n-300); font-size: 13.5px; }
+  .fin-bev-row-total span:last-child { color: var(--atlas); }
+  .fin-bev-daily { background: var(--paper); border-radius: 12px; padding: 14px 16px; margin-top: 6px; }
+  .fin-bev-daily-l { font-size: 10px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-weight: 600; }
+  .fin-bev-daily-v { font-size: 26px; font-weight: 600; color: var(--atlas); margin-top: 4px; font-feature-settings: "tnum" 1; letter-spacing: -0.02em; }
+  .fin-bev-daily-sub { font-size: 11.5px; color: var(--n-500); margin-top: 3px; }
+  .fin-bev-verdict { margin-top: 12px; padding: 10px 12px; border-radius: 9px; font-size: 12.5px; line-height: 1.45; border-left: 3px solid var(--atlas); background: var(--paper); }
+  .fin-bev-verdict-ok  { border-left-color: var(--atlas);  color: var(--atlas); }
+  .fin-bev-verdict-bad { border-left-color: var(--danger); color: var(--danger); }
+  .fin-bev-verdict b { font-weight: 600; }
+
+  /* ── Service profitability ── */
+  .fin-service-head, .fin-service-row { display: grid; grid-template-columns: 1.6fr 1fr 2fr 0.7fr; gap: 14px; align-items: center; padding: 8px 0; }
+  .fin-service-head { font-size: 9.5px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-weight: 600; border-bottom: 1px solid var(--n-200); padding-bottom: 8px; margin-bottom: 6px; }
+  .fin-service-rows .fin-service-row { font-size: 14px; color: var(--ink); border-bottom: 1px dashed var(--n-100); }
+  .fin-service-rows .fin-service-row:last-child { border-bottom: 0; }
+  .fin-service-name { font-weight: 500; }
+  .fin-service-rev { font-family: var(--mono); font-feature-settings: "tnum" 1; color: var(--n-700); }
+  .fin-service-bar { height: 8px; background: var(--paper-soft); border-radius: 99px; overflow: hidden; }
+  .fin-service-bar i { display: block; height: 100%; border-radius: 99px; transition: width 480ms cubic-bezier(0.32,0.72,0,1); }
+  .fin-service-pct { font-weight: 700; font-family: var(--mono); font-feature-settings: "tnum" 1; text-align: right; }
+  .fin-service-pct-ok   { color: var(--atlas); }
+  .fin-service-pct-warn { color: var(--warning); }
+  .fin-service-pct-crit { color: var(--danger); }
+  .fin-service-ai { margin-top: 14px; padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--atlas); font-size: 13px; line-height: 1.55; color: var(--n-700); }
+  .fin-service-ai b { color: var(--ink); font-weight: 600; }
+
+  /* ── Pricing recommendations ── */
+  .fin-price-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 920px) { .fin-price-grid { grid-template-columns: 1fr; } }
+  .fin-price-card { background: var(--paper); border: 1px solid var(--n-200); border-radius: 12px; padding: 14px 16px; display: flex; gap: 14px; }
+  .fin-price-card-up   { border-left: 3px solid var(--atlas); }
+  .fin-price-card-down { border-left: 3px solid var(--warning); }
+  .fin-price-card-neutral { border-left: 3px solid var(--n-400); }
+  .fin-price-symbol { font-size: 24px; font-weight: 700; line-height: 1; flex-shrink: 0; }
+  .fin-price-card-up    .fin-price-symbol { color: var(--atlas); }
+  .fin-price-card-down  .fin-price-symbol { color: var(--warning); }
+  .fin-price-card-neutral .fin-price-symbol { color: var(--n-500); }
+  .fin-price-body { min-width: 0; flex: 1; }
+  .fin-price-eyebrow { font-size: 9.5px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--atlas); font-weight: 700; margin-bottom: 5px; }
+  .fin-price-t { font-size: 14.5px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; line-height: 1.25; margin-bottom: 8px; }
+  .fin-price-b { font-size: 12.5px; color: var(--n-700); line-height: 1.55; margin-bottom: 10px; }
+  .fin-price-b b { color: var(--ink); font-weight: 600; }
+  .fin-price-a { font-size: 12.5px; color: var(--n-700); line-height: 1.5; padding-top: 8px; border-top: 1px dashed var(--n-200); }
+  .fin-price-a b { color: var(--ink); font-weight: 600; }
+  .fin-price-foot { font-size: 11px; color: var(--n-500); margin-top: 14px; line-height: 1.5; }
+
+  /* ── Page footer note ── */
+  .fin-note { font-size: 11px; color: var(--n-500); text-align: center; padding: 8px 0 0; max-width: 720px; margin: 0 auto; line-height: 1.5; font-style: italic; }
 
   /* ── Header ───────────────────────────────────────────────────────────── */
   .st-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 18px 0 20px; }
@@ -4997,6 +5131,14 @@
        *  ═══════════════════════════════════════════════════════════════════ -->
       <section class="dash-stock" data-stock-root hidden></section>
 
+      <!-- ═══════════════════════════════════════════════════════════════════
+       *  MARGES & BUDGET — real-time P&L, monthly budget pacing, break-even
+       *  calculator, profit-per-service breakdown, AI pricing suggestions.
+       *  Rendered by assets/finance.js; shown on body.page-finance.
+       *  In-memory state only — resets on refresh.
+       *  ═══════════════════════════════════════════════════════════════════ -->
+      <section class="dash-finance" data-finance-root hidden></section>
+
     </div>
 
     <!-- Status bar -->
@@ -5032,6 +5174,7 @@
 <script src="assets/pages-pro.js" defer fetchpriority="low"></script>
 <script src="assets/stock.js" defer fetchpriority="low"></script>
 <script src="assets/team.js" defer fetchpriority="low"></script>
+<script src="assets/finance.js" defer fetchpriority="low"></script>
 <!-- "Introducing Kiwi Marketing Suite" tease — fired by PIN 0505 after the
      greeting fades. Self-contained overlay + animation, no first-paint cost. -->
 <script src="assets/marketing-suite-tease.js" defer fetchpriority="low"></script>

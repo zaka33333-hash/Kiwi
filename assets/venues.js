@@ -265,6 +265,7 @@
     menu: '<path d="M4 6h16M4 12h16M4 18h10"/>',
     kds: '<path d="M5 12h14M12 5v14"/>',
     stock: '<path d="M3 6h18M6 10h12M9 14h6"/>',
+    finance: '<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
     // boutique
     inventory: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a4 4 0 018 0v2"/>',
     categories: '<path d="M3 6h7l2 2h9v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"/>',
@@ -282,10 +283,11 @@
       header: 'Restauration',
       i18nHeader: 'sidebar.section.restaurant',
       items: [
-        { nav: 'tables', label: 'Plan de salle',        i18n: 'sidebar.restaurant.tables', tag: 'LIVE', icon: ICONS.tables },
-        { nav: 'menu',   label: 'Menu & modificateurs', i18n: 'sidebar.restaurant.menu',                icon: ICONS.menu },
-        { nav: 'kds',    label: 'Écran cuisine (KDS)',  i18n: 'sidebar.restaurant.kds',                 icon: ICONS.kds },
-        { nav: 'stock',  label: 'Stock & approvisionnement', i18n: 'sidebar.restaurant.stock',          icon: ICONS.stock },
+        { nav: 'tables',  label: 'Plan de salle',        i18n: 'sidebar.restaurant.tables',  tag: 'LIVE', icon: ICONS.tables },
+        { nav: 'menu',    label: 'Menu & modificateurs', i18n: 'sidebar.restaurant.menu',                 icon: ICONS.menu },
+        { nav: 'kds',     label: 'Écran cuisine (KDS)',  i18n: 'sidebar.restaurant.kds',                  icon: ICONS.kds },
+        { nav: 'stock',   label: 'Stock & approvisionnement', i18n: 'sidebar.restaurant.stock',           icon: ICONS.stock },
+        { nav: 'finance', label: 'Marges & budget',      i18n: 'sidebar.restaurant.finance', tag: 'LIVE', icon: ICONS.finance },
       ],
     },
     boutique: {
