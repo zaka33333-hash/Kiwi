@@ -706,6 +706,15 @@
     .tbl[data-status="ka-yaklo"] .tbl-num    { color: var(--forest); }
     .tbl[data-status="ka-yaklo"] .tbl-covers { color: #437B5C; }
 
+    /* à commander — seated, order not taken yet (amber = action needed) */
+    .tbl[data-status="a-commander"] {
+      background: #FBF1DC;
+      border: 1.5px solid #E3C77E;
+      color: #8a6411;
+    }
+    .tbl[data-status="a-commander"] .tbl-num    { color: #8a6411; }
+    .tbl[data-status="a-commander"] .tbl-covers { color: #B08A3E; }
+
     /* bgha-ykhlass — urgent, deep forest, pulsing */
     .tbl[data-status="bgha-ykhlass"] {
       background: var(--forest);
@@ -941,6 +950,7 @@
     .rp-table { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.2; }
     .rp-substatus { font-size: 12px; margin-top: 4px; font-weight: 500; }
     .rp-substatus[data-flag="bgha-ykhlass"] { color: var(--forest); }
+    .rp-substatus[data-flag="a-commander"]  { color: #8a6411; }
     .rp-substatus[data-flag="ka-yaklo"]     { color: var(--ink-3); }
     .rp-close {
       width: 28px; height: 28px;
@@ -3795,6 +3805,7 @@
         </div>
         <div class="legend" aria-label="Légende">
           <div class="legend-item"><span class="legend-swatch" style="background:#F4F4F2; border:1px solid #E5E5E5;"></span><span>Khawya</span></div>
+          <div class="legend-item"><span class="legend-swatch" style="background:#FBF1DC; border:1px solid #E3C77E;"></span><span>À commander</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#EBF5F0; border:1px solid #C5E0D3;"></span><span>Ka-yaklo</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#1F5D3C;"></span><span>Addition</span></div>
           <div class="legend-item"><span class="legend-swatch" style="background:#fff; border:2px solid #3FB67A;"></span><span>Khlass</span></div>
@@ -4981,7 +4992,7 @@
     function serverInitials(s) { return s.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase(); }
 
     /* ---------- Table data ---------- */
-    /* status:  khawya | ka-yaklo | bgha-ykhlass | khlass                        */
+    /* status:  khawya | a-commander | ka-yaklo | bgha-ykhlass | khlass           */
     /* server:  server id assigned (only meaningful when table is occupied)      */
     /* floor:   0 = rez-de-chaussée, 1 = 1er étage                               */
     /* shape:   'rect' | 'round' | 'square'                                      */
@@ -5140,11 +5151,12 @@
 
       const label = ({
         'khawya':       'Khawya',
+        'a-commander':  'À commander',
         'ka-yaklo':     'Ka-yaklo',
         'bgha-ykhlass': 'Addition',
         'khlass':       'Khlass ✓',
       })[t.status];
-      const elapsed = (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass')
+      const elapsed = (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'a-commander')
         ? `<div class="tbl-elapsed">${t.elapsed} mn</div>`
         : '';
       const dot = t.status === 'bgha-ykhlass' ? '<span class="urgent-dot" aria-hidden="true"></span>' : '';
@@ -5361,10 +5373,11 @@
       $('#rp-table').textContent = `${id} · ${t.covers} couverts`;
 
       const subEl = $('#rp-substatus');
-      const flag = t.status === 'bgha-ykhlass' ? 'bgha-ykhlass' : 'ka-yaklo';
+      const flag = t.status === 'bgha-ykhlass' ? 'bgha-ykhlass' : (t.status === 'a-commander' ? 'a-commander' : 'ka-yaklo');
       subEl.dataset.flag = flag;
       const subText = ({
         'bgha-ykhlass': `Addition · ${t.elapsed} mn`,
+        'a-commander':  `À commander · ${t.elapsed} mn`,
         'ka-yaklo':     `Ka-yaklo · ${t.elapsed} mn`,
       })[flag];
       subEl.textContent = subText;
@@ -6207,7 +6220,7 @@
     setInterval(() => {
       Object.keys(tables).forEach(id => {
         const t = tables[id];
-        if (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass') {
+        if (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass' || t.status === 'a-commander') {
           t.elapsed += 1;
           // Update DOM in place (cheaper than full re-render)
           const node = document.querySelector(`.tbl-cell[data-table="${id}"] .tbl-elapsed`);
@@ -6218,6 +6231,7 @@
             const flag = sub.dataset.flag;
             const map = {
               'bgha-ykhlass': 'Addition',
+              'a-commander':  'À commander',
               'ka-yaklo':     'Ka-yaklo',
             };
             sub.textContent = `${map[flag]} · ${t.elapsed} mn`;
@@ -6405,7 +6419,7 @@
       const idx = waitlist.findIndex(w => w.id === e.id);
       const t = tables[tableId];
       if (t && t.status === 'khawya') {   // occupy the chosen table on the floor
-        t.status  = 'ka-yaklo';
+        t.status  = 'a-commander';     // seated — server still needs to take the order
         t.covers  = e.size;
         t.elapsed = 0;
         delete orders[tableId];        // drop any cached/fabricated order
@@ -6452,6 +6466,11 @@
       if (!tableOrders[tableId]) tableOrders[tableId] = [];
       const item = menuItems.find(m => m.id === itemId);
       if (!item) return;
+      // First item taken → order started, table is now being served (eating)
+      if (tables[tableId] && tables[tableId].status === 'a-commander') {
+        tables[tableId].status = 'ka-yaklo';
+        refreshTableNode(tableId);
+      }
       // Stack onto the un-noted line; a noted line splits off so it keeps its note.
       const line = tableOrders[tableId].find(l => l.id === itemId && !(l.note || '').trim());
       if (line) line.qty++;
