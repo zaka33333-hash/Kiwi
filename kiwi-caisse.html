@@ -3356,6 +3356,126 @@
     .kds-close svg { width: 15px; height: 15px; }
     .kds-body { flex: 1; overflow-y: auto; padding: 18px 26px 30px; }
 
+    /* ============================================================
+       STOCK & APPRO surface — reuses the .kds-screen shell.
+       .sk-* mirror the dashboard Stock look, on caisse tokens.
+       ============================================================ */
+    .stock-screen .kds-body { background: var(--paper); }
+    .sk-tabs { display: inline-flex; gap: 5px; background: var(--paper-mute); padding: 4px; border-radius: 999px; border: 1px solid var(--line); flex-wrap: wrap; margin-bottom: 18px; }
+    .sk-tab { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--ink-3); background: transparent; cursor: pointer; transition: background 150ms, color 150ms; white-space: nowrap; }
+    .sk-tab svg { width: 15px; height: 15px; }
+    .sk-tab:hover:not(.on) { color: var(--ink); }
+    .sk-tab.on { background: var(--gradient); color: #fff; box-shadow: var(--shadow-1); }
+
+    .sk-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+    @media (max-width: 1080px) { .sk-kpis { grid-template-columns: repeat(2, 1fr); } }
+    .sk-kpi { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .sk-kpi-l { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: var(--ink-3); font-family: var(--mono); }
+    .sk-kpi-ico { width: 28px; height: 28px; border-radius: 8px; background: var(--paper-mute); border: 1px solid var(--line); color: var(--forest); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .sk-kpi-ico svg { width: 15px; height: 15px; }
+    .sk-kpi-ico.warn { color: #B07D12; }
+    .sk-kpi-ico.ok { color: var(--emerald); }
+    .sk-kpi-v { font-size: 27px; font-weight: 700; letter-spacing: -0.03em; margin-top: 10px; line-height: 1.05; color: var(--ink); font-feature-settings: "tnum" 1; }
+    .sk-kpi-v.warn { color: #B07D12; }
+    .sk-kpi-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 8px; }
+
+    .sk-section { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+    .sk-section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .sk-section-head h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--ink); }
+    .sk-section-sub { font-size: 12px; color: var(--ink-3); }
+    .sk-badge { font-size: 11px; font-weight: 700; font-family: var(--mono); background: var(--paper-mute); color: var(--ink-2); padding: 3px 9px; border-radius: 999px; }
+    .sk-badge.warn { background: rgba(227,199,126,0.22); color: #8a6411; }
+
+    .sk-alerts { display: flex; flex-direction: column; gap: 9px; }
+    .sk-alert { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 13px 16px; background: var(--paper-mute); border: 1px solid var(--line); border-left: 3px solid #E0B445; border-radius: 12px; }
+    .sk-alert.out { border-left-color: #C0493A; background: rgba(192,73,58,0.05); }
+    .sk-alert-ico { width: 34px; height: 34px; border-radius: 10px; background: #fff; border: 1px solid var(--line); display: inline-flex; align-items: center; justify-content: center; color: #B07D12; flex: 0 0 auto; }
+    .sk-alert.out .sk-alert-ico { color: #C0493A; }
+    .sk-alert-ico svg { width: 17px; height: 17px; }
+    .sk-alert-body { min-width: 0; }
+    .sk-alert-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 4px; }
+    .sk-alert-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+    .sk-alert-cat { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #fff; border: 1px solid var(--line); color: var(--ink-3); }
+    .sk-alert-status { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); color: #fff; }
+    .sk-alert-status.low { background: #D99A2B; }
+    .sk-alert-status.out { background: #C0493A; }
+    .sk-alert-meta { font-size: 12px; color: var(--ink-2); }
+
+    .sk-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .sk-search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .sk-search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-4); pointer-events: none; }
+    .sk-search { width: 100%; padding: 10px 14px 10px 36px; border: 1px solid var(--line); border-radius: 10px; font-size: 13.5px; background: #fff; color: var(--ink); }
+    .sk-search:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 3px rgba(31,93,60,0.1); }
+    .ma-btn.sk-add { flex: 0 0 auto; width: auto; height: 40px; padding: 0 16px; font-size: 13px; }
+    .sk-filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+    .sk-pill { padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--ink-3); background: var(--paper-mute); cursor: pointer; transition: background 140ms, color 140ms; }
+    .sk-pill:hover:not(.on) { color: var(--ink); }
+    .sk-pill.on { background: var(--forest); color: #fff; }
+
+    .sk-tbl-wrap { overflow-x: auto; }
+    .sk-tbl { width: 100%; border-collapse: collapse; }
+    .sk-tbl th { text-align: left; font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding: 0 11px 10px; font-family: var(--mono); white-space: nowrap; }
+    .sk-tbl th.r, .sk-tbl td.r { text-align: right; }
+    .sk-tbl td { padding: 11px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--ink); vertical-align: middle; }
+    .sk-tbl tbody tr:hover { background: var(--paper-mute); }
+    .sk-cell-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .sk-cell-sub { font-size: 10.5px; color: var(--ink-3); margin-top: 2px; font-family: var(--mono); }
+    .sk-cell-stock { font-family: var(--mono); font-weight: 700; font-size: 13px; }
+    .sk-cell-sup { font-size: 12px; color: var(--ink-2); }
+    .sk-mono { font-family: var(--mono); font-feature-settings: "tnum" 1; }
+    .sk-bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 5px; width: 84px; overflow: hidden; }
+    .sk-bar-fill { height: 100%; border-radius: 2px; }
+    .sk-bar-fill.ok { background: var(--emerald); }
+    .sk-bar-fill.warn { background: #D99A2B; }
+    .sk-bar-fill.bad { background: #C0493A; }
+    .sk-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+    .sk-status .sd { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+    .sk-status.ok .sd { background: var(--emerald); }
+    .sk-status.low .sd { background: #D99A2B; }
+    .sk-status.out .sd { background: #C0493A; }
+    .sk-actions { display: flex; gap: 5px; justify-content: flex-end; }
+    .sk-icon-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--ink-3); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 140ms; }
+    .sk-icon-btn:hover { color: var(--ink); border-color: var(--ink-4); background: var(--paper-mute); }
+    .sk-icon-btn svg { width: 15px; height: 15px; }
+    .sk-empty, .sk-empty-row td { text-align: center; color: var(--ink-3); font-size: 13px; padding: 28px 0; }
+    .sk-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .sk-empty svg { width: 28px; height: 28px; color: var(--mint-edge); }
+
+    .sk-ord-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 11px; margin-bottom: 14px; }
+    .sk-ord { background: #fff; border: 1px solid var(--line); border-radius: 13px; padding: 15px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .sk-ord.urgent { border-left: 3px solid #D99A2B; }
+    .sk-ord-top { display: flex; align-items: center; justify-content: space-between; }
+    .sk-ord-id { font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--ink); }
+    .sk-ord-status { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); }
+    .sk-ord-status.pending { background: rgba(227,199,126,0.25); color: #8a6411; }
+    .sk-ord-status.ok { background: var(--mint-tint); color: var(--forest); }
+    .sk-ord-status.done { background: var(--paper-mute); color: var(--ink-3); }
+    .sk-ord-sup { font-size: 14px; font-weight: 700; color: var(--ink); }
+    .sk-ord-when { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+    .sk-ord-when svg { width: 13px; height: 13px; }
+    .sk-ord-items { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+    .sk-ord-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+    .sk-ord-total { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--ink); }
+    .sk-ord-acts { display: flex; gap: 6px; }
+    .ma-btn.sk-mini { flex: 0 0 auto; width: auto; height: 32px; padding: 0 12px; font-size: 12px; }
+    .ma-btn.sk-mini svg { width: 14px; height: 14px; }
+
+    .sk-count-input { width: 84px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; font-family: var(--mono); text-align: right; background: #fff; color: var(--ink); }
+    .sk-count-input:focus { outline: none; border-color: var(--forest); }
+    .sk-unit { font-size: 11px; color: var(--ink-3); margin-left: 4px; }
+
+    /* stock modals — reuse .modal-veil/.modal */
+    .modal.sk-wide { width: 480px; max-width: calc(100vw - 48px); max-height: calc(100vh - 60px); overflow-y: auto; }
+    .sk-field { margin-bottom: 12px; }
+    .sk-field label { display: block; font-size: 11px; font-weight: 600; color: var(--ink-3); margin-bottom: 5px; letter-spacing: 0.02em; }
+    .sk-input, .sk-select { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--paper-mute); color: var(--ink); }
+    .sk-input:focus, .sk-select:focus { outline: none; border-color: var(--forest); background: #fff; }
+    .sk-field-row { display: flex; gap: 10px; }
+    .sk-field-row .sk-field { flex: 1; }
+    .sk-ord-line { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+    .sk-ord-line-name { flex: 1; color: var(--ink); }
+    .sk-ord-line-name small { color: var(--ink-3); font-family: var(--mono); }
+
     /* === KITCHEN-DISPLAY MODE (PIN 0000) ===
        This terminal can also serve as the kitchen display station —
        a wall-mounted screen the cooks just glance at, no login. The
@@ -3773,6 +3893,12 @@
         <i data-lucide="chef-hat"></i>
         <span>Écran cuisine</span>
         <span class="count" id="kds-count">0</span>
+      </button>
+
+      <button class="team-trigger" id="open-stock" aria-label="Stock et approvisionnement">
+        <i data-lucide="boxes"></i>
+        <span>Stock</span>
+        <span class="count" id="stock-alert-count">0</span>
       </button>
 
       <div class="quick-actions" aria-label="Fin de service">
@@ -4938,6 +5064,31 @@
     </div>
   </div>
 
+  <!-- ============ STOCK & APPRO (full-screen) ============ -->
+  <div class="kds-screen stock-screen" id="stock-screen" role="dialog" aria-modal="true" aria-label="Stock et approvisionnement">
+    <div class="kds-head">
+      <div class="kds-head-l">
+        <h2>Stock &amp; appro</h2>
+        <div class="sub">Inventaire · commandes fournisseurs · inventaire physique</div>
+      </div>
+      <button class="kds-close" id="stock-close-btn"><i data-lucide="x"></i><span>Fermer</span></button>
+    </div>
+    <div class="kds-body">
+      <div class="sk-tabs" id="sk-tabs">
+        <button class="sk-tab on" data-sk-tab="apercu"><i data-lucide="layout-dashboard"></i>Vue d'ensemble</button>
+        <button class="sk-tab" data-sk-tab="articles"><i data-lucide="package"></i>Articles</button>
+        <button class="sk-tab" data-sk-tab="appro"><i data-lucide="truck"></i>Approvisionnement</button>
+        <button class="sk-tab" data-sk-tab="inventaire"><i data-lucide="clipboard-check"></i>Inventaire</button>
+      </div>
+      <div class="sk-body" id="sk-body"></div>
+    </div>
+  </div>
+
+  <!-- stock modal (edit item · add item · new order) -->
+  <div class="modal-veil" id="sk-modal" role="dialog" aria-modal="true">
+    <div class="modal sk-wide" id="sk-modal-box"></div>
+  </div>
+
   <!-- ============ TOAST STACK ============ -->
   <div id="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
@@ -5604,6 +5755,45 @@
     let wlSeq = 0;
     let wlDraft = { name: '', size: 2, pref: 'peu-importe' };
     let wlSeating = null;        // party being seated on the Plan de salle (or null)
+
+    /* ---- Stock & approvisionnement (cashier inventory) — resets on reload ---- */
+    let stockTab = 'apercu';
+    let skSearch = '', skCat = 'all', skStatus = 'all';
+    let skOrderSeq = 2843;
+    /* suppliers — read-only picklist (cashier picks, doesn't edit) */
+    const suppliers = [
+      { id: 's1', name: 'Marché Central · Port',     cat: 'Frais'    },
+      { id: 's2', name: 'Métro Cash & Carry',        cat: 'Épicerie' },
+      { id: 's3', name: 'Boissons Atlas',            cat: 'Boissons' },
+      { id: 's4', name: 'Laiterie Doukkala',         cat: 'Laitiers' },
+      { id: 's5', name: 'Boucherie Zerktouni',       cat: 'Viandes'  },
+      { id: 's6', name: 'Café & Torréfaction Riad',  cat: 'Café'     },
+    ];
+    const stockItems = [
+      { id:'i1',  name:'Tomates fraîches', cat:'legumes',     unit:'kg',      supplier:'Marché Central · Port',    stock:8,  par:20, reorder:8,  cost:9 },
+      { id:'i2',  name:'Oignons',          cat:'legumes',     unit:'kg',      supplier:'Marché Central · Port',    stock:22, par:25, reorder:10, cost:6 },
+      { id:'i3',  name:'Pommes de terre',  cat:'legumes',     unit:'kg',      supplier:'Marché Central · Port',    stock:35, par:30, reorder:12, cost:5 },
+      { id:'i4',  name:'Poulet entier',    cat:'viandes',     unit:'kg',      supplier:'Boucherie Zerktouni',      stock:6,  par:18, reorder:8,  cost:38 },
+      { id:'i5',  name:'Viande hachée',    cat:'viandes',     unit:'kg',      supplier:'Boucherie Zerktouni',      stock:0,  par:12, reorder:5,  cost:75 },
+      { id:'i6',  name:'Agneau épaule',    cat:'viandes',     unit:'kg',      supplier:'Boucherie Zerktouni',      stock:9,  par:10, reorder:4,  cost:90 },
+      { id:'i7',  name:'Sardines',         cat:'poissons',    unit:'kg',      supplier:'Marché Central · Port',    stock:4,  par:10, reorder:4,  cost:22 },
+      { id:'i8',  name:'Thé vert Gunpowder', cat:'epicerie',  unit:'kg',      supplier:'Métro Cash & Carry',       stock:7,  par:8,  reorder:3,  cost:48 },
+      { id:'i9',  name:'Sucre',            cat:'epicerie',    unit:'kg',      supplier:'Métro Cash & Carry',       stock:40, par:30, reorder:12, cost:7 },
+      { id:'i10', name:"Huile d'olive",    cat:'epicerie',    unit:'l',       supplier:'Métro Cash & Carry',       stock:14, par:20, reorder:8,  cost:42 },
+      { id:'i11', name:'Farine',           cat:'epicerie',    unit:'kg',      supplier:'Métro Cash & Carry',       stock:26, par:25, reorder:10, cost:6 },
+      { id:'i12', name:'Lait',             cat:'laitiers',    unit:'l',       supplier:'Laiterie Doukkala',        stock:11, par:24, reorder:10, cost:8 },
+      { id:'i13', name:'Beurre',           cat:'laitiers',    unit:'kg',      supplier:'Laiterie Doukkala',        stock:3,  par:8,  reorder:3,  cost:62 },
+      { id:'i14', name:'Œufs',             cat:'laitiers',    unit:'plateau', supplier:'Laiterie Doukkala',        stock:5,  par:14, reorder:6,  cost:34 },
+      { id:'i15', name:'Café en grains',   cat:'cafe',        unit:'kg',      supplier:'Café & Torréfaction Riad', stock:9,  par:12, reorder:5,  cost:120 },
+      { id:'i16', name:'Coca-Cola 33cl',   cat:'boissons',    unit:'casier',  supplier:'Boissons Atlas',           stock:6,  par:15, reorder:6,  cost:90 },
+      { id:'i17', name:'Eau minérale 1L',  cat:'boissons',    unit:'casier',  supplier:'Boissons Atlas',           stock:18, par:20, reorder:8,  cost:48 },
+      { id:'i18', name:'Gobelets carton',  cat:'consommables',unit:'paquet',  supplier:'Métro Cash & Carry',       stock:12, par:20, reorder:8,  cost:35 },
+    ];
+    const supplyOrders = [
+      { id:'2841', supplier:'Boucherie Zerktouni',   items:[{name:'Poulet entier',qty:18,unit:'kg'},{name:'Viande hachée',qty:12,unit:'kg'}], total:1584, status:'confirmee',  when:'Demain · 06h' },
+      { id:'2842', supplier:'Boissons Atlas',        items:[{name:'Coca-Cola 33cl',qty:10,unit:'casier'},{name:'Eau minérale 1L',qty:8,unit:'casier'}], total:1284, status:'en-attente', when:'Jeu. · 08h' },
+      { id:'2838', supplier:'Marché Central · Port', items:[{name:'Tomates fraîches',qty:20,unit:'kg'},{name:'Oignons',qty:15,unit:'kg'}], total:270, status:'recue', when:'Reçue hier' },
+    ];
 
     /* Réduction amount for the À emporter cart, clamped to the gross. */
     function vrapDiscountAmount(gross) {
@@ -9512,6 +9702,251 @@
       const rdy = e.target.closest('[data-kit-ready]');
       if (rdy) { kdsReady(Number(rdy.dataset.kitReady)); return; }
     });
+
+    /* ============================================================
+       STOCK & APPROVISIONNEMENT — cashier inventory + supply orders
+       ============================================================ */
+    const SK_CATS = { legumes:'Légumes', viandes:'Viandes', poissons:'Poisson', boissons:'Boissons', epicerie:'Épicerie', laitiers:'Laitiers', cafe:'Café', consommables:'Conso' };
+    const SK_ORD_STATUS = { 'en-attente':['En attente','pending'], 'confirmee':['Confirmée','ok'], 'recue':['Reçue','done'] };
+    let skItemSeq = 100;
+
+    function skStatusOf(it){ if (it.stock <= 0) return 'out'; if (it.stock <= it.reorder) return 'low'; return 'ok'; }
+    function skAlertCount(){ return stockItems.filter(i => skStatusOf(i) !== 'ok').length; }
+    function skTotalValue(){ return Math.round(stockItems.reduce((s,i) => s + i.stock * i.cost, 0)); }
+    function updateStockBadge(){ const el = $('#stock-alert-count'); if (el){ const n = skAlertCount(); el.textContent = n; el.classList.toggle('warn', n > 0); } }
+
+    function renderStock(){
+      $$('#sk-tabs .sk-tab').forEach(t => t.classList.toggle('on', t.dataset.skTab === stockTab));
+      const body = $('#sk-body');
+      if      (stockTab === 'apercu')     body.innerHTML = renderSkApercu();
+      else if (stockTab === 'articles')   body.innerHTML = renderSkArticles();
+      else if (stockTab === 'appro')      body.innerHTML = renderSkAppro();
+      else if (stockTab === 'inventaire') body.innerHTML = renderSkInventaire();
+      updateStockBadge();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderSkApercu(){
+      const alerts = stockItems.filter(i => skStatusOf(i) !== 'ok')
+        .sort((a,b) => (skStatusOf(a)==='out'?0:1) - (skStatusOf(b)==='out'?0:1));
+      const out = stockItems.filter(i => skStatusOf(i)==='out').length;
+      const next = supplyOrders.find(o => o.status !== 'recue');
+      const kpis = `<div class="sk-kpis">
+        <div class="sk-kpi"><div class="sk-kpi-l">Valeur du stock<span class="sk-kpi-ico"><i data-lucide="wallet"></i></span></div><div class="sk-kpi-v">${fmtMAD(skTotalValue())}</div><div class="sk-kpi-sub">${stockItems.length} articles suivis</div></div>
+        <div class="sk-kpi"><div class="sk-kpi-l">En alerte<span class="sk-kpi-ico ${alerts.length?'warn':'ok'}"><i data-lucide="alert-triangle"></i></span></div><div class="sk-kpi-v ${alerts.length?'warn':''}">${alerts.length}</div><div class="sk-kpi-sub">${out} en rupture</div></div>
+        <div class="sk-kpi"><div class="sk-kpi-l">Prochaine livraison<span class="sk-kpi-ico"><i data-lucide="truck"></i></span></div><div class="sk-kpi-v" style="font-size:19px">${next ? next.when : '—'}</div><div class="sk-kpi-sub">${next ? kdsEsc(next.supplier) : 'Aucune commande active'}</div></div>
+        <div class="sk-kpi"><div class="sk-kpi-l">Fournisseurs<span class="sk-kpi-ico"><i data-lucide="contact"></i></span></div><div class="sk-kpi-v">${suppliers.length}</div><div class="sk-kpi-sub">actifs</div></div>
+      </div>`;
+      const list = alerts.length
+        ? `<div class="sk-section"><div class="sk-section-head"><h3>Alertes stock</h3><span class="sk-badge warn">${alerts.length}</span></div><div class="sk-alerts">${alerts.map(it=>{
+            const st = skStatusOf(it);
+            return `<div class="sk-alert ${st}"><div class="sk-alert-ico"><i data-lucide="${st==='out'?'x-octagon':'alert-triangle'}"></i></div>
+              <div class="sk-alert-body"><div class="sk-alert-top"><span class="sk-alert-name">${kdsEsc(it.name)}</span><span class="sk-alert-cat">${SK_CATS[it.cat]||it.cat}</span><span class="sk-alert-status ${st}">${st==='out'?'Rupture':'Bas'}</span></div>
+              <div class="sk-alert-meta">${it.stock} ${it.unit} en stock · par ${it.par} ${it.unit} · ${kdsEsc(it.supplier)}</div></div>
+              <button class="ma-btn primary sk-mini" data-sk-order="${it.id}"><i data-lucide="truck"></i>Commander</button></div>`;
+          }).join('')}</div></div>`
+        : `<div class="sk-section"><div class="sk-empty"><i data-lucide="check-circle-2"></i>Tout est au niveau — aucune alerte.</div></div>`;
+      return kpis + list;
+    }
+
+    function skFilteredItems(){
+      const q = skSearch.trim().toLowerCase();
+      return stockItems.filter(i=>{
+        if (skCat !== 'all' && i.cat !== skCat) return false;
+        if (skStatus !== 'all' && skStatusOf(i) !== skStatus) return false;
+        if (q && !(`${i.name} ${i.supplier} ${SK_CATS[i.cat]||''}`.toLowerCase().includes(q))) return false;
+        return true;
+      });
+    }
+    function skRowsHTML(){
+      const items = skFilteredItems();
+      if (!items.length) return `<tr class="sk-empty-row"><td colspan="8">Aucun article.</td></tr>`;
+      return items.map(it=>{
+        const st = skStatusOf(it);
+        const pct = Math.min(100, Math.round(it.stock / Math.max(1, it.par) * 100));
+        const bar = st==='out'?'bad':(st==='low'?'warn':'ok');
+        return `<tr>
+          <td><div class="sk-cell-name">${kdsEsc(it.name)}</div><div class="sk-cell-sub">${it.unit} · ${fmtMAD(it.cost)}/${it.unit}</div></td>
+          <td>${SK_CATS[it.cat]||it.cat}</td>
+          <td><div class="sk-cell-stock">${it.stock} ${it.unit}</div><div class="sk-bar"><div class="sk-bar-fill ${bar}" style="width:${pct}%"></div></div></td>
+          <td class="sk-mono">${it.par}</td>
+          <td class="sk-mono">${fmtMAD(it.stock * it.cost)}</td>
+          <td class="sk-cell-sup">${kdsEsc(it.supplier)}</td>
+          <td><span class="sk-status ${st}"><span class="sd"></span>${st==='out'?'Rupture':(st==='low'?'Bas':'OK')}</span></td>
+          <td class="r"><div class="sk-actions"><button class="sk-icon-btn" data-sk-edit="${it.id}" title="Éditer"><i data-lucide="pencil"></i></button><button class="sk-icon-btn" data-sk-order="${it.id}" title="Commander"><i data-lucide="truck"></i></button></div></td>
+        </tr>`;
+      }).join('');
+    }
+    function renderSkRows(){ const tb = $('#sk-tbl-body'); if (tb){ tb.innerHTML = skRowsHTML(); if (window.lucide) lucide.createIcons(); } }
+
+    function renderSkArticles(){
+      const cats = ['all', ...Object.keys(SK_CATS).filter(c => stockItems.some(i => i.cat === c))];
+      const catPills = cats.map(c => `<button class="sk-pill ${skCat===c?'on':''}" data-sk-cat="${c}">${c==='all'?'Tout':SK_CATS[c]}</button>`).join('');
+      const statusPills = [['all','Tous'],['ok','En stock'],['low','Bas'],['out','Rupture']].map(([v,l])=>`<button class="sk-pill ${skStatus===v?'on':''}" data-sk-status="${v}">${l}</button>`).join('');
+      return `<div class="sk-toolbar">
+          <div class="sk-search-wrap"><i data-lucide="search"></i><input class="sk-search" id="sk-search-input" placeholder="Chercher un article, fournisseur…" value="${kdsEsc(skSearch)}"></div>
+          <button class="ma-btn primary sk-add" data-sk-additem><i data-lucide="plus"></i>Article</button>
+        </div>
+        <div class="sk-filters">${catPills}</div>
+        <div class="sk-filters">${statusPills}</div>
+        <div class="sk-tbl-wrap"><table class="sk-tbl"><thead><tr><th>Article</th><th>Catégorie</th><th>Stock</th><th>Par</th><th>Valeur</th><th>Fournisseur</th><th>Statut</th><th class="r">Actions</th></tr></thead><tbody id="sk-tbl-body">${skRowsHTML()}</tbody></table></div>`;
+    }
+
+    function renderSkAppro(){
+      const active = supplyOrders.filter(o => o.status !== 'recue');
+      const past = supplyOrders.filter(o => o.status === 'recue');
+      const card = o => { const [lbl,cls] = SK_ORD_STATUS[o.status] || ['',''];
+        return `<div class="sk-ord ${o.status==='en-attente'?'urgent':''}">
+          <div class="sk-ord-top"><span class="sk-ord-id">#${o.id}</span><span class="sk-ord-status ${cls}">${lbl}</span></div>
+          <div class="sk-ord-sup">${kdsEsc(o.supplier)}</div>
+          <div class="sk-ord-when"><i data-lucide="clock"></i>${kdsEsc(o.when)}</div>
+          <div class="sk-ord-items">${o.items.map(i=>`${i.qty} ${i.unit} ${kdsEsc(i.name)}`).join(' · ')}</div>
+          <div class="sk-ord-foot"><span class="sk-ord-total">${fmtMAD(o.total)}</span><div class="sk-ord-acts">
+            ${o.status==='en-attente'?`<button class="ma-btn secondary sk-mini" data-sk-confirm="${o.id}">Confirmer</button>`:''}
+            <button class="ma-btn primary sk-mini" data-sk-receive="${o.id}"><i data-lucide="check"></i>Reçue</button>
+          </div></div></div>`; };
+      return `<div class="sk-toolbar">
+          <div class="sk-section-head" style="margin:0"><h3>Commandes en cours</h3><span class="sk-badge">${active.length}</span></div>
+          <button class="ma-btn primary sk-add" data-sk-neworder><i data-lucide="plus"></i>Nouvelle commande</button>
+        </div>
+        <div class="sk-ord-grid">${active.length ? active.map(card).join('') : `<div class="sk-empty"><i data-lucide="truck"></i>Aucune commande en cours.</div>`}</div>
+        ${past.length ? `<div class="sk-section"><div class="sk-section-head"><h3>Historique</h3></div><div class="sk-tbl-wrap"><table class="sk-tbl"><thead><tr><th>#</th><th>Fournisseur</th><th>Articles</th><th>Total</th><th>Statut</th></tr></thead><tbody>${past.map(o=>`<tr><td class="sk-mono">#${o.id}</td><td>${kdsEsc(o.supplier)}</td><td>${o.items.length} article${o.items.length>1?'s':''}</td><td class="sk-mono">${fmtMAD(o.total)}</td><td><span class="sk-status ok"><span class="sd"></span>Reçue</span></td></tr>`).join('')}</tbody></table></div></div>` : ''}`;
+    }
+
+    function renderSkInventaire(){
+      const rows = stockItems.map(it=>`<tr>
+        <td><div class="sk-cell-name">${kdsEsc(it.name)}</div><div class="sk-cell-sub">${SK_CATS[it.cat]||it.cat}</div></td>
+        <td class="sk-mono">${it.stock} ${it.unit}</td>
+        <td><input class="sk-count-input" type="number" min="0" inputmode="numeric" data-sk-count="${it.id}" value="${it.stock}"><span class="sk-unit">${it.unit}</span></td>
+      </tr>`).join('');
+      return `<div class="sk-toolbar">
+          <div class="sk-section-head" style="margin:0"><h3>Inventaire physique</h3><span class="sk-section-sub">Compte les quantités réelles, puis valide.</span></div>
+          <button class="ma-btn primary sk-add" data-sk-validate-inv><i data-lucide="clipboard-check"></i>Valider l'inventaire</button>
+        </div>
+        <div class="sk-tbl-wrap"><table class="sk-tbl"><thead><tr><th>Article</th><th>Stock système</th><th>Quantité comptée</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+
+    /* ---- stock modal (edit · add · new order) ---- */
+    function openSkModal(html){ $('#sk-modal-box').innerHTML = html; $('#sk-modal').classList.add('is-open'); if (window.lucide) lucide.createIcons(); }
+    function closeSkModal(){ $('#sk-modal').classList.remove('is-open'); }
+    function skSupplierOptions(sel){ return suppliers.map(s=>`<option value="${kdsEsc(s.name)}" ${s.name===sel?'selected':''}>${kdsEsc(s.name)}</option>`).join(''); }
+    function skCatOptions(sel){ return Object.entries(SK_CATS).map(([v,l])=>`<option value="${v}" ${v===sel?'selected':''}>${l}</option>`).join(''); }
+
+    function openEditItem(id){
+      const it = stockItems.find(i=>i.id===id); if (!it) return;
+      openSkModal(`<div class="split-badge">Article</div><h3 class="modal-title" style="margin-bottom:12px;">${kdsEsc(it.name)}</h3>
+        <div class="sk-field-row">
+          <div class="sk-field"><label>Stock actuel (${it.unit})</label><input class="sk-input" id="sk-f-stock" type="number" min="0" value="${it.stock}"></div>
+          <div class="sk-field"><label>Niveau par (${it.unit})</label><input class="sk-input" id="sk-f-par" type="number" min="0" value="${it.par}"></div>
+        </div>
+        <div class="sk-field-row">
+          <div class="sk-field"><label>Seuil d'alerte</label><input class="sk-input" id="sk-f-reorder" type="number" min="0" value="${it.reorder}"></div>
+          <div class="sk-field"><label>Coût/${it.unit} (MAD)</label><input class="sk-input" id="sk-f-cost" type="number" min="0" value="${it.cost}"></div>
+        </div>
+        <div class="nt-actions"><button class="ma-btn secondary" data-sk-cancel style="flex:1;">Annuler</button><button class="ma-btn primary" data-sk-save-item="${it.id}" style="flex:2;"><i data-lucide="check"></i>Enregistrer</button></div>`);
+    }
+    function saveEditItem(id){
+      const it = stockItems.find(i=>i.id===id); if (!it) return;
+      it.stock   = Math.max(0, parseInt($('#sk-f-stock').value)   || 0);
+      it.par     = Math.max(0, parseInt($('#sk-f-par').value)     || 0);
+      it.reorder = Math.max(0, parseInt($('#sk-f-reorder').value) || 0);
+      it.cost    = Math.max(0, parseFloat($('#sk-f-cost').value)  || 0);
+      closeSkModal(); renderStock(); toast(`${it.name} mis à jour`);
+    }
+    function openAddItem(){
+      openSkModal(`<div class="split-badge">Nouvel article</div><h3 class="modal-title" style="margin-bottom:12px;">Ajouter un article</h3>
+        <div class="sk-field"><label>Nom</label><input class="sk-input" id="sk-f-name" placeholder="ex. Citrons confits" autocomplete="off"></div>
+        <div class="sk-field-row">
+          <div class="sk-field"><label>Catégorie</label><select class="sk-select" id="sk-f-cat">${skCatOptions('legumes')}</select></div>
+          <div class="sk-field"><label>Unité</label><input class="sk-input" id="sk-f-unit" value="kg"></div>
+        </div>
+        <div class="sk-field"><label>Fournisseur</label><select class="sk-select" id="sk-f-supplier">${skSupplierOptions(suppliers[0].name)}</select></div>
+        <div class="sk-field-row">
+          <div class="sk-field"><label>Stock</label><input class="sk-input" id="sk-f-stock" type="number" min="0" value="0"></div>
+          <div class="sk-field"><label>Par</label><input class="sk-input" id="sk-f-par" type="number" min="0" value="10"></div>
+          <div class="sk-field"><label>Coût (MAD)</label><input class="sk-input" id="sk-f-cost" type="number" min="0" value="0"></div>
+        </div>
+        <div class="nt-actions"><button class="ma-btn secondary" data-sk-cancel style="flex:1;">Annuler</button><button class="ma-btn primary" data-sk-add-save style="flex:2;"><i data-lucide="plus"></i>Ajouter</button></div>`);
+    }
+    function saveNewItem(){
+      const name = ($('#sk-f-name').value || '').trim();
+      if (!name){ $('#sk-f-name').focus(); toast("Donne un nom à l'article"); return; }
+      const par = Math.max(0, parseInt($('#sk-f-par').value) || 0);
+      stockItems.push({ id:'i'+(++skItemSeq), name, cat:$('#sk-f-cat').value, unit:($('#sk-f-unit').value||'unité').trim(),
+        supplier:$('#sk-f-supplier').value, stock:Math.max(0, parseInt($('#sk-f-stock').value)||0),
+        par, reorder:Math.max(1, Math.round(par * 0.4)), cost:Math.max(0, parseFloat($('#sk-f-cost').value)||0) });
+      closeSkModal(); stockTab = 'articles'; renderStock(); toast(`${name} ajouté au stock`);
+    }
+
+    function skOrderLinesHTML(supplierName, prefillId){
+      const items = stockItems.filter(i => i.supplier === supplierName);
+      if (!items.length) return `<div class="sk-empty" style="padding:14px 0">Aucun article pour ce fournisseur.</div>`;
+      return items.map(it=>{
+        const sugg = (prefillId === it.id) ? Math.max(1, it.par - it.stock) : 0;
+        return `<div class="sk-ord-line"><span class="sk-ord-line-name">${kdsEsc(it.name)} <small>${it.stock}/${it.par} ${it.unit}</small></span><input class="sk-count-input" type="number" min="0" data-sk-oline="${it.id}" value="${sugg}"><span class="sk-unit">${it.unit}</span></div>`;
+      }).join('');
+    }
+    function openNewOrder(prefillSupplier, prefillId){
+      const sup = prefillSupplier || suppliers[0].name;
+      openSkModal(`<div class="split-badge">Approvisionnement</div><h3 class="modal-title" style="margin-bottom:12px;">Nouvelle commande</h3>
+        <div class="sk-field"><label>Fournisseur</label><select class="sk-select" id="sk-order-supplier">${skSupplierOptions(sup)}</select></div>
+        <div class="sk-field"><label>Articles &amp; quantités</label><div id="sk-order-lines">${skOrderLinesHTML(sup, prefillId)}</div></div>
+        <div class="nt-actions"><button class="ma-btn secondary" data-sk-cancel style="flex:1;">Annuler</button><button class="ma-btn primary" data-sk-create-order style="flex:2;"><i data-lucide="check"></i>Créer la commande</button></div>`);
+    }
+    function createOrder(){
+      const supplier = $('#sk-order-supplier').value;
+      const lines = []; let total = 0;
+      $$('#sk-order-lines [data-sk-oline]').forEach(inp=>{
+        const qty = parseInt(inp.value) || 0;
+        if (qty > 0){ const it = stockItems.find(i => i.id === inp.dataset.skOline); if (it){ lines.push({ name:it.name, qty, unit:it.unit }); total += qty * it.cost; } }
+      });
+      if (!lines.length){ toast('Ajoute au moins une quantité'); return; }
+      supplyOrders.unshift({ id:String(++skOrderSeq), supplier, items:lines, total:Math.round(total), status:'en-attente', when:'À planifier' });
+      closeSkModal(); stockTab = 'appro'; renderStock(); toast(`Commande #${skOrderSeq} créée · ${supplier}`);
+    }
+    function confirmOrder(id){ const o = supplyOrders.find(x=>x.id===id); if (!o) return; o.status = 'confirmee'; renderStock(); toast(`Commande #${id} confirmée`); }
+    function receiveOrder(id){
+      const o = supplyOrders.find(x=>x.id===id); if (!o) return;
+      o.status = 'recue'; o.when = 'Reçue';
+      let added = 0;
+      o.items.forEach(li=>{ const it = stockItems.find(i => i.name === li.name); if (it){ it.stock += li.qty; added++; } });
+      renderStock(); toast(`Commande #${id} reçue · ${added} article${added>1?'s':''} réapprovisionné${added>1?'s':''}`);
+    }
+    function validateInventory(){
+      let changed = 0;
+      $$('#sk-body [data-sk-count]').forEach(inp=>{
+        const it = stockItems.find(i => i.id === inp.dataset.skCount);
+        if (it){ const v = Math.max(0, parseInt(inp.value) || 0); if (v !== it.stock){ it.stock = v; changed++; } }
+      });
+      renderStock(); toast(changed ? `Inventaire validé · ${changed} article${changed>1?'s':''} ajusté${changed>1?'s':''}` : 'Inventaire validé · aucun écart');
+    }
+
+    /* ---- open / close + delegation ---- */
+    function openStock(){ renderStock(); $('#stock-screen').classList.add('is-open'); if (window.lucide) lucide.createIcons(); }
+    function closeStock(){ $('#stock-screen').classList.remove('is-open'); }
+    $('#open-stock').addEventListener('click', openStock);
+    $('#stock-close-btn').addEventListener('click', closeStock);
+    $('#stock-screen').addEventListener('click', (e)=>{
+      const tab = e.target.closest('[data-sk-tab]');     if (tab){ stockTab = tab.dataset.skTab; renderStock(); return; }
+      const cat = e.target.closest('[data-sk-cat]');     if (cat){ skCat = cat.dataset.skCat; renderStock(); return; }
+      const stf = e.target.closest('[data-sk-status]');  if (stf){ skStatus = stf.dataset.skStatus; renderStock(); return; }
+      const ed  = e.target.closest('[data-sk-edit]');    if (ed){ openEditItem(ed.dataset.skEdit); return; }
+      const ord = e.target.closest('[data-sk-order]');   if (ord){ const it = stockItems.find(i=>i.id===ord.dataset.skOrder); openNewOrder(it && it.supplier, it && it.id); return; }
+      if (e.target.closest('[data-sk-additem]'))     { openAddItem(); return; }
+      if (e.target.closest('[data-sk-neworder]'))    { openNewOrder(); return; }
+      const cf = e.target.closest('[data-sk-confirm]');  if (cf){ confirmOrder(cf.dataset.skConfirm); return; }
+      const rc = e.target.closest('[data-sk-receive]');  if (rc){ receiveOrder(rc.dataset.skReceive); return; }
+      if (e.target.closest('[data-sk-validate-inv]')){ validateInventory(); return; }
+    });
+    $('#stock-screen').addEventListener('input', (e)=>{ if (e.target.id === 'sk-search-input'){ skSearch = e.target.value; renderSkRows(); } });
+    $('#sk-modal').addEventListener('click', (e)=>{
+      if (e.target.closest('[data-sk-cancel]') || e.target === $('#sk-modal')){ closeSkModal(); return; }
+      const si = e.target.closest('[data-sk-save-item]'); if (si){ saveEditItem(si.dataset.skSaveItem); return; }
+      if (e.target.closest('[data-sk-add-save]'))   { saveNewItem(); return; }
+      if (e.target.closest('[data-sk-create-order]')){ createOrder(); return; }
+    });
+    $('#sk-modal').addEventListener('change', (e)=>{ if (e.target.id === 'sk-order-supplier'){ $('#sk-order-lines').innerHTML = skOrderLinesHTML(e.target.value); if (window.lucide) lucide.createIcons(); } });
+    updateStockBadge();
 
     /* À emporter — push the current cart to the kitchen screen as a new order */
     function sendToKitchen() {
