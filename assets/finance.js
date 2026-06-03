@@ -876,7 +876,15 @@
     if (!window.Kiwi || !window.Kiwi.handlers) {
       return setTimeout(wire, 80);
     }
-    window.Kiwi.handlers['nav-finance'] = () => showPage();
+    /* Role gate — manager cannot reach Marges & budget even if the entry
+     * is somehow triggered. Bounce to dashboard + a soft toast. */
+    window.Kiwi.handlers['nav-finance'] = () => {
+      if ((window.__kiwiRole || 'owner') === 'manager') {
+        window.Kiwi.toast?.('Accès propriétaire uniquement', { type: 'info' });
+        return;
+      }
+      showPage();
+    };
     wireTvaHandlers();
     /* Any other nav-* handler returns the user to the dashboard. */
     ['nav-accueil', 'nav-tables', 'nav-menu', 'nav-kds', 'nav-stock', 'nav-equipe',

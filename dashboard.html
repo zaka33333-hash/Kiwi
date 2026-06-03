@@ -310,6 +310,22 @@
   .breadcrumb { font-size: 13px; color: var(--n-500); display: flex; align-items: center; gap: 8px; font-family: var(--mono); }
   .breadcrumb b { color: var(--ink); font-family: var(--sans); font-weight: 500; }
   .breadcrumb .sep { color: var(--n-300); }
+
+  /* ═══════════════════════ ROLE GATE ═══════════════════════
+   * Sidebar items and the role badge react to body.role-* set by
+   * the lock-screen PIN flow + the early role-init script.
+   *
+   * Manager (PIN 0909) cannot see:
+   *   – Marges & budget        (full P&L, TVA, pricing recs)
+   *   – Paie & planning        (salaries, hours, payroll)
+   * The role badge "Vue gérant" appears in the topbar so the demo
+   * viewer always knows which role is active.
+   * ════════════════════════════════════════════════════════════ */
+  .role-badge { display: none; align-items: center; gap: 6px; padding: 4px 10px 4px 8px; border-radius: 99px; background: rgba(217,154,43,0.12); color: var(--warning); font-size: 11.5px; font-weight: 600; letter-spacing: -0.005em; }
+  .role-badge svg { color: var(--warning); flex-shrink: 0; }
+  body.role-manager .role-badge { display: inline-flex; }
+  body.role-manager .sidebar a[data-nav="finance"],
+  body.role-manager .sidebar a[data-nav="payroll"] { display: none !important; }
   .search-big {
     flex: 1; max-width: 460px;
     background: rgba(255,255,255,0.5);
@@ -4628,6 +4644,30 @@
 <link rel="stylesheet" href="assets/mobile.css" />
 </head>
 <body>
+<!-- ═══════════════════════════════════════════════════════════════════
+ *  ROLE GATE — runs before the sidebar markup renders.
+ *  Reads localStorage 'kiwiRole' and tags <body> with role-owner /
+ *  role-manager so CSS + script logic can branch.
+ *
+ *  Roles by PIN:
+ *    0000   reserved · "configure new restaurant" onboarding
+ *    0505   reserved · marketing-suite preview tease (runs as owner)
+ *    0909   gérant · restricted sidebar (no Marges, no Paie & planning,
+ *                                         no salary columns in Équipe)
+ *    other  propriétaire · full access (default)
+ *
+ *  No PIN entered yet → defaults to owner so refreshing inside the demo
+ *  keeps everything visible.
+ *  ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  let role = 'owner';
+  try { role = localStorage.getItem('kiwiRole') || 'owner'; } catch (_) {}
+  if (role !== 'owner' && role !== 'manager') role = 'owner';
+  document.body.classList.add('role-' + role);
+  window.__kiwiRole = role;
+})();
+</script>
 
 <!-- PIN lock screen (full-viewport, shown until 4-digit unlock) -->
 <div class="kiwi-lock" data-kiwi-lock>
@@ -4753,6 +4793,12 @@
     <div class="topbar"><div class="topbar-inner">
       <div class="breadcrumb" data-i18n="dash.breadcrumb">
         Accueil <span class="sep">/</span> <b>Tableau de bord</b>
+      </div>
+      <!-- Role badge — shown only when the manager PIN (0909) is used,
+           so the demo viewer knows they're seeing the restricted view. -->
+      <div class="role-badge" data-role-badge data-i18n="dash.role.manager">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Vue gérant</span>
       </div>
       <div class="search-big">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -5422,6 +5468,31 @@
 <script src="assets/team.js" defer fetchpriority="low"></script>
 <script src="assets/finance.js" defer fetchpriority="low"></script>
 <script src="assets/conformite.js" defer fetchpriority="low"></script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+ *  ROLE GUARD — wraps nav-payroll so a manager can't reach the payroll
+ *  page even via console / leftover keyboard shortcut. nav-finance is
+ *  wrapped inside finance.js itself. Defers until Kiwi.handlers is up.
+ *  ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function gate() {
+  if (!window.Kiwi || !window.Kiwi.handlers) return setTimeout(gate, 80);
+  const wrap = (key) => {
+    const prev = window.Kiwi.handlers[key];
+    if (!prev || prev.__kiwiRoleGated) return;
+    const guarded = (...args) => {
+      if ((window.__kiwiRole || 'owner') === 'manager') {
+        window.Kiwi.toast?.('Accès propriétaire uniquement', { type: 'info' });
+        return;
+      }
+      return prev(...args);
+    };
+    guarded.__kiwiRoleGated = true;
+    window.Kiwi.handlers[key] = guarded;
+  };
+  wrap('nav-payroll');
+})();
+</script>
 <!-- "Introducing Kiwi Marketing Suite" tease — fired by PIN 0505 after the
      greeting fades. Self-contained overlay + animation, no first-paint cost. -->
 <script src="assets/marketing-suite-tease.js" defer fetchpriority="low"></script>
@@ -5479,6 +5550,20 @@
        * an Apple-keynote-style "Introducing Marketing Suite" reveal
        * plays. See assets/marketing-suite-tease.js. */
       if (val === '0505') window.__kiwiMarketingTease = true;
+      /* Role gate:
+       *   0000 / 0505 → reserved (onboard / marketing tease)
+       *   0909        → manager view (restricted sidebar — no Marges,
+       *                  no Paie; financial visibility hidden)
+       *   anything else → owner view (full sidebar)
+       * The flag is read by the role-filter script in assets/roleGate.js
+       * and reflected as body.role-manager / body.role-owner. */
+      let role = 'owner';
+      if (val === '0000' || val === '0505') role = 'owner';   /* config / tease both run as owner */
+      else if (val === '0909') role = 'manager';
+      window.__kiwiRole = role;
+      try { localStorage.setItem('kiwiRole', role); } catch (_) {}
+      document.body.classList.remove('role-owner', 'role-manager');
+      document.body.classList.add('role-' + role);
       /* Slight delay so the user sees the 4th cell fill before the celebration. */
       setTimeout(unlock, 140);
     }
