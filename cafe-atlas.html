@@ -892,6 +892,530 @@
       font-weight: 500;
       letter-spacing: -0.005em;
     }
+
+    /* =========================================================
+       MODE-CHOICE screen (à table / à emporter)
+       ========================================================= */
+    .screen-mode {
+      padding: var(--safe-top) 24px var(--safe-bottom);
+      justify-content: space-between;
+      align-items: center;
+      background:
+        radial-gradient(70% 40% at 50% -10%, rgba(31,93,60,0.06), transparent 60%),
+        var(--paper-cream);
+    }
+    .mode-mid {
+      width: 100%;
+      text-align: center;
+      padding: 0 8px;
+    }
+    .mode-ask {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .mode-ask em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--forest);
+    }
+    .mode-sub {
+      font-size: 13px;
+      color: var(--ink-3);
+      margin: 0;
+      line-height: 1.45;
+    }
+    .mode-cards {
+      width: 100%;
+      max-width: 380px;
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+    }
+    .mode-card {
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 18px;
+      padding: 18px 18px;
+      display: grid;
+      grid-template-columns: 56px 1fr 16px;
+      gap: 16px;
+      align-items: center;
+      text-align: left;
+      box-shadow: var(--shadow-card);
+      transition: transform 200ms ease, border-color 200ms ease;
+      width: 100%;
+    }
+    .mode-card:active { transform: scale(0.98); border-color: var(--forest); }
+    .mode-card .mode-icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: var(--mint-tint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--forest);
+    }
+    .mode-card .mode-icon svg { width: 26px; height: 26px; }
+    .mode-card .mode-body { min-width: 0; }
+    .mode-card .mode-label {
+      display: block;
+      font-size: 16.5px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .mode-card .mode-desc {
+      display: block;
+      font-size: 12px;
+      color: var(--ink-3);
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+    .mode-card .mode-chev {
+      color: var(--ink-4);
+      display: flex;
+      align-items: center;
+    }
+    .mode-card .mode-chev svg { width: 16px; height: 16px; }
+    .mode-foot {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+      text-align: center;
+      padding: 0 12px;
+    }
+
+    /* Back arrow at top of secondary screens */
+    .back-affordance {
+      position: absolute;
+      top: calc(var(--safe-top) + 12px);
+      left: 18px;
+      width: 38px; height: 38px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--line-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-2);
+      z-index: 10;
+    }
+    .back-affordance:active { transform: scale(0.94); }
+    .back-affordance svg { width: 17px; height: 17px; }
+
+    /* =========================================================
+       CASHIER screen (takeout: present at counter)
+       ========================================================= */
+    .screen-cashier {
+      padding: var(--safe-top) 24px var(--safe-bottom);
+      background: var(--paper-cream);
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cashier-top {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-top: 18px;
+    }
+    .cashier-eyebrow {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-top: 4px;
+    }
+    .cashier-mid {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      width: 100%;
+    }
+    .cashier-number {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 96px;
+      line-height: 1;
+      color: var(--forest);
+      letter-spacing: -0.04em;
+      font-feature-settings: "tnum" 1;
+      display: flex;
+      align-items: baseline;
+    }
+    .cashier-number .hash {
+      font-size: 56px;
+      color: var(--forest);
+      opacity: 0.4;
+      margin-right: 2px;
+      font-weight: 300;
+    }
+    .cashier-instruction {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.018em;
+      color: var(--ink);
+      line-height: 1.32;
+      max-width: 300px;
+    }
+    .cashier-instruction em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--forest);
+    }
+    .cashier-recap {
+      width: 100%;
+      max-width: 320px;
+      margin-top: 6px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      text-align: left;
+      box-shadow: var(--shadow-card);
+    }
+    .cashier-recap-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 6px;
+    }
+    .cashier-recap-items {
+      font-size: 13px;
+      color: var(--ink-2);
+      line-height: 1.5;
+    }
+    .cashier-recap-total {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+      color: var(--ink-3);
+    }
+    .cashier-recap-total strong {
+      font-family: var(--mono);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .cashier-bottom {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cashier-confirm-btn {
+      width: 100%;
+      padding: 16px 18px;
+      background: var(--ink);
+      color: var(--paper-cream);
+      border-radius: 16px;
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 200ms ease;
+    }
+    .cashier-confirm-btn:active { transform: scale(0.98); }
+    .cashier-confirm-btn svg { width: 16px; height: 16px; }
+    .cashier-hint {
+      font-size: 11.5px;
+      color: var(--ink-3);
+      text-align: center;
+      line-height: 1.5;
+      padding: 0 16px;
+      margin: 0;
+    }
+
+    /* =========================================================
+       PREPARING screen (takeout: en préparation)
+       ========================================================= */
+    .screen-preparing {
+      padding: var(--safe-top) 24px var(--safe-bottom);
+      background: var(--paper-cream);
+      justify-content: space-between;
+      align-items: center;
+    }
+    .prep-top {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-top: 18px;
+    }
+    .prep-mid {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      text-align: center;
+      width: 100%;
+    }
+    .prep-ring {
+      width: 116px; height: 116px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+    }
+    .prep-ring::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: var(--forest);
+      animation: prep-spin 1.4s linear infinite;
+    }
+    @keyframes prep-spin { to { transform: rotate(360deg); } }
+    .prep-ring svg {
+      width: 40px; height: 40px;
+      color: var(--forest);
+    }
+    .prep-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.022em;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .prep-title em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--forest);
+    }
+    .prep-eta-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+    .prep-eta {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .prep-eta strong {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      text-transform: none;
+      color: var(--ink);
+      margin-left: 6px;
+    }
+    .prep-bar {
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--line-soft);
+      overflow: hidden;
+    }
+    .prep-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--gradient);
+      transition: width 200ms linear;
+    }
+    .prep-perm {
+      width: 100%;
+      max-width: 320px;
+      margin-top: 4px;
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12.5px;
+      line-height: 1.4;
+      color: var(--ink-2);
+      text-align: left;
+    }
+    .prep-perm.is-granted {
+      background: var(--mint-tint);
+      border-color: var(--mint-edge);
+      color: var(--forest);
+    }
+    .prep-perm.is-denied {
+      background: var(--paper-mute);
+      color: var(--ink-3);
+    }
+    .prep-perm .perm-icon {
+      width: 30px; height: 30px;
+      border-radius: 999px;
+      background: var(--mint-tint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--forest);
+      flex: 0 0 30px;
+    }
+    .prep-perm.is-granted .perm-icon { background: var(--forest); color: #fff; }
+    .prep-perm .perm-icon svg { width: 15px; height: 15px; }
+    .prep-perm .perm-body { flex: 1; min-width: 0; }
+    .prep-perm-btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--forest);
+      letter-spacing: -0.005em;
+      padding: 6px 12px;
+      background: var(--mint-tint);
+      border-radius: 999px;
+      border: 1px solid var(--mint-edge);
+      white-space: nowrap;
+    }
+    .prep-perm-btn:active { transform: scale(0.96); }
+    .prep-bottom {
+      width: 100%;
+      padding-bottom: 6px;
+    }
+    .prep-note {
+      font-size: 12.5px;
+      text-align: center;
+      color: var(--ink-3);
+      line-height: 1.5;
+      padding: 0 12px;
+      margin: 0;
+    }
+    .prep-note em {
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--forest);
+    }
+
+    /* =========================================================
+       READY screen (takeout: prêt!)
+       ========================================================= */
+    .screen-ready {
+      padding: var(--safe-top) 28px var(--safe-bottom);
+      background: var(--gradient);
+      color: #fff;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ready-top {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+      text-align: center;
+      width: 100%;
+    }
+    .ready-pulse {
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: ready-pulse-out 1.6s ease-out infinite;
+    }
+    .ready-pulse::before,
+    .ready-pulse::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.5);
+      animation: ready-ring 1.6s ease-out infinite;
+    }
+    .ready-pulse::after { animation-delay: 0.6s; }
+    @keyframes ready-pulse-out {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.04); }
+    }
+    @keyframes ready-ring {
+      0%   { opacity: 0.9; transform: scale(0.85); }
+      100% { opacity: 0;   transform: scale(1.6);  }
+    }
+    .ready-pulse svg {
+      width: 62px; height: 62px;
+      color: #fff;
+      stroke-width: 2.2;
+    }
+    .ready-title {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+    }
+    .ready-title em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--mint);
+    }
+    .ready-sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+    .ready-bottom {
+      width: 100%;
+      padding-bottom: 4px;
+    }
+    .ready-cta {
+      width: 100%;
+      padding: 16px 22px;
+      background: #fff;
+      color: var(--forest);
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 200ms ease;
+    }
+    .ready-cta:active { transform: scale(0.98); }
+    .ready-cta svg { width: 16px; height: 16px; }
   </style>
 </head>
 
@@ -906,8 +1430,45 @@
       </div>
     </div>
 
+    <!-- ============ MODE CHOICE (à table / à emporter) ============ -->
+    <section class="screen screen-mode is-active" id="screen-mode">
+      <div class="table-top">
+        <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
+        <div class="brand-tag">— Médina, Tanger</div>
+      </div>
+
+      <div class="mode-mid">
+        <p class="mode-ask">Comment commandez-vous <em>aujourd'hui</em> ?</p>
+        <p class="mode-sub">Choisissez votre formule pour démarrer.</p>
+      </div>
+
+      <div class="mode-cards">
+        <button class="mode-card" type="button" data-mode="table">
+          <span class="mode-icon"><i data-lucide="utensils"></i></span>
+          <span class="mode-body">
+            <span class="mode-label">Je suis à table</span>
+            <span class="mode-desc">Commande envoyée au serveur · paiement à la table</span>
+          </span>
+          <span class="mode-chev"><i data-lucide="chevron-right"></i></span>
+        </button>
+        <button class="mode-card" type="button" data-mode="takeout">
+          <span class="mode-icon"><i data-lucide="shopping-bag"></i></span>
+          <span class="mode-body">
+            <span class="mode-label">À emporter</span>
+            <span class="mode-desc">Paiement à la caisse · on vous prévient quand c'est prêt</span>
+          </span>
+          <span class="mode-chev"><i data-lucide="chevron-right"></i></span>
+        </button>
+      </div>
+
+      <div class="mode-foot">Café Atlas · service self-order</div>
+    </section>
+
     <!-- ============ TABLE-NUMBER ENTRY ============ -->
-    <section class="screen screen-table is-active" id="screen-table">
+    <section class="screen screen-table" id="screen-table">
+      <button class="back-affordance" type="button" data-back="screen-mode" aria-label="Retour">
+        <i data-lucide="chevron-left"></i>
+      </button>
       <div class="table-top">
         <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
         <div class="brand-tag">— Médina, Tanger</div>
@@ -952,9 +1513,9 @@
           <div class="name">Café Atlas</div>
           <div class="ctx">Médina · Tanger</div>
         </div>
-        <span class="table-badge">
+        <span class="table-badge" id="menu-badge">
           <i data-lucide="utensils"></i>
-          <span>Table <span id="table-num-label">—</span></span>
+          <span id="menu-badge-text">Table —</span>
         </span>
       </div>
 
@@ -1001,6 +1562,88 @@
       </div>
     </section>
 
+    <!-- ============ CASHIER (takeout: présentez-vous à la caisse) ============ -->
+    <section class="screen screen-cashier" id="screen-cashier">
+      <div class="cashier-top">
+        <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
+        <div class="cashier-eyebrow">— à emporter</div>
+      </div>
+
+      <div class="cashier-mid">
+        <div class="cashier-number"><span class="hash">#</span><span id="cashier-number-digits">000</span></div>
+        <p class="cashier-instruction">Présentez ce numéro à la <em>caisse</em> pour régler.</p>
+
+        <div class="cashier-recap">
+          <div class="cashier-recap-title">Votre commande</div>
+          <div class="cashier-recap-items" id="cashier-items">—</div>
+          <div class="cashier-recap-total">
+            <span>Total</span>
+            <strong id="cashier-total">0 MAD</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="cashier-bottom">
+        <button class="cashier-confirm-btn" type="button" id="cashier-confirm-btn">
+          <i data-lucide="check"></i>
+          <span>Paiement confirmé à la caisse</span>
+        </button>
+        <p class="cashier-hint">Le caissier valide votre paiement. Une fois validé, vous pouvez sortir — on vous prévient quand c'est prêt.</p>
+      </div>
+    </section>
+
+    <!-- ============ PREPARING (takeout: en cuisine) ============ -->
+    <section class="screen screen-preparing" id="screen-preparing">
+      <div class="prep-top">
+        <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
+        <div class="cashier-eyebrow">— commande #<span id="prep-number">000</span></div>
+      </div>
+
+      <div class="prep-mid">
+        <div class="prep-ring" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+            <line x1="6" y1="17" x2="18" y2="17"/>
+          </svg>
+        </div>
+        <h1 class="prep-title">En préparation <em>en cuisine.</em></h1>
+        <div class="prep-eta-row">
+          <div class="prep-eta">Prêt dans <strong id="prep-eta">8 s</strong></div>
+          <div class="prep-bar" aria-hidden="true"><div class="prep-bar-fill" id="prep-bar-fill"></div></div>
+        </div>
+        <div class="prep-perm" id="prep-perm">
+          <span class="perm-icon"><i data-lucide="bell"></i></span>
+          <span class="perm-body" id="prep-perm-body">Recevez une notification quand c'est prêt — gardez votre téléphone à côté.</span>
+          <button class="prep-perm-btn" type="button" id="prep-perm-btn">Activer</button>
+        </div>
+      </div>
+
+      <div class="prep-bottom">
+        <p class="prep-note">Vous pouvez attendre <em>où vous voulez</em>. Votre téléphone vibre et sonne dès que c'est prêt.</p>
+      </div>
+    </section>
+
+    <!-- ============ READY (takeout: prêt !) ============ -->
+    <section class="screen screen-ready" id="screen-ready">
+      <div class="ready-top">
+        <div class="ready-pulse" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 L3 6 V20 a2 2 0 0 0 2 2 h14 a2 2 0 0 0 2 -2 V6 L18 2 Z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10 a4 4 0 0 1 -8 0"/>
+          </svg>
+        </div>
+        <h1 class="ready-title">Votre commande<br/>est <em>prête.</em></h1>
+        <div class="ready-sub">#<span id="ready-number">000</span> · café atlas · médina</div>
+      </div>
+      <div class="ready-bottom">
+        <button class="ready-cta" type="button" id="ready-cta">
+          <i data-lucide="arrow-right"></i>
+          <span>Récupérer au comptoir</span>
+        </button>
+      </div>
+    </section>
+
     <!-- ============ Toast ============ -->
     <div class="toast" id="toast" aria-live="polite">
       <i data-lucide="check"></i>
@@ -1013,7 +1656,7 @@
       <div class="cart-sheet-panel">
         <div class="cart-handle" data-close-cart></div>
         <h2 class="cart-title">Votre commande</h2>
-        <div class="cart-subtitle">Table <span id="cart-table">—</span> · Café Atlas</div>
+        <div class="cart-subtitle" id="cart-subtitle">Table — · Café Atlas</div>
         <ul class="cart-items" id="cart-items">
           <li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>
         </ul>
@@ -1021,13 +1664,13 @@
           <span>Total</span>
           <span class="grand" id="cart-grand">0 MAD</span>
         </div>
-        <p class="cart-note">Paiement à la table après votre dernière commande.</p>
+        <p class="cart-note" id="cart-note">Paiement à la table après votre dernière commande.</p>
         <button class="send-btn" id="send-btn" type="button" disabled>
           <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"/>
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>
-          <span class="label">Envoyer en cuisine</span>
+          <span class="label" id="send-label">Envoyer en cuisine</span>
         </button>
       </div>
     </div>
@@ -1063,7 +1706,10 @@
     };
 
     /* ============ state ============ */
+    let orderMode = null;        // 'table' | 'takeout'
     let tableNumber = '';
+    let orderNumber = '';        // takeout only — like "047"
+    let prepRafId = null;        // animation handle for prep progress
     const cart = new Map();
 
     /* ============ greeting flash (ported from kiwi-serveur) ============ */
@@ -1226,16 +1872,27 @@
     function sendOrder() {
       const btn = $('#send-btn');
       btn.classList.add('is-loading');
-      // Capture summary BEFORE clearing
       const summary = [...cart.entries()]
         .map(([id, qty]) => `${qty}× ${nameOf(id)}`)
         .join(' · ');
+      const totalNow = totals().total;
       setTimeout(() => {
         btn.classList.remove('is-loading');
         closeCart();
-        $('#success-table').textContent = tableNumber;
-        $('#success-items').textContent = summary || '—';
-        gotoScreen('screen-success');
+        if (orderMode === 'takeout') {
+          // Generate a 3-digit order number (40-99 range so it always feels alive)
+          orderNumber = String(40 + Math.floor((performance.now() % 60))).padStart(3, '0');
+          $('#cashier-number-digits').textContent = orderNumber;
+          $('#prep-number').textContent = orderNumber;
+          $('#ready-number').textContent = orderNumber;
+          $('#cashier-items').textContent = summary || '—';
+          $('#cashier-total').textContent = totalNow + ' MAD';
+          gotoScreen('screen-cashier');
+        } else {
+          $('#success-table').textContent = tableNumber;
+          $('#success-items').textContent = summary || '—';
+          gotoScreen('screen-success');
+        }
       }, 1100);
     }
 
@@ -1243,18 +1900,174 @@
     function restartMenu() {
       cart.clear();
       refreshCartUI();
-      // Reset tab to "Tout"
       $$('.menu-tab').forEach(t => t.classList.toggle('is-active', t.dataset.tab === 'all'));
       renderMenu('all');
       gotoScreen('screen-menu');
     }
 
+    /* ============ mode choice → next screen ============ */
+    function chooseMode(mode) {
+      orderMode = mode;
+      if (mode === 'table') {
+        tableNumber = '';
+        renderTableDisplay();
+        updateContinueState();
+        gotoScreen('screen-table');
+      } else {
+        gotoScreen('screen-menu');
+        applyMenuMode();
+      }
+    }
+
+    function applyMenuMode() {
+      const badge = $('#menu-badge');
+      const subtitle = $('#cart-subtitle');
+      const note = $('#cart-note');
+      const sendLabel = $('#send-label');
+      if (orderMode === 'takeout') {
+        badge.innerHTML = '<i data-lucide="shopping-bag"></i><span id="menu-badge-text">À emporter</span>';
+        subtitle.textContent = 'À emporter · Café Atlas';
+        note.innerHTML = 'Paiement à la <em>caisse</em> · on vous prévient quand c\'est prêt.';
+        sendLabel.textContent = 'Passer commande';
+      } else {
+        badge.innerHTML = `<i data-lucide="utensils"></i><span id="menu-badge-text">Table ${tableNumber}</span>`;
+        subtitle.textContent = `Table ${tableNumber} · Café Atlas`;
+        note.textContent = 'Paiement à la table après votre dernière commande.';
+        sendLabel.textContent = 'Envoyer en cuisine';
+      }
+      if (window.lucide) window.lucide.createIcons();
+    }
+
     /* ============ continue from table-entry to menu ============ */
     function commitTable() {
       if (!tableNumber) return;
-      $('#table-num-label').textContent = tableNumber;
-      $('#cart-table').textContent = tableNumber;
       gotoScreen('screen-menu');
+      applyMenuMode();
+    }
+
+    /* ============ takeout: cashier → preparing ============ */
+    function confirmCashierPayment() {
+      gotoScreen('screen-preparing');
+      refreshPermBanner();
+      startPreparing();
+    }
+
+    /* ============ takeout: preparing progress + ETA ============ */
+    function startPreparing() {
+      const totalMs = 10000; // 10s demo — real life: pull from KDS estimate
+      const startedAt = performance.now();
+      const bar = $('#prep-bar-fill');
+      const eta = $('#prep-eta');
+      if (prepRafId) { clearInterval(prepRafId); prepRafId = null; }
+      // setInterval (not rAF) so the timer keeps ticking even when the phone
+      // screen goes to sleep or the tab is backgrounded.
+      const tick = () => {
+        const elapsed = performance.now() - startedAt;
+        const pct = Math.min(100, (elapsed / totalMs) * 100);
+        bar.style.width = pct + '%';
+        const remainingSec = Math.max(0, Math.ceil((totalMs - elapsed) / 1000));
+        eta.textContent = remainingSec === 0 ? 'maintenant' : remainingSec + ' s';
+        if (elapsed >= totalMs) {
+          clearInterval(prepRafId);
+          prepRafId = null;
+          triggerReady();
+        }
+      };
+      tick(); // immediate first tick
+      prepRafId = setInterval(tick, 250);
+      // Belt: hard-schedule the ready trigger so it fires even if the interval drifts.
+      setTimeout(() => {
+        if (prepRafId) {
+          clearInterval(prepRafId);
+          prepRafId = null;
+          triggerReady();
+        }
+      }, totalMs + 100);
+    }
+
+    /* ============ takeout: ready (vibrate + chime + system notif) ============ */
+    function triggerReady() {
+      gotoScreen('screen-ready');
+      // Vibrate — Android only; iOS Safari ignores it silently.
+      if (navigator.vibrate) navigator.vibrate([400, 120, 400, 120, 800]);
+      // Audio chime — works on every modern browser.
+      playChime();
+      // System notification — only fires if the user previously granted permission.
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification('Café Atlas', {
+            body: `Commande #${orderNumber} prête à récupérer.`,
+            tag: 'cafe-atlas-ready',
+          });
+        } catch (_) { /* iOS Safari throws unless installed as PWA */ }
+      }
+    }
+
+    /* ============ Web Audio chime (two-note, no asset needed) ============ */
+    function playChime() {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        const ctx = new Ctx();
+        const tone = (freq, startSec, durSec, peak) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          const t0 = ctx.currentTime + startSec;
+          gain.gain.setValueAtTime(0, t0);
+          gain.gain.linearRampToValueAtTime(peak, t0 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0008, t0 + durSec);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + durSec + 0.05);
+        };
+        tone(740, 0.00, 0.45, 0.35);  // F#5
+        tone(988, 0.18, 0.55, 0.35);  // B5
+      } catch (_) { /* audio unavailable */ }
+    }
+
+    /* ============ Notification permission flow ============ */
+    function refreshPermBanner() {
+      const banner = $('#prep-perm');
+      const body = $('#prep-perm-body');
+      const btn = $('#prep-perm-btn');
+      if (!banner || !('Notification' in window)) {
+        if (banner) {
+          banner.classList.add('is-denied');
+          body.textContent = 'Ce navigateur ne gère pas les notifications — gardez la page ouverte, on vous prévient ici.';
+          btn.style.display = 'none';
+        }
+        return;
+      }
+      const p = Notification.permission;
+      banner.classList.remove('is-granted', 'is-denied');
+      if (p === 'granted') {
+        banner.classList.add('is-granted');
+        body.innerHTML = '<strong>Notifications activées.</strong> On vous prévient même si vous quittez la page.';
+        btn.style.display = 'none';
+      } else if (p === 'denied') {
+        banner.classList.add('is-denied');
+        body.textContent = 'Notifications refusées — gardez la page ouverte, vibration et son utilisés.';
+        btn.style.display = 'none';
+      } else {
+        body.textContent = 'Recevez une notification quand c\'est prêt — gardez votre téléphone à côté.';
+        btn.style.display = '';
+        btn.textContent = 'Activer';
+      }
+    }
+
+    async function askNotificationPermission() {
+      if (!('Notification' in window)) return;
+      try {
+        const result = await Notification.requestPermission();
+        // Some browsers don't return a value from the promise; re-read the global.
+        if (result === 'granted' || Notification.permission === 'granted') {
+          // Show a tiny confirmation chime so the user knows it works
+          playChime();
+        }
+      } catch (_) {}
+      refreshPermBanner();
     }
 
     /* ============ wire it up ============ */
@@ -1278,11 +2091,23 @@
 
       // Delegated clicks
       document.addEventListener('click', e => {
+        // Mode choice (à table / à emporter)
+        const modeCard = e.target.closest('[data-mode]');
+        if (modeCard) { chooseMode(modeCard.dataset.mode); return; }
+        // Back arrows
+        const backBtn = e.target.closest('[data-back]');
+        if (backBtn) { gotoScreen(backBtn.dataset.back); return; }
         // Numpad
         const key = e.target.closest('[data-key]');
         if (key) { pressKey(key.dataset.key); key.blur(); return; }
         // Continue
         if (e.target.closest('#continue-btn')) { commitTable(); return; }
+        // Takeout: cashier → preparing
+        if (e.target.closest('#cashier-confirm-btn')) { confirmCashierPayment(); return; }
+        // Takeout: ask for notification permission
+        if (e.target.closest('#prep-perm-btn')) { askNotificationPermission(); return; }
+        // Takeout: ready → restart
+        if (e.target.closest('#ready-cta')) { restartMenu(); return; }
         // Add to cart
         const addBtn = e.target.closest('[data-add]');
         if (addBtn) {
