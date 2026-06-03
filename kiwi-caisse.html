@@ -397,31 +397,29 @@
     .wl-pref-chip.is-active { background: var(--forest); color: #fff; }
     /* hide the addition panel in waitlist mode — the list spans full width */
     body[data-mode="waitlist"] .rightpanel { display: none; }
-    /* waitlist · table picker */
-    .modal.modal-seat { width: 460px; max-width: calc(100vw - 48px); }
-    .wl-seat-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-      margin: 4px 0 10px; max-height: 320px; overflow-y: auto;
+    /* waitlist · seating on the Plan de salle */
+    .wl-seat-banner {
+      display: none;
+      align-items: center; justify-content: space-between; gap: 16px;
+      padding: 12px 24px;
+      background: var(--gradient); color: #fff;
     }
-    .wl-table-opt {
-      position: relative;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-      padding: 14px 8px; border-radius: var(--r-lg);
-      background: var(--paper-mute); border: 1.5px solid transparent;
-      transition: background 150ms ease, border-color 150ms ease, transform 120ms ease;
+    body.is-seating .wl-seat-banner { display: flex; }
+    body.is-seating .rightpanel { display: none; }
+    .wl-seat-banner-text { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; min-width: 0; }
+    .wl-seat-banner-text svg { width: 18px; height: 18px; flex: 0 0 18px; }
+    .wl-seat-banner-text em { font-style: normal; font-weight: 500; opacity: 0.85; }
+    .wl-seat-banner-cancel {
+      flex: 0 0 auto;
+      background: rgba(255,255,255,0.16); color: #fff;
+      padding: 8px 16px; border-radius: 999px;
+      font-size: 13px; font-weight: 600;
+      transition: background 150ms ease;
     }
-    .wl-table-opt:hover { background: #ECEAE5; }
-    .wl-table-opt:active { transform: scale(0.97); }
-    .wl-table-opt.is-pref { background: var(--mint-tint); border-color: var(--mint-edge); }
-    .wl-table-id { font-size: 17px; font-weight: 700; color: var(--ink); }
-    .wl-table-meta { font-size: 10.5px; color: var(--ink-3); }
-    .wl-table-tag {
-      position: absolute; top: -7px; right: -5px;
-      background: var(--forest); color: #fff;
-      font-size: 8.5px; font-weight: 700;
-      padding: 2px 7px; border-radius: 999px;
-    }
-    .wl-seat-empty { grid-column: 1 / -1; text-align: center; color: var(--ink-4); font-size: 13px; padding: 24px 0; }
+    .wl-seat-banner-cancel:hover { background: rgba(255,255,255,0.26); }
+    /* free tables pop, occupied tables dim while choosing */
+    body.is-seating .tbl-cell.wl-seat-dim { opacity: 0.32; }
+    body.is-seating .tbl-cell.wl-seat-free .tbl { box-shadow: 0 0 0 3px var(--emerald); }
 
     /* ---------- Floor toggle (rez-de-chaussée / 1er étage) ---------- */
     .plan-head-left {
@@ -3777,6 +3775,11 @@
 
     <!-- --------- MAIN AREA (salle + vente rapida) --------- -->
     <main class="main">
+      <!-- waitlist seating banner — shown over the Plan de salle while choosing a table -->
+      <div class="wl-seat-banner" id="wl-seat-banner">
+        <div class="wl-seat-banner-text" id="wl-seat-banner-text"></div>
+        <button class="wl-seat-banner-cancel" id="wl-seat-banner-cancel">Annuler</button>
+      </div>
       <!-- Header — salle mode -->
       <div class="main-head" data-mode-section="salle">
         <div class="plan-head-left">
@@ -4351,19 +4354,6 @@
         <button class="ma-btn primary" id="wl-confirm" style="flex:2;">
           <i data-lucide="user-plus"></i> Ajouter
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ WAITLIST · TABLE PICKER MODAL ============ -->
-  <div class="modal-veil" id="wl-seat-modal" role="dialog" aria-modal="true" aria-labelledby="wl-seat-title">
-    <div class="modal modal-seat">
-      <div class="split-badge">Choisir une table</div>
-      <h3 class="modal-title" id="wl-seat-title" style="margin-bottom:2px;"><span id="wl-seat-name">Client</span></h3>
-      <p class="modal-subtle" id="wl-seat-sub" style="margin:0 0 14px;">—</p>
-      <div class="wl-seat-grid" id="wl-seat-grid"></div>
-      <div class="nt-actions">
-        <button class="ma-btn secondary" id="wl-seat-cancel" style="flex:1;">Annuler</button>
       </div>
     </div>
   </div>
@@ -5599,7 +5589,7 @@
     let waitlist = [];           // [{ id, name, size, pref, addedAt }]
     let wlSeq = 0;
     let wlDraft = { name: '', size: 2, pref: 'peu-importe' };
-    let wlSeatId = null;         // party being seated via the table picker
+    let wlSeating = null;        // party being seated on the Plan de salle (or null)
 
     /* Réduction amount for the À emporter cart, clamped to the gross. */
     function vrapDiscountAmount(gross) {
@@ -5782,6 +5772,11 @@
         const id = tableEl.dataset.table;
         const t = tables[id];
         if (!t) return;
+        if (wlSeating) {   // choosing a table for a waitlist party
+          if (t.status === 'khawya') seatPartyAt(id);
+          else toast('Table occupée — choisis une table libre');
+          return;
+        }
         if (t.status === 'khawya')  { openNewTableModal(id); return; }
         if (t.status === 'khlass')  { return; }
         openTable(id);
@@ -6372,52 +6367,41 @@
       lucide.createIcons();
     }
 
-    /* "Attabler" — open the table picker so the hostess chooses the table. */
-    function openSeatModal(id) {
+    /* "Attabler" — open the Plan de salle and let the hostess tap a free table. */
+    function startSeating(id) {
       const e = waitlist.find(w => w.id === id);
       if (!e) return;
-      wlSeatId = id;
-      $('#wl-seat-name').textContent = e.name;
+      wlSeating = e;
       const pref = WL_PREFS[e.pref] || WL_PREFS['peu-importe'];
-      $('#wl-seat-sub').textContent = `${e.size} pers. · préférence : ${pref.label}`;
-      renderSeatGrid(e);
-      $('#wl-seat-modal').classList.add('is-open');
+      const bn = $('#wl-seat-banner-text');
+      if (bn) bn.innerHTML = `<i data-lucide="armchair"></i><span>Installer <strong>${kdsEsc(e.name)}</strong> <em>· ${e.size} pers. · ${pref.label} · touche une table libre</em></span>`;
+      document.body.classList.add('is-seating');
+      setMode('salle');
+      markSeatTables();
       lucide.createIcons();
     }
 
-    function renderSeatGrid(e) {
-      const grid = $('#wl-seat-grid');
-      const ids = Object.keys(tables).filter(id => tables[id].status === 'khawya');
-      // preferred-zone tables first, then smaller tables first
-      ids.sort((a, b) => {
-        const ap = (e.pref !== 'peu-importe' && tables[a].zone === e.pref) ? 0 : 1;
-        const bp = (e.pref !== 'peu-importe' && tables[b].zone === e.pref) ? 0 : 1;
-        if (ap !== bp) return ap - bp;
-        return (tables[a].size || 0) - (tables[b].size || 0);
+    /* Flag free tables (selectable) vs occupied (dimmed) for the seating overlay. */
+    function markSeatTables() {
+      $$('.tbl-cell').forEach(c => {
+        const t = tables[c.dataset.table];
+        const free = !!(t && t.status === 'khawya');
+        c.classList.toggle('wl-seat-free', free);
+        c.classList.toggle('wl-seat-dim', !free);
       });
-      if (!ids.length) {
-        grid.innerHTML = `<div class="wl-seat-empty">Aucune table libre pour le moment.</div>`;
-        return;
-      }
-      grid.innerHTML = ids.map(id => {
-        const t = tables[id];
-        const zoneLabel = (WL_PREFS[t.zone] || {}).label || t.zone;
-        const cap = t.size || t.covers || 2;
-        const isPref = e.pref !== 'peu-importe' && t.zone === e.pref;
-        return `<button class="wl-table-opt${isPref ? ' is-pref' : ''}" data-seat-table="${id}">
-          ${isPref ? '<span class="wl-table-tag">préférée</span>' : ''}
-          <span class="wl-table-id">${id}</span>
-          <span class="wl-table-meta">${zoneLabel} · ${cap} pl.</span>
-        </button>`;
-      }).join('');
     }
 
-    function seatAtTable(tableId) {
-      $('#wl-seat-modal').classList.remove('is-open');
-      const idx = waitlist.findIndex(w => w.id === wlSeatId);
-      wlSeatId = null;
-      if (idx < 0) return;
-      const e = waitlist[idx];
+    function endSeating(backToList) {
+      wlSeating = null;
+      document.body.classList.remove('is-seating');
+      $$('.tbl-cell').forEach(c => c.classList.remove('wl-seat-free', 'wl-seat-dim'));
+      if (backToList) { setMode('waitlist'); renderWaitlist(); }
+    }
+
+    function seatPartyAt(tableId) {
+      if (!wlSeating) return;
+      const e = wlSeating;
+      const idx = waitlist.findIndex(w => w.id === e.id);
       const t = tables[tableId];
       if (t && t.status === 'khawya') {   // occupy the chosen table on the floor
         t.status  = 'ka-yaklo';
@@ -6425,8 +6409,8 @@
         t.elapsed = 0;
         refreshTableNode(tableId);
       }
-      waitlist.splice(idx, 1);
-      renderWaitlist();
+      if (idx >= 0) waitlist.splice(idx, 1);
+      endSeating(true);
       toast(`${e.name} · installé·e à ${tableId}`);
     }
 
@@ -6452,16 +6436,11 @@
     $('#wl-name') && $('#wl-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmWaitlistAdd(); });
     $('#waitlist-list') && $('#waitlist-list').addEventListener('click', (e) => {
       const seat = e.target.closest('[data-wl-seat]');
-      if (seat) { openSeatModal(parseInt(seat.dataset.wlSeat)); return; }
+      if (seat) { startSeating(parseInt(seat.dataset.wlSeat)); return; }
       const rem = e.target.closest('[data-wl-remove]');
       if (rem) { removeWaitlist(parseInt(rem.dataset.wlRemove)); return; }
     });
-    document.getElementById('wl-seat-modal').addEventListener('click', (e) => {
-      const opt = e.target.closest('[data-seat-table]');
-      if (opt) { seatAtTable(opt.dataset.seatTable); return; }
-      if (e.target.closest('#wl-seat-cancel') || e.target === $('#wl-seat-modal'))
-        { $('#wl-seat-modal').classList.remove('is-open'); wlSeatId = null; return; }
-    });
+    $('#wl-seat-banner-cancel') && $('#wl-seat-banner-cancel').addEventListener('click', () => endSeating(true));
     // keep wait times fresh while the waitlist is on screen
     setInterval(() => { if (mode === 'waitlist') renderWaitlist(); }, 30000);
 
