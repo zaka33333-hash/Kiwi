@@ -3476,6 +3476,33 @@
     .sk-ord-line-name { flex: 1; color: var(--ink); }
     .sk-ord-line-name small { color: var(--ink-3); font-family: var(--mono); }
 
+    /* réception — enter stock by photo (mock scan) or manual */
+    .sk-head-acts { display: flex; align-items: center; gap: 10px; }
+    .ma-btn.sk-head-recept { width: auto; flex: 0 0 auto; height: 38px; padding: 0 16px; font-size: 13px; }
+    .ma-btn.sk-head-recept svg { width: 15px; height: 15px; }
+    .sk-recept-modes { display: flex; gap: 6px; background: var(--paper-mute); padding: 4px; border-radius: 10px; margin-bottom: 14px; }
+    .sk-rmode { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px; border-radius: 7px; font-size: 12.5px; font-weight: 600; color: var(--ink-3); background: transparent; cursor: pointer; }
+    .sk-rmode svg { width: 15px; height: 15px; }
+    .sk-rmode.on { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .sk-dropzone { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 26px 18px; border: 2px dashed var(--mint-edge); border-radius: 14px; background: var(--mint-tint); text-align: center; }
+    .sk-dropzone > svg { width: 34px; height: 34px; color: var(--forest); }
+    .sk-dz-t { font-size: 14px; font-weight: 700; color: var(--ink); }
+    .sk-dz-s { font-size: 12px; color: var(--ink-3); max-width: 280px; }
+    .sk-scanning { display: flex; flex-direction: column; align-items: center; gap: 13px; padding: 34px 18px; color: var(--ink-3); font-size: 13px; }
+    .sk-spinner { width: 32px; height: 32px; border: 3px solid var(--mint-edge); border-top-color: var(--forest); border-radius: 50%; animation: sk-spin 0.8s linear infinite; }
+    @keyframes sk-spin { to { transform: rotate(360deg); } }
+    .sk-recept-note { font-size: 12px; color: var(--ink-3); margin: 2px 0 11px; display: flex; align-items: center; gap: 6px; }
+    .sk-recept-note svg { width: 14px; height: 14px; color: var(--emerald); flex: 0 0 auto; }
+    .sk-rline { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .sk-rl-name { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; font-size: 13.5px; background: var(--paper-mute); color: var(--ink); }
+    .sk-rl-qty { width: 74px; flex: 0 0 auto; height: 40px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; font-size: 13.5px; font-family: var(--mono); text-align: right; background: var(--paper-mute); color: var(--ink); }
+    .sk-rline input:focus { outline: none; border-color: var(--forest); background: #fff; }
+    .sk-rl-del { width: 36px; height: 40px; flex: 0 0 auto; border-radius: 9px; border: 1px solid var(--line); background: #fff; color: var(--ink-4); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+    .sk-rl-del:hover { color: #C0493A; border-color: #C0493A; }
+    .sk-rl-del svg { width: 15px; height: 15px; }
+    .sk-rline-add { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--forest); cursor: pointer; padding: 6px 2px; }
+    .sk-rline-add svg { width: 15px; height: 15px; }
+
     /* === KITCHEN-DISPLAY MODE (PIN 0000) ===
        This terminal can also serve as the kitchen display station —
        a wall-mounted screen the cooks just glance at, no login. The
@@ -5071,7 +5098,10 @@
         <h2>Stock &amp; appro</h2>
         <div class="sub">Inventaire · commandes fournisseurs · inventaire physique</div>
       </div>
-      <button class="kds-close" id="stock-close-btn"><i data-lucide="x"></i><span>Fermer</span></button>
+      <div class="sk-head-acts">
+        <button class="ma-btn primary sk-head-recept" id="sk-recept-btn"><i data-lucide="scan-line"></i>Réception</button>
+        <button class="kds-close" id="stock-close-btn"><i data-lucide="x"></i><span>Fermer</span></button>
+      </div>
     </div>
     <div class="kds-body">
       <div class="sk-tabs" id="sk-tabs">
@@ -9921,6 +9951,68 @@
       renderStock(); toast(changed ? `Inventaire validé · ${changed} article${changed>1?'s':''} ajusté${changed>1?'s':''}` : 'Inventaire validé · aucun écart');
     }
 
+    /* ---- Réception — enter stock by photo (mock scan) or manual entry ---- */
+    let skReceptMode = 'photo';   // 'photo' | 'manual'
+    let skReceptState = 'idle';   // 'idle' | 'scanning' | 'done'
+    let skReceptLines = [];       // [{ name, qty }]
+    function openRecept(){ skReceptMode = 'photo'; skReceptState = 'idle'; skReceptLines = []; openSkModal(renderReceptModal()); }
+    function renderReceptModal(){
+      return `<div class="split-badge">Réception</div><h3 class="modal-title" style="margin-bottom:4px;">Entrer du stock</h3>
+        <p class="modal-subtle" style="margin:0 0 14px;">Scanne le bon de livraison / reçu, ou saisis à la main.</p>
+        <div class="sk-recept-modes">
+          <button class="sk-rmode ${skReceptMode==='photo'?'on':''}" data-sk-rmode="photo"><i data-lucide="scan-line"></i>Photo du bon</button>
+          <button class="sk-rmode ${skReceptMode==='manual'?'on':''}" data-sk-rmode="manual"><i data-lucide="keyboard"></i>Saisie manuelle</button>
+        </div>
+        <div id="sk-recept-body">${skReceptBodyHTML()}</div>`;
+    }
+    function skReceptBodyHTML(){
+      if (skReceptMode === 'photo'){
+        if (skReceptState === 'idle')
+          return `<div class="sk-dropzone"><i data-lucide="receipt-text"></i><div class="sk-dz-t">Photo du bon de livraison</div><div class="sk-dz-s">ou importe une image du reçu — les articles sont détectés automatiquement</div><button class="ma-btn primary sk-mini" data-sk-scan style="margin-top:6px"><i data-lucide="camera"></i>Scanner</button></div>`;
+        if (skReceptState === 'scanning')
+          return `<div class="sk-scanning"><div class="sk-spinner"></div>Analyse du bon…</div>`;
+        return `<div class="sk-recept-note"><i data-lucide="sparkles"></i>${skReceptLines.length} articles détectés — vérifie les quantités.</div>${skReceptLinesHTML()}${skReceptFootHTML()}`;
+      }
+      return skReceptLinesHTML() + `<div class="sk-rline-add" data-sk-rline-add><i data-lucide="plus"></i>Ajouter une ligne</div>` + skReceptFootHTML();
+    }
+    function skReceptLinesHTML(){
+      if (!skReceptLines.length) skReceptLines = [{ name:'', qty:'' }];
+      return skReceptLines.map((l,idx)=>`<div class="sk-rline">
+          <input class="sk-rl-name" data-sk-rl-name="${idx}" placeholder="Article" value="${kdsEsc(l.name)}" list="sk-items-list" autocomplete="off">
+          <input class="sk-rl-qty" data-sk-rl-qty="${idx}" type="number" min="0" placeholder="Qté" value="${l.qty}">
+          <button class="sk-rl-del" data-sk-rl-del="${idx}" aria-label="Retirer"><i data-lucide="x"></i></button>
+        </div>`).join('') + `<datalist id="sk-items-list">${stockItems.map(i=>`<option value="${kdsEsc(i.name)}">`).join('')}</datalist>`;
+    }
+    function skReceptFootHTML(){
+      return `<div class="nt-actions" style="margin-top:14px"><button class="ma-btn secondary" data-sk-cancel style="flex:1;">Annuler</button><button class="ma-btn primary" data-sk-commit-recept style="flex:2;"><i data-lucide="plus-circle"></i>Ajouter au stock</button></div>`;
+    }
+    function refreshReceptModal(){ $('#sk-modal-box').innerHTML = renderReceptModal(); if (window.lucide) lucide.createIcons(); }
+    function rerenderReceptBody(){ const b = $('#sk-recept-body'); if (b){ b.innerHTML = skReceptBodyHTML(); if (window.lucide) lucide.createIcons(); } }
+    function skScan(){
+      skReceptState = 'scanning'; rerenderReceptBody();
+      setTimeout(()=>{
+        skReceptLines = [ {name:'Tomates fraîches',qty:15}, {name:'Oignons',qty:10}, {name:'Lait',qty:12}, {name:'Œufs',qty:8} ];
+        skReceptState = 'done'; rerenderReceptBody();
+      }, 900);
+    }
+    function commitRecept(){
+      $$('#sk-recept-body .sk-rline').forEach((row,idx)=>{
+        const n = row.querySelector('[data-sk-rl-name]'); const q = row.querySelector('[data-sk-rl-qty]');
+        if (skReceptLines[idx]){ skReceptLines[idx].name = (n ? n.value : '').trim(); skReceptLines[idx].qty = q ? q.value : ''; }
+      });
+      let added = 0, created = 0;
+      skReceptLines.forEach(l=>{
+        const qty = parseInt(l.qty) || 0; const name = (l.name || '').trim();
+        if (!name || qty <= 0) return;
+        const it = stockItems.find(i => i.name.toLowerCase() === name.toLowerCase());
+        if (it){ it.stock += qty; added++; }
+        else { stockItems.push({ id:'i'+(++skItemSeq), name, cat:'epicerie', unit:'unité', supplier:suppliers[0].name, stock:qty, par:Math.max(qty,5), reorder:Math.max(1,Math.round(qty*0.4)), cost:0 }); created++; }
+      });
+      if (!added && !created){ toast('Aucune ligne valide'); return; }
+      closeSkModal(); stockTab = 'articles'; renderStock();
+      toast(`Stock mis à jour · ${added+created} article${(added+created)>1?'s':''}${created?` (${created} nouveau${created>1?'x':''})`:''}`);
+    }
+
     /* ---- open / close + delegation ---- */
     function openStock(){ renderStock(); $('#stock-screen').classList.add('is-open'); if (window.lucide) lucide.createIcons(); }
     function closeStock(){ $('#stock-screen').classList.remove('is-open'); }
@@ -9944,8 +10036,18 @@
       const si = e.target.closest('[data-sk-save-item]'); if (si){ saveEditItem(si.dataset.skSaveItem); return; }
       if (e.target.closest('[data-sk-add-save]'))   { saveNewItem(); return; }
       if (e.target.closest('[data-sk-create-order]')){ createOrder(); return; }
+      const rm = e.target.closest('[data-sk-rmode]'); if (rm){ skReceptMode = rm.dataset.skRmode; if (skReceptMode==='manual' && !skReceptLines.length) skReceptLines=[{name:'',qty:''}]; refreshReceptModal(); return; }
+      if (e.target.closest('[data-sk-scan]')){ skScan(); return; }
+      if (e.target.closest('[data-sk-rline-add]')){ skReceptLines.push({name:'',qty:''}); rerenderReceptBody(); return; }
+      const rd = e.target.closest('[data-sk-rl-del]'); if (rd){ skReceptLines.splice(+rd.dataset.skRlDel,1); if (!skReceptLines.length) skReceptLines=[{name:'',qty:''}]; rerenderReceptBody(); return; }
+      if (e.target.closest('[data-sk-commit-recept]')){ commitRecept(); return; }
+    });
+    $('#sk-modal').addEventListener('input', (e)=>{
+      const nm = e.target.closest('[data-sk-rl-name]'); if (nm){ const i=+nm.dataset.skRlName; if (skReceptLines[i]) skReceptLines[i].name = nm.value; return; }
+      const qt = e.target.closest('[data-sk-rl-qty]');  if (qt){ const i=+qt.dataset.skRlQty;  if (skReceptLines[i]) skReceptLines[i].qty  = qt.value; return; }
     });
     $('#sk-modal').addEventListener('change', (e)=>{ if (e.target.id === 'sk-order-supplier'){ $('#sk-order-lines').innerHTML = skOrderLinesHTML(e.target.value); if (window.lucide) lucide.createIcons(); } });
+    $('#sk-recept-btn').addEventListener('click', openRecept);
     updateStockBadge();
 
     /* À emporter — push the current cart to the kitchen screen as a new order */
