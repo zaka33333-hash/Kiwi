@@ -10724,9 +10724,9 @@ handlers['bout-cat-publish'] = () => {
    * ═════════════════════════════════════════════════════════════════════════ */
   /* Kitchen-screen UI strings — FR / EN / AR. */
   const KDS_T = {
-    fr: { title: 'Écran cuisine', subtitle: 'File de préparation · mise à jour en direct', allStations: 'Toutes', statusNew: 'Nouvelle', statusCooking: 'En préparation', accept: 'Accepter', ready: 'Prête', table: (n) => `Table ${n}`, takeaway: 'À emporter', close: 'Fermer', colNew: 'Nouvelles', colCooking: 'En préparation', history: 'Historique', historyTitle: 'Servies aujourd\'hui', emptyNew: 'Aucune nouvelle commande', emptyCooking: 'Aucune commande en préparation', emptyHistory: 'Aucune commande servie pour l\'instant', served: 'Servie', view: 'Agrandir', readyToast: (n) => `Commande #${n} prête`, notifyServer: 'Serveur prévenu · à servir en salle.', notifyCounter: 'Comptoir prévenu · prêt à remettre.' },
-    en: { title: 'Kitchen display', subtitle: 'Prep queue · live updates', allStations: 'All', statusNew: 'New', statusCooking: 'In progress', accept: 'Accept', ready: 'Ready', table: (n) => `Table ${n}`, takeaway: 'Takeaway', close: 'Close', colNew: 'New', colCooking: 'In preparation', history: 'History', historyTitle: 'Served today', emptyNew: 'No new orders', emptyCooking: 'Nothing in preparation', emptyHistory: 'No orders served yet', served: 'Served', view: 'Enlarge', readyToast: (n) => `Order #${n} ready`, notifyServer: 'Server notified · to serve in the dining room.', notifyCounter: 'Counter notified · ready for pickup.' },
-    ar: { title: 'شاشة المطبخ', subtitle: 'قائمة التحضير · تحديث مباشر', allStations: 'الكل', statusNew: 'جديدة', statusCooking: 'قيد التحضير', accept: 'قبول', ready: 'جاهزة', table: (n) => `طاولة ${n}`, takeaway: 'للأخذ', close: 'إغلاق', colNew: 'جديدة', colCooking: 'قيد التحضير', history: 'السجل', historyTitle: 'قُدّمت اليوم', emptyNew: 'لا توجد طلبات جديدة', emptyCooking: 'لا شيء قيد التحضير', emptyHistory: 'لم تُقدَّم أي طلبات بعد', served: 'قُدّمت', view: 'تكبير', readyToast: (n) => `الطلب #${n} جاهز`, notifyServer: 'تم إشعار النادل · للتقديم في القاعة.', notifyCounter: 'تم إشعار الكاونتر · جاهز للتسليم.' },
+    fr: { title: 'Écran cuisine', subtitle: 'File de préparation · mise à jour en direct', allStations: 'Toutes', statusNew: 'Nouvelle', statusCooking: 'En préparation', accept: 'Accepter', ready: 'Prête', table: (n) => `Table ${n}`, takeaway: 'À emporter', close: 'Fermer', colNew: 'Nouvelles', colCooking: 'En préparation', history: 'Historique', historyTitle: 'Servies aujourd\'hui', emptyNew: 'Aucune nouvelle commande', emptyCooking: 'Aucune commande en préparation', emptyHistory: 'Aucune commande servie pour l\'instant', served: 'Servie', view: 'Agrandir', readyToast: (n) => `Commande #${n} prête`, notifyServer: 'Serveur prévenu · à servir en salle.', notifyCounter: 'Comptoir prévenu · prêt à remettre.', recipeEyebrow: 'Recette · par portion', recipeYield: (n) => `Rendement · ${n} portion${n > 1 ? 's' : ''}`, recipeIngredients: 'Ingrédients', recipePrep: 'Préparation', recipeFoot: 'Tapez sur un plat pour réafficher sa recette à tout moment.', recipeEmptyT: 'Recette pas encore définie', recipeEmptyB: 'Demandez au chef de la compléter dans Menu › Recettes pour la voir ici.' },
+    en: { title: 'Kitchen display', subtitle: 'Prep queue · live updates', allStations: 'All', statusNew: 'New', statusCooking: 'In progress', accept: 'Accept', ready: 'Ready', table: (n) => `Table ${n}`, takeaway: 'Takeaway', close: 'Close', colNew: 'New', colCooking: 'In preparation', history: 'History', historyTitle: 'Served today', emptyNew: 'No new orders', emptyCooking: 'Nothing in preparation', emptyHistory: 'No orders served yet', served: 'Served', view: 'Enlarge', readyToast: (n) => `Order #${n} ready`, notifyServer: 'Server notified · to serve in the dining room.', notifyCounter: 'Counter notified · ready for pickup.', recipeEyebrow: 'Recipe · per portion', recipeYield: (n) => `Yields ${n} portion${n > 1 ? 's' : ''}`, recipeIngredients: 'Ingredients', recipePrep: 'Preparation', recipeFoot: 'Tap any dish on a ticket to view its recipe anytime.', recipeEmptyT: 'Recipe not yet defined', recipeEmptyB: 'Ask the chef to complete it in Menu › Recipes so it shows up here.' },
+    ar: { title: 'شاشة المطبخ', subtitle: 'قائمة التحضير · تحديث مباشر', allStations: 'الكل', statusNew: 'جديدة', statusCooking: 'قيد التحضير', accept: 'قبول', ready: 'جاهزة', table: (n) => `طاولة ${n}`, takeaway: 'للأخذ', close: 'إغلاق', colNew: 'جديدة', colCooking: 'قيد التحضير', history: 'السجل', historyTitle: 'قُدّمت اليوم', emptyNew: 'لا توجد طلبات جديدة', emptyCooking: 'لا شيء قيد التحضير', emptyHistory: 'لم تُقدَّم أي طلبات بعد', served: 'قُدّمت', view: 'تكبير', readyToast: (n) => `الطلب #${n} جاهز`, notifyServer: 'تم إشعار النادل · للتقديم في القاعة.', notifyCounter: 'تم إشعار الكاونتر · جاهز للتسليم.', recipeEyebrow: 'الوصفة · لكل حصة', recipeYield: (n) => `الكمية · ${n} حصة`, recipeIngredients: 'المكونات', recipePrep: 'التحضير', recipeFoot: 'اضغط على أي طبق في تذكرة لرؤية وصفته في أي وقت.', recipeEmptyT: 'الوصفة لم تُعرَّف بعد', recipeEmptyB: 'اطلب من الشيف إكمالها في القائمة › الوصفات لتظهر هنا.' },
   };
 
   /* Kitchen-screen styles — self-contained, kit- prefix, copy-paste safe. */
@@ -10829,6 +10829,42 @@ handlers['bout-cat-publish'] = () => {
       .kit-zoom .kit-q { min-width: 33px; height: 30px; font-size: 16px; }
       .kit-zoom .kit-nm { font-size: 18px; }
       .kit-zoom .kit-act { padding: 18px; font-size: 17px; }
+
+      /* ── Recipe popup · cuisinier taps a dish on a ticket → ingredients + prep ─ */
+      .kit-item.has-recipe { cursor: pointer; transition: background 120ms; border-radius: 6px; padding: 2px 4px; margin: -2px -4px; }
+      .kit-item.has-recipe:hover { background: var(--paper-soft); }
+      .kit-recipe-ico { width: 14px; height: 14px; flex-shrink: 0; color: var(--n-400); margin-left: auto; opacity: 0; transition: opacity 140ms, color 140ms; align-self: center; }
+      .kit-item.has-recipe:hover .kit-recipe-ico { opacity: 1; color: var(--atlas); }
+      .kit-zoom .kit-recipe-ico { width: 16px; height: 16px; opacity: 0.5; }
+      .kit-zoom .kit-item.has-recipe:hover .kit-recipe-ico { opacity: 1; }
+      .kit-recipe-backdrop { position: fixed; inset: 0; z-index: 9996; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(10,15,13,0.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); opacity: 0; transition: opacity 200ms ease; }
+      .kit-recipe-backdrop.in { opacity: 1; }
+      .kit-recipe { width: 480px; max-width: 100%; max-height: calc(100vh - 48px); background: #fff; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 32px 70px -20px rgba(10,15,13,0.6); transform: scale(0.86); transition: transform 260ms cubic-bezier(0.34,1.3,0.64,1); font-family: var(--sans, system-ui); color: var(--ink); }
+      .kit-recipe-backdrop.in .kit-recipe { transform: scale(1); }
+      html[data-theme="dark"] .kit-recipe { background: var(--paper-soft); }
+      .kit-recipe-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 20px 22px 16px; border-bottom: 1px solid var(--n-200); }
+      .kit-recipe-eyebrow { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--atlas); font-family: var(--mono); font-weight: 700; margin-bottom: 5px; }
+      .kit-recipe-title { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); line-height: 1.2; }
+      .kit-recipe-close { width: 34px; height: 34px; flex-shrink: 0; padding: 0; border: 1px solid var(--n-200); background: var(--paper); border-radius: 10px; cursor: pointer; color: var(--n-500); display: flex; align-items: center; justify-content: center; transition: color 120ms, border-color 120ms; }
+      .kit-recipe-close:hover { color: var(--ink); border-color: var(--n-400); }
+      .kit-recipe-close svg { width: 16px; height: 16px; }
+      .kit-recipe-body { padding: 16px 22px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+      .kit-recipe-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+      .kit-recipe-yield { font-size: 11.5px; font-weight: 600; padding: 4px 10px; background: rgba(11,110,79,0.10); color: var(--atlas); border-radius: 99px; }
+      .kit-recipe-cat { font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px; background: var(--paper-soft); color: var(--n-500); border-radius: 99px; }
+      .kit-recipe-section-t { font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); font-weight: 700; margin-bottom: 10px; }
+      .kit-recipe-ings { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+      .kit-recipe-ing { display: flex; align-items: baseline; gap: 14px; font-size: 14.5px; line-height: 1.4; padding-bottom: 9px; border-bottom: 1px dashed var(--n-200); }
+      .kit-recipe-ing:last-child { border-bottom: 0; padding-bottom: 0; }
+      .kit-recipe-ing-q { font-family: var(--mono); font-feature-settings: "tnum" 1; font-weight: 700; color: var(--atlas); min-width: 84px; font-size: 14px; }
+      .kit-recipe-ing-n { color: var(--ink); font-weight: 500; }
+      .kit-recipe-prep { font-size: 14px; line-height: 1.55; color: var(--n-700); padding: 12px 14px; background: var(--paper); border-radius: 10px; border-left: 3px solid var(--atlas); }
+      html[data-theme="dark"] .kit-recipe-prep { background: var(--paper-muted); }
+      .kit-recipe-foot { font-size: 11px; color: var(--n-500); padding-top: 8px; border-top: 1px solid var(--n-100); margin-top: 4px; }
+      .kit-recipe-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 28px 12px; text-align: center; color: var(--n-500); }
+      .kit-recipe-empty svg { width: 36px; height: 36px; opacity: 0.5; }
+      .kit-recipe-empty-t { font-size: 15px; font-weight: 600; color: var(--ink); }
+      .kit-recipe-empty-b { font-size: 13px; line-height: 1.5; max-width: 280px; }
       html[data-theme="dark"] .kit-station, html[data-theme="dark"] .kit-history-toggle, html[data-theme="dark"] .kit-order, html[data-theme="dark"] .kit-hrow, html[data-theme="dark"] .kit-zoom, html[data-theme="dark"] .kit-history-head .kit-history-x { background: var(--paper-soft); }
       html[data-theme="dark"] .kit-station.on, html[data-theme="dark"] .kit-history-toggle.on { background: var(--paper); border-color: var(--paper); color: var(--ink); }
       html[data-theme="dark"] .kit-station.on .kit-station-ct, html[data-theme="dark"] .kit-history-toggle.on .kit-htg-ct { background: var(--paper-muted); color: var(--ink); }
@@ -10890,6 +10926,23 @@ handlers['bout-cat-publish'] = () => {
     let historyOpen = false;
 
     const esc = (v) => String(v == null ? '' : v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    /* Recipe lookup helpers — hoisted up here so orderInner (which calls
+     * kdsHasRecipe at render time) finds them in scope. */
+    const findRecipe = (dishName) => {
+      const eng = window.KiwiRecipes;
+      if (!eng) return null;
+      const venues = (window.KiwiVenue && window.KiwiVenue.REAL_VENUES) || ['cafeAtlas', 'maisonMansour', 'spaBahia'];
+      for (const v of venues) {
+        const list = eng.listRecipes(v);
+        const hit = list.find((r) => r.menuItem.name === dishName);
+        if (hit) return hit;
+      }
+      return null;
+    };
+    const kdsHasRecipe = (dishName) => {
+      const hit = findRecipe(dishName);
+      return !!(hit && hit.recipe && hit.recipe.status === 'complete' && (hit.recipe.ingredients || []).length);
+    };
     const liveElapsed = (o) => o.elapsed + Math.floor((Date.now() - t0) / 1000);
     const urgency = (s) => (s < 480 ? 'ok' : s < 900 ? 'warn' : 'over');
     const fmtTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -10913,7 +10966,8 @@ handlers['bout-cat-publish'] = () => {
       const isReady = o.status === 'ready';
       const items = o.items.map((i) => {
         const off = activeStation !== 'all' && !i.stations.includes(activeStation);
-        return `<li class="kit-item${off ? ' kit-item-off' : ''}"><span class="kit-q">${i.q}</span><span class="kit-nm">${esc(i.n)}</span></li>`;
+        const hasRecipe = kdsHasRecipe(i.n);
+        return `<li class="kit-item${off ? ' kit-item-off' : ''}${hasRecipe ? ' has-recipe' : ''}"${hasRecipe ? ` data-kit-recipe="${esc(i.n)}"` : ''}><span class="kit-q">${i.q}</span><span class="kit-nm">${esc(i.n)}</span>${hasRecipe ? `<svg class="kit-recipe-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` : ''}</li>`;
       }).join('');
       const act = isReady
         ? ''
@@ -11058,7 +11112,83 @@ handlers['bout-cat-publish'] = () => {
         if (acc) { acceptOrder(Number(acc.getAttribute('data-kit-accept'))); closeZoom(); return; }
         const rdy = e.target.closest('[data-kit-ready]');
         if (rdy) { readyOrder(Number(rdy.getAttribute('data-kit-ready'))); closeZoom(); return; }
+        const recipe = e.target.closest('[data-kit-recipe]');
+        if (recipe) { openRecipe(recipe.getAttribute('data-kit-recipe')); return; }
         if (!e.target.closest('.kit-zoom')) closeZoom();
+      });
+    };
+
+    /* — recipe popup · ingredients + prep notes for a single dish.
+     *   Resolves the dish name against KiwiRecipes across all real venues
+     *   (cafeAtlas/maisonMansour/spaBahia) via findRecipe/kdsHasRecipe
+     *   defined earlier. Falls back to a friendly "no recipe yet" card
+     *   when the dish has none. Used to train new cuisiniers — they tap
+     *   the dish on a ticket, see the recipe. — */
+    const openRecipe = (dishName) => {
+      document.querySelectorAll('.kit-recipe-backdrop').forEach((b) => b.remove());
+      const hit = findRecipe(dishName);
+      const recipe = hit && hit.recipe;
+      const eng = window.KiwiRecipes;
+      const bd = document.createElement('div');
+      bd.className = 'kit-recipe-backdrop';
+      let body;
+      if (!recipe || recipe.status !== 'complete' || !(recipe.ingredients || []).length) {
+        body = `
+          <div class="kit-recipe-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <div class="kit-recipe-empty-t">${T.recipeEmptyT}</div>
+            <div class="kit-recipe-empty-b">${T.recipeEmptyB}</div>
+          </div>`;
+      } else {
+        const yld = recipe.yield || 1;
+        const ingRows = (recipe.ingredients || []).map((ing) => {
+          const ref = eng.resolveIngredient(ing.invId);
+          const name = (ref && ref.name) || ing.name || '—';
+          const unit = ing.unit || (ref && ref.unit) || '';
+          const qty  = Number(ing.qty || 0);
+          const qDisp = qty < 0.01 ? qty.toFixed(4) : qty < 1 ? qty.toFixed(3) : qty.toString();
+          return `<li class="kit-recipe-ing"><span class="kit-recipe-ing-q">${esc(qDisp)} ${esc(unit)}</span><span class="kit-recipe-ing-n">${esc(name)}</span></li>`;
+        }).join('');
+        const prep = (recipe.notes || '').trim();
+        body = `
+          <div class="kit-recipe-meta">
+            <span class="kit-recipe-yield">${T.recipeYield(yld)}</span>
+            ${hit && hit.menuItem.category ? `<span class="kit-recipe-cat">${esc(hit.menuItem.category)}</span>` : ''}
+          </div>
+          <div class="kit-recipe-section">
+            <div class="kit-recipe-section-t">${T.recipeIngredients}</div>
+            <ul class="kit-recipe-ings">${ingRows}</ul>
+          </div>
+          ${prep ? `
+            <div class="kit-recipe-section">
+              <div class="kit-recipe-section-t">${T.recipePrep}</div>
+              <div class="kit-recipe-prep">${esc(prep)}</div>
+            </div>
+          ` : ''}
+          <div class="kit-recipe-foot">${T.recipeFoot}</div>`;
+      }
+      bd.innerHTML = `
+        <div class="kit-recipe" role="dialog" aria-labelledby="kit-recipe-title">
+          <div class="kit-recipe-head">
+            <div>
+              <div class="kit-recipe-eyebrow">${T.recipeEyebrow}</div>
+              <h3 id="kit-recipe-title" class="kit-recipe-title">${esc(dishName)}</h3>
+            </div>
+            <button class="kit-recipe-close" data-kit-recipe-close aria-label="${esc(T.close)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div class="kit-recipe-body">${body}</div>
+        </div>`;
+      document.body.appendChild(bd);
+      requestAnimationFrame(() => bd.classList.add('in'));
+      let closing = false;
+      const closeRecipe = () => {
+        if (closing) return;
+        closing = true;
+        bd.classList.remove('in');
+        setTimeout(() => bd.remove(), 260);
+      };
+      bd.addEventListener('click', (e) => {
+        if (e.target.closest('[data-kit-recipe-close]') || !e.target.closest('.kit-recipe')) closeRecipe();
       });
     };
 
@@ -11100,6 +11230,9 @@ handlers['bout-cat-publish'] = () => {
         if (o) openZoom(o);
         return;
       }
+
+      const recipe = e.target.closest('[data-kit-recipe]');
+      if (recipe) { openRecipe(recipe.getAttribute('data-kit-recipe')); return; }
 
       const acc = e.target.closest('[data-kit-accept]');
       if (acc) { acceptOrder(Number(acc.getAttribute('data-kit-accept'))); return; }
