@@ -230,7 +230,7 @@
       flex: 1;
       display: inline-flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 10px;
-      padding: 18px 10px;
+      padding: 16px 7px;
       border-radius: 14px;
       font-size: 13px; font-weight: 600;
       background: rgba(255,255,255,0.06);
@@ -244,7 +244,7 @@
       flex: 0 0 26px;
       stroke-width: 1.75;
     }
-    .mode-pill span { line-height: 1; }
+    .mode-pill span { line-height: 1.15; }
     .mode-pill:hover { background: rgba(255,255,255,0.1); color: var(--paper-cream); }
     .mode-pill[aria-pressed="true"] {
       background: var(--gradient);
@@ -320,6 +320,83 @@
     }
     .view.is-active { display: flex; }
     .view-salle { gap: 12px; overflow: hidden; }
+
+    /* ---------- Waitlist (liste d'attente) ---------- */
+    .view-waitlist { gap: 0; }
+    .ma-btn.wl-add-btn { flex: 0 0 auto; width: auto; padding: 0 18px; height: 42px; font-size: 13.5px; }
+    .wl-list {
+      flex: 1; min-height: 0; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px;
+      padding-right: 4px;
+    }
+    .wl-card {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--paper-mute);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 14px 18px;
+    }
+    .wl-pos {
+      flex: 0 0 auto;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--forest); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 600;
+    }
+    .wl-main { flex: 1; min-width: 0; }
+    .wl-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .wl-meta { display: flex; align-items: center; gap: 10px; margin-top: 5px; font-size: 12px; color: var(--ink-3); flex-wrap: wrap; }
+    .wl-size { display: inline-flex; align-items: center; gap: 5px; }
+    .wl-meta svg { width: 13px; height: 13px; }
+    .wl-pref {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--mint-tint); color: var(--forest);
+      border: 1px solid var(--mint-edge);
+      border-radius: 999px; padding: 3px 9px;
+      font-size: 11px; font-weight: 600;
+    }
+    .wl-wait { font-family: var(--mono); color: var(--ink-4); }
+    .wl-acts { display: flex; gap: 8px; flex: 0 0 auto; }
+    .wl-act {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 38px; padding: 0 14px; border-radius: var(--r-lg);
+      font-size: 13px; font-weight: 600;
+      transition: filter 150ms ease, background 150ms ease, transform 120ms ease;
+    }
+    .wl-act svg { width: 15px; height: 15px; }
+    .wl-act:active { transform: scale(0.97); }
+    .wl-act.seat { background: var(--gradient); color: #fff; }
+    .wl-act.seat:hover { filter: brightness(1.06); }
+    .wl-act.remove { background: transparent; color: var(--ink-3); border: 1px solid var(--line); }
+    .wl-act.remove:hover { background: var(--paper-mute); color: var(--ink-2); }
+    .wl-empty {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; color: var(--ink-4); text-align: center;
+    }
+    .wl-empty svg { width: 40px; height: 40px; stroke-width: 1.5; color: var(--mint-edge); }
+    .wl-empty-title { font-size: 15px; font-weight: 600; color: var(--ink-3); }
+    .wl-empty-sub { font-size: 12.5px; max-width: 280px; }
+    .modal.modal-waitlist { width: 400px; max-width: calc(100vw - 48px); }
+    .wl-input {
+      width: 100%; height: 46px; border-radius: var(--r-lg);
+      background: var(--paper-mute); border: 1px solid var(--line);
+      padding: 0 14px; font-size: 15px; color: var(--ink);
+    }
+    .wl-input::placeholder { color: var(--ink-4); }
+    .wl-input:focus { outline: none; border-color: var(--forest); background: #fff; }
+    .wl-pref-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 12px 0 4px; }
+    .wl-pref-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 14px; border-radius: 999px;
+      background: var(--paper-mute); color: var(--ink-2);
+      font-size: 13px; font-weight: 600;
+      transition: background 150ms ease, color 150ms ease;
+    }
+    .wl-pref-chip svg { width: 14px; height: 14px; }
+    .wl-pref-chip:hover { background: #ECEAE5; }
+    .wl-pref-chip.is-active { background: var(--forest); color: #fff; }
+    /* hide the addition panel in waitlist mode — the list spans full width */
+    body[data-mode="waitlist"] .rightpanel { display: none; }
 
     /* ---------- Floor toggle (rez-de-chaussée / 1er étage) ---------- */
     .plan-head-left {
@@ -3580,6 +3657,10 @@
           <i data-lucide="shopping-bag"></i>
           <span>À emporter</span>
         </button>
+        <button class="mode-pill" data-mode="waitlist" aria-pressed="false">
+          <i data-lucide="users"></i>
+          <span>Attente</span>
+        </button>
       </div>
 
       <div class="act-selector" aria-label="Actions caisse">
@@ -4058,6 +4139,17 @@
           <div class="menu-grid" id="menu-grid"></div>
         </div>
       </section>
+
+      <!-- ===== WAITLIST VIEW (liste d'attente) ===== -->
+      <div class="main-head" data-mode-section="waitlist" hidden>
+        <div class="main-title">Liste d'attente<em>— file des arrivées</em></div>
+        <button class="ma-btn primary wl-add-btn" id="wl-add-btn">
+          <i data-lucide="user-plus"></i> Ajouter à la file
+        </button>
+      </div>
+      <section class="view view-waitlist" data-mode-section="waitlist" aria-label="Liste d'attente" hidden>
+        <div id="waitlist-list" class="wl-list"></div>
+      </section>
     </main>
 
     <!-- --------- RIGHT BILL PANEL --------- -->
@@ -4181,6 +4273,25 @@
         <button class="ma-btn secondary" id="nt-cancel" style="flex:1;">Annuler</button>
         <button class="ma-btn primary" id="nt-confirm" style="flex:2;">
           <i data-lucide="door-open"></i> Ouvrir la mesa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ WAITLIST MODAL ============ -->
+  <div class="modal-veil" id="waitlist-modal" role="dialog" aria-modal="true" aria-labelledby="wl-title">
+    <div class="modal modal-waitlist">
+      <div class="split-badge">File d'attente</div>
+      <h3 class="modal-title" id="wl-title" style="margin-bottom:12px;">Ajouter à la file</h3>
+      <input type="text" class="wl-input" id="wl-name" placeholder="Nom du client" autocomplete="off" />
+      <p class="modal-subtle" style="margin:14px 0 0;">Combien de personnes?</p>
+      <div class="nt-chips" id="wl-size-chips"></div>
+      <p class="modal-subtle" style="margin:6px 0 0;">Préférence d'installation</p>
+      <div class="wl-pref-chips" id="wl-pref-chips"></div>
+      <div class="nt-actions">
+        <button class="ma-btn secondary" id="wl-cancel" style="flex:1;">Annuler</button>
+        <button class="ma-btn primary" id="wl-confirm" style="flex:2;">
+          <i data-lucide="user-plus"></i> Ajouter
         </button>
       </div>
     </div>
@@ -5106,7 +5217,7 @@
       // Pills: only salle/vrap get pressed; order mode = neither
       $$('.mode-pill').forEach(p =>
         p.setAttribute('aria-pressed',
-          (newMode === 'salle' || newMode === 'vrap') && p.dataset.mode === newMode ? 'true' : 'false'));
+          (newMode === 'salle' || newMode === 'vrap' || newMode === 'waitlist') && p.dataset.mode === newMode ? 'true' : 'false'));
 
       // Toggle main headers + views
       // 'order' mode reuses the vrap menu sections
@@ -5147,6 +5258,8 @@
       } else if (newMode === 'order') {
         setVrapView('builder');
         renderOrderPanel(selectedId);
+      } else if (newMode === 'waitlist') {
+        renderWaitlist();   // the right addition panel is hidden via body[data-mode] CSS
       } else {
         setVrapView('board');
         showPayButtons(false);
@@ -5410,6 +5523,11 @@
        vrapDiscount holds a manager-approved réduction on the cart. */
     let vrapEditingNum = null;
     let vrapDiscount   = null;   // { kind, value, amount, reason } | null
+
+    /* ---- Waitlist (liste d'attente) — walk-in parties at the door ---- */
+    let waitlist = [];           // [{ id, name, size, pref, addedAt }]
+    let wlSeq = 0;
+    let wlDraft = { name: '', size: 2, pref: 'peu-importe' };
 
     /* Réduction amount for the À emporter cart, clamped to the gross. */
     function vrapDiscountAmount(gross) {
@@ -6104,6 +6222,131 @@
       if (e.target.closest('#nt-cancel') || e.target === $('#new-table-modal'))
         { $('#new-table-modal').classList.remove('is-open'); return; }
     });
+
+    /* ============================================================
+       WAITLIST (liste d'attente) — walk-in parties at the door
+       ============================================================ */
+    const WL_PREFS = {
+      'terrasse':    { label: 'Terrasse',    icon: 'sun'              },
+      'interieur':   { label: 'Intérieur',   icon: 'utensils-crossed' },
+      'etage':       { label: 'Étage',       icon: 'layers'           },
+      'peu-importe': { label: 'Peu importe', icon: 'check'            },
+    };
+
+    function openWaitlistModal() {
+      wlDraft = { name: '', size: 2, pref: 'peu-importe' };
+      $('#wl-name').value = '';
+      renderWaitlistChips();
+      $('#waitlist-modal').classList.add('is-open');
+      setTimeout(() => $('#wl-name').focus(), 60);
+      lucide.createIcons();
+    }
+
+    function renderWaitlistChips() {
+      $('#wl-size-chips').innerHTML = [1,2,3,4,5,6,7,8].map(n =>
+        `<button class="nt-chip ${n === wlDraft.size ? 'is-active' : ''}" data-wl-size="${n}">${n}</button>`
+      ).join('');
+      $('#wl-pref-chips').innerHTML = Object.entries(WL_PREFS).map(([key, p]) =>
+        `<button class="wl-pref-chip ${key === wlDraft.pref ? 'is-active' : ''}" data-wl-pref="${key}"><i data-lucide="${p.icon}"></i>${p.label}</button>`
+      ).join('');
+      lucide.createIcons();
+    }
+
+    function confirmWaitlistAdd() {
+      const name = ($('#wl-name').value || '').trim();
+      if (!name) { $('#wl-name').focus(); toast('Ajoute un nom'); return; }
+      waitlist.push({ id: ++wlSeq, name, size: wlDraft.size, pref: wlDraft.pref, addedAt: Date.now() });
+      $('#waitlist-modal').classList.remove('is-open');
+      renderWaitlist();
+      toast(`${name} ajouté·e à la file`);
+    }
+
+    function wlWaitMins(entry) {
+      return Math.max(0, Math.round((Date.now() - entry.addedAt) / 60000));
+    }
+
+    function renderWaitlist() {
+      const list = $('#waitlist-list');
+      if (!list) return;
+      if (!waitlist.length) {
+        list.innerHTML = `<div class="wl-empty">
+          <i data-lucide="users"></i>
+          <div class="wl-empty-title">Personne en attente</div>
+          <div class="wl-empty-sub">Clique « Ajouter à la file » quand un client se présente sans réservation.</div>
+        </div>`;
+        lucide.createIcons();
+        return;
+      }
+      list.innerHTML = waitlist.map((e, i) => {
+        const pref = WL_PREFS[e.pref] || WL_PREFS['peu-importe'];
+        const mins = wlWaitMins(e);
+        const wait = mins === 0 ? "à l'instant" : `${mins} min`;
+        return `<div class="wl-card" data-wl-id="${e.id}">
+          <div class="wl-pos">${i + 1}</div>
+          <div class="wl-main">
+            <div class="wl-name">${kdsEsc(e.name)}</div>
+            <div class="wl-meta">
+              <span class="wl-size"><i data-lucide="users"></i>${e.size} pers.</span>
+              <span class="wl-pref"><i data-lucide="${pref.icon}"></i>${pref.label}</span>
+              <span class="wl-wait">${wait}</span>
+            </div>
+          </div>
+          <div class="wl-acts">
+            <button class="wl-act seat" data-wl-seat="${e.id}"><i data-lucide="door-open"></i>Attabler</button>
+            <button class="wl-act remove" data-wl-remove="${e.id}"><i data-lucide="x"></i>Retirer</button>
+          </div>
+        </div>`;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    /* Pick an empty (khawya) table, preferring the requested zone. */
+    function wlFindFreeTable(pref) {
+      const ids = Object.keys(tables);
+      const zoneMatch = pref !== 'peu-importe'
+        ? ids.find(id => tables[id].status === 'khawya' && tables[id].zone === pref)
+        : null;
+      return zoneMatch || ids.find(id => tables[id].status === 'khawya') || null;
+    }
+
+    function seatWaitlist(id) {
+      const idx = waitlist.findIndex(e => e.id === id);
+      if (idx < 0) return;
+      const e = waitlist[idx];
+      const freeTable = wlFindFreeTable(e.pref);
+      waitlist.splice(idx, 1);
+      renderWaitlist();
+      toast(freeTable ? `${e.name} · ${freeTable} attribuée` : `${e.name} attablé·e ✓`);
+    }
+
+    function removeWaitlist(id) {
+      const idx = waitlist.findIndex(e => e.id === id);
+      if (idx < 0) return;
+      const name = waitlist[idx].name;
+      waitlist.splice(idx, 1);
+      renderWaitlist();
+      toast(`${name} retiré·e de la file`);
+    }
+
+    $('#wl-add-btn') && $('#wl-add-btn').addEventListener('click', openWaitlistModal);
+    document.getElementById('waitlist-modal').addEventListener('click', (e) => {
+      const sizeChip = e.target.closest('[data-wl-size]');
+      if (sizeChip) { wlDraft.size = parseInt(sizeChip.dataset.wlSize); renderWaitlistChips(); return; }
+      const prefChip = e.target.closest('[data-wl-pref]');
+      if (prefChip) { wlDraft.pref = prefChip.dataset.wlPref; renderWaitlistChips(); return; }
+      if (e.target.closest('#wl-confirm')) { confirmWaitlistAdd(); return; }
+      if (e.target.closest('#wl-cancel') || e.target === $('#waitlist-modal'))
+        { $('#waitlist-modal').classList.remove('is-open'); return; }
+    });
+    $('#wl-name') && $('#wl-name').addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmWaitlistAdd(); });
+    $('#waitlist-list') && $('#waitlist-list').addEventListener('click', (e) => {
+      const seat = e.target.closest('[data-wl-seat]');
+      if (seat) { seatWaitlist(parseInt(seat.dataset.wlSeat)); return; }
+      const rem = e.target.closest('[data-wl-remove]');
+      if (rem) { removeWaitlist(parseInt(rem.dataset.wlRemove)); return; }
+    });
+    // keep wait times fresh while the waitlist is on screen
+    setInterval(() => { if (mode === 'waitlist') renderWaitlist(); }, 30000);
 
     /* ---- table order management ---- */
     function addToTableOrder(tableId, itemId) {
