@@ -656,14 +656,6 @@
        + (if urgent) the pulsing red dot. */
     .tbl-status,
     .tbl-elapsed { display: none !important; }
-    /* seated client's name on the tile (waitlist seating) */
-    .tbl-guest {
-      font-size: 9px; font-weight: 700; line-height: 1.1;
-      max-width: 96%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      margin-top: 1px;
-    }
-    .tbl[data-status="ka-yaklo"] .tbl-guest     { color: #437B5C; }
-    .tbl[data-status="bgha-ykhlass"] .tbl-guest { color: rgba(255,255,255,.92); }
 
     /* The number is THE label on the floor plan. Centered, large, prominent. */
     .tbl-head {
@@ -5214,7 +5206,6 @@
             <div class="tbl-head">
               <span class="tbl-num">${id}</span>
               <span class="tbl-covers">${t.covers}p</span>
-              ${(t.guest && (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass')) ? `<span class="tbl-guest">${kdsEsc(t.guest)}</span>` : ''}
             </div>
             <div class="tbl-status">${label}</div>
             ${elapsed}
@@ -5367,9 +5358,7 @@
       const lines = generateOrder(id, t);
       const total = lines.reduce((sum, l) => sum + l.total, 0);
 
-      $('#rp-table').textContent = t.guest
-        ? `${id} · ${t.guest} · ${t.covers} couvert${t.covers > 1 ? 's' : ''}`
-        : `${id} · ${t.covers} couverts`;
+      $('#rp-table').textContent = `${id} · ${t.covers} couverts`;
 
       const subEl = $('#rp-substatus');
       const flag = t.status === 'bgha-ykhlass' ? 'bgha-ykhlass' : 'ka-yaklo';
@@ -5520,7 +5509,6 @@
           delete orders[id]; // clear order
           delete tableOrders[id]; // clear cashier-built order
           delete tables[id].discount; // clear remise — table reset
-          delete tables[id].guest; // clear seated client
           refreshTableNode(id);
         }
       }, 3000);
@@ -6420,7 +6408,6 @@
         t.status  = 'ka-yaklo';
         t.covers  = e.size;
         t.elapsed = 0;
-        t.guest   = e.name;            // remember the client seated at this table
         delete orders[tableId];        // drop any cached/fabricated order
         tableOrders[tableId] = [];     // fresh table, ready to take their order
         refreshTableNode(tableId);
