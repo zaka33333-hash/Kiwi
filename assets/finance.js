@@ -82,6 +82,34 @@
       priceFoot: 'Ces suggestions reposent sur l\'évolution réelle de vos coûts matière + votre mix de ventes des 30 derniers jours.',
       // Footer note
       noteUpdatePolicy: 'Toutes les valeurs sont calculées à partir des ventes du jour, du stock et de votre effectif. Aucune écriture comptable n\'est produite.',
+      // TVA
+      tvaTitle: 'TVA · réconciliation mensuelle',
+      tvaSub: 'Auto-générée pour votre comptable · export prêt en 1 clic',
+      tvaPeriod: 'Période',
+      tvaCollected: 'TVA collectée (sur ventes)',
+      tvaDeductible: 'TVA déductible (sur achats)',
+      tvaColRate: 'Taux',
+      tvaColBaseSales: 'CA HT',
+      tvaColBaseBuy: 'Achats HT',
+      tvaColAmount: 'TVA',
+      tvaColLabel: 'Catégorie',
+      tvaCatRestau: 'Restauration sur place',
+      tvaCatAlcohol: 'Boissons alcoolisées + services',
+      tvaCatExport: 'Export, autres exonérés',
+      tvaCatEquip: 'Équipement, services pro',
+      tvaCatFood: 'Sucre, café, riz',
+      tvaCatOther: 'Autres alimentaires',
+      tvaTotalRow: 'Total',
+      tvaPayable: 'TVA à payer ce mois',
+      tvaDueDate: (d) => `Date limite de déclaration : <b>${d}</b>`,
+      tvaDueIn: (n) => `dans ${n} jour${n > 1 ? 's' : ''}`,
+      tvaExportPdf: 'PDF déclaration',
+      tvaExportXls: 'Excel comptable',
+      tvaSendCpa: 'Envoyer à mon comptable',
+      tvaSendToast: (email) => `Déclaration envoyée à ${email}`,
+      tvaHistoryTitle: 'Historique 12 mois',
+      tvaStatusDeclared: 'déclarée',
+      tvaStatusPending: 'en attente',
     },
     en: {
       breadcrumb: 'Margins & budget',
@@ -129,6 +157,33 @@
       priceAiEyebrow: 'Kiwi AI · pricing',
       priceFoot: 'Suggestions are based on actual food-cost drift + your sales mix over the last 30 days.',
       noteUpdatePolicy: 'All values are computed from today\'s sales, stock and headcount. No accounting entries are produced.',
+      tvaTitle: 'VAT · monthly reconciliation',
+      tvaSub: 'Auto-generated for your accountant · 1-click export',
+      tvaPeriod: 'Period',
+      tvaCollected: 'VAT collected (on sales)',
+      tvaDeductible: 'VAT deductible (on purchases)',
+      tvaColRate: 'Rate',
+      tvaColBaseSales: 'Net sales',
+      tvaColBaseBuy: 'Net purchases',
+      tvaColAmount: 'VAT',
+      tvaColLabel: 'Category',
+      tvaCatRestau: 'Dine-in food',
+      tvaCatAlcohol: 'Alcoholic beverages + services',
+      tvaCatExport: 'Export, other exempt',
+      tvaCatEquip: 'Equipment, professional services',
+      tvaCatFood: 'Sugar, coffee, rice',
+      tvaCatOther: 'Other foods',
+      tvaTotalRow: 'Total',
+      tvaPayable: 'VAT payable this month',
+      tvaDueDate: (d) => `Declaration deadline: <b>${d}</b>`,
+      tvaDueIn: (n) => `in ${n} day${n > 1 ? 's' : ''}`,
+      tvaExportPdf: 'PDF declaration',
+      tvaExportXls: 'Accountant Excel',
+      tvaSendCpa: 'Send to my accountant',
+      tvaSendToast: (email) => `Declaration sent to ${email}`,
+      tvaHistoryTitle: '12-month history',
+      tvaStatusDeclared: 'filed',
+      tvaStatusPending: 'pending',
     },
     ar: {
       breadcrumb: 'الهامش والميزانية',
@@ -176,6 +231,33 @@
       priceAiEyebrow: 'كيوي AI · الأسعار',
       priceFoot: 'هذه الاقتراحات مبنية على تطور تكاليف المكونات + مزيج المبيعات خلال 30 يومًا.',
       noteUpdatePolicy: 'جميع القيم محسوبة من مبيعات اليوم والمخزون وعدد الموظفين. لا يتم إنتاج أي قيود محاسبية.',
+      tvaTitle: 'الضريبة على القيمة المضافة · التسوية الشهرية',
+      tvaSub: 'تُولَّد تلقائيًا لمحاسبك · تصدير بنقرة واحدة',
+      tvaPeriod: 'الفترة',
+      tvaCollected: 'الضريبة المُحَصَّلة (على المبيعات)',
+      tvaDeductible: 'الضريبة القابلة للخصم (على المشتريات)',
+      tvaColRate: 'النسبة',
+      tvaColBaseSales: 'المبيعات بدون ضريبة',
+      tvaColBaseBuy: 'المشتريات بدون ضريبة',
+      tvaColAmount: 'الضريبة',
+      tvaColLabel: 'الفئة',
+      tvaCatRestau: 'مطاعم بالموقع',
+      tvaCatAlcohol: 'مشروبات كحولية + خدمات',
+      tvaCatExport: 'تصدير ومُعفى',
+      tvaCatEquip: 'تجهيزات وخدمات مهنية',
+      tvaCatFood: 'سكر، قهوة، أرز',
+      tvaCatOther: 'أغذية أخرى',
+      tvaTotalRow: 'المجموع',
+      tvaPayable: 'الضريبة المستحقة هذا الشهر',
+      tvaDueDate: (d) => `أجل الإقرار: <b>${d}</b>`,
+      tvaDueIn: (n) => `في ${n} يوم`,
+      tvaExportPdf: 'PDF الإقرار',
+      tvaExportXls: 'Excel للمحاسب',
+      tvaSendCpa: 'إرسال إلى المحاسب',
+      tvaSendToast: (email) => `تم إرسال الإقرار إلى ${email}`,
+      tvaHistoryTitle: 'سجل 12 شهرًا',
+      tvaStatusDeclared: 'تم الإقرار',
+      tvaStatusPending: 'في الانتظار',
     },
   };
 
@@ -553,6 +635,181 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
+   * Section 6 · TVA monthly reconciliation
+   *
+   * Moroccan TVA rates applicable to a restaurant operation:
+   *   · 10 %  food consumed on premises (restauration sur place)
+   *   · 20 %  alcoholic beverages, professional services, equipment
+   *   · 14 %  certain food categories (sugar, rice, coffee)
+   *   ·  0 %  exports + a few exempt items
+   *
+   * The card sums revenue and purchases per rate, computes VAT collected
+   * and deductible, gives a clean "à payer" number and the next monthly
+   * deadline (Moroccan rule: by the end of the month following the period).
+   * Exports + history are demo-mocked.
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Per-venue monthly TVA breakdown (in MAD). The amounts mirror the
+   * Marges & budget MTD revenue numbers, just split into rate buckets. */
+  const TVA_DATA = {
+    cafeAtlas: {
+      collected: [
+        { rate: 10, base: 742800, vat: 74280, labelKey: 'tvaCatRestau' },
+        { rate: 20, base: 83200,  vat: 16640, labelKey: 'tvaCatAlcohol' },
+        { rate: 0,  base: 8400,   vat: 0,     labelKey: 'tvaCatExport' },
+      ],
+      deductible: [
+        { rate: 20, base: 142300, vat: 28460, labelKey: 'tvaCatEquip' },
+        { rate: 14, base: 38200,  vat: 5348,  labelKey: 'tvaCatFood' },
+        { rate: 10, base: 85400,  vat: 8540,  labelKey: 'tvaCatOther' },
+      ],
+      cpaEmail: 'samira@cabinetdouiri.ma',
+      history: [
+        { period: 'Avril 2026',     payable: 46240, status: 'declared' },
+        { period: 'Mars 2026',      payable: 52110, status: 'declared' },
+        { period: 'Février 2026',   payable: 41880, status: 'declared' },
+        { period: 'Janvier 2026',   payable: 49370, status: 'declared' },
+        { period: 'Décembre 2025',  payable: 58220, status: 'declared' },
+        { period: 'Novembre 2025',  payable: 44190, status: 'declared' },
+      ],
+    },
+    maisonMansour: {
+      collected: [
+        { rate: 20, base: 168400, vat: 33680, labelKey: 'tvaCatAlcohol' },
+        { rate: 0,  base: 49900,  vat: 0,     labelKey: 'tvaCatExport' },
+      ],
+      deductible: [
+        { rate: 20, base: 84200,  vat: 16840, labelKey: 'tvaCatEquip' },
+      ],
+      cpaEmail: 'samira@cabinetdouiri.ma',
+      history: [
+        { period: 'Avril 2026',     payable: 16100, status: 'declared' },
+        { period: 'Mars 2026',      payable: 15280, status: 'declared' },
+        { period: 'Février 2026',   payable: 13740, status: 'declared' },
+      ],
+    },
+    spaBahia: {
+      collected: [
+        { rate: 20, base: 164200, vat: 32840, labelKey: 'tvaCatRestau' },
+      ],
+      deductible: [
+        { rate: 20, base: 32600,  vat: 6520,  labelKey: 'tvaCatEquip' },
+        { rate: 14, base: 14800,  vat: 2072,  labelKey: 'tvaCatFood' },
+      ],
+      cpaEmail: 'samira@cabinetdouiri.ma',
+      history: [
+        { period: 'Avril 2026',     payable: 22640, status: 'declared' },
+        { period: 'Mars 2026',      payable: 21100, status: 'declared' },
+      ],
+    },
+  };
+
+  /* Format a label for the current period in the demo (e.g. "Mai 2026"). */
+  const TVA_PERIOD_LABEL = 'Mai 2026';
+  const TVA_DUE_DATE_LABEL = '30 juin 2026';
+  const TVA_DUE_IN_DAYS = 27;
+
+  function tvaHtml() {
+    const v = currentVenueId();
+    const data = TVA_DATA[v] || TVA_DATA.cafeAtlas;
+    const colTotal = data.collected.reduce((acc, r) => ({ base: acc.base + r.base, vat: acc.vat + r.vat }), { base: 0, vat: 0 });
+    const dedTotal = data.deductible.reduce((acc, r) => ({ base: acc.base + r.base, vat: acc.vat + r.vat }), { base: 0, vat: 0 });
+    const payable = Math.max(0, colTotal.vat - dedTotal.vat);
+
+    const rowsHtml = (rows, baseLabel) => rows.map((r) => `
+      <div class="fin-tva-row">
+        <span class="fin-tva-rate">${r.rate} %</span>
+        <span class="fin-tva-base">${fmtMad(r.base)}</span>
+        <span class="fin-tva-vat">${fmtMad(r.vat)}</span>
+        <span class="fin-tva-label">${esc(t(r.labelKey))}</span>
+      </div>`).join('') + `
+      <div class="fin-tva-row fin-tva-row-total">
+        <span class="fin-tva-rate"></span>
+        <span class="fin-tva-base">${fmtMad(rows.reduce((s, r) => s + r.base, 0))}</span>
+        <span class="fin-tva-vat">${fmtMad(rows.reduce((s, r) => s + r.vat, 0))}</span>
+        <span class="fin-tva-label">${esc(t('tvaTotalRow'))}</span>
+      </div>`;
+
+    const historyHtml = data.history.map((h) => `
+      <div class="fin-tva-hrow">
+        <span>${esc(h.period)}</span>
+        <span class="fin-tva-hpayable">${fmtMad(h.payable)}</span>
+        <span class="fin-tva-hstatus fin-tva-hstatus-${h.status === 'declared' ? 'ok' : 'warn'}">
+          ${h.status === 'declared' ? '✓ ' + esc(t('tvaStatusDeclared')) : '○ ' + esc(t('tvaStatusPending'))}
+        </span>
+      </div>`).join('');
+
+    return `
+      <div class="fin-tva fin-card">
+        <div class="fin-eyebrow">
+          <span>${esc(t('tvaTitle'))}</span>
+          <span class="fin-eyebrow-sub">${esc(t('tvaSub'))}</span>
+        </div>
+        <div class="fin-tva-period">
+          <span class="fin-tva-period-l">${esc(t('tvaPeriod'))}</span>
+          <select class="fin-tva-period-select" disabled>
+            <option>${esc(TVA_PERIOD_LABEL)}</option>
+          </select>
+        </div>
+
+        <div class="fin-tva-section">
+          <div class="fin-tva-section-t">${esc(t('tvaCollected'))}</div>
+          <div class="fin-tva-table">
+            <div class="fin-tva-head">
+              <span>${esc(t('tvaColRate'))}</span>
+              <span>${esc(t('tvaColBaseSales'))}</span>
+              <span>${esc(t('tvaColAmount'))}</span>
+              <span>${esc(t('tvaColLabel'))}</span>
+            </div>
+            ${rowsHtml(data.collected, 'tvaColBaseSales')}
+          </div>
+        </div>
+
+        <div class="fin-tva-section">
+          <div class="fin-tva-section-t">${esc(t('tvaDeductible'))}</div>
+          <div class="fin-tva-table">
+            <div class="fin-tva-head">
+              <span>${esc(t('tvaColRate'))}</span>
+              <span>${esc(t('tvaColBaseBuy'))}</span>
+              <span>${esc(t('tvaColAmount'))}</span>
+              <span>${esc(t('tvaColLabel'))}</span>
+            </div>
+            ${rowsHtml(data.deductible, 'tvaColBaseBuy')}
+          </div>
+        </div>
+
+        <div class="fin-tva-payable">
+          <div>
+            <div class="fin-tva-payable-l">${esc(t('tvaPayable'))}</div>
+            <div class="fin-tva-payable-v">${fmtMad(payable)}</div>
+            <div class="fin-tva-payable-due">${t('tvaDueDate', TVA_DUE_DATE_LABEL)} <span class="fin-tva-payable-in">· ${esc(t('tvaDueIn', TVA_DUE_IN_DAYS))}</span></div>
+          </div>
+          <div class="fin-tva-actions">
+            <button class="fin-tva-btn" data-action="fin-tva-pdf">${esc(t('tvaExportPdf'))}</button>
+            <button class="fin-tva-btn" data-action="fin-tva-xls">${esc(t('tvaExportXls'))}</button>
+            <button class="fin-tva-btn primary" data-action="fin-tva-send" data-cpa="${esc(data.cpaEmail)}">${esc(t('tvaSendCpa'))} →</button>
+          </div>
+        </div>
+
+        <div class="fin-tva-section">
+          <div class="fin-tva-section-t">${esc(t('tvaHistoryTitle'))}</div>
+          <div class="fin-tva-history">${historyHtml}</div>
+        </div>
+      </div>`;
+  }
+
+  /* TVA action handlers — wired through the global click delegator. */
+  function wireTvaHandlers() {
+    if (!window.Kiwi || !window.Kiwi.handlers) return;
+    window.Kiwi.handlers['fin-tva-pdf'] = () => window.Kiwi.toast?.('PDF déclaration prêt — téléchargement simulé', { type: 'info' });
+    window.Kiwi.handlers['fin-tva-xls'] = () => window.Kiwi.toast?.('Excel comptable prêt — téléchargement simulé', { type: 'info' });
+    window.Kiwi.handlers['fin-tva-send'] = (el) => {
+      const cpa = el?.dataset?.cpa || 'votre comptable';
+      window.Kiwi.toast?.(t('tvaSendToast', cpa), { type: 'success', duration: 4000 });
+    };
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
    * Top-level page render
    * ═══════════════════════════════════════════════════════════════════════ */
   function render() {
@@ -575,6 +832,7 @@
           </div>
           ${serviceHtml()}
           ${priceHtml()}
+          ${tvaHtml()}
         </div>
         <div class="fin-note">${esc(t('noteUpdatePolicy'))}</div>
       </div>`;
@@ -619,6 +877,7 @@
       return setTimeout(wire, 80);
     }
     window.Kiwi.handlers['nav-finance'] = () => showPage();
+    wireTvaHandlers();
     /* Any other nav-* handler returns the user to the dashboard. */
     ['nav-accueil', 'nav-tables', 'nav-menu', 'nav-kds', 'nav-stock', 'nav-equipe',
       'nav-payroll', 'nav-reservations', 'nav-orders', 'nav-terminals', 'nav-conformite']
