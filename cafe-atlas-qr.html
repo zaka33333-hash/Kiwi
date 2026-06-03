@@ -1,0 +1,1330 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Café Atlas — Self-order QR · Kiwi POS demo</title>
+  <meta name="description" content="Démonstration self-order par QR · iPhone 17 Pro · Kiwi POS" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <style>
+    /* =========================================================
+       Tokens — same brand system as kiwi-serveur / kiwi-caisse
+       ========================================================= */
+    :root {
+      --forest:       #1F5D3C;
+      --forest-deep:  #164A2F;
+      --emerald:      #3FB67A;
+      --mint:         #7DF2B0;
+      --mint-tint:    #EBF5F0;
+      --mint-edge:    #C5E0D3;
+
+      --paper:        #FAFAF8;
+      --paper-cream:  #F7F5F0;
+      --paper-soft:   #F7F7F5;
+      --paper-mute:   #F4F4F2;
+
+      --ink:          #111111;
+      --ink-2:        #4A4A4A;
+      --ink-3:        #6B6B6B;
+      --ink-4:        #9A9A9A;
+      --line:         #E5E5E5;
+      --line-soft:    #EEEEEE;
+
+      --sans:  "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --serif: "Instrument Serif", "Times New Roman", serif;
+      --mono:  "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+
+      --shadow-card: 0 1px 2px rgba(17,17,17,.04), 0 4px 10px rgba(17,17,17,.05);
+      --shadow-deep: 0 30px 80px rgba(0,0,0,.55), 0 10px 30px rgba(0,0,0,.35);
+
+      --gradient: linear-gradient(135deg, #1F5D3C 0%, #3FB67A 100%);
+
+      /* iPhone scale — phone is 1:1 of these px at desktop */
+      --ph-w:  390px;
+      --ph-h:  844px;
+      --ph-r:  55px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; min-height: 100%;
+      font-family: var(--sans);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      letter-spacing: -0.005em;
+      background:
+        radial-gradient(70% 50% at 25% 30%, rgba(31,93,60,0.10), transparent 60%),
+        radial-gradient(60% 50% at 80% 80%, rgba(125,242,176,0.10), transparent 60%),
+        linear-gradient(160deg, #F8F7F3 0%, #EFEDE6 100%);
+    }
+    button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+    a { color: inherit; }
+
+    /* =========================================================
+       Page layout — desktop side-by-side, mobile stacked
+       ========================================================= */
+    .stage {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(280px, 460px) 1fr;
+      gap: 48px;
+      align-items: center;
+      padding: 56px 64px;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    @media (max-width: 960px) {
+      .stage {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 32px 20px;
+      }
+    }
+
+    /* ---------- Mission sidebar ---------- */
+    .mission {
+      max-width: 460px;
+    }
+    .mission-brand {
+      display: inline-flex; align-items: baseline; gap: 6px;
+      font-weight: 700; font-size: 22px;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+    }
+    .mission-brand i {
+      width: 6px; height: 6px;
+      background: var(--forest);
+      border-radius: 50%;
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+    .mission-eyebrow {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin: 28px 0 14px;
+    }
+    .mission h1 {
+      margin: 0;
+      font-size: 44px;
+      line-height: 1.05;
+      font-weight: 600;
+      letter-spacing: -0.032em;
+      color: var(--ink);
+    }
+    .mission h1 em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--forest);
+    }
+    .mission p {
+      font-size: 15.5px;
+      line-height: 1.55;
+      color: var(--ink-2);
+      margin: 22px 0 0;
+      max-width: 38em;
+    }
+    .mission ul {
+      list-style: none;
+      padding: 0;
+      margin: 28px 0 0;
+      display: grid;
+      gap: 12px;
+    }
+    .mission li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--ink-2);
+    }
+    .mission li::before {
+      content: "";
+      flex: 0 0 6px;
+      width: 6px; height: 6px;
+      margin-top: 8px;
+      background: var(--forest);
+      border-radius: 50%;
+    }
+    .mission li b {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .mission-foot {
+      margin-top: 36px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .replay-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      background: var(--ink);
+      color: var(--paper-cream);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      transition: transform 220ms ease, background 220ms ease;
+    }
+    .replay-btn:hover { transform: translateY(-1px); background: var(--forest); }
+    .replay-btn svg { width: 14px; height: 14px; }
+    .replay-hint {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+    }
+
+    /* =========================================================
+       iPhone 17 Pro frame
+       ========================================================= */
+    .phone-stage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1800px;
+    }
+    .iphone {
+      position: relative;
+      width: var(--ph-w);
+      height: var(--ph-h);
+      flex: 0 0 auto;
+      transform: rotateY(-2deg) rotateX(2deg);
+      transform-style: preserve-3d;
+    }
+    @media (max-width: 960px) {
+      .iphone { transform: none; }
+    }
+
+    /* Titanium outer frame */
+    .iphone-frame {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--ph-r);
+      background:
+        linear-gradient(135deg,
+          #cfcdc6 0%,
+          #a8a6a0 18%,
+          #d8d6cf 38%,
+          #98968f 60%,
+          #b8b6b0 80%,
+          #8e8c85 100%);
+      box-shadow:
+        var(--shadow-deep),
+        inset 0 0 0 1px rgba(255,255,255,0.4),
+        inset 0 0 0 4px rgba(0,0,0,0.18);
+      padding: 5px;
+    }
+    /* Inner black bezel layer */
+    .iphone-bezel {
+      position: absolute;
+      inset: 5px;
+      border-radius: calc(var(--ph-r) - 5px);
+      background: #060606;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+      padding: 4px;
+    }
+    /* Screen */
+    .iphone-screen {
+      position: absolute;
+      inset: 9px;
+      border-radius: calc(var(--ph-r) - 12px);
+      overflow: hidden;
+      background: #fff;
+      isolation: isolate;
+    }
+
+    /* ---------- Side buttons (iPhone 17 Pro layout) ---------- */
+    .side-btn {
+      position: absolute;
+      background: linear-gradient(180deg, #807e77 0%, #bcbab3 40%, #807e77 100%);
+      border-radius: 2px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.3),
+        inset 0 -1px 0 rgba(0,0,0,0.3),
+        0 1px 1px rgba(0,0,0,0.25);
+    }
+    .side-btn.action      { left: -3px; top: 130px;  width: 4px; height: 28px; }
+    .side-btn.vol-up      { left: -3px; top: 175px;  width: 4px; height: 56px; }
+    .side-btn.vol-down    { left: -3px; top: 245px;  width: 4px; height: 56px; }
+    .side-btn.side-power  { right: -3px; top: 165px; width: 4px; height: 90px; }
+    .side-btn.camera-ctrl { right: -3px; top: 275px; width: 4px; height: 36px;
+                            background: linear-gradient(180deg, #6e6c66 0%, #c4c2bb 50%, #6e6c66 100%); }
+    .side-btn.camera-ctrl::after {
+      content: "";
+      position: absolute;
+      inset: 8px 1px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1));
+      border-radius: 1px;
+    }
+
+    /* =========================================================
+       iOS status bar + Dynamic Island
+       ========================================================= */
+    .status-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 54px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 28px 6px;
+      font-size: 15.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      z-index: 100;
+      pointer-events: none;
+    }
+    .status-bar.is-dark { color: var(--paper-cream); }
+    .status-time { font-feature-settings: "tnum" 1; }
+    .status-right {
+      display: inline-flex; gap: 6px; align-items: center;
+    }
+    .status-right svg { width: 17px; height: 11px; }
+    .status-battery {
+      position: relative;
+      width: 25px; height: 12px;
+      border: 1.3px solid currentColor;
+      border-radius: 3px;
+      opacity: 0.95;
+    }
+    .status-battery::before {
+      content: "";
+      position: absolute;
+      right: -3px; top: 3px;
+      width: 1.5px; height: 4px;
+      background: currentColor;
+      border-radius: 0 1px 1px 0;
+      opacity: 0.6;
+    }
+    .status-battery::after {
+      content: "";
+      position: absolute;
+      inset: 1.3px;
+      background: currentColor;
+      border-radius: 1.5px;
+      width: calc(100% - 4px);
+    }
+
+    .dyn-island {
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 122px;
+      height: 36px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 200;
+      box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.05);
+    }
+
+    /* =========================================================
+       App canvas (everything below status bar)
+       ========================================================= */
+    .app-canvas {
+      position: absolute;
+      inset: 0;
+      background: var(--paper-cream);
+      overflow: hidden;
+    }
+
+    /* ---------- Greeting flash (ported from kiwi-serveur) ---------- */
+    .kiwi-greet {
+      position: absolute; inset: 0; z-index: 150;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, #F8F7F3 0%, #F1EFE8 55%, #ECEAE3 100%);
+      opacity: 0; pointer-events: none;
+      transition: opacity 600ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: opacity;
+    }
+    .kiwi-greet::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(60% 50% at 15% 30%, rgba(31,93,60,0.10), transparent 60%),
+        radial-gradient(50% 45% at 85% 80%, rgba(125,242,176,0.10), transparent 60%);
+      pointer-events: none;
+    }
+    .kiwi-greet.is-visible { opacity: 1; }
+    .kiwi-greet-inner {
+      position: relative; z-index: 1;
+      padding: 0 22px;
+      text-align: center;
+      transform: translateY(22px) scale(0.97);
+      opacity: 0;
+      transition: transform 700ms cubic-bezier(0.32, 0.72, 0, 1), opacity 700ms ease;
+    }
+    .kiwi-greet.is-visible .kiwi-greet-inner {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    .kiwi-greet h1 {
+      margin: 0; line-height: 1.22;
+      font-size: 26px; font-weight: 600; letter-spacing: -0.030em;
+      color: var(--ink);
+      text-shadow: 0 2px 6px rgba(10,15,13,0.05);
+      white-space: nowrap;
+    }
+    .kiwi-greet h1 br { display: block; content: ""; }
+    .kiwi-greet h1 em {
+      font-family: var(--serif); font-style: italic; font-weight: 400;
+      color: var(--forest);
+      display: inline;
+    }
+    .kiwi-greet h1 .em-clip {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      max-width: 0;
+      white-space: nowrap;
+      vertical-align: top;
+      transition: max-width 1080ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .kiwi-greet h1 .em-clip.is-revealed { max-width: var(--em-w, 480px); }
+    .kiwi-greet h1 .em-clip.is-typing::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 18%; bottom: 16%;
+      width: 2px;
+      background: var(--forest);
+      animation: kw-greet-cursor 0.7s steps(1) infinite;
+    }
+    @keyframes kw-greet-cursor {
+      0%, 55%   { opacity: 1; }
+      56%, 100% { opacity: 0; }
+    }
+    .kiwi-greet-sub {
+      font-family: var(--mono); font-size: 10.5px;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ink-3);
+      margin-top: 22px;
+    }
+    .kiwi-greet-sub em {
+      font-family: var(--serif); font-style: italic;
+      text-transform: none; letter-spacing: normal;
+      color: var(--forest);
+      font-size: 13px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .kiwi-greet, .kiwi-greet-inner { transition: opacity 180ms ease !important; }
+      .kiwi-greet h1 .em-clip { transition: none !important; }
+      .kiwi-greet h1 .em-clip.is-revealed { max-width: var(--em-w, 480px) !important; }
+      .kiwi-greet h1 .em-clip.is-typing::after { animation: none !important; opacity: 0; }
+    }
+
+    /* ---------- Main app zoom-in ---------- */
+    .menu-screen.is-pre-hidden { opacity: 0; pointer-events: none; }
+    .menu-screen.is-entering {
+      animation: main-enter 640ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes main-enter {
+      0%   { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1);    opacity: 1; }
+    }
+
+    /* =========================================================
+       Self-order menu screen
+       ========================================================= */
+    .menu-screen {
+      position: absolute;
+      inset: 0;
+      padding-top: 54px;
+      background: var(--paper-cream);
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .menu-header {
+      padding: 6px 22px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .menu-cafe {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .menu-cafe .name {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.022em;
+      color: var(--ink);
+    }
+    .menu-cafe .ctx {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .table-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 11px;
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+      border-radius: 999px;
+      color: var(--forest);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .table-badge svg { width: 12px; height: 12px; }
+
+    /* QR provenance strip */
+    .qr-strip {
+      margin: 0 22px 12px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11.5px;
+      color: var(--ink-2);
+      box-shadow: var(--shadow-card);
+    }
+    .qr-strip .qr-mini {
+      flex: 0 0 28px;
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background:
+        linear-gradient(45deg, transparent 40%, var(--ink) 40% 60%, transparent 60%) 0 0/8px 8px,
+        linear-gradient(-45deg, transparent 40%, var(--ink) 40% 60%, transparent 60%) 4px 4px/8px 8px,
+        #fff;
+      border: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+    }
+    .qr-strip .qr-mini::before,
+    .qr-strip .qr-mini::after {
+      content: "";
+      position: absolute;
+      width: 9px; height: 9px;
+      border: 2px solid var(--ink);
+      background: #fff;
+    }
+    .qr-strip .qr-mini::before { top: 2px; left: 2px; }
+    .qr-strip .qr-mini::after  { top: 2px; right: 2px; }
+    .qr-strip strong { color: var(--ink); font-weight: 600; }
+
+    /* Tabs */
+    .menu-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 22px 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .menu-tabs::-webkit-scrollbar { display: none; }
+    .menu-tab {
+      flex: 0 0 auto;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      color: var(--ink-2);
+      white-space: nowrap;
+      transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+    }
+    .menu-tab.is-active {
+      background: var(--ink);
+      color: var(--paper-cream);
+      border-color: var(--ink);
+    }
+
+    /* Items list */
+    .menu-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 22px 140px;
+      display: grid;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .menu-item {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+    }
+    .item-img {
+      width: 64px; height: 64px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex: 0 0 64px;
+    }
+    .item-img svg { width: 28px; height: 28px; }
+    .item-img.coffee   { background: linear-gradient(135deg, #6F4A2E 0%, #B68A5E 100%); }
+    .item-img.pastry   { background: linear-gradient(135deg, #C99A4F 0%, #F2D08B 100%); }
+    .item-img.savory   { background: linear-gradient(135deg, #6A8C3F 0%, #B4D281 100%); }
+    .item-img.drink    { background: linear-gradient(135deg, #2D7F8C 0%, #6FC6D2 100%); }
+    .item-body { min-width: 0; }
+    .item-name {
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .item-desc {
+      font-size: 11.5px;
+      color: var(--ink-3);
+      line-height: 1.35;
+      margin-top: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .item-price {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-2);
+      margin-top: 4px;
+      letter-spacing: -0.01em;
+    }
+    .item-add {
+      width: 32px; height: 32px;
+      border-radius: 999px;
+      background: var(--forest);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 500;
+      transition: transform 180ms ease, background 180ms ease;
+      box-shadow: 0 2px 8px rgba(31,93,60,0.25);
+    }
+    .item-add:hover { transform: scale(1.07); background: var(--forest-deep); }
+    .item-add:active { transform: scale(0.94); }
+    .item-add.is-popped {
+      animation: add-pop 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes add-pop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.25); background: var(--emerald); }
+      100% { transform: scale(1); }
+    }
+
+    /* Sticky cart pill */
+    .cart-pill {
+      position: absolute;
+      left: 22px; right: 22px;
+      bottom: 28px;
+      z-index: 90;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: var(--ink);
+      color: var(--paper-cream);
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.28), 0 4px 10px rgba(0,0,0,0.16);
+      transform: translateY(120%);
+      opacity: 0;
+      transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1), opacity 280ms ease;
+    }
+    .cart-pill.is-visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .cart-pill .cart-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cart-pill .cart-count-chip {
+      width: 24px; height: 24px;
+      border-radius: 999px;
+      background: var(--mint);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      font-feature-settings: "tnum" 1;
+    }
+    .cart-pill .cart-total {
+      font-family: var(--mono);
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+
+    /* Toast */
+    .toast {
+      position: absolute;
+      left: 22px; right: 22px;
+      top: 64px;
+      padding: 10px 14px;
+      background: rgba(20,20,20,0.92);
+      color: var(--paper-cream);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 260ms ease, transform 260ms cubic-bezier(0.32, 0.72, 0, 1);
+      z-index: 180;
+      pointer-events: none;
+    }
+    .toast.is-visible { opacity: 1; transform: translateY(0); }
+    .toast svg { width: 14px; height: 14px; color: var(--mint); }
+
+    /* Cart sheet */
+    .cart-sheet {
+      position: absolute;
+      inset: 0;
+      z-index: 220;
+      pointer-events: none;
+    }
+    .cart-sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,10,0);
+      transition: background 280ms ease;
+    }
+    .cart-sheet-panel {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      padding: 22px 22px 28px;
+      max-height: 75%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 0 -20px 40px rgba(0,0,0,0.18);
+    }
+    .cart-sheet.is-open { pointer-events: auto; }
+    .cart-sheet.is-open .cart-sheet-backdrop { background: rgba(10,10,10,0.45); }
+    .cart-sheet.is-open .cart-sheet-panel { transform: translateY(0); }
+    .cart-handle {
+      width: 36px; height: 4px;
+      border-radius: 999px;
+      background: var(--line);
+      margin: 0 auto 14px;
+    }
+    .cart-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+    }
+    .cart-subtitle {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin: 0 0 16px;
+    }
+    .cart-items {
+      list-style: none;
+      padding: 0; margin: 0;
+      overflow-y: auto;
+      flex: 1;
+      display: grid;
+      gap: 8px;
+    }
+    .cart-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--paper-mute);
+      border-radius: 12px;
+    }
+    .cart-row .label {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .cart-row .qty {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cart-row .qty button {
+      width: 26px; height: 26px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cart-row .qty span {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-feature-settings: "tnum" 1;
+      min-width: 12px; text-align: center;
+    }
+    .cart-row .row-price {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--ink-2);
+      min-width: 56px;
+      text-align: right;
+    }
+    .cart-empty {
+      padding: 30px 0;
+      text-align: center;
+      color: var(--ink-3);
+      font-size: 13px;
+    }
+    .cart-totals {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 14px;
+    }
+    .cart-totals .grand {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .cart-pay {
+      margin-top: 14px;
+      width: 100%;
+      padding: 15px 18px;
+      background: var(--gradient);
+      color: #fff;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 200ms ease;
+    }
+    .cart-pay:hover { transform: translateY(-1px); }
+    .cart-pay:disabled { opacity: 0.45; pointer-events: none; }
+    .cart-pay svg { width: 16px; height: 16px; }
+    .cart-pay.is-loading .label { opacity: 0; }
+    .cart-pay.is-loading::after {
+      content: "";
+      position: absolute;
+      width: 18px; height: 18px;
+      border: 2.4px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: cart-spin 0.7s linear infinite;
+    }
+    .cart-pay {
+      position: relative;
+      overflow: hidden;
+    }
+    @keyframes cart-spin { to { transform: rotate(360deg); } }
+
+    /* Payment success overlay */
+    .pay-success {
+      position: absolute;
+      inset: 0;
+      z-index: 240;
+      background: var(--gradient);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      color: #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 380ms ease;
+    }
+    .pay-success.is-visible { opacity: 1; pointer-events: auto; }
+    .pay-success .check {
+      width: 72px; height: 72px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(0.6);
+      transition: transform 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .pay-success.is-visible .check { transform: scale(1); }
+    .pay-success .check svg { width: 36px; height: 36px; stroke-width: 3; }
+    .pay-success h2 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+    .pay-success h2 em {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--mint);
+    }
+    .pay-success .sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="stage">
+
+    <!-- ============ Mission sidebar ============ -->
+    <aside class="mission">
+      <div class="mission-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
+      <div class="mission-eyebrow">— mission · self-order</div>
+      <h1>Self-order par <em>QR code.</em></h1>
+      <p>
+        Chaque table du Café Atlas a son QR. Le client scanne, parcourt le menu sur son téléphone,
+        commande et paie — sans appeler le serveur. C'est là que la Gen Z va déjà ; autant les y attendre.
+      </p>
+      <ul>
+        <li><span><b>Chaque table = un QR.</b> Pas d'app à télécharger, pas de compte à créer.</span></li>
+        <li><span><b>Commande depuis le téléphone</b> du client, envoyée directement en cuisine.</span></li>
+        <li><span><b>Paiement intégré</b> — carte, Apple Pay, ou wallet Kiwi.</span></li>
+        <li><span><b>Moins de serveurs aux heures de pointe</b>, plus de rotation de tables.</span></li>
+        <li><span><b>Le serveur reste pour ce qui compte</b> : conseil, ambiance, bouteilles ouvertes à table.</span></li>
+      </ul>
+      <div class="mission-foot">
+        <button class="replay-btn" id="replay-btn" type="button">
+          <i data-lucide="rotate-cw"></i>
+          <span>Rejouer l'animation</span>
+        </button>
+        <span class="replay-hint">Café Atlas · Table 7</span>
+      </div>
+    </aside>
+
+    <!-- ============ iPhone 17 Pro stage ============ -->
+    <div class="phone-stage">
+      <div class="iphone" aria-label="iPhone 17 Pro demo">
+        <span class="side-btn action" aria-hidden="true"></span>
+        <span class="side-btn vol-up" aria-hidden="true"></span>
+        <span class="side-btn vol-down" aria-hidden="true"></span>
+        <span class="side-btn side-power" aria-hidden="true"></span>
+        <span class="side-btn camera-ctrl" aria-hidden="true"></span>
+
+        <div class="iphone-frame">
+          <div class="iphone-bezel">
+            <div class="iphone-screen" id="screen">
+
+              <!-- Dynamic Island -->
+              <div class="dyn-island" aria-hidden="true"></div>
+
+              <!-- Status bar -->
+              <div class="status-bar" id="status-bar">
+                <span class="status-time">14:32</span>
+                <span class="status-right" aria-hidden="true">
+                  <svg viewBox="0 0 17 11" fill="currentColor">
+                    <rect x="0" y="7" width="2.5" height="4" rx="0.5"/>
+                    <rect x="4" y="5" width="2.5" height="6" rx="0.5"/>
+                    <rect x="8" y="3" width="2.5" height="8" rx="0.5"/>
+                    <rect x="12" y="0" width="2.5" height="11" rx="0.5"/>
+                  </svg>
+                  <svg viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+                    <path d="M2 5.5 C5 2.5, 12 2.5, 15 5.5"/>
+                    <path d="M4.5 7.5 C6.5 5.5, 10.5 5.5, 12.5 7.5"/>
+                    <circle cx="8.5" cy="10" r="0.9" fill="currentColor" stroke="none"/>
+                  </svg>
+                  <span class="status-battery"></span>
+                </span>
+              </div>
+
+              <!-- App canvas -->
+              <div class="app-canvas">
+
+                <!-- Greeting flash (mirrors kiwi-serveur) -->
+                <div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
+                  <div class="kiwi-greet-inner">
+                    <h1><span id="greet-line1">Bonjour,</span><br><em id="greet-em">bienvenue au café Atlas.</em></h1>
+                    <div class="kiwi-greet-sub" id="greet-sub">Table 7 · <em>scannez, commandez, payez</em></div>
+                  </div>
+                </div>
+
+                <!-- Self-order menu screen -->
+                <div class="menu-screen is-pre-hidden" id="menu-screen">
+
+                  <div class="menu-header">
+                    <div class="menu-cafe">
+                      <div class="name">Café Atlas</div>
+                      <div class="ctx">Médina · Tanger</div>
+                    </div>
+                    <span class="table-badge">
+                      <i data-lucide="qr-code"></i>
+                      Table 7
+                    </span>
+                  </div>
+
+                  <div class="qr-strip">
+                    <span class="qr-mini" aria-hidden="true"></span>
+                    <span>QR scanné · <strong>commandez sans appeler le serveur</strong></span>
+                  </div>
+
+                  <div class="menu-tabs" role="tablist">
+                    <button class="menu-tab is-active" data-tab="all">Tout</button>
+                    <button class="menu-tab" data-tab="coffee">Café</button>
+                    <button class="menu-tab" data-tab="pastry">Pâtisserie</button>
+                    <button class="menu-tab" data-tab="savory">Salé</button>
+                    <button class="menu-tab" data-tab="drink">Boissons</button>
+                  </div>
+
+                  <div class="menu-list" id="menu-list">
+                    <!-- items injected by JS -->
+                  </div>
+
+                  <button class="cart-pill" id="cart-pill" type="button">
+                    <span class="cart-left">
+                      <span class="cart-count-chip" id="cart-count">0</span>
+                      <span>Voir le panier</span>
+                    </span>
+                    <span class="cart-total" id="cart-total">0 MAD</span>
+                  </button>
+
+                </div>
+
+                <!-- Toast -->
+                <div class="toast" id="toast" aria-live="polite">
+                  <i data-lucide="check"></i>
+                  <span id="toast-text">Ajouté au panier</span>
+                </div>
+
+                <!-- Cart sheet -->
+                <div class="cart-sheet" id="cart-sheet" aria-hidden="true">
+                  <div class="cart-sheet-backdrop" data-close-cart></div>
+                  <div class="cart-sheet-panel">
+                    <div class="cart-handle" data-close-cart></div>
+                    <h2 class="cart-title">Votre commande</h2>
+                    <div class="cart-subtitle">Table 7 · Café Atlas</div>
+                    <ul class="cart-items" id="cart-items">
+                      <li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>
+                    </ul>
+                    <div class="cart-totals">
+                      <span>Total</span>
+                      <span class="grand" id="cart-grand">0 MAD</span>
+                    </div>
+                    <button class="cart-pay" id="cart-pay" type="button" disabled>
+                      <i data-lucide="apple"></i>
+                      <span class="label">Payer · <span id="pay-total">0 MAD</span></span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Payment success -->
+                <div class="pay-success" id="pay-success" aria-hidden="true">
+                  <div class="check">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <h2>Commande envoyée<br/><em>en cuisine.</em></h2>
+                  <div class="sub">Paiement confirmé · 4–6 min</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /* ============ helpers ============ */
+    const $  = (s, c = document) => c.querySelector(s);
+    const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+
+    /* ============ menu data ============ */
+    const MENU = [
+      { id: 'espresso',  cat: 'coffee', name: 'Espresso',          desc: 'Court, intense, torréfaction du jour',           price: 12, icon: 'coffee' },
+      { id: 'noss-noss', cat: 'coffee', name: 'Noss-noss',          desc: 'Moitié café, moitié lait chaud — la fierté locale', price: 16, icon: 'coffee' },
+      { id: 'cappuccino', cat: 'coffee', name: 'Cappuccino',        desc: 'Mousse onctueuse, cacao en option',              price: 22, icon: 'coffee' },
+      { id: 'msemen',    cat: 'pastry', name: 'Msemen au miel',     desc: 'Crêpe feuilletée chaude, miel d\'oranger',       price: 18, icon: 'croissant' },
+      { id: 'briouate',  cat: 'pastry', name: 'Briouate aux amandes', desc: 'Pâte filo, amandes, eau de fleur d\'oranger',   price: 14, icon: 'cookie' },
+      { id: 'croissant', cat: 'pastry', name: 'Croissant beurre',   desc: 'Pur beurre · cuit ce matin',                     price: 12, icon: 'croissant' },
+      { id: 'sandwich',  cat: 'savory', name: 'Sandwich thon-olives', desc: 'Pain maison, thon, olives noires, harissa',   price: 32, icon: 'sandwich' },
+      { id: 'panini',    cat: 'savory', name: 'Panini fromage-tomate', desc: 'Pain ciabatta, mozzarella, tomate confite',  price: 28, icon: 'sandwich' },
+      { id: 'fresh-orange', cat: 'drink', name: 'Jus d\'orange pressé', desc: 'Pressé minute, sans sucre ajouté',          price: 18, icon: 'glass-water' },
+      { id: 'avocado',   cat: 'drink',  name: 'Smoothie avocat-banane', desc: 'Lait d\'amande, miel, cardamome',           price: 26, icon: 'glass-water' },
+      { id: 'sparkling', cat: 'drink',  name: 'Eau pétillante Oulmès', desc: '33cl · servie fraîche',                       price:  8, icon: 'glass-water' },
+    ];
+
+    const ICON_CLASS = {
+      coffee: 'coffee',
+      croissant: 'pastry',
+      cookie: 'pastry',
+      sandwich: 'savory',
+      'glass-water': 'drink',
+    };
+
+    /* ============ render menu ============ */
+    const cart = new Map(); // id -> qty
+
+    function renderMenu(filter = 'all') {
+      const list = $('#menu-list');
+      const items = MENU.filter(m => filter === 'all' || m.cat === filter);
+      list.innerHTML = items.map(m => `
+        <article class="menu-item">
+          <div class="item-img ${ICON_CLASS[m.icon] || 'coffee'}">
+            <i data-lucide="${m.icon}"></i>
+          </div>
+          <div class="item-body">
+            <div class="item-name">${m.name}</div>
+            <div class="item-desc">${m.desc}</div>
+            <div class="item-price">${m.price} MAD</div>
+          </div>
+          <button class="item-add" type="button" data-add="${m.id}" aria-label="Ajouter ${m.name}">+</button>
+        </article>
+      `).join('');
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    /* ============ cart logic ============ */
+    function priceOf(id) {
+      return MENU.find(m => m.id === id)?.price || 0;
+    }
+    function nameOf(id) {
+      return MENU.find(m => m.id === id)?.name || '';
+    }
+    function totals() {
+      let count = 0, total = 0;
+      cart.forEach((qty, id) => { count += qty; total += qty * priceOf(id); });
+      return { count, total };
+    }
+    function refreshCartUI() {
+      const { count, total } = totals();
+      const pill = $('#cart-pill');
+      $('#cart-count').textContent = count;
+      $('#cart-total').textContent = `${total} MAD`;
+      $('#cart-grand').textContent = `${total} MAD`;
+      $('#pay-total').textContent  = `${total} MAD`;
+      pill.classList.toggle('is-visible', count > 0);
+      const payBtn = $('#cart-pay');
+      payBtn.disabled = count === 0;
+
+      const itemsEl = $('#cart-items');
+      if (count === 0) {
+        itemsEl.innerHTML = `<li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>`;
+        return;
+      }
+      itemsEl.innerHTML = [...cart.entries()].map(([id, qty]) => `
+        <li class="cart-row">
+          <span class="label">${nameOf(id)}</span>
+          <span class="qty">
+            <button type="button" data-dec="${id}" aria-label="Retirer">−</button>
+            <span>${qty}</span>
+            <button type="button" data-inc="${id}" aria-label="Ajouter">+</button>
+          </span>
+          <span class="row-price">${qty * priceOf(id)} MAD</span>
+        </li>
+      `).join('');
+    }
+    function addToCart(id) {
+      cart.set(id, (cart.get(id) || 0) + 1);
+      refreshCartUI();
+      showToast(`${nameOf(id)} · ajouté`);
+    }
+    function decFromCart(id) {
+      const q = (cart.get(id) || 0) - 1;
+      if (q <= 0) cart.delete(id); else cart.set(id, q);
+      refreshCartUI();
+    }
+
+    /* ============ toast ============ */
+    let toastTimer = null;
+    function showToast(text) {
+      const t = $('#toast');
+      $('#toast-text').textContent = text;
+      t.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('is-visible'), 1400);
+    }
+
+    /* ============ cart sheet ============ */
+    function openCart() {
+      $('#cart-sheet').classList.add('is-open');
+      $('#cart-sheet').setAttribute('aria-hidden', 'false');
+    }
+    function closeCart() {
+      $('#cart-sheet').classList.remove('is-open');
+      $('#cart-sheet').setAttribute('aria-hidden', 'true');
+    }
+
+    /* ============ pay flow ============ */
+    function pay() {
+      const btn = $('#cart-pay');
+      btn.classList.add('is-loading');
+      setTimeout(() => {
+        btn.classList.remove('is-loading');
+        closeCart();
+        const ok = $('#pay-success');
+        ok.classList.add('is-visible');
+        setTimeout(() => {
+          ok.classList.remove('is-visible');
+          cart.clear();
+          refreshCartUI();
+        }, 2400);
+      }, 1100);
+    }
+
+    /* ============ greeting flash (ported from kiwi-serveur) ============ */
+    function runGreetingFlash() {
+      const greetEl = $('[data-kiwi-greet]');
+      const mainEl  = $('#menu-screen');
+      if (!greetEl || !mainEl) return;
+
+      mainEl.classList.add('is-pre-hidden');
+      mainEl.classList.remove('is-entering');
+
+      // Wrap em in .em-clip and measure natural width
+      let emClip = null;
+      const greetH1 = greetEl.querySelector('h1');
+      const greetEm = greetH1 && greetH1.querySelector('em');
+      if (greetEm && !greetEm.parentNode.classList.contains('em-clip')) {
+        const naturalW = Math.ceil(greetEm.getBoundingClientRect().width) + 6;
+        emClip = document.createElement('span');
+        emClip.className = 'em-clip';
+        emClip.style.setProperty('--em-w', naturalW + 'px');
+        greetEm.parentNode.insertBefore(emClip, greetEm);
+        emClip.appendChild(greetEm);
+      } else if (greetEm) {
+        emClip = greetEm.parentNode;
+        emClip.classList.remove('is-revealed', 'is-typing');
+        void emClip.offsetWidth;
+      }
+
+      // t=0: show backdrop + slide-up h1
+      greetEl.classList.add('is-visible');
+      greetEl.setAttribute('aria-hidden', 'false');
+
+      // t=900: typewriter italic begins
+      setTimeout(() => emClip && emClip.classList.add('is-revealed', 'is-typing'), 900);
+
+      // t=2000: caret drops (em fully revealed)
+      setTimeout(() => emClip && emClip.classList.remove('is-typing'), 2000);
+
+      // t=2700: greeting fades + main zooms in
+      setTimeout(() => {
+        greetEl.classList.remove('is-visible');
+        greetEl.setAttribute('aria-hidden', 'true');
+        mainEl.classList.remove('is-pre-hidden');
+        mainEl.classList.add('is-entering');
+        setTimeout(() => mainEl.classList.remove('is-entering'), 700);
+      }, 2700);
+    }
+
+    /* ============ live clock in status bar ============ */
+    function tickClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const el = $('.status-time');
+      if (el) el.textContent = `${h}:${m}`;
+    }
+
+    /* ============ wire it up ============ */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMenu('all');
+      refreshCartUI();
+      if (window.lucide) window.lucide.createIcons();
+      tickClock();
+      setInterval(tickClock, 30000);
+
+      // Delegated clicks
+      document.addEventListener('click', e => {
+        const addBtn = e.target.closest('[data-add]');
+        if (addBtn) {
+          addToCart(addBtn.dataset.add);
+          addBtn.classList.remove('is-popped');
+          void addBtn.offsetWidth;
+          addBtn.classList.add('is-popped');
+          return;
+        }
+        const incBtn = e.target.closest('[data-inc]');
+        if (incBtn) { addToCart(incBtn.dataset.inc); return; }
+        const decBtn = e.target.closest('[data-dec]');
+        if (decBtn) { decFromCart(decBtn.dataset.dec); return; }
+        const tab = e.target.closest('.menu-tab');
+        if (tab) {
+          $$('.menu-tab').forEach(t => t.classList.remove('is-active'));
+          tab.classList.add('is-active');
+          renderMenu(tab.dataset.tab);
+          return;
+        }
+        if (e.target.closest('#cart-pill')) { openCart(); return; }
+        if (e.target.closest('[data-close-cart]')) { closeCart(); return; }
+        if (e.target.closest('#cart-pay')) { pay(); return; }
+        if (e.target.closest('#replay-btn')) {
+          // Hide menu before replay so the zoom-in is visible
+          $('#menu-screen').classList.add('is-pre-hidden');
+          $('#menu-screen').classList.remove('is-entering');
+          // Also close any open cart or success overlay
+          closeCart();
+          $('#pay-success').classList.remove('is-visible');
+          requestAnimationFrame(runGreetingFlash);
+          return;
+        }
+      });
+
+      // First-load animation
+      requestAnimationFrame(() => setTimeout(runGreetingFlash, 280));
+    });
+  </script>
+</body>
+</html>
