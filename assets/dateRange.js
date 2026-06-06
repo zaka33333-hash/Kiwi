@@ -2976,15 +2976,16 @@
           const key = `o${idx}`;
           window.__kiwiFeedOrders[key] = r;
 
-          /* Real brand chips — Visa wordmark, Mastercard interlocking
-           * circles, banknote for cash, contactless wave for NFC, QR grid
-           * for the wallet. Inline SVG so they stay crisp at any DPI. */
+          /* Official brand assets live under assets/icons/ (downloaded by
+           * the merchant): Visa SVG with proper gradient, Mastercard PNG
+           * interlocking circles, illustrated cash bills, scannable QR.
+           * NFC stays inline — there's no neutral third-party mark for it. */
           const ICONS = {
-            visa: `<svg viewBox="0 0 64 22" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><text x="32" y="17" text-anchor="middle" font-family="Arial Black, Helvetica, sans-serif" font-size="18" font-weight="900" font-style="italic" fill="#fff" letter-spacing="0.5">VISA</text></svg>`,
-            mc:   `<svg viewBox="0 0 40 24" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><circle cx="16" cy="12" r="8" fill="#EB001B"/><circle cx="24" cy="12" r="8" fill="#F79E1B"/><path d="M20 6.2a7.97 7.97 0 0 0 0 11.6 7.97 7.97 0 0 0 0-11.6z" fill="#FF5F00"/></svg>`,
-            cash: `<svg viewBox="0 0 24 16" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2" width="21" height="12" rx="1.6"/><circle cx="12" cy="8" r="2.4"/><path d="M5 5.5h.01M19 10.5h.01"/></svg>`,
+            visa: `<img src="assets/icons/visa.svg" alt="Visa">`,
+            mc:   `<img src="assets/icons/mastercard.png" alt="Mastercard">`,
+            cash: `<img src="assets/icons/cash.webp" alt="Espèces">`,
             tap:  `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M8.5 8a5 5 0 0 1 0 8M12 5a8 8 0 0 1 0 14M15.5 2a11 11 0 0 1 0 20"/></svg>`,
-            qr:   `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" fill="currentColor" aria-hidden="true"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm9-2h3v3h-3v-3zm0 5h2v2h-2v-2zm5-5h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 3h2v3h-2v-3z"/></svg>`,
+            qr:   `<img src="assets/icons/qr-code.png" alt="QR">`,
           };
           const chipInner = ICONS[r.method] || '';
 
