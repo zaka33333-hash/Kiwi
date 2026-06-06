@@ -603,7 +603,7 @@ ar: {
   .ord-pay .ci { width: 44px; height: 28px; border-radius: 5px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .ord-pay .ci svg { display: block; max-width: 100%; max-height: 100%; }
   .ord-pay .ci img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
-  .ord-pay .ci.visa { background: #fff; border: 1px solid var(--n-200); padding: 3px 4px; }
+  .ord-pay .ci.visa { background: transparent; border: 0; padding: 0; }
   .ord-pay .ci.mc { background: #fff; border: 1px solid var(--n-200); padding: 2px; }
   .ord-pay .ci.tap { background: var(--atlas); color: var(--mint); }
   .ord-pay .ci.tap svg { width: 18px; height: 18px; }
