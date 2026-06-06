@@ -2808,16 +2808,78 @@
     const customers = ['Karim B.', 'Sara L.', 'Youssef A.', 'Nawal K.', 'Hassan J.', 'Imane M.', 'Mehdi R.', 'Fatima Z.', 'Rachid O.', 'Lina S.', 'Ahmed T.', 'Yasmine H.', 'Julie M.', 'Fadoua K.', 'Hind M.', 'Walid F.', 'Soukaina A.', 'Aïcha R.', 'Brahim K.', 'Salma F.'];
     const customer = customers[Math.floor(rnd() * customers.length)];
     const tableNum = 1 + Math.floor(rnd() * 12);
-    const amt = Math.round((40 + rnd() * 360) * 100) / 100;
-    const tipAmt = rnd() > 0.6 ? Math.round(amt * 0.1 * 100) / 100 : 0;
+    const covers = 1 + Math.floor(rnd() * 5); // 1–5 people at the table
+
+    /* Servers — small rotating crew per venue. The same hire roster appears
+     * across the dashboard so the names feel familiar to the merchant. */
+    const servers = ['Fatima K.', 'Omar B.', 'Naima R.', 'Hicham E.', 'Khadija M.'];
+    const server = servers[Math.floor(rnd() * servers.length)];
+
+    /* Items — pull the venue's real menu via KiwiVenue.getMenuItems(). Pick
+     * 1–4 dishes with realistic quantities; if the menu isn't loaded yet
+     * (early-render race) we fall back to a sensible Café Atlas-style mix. */
+    const menu = (window.KiwiVenue?.getMenuItems?.(venue) || []);
+    const itemCount = 1 + Math.floor(rnd() * 4); // 1–4 distinct items
+    const items = [];
+    const usedIds = new Set();
+    let computedSubtotal = 0;
+    if (menu.length) {
+      for (let i = 0; i < itemCount && i < menu.length; i++) {
+        let pick, guard = 0;
+        do { pick = menu[Math.floor(rnd() * menu.length)]; guard++; }
+        while (usedIds.has(pick.id) && guard < 12);
+        if (usedIds.has(pick.id)) break;
+        usedIds.add(pick.id);
+        const qty = 1 + (rnd() < 0.3 ? 1 : 0) + (rnd() < 0.15 ? 1 : 0); // 1–3
+        items.push({ id: pick.id, name: pick.name, qty, price: pick.price });
+        computedSubtotal += qty * pick.price;
+      }
+    } else {
+      const fallback = [
+        { name: 'Tajine kefta',        price: 120 },
+        { name: 'Thé à la menthe',     price: 30  },
+        { name: 'Café noir',           price: 15  },
+        { name: 'Pastilla poulet',     price: 140 },
+        { name: "Jus d'avocat",        price: 50  },
+        { name: 'Couscous royal',      price: 220 },
+      ];
+      for (let i = 0; i < itemCount; i++) {
+        const pick = fallback[Math.floor(rnd() * fallback.length)];
+        const qty = 1 + (rnd() < 0.3 ? 1 : 0);
+        items.push({ name: pick.name, qty, price: pick.price });
+        computedSubtotal += qty * pick.price;
+      }
+    }
+
+    /* Tax (TVA 10% restauration au Maroc, 20% spa/services). Use the
+     * computed subtotal for the displayed amount so the modal numbers add
+     * up — the legacy amt range is dropped in favour of real menu math. */
+    const tvaRate = venue === 'spaBahia' ? 0.20 : 0.10;
+    const subtotal = Math.round(computedSubtotal * 100) / 100;
+    const tva = Math.round(subtotal * tvaRate * 100) / 100;
+    const amt = Math.round((subtotal + tva) * 100) / 100;
+
+    /* Receipt number — deterministic, looks like a real POS sequence. */
+    const receiptNo = 'TKT-' + String(10000 + Math.floor(rnd() * 89999));
+
+    /* Service duration — 12–75 min, longer for tables with more covers. */
+    const serviceMinutes = 12 + Math.floor(rnd() * 50) + covers * 4;
 
     const fmt = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return {
       method, primary, sub, flag,
+      customer, table: tableNum,
       ctx: `${customer} · T${tableNum}`,
       amt: fmt(amt),
-      tip: tipAmt > 0 ? `+${fmt(tipAmt)}` : '—',
+      amtRaw: amt,
       neg: false,
+      /* Rich detail used by the order-detail drawer. */
+      receiptNo, server, covers, serviceMinutes,
+      items,
+      subtotal: fmt(subtotal),
+      tva: fmt(tva),
+      tvaRate: Math.round(tvaRate * 100),
+      total: fmt(amt),
     };
   }
 
@@ -2906,22 +2968,49 @@
           </div>
         `;
       } else {
-        wrap.innerHTML = rows.map(r => `
-          <div class="feed-row${r.isNew ? ' new' : ''}" tabindex="0" role="button">
+        /* Cache the rich order objects so the click handler can pull full
+         * detail (items, server, breakdown) from a stable key — avoids
+         * round-tripping JSON through DOM attributes. */
+        window.__kiwiFeedOrders = {};
+        wrap.innerHTML = rows.map((r, idx) => {
+          const key = `o${idx}`;
+          window.__kiwiFeedOrders[key] = r;
+
+          /* Real brand chips — Visa wordmark, Mastercard interlocking
+           * circles, banknote for cash, contactless wave for NFC, QR grid
+           * for the wallet. Inline SVG so they stay crisp at any DPI. */
+          const ICONS = {
+            visa: `<svg viewBox="0 0 64 22" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><text x="32" y="17" text-anchor="middle" font-family="Arial Black, Helvetica, sans-serif" font-size="18" font-weight="900" font-style="italic" fill="#fff" letter-spacing="0.5">VISA</text></svg>`,
+            mc:   `<svg viewBox="0 0 40 24" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><circle cx="16" cy="12" r="8" fill="#EB001B"/><circle cx="24" cy="12" r="8" fill="#F79E1B"/><path d="M20 6.2a7.97 7.97 0 0 0 0 11.6 7.97 7.97 0 0 0 0-11.6z" fill="#FF5F00"/></svg>`,
+            cash: `<svg viewBox="0 0 24 16" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2" width="21" height="12" rx="1.6"/><circle cx="12" cy="8" r="2.4"/><path d="M5 5.5h.01M19 10.5h.01"/></svg>`,
+            tap:  `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M8.5 8a5 5 0 0 1 0 8M12 5a8 8 0 0 1 0 14M15.5 2a11 11 0 0 1 0 20"/></svg>`,
+            qr:   `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" fill="currentColor" aria-hidden="true"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm9-2h3v3h-3v-3zm0 5h2v2h-2v-2zm5-5h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 3h2v3h-2v-3z"/></svg>`,
+          };
+          const chipInner = ICONS[r.method] || '';
+
+          /* Table promoted to a circular badge so the row scans as
+           * "seat → person → amount" instead of running text together. */
+          const tableChip = (r.table != null)
+            ? `<span class="t-chip" aria-label="Table ${r.table}">T${r.table}</span>`
+            : '';
+          const who = r.customer ? r.customer : (r.ctx || '');
+
+          return `
+          <div class="feed-row${r.isNew ? ' new' : ''}" tabindex="0" role="button" data-action="open-order" data-order-key="${key}">
             <div class="t">${r.t}</div>
             <div class="method">
-              <div class="ci ${r.method}">${r.method === 'tap' ? 'NFC' : r.method === 'qr' ? 'QR' : r.method === 'cash' ? 'MAD' : ''}</div>
+              <div class="ci ${r.method}">${chipInner}</div>
               <div class="desc">
                 <div class="primary">${r.primary}</div>
                 <div class="sub"><span class="flag ${r.flag}"></span>${r.sub}</div>
               </div>
             </div>
-            <div class="ctx">${r.ctx}</div>
-            <div class="amt"${r.neg ? ' style="color: var(--danger);"' : ''}>${r.amt}</div>
-            <div class="tip"${r.tip === '—' ? ' style="color: var(--n-400);"' : ''}>${r.tip}</div>
-            <div class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div>
+            <div class="ctx">${tableChip}<span class="who">${who}</span></div>
+            <div class="amt"${r.neg ? ' style="color: var(--danger);"' : ''}>${r.amt}<span class="cur">MAD</span></div>
+            <div class="more" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>
           </div>
-        `).join('');
+        `;
+        }).join('');
       }
     }
     const titleEl = document.querySelector('[data-feed-title]');
