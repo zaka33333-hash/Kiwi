@@ -567,6 +567,21 @@
     const m = q.match(/(\d+(?:[.,]\d+)?)\s*(?:%|pour\s?cent|pourcent|percent|بالمئة|بالمائة|في المئة)/i);
     return m ? parseFloat(m[1].replace(',', '.')) : null;
   }
+  /* Every amount in the string (not just the first) — lets a compound query
+   * like "augmente les prix de 8 % et embauche à 6000" separate the percent
+   * from the salary figure. */
+  function parseAllAmounts(q) {
+    const out = [];
+    const re = /(\d[\d  .]*\d|\d)\s*(millions?|m\b|k\b|mille|thousand|alf|ألف)?/gi;
+    for (const m of String(q).matchAll(re)) {
+      let n = parseFloat(m[1].replace(/[  .]/g, '').replace(',', '.'));
+      const suf = (m[2] || '').toLowerCase();
+      if (suf === 'k' || suf === 'mille' || suf === 'thousand' || suf === 'alf' || suf === 'ألف') n *= 1000;
+      else if (suf[0] === 'm') n *= 1000000;
+      if (isFinite(n)) out.push(n);
+    }
+    return out;
+  }
 
   /* ─────────────── CALCULATOR ENGINE ─────────────── */
   function evalMath(expr) {
@@ -936,44 +951,179 @@
     };
   }
 
-  /* ─────────────── INTENT ROUTER (fr / en / ar) ─────────────── */
-  const RX = {
-    greet: /(bonjour|salut|coucou|aide|que (peux|sais)|qui es|comment ca|hello|^hi$|^hey|help|who are you|what can you|مرحبا|سلام|اهلا|مساعدة|من انت|ماذا تفعل)/,
-    hire: /(embauch|recrut|engag|serveur|cuisinier|barista|salarie|nouvel employe|main d.?oeuvre|une personne en plus|hire|recruit|waiter|cook|barista|staff|employee|توظيف|تشغيل|نادل|طباخ|عامل|موظف|استخدام)/,
-    hireExcl: /(embauch|recrut|serveur|hire|recruit|waiter|توظيف|نادل)/,
-    afford: /(puis.?je|peux.?je|ai.?je les moyens|me permettre|abordable|financ|investir|acheter|depenser|coute|can i|afford|invest|buy|purchase|spend|cost of|هل يمكن|استثمار|شراء|صرف|اشتري|اقدر|في متناول)/,
-    price: /(prix|tarif|price|pricing|سعر|اسعار|ثمن|تسعير)/,
-    priceVerb: /(augment|hauss|baiss|monter|raise|increase|lower|cut|reduce|رفع|خفض|زيادة|تخفيض)/,
-    forecast: /(prevision|projection|prevoir|previs|fin du mois|fin d.?annee|run.?rate|tendance|combien.*(vais|gagner|ferai)|forecast|projection|predict|end of month|trend|outlook|توقع|تنبؤ|اخر الشهر|نهاية الشهر|اتجاه)/,
-    breakeven: /(seuil|rentab|equilibre|break.?even|point mort|breakeven|threshold|نقطة التعادل|عتبة|التعادل)/,
-    margin: /(marge|margin|هامش)/,
-    charges: /(charge|depense|cout|frais|opex|cost|expense|overhead|spending|تكاليف|مصاريف|نفقات|تكلفة)/,
-    revenue: /(chiffre|revenu|\bca\b|encaiss|vente|recette|revenue|sales|turnover|income|مداخيل|مبيعات|دخل|رقم المعاملات|معاملات)/,
-    profit: /(benefice|profit|gagne|resultat|rentre|combien je gagne|earn|bottom line|net income|make money|ربح|ارباح|صافي|نتيجة)/,
+  /* ─── Compound scenario — combine two levers (e.g. a price rise + a hire)
+   * on one bottom line. A first-match router could only ever model one change
+   * at a time; this sums each lever's effect on net profit. ─── */
+  const CMP = {
+    fr: { title: 'Deux leviers combinés', pm: '/mois',
+          priceUp: (p) => `Hausse des prix · +${p} %`, priceDown: (p) => `Baisse des prix · −${p} %`,
+          hire: 'Coût de l’embauche', newNet: 'Nouveau bénéfice net', annual: 'Effet net sur l’année',
+          vGood: (a) => `Les deux tiennent ensemble : le bénéfice net reste solide (${a} sur l’année).`,
+          vWarn: 'Jouable — mais c’est la hausse de prix qui finance l’embauche. Surveillez le volume.',
+          vBad: 'Ensemble, ces deux décisions font passer le bénéfice net dans le rouge. Étalez-les dans le temps.' },
+    en: { title: 'Two levers combined', pm: '/mo',
+          priceUp: (p) => `Price rise · +${p}%`, priceDown: (p) => `Price cut · −${p}%`,
+          hire: 'Cost of the hire', newNet: 'New net profit', annual: 'Net effect over the year',
+          vGood: (a) => `Both hold together: net profit stays solid (${a} over the year).`,
+          vWarn: 'Doable — but the price rise is what funds the hire. Watch volume.',
+          vBad: 'Together these two push net profit into the red. Stagger them over time.' },
+    ar: { title: 'رافعتان مجتمعتان', pm: '/شهر',
+          priceUp: (p) => `رفع الأسعار · +${p}%`, priceDown: (p) => `خفض الأسعار · −${p}%`,
+          hire: 'تكلفة التوظيف', newNet: 'الربح الصافي الجديد', annual: 'الأثر الصافي على السنة',
+          vGood: (a) => `الاثنان متماسكان: الربح الصافي يبقى متينًا (${a} على مدى السنة).`,
+          vWarn: 'ممكن — لكن رفع الأسعار هو ما يموّل التوظيف. راقب حجم المبيعات.',
+          vBad: 'مجتمعين، يدفعان الربح الصافي إلى الخسارة. وزّعهما على الوقت.' },
   };
-  function respond(rawIn) {
-    syncProfile();   // reason off whatever venue is active right now
+  function sCompound(raw) {
+    if (B.partial) return partialReply();
+    const c = CMP[L] || CMP.fr;
+    const pct = parsePercent(raw);
+    let p = pct == null ? 5 : pct;
+    if (/baiss|rédui|reduir|diminu|lower|cut|reduc|decrease|خفض|تخفيض/.test(norm(raw))) p = -Math.abs(p);
+    /* Separate the salary from the percent: a hire cost is a salary-scale
+     * figure (≥ 1800 MAD), so the 8 in "8 %" can never be mistaken for it. */
+    const salaries = parseAllAmounts(raw).filter((n) => n >= 1800);
+    const hireCost = salaries.length ? Math.max.apply(null, salaries) : 7200;
+    const deltaPrice = B.revenue * p / 100;
+    const deltaHire = -hireCost;
+    const newNet = B.netProfit + deltaPrice + deltaHire;
+    const newRev = B.revenue * (1 + p / 100);
+    const annual = (deltaPrice + deltaHire) * 12;
+    const tone = newNet <= 0 ? 'bad' : (newNet >= B.netProfit ? 'good' : 'warn');
+    return {
+      text: c.title,
+      stats: [
+        { l: p >= 0 ? c.priceUp(fmt1(Math.abs(p))) : c.priceDown(fmt1(Math.abs(p))), v: `${deltaPrice >= 0 ? '+' : ''}${fmtMad(deltaPrice)}`, h: c.pm },
+        { l: c.hire, v: fmtMad(deltaHire), h: c.pm },
+        { l: c.newNet, v: fmtMad(newNet), h: `${fmt1(newNet / newRev * 100)} %` },
+        { l: c.annual, v: `${annual >= 0 ? '+' : ''}${fmtMad(annual)}`, h: '' },
+      ],
+      verdict: { tone, text: tone === 'good' ? c.vGood(fmtMad(annual)) : tone === 'warn' ? c.vWarn : c.vBad },
+      follow: [tr().chips.breakeven, tr().chips.forecast],
+    };
+  }
+
+  /* ─────────────── INTENT CLASSIFIER (scored · fr / en / ar) ───────────────
+   * Replaces the old first-match regex chain. Every intent is scored by
+   * weighted signals; the HIGHEST score wins (ties resolve by the historical
+   * order). A query that clears no real signal (top score < MIN_SCORE) is
+   * handed to the LLM rather than force-fit into a wrong scenario. Two strong
+   * combinable scenarios joined by "et / and / +" trigger a compound sim. */
+  const MIN_SCORE = 2;
+  const CONJ_RX = /(\bet\b|\band\b|\+|aussi|also|ainsi que|en plus|as well|و )/;
+  const PRICE_VERB = /augment|hauss|baiss|monter|raise|increase|lower|cut|reduce|رفع|خفض|زيادة|تخفيض/;
+
+  const INTENTS = [
+    { id: 'greet', run: () => sHelp(), sig: [
+      [/bonjour|salut|coucou|hello|^hi$|^hey|مرحبا|سلام|اهلا/, 3],
+      [/qui es|who are you|من انت|que (peux|sais)|what can you|ماذا تفعل/, 3],
+      [/comment ca/, 3], [/\baide\b|\bhelp\b|مساعدة/, 2],
+    ] },
+    { id: 'hire', run: (raw) => sHire(raw), sig: [
+      [/embauch|recrut|engag|hire|recruit|توظيف|تشغيل|استخدام/, 3],
+      [/serveur|cuisinier|barista|waiter|cook|نادل|طباخ|عامل/, 2],
+      [/salarie|nouvel employe|main d.?oeuvre|une personne en plus|staff|employee|موظف/, 2],
+    ] },
+    { id: 'afford', run: (raw) => sAfford(raw), sig: [
+      [/puis.?je|peux.?je|ai.?je les moyens|me permettre|abordable|can i|afford|هل يمكن|اقدر|في متناول/, 3],
+      [/investir|acheter|invest|buy|purchase|استثمار|شراء|اشتري/, 2],
+      [/coute|cost of/, 1],
+    ] },
+    { id: 'price', run: (raw) => sPrice(raw), sig: [
+      [/prix|tarif|price|pricing|سعر|اسعار|ثمن|تسعير/, 3],
+      [PRICE_VERB, 1],
+    ], boost: (q, x) => (x.pct != null && PRICE_VERB.test(q)) ? 3 : 0 },
+    { id: 'forecast', run: () => sForecast(), sig: [
+      [/prevision|projection|prevoir|previs|forecast|predict|توقع|تنبؤ/, 3],
+      [/fin du mois|fin d.?annee|run.?rate|tendance|end of month|trend|outlook|اخر الشهر|نهاية الشهر|اتجاه/, 2],
+      [/combien.*(vais|gagner|ferai)/, 2],
+    ] },
+    { id: 'breakeven', run: () => sBreakEven(), sig: [
+      [/seuil|rentab|equilibre|break.?even|point mort|breakeven|threshold|نقطة التعادل|عتبة|التعادل/, 3],
+    ] },
+    { id: 'margin', run: () => sMargin(), sig: [[/marge|margin|هامش/, 3]] },
+    { id: 'charges', run: () => sCharges(), sig: [
+      [/charge|depense|frais|opex|expense|overhead|spend|spending|تكاليف|مصاريف|نفقات/, 3],
+      [/\bcout\b|\bcost\b|تكلفة/, 1],
+    ] },
+    { id: 'revenue', run: () => sRevenue(), sig: [
+      [/chiffre|revenu|encaiss|vente|recette|revenue|sales|turnover|income|مداخيل|مبيعات|دخل|معاملات/, 3],
+      [/\bca\b|رقم المعاملات/, 2],
+    ] },
+    { id: 'profit', run: () => sProfit(), sig: [
+      [/benefice|profit|resultat|earn|bottom line|net income|make money|ربح|ارباح|صافي|نتيجة/, 3],
+      [/gagne|rentre|combien je gagne/, 2],
+    ] },
+    { id: 'accounting', run: (raw, q) => sAccounting(q), sig: [[RX_ACCT, 3]] },
+  ];
+
+  /* Score every intent against the normalised query; return them ranked. */
+  function classify(q, raw) {
+    const ctx = { pct: parsePercent(raw), amt: parseAmount(raw) };
+    const ranked = [];
+    INTENTS.forEach((it, idx) => {
+      let s = 0;
+      for (const pair of it.sig) if (pair[0].test(q)) s += pair[1];
+      if (it.boost) s += it.boost(q, ctx);
+      if (s > 0) ranked.push({ id: it.id, idx, score: s, run: it.run });
+    });
+    ranked.sort((a, b) => b.score - a.score || a.idx - b.idx);
+    return ranked;
+  }
+
+  /* Pure routing decision — shared by respond() (to dispatch) and the eval
+   * harness (to check), so the two can never drift. */
+  function decideRoute(rawIn) {
     const raw = fixDigits(rawIn);
     const q = norm(raw);
-    if (looksLikeMath(raw)) {
-      const r = evalMath(raw);
-      if (r != null) return sCalc(raw, r);
-    }
-    if (RX.greet.test(q)) return sHelp();
-    if (RX.hire.test(q)) return sHire(raw);
-    if (RX.afford.test(q) && !RX.hireExcl.test(q)) return sAfford(raw);
-    if (RX.price.test(q) || (parsePercent(raw) != null && RX.priceVerb.test(q))) return sPrice(raw);
-    if (RX.forecast.test(q)) return sForecast();
-    if (RX.breakeven.test(q)) return sBreakEven();
-    if (RX.margin.test(q)) return sMargin();
-    if (RX.charges.test(q)) return sCharges();
-    if (RX.revenue.test(q)) return sRevenue();
-    if (RX.profit.test(q)) return sProfit();
-    if (RX_ACCT.test(q)) return sAccounting(q);
-    const r = evalMath(raw);
-    if (r != null) return sCalc(raw, r);
-    return null;   // unmatched → routed to the in-browser LLM
+    if (looksLikeMath(raw) && evalMath(raw) != null) return { kind: 'math', raw, q };
+    const ranked = classify(q, raw);
+    const combos = ranked.filter((r) => (r.id === 'hire' || r.id === 'price') && r.score >= 3);
+    if (combos.length >= 2 && CONJ_RX.test(' ' + q + ' ')) return { kind: 'compound', raw, q };
+    if (ranked.length && ranked[0].score >= MIN_SCORE) return { kind: ranked[0].id, raw, q, run: ranked[0].run };
+    if (evalMath(raw) != null) return { kind: 'math', raw, q };
+    return { kind: null, raw, q };
   }
+
+  function respond(rawIn) {
+    syncProfile();   // reason off whatever venue is active right now
+    const d = decideRoute(rawIn);
+    if (d.kind === 'math') return sCalc(d.raw, evalMath(d.raw));
+    if (d.kind === 'compound') return sCompound(d.raw);
+    if (d.kind === null) return null;   // unmatched → routed to the in-browser LLM
+    return d.run(d.raw, d.q);
+  }
+
+  /* ─── Routing eval harness — ground-truth set across fr/en/ar incl. compound,
+   * math and out-of-scope. window.KiwiAgentEval() returns accuracy + any
+   * misroutes, so routing changes are regression-checkable without the LLM. ── */
+  const EVAL_SET = [
+    ['bonjour', 'greet'], ['hello there', 'greet'], ['مرحبا', 'greet'], ['comment ça va', 'greet'],
+    ['aide-moi à calculer ma marge', 'margin'],
+    ['puis-je embaucher un serveur', 'hire'], ['should I hire a cook', 'hire'], ['هل أوظف نادل', 'hire'],
+    ['augmente les prix de 8%', 'price'], ['raise prices by 10%', 'price'], ['ارفع الأسعار بنسبة 5%', 'price'], ['baisse mes prix de 5%', 'price'],
+    ["ai-je les moyens d'acheter un four à 80000", 'afford'], ['can I afford a 150000 machine', 'afford'],
+    ['ma prévision de fin de mois', 'forecast'], ['end of month forecast', 'forecast'], ['توقع نهاية الشهر', 'forecast'],
+    ['quel est mon seuil de rentabilité', 'breakeven'], ['what is my break-even point', 'breakeven'],
+    ['quelle est ma marge', 'margin'], ['my net margin', 'margin'], ['ما هو هامشي', 'margin'],
+    ['mes charges fixes', 'charges'], ['my monthly expenses', 'charges'],
+    ["mon chiffre d'affaires", 'revenue'], ['my total sales', 'revenue'], ['مبيعاتي', 'revenue'],
+    ['combien je gagne', 'profit'], ['my net profit', 'profit'],
+    ['prépare ma déclaration TVA', 'accounting'], ['generate the payslips', 'accounting'], ['دفتر الأستاذ', 'accounting'],
+    ['augmente les prix de 8% et embauche un serveur', 'compound'], ['raise prices 10% and hire a cook', 'compound'],
+    ['2500 * 1.2', 'math'], ['(842300-261000)/842300', 'math'],
+    ['quelle est la météo demain', 'llm'], ['raconte-moi une blague', 'llm'],
+  ];
+  function routeLabel(s) { const d = decideRoute(s); return d.kind === null ? 'llm' : d.kind; }
+  function runEval() {
+    const fails = [];
+    EVAL_SET.forEach((row) => { const got = routeLabel(row[0]); if (got !== row[1]) fails.push({ q: row[0], expected: row[1], got }); });
+    const pass = EVAL_SET.length - fails.length;
+    return { total: EVAL_SET.length, pass, accuracy: Math.round(pass / EVAL_SET.length * 1000) / 10, fails };
+  }
+  /* Exposed for QA — not part of the merchant-facing surface. */
+  window.KiwiAgentEval = runEval;
+  window.KiwiAgentRoute = routeLabel;
 
   /* ═══════════════ IN-BROWSER LLM · WebLLM ═══════════════
    * Anything the deterministic engine doesn't recognise is answered by an
