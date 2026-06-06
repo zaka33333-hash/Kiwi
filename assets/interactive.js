@@ -602,14 +602,13 @@ ar: {
   .ord-pay { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--n-200); border-radius: 12px; margin-bottom: 22px; background: #fff; }
   .ord-pay .ci { width: 44px; height: 28px; border-radius: 5px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .ord-pay .ci svg { display: block; max-width: 100%; max-height: 100%; }
-  .ord-pay .ci.visa { background: #1A1F71; padding: 4px; }
+  .ord-pay .ci img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+  .ord-pay .ci.visa { background: #fff; border: 1px solid var(--n-200); padding: 3px 4px; }
   .ord-pay .ci.mc { background: #fff; border: 1px solid var(--n-200); padding: 2px; }
   .ord-pay .ci.tap { background: var(--atlas); color: var(--mint); }
   .ord-pay .ci.tap svg { width: 18px; height: 18px; }
-  .ord-pay .ci.qr { background: var(--ink); color: var(--mint); }
-  .ord-pay .ci.qr svg { width: 18px; height: 18px; }
-  .ord-pay .ci.cash { background: var(--paper-soft); color: var(--n-700); border: 1px solid var(--n-200); }
-  .ord-pay .ci.cash svg { width: 22px; height: 14px; }
+  .ord-pay .ci.qr { background: #fff; border: 1px solid var(--n-200); padding: 2px; }
+  .ord-pay .ci.cash { background: #fff; border: 1px solid var(--n-200); padding: 2px; }
   .ord-pay .pay-prim { font-weight: 500; font-size: 13.5px; }
   .ord-pay .pay-sub { font-size: 11.5px; color: var(--n-500); margin-top: 1px; display: flex; align-items: center; gap: 6px; }
   .ord-pay .pay-flag { display: inline-block; width: 12px; height: 9px; border-radius: 1px; }
@@ -1802,14 +1801,14 @@ ar: {
       };
       const L = T[lang] || T.fr;
 
-      /* Same brand-chip SVGs the row uses — kept in sync so the drawer
-       * feels like an enlarged version of the row that opened it. */
+      /* Same brand assets the row uses — kept in sync so the drawer feels
+       * like an enlarged version of the chip the merchant just tapped. */
       const ICONS = {
-        visa: `<svg viewBox="0 0 64 22" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><text x="32" y="17" text-anchor="middle" font-family="Arial Black, Helvetica, sans-serif" font-size="18" font-weight="900" font-style="italic" fill="#fff" letter-spacing="0.5">VISA</text></svg>`,
-        mc:   `<svg viewBox="0 0 40 24" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><circle cx="16" cy="12" r="8" fill="#EB001B"/><circle cx="24" cy="12" r="8" fill="#F79E1B"/><path d="M20 6.2a7.97 7.97 0 0 0 0 11.6 7.97 7.97 0 0 0 0-11.6z" fill="#FF5F00"/></svg>`,
-        cash: `<svg viewBox="0 0 24 16" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2" width="21" height="12" rx="1.6"/><circle cx="12" cy="8" r="2.4"/><path d="M5 5.5h.01M19 10.5h.01"/></svg>`,
+        visa: `<img src="assets/icons/visa.svg" alt="Visa">`,
+        mc:   `<img src="assets/icons/mastercard.png" alt="Mastercard">`,
+        cash: `<img src="assets/icons/cash.webp" alt="Espèces">`,
         tap:  `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M8.5 8a5 5 0 0 1 0 8M12 5a8 8 0 0 1 0 14M15.5 2a11 11 0 0 1 0 20"/></svg>`,
-        qr:   `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" fill="currentColor" aria-hidden="true"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm9-2h3v3h-3v-3zm0 5h2v2h-2v-2zm5-5h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 3h2v3h-2v-3z"/></svg>`,
+        qr:   `<img src="assets/icons/qr-code.png" alt="QR">`,
       };
       const chip = ICONS[o.method] || '';
 
