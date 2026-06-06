@@ -980,13 +980,28 @@
    * open-source model running fully in the browser via WebGPU — no backend,
    * no API key, no data leaves the device. Opt-in download. */
   const LLM = {
-    model: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
-    sizeLabel: '≈ 2 Go',
-    cdn: 'https://esm.run/@mlc-ai/web-llm',
+    /* Qwen3-4B — best small open-source model for this assistant: stronger
+     * multilingual (FR/AR/EN), tool-calling and multi-step reasoning than
+     * Llama-3.2-3B, and present in WebLLM's prebuilt list. Thinking mode is
+     * disabled below (see runLlm) so answers stay snappy for the merchant.
+     * CDN is version-pinned so model availability/behaviour can't drift. */
+    model: 'Qwen3-4B-q4f16_1-MLC',
+    sizeLabel: '≈ 2,4 Go',
+    cdn: 'https://esm.run/@mlc-ai/web-llm@0.2.84',
     status: 'idle',
     engine: null,
     progress: 0,
   };
+
+  /* Qwen3 can emit <think>…</think> reasoning blocks. We run it in
+   * non-thinking mode, but strip defensively so the merchant never sees a
+   * stray tag — handles both a closed block and one still mid-stream. */
+  function stripThink(s) {
+    return String(s)
+      .replace(/<think>[\s\S]*?<\/think>/gi, '')
+      .replace(/<think>[\s\S]*$/i, '')
+      .replace(/^\s+/, '');
+  }
   const llmHistory = [];
 
   const SP_DIR = {
@@ -1654,19 +1669,32 @@
     async function runLlm(question) {
       const typing = pushTyping();
       llmHistory.push({ role: 'user', content: question });
-      const messages = [{ role: 'system', content: buildSystemPrompt(detectQLang(question)) }, ...llmHistory.slice(-8)];
+      /* `/no_think` is Qwen3's soft switch for non-thinking mode — a
+       * prompt-only mechanism (no API plumbing to depend on), with
+       * stripThink() as the safety net if a block slips through. */
+      const sys = buildSystemPrompt(detectQLang(question)) + '\n\n/no_think';
+      const messages = [{ role: 'system', content: sys }, ...llmHistory.slice(-8)];
       try {
-        const stream = await LLM.engine.chat.completions.create({ messages, temperature: 0.5, stream: true });
+        const stream = await LLM.engine.chat.completions.create({
+          messages,
+          /* Qwen3 non-thinking sampling, per the model card (temp 0.7, top_p
+           * 0.8) — avoids the repetition that greedy/low-temp triggers. */
+          temperature: 0.7,
+          top_p: 0.8,
+          stream: true,
+        });
         typing.remove();
         const bubble = pushAgent('<span data-fa-stream></span>');
         const target = bubble.querySelector('[data-fa-stream]');
         let acc = '';
         for await (const chunk of stream) {
           acc += chunk.choices?.[0]?.delta?.content || '';
-          if (target) target.textContent = acc;
+          if (target) target.textContent = stripThink(acc);
           scrollDown();
         }
-        llmHistory.push({ role: 'assistant', content: acc });
+        /* Store the clean answer — Qwen3 guidance is to keep prior thinking
+         * content OUT of multi-turn history. */
+        llmHistory.push({ role: 'assistant', content: stripThink(acc) });
       } catch (e) {
         typing.remove();
         pushAgent(replyHtml({ text: tr().llm.runErr }));
