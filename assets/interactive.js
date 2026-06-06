@@ -567,6 +567,57 @@ ar: {
   .tx-timeline-item .n { font-weight: 500; letter-spacing: -0.005em; }
   .tx-timeline-item .d { font-size: 12.5px; color: var(--n-500); margin-top: 2px; }
 
+  /* ─── Order detail drawer — opened from the live feed ─── */
+  .ord-hero { background: linear-gradient(135deg, var(--paper-soft) 0%, #EFEAE0 120%); border-radius: 14px; padding: 20px 22px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .ord-hero::after { content: ""; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; background: radial-gradient(circle, rgba(11,110,79,0.10) 0%, transparent 65%); pointer-events: none; }
+  .ord-hero .row1 { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .ord-hero .ticket { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--n-500); text-transform: uppercase; }
+  .ord-hero .when { font-family: var(--mono); font-size: 11px; color: var(--n-500); }
+  .ord-hero .amt { margin-top: 10px; font-size: 38px; font-weight: 600; letter-spacing: -0.035em; line-height: 1; font-feature-settings: "tnum" 1; }
+  .ord-hero .amt .cur { font-size: 16px; font-weight: 500; color: var(--n-500); margin-left: 8px; letter-spacing: 0.04em; }
+  .ord-hero .status { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; color: var(--atlas); background: rgba(125,242,176,0.20); padding: 4px 10px; border-radius: 999px; }
+  .ord-hero .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--atlas); }
+
+  .ord-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--n-200); border-radius: 12px; overflow: hidden; margin-bottom: 22px; }
+  .ord-stat { padding: 12px 14px; border-right: 1px solid var(--n-200); background: #fff; }
+  .ord-stat:last-child { border-right: 0; }
+  .ord-stat .lbl { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
+  .ord-stat .val { font-size: 14.5px; font-weight: 600; margin-top: 4px; letter-spacing: -0.01em; color: var(--ink); }
+  .ord-stat .sub { font-size: 11px; color: var(--n-500); margin-top: 1px; }
+
+  .ord-section-lbl { font-size: 10.5px; letter-spacing: 0.10em; color: var(--n-500); font-family: var(--mono); text-transform: uppercase; margin-bottom: 10px; }
+
+  .ord-items { display: flex; flex-direction: column; gap: 1px; background: var(--n-200); border-radius: 12px; overflow: hidden; margin-bottom: 22px; }
+  .ord-item { background: #fff; display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; }
+  .ord-item .qty { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--atlas); background: var(--mint-soft, rgba(125,242,176,0.25)); border-radius: 6px; padding: 3px 6px; text-align: center; min-width: 26px; }
+  .ord-item .nm { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+  .ord-item .unit { font-size: 11.5px; color: var(--n-500); font-family: var(--mono); margin-top: 2px; }
+  .ord-item .ln { font-family: var(--mono); font-weight: 500; font-feature-settings: "tnum" 1; font-size: 13px; color: var(--ink); }
+
+  .ord-totals { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; padding: 14px 16px; background: var(--paper-soft); border-radius: 12px; font-size: 13px; margin-bottom: 22px; }
+  .ord-totals .k { color: var(--n-500); }
+  .ord-totals .v { font-family: var(--mono); font-feature-settings: "tnum" 1; text-align: end; font-weight: 500; }
+  .ord-totals .total { padding-top: 10px; border-top: 1px solid var(--n-200); font-weight: 600; font-size: 14.5px; color: var(--ink); }
+
+  .ord-pay { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--n-200); border-radius: 12px; margin-bottom: 22px; background: #fff; }
+  .ord-pay .ci { width: 44px; height: 28px; border-radius: 5px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .ord-pay .ci svg { display: block; max-width: 100%; max-height: 100%; }
+  .ord-pay .ci.visa { background: #1A1F71; padding: 4px; }
+  .ord-pay .ci.mc { background: #fff; border: 1px solid var(--n-200); padding: 2px; }
+  .ord-pay .ci.tap { background: var(--atlas); color: var(--mint); }
+  .ord-pay .ci.tap svg { width: 18px; height: 18px; }
+  .ord-pay .ci.qr { background: var(--ink); color: var(--mint); }
+  .ord-pay .ci.qr svg { width: 18px; height: 18px; }
+  .ord-pay .ci.cash { background: var(--paper-soft); color: var(--n-700); border: 1px solid var(--n-200); }
+  .ord-pay .ci.cash svg { width: 22px; height: 14px; }
+  .ord-pay .pay-prim { font-weight: 500; font-size: 13.5px; }
+  .ord-pay .pay-sub { font-size: 11.5px; color: var(--n-500); margin-top: 1px; display: flex; align-items: center; gap: 6px; }
+  .ord-pay .pay-flag { display: inline-block; width: 12px; height: 9px; border-radius: 1px; }
+  .ord-pay .pay-flag.ma { background: linear-gradient(#C1272D 50%, #006233 50%); }
+  .ord-pay .pay-flag.fr { background: linear-gradient(to right, #002395 33%, #FFF 33%, #FFF 66%, #ED2939 66%); }
+  .ord-pay .pay-flag.es { background: linear-gradient(#C60B1E 30%, #FFC400 30%, #FFC400 70%, #C60B1E 70%); }
+  .ord-pay .pay-amt { font-family: var(--mono); font-weight: 600; font-size: 14px; font-feature-settings: "tnum" 1; }
+
   /* Button base for modals */
   .kb { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-family: var(--sans); font-weight: 500; font-size: 14px; letter-spacing: -0.005em; cursor: pointer; transition: all 150ms; border: 1px solid transparent; }
   .kb.primary { background: var(--ink); color: var(--paper); }
@@ -1729,6 +1780,143 @@ ar: {
         if (e.target.closest('[data-refund]')) { document.querySelector('.kiwi-backdrop .kiwi-modal-close')?.click(); setTimeout(() => toast('Choisir montant à rembourser', {type:'info'}), 220); }
         if (e.target.closest('[data-print]')) toast('Reçu envoyé par WhatsApp à Karim B.', {type:'success'});
         if (e.target.closest('[data-dismiss]')) document.querySelector('.kiwi-backdrop .kiwi-modal-close')?.click();
+        document.body.removeEventListener('click', once);
+      });
+    },
+
+    /* Open the rich detail drawer for a live-feed order. Reads the cached
+     * order object stored by renderFeed() under window.__kiwiFeedOrders.
+     * Shows: receipt + time, total, status; table/server/covers/duration;
+     * itemized cart with quantities; subtotal + TVA + total; payment block
+     * (real brand chip + flag + amount); timeline; receipt actions. */
+    'open-order': (el) => {
+      const key = el?.dataset?.orderKey;
+      const o = (window.__kiwiFeedOrders || {})[key];
+      if (!o) { handlers['tx-detail'](el, 'tx1'); return; }
+
+      const lang = kiwiLang();
+      const T = {
+        fr: { tag: 'COMMANDE', status: 'Encaissée · règlement T+1', table: 'Table', server: 'Serveur', covers: 'Couverts', duration: 'Durée service', cover: 'couvert', covers_pl: 'couverts', minutes: 'min', items: 'Articles', payment: 'Paiement', subtotal: 'Sous-total', tva: 'TVA', total: 'Total encaissé', timeline: 'Chronologie', opened: 'Table ouverte', sent: 'Envoyé en cuisine', ready: 'Prêt', paid: 'Payé', closed: 'Table fermée', sendReceipt: 'Envoyer le reçu', refund: 'Rembourser', close: 'Fermer', receiptSent: 'Reçu envoyé par WhatsApp', refundPrompt: 'Choisir le montant à rembourser' },
+        en: { tag: 'ORDER', status: 'Captured · T+1 settlement', table: 'Table', server: 'Server', covers: 'Covers', duration: 'Service time', cover: 'cover', covers_pl: 'covers', minutes: 'min', items: 'Items', payment: 'Payment', subtotal: 'Subtotal', tva: 'VAT', total: 'Total paid', timeline: 'Timeline', opened: 'Table opened', sent: 'Sent to kitchen', ready: 'Ready', paid: 'Paid', closed: 'Table closed', sendReceipt: 'Send receipt', refund: 'Refund', close: 'Close', receiptSent: 'Receipt sent on WhatsApp', refundPrompt: 'Choose refund amount' },
+        ar: { tag: 'طلب', status: 'تمّ الدفع · تسوية T+1', table: 'الطاولة', server: 'النادل', covers: 'الضيوف', duration: 'مدة الخدمة', cover: 'ضيف', covers_pl: 'ضيوف', minutes: 'د', items: 'الأصناف', payment: 'الدفع', subtotal: 'الإجمالي', tva: 'الضريبة', total: 'المبلغ المدفوع', timeline: 'الجدول الزمني', opened: 'فُتحت الطاولة', sent: 'أُرسل للمطبخ', ready: 'جاهز', paid: 'مدفوع', closed: 'أُغلقت الطاولة', sendReceipt: 'إرسال الإيصال', refund: 'استرداد', close: 'إغلاق', receiptSent: 'تمّ إرسال الإيصال عبر واتساب', refundPrompt: 'اختر مبلغ الاسترداد' },
+      };
+      const L = T[lang] || T.fr;
+
+      /* Same brand-chip SVGs the row uses — kept in sync so the drawer
+       * feels like an enlarged version of the row that opened it. */
+      const ICONS = {
+        visa: `<svg viewBox="0 0 64 22" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><text x="32" y="17" text-anchor="middle" font-family="Arial Black, Helvetica, sans-serif" font-size="18" font-weight="900" font-style="italic" fill="#fff" letter-spacing="0.5">VISA</text></svg>`,
+        mc:   `<svg viewBox="0 0 40 24" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><circle cx="16" cy="12" r="8" fill="#EB001B"/><circle cx="24" cy="12" r="8" fill="#F79E1B"/><path d="M20 6.2a7.97 7.97 0 0 0 0 11.6 7.97 7.97 0 0 0 0-11.6z" fill="#FF5F00"/></svg>`,
+        cash: `<svg viewBox="0 0 24 16" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2" width="21" height="12" rx="1.6"/><circle cx="12" cy="8" r="2.4"/><path d="M5 5.5h.01M19 10.5h.01"/></svg>`,
+        tap:  `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M8.5 8a5 5 0 0 1 0 8M12 5a8 8 0 0 1 0 14M15.5 2a11 11 0 0 1 0 20"/></svg>`,
+        qr:   `<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" fill="currentColor" aria-hidden="true"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5zm9-2h3v3h-3v-3zm0 5h2v2h-2v-2zm5-5h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 3h2v3h-2v-3z"/></svg>`,
+      };
+      const chip = ICONS[o.method] || '';
+
+      /* Format helpers — only used here, kept local. */
+      const fmtNum = (n) => Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const coversLbl = o.covers === 1 ? L.cover : L.covers_pl;
+
+      /* Timeline — back-derive 3 prep moments from the paid time so the
+       * sequence reads naturally. Service was X min; assume kitchen
+       * handoff at 30% and ready at 70%. */
+      const dur = Math.max(8, o.serviceMinutes || 20);
+      const [hh, mm] = (o.t || '12:00').split(':').map(Number);
+      const minus = (back) => {
+        let m = hh * 60 + mm - back;
+        if (m < 0) m += 24 * 60;
+        const h = Math.floor(m / 60) % 24, x = m % 60;
+        return String(h).padStart(2, '0') + ':' + String(x).padStart(2, '0');
+      };
+      const tOpened = minus(dur);
+      const tSent   = minus(Math.round(dur * 0.7));
+      const tReady  = minus(Math.round(dur * 0.3));
+      const tPaid   = o.t;
+
+      const itemsHtml = (o.items || []).map(it => `
+        <div class="ord-item">
+          <div class="qty">×${it.qty}</div>
+          <div>
+            <div class="nm">${it.name}</div>
+            <div class="unit">${fmtNum(it.price)} MAD ${L.cover === 'cover' ? 'each' : (lang === 'ar' ? 'للوحدة' : 'pièce')}</div>
+          </div>
+          <div class="ln">${fmtNum(it.qty * it.price)} MAD</div>
+        </div>
+      `).join('');
+
+      drawer({
+        title: o.primary,
+        subtitle: `${L.tag} · ${o.receiptNo || ''}`,
+        width: 460,
+        body: `
+          <div class="ord-hero">
+            <div class="row1">
+              <div class="ticket">${L.tag} · ${o.receiptNo || ''}</div>
+              <div class="when">${o.t}</div>
+            </div>
+            <div class="amt">${o.amt}<span class="cur">MAD</span></div>
+            <div class="status">${L.status}</div>
+          </div>
+
+          <div class="ord-stats">
+            <div class="ord-stat">
+              <div class="lbl">${L.table}</div>
+              <div class="val">T${o.table != null ? o.table : '—'}</div>
+            </div>
+            <div class="ord-stat">
+              <div class="lbl">${L.covers}</div>
+              <div class="val">${o.covers || 1}</div>
+              <div class="sub">${coversLbl}</div>
+            </div>
+            <div class="ord-stat">
+              <div class="lbl">${L.server}</div>
+              <div class="val" style="font-size:13px;">${o.server || '—'}</div>
+            </div>
+            <div class="ord-stat">
+              <div class="lbl">${L.duration}</div>
+              <div class="val">${dur}<span style="font-size:11px;color:var(--n-500);font-weight:500;margin-left:3px;">${L.minutes}</span></div>
+            </div>
+          </div>
+
+          <div class="ord-section-lbl">${L.items}</div>
+          <div class="ord-items">${itemsHtml || `<div class="ord-item"><div class="qty">—</div><div><div class="nm">—</div></div><div class="ln">—</div></div>`}</div>
+
+          <div class="ord-totals">
+            <div class="k">${L.subtotal}</div><div class="v">${o.subtotal} MAD</div>
+            <div class="k">${L.tva} (${o.tvaRate || 10}%)</div><div class="v">${o.tva} MAD</div>
+            <div class="k total">${L.total}</div><div class="v total">${o.total} MAD</div>
+          </div>
+
+          <div class="ord-section-lbl">${L.payment}</div>
+          <div class="ord-pay">
+            <div class="ci ${o.method}">${chip}</div>
+            <div>
+              <div class="pay-prim">${o.primary}</div>
+              <div class="pay-sub"><span class="pay-flag ${o.flag || ''}"></span>${o.sub || ''}</div>
+            </div>
+            <div class="pay-amt">${o.amt} MAD</div>
+          </div>
+
+          <div class="ord-section-lbl">${L.timeline}</div>
+          <div class="tx-timeline">
+            <div class="tx-timeline-item"><div class="t">${tOpened}</div><div class="n">${L.opened}</div><div class="d">T${o.table != null ? o.table : '—'} · ${o.covers || 1} ${coversLbl} · ${o.server || '—'}</div></div>
+            <div class="tx-timeline-item"><div class="t">${tSent}</div><div class="n">${L.sent}</div><div class="d">${(o.items || []).map(i => `×${i.qty} ${i.name}`).join(' · ') || '—'}</div></div>
+            <div class="tx-timeline-item"><div class="t">${tReady}</div><div class="n">${L.ready}</div><div class="d">${L.server === 'Server' ? 'Picked up by' : (L.server === 'النادل' ? 'استلمه' : 'Récupéré par')} ${o.server || '—'}</div></div>
+            <div class="tx-timeline-item last"><div class="t">${tPaid}</div><div class="n">${L.paid} · ${L.closed}</div><div class="d">${o.primary} · ${o.sub || ''}</div></div>
+          </div>
+        `,
+        foot: `
+          <button class="kb ghost" data-ord-receipt>${L.sendReceipt}</button>
+          <button class="kb ghost" data-ord-refund>${L.refund}</button>
+          <button class="kb primary" data-dismiss>${L.close}</button>
+        `,
+      });
+
+      /* Footer actions — light demo wiring, mirrors tx-detail's pattern. */
+      document.body.addEventListener('click', function once(e) {
+        if (e.target.closest('[data-ord-receipt]')) { toast(L.receiptSent + (o.customer ? ' · ' + o.customer : ''), { type: 'success' }); }
+        if (e.target.closest('[data-ord-refund]'))  { document.querySelector('.kiwi-drawer-backdrop .kiwi-drawer-close')?.click(); setTimeout(() => toast(L.refundPrompt, { type: 'info' }), 220); }
+        if (e.target.closest('[data-dismiss]'))     { document.querySelector('.kiwi-drawer-backdrop .kiwi-drawer-close')?.click(); }
         document.body.removeEventListener('click', once);
       });
     },

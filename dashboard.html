@@ -803,36 +803,46 @@
   /* ─────────────── LIVE TX FEED ─────────────── */
   .feed-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
   .feed { display: flex; flex-direction: column; gap: 2px; }
-  .feed-row { display: grid; grid-template-columns: 56px 1.3fr 1fr 1fr 90px 26px; padding: 11px 0; font-size: 13px; align-items: center; border-bottom: 1px solid var(--n-200); transition: background 120ms; gap: 12px; cursor: pointer; }
+  .feed-row { display: grid; grid-template-columns: 50px 1.45fr 1.1fr 120px 18px; padding: 12px 6px 12px 2px; font-size: 13px; align-items: center; border-bottom: 1px solid var(--n-200); transition: background 140ms ease, box-shadow 140ms ease; gap: 14px; cursor: pointer; border-radius: 8px; }
   .feed-row:last-child { border-bottom: 0; }
   .feed-row:hover { background: var(--n-50); }
+  .feed-row:hover .more { transform: translateX(2px); color: var(--ink); }
   .feed-row.new { animation: slide-in 500ms cubic-bezier(0.32, 0.72, 0, 1); }
   @keyframes slide-in {
     from { opacity: 0; transform: translateY(-8px); background: rgba(125,242,176,0.1); }
     to { opacity: 1; transform: translateY(0); background: transparent; }
   }
   .feed-row .t { font-family: var(--mono); font-size: 11.5px; color: var(--n-500); }
-  .feed-row .method { display: inline-flex; align-items: center; gap: 9px; }
-  .feed-row .method .ci { width: 28px; height: 19px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; }
-  .feed-row .method .ci.visa { background: linear-gradient(135deg, #1A1F71 50%, #F7B600 50%); }
-  .feed-row .method .ci.mc { background: radial-gradient(circle at 35% 50%, #EB001B 44%, transparent 45%), radial-gradient(circle at 65% 50%, #F79E1B 44%, transparent 45%), #fff; border: 1px solid var(--n-200); }
+  .feed-row .method { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+  /* Chip dimensions sized to host inline SVG brand marks crisply. */
+  .feed-row .method .ci { width: 34px; height: 22px; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .feed-row .method .ci svg { display: block; }
+  .feed-row .method .ci.visa { background: #1A1F71; padding: 3px 4px; }
+  .feed-row .method .ci.visa svg { width: 100%; height: 100%; }
+  .feed-row .method .ci.mc { background: #fff; border: 1px solid var(--n-200); padding: 2px; }
+  .feed-row .method .ci.mc svg { width: 100%; height: 100%; }
   .feed-row .method .ci.tap { background: var(--atlas); color: var(--mint); }
+  .feed-row .method .ci.tap svg { width: 14px; height: 14px; }
   .feed-row .method .ci.qr { background: var(--ink); color: var(--mint); }
+  .feed-row .method .ci.qr svg { width: 14px; height: 14px; }
   .feed-row .method .ci.cmi { background: linear-gradient(135deg, #C41E3A, #8B1025); color: #fff; }
-  .feed-row .method .ci.cash { background: var(--paper-soft); color: var(--n-600); border: 1px solid var(--n-200); font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.04em; }
-  .feed-row .method .desc { line-height: 1.3; }
-  .feed-row .method .desc .primary { color: var(--ink); font-weight: 500; }
+  .feed-row .method .ci.cash { background: var(--paper-soft); color: var(--n-700); border: 1px solid var(--n-200); }
+  .feed-row .method .ci.cash svg { width: 18px; height: 12px; }
+  .feed-row .method .desc { line-height: 1.3; min-width: 0; }
+  .feed-row .method .desc .primary { color: var(--ink); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .feed-row .method .desc .sub { color: var(--n-500); font-size: 11px; margin-top: 1px; display: flex; align-items: center; gap: 5px; }
-  .feed-row .method .flag { display: inline-block; width: 12px; height: 9px; border-radius: 1px; }
+  .feed-row .method .flag { display: inline-block; width: 12px; height: 9px; border-radius: 1px; flex-shrink: 0; }
   .feed-row .flag.ma { background: linear-gradient(#C1272D 50%, #006233 50%); }
   .feed-row .flag.fr { background: linear-gradient(to right, #002395 33%, #FFF 33%, #FFF 66%, #ED2939 66%); }
   .feed-row .flag.es { background: linear-gradient(#C60B1E 30%, #FFC400 30%, #FFC400 70%, #C60B1E 70%); }
   .feed-row .flag.us { background: #3C3B6E; }
-  .feed-row .amt { font-family: var(--mono); font-weight: 500; text-align: right; font-feature-settings: "tnum" 1; font-size: 14px; }
-  .feed-row .tip { font-family: var(--mono); font-size: 11.5px; color: var(--success); text-align: right; font-feature-settings: "tnum" 1; }
-  .feed-row .ctx { color: var(--n-500); font-size: 11.5px; }
-  .feed-row .more { color: var(--n-400); display: flex; justify-content: flex-end; }
-  .feed-row .more:hover { color: var(--ink); cursor: pointer; }
+  .feed-row .amt { font-family: var(--mono); font-weight: 600; text-align: right; font-feature-settings: "tnum" 1; font-size: 14.5px; color: var(--ink); white-space: nowrap; }
+  .feed-row .amt .cur { font-size: 10px; font-weight: 500; color: var(--n-500); margin-left: 5px; letter-spacing: 0.04em; }
+  .feed-row .ctx { color: var(--n-700); font-size: 12.5px; display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+  .feed-row .ctx .t-chip { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--paper-soft); border: 1px solid var(--n-200); color: var(--atlas); font-family: var(--mono); font-size: 10.5px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.02em; }
+  .feed-row .ctx .who { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .feed-row .more { color: var(--n-400); display: flex; justify-content: flex-end; transition: transform 160ms ease, color 140ms ease; }
+  .feed-row:focus-visible .more { color: var(--ink); }
 
   /* ─────────────── SETTLEMENT ─────────────── */
   .settle { background: linear-gradient(135deg, var(--atlas) 0%, #053B2C 120%); color: var(--paper); border-radius: 14px; padding: 20px 22px; position: relative; overflow: hidden; }
@@ -1349,12 +1359,20 @@
 
   /* Feed rows */
   body.fusion-mode .feed-row { border-color: rgba(255,255,255,0.06) !important; }
+  body.fusion-mode .feed-row:hover { background: rgba(125,242,176,0.04) !important; }
   body.fusion-mode .feed-row .method .ci.cash {
     background: rgba(255,255,255,0.05) !important;
     color: #A6B6AC !important;
     border-color: rgba(125,242,176,0.12) !important;
   }
   body.fusion-mode .feed-row .amt { color: var(--ink) !important; }
+  body.fusion-mode .feed-row .amt .cur { color: #7E938A !important; }
+  body.fusion-mode .feed-row .ctx { color: var(--ink) !important; }
+  body.fusion-mode .feed-row .ctx .t-chip {
+    background: rgba(125,242,176,0.08) !important;
+    border-color: rgba(125,242,176,0.18) !important;
+    color: #7DF2B0 !important;
+  }
   body.fusion-mode .feed-row .meta,
   body.fusion-mode .feed-row .time { color: #7E938A !important; }
 

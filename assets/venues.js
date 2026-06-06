@@ -4462,5 +4462,9 @@
     REAL_VENUES,
     VENUES,
     KPI_BY_TYPE,
+    /* Menu items for the given venue (or current). Used by the live feed to
+     * generate realistic order contents — items, qty, unit prices — that
+     * match the venue's actual carte. */
+    getMenuItems: (venue) => miItems(venue || currentVenue),
   };
 })();
