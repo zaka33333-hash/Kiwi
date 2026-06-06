@@ -1006,6 +1006,57 @@
     ).join('\n');
   }
 
+  /* Today's live activity — same sources the dashboard's KPI tiles and live
+   * feed use (KiwiDemoClock for hour-by-hour aggregates, the row cache for
+   * the last few enriched orders). Lets the agent answer "what's been sold
+   * today?", "who's the busiest server right now?", "which table just paid?",
+   * etc. without inventing data. Returns null when there's nothing yet. */
+  function liveActivityContextLines() {
+    const sim = window.KiwiDemoClock && window.KiwiDemoClock.getSimState && window.KiwiDemoClock.getSimState();
+    const cache = window.__kiwiFeedOrders || {};
+    const orders = Object.keys(cache).sort().map(k => cache[k]).filter(Boolean);
+    if (!sim || (!sim.cumTx && !orders.length)) return null;
+
+    const lines = [];
+    /* Aggregates straight from the simulator — the merchant sees these at the
+     * top of the dashboard, so the agent must match them exactly. */
+    lines.push(
+      `  · Heure de service simulée : ~${sim.simHourLabel || '—'}`,
+      `  · Commandes encaissées depuis ce matin : ${fmt(sim.cumTx || 0)}`,
+      `  · CA réalisé depuis ce matin : ${fmt(sim.cumRevenue || 0)} MAD`,
+      `  · Panier moyen aujourd'hui : ${fmt(sim.panierMoyen || 0)} MAD`,
+      `  · Clients réguliers identifiés : ${fmt(sim.cumRegulars || 0)}`
+    );
+
+    if (orders.length) {
+      /* Compact per-order line: time · customer/table · server · payment ·
+       * total · 1–2 items. Keeps the prompt readable even with 10 orders. */
+      const fmt2 = (n) => Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const recent = orders.slice(0, 8).map(o => {
+        const items = (o.items || []).slice(0, 2).map(it => `×${it.qty} ${it.name}`).join(', ');
+        const more = (o.items || []).length > 2 ? ` (+${o.items.length - 2})` : '';
+        const table = o.table != null ? `T${o.table}` : '—';
+        const covers = o.covers ? ` · ${o.covers} couvert${o.covers > 1 ? 's' : ''}` : '';
+        const server = o.server ? ` · servi par ${o.server}` : '';
+        const total = (o.total || o.amt) ? `${o.total || o.amt} MAD` : '—';
+        return `  · ${o.t || '—'} · ${o.customer || '—'} · ${table}${covers}${server} · ${o.primary || '—'} · ${total}${items ? ` — ${items}${more}` : ''}`;
+      });
+      lines.push('', `  Les ${recent.length} dernières commandes encaissées (la plus récente d'abord) :`);
+      lines.push(...recent);
+
+      /* Servers actually seen on shift today, with their ticket count — lets
+       * the model answer staffing questions from observed work, not the
+       * static employee list. */
+      const seenServers = {};
+      orders.forEach(o => { if (o.server) seenServers[o.server] = (seenServers[o.server] || 0) + 1; });
+      const servers = Object.keys(seenServers).sort((a, b) => seenServers[b] - seenServers[a]);
+      if (servers.length) {
+        lines.push('', `  Serveurs en service maintenant : ${servers.map(s => `${s} (${seenServers[s]} ticket${seenServers[s] > 1 ? 's' : ''})`).join(', ')}.`);
+      }
+    }
+    return lines.join('\n');
+  }
+
   function buildSystemPrompt(lang) {
     const dir = SP_DIR[lang] || SP_DIR.fr;
     if (B.partial) {
@@ -1028,6 +1079,7 @@
     }
     const o = B.opex;
     const menu = menuContextLines();
+    const live = liveActivityContextLines();
     const lines = [
       dir, '',
       `Tu es l'assistant financier de "Café Atlas · Maarif", un café-restaurant à Casablanca, au Maroc.`,
@@ -1040,6 +1092,13 @@
       `- Trésorerie disponible : ${fmt(B.cashBuffer)} MAD`,
       `- Panier moyen : ${fmt(B.avgBasket)} MAD · ${fmt(B.ordersPerMonth)} ventes/mois · ${B.staffCount} employés.`,
     ];
+    if (live) {
+      lines.push(
+        '',
+        `Activité en direct — ce que la caisse a enregistré depuis l'ouverture aujourd'hui. Pour toute question sur la journée en cours, les commandes du moment, les serveurs ou les tables, appuie-toi UNIQUEMENT sur ce bloc — ce sont les seules données fraîches dont tu disposes :`,
+        live
+      );
+    }
     if (menu) {
       lines.push(
         '',
