@@ -1003,6 +1003,52 @@
     };
   }
 
+  /* ─────────────── ACTION / TOOL LAYER (the agent can act, fr/en/ar) ───────
+   * Lets the assistant *do*, not just describe: a command that pairs an action
+   * verb (open / show / create…) with a known destination resolves to the real
+   * dashboard handler (the same Kiwi.handlers the sidebar fires), surfaced as a
+   * one-tap button. Targets are disjoint from the finance intents, so this
+   * never steals "show my margin" — that has no navigable target. */
+  const ACTION_VERB = /ouvr|montr|affich|open|show|go to|display|navigate|cr[ée]er?|create|nouvelle|new |اعرض|افتح|انتقل|أنشئ/;
+  const NAV_TARGETS = [
+    { rx: /\bmenu\b|\bcarte\b|modificateur|قائمة/, h: 'nav-menu', key: 'menu' },
+    { rx: /transaction|commande|orders?\b|طلبات/, h: 'nav-transactions', key: 'transactions' },
+    { rx: /terminaux|terminal|\btpe\b|lecteur|أجهزة/, h: 'nav-terminaux', key: 'terminaux' },
+    { rx: /reglement|settlement|versement|تسوي/, h: 'nav-reglements', key: 'reglements' },
+    { rx: /conformit|compliance|\bkyc\b|امتثال/, h: 'nav-conformite', key: 'conformite' },
+    { rx: /\bequipe\b|\bteam\b|personnel|فريق/, h: 'nav-equipe', key: 'equipe' },
+    { rx: /\btables?\b|plan de salle|floor plan|طاولات/, h: 'nav-tables', key: 'tables' },
+    { rx: /cuisine|\bkds\b|kitchen|مطبخ/, h: 'nav-kds', key: 'kds' },
+    { rx: /stock|inventaire|inventory|ingredient|مخزون/, h: 'nav-stock', key: 'stock' },
+    { rx: /reservation|booking|\brdv\b|حجز|حجوزات/, h: 'nav-reservations', key: 'reservations' },
+    { rx: /lien de paiement|payment link|رابط دفع/, h: 'payment-link', key: 'paymentLink' },
+    { rx: /nouvelle vente|new sale|بيع جديد/, h: 'new-sale', key: 'newSale' },
+  ];
+  function matchAction(q) {
+    if (!ACTION_VERB.test(q)) return null;
+    for (const t of NAV_TARGETS) if (t.rx.test(q)) return t;
+    return null;
+  }
+  const ACT = {
+    fr: { lead: (x) => `J’ouvre ${x}.`, btn: (x) => `Ouvrir ${x}`,
+      menu: 'la carte', transactions: 'les commandes', terminaux: 'les terminaux', reglements: 'les règlements',
+      conformite: 'la conformité', equipe: 'l’équipe', tables: 'les tables', kds: 'l’écran cuisine', stock: 'le stock',
+      reservations: 'les réservations', paymentLink: 'un lien de paiement', newSale: 'une nouvelle vente' },
+    en: { lead: (x) => `Opening ${x}.`, btn: (x) => `Open ${x}`,
+      menu: 'the menu', transactions: 'orders', terminaux: 'the terminals', reglements: 'settlements',
+      conformite: 'compliance', equipe: 'the team', tables: 'the tables', kds: 'the kitchen screen', stock: 'stock',
+      reservations: 'reservations', paymentLink: 'a payment link', newSale: 'a new sale' },
+    ar: { lead: (x) => `أفتح ${x}.`, btn: (x) => `افتح ${x}`,
+      menu: 'القائمة', transactions: 'الطلبات', terminaux: 'الأجهزة', reglements: 'التسويات',
+      conformite: 'الامتثال', equipe: 'الفريق', tables: 'الطاولات', kds: 'شاشة المطبخ', stock: 'المخزون',
+      reservations: 'الحجوزات', paymentLink: 'رابط دفع', newSale: 'عملية بيع جديدة' },
+  };
+  function sAction(target) {
+    const a = ACT[L] || ACT.fr;
+    const name = a[target.key] || target.key;
+    return { text: a.lead(name), open: [{ label: a.btn(name), handler: target.h }] };
+  }
+
   /* ─────────────── INTENT CLASSIFIER (scored · fr / en / ar) ───────────────
    * Replaces the old first-match regex chain. Every intent is scored by
    * weighted signals; the HIGHEST score wins (ties resolve by the historical
@@ -1077,6 +1123,8 @@
     const raw = fixDigits(rawIn);
     const q = norm(raw);
     if (looksLikeMath(raw) && evalMath(raw) != null) return { kind: 'math', raw, q };
+    const act = matchAction(q);
+    if (act) return { kind: 'action', raw, q, action: act };
     const ranked = classify(q, raw);
     const combos = ranked.filter((r) => (r.id === 'hire' || r.id === 'price') && r.score >= 3);
     if (combos.length >= 2 && CONJ_RX.test(' ' + q + ' ')) return { kind: 'compound', raw, q };
@@ -1089,6 +1137,7 @@
     syncProfile();   // reason off whatever venue is active right now
     const d = decideRoute(rawIn);
     if (d.kind === 'math') return sCalc(d.raw, evalMath(d.raw));
+    if (d.kind === 'action') return sAction(d.action);
     if (d.kind === 'compound') return sCompound(d.raw);
     if (d.kind === null) return null;   // unmatched → routed to the in-browser LLM
     return d.run(d.raw, d.q);
@@ -1111,6 +1160,9 @@
     ['combien je gagne', 'profit'], ['my net profit', 'profit'],
     ['prépare ma déclaration TVA', 'accounting'], ['generate the payslips', 'accounting'], ['دفتر الأستاذ', 'accounting'],
     ['augmente les prix de 8% et embauche un serveur', 'compound'], ['raise prices 10% and hire a cook', 'compound'],
+    ['ouvre le menu', 'action'], ['montre les commandes', 'action'], ['open the kitchen screen', 'action'],
+    ['crée un lien de paiement', 'action'], ['افتح المخزون', 'action'], ['montre-moi les réservations', 'action'],
+    ['montre ma marge', 'margin'],
     ['2500 * 1.2', 'math'], ['(842300-261000)/842300', 'math'],
     ['quelle est la météo demain', 'llm'], ['raconte-moi une blague', 'llm'],
   ];
@@ -1121,9 +1173,24 @@
     const pass = EVAL_SET.length - fails.length;
     return { total: EVAL_SET.length, pass, accuracy: Math.round(pass / EVAL_SET.length * 1000) / 10, fails };
   }
+  /* Unit checks for the numeric guardrail detectors (profile = ATLAS demo). */
+  function runGuardTest() {
+    const cases = [];
+    const t = (name, ok) => cases.push({ name, ok: !!ok });
+    t('extract integer MAD', JSON.stringify(extractMad('TVA à payer 38 309 MAD')) === '[38309]');
+    t('extract decimal MAD', JSON.stringify(extractMad('total 1 234,50 MAD')) === '[1234.5]');
+    t('extract dh suffix', extractMad('café 15 dh')[0] === 15);
+    t('ignore bare percent', extractMad('marge 22,3 %').length === 0);
+    t('grounding figure passes', auditNumbers('votre chiffre d’affaires est 842 300 MAD').uncited.length === 0);
+    t('rounded restatement passes', auditNumbers('environ 842 000 MAD').uncited.length === 0);
+    t('fabricated figure flagged', auditNumbers('vous gagnez 999 000 MAD ce mois').uncited.length === 1);
+    const fails = cases.filter((c) => !c.ok);
+    return { total: cases.length, pass: cases.length - fails.length, fails };
+  }
   /* Exposed for QA — not part of the merchant-facing surface. */
   window.KiwiAgentEval = runEval;
   window.KiwiAgentRoute = routeLabel;
+  window.KiwiGuardTest = runGuardTest;
 
   /* ═══════════════ IN-BROWSER LLM · WebLLM ═══════════════
    * Anything the deterministic engine doesn't recognise is answered by an
@@ -1220,6 +1287,60 @@
       }
     }
     return lines.join('\n');
+  }
+
+  /* ─────────────── NUMERIC GUARDRAIL ───────────────
+   * The model may phrase a MAD figure that isn't a verbatim restatement of the
+   * grounding — sometimes a fair derivation, sometimes a slip. We can't ban
+   * derivations, so rather than alter the answer we detect uncited material
+   * amounts and append a calm "verify in your dashboard" nudge. Detectors are
+   * pure and unit-tested via window.KiwiGuardTest(). */
+  const GUARD = {
+    fr: 'Chiffres dérivés de vos données — vérifiez les montants exacts dans votre tableau de bord.',
+    en: 'Figures derived from your data — verify the exact amounts in your dashboard.',
+    ar: 'أرقام مُشتقّة من بياناتك — تحقّق من المبالغ الدقيقة في لوحة التحكم.',
+  };
+  /* Every MAD-denominated amount in a block of text. */
+  function extractMad(text) {
+    const out = [];
+    const re = /(\d[\d  .  ]*(?:,\d+)?)\s*(?:mad|dhs?|dirhams?|درهم|د\.?\s?م)\b/gi;
+    for (const m of String(text).matchAll(re)) {
+      const n = parseFloat(m[1].replace(/[  .  ]/g, '').replace(',', '.'));
+      if (isFinite(n)) out.push(n);
+    }
+    return out;
+  }
+  /* The figures the answer may state — built from the same grounding the system
+   * prompt carries (financials, opex, menu prices, live orders, sim revenue). */
+  function knownFigures() {
+    const s = new Set();
+    const add = (n) => { if (typeof n === 'number' && isFinite(n)) s.add(Math.round(n)); };
+    if (!B.partial) {
+      [B.revenue, B.cogs, B.grossProfit, B.totalOpex, B.netProfit, B.cashBuffer, B.avgBasket,
+       B.dailyRev, B.dailyNet, B.netPerOrder, B.breakEvenRev, B.mtdRevenue,
+       B.revenue * 12, B.netProfit * 12].forEach(add);
+      Object.values(B.opex || {}).forEach(add);
+    } else {
+      [B.revenue, B.avgBasket].forEach(add);
+    }
+    (window.KiwiVenue && window.KiwiVenue.getMenuItems ? window.KiwiVenue.getMenuItems() : []).forEach((it) => add(it.price));
+    Object.values(window.__kiwiFeedOrders || {}).forEach((o) => add(o.amtRaw != null ? o.amtRaw
+      : parseFloat(String(o.total || o.amt || '').replace(/[  .  ]/g, '').replace(',', '.'))));
+    const sim = window.KiwiDemoClock && window.KiwiDemoClock.getSimState && window.KiwiDemoClock.getSimState();
+    if (sim) add(sim.cumRevenue);
+    return s;
+  }
+  /* Material MAD amounts not within tolerance of any known figure → the
+   * merchant should verify them. Tolerance lets a rounded restatement pass. */
+  function auditNumbers(text) {
+    const known = Array.from(knownFigures());
+    const uncited = [];
+    for (const v of extractMad(text)) {
+      if (v < 100) continue;
+      const cited = known.some((k) => Math.abs(k - v) <= Math.max(50, v * 0.01));
+      if (!cited) uncited.push(v);
+    }
+    return { uncited };
   }
 
   function buildSystemPrompt(lang) {
@@ -1842,9 +1963,20 @@
           if (target) target.textContent = stripThink(acc);
           scrollDown();
         }
+        const clean = stripThink(acc);
+        /* Numeric guardrail — if the answer states material MAD figures that
+         * aren't a (rounded) restatement of the grounding, append a calm
+         * verify-nudge. Never alters the answer itself. */
+        if (bubble && auditNumbers(clean).uncited.length) {
+          const note = document.createElement('div');
+          note.className = 'fa-note';
+          note.textContent = GUARD[L] || GUARD.fr;
+          bubble.appendChild(note);
+          scrollDown();
+        }
         /* Store the clean answer — Qwen3 guidance is to keep prior thinking
          * content OUT of multi-turn history. */
-        llmHistory.push({ role: 'assistant', content: stripThink(acc) });
+        llmHistory.push({ role: 'assistant', content: clean });
       } catch (e) {
         typing.remove();
         pushAgent(replyHtml({ text: tr().llm.runErr }));
@@ -1889,8 +2021,21 @@
       if (follow) { ask(follow.getAttribute('data-fa-follow')); return; }
       const openBtn = e.target.closest('[data-fa-open]');
       if (openBtn) {
-        const fn = window.Kiwi && window.Kiwi.handlers && window.Kiwi.handlers[openBtn.getAttribute('data-fa-open')];
+        const handlerName = openBtn.getAttribute('data-fa-open');
+        const fn = window.Kiwi && window.Kiwi.handlers && window.Kiwi.handlers[handlerName];
         if (typeof fn === 'function') fn();
+        /* Take the merchant to the destination: close the assistant so the
+         * page/drawer the handler opened is actually visible underneath. */
+        const back = root.closest('.kiwi-drawer-backdrop');
+        if (back && typeof back.__kiwiClose === 'function') back.__kiwiClose();
+        /* For a page-switch (nav-*), re-assert the sidebar highlight after the
+         * drawer-close's reset-to-home settles (~320 ms). */
+        const navKey = handlerName.indexOf('nav-') === 0 ? handlerName.slice(4) : null;
+        if (navKey) setTimeout(() => {
+          const nav = document.querySelector('.sidebar nav');
+          const link = nav && nav.querySelector('a[data-nav="' + navKey + '"]');
+          if (link) { nav.querySelectorAll('a').forEach((a) => a.classList.remove('active')); link.classList.add('active'); }
+        }, 360);
         return;
       }
       if (e.target.closest('[data-fa-activate]')) { activateLlm(); return; }
