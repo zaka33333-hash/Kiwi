@@ -456,8 +456,12 @@
     /* TikTok-style 2-column video grid — meta BELOW video (sibling) */
     .menu-list.is-video-grid {
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      padding: 4px 14px calc(20px + var(--safe-bottom));
+      grid-auto-rows: max-content;
+      align-content: start;
+      align-items: start;
+      gap: 10px;
+      padding: 4px 14px calc(100px + var(--safe-bottom));
+      overflow-y: auto;
     }
     .video-card {
       display: flex;
@@ -474,7 +478,7 @@
     .video-thumb {
       position: relative;
       width: 100%;
-      aspect-ratio: 4 / 5;
+      aspect-ratio: 9 / 16;
       background: #0A0F0D;
       overflow: hidden;
     }
