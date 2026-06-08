@@ -1964,7 +1964,20 @@
       const ptxt = card.querySelector('[data-fa-ptxt]');
       try {
         const webllm = await import(LLM.cdn);
+        /* The model's WASM lib defaults to raw.githubusercontent.com, which many
+         * ISPs, firewalls and privacy/ad-blocker extensions drop — causing a
+         * "Failed to fetch" before the download even starts. Swap it for
+         * jsDelivr's GitHub mirror (a real CDN with proper CORS) so activation
+         * works on real networks. Weights still come from Hugging Face. */
+        const base = webllm.prebuiltAppConfig;
+        const appConfig = {
+          ...base,
+          model_list: base.model_list.map((mm) => mm.model_lib && mm.model_lib.includes('raw.githubusercontent.com')
+            ? { ...mm, model_lib: mm.model_lib.replace(/https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\//, 'https://cdn.jsdelivr.net/gh/$1/$2@$3/') }
+            : mm),
+        };
         LLM.engine = await webllm.CreateMLCEngine(LLM.model, {
+          appConfig,
           initProgressCallback: (p) => {
             LLM.progress = p.progress || 0;
             if (bar) bar.style.width = Math.round(LLM.progress * 100) + '%';
@@ -1977,6 +1990,7 @@
         pushAgent(replyHtml({ text: m.readyMsg }));
         if (LLM.pending) { const q = LLM.pending; LLM.pending = null; runLlm(q); }
       } catch (e) {
+        console.error('[Kiwi] In-browser LLM failed to load:', e);
         LLM.status = 'error';
         if (ptxt) ptxt.textContent = m.loadFail;
         pushAgent(replyHtml({ text: m.loadFailMsg }));
