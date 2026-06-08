@@ -375,8 +375,7 @@
     .menu-top {
       padding: 12px 22px 14px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      align-items: flex-start;
       gap: 12px;
       background: var(--paper-cream);
       position: sticky;
@@ -386,8 +385,10 @@
     .menu-cafe {
       display: flex;
       flex-direction: column;
+      align-items: flex-start;
       gap: 2px;
     }
+    .menu-cafe .table-badge { margin-top: 6px; }
     .menu-cafe .name {
       font-size: 18px;
       font-weight: 600;
@@ -471,9 +472,10 @@
     .video-thumb {
       position: relative;
       width: 100%;
-      aspect-ratio: 4 / 5;
+      aspect-ratio: 3 / 4;
       background: #0A0F0D;
       overflow: hidden;
+      border-radius: 14px;
     }
     .video-thumb video {
       width: 100%;
@@ -481,91 +483,75 @@
       object-fit: cover;
       display: block;
     }
-    .video-thumb::after {
-      content: "";
+    /* Bottom gradient + name/price/+ overlay (TikTok-style) */
+    .video-overlay {
       position: absolute;
       inset: auto 0 0 0;
-      height: 30%;
-      background: linear-gradient(to top, rgba(0,0,0,0.45), transparent);
+      padding: 10px 12px 11px;
+      background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.32) 65%, transparent);
+      color: #fff;
+      z-index: 2;
       pointer-events: none;
     }
-    .video-tag {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(6px);
-      border-radius: 999px;
-      color: #fff;
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      font-weight: 500;
-      z-index: 2;
-    }
-    .video-tag svg { width: 9px; height: 9px; color: var(--mint); }
-    .video-add {
-      position: absolute;
-      bottom: 8px;
-      right: 8px;
-      width: 32px; height: 32px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.95);
-      color: var(--forest);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 500;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-      z-index: 2;
-      transition: transform 180ms ease, background 180ms ease;
-    }
-    .video-add:active { transform: scale(0.92); }
-    .video-meta {
-      padding: 8px 10px 10px;
-    }
     .video-name {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 600;
       letter-spacing: -0.01em;
-      color: var(--ink);
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
       line-height: 1.22;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-bottom: 4px;
     }
     .video-foot {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-top: 3px;
     }
     .video-price {
       font-family: var(--mono);
       font-size: 11.5px;
       font-weight: 500;
-      color: var(--ink-3);
+      color: rgba(255,255,255,0.95);
       letter-spacing: -0.005em;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
-    .video-likes {
-      display: inline-flex;
+    .video-add {
+      width: 28px; height: 28px;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--forest);
+      display: flex;
       align-items: center;
-      gap: 4px;
-      font-family: var(--mono);
-      font-size: 10.5px;
-      color: var(--ink-4);
-      letter-spacing: -0.005em;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      pointer-events: auto;
+      transition: transform 180ms ease;
     }
-    .video-likes svg { width: 11px; height: 11px; }
-    [dir="rtl"] .video-tag { left: auto; right: 8px; }
-    [dir="rtl"] .video-add { right: auto; left: 8px; }
+    .video-add:active { transform: scale(0.92); }
+    /* NEW badge (only on items with tag:'new') */
+    .video-tag-new {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 4px 9px;
+      background: #fff;
+      color: var(--forest);
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      z-index: 2;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    [dir="rtl"] .video-tag-new { left: auto; right: 10px; }
     .menu-item {
       display: grid;
       grid-template-columns: 64px 1fr auto;
@@ -2284,11 +2270,11 @@
         <div class="menu-cafe">
           <div class="name">Café Atlas</div>
           <div class="ctx" data-i18n="menu_loc">Médina · Tanger</div>
+          <span class="table-badge" id="menu-badge">
+            <i data-lucide="utensils"></i>
+            <span id="menu-badge-text">Table —</span>
+          </span>
         </div>
-        <span class="table-badge" id="menu-badge">
-          <i data-lucide="utensils"></i>
-          <span id="menu-badge-text">Table —</span>
-        </span>
       </div>
 
       <div class="service-bar" id="service-bar" hidden>
@@ -2628,6 +2614,7 @@
         tab_pastry: "Pâtisserie",
         tab_savory: "Salé",
         tab_drink: "Boissons",
+        tag_new: "Nouveau",
         service_call: "Appeler un serveur",
         service_bill: "Demander l'addition",
         cart_pill: "Voir ma commande",
@@ -2768,6 +2755,7 @@
         tab_pastry: "Pastries",
         tab_savory: "Savory",
         tab_drink: "Drinks",
+        tag_new: "New",
         service_call: "Call the waiter",
         service_bill: "Ask for the check",
         cart_pill: "View my order",
@@ -2908,6 +2896,7 @@
         tab_pastry: "حلويات",
         tab_savory: "ساندويتش",
         tab_drink: "مشروبات",
+        tag_new: "جديد",
         service_call: "عيّط على الجارسون",
         service_bill: "طلب الحساب",
         cart_pill: "شوف الطلب ديالي",
@@ -3195,8 +3184,8 @@
       { id: 'espresso',     cat: 'coffee', name: 'Espresso',           desc: 'Court, intense, torréfaction du jour',           price: 12, icon: 'coffee',      options: [OPT.sucre, OPT.shot], video: 'menu_try_video/v24044gl0000d47044vog65jf7h8q560.mov' },
       { id: 'noss-noss',    cat: 'coffee', name: 'Noss-noss',           desc: 'Moitié café, moitié lait chaud — la fierté locale', price: 16, icon: 'coffee',   options: [OPT.sucre] },
       { id: 'cappuccino',   cat: 'coffee', name: 'Cappuccino',         desc: 'Mousse onctueuse, cacao en option',              price: 22, icon: 'coffee',      options: [OPT.sucre, OPT.lait, OPT.shot], video: 'menu_try_video/v09044g40000cbokh6rc77uem774h4fg.mov' },
-      { id: 'iced-latte',   cat: 'coffee', name: 'Latte glacé',        desc: 'Café froid, lait, glaçons, sirop vanille optionnel', price: 26, icon: 'glass-water', options: [OPT.sucre, OPT.lait], video: 'menu_try_video/v14044g50000d33o2m7og65urp9k0keg.mov' },
-      { id: 'the-menthe',   cat: 'drink',  name: 'Thé à la menthe',    desc: 'Théière en argent, menthe fraîche, sucre à part', price: 22, icon: 'glass-water', options: [OPT.sucre], video: 'menu_try_video/v1c044g50000d6lqmn7og65uhmc2vtl0.mov' },
+      { id: 'iced-latte',   cat: 'coffee', name: 'Latte glacé',        desc: 'Café froid, lait, glaçons, sirop vanille optionnel', price: 26, icon: 'glass-water', options: [OPT.sucre, OPT.lait], video: 'menu_try_video/v14044g50000d33o2m7og65urp9k0keg.mov', tag: 'new' },
+      { id: 'the-menthe',   cat: 'drink',  name: 'Thé à la menthe',    desc: 'Théière en argent, menthe fraîche, sucre à part', price: 22, icon: 'glass-water', options: [OPT.sucre], video: 'menu_try_video/v1c044g50000d6lqmn7og65uhmc2vtl0.mov', tag: 'new' },
       { id: 'msemen',       cat: 'pastry', name: 'Msemen au miel',     desc: 'Crêpe feuilletée chaude, miel d\'oranger',       price: 18, icon: 'croissant',   options: [OPT.chauffer] },
       { id: 'briouate',     cat: 'pastry', name: 'Briouate aux amandes', desc: 'Pâte filo, amandes, eau de fleur d\'oranger',  price: 14, icon: 'cookie',      options: [OPT.chauffer] },
       { id: 'croissant',    cat: 'pastry', name: 'Croissant beurre',   desc: 'Pur beurre · cuit ce matin',                     price: 12, icon: 'croissant',   options: [OPT.chauffer, OPT.pastryExtras] },
@@ -3328,27 +3317,24 @@
     }
 
     /* ============ TikTok-style video grid ============ */
-    // Mock view counts so the cards feel alive (deterministic per-id)
-    const FAKE_LIKES = ['12.4K', '4.2K', '8.7K', '2.1K', '17K', '3.6K'];
     function renderVideoGrid() {
       const list = $('#menu-list');
       list.classList.add('is-video-grid');
       const videoItems = MENU.filter(m => m.video);
-      list.innerHTML = videoItems.map((m, idx) => {
+      list.innerHTML = videoItems.map(m => {
         const i = itemI18n(m.id);
-        const likes = FAKE_LIKES[idx % FAKE_LIKES.length];
+        const newTag = m.tag === 'new' ? `<span class="video-tag-new">${t('tag_new')}</span>` : '';
         return `
         <article class="video-card" data-add="${m.id}">
           <div class="video-thumb">
-            <span class="video-tag"><i data-lucide="video"></i> menu</span>
+            ${newTag}
             <video src="${m.video}" autoplay loop muted playsinline preload="auto" disablepictureinpicture></video>
-            <span class="video-add" aria-label="${t('btn_add')} ${i.name}">+</span>
-          </div>
-          <div class="video-meta">
-            <div class="video-name">${i.name}</div>
-            <div class="video-foot">
-              <span class="video-price">${m.price} ${cur()}</span>
-              <span class="video-likes"><i data-lucide="heart"></i> ${likes}</span>
+            <div class="video-overlay">
+              <div class="video-name">${i.name}</div>
+              <div class="video-foot">
+                <span class="video-price">${m.price} ${cur()}</span>
+                <span class="video-add" aria-label="${t('btn_add')} ${i.name}">+</span>
+              </div>
             </div>
           </div>
         </article>
