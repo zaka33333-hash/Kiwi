@@ -210,8 +210,6 @@
       'dash.kpi.appointments':     'Appointments',
       'dash.kpi.fillRate':         'Fill rate',
       // Mix de paiement footer — venue-typed
-      'dash.mix.savings.label':    'Savings vs CMI:',
-      'dash.mix.savings.year':     'See annual',
       // Footer
       'dash.footer.sponsor':       'operated under Bank Al-Maghrib sponsorship',
       'dash.footer.help':          'WhatsApp help',
@@ -811,8 +809,6 @@
       'dash.kpi.appointments':     'المواعيد',
       'dash.kpi.fillRate':         'نسبة الإشغال',
       // Mix
-      'dash.mix.savings.label':    'التوفير مقابل CMI:',
-      'dash.mix.savings.year':     'عرض السنة',
       // Footer
       'dash.footer.sponsor':       'تشتغل تحت رعاية بنك المغرب',
       'dash.footer.help':          'مساعدة عبر واتساب',

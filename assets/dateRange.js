@@ -2668,13 +2668,6 @@
     const center = document.querySelector('[data-mix-center-amt]');
     if (center) animateNumber(center, parseAmountFromEl(center), data.centerMad, { duration: 700, format: v => frInt(v) });
 
-    // Per-venue CMI savings line under the donut
-    const savingsEl = document.querySelector('[data-mix-savings]');
-    if (savingsEl) savingsEl.textContent = window.KiwiVenue?.getMixCmiSavings?.() || '~3 900 MAD ce mois';
-    // CMI-savings line is meaningless before any revenue — hide on custom venues.
-    const savingsRow = document.querySelector('[data-mix-savings-row]');
-    if (savingsRow) savingsRow.style.display = window.KiwiVenue?.isCustom?.() ? 'none' : '';
-
     const sub = document.querySelector('[data-mix-sub]');
     if (sub) sub.textContent = RANGE_STR[lang]?.[currentRange] || RANGE_STR.fr[currentRange];
 

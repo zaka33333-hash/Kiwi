@@ -827,8 +827,6 @@
         menuToastD: 'Catégories, plats, prix et modificateurs',
         tipToastT: 'Prompt pourboire activé',
         tipToastD: '+10 % suggéré après 20h sur toutes les tables',
-        cmiToastT: 'Économie vs CMI',
-        cmiToastD: '~46 800 MAD projetés sur 12 mois au rythme actuel',
         helpToastT: 'Support Kiwi',
         helpToastD: 'WhatsApp +212 5 20 80 80 80 · 7j/7'
     },
@@ -838,8 +836,6 @@
         menuToastD: 'Categories, dishes, prices, and modifiers',
         tipToastT: 'Tip prompt enabled',
         tipToastD: '+10% suggested after 8pm on all tables',
-        cmiToastT: 'Savings vs CMI',
-        cmiToastD: '~46,800 MAD projected over 12 months at current rate',
         helpToastT: 'Kiwi Support',
         helpToastD: 'WhatsApp +212 5 20 80 80 80 · 7/7'
     },
@@ -849,8 +845,6 @@
         menuToastD: 'الفئات، الأطباق، الأسعار، والمعدلات',
         tipToastT: 'تم تفعيل موجه الإكرامية',
         tipToastD: 'مقترح +10% بعد الساعة 8 مساءً على جميع الطاولات',
-        cmiToastT: 'التوفير مقابل CMI',
-        cmiToastD: 'تقدير ~46,800 درهم على 12 شهرًا بالمعدل الحالي',
         helpToastT: 'دعم كيوي',
         helpToastD: 'واتساب +212 5 20 80 80 80 · 7/7'
     }
@@ -903,10 +897,6 @@
   handlers['tip-prompt'] = () => {
     const str = MISC_STR[trLang()] || MISC_STR.fr;
     toast && toast(str.tipToastT, { type: 'success', desc: str.tipToastD });
-  }
-  handlers['cmi-year'] = () => {
-    const str = MISC_STR[trLang()] || MISC_STR.fr;
-    toast && toast(str.cmiToastT, { type: 'info', desc: str.cmiToastD });
   }
   handlers['help-whatsapp'] = () => {
     const str = MISC_STR[trLang()] || MISC_STR.fr;
