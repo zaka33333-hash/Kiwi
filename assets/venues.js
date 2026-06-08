@@ -318,12 +318,13 @@
    * Sparkline shape per key is owned by dateRange.js. */
   const KPI_BY_TYPE = {
     restaurant: [
-      { key: 'tx',         label: 'Commandes',         i18n: 'dash.kpi.tx' },
-      { key: 'panier',     label: 'Panier moyen',      i18n: 'dash.kpi.basket' },
-      { key: 'marge',      label: 'Marge brute',       i18n: 'dash.kpi.margin' },
-      { key: 'success',    label: 'Taux succès',       i18n: 'dash.kpi.success' },
-      { key: 'ratio',      label: 'Ratio card / cash', i18n: 'dash.kpi.ratio' },
-      { key: 'regulars',   label: 'Clients réguliers', i18n: 'dash.kpi.regular' },
+      { key: 'tx',         label: 'Commandes',           i18n: 'dash.kpi.tx' },
+      { key: 'panier',     label: 'Panier moyen',        i18n: 'dash.kpi.basket' },
+      { key: 'marge',      label: 'Marge brute',         i18n: 'dash.kpi.margin' },
+      { key: 'success',    label: 'Taux succès',         i18n: 'dash.kpi.success' },
+      { key: 'ratio',      label: 'Ratio card / cash',   i18n: 'dash.kpi.ratio' },
+      { key: 'regulars',   label: 'Clients réguliers',   i18n: 'dash.kpi.regular' },
+      { key: 'tempsTable', label: 'Temps moyen à table', i18n: 'dash.kpi.tableTime' },
     ],
     boutique: [
       { key: 'tx',         label: 'Commandes',         i18n: 'dash.kpi.tx' },
@@ -334,12 +335,13 @@
       { key: 'regulars',   label: 'Clients fidèles',   i18n: 'dash.kpi.loyalCustomers' },
     ],
     spa: [
-      { key: 'tx',         label: 'Rendez-vous',       i18n: 'dash.kpi.appointments' },
-      { key: 'panier',     label: 'Panier moyen',      i18n: 'dash.kpi.basket' },
-      { key: 'marge',      label: 'Marge brute',       i18n: 'dash.kpi.margin' },
-      { key: 'success',    label: 'Taux remplissage',  i18n: 'dash.kpi.fillRate' },
-      { key: 'ratio',      label: 'Ratio card / cash', i18n: 'dash.kpi.ratio' },
-      { key: 'regulars',   label: 'Clients fidèles',   i18n: 'dash.kpi.loyalCustomers' },
+      { key: 'tx',         label: 'Rendez-vous',           i18n: 'dash.kpi.appointments' },
+      { key: 'panier',     label: 'Panier moyen',          i18n: 'dash.kpi.basket' },
+      { key: 'marge',      label: 'Marge brute',           i18n: 'dash.kpi.margin' },
+      { key: 'success',    label: 'Taux remplissage',      i18n: 'dash.kpi.fillRate' },
+      { key: 'ratio',      label: 'Ratio card / cash',     i18n: 'dash.kpi.ratio' },
+      { key: 'regulars',   label: 'Clients fidèles',       i18n: 'dash.kpi.loyalCustomers' },
+      { key: 'tempsTable', label: 'Temps moyen en cabine', i18n: 'dash.kpi.tableTime' },
     ],
     // Fusion = portfolio-wide KPIs. Same six tiles render in the band, but
     // the values are aggregated sums (see dateRange.js · vData fusion path).

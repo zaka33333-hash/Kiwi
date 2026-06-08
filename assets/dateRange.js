@@ -689,6 +689,38 @@
     },
   };
 
+  /* tempsTable seed — average time a covert occupies a table (restaurant)
+   * or a cabin (spa). Lower is better for restaurants (faster turnover ⇒
+   * more sittings per service); higher is better for spas (longer treatment
+   * ⇒ higher revenue per booking). Delta convention: negative = went down.
+   * Boutique has no tables → key absent → KPI excluded from its catalog. */
+  const TEMPS_TABLE_SEED = {
+    cafeAtlas: {
+      aujourdhui:  { value: 47, unit: 'min', fmt: 'int', delta: -2.1 },
+      hier:        { value: 49, unit: 'min', fmt: 'int', delta:  1.2 },
+      septJours:   { value: 46, unit: 'min', fmt: 'int', delta: -3.4 },
+      trenteJours: { value: 47, unit: 'min', fmt: 'int', delta: -1.8 },
+      moisDernier: { value: 48, unit: 'min', fmt: 'int', delta:  0.4 },
+      trimestre:   { value: 47, unit: 'min', fmt: 'int', delta: -2.3 },
+      annee:       { value: 46, unit: 'min', fmt: 'int', delta: -4.1 },
+    },
+    spaBahia: {
+      aujourdhui:  { value: 62, unit: 'min', fmt: 'int', delta:  3.8 },
+      hier:        { value: 58, unit: 'min', fmt: 'int', delta:  1.4 },
+      septJours:   { value: 60, unit: 'min', fmt: 'int', delta:  4.2 },
+      trenteJours: { value: 59, unit: 'min', fmt: 'int', delta:  2.6 },
+      moisDernier: { value: 57, unit: 'min', fmt: 'int', delta:  1.1 },
+      trimestre:   { value: 58, unit: 'min', fmt: 'int', delta:  3.0 },
+      annee:       { value: 56, unit: 'min', fmt: 'int', delta:  2.2 },
+    },
+  };
+  Object.keys(TEMPS_TABLE_SEED).forEach((v) => {
+    const venueData = kpiByVenue[v]; if (!venueData) return;
+    Object.keys(TEMPS_TABLE_SEED[v]).forEach((period) => {
+      if (venueData[period]) venueData[period].tempsTable = TEMPS_TABLE_SEED[v][period];
+    });
+  });
+
   const revChartByVenue = {
     cafeAtlas: {
     // Today: hourly cumulative across the full opening band (11h → 02h).
@@ -1794,6 +1826,7 @@
     newClients:   '<circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 014-4h4M18 9v6M15 12h6"/>',
     revPerDay:    '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/>',
     txPerDay:     '<path d="M4 6h16M4 12h16M4 18h10"/>',
+    tempsTable:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   };
   // One sparkline path per key. Colour stays atlas; deltas drive the up/down chip.
   const KPI_SPARKS = {
@@ -1812,6 +1845,7 @@
     newClients: 'M0 16 L15 14 L30 15 L45 12 L60 13 L75 10 L90 9 L105 7 L120 5',
     revPerDay:  'M0 16 L15 14 L30 15 L45 12 L60 10 L75 11 L90 8 L105 6 L120 4',
     txPerDay:   'M0 15 L15 13 L30 14 L45 11 L60 12 L75 9 L90 10 L105 6 L120 4',
+    tempsTable: 'M0 6 L15 8 L30 7 L45 9 L60 11 L75 10 L90 12 L105 14 L120 13',
   };
 
   /* ═══════════════ KPI CATALOG · personnalisation ═══════════════
@@ -1857,15 +1891,22 @@
                   desc: 'Nombre de ventes moyen par jour', derive: (d, ctx) => d.tx ? { value: d.tx.value / ctx.nbDays, unit: '', fmt: 'int', delta: d.tx.delta } : null },
     tauxRetour: { labels: { default: 'Taux retour' }, i18n: 'dash.kpi.returnRate',
                   desc: 'Part des articles retournés', derive: (d) => d.tauxRetour || null },
+    tempsTable: { labels: { default: 'Temps moyen à table', spa: 'Temps moyen en cabine' }, i18n: 'dash.kpi.tableTime',
+                  desc: 'Durée moyenne d\'occupation d\'une table par couvert', derive: (d) => d.tempsTable || null },
   };
 
   function loadKpiLayouts() {
     try { return JSON.parse(localStorage.getItem('kiwiKpiLayout')) || {}; }
     catch (_) { return {}; }
   }
+  /* Per-vertical KPI count — restaurants and spas get 7 tiles (room
+   * for "Temps moyen à table"); boutique + fusion stay at 6. */
+  const KPI_COUNT_BY_TYPE = { restaurant: 7, spa: 7, boutique: 6, fusion: 6 };
+  function kpiCountFor(venueType) { return KPI_COUNT_BY_TYPE[venueType] || 6; }
   function getKpiLayout(venueType) {
     const L = loadKpiLayouts()[venueType];
-    return (Array.isArray(L) && L.length === 6 && L.every((k) => KPI_CATALOG[k])) ? L : null;
+    const max = kpiCountFor(venueType);
+    return (Array.isArray(L) && L.length === max && L.every((k) => KPI_CATALOG[k])) ? L : null;
   }
   function saveKpiLayout(venueType, keys) {
     const all = loadKpiLayouts(); all[venueType] = keys;
@@ -2020,8 +2061,9 @@
     const available = Object.keys(KPI_CATALOG).filter((k) => {
       try { return !!KPI_CATALOG[k].derive(data, ctx); } catch (_) { return false; }
     });
+    const maxKpis = kpiCountFor(venueType);
     let selected = (getKpiLayout(venueType) || defaultKpiKeys(venueType))
-      .filter((k) => available.includes(k)).slice(0, 6);
+      .filter((k) => available.includes(k)).slice(0, maxKpis);
 
     const deltaSuffix = KPI_DELTA_SUFFIX[lang]?.[currentRange] || KPI_DELTA_SUFFIX.fr[currentRange];
     // Each picker tile is a faithful preview of the dashboard KPI card —
@@ -2049,7 +2091,7 @@
     const body = `
       <div class="kc">
         <p class="kc-intro">${kc.intro}</p>
-        <div class="kc-counter"><b data-kc-count>0 / 6</b> ${kc.counter}</div>
+        <div class="kc-counter"><b data-kc-count>0 / ${maxKpis}</b> ${kc.counter}</div>
         <div class="kc-grid">${available.map(cardHtml).join('')}</div>
       </div>`;
 
@@ -2072,11 +2114,11 @@
         else { card.classList.remove('sel'); badge.textContent = ''; }
       });
       const count = root.querySelector('[data-kc-count]');
-      if (count) count.textContent = `${selected.length} / 6`;
+      if (count) count.textContent = `${selected.length} / ${maxKpis}`;
       const cwrap = root.querySelector('.kc-counter');
-      if (cwrap) cwrap.classList.toggle('full', selected.length === 6);
+      if (cwrap) cwrap.classList.toggle('full', selected.length === maxKpis);
       const save = root.querySelector('[data-kc-save]');
-      if (save) save.toggleAttribute('disabled', selected.length !== 6);
+      if (save) save.toggleAttribute('disabled', selected.length !== maxKpis);
     }
 
     root.addEventListener('click', (e) => {
@@ -2085,13 +2127,13 @@
         const k = card.getAttribute('data-kc');
         const idx = selected.indexOf(k);
         if (idx >= 0) selected.splice(idx, 1);
-        else if (selected.length < 6) selected.push(k);
+        else if (selected.length < maxKpis) selected.push(k);
         else { Kiwi.toast?.(kc.maxT, { type: 'info', desc: kc.maxD }); return; }
         refresh();
         return;
       }
       if (e.target.closest('[data-kc-save]')) {
-        if (selected.length !== 6) return;
+        if (selected.length !== maxKpis) return;
         saveKpiLayout(venueType, selected);
         res.close();
         renderKpiBand();

@@ -2312,7 +2312,9 @@
   /* ── Section 2 · KPI cards ─────────────────────────────────────────── */
   .fs-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    /* auto-fit so 6 OR 7 tiles flow gracefully — restaurant + spa now
+     * carry a 7th "Temps moyen à table" (vs cabine) tile. */
+    grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
     gap: 10px;
   }
   @media (max-width: 1280px) { .fs-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
