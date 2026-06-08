@@ -149,24 +149,28 @@
     tabbar.setAttribute('aria-label', 'Navigation');
     tabbar.insertAdjacentHTML('beforeend', `
       <button class="kw-tab on" data-kw-tab="accueil" type="button">
-        ${I.home}<span class="kw-tab-l">Accueil</span>
+        ${I.home}<span class="kw-tab-l" data-i18n="dash.sidebar.home">Accueil</span>
       </button>
       <button class="kw-tab" data-kw-tab="commandes" type="button">
-        ${I.orders}<span class="kw-tab-l">Commandes</span>
+        ${I.orders}<span class="kw-tab-l" data-i18n="dash.sidebar.orders">Commandes</span>
       </button>
       <button class="kw-tab kw-tab-ai" data-kw-tab="ai" type="button" aria-label="Kiwi AI">
         <span class="kw-tab-ico"><img src="${MERCHANT}" alt="" width="20" height="20" decoding="async"/></span>
         <span class="kw-tab-l">Kiwi AI</span>
       </button>
       <button class="kw-tab" data-kw-tab="equipe" type="button">
-        ${I.team}<span class="kw-tab-l">Équipe</span>
+        ${I.team}<span class="kw-tab-l" data-i18n="dash.sidebar.team">Équipe</span>
       </button>
       <button class="kw-tab" data-kw-tab="menu" type="button"
               aria-controls="kw-sidebar" aria-expanded="false">
-        ${I.menu}<span class="kw-tab-l">Menu</span>
+        ${I.menu}<span class="kw-tab-l" data-i18n="dash.mobilenav.menu">Menu</span>
       </button>
     `);
     document.body.appendChild(tabbar);
+    /* The tab bar is injected after i18n's initial capture, so re-apply the
+     * current language to translate its data-i18n labels on first paint
+     * (otherwise a non-FR session would show French until the next switch). */
+    if (window.KiwiI18n) window.KiwiI18n.setLang(window.KiwiI18n.getLang());
 
     const tabs = [...tabbar.querySelectorAll('.kw-tab')];
     const menuTab = tabbar.querySelector('[data-kw-tab="menu"]');

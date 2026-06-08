@@ -54,6 +54,10 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+/* Arabic UI → route the sans stack through IBM Plex Sans Arabic so Arabic text
+   renders in the brand face (Latin glyphs / brand names fall back to Inter Tight).
+   Scoped to the html[lang="ar"] the i18n engine sets, so FR/EN are untouched. */
+html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-serif; }
 body { font-size: 16px; line-height: 1.55; letter-spacing: -0.005em; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; max-width: 100%; }

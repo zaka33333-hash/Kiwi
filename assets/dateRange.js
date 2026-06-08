@@ -992,20 +992,20 @@
 
   const settleByVenue = {
     cafeAtlas: {
-      aujourdhui:  { lbl: 'PROCHAIN RÈGLEMENT',    amt: 23091,  sub: 'Arrive demain matin à 9 h 00 sur votre IBAN BMCE •• 3291.', detailVal: '−289 MAD' },
-      hier:        { lbl: 'RÈGLEMENT REÇU',         amt: 20640,  sub: 'Crédité ce matin à 9 h 02 sur votre IBAN BMCE •• 3291.',     detailVal: '−248 MAD' },
+      aujourdhui:  { lbl: 'PROCHAIN RÈGLEMENT',    amt: 23091,  sub: 'Arrive demain matin à 9 h 00 sur votre IBAN Bank of Africa •• 3291.', detailVal: '−289 MAD' },
+      hier:        { lbl: 'RÈGLEMENT REÇU',         amt: 20640,  sub: 'Crédité ce matin à 9 h 02 sur votre IBAN Bank of Africa •• 3291.',     detailVal: '−248 MAD' },
       septJours:   { lbl: 'RÉGLÉ SUR 7 JOURS',      amt: 165280, sub: '7 règlements T+1 cumulés sur la semaine.',                    detailVal: '−2 230 MAD' },
       trenteJours: { lbl: 'RÉGLÉ SUR 30 JOURS',     amt: 702800, sub: '30 règlements T+1 cumulés sur le mois.',                       detailVal: '−9 480 MAD' },
     },
     maisonMansour: {
-      aujourdhui:  { lbl: 'PROCHAIN RÈGLEMENT',    amt: 9920,   sub: 'Arrive demain matin à 9 h 00 sur votre IBAN BMCE •• 8842.', detailVal: '−146 MAD' },
-      hier:        { lbl: 'RÈGLEMENT REÇU',         amt: 10170,  sub: 'Crédité ce matin à 9 h 02 sur votre IBAN BMCE •• 8842.',     detailVal: '−149 MAD' },
+      aujourdhui:  { lbl: 'PROCHAIN RÈGLEMENT',    amt: 9920,   sub: 'Arrive demain matin à 9 h 00 sur votre IBAN Bank of Africa •• 8842.', detailVal: '−146 MAD' },
+      hier:        { lbl: 'RÈGLEMENT REÇU',         amt: 10170,  sub: 'Crédité ce matin à 9 h 02 sur votre IBAN Bank of Africa •• 8842.',     detailVal: '−149 MAD' },
       septJours:   { lbl: 'RÉGLÉ SUR 7 JOURS',      amt: 71200,  sub: '7 règlements T+1 cumulés sur la semaine.',                    detailVal: '−1 020 MAD' },
       trenteJours: { lbl: 'RÉGLÉ SUR 30 JOURS',     amt: 300700, sub: '30 règlements T+1 cumulés sur le mois.',                       detailVal: '−4 280 MAD' },
     },
     spaBahia: {
-      aujourdhui:  { lbl: 'PROCHAIN RÈGLEMENT',    amt: 7510,   sub: 'Arrive demain matin à 9 h 00 sur votre IBAN BMCE •• 4416.', detailVal: '−108 MAD' },
-      hier:        { lbl: 'RÈGLEMENT REÇU',         amt: 7035,   sub: 'Crédité ce matin à 9 h 02 sur votre IBAN BMCE •• 4416.',     detailVal: '−105 MAD' },
+      aujourdhui:  { lbl: 'PROCHAIN RÈGLEMENT',    amt: 7510,   sub: 'Arrive demain matin à 9 h 00 sur votre IBAN Bank of Africa •• 4416.', detailVal: '−108 MAD' },
+      hier:        { lbl: 'RÈGLEMENT REÇU',         amt: 7035,   sub: 'Crédité ce matin à 9 h 02 sur votre IBAN Bank of Africa •• 4416.',     detailVal: '−105 MAD' },
       septJours:   { lbl: 'RÉGLÉ SUR 7 JOURS',      amt: 53890,  sub: '7 règlements T+1 cumulés sur la semaine.',                    detailVal: '−770 MAD' },
       trenteJours: { lbl: 'RÉGLÉ SUR 30 JOURS',     amt: 226300, sub: '30 règlements T+1 cumulés sur le mois.',                       detailVal: '−3 240 MAD' },
     },
@@ -3428,6 +3428,13 @@
     subscribe(renderNotifBadge);
     subscribe(renderProducts);
     subscribe(renderStaff);
+
+    // Re-fire all renders when the UI language changes, so dynamically-rendered
+    // copy (feed title/subtitle and other non-data-i18n strings) re-translates
+    // immediately — not only on the next date-range switch.
+    window.addEventListener('kiwi:langchange', () => {
+      subscribers.forEach(fn => { try { fn(currentRange); } catch (_) {} });
+    });
 
     // Subscribe to venue changes — refire all renders so dashboard
     // reskins when user picks a different venue from the sidebar.

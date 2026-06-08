@@ -235,6 +235,7 @@
       'dash.rev.title': 'Revenue & orders',
       'dash.hero.toggle.chart': 'View chart',
       'dash.hero.toggle.today': 'Day view',
+      'dash.hero.session': '24 hours · session running since 08:12',
       'dash.aria.send': 'Send',
       'dash.rev.sub': 'Compared to the previous week · auto-refresh 60s',
       'dash.mix.title': 'Payment mix',
@@ -271,6 +272,7 @@
       'dash.sidebar.terminals': 'Terminals',
       'dash.sidebar.compliance': 'Compliance',
       'dash.sidebar.team': 'Team',
+      'dash.mobilenav.menu': 'Menu',
       'dash.sidebar.payroll': 'Payroll & scheduling',
       'dash.sidebar.new': 'NEW',
       'dash.sidebar.reservations': 'Reservations & appointments',
@@ -291,6 +293,7 @@
       'dash.evening.guest2.note': '6 covers · birthday (cake planned)',
       'dash.evening.guest3.note': '2 covers · first visit',
       'dash.evening.vip': 'VIP',
+      'dash.evening.guest2.tag': 'BDAY',
       'dash.evening.new': 'NEW',
       'dash.evening.floorPlan': 'View floor plan',
       'dash.evening.moreReservations': '+5 reservations',
@@ -828,6 +831,7 @@
       'dash.rev.title': 'المداخيل والطلبات',
       'dash.hero.toggle.chart': 'عرض الرسم البياني',
       'dash.hero.toggle.today': 'عرض اليوم',
+      'dash.hero.session': '24 ساعة · جلسة مستمرة منذ 08:12',
       'dash.aria.send': 'إرسال',
       'dash.rev.sub': 'مقارنة بالأسبوع الماضي · تحديث آلي كل 60 ثانية',
       'dash.mix.title': 'مزيج الدفع',
@@ -864,6 +868,7 @@
       'dash.sidebar.terminals': 'الأجهزة الطرفية',
       'dash.sidebar.compliance': 'الامتثال',
       'dash.sidebar.team': 'الفريق',
+      'dash.mobilenav.menu': 'القائمة',
       'dash.sidebar.payroll': 'الرواتب والتخطيط',
       'dash.sidebar.new': 'جديد',
       'dash.sidebar.reservations': 'الحجوزات والمواعيد',
@@ -884,6 +889,7 @@
       'dash.evening.guest2.note': '6 مقاعد · عيد ميلاد (الكعكة مخطط لها)',
       'dash.evening.guest3.note': 'مقعدان · الزيارة الأولى',
       'dash.evening.vip': 'VIP',
+      'dash.evening.guest2.tag': 'ميلاد',
       'dash.evening.new': 'جديد',
       'dash.evening.floorPlan': 'عرض مخطط القاعة',
       'dash.evening.moreReservations': '+5 حجوزات',
@@ -1256,6 +1262,10 @@
     document.querySelectorAll('.lang span').forEach(s => {
       s.classList.toggle('on', (s.dataset.lang || s.textContent.trim().toLowerCase()) === lang);
     });
+
+    // Notify modules that render their own (non-data-i18n) copy — e.g. the live
+    // feed title/subtitle in dateRange.js — so they re-translate immediately.
+    try { window.dispatchEvent(new CustomEvent('kiwi:langchange', { detail: { lang } })); } catch (_) {}
   }
 
   /* ─── setTheme ─── */

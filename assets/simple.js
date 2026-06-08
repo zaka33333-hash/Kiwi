@@ -43,7 +43,7 @@
         <div class="body">
           <div class="label">Ton argent arrive</div>
           <div class="when">Demain matin, 9h</div>
-          <div class="meta">23 091 MAD sur BMCE •• 3291</div>
+          <div class="meta">23 091 MAD sur Bank of Africa •• 3291</div>
         </div>
       </div>
 

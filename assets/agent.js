@@ -123,6 +123,12 @@
   const fmt1 = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const escAttr = (s) => String(s).replace(/"/g, '&quot;');
+  // Full HTML-text escaper — use for any user-derived value (venue name/location)
+  // interpolated into an innerHTML string. escAttr only neutralises quotes; this
+  // also neutralises < > & ' so a typed name like `<img onerror=…>` can't execute.
+  const escHtml = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   // Arabic-Indic / Persian digits → ASCII, so number parsing works in AR.
   const fixDigits = (s) => String(s)
     .replace(/[٠-٩]/g, (d) => d.charCodeAt(0) - 0x0660)
@@ -644,7 +650,7 @@
    * states what real data exists, never invents a cost or margin. */
   function partialReply() {
     const t = nv();
-    const r = { text: t.costsNeeded(B.name), note: t.costsCta };
+    const r = { text: t.costsNeeded(escHtml(B.name)), note: t.costsCta };
     if (B.revenue > 0) {
       r.stats = [
         { l: t.revLabel, v: fmtMad(B.revenue), h: '' },
@@ -737,7 +743,9 @@
     const t = tr().forecast;
     const runRate = B.mtdRevenue / B.mtdDays;
     const projRev = runRate * B.daysInMonth;
-    const projNet = projRev * B.netMargin / 100;
+    // Use the exact net-margin ratio (net ÷ revenue), not the rounded 22.3 %
+    // display constant, so the projection reconciles to the P&L to the dirham.
+    const projNet = projRev * (B.netProfit / B.revenue);
     const vsAvg = (projRev - B.revenue) / B.revenue * 100;
     const tone = vsAvg >= 0 ? 'good' : 'warn';
     return {
@@ -804,7 +812,7 @@
   function sRevenue() {
     const t = tr().revenue;
     if (B.partial) {
-      if (!(B.revenue > 0)) return { text: nv().noSales(B.name) };
+      if (!(B.revenue > 0)) return { text: nv().noSales(escHtml(B.name)) };
       const p = nv();
       return {
         text: p.revIntro,
@@ -896,7 +904,7 @@
     const icBook = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4a2 2 0 012-2h12v20H7a2 2 0 01-2-2z"/><path d="M9 2v20"/></svg>';
     const icIns  = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.6l2.55 6.86 6.85 2.54-6.85 2.55L12 22.4l-2.55-6.85L2.6 13l6.85-2.54z"/></svg>';
     const heroH   = B.partial ? nv().heroGreet        : h.greet;
-    const heroP   = B.partial ? nv().heroLead(B.name) : h.lead;
+    const heroP   = B.partial ? nv().heroLead(escHtml(B.name)) : h.lead;
     const heroIns = B.partial ? nv().heroIns          : h.ins(fmt1(B.netMargin), fmt1(safety));
     return `<div class="fa-hero" data-fa-hero>
       <div class="fa-hero-mark">${ICON.avatar}</div>
@@ -1735,7 +1743,7 @@
         : [];
       asideHtml =
         `<div class="fa-ctx-eyebrow">${u.ctxEyebrow}</div>` +
-        `<div class="fa-ctx-biz">${B.name}</div>` +
+        `<div class="fa-ctx-biz">${escHtml(B.name)}</div>` +
         `<div class="fa-ctx-sub">${u.ctxSub}</div>` +
         (rows.length
           ? `<div class="fa-ctx-kpis">${rows.map(([k, v]) =>
@@ -1781,7 +1789,7 @@
       vizParts.push({ k: HL().autres, v: opexRaw.slice(3).reduce((s, r) => s + r[1], 0), c: vizColors[3] });
       asideHtml =
         `<div class="fa-ctx-eyebrow">${u.ctxEyebrow}</div>` +
-        `<div class="fa-ctx-biz">${B.name}</div>` +
+        `<div class="fa-ctx-biz">${escHtml(B.name)}</div>` +
         `<div class="fa-ctx-sub">${u.ctxSub}</div>` +
         `<div class="fa-ctx-kpis">${coreKpis.map((c) => `<button class="fa-ctx-kpi${c.hl ? ' hl' : ''}" type="button" data-fa-fact="${escAttr(c.fact)}"><span class="k">${c.k}</span><span class="v">${c.v}</span></button>`).join('')}</div>` +
         `<div class="fa-ctx-viz">` +

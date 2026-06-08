@@ -853,19 +853,25 @@
       return;
     }
     const name = VENUES[currentVenue].name;
+    const lang = window.KiwiI18n?.getLang?.() || 'fr';
+    const L = ({
+      fr: { custom: 'Votre tableau de bord · ', prefix: 'Démo live · compte ', suffix: ' · données de démonstration mises à jour en temps réel' },
+      en: { custom: 'Your dashboard · ',        prefix: 'Live demo · ',        suffix: ' account · demo data updated in real time' },
+      ar: { custom: 'لوحة تحكمك · ',            prefix: 'عرض مباشر · حساب ',     suffix: ' · بيانات تجريبية محدّثة في الوقت الفعلي' },
+    })[lang] || { custom: 'Votre tableau de bord · ', prefix: 'Démo live · compte ', suffix: ' · données de démonstration mises à jour en temps réel' };
     line.textContent = '';
     const b = document.createElement('b');
     b.style.color = 'var(--paper)';
     b.textContent = name;
     if (isCustom(currentVenue)) {
       // A user-created venue isn't the synthetic demo account.
-      line.appendChild(document.createTextNode('Votre tableau de bord · '));
+      line.appendChild(document.createTextNode(L.custom));
       line.appendChild(b);
     } else {
       b.setAttribute('data-demo-account', '');
-      line.appendChild(document.createTextNode('Démo live · compte '));
+      line.appendChild(document.createTextNode(L.prefix));
       line.appendChild(b);
-      line.appendChild(document.createTextNode(' · données de démonstration mises à jour en temps réel'));
+      line.appendChild(document.createTextNode(L.suffix));
     }
   }
   function renderFooter() {
@@ -1108,6 +1114,7 @@
       // Re-render the bits we own that have lang-dependent text
       renderHeaderSub();
       renderFooter();
+      renderDemoBar();
       renderVerticalSection({ skipFade: true });
       renderDropdown();
       if (currentVenue === 'fusion') { try { renderFusionView(); } catch (_) {} }
@@ -1534,8 +1541,8 @@
             <div class="fs-venue-left">
               <div class="fs-venue-icon">${fusionTypeIcon(v.type)}</div>
               <div>
-                <div class="fs-venue-name">${v.name}</div>
-                <div class="fs-venue-loc">${v.location}</div>
+                <div class="fs-venue-name">${eqEsc(v.name)}</div>
+                <div class="fs-venue-loc">${eqEsc(v.location)}</div>
               </div>
             </div>
             <div class="fs-venue-rev">

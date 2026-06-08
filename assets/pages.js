@@ -47,7 +47,7 @@
       terminalOrderCta: "Commander · livraison 48h →",
       // Règlements
       settlementsTitle: "Règlements",
-      settlementsSubtitle: (month, year) => `${month} ${year} · versements vers BMCE •• 3291`,
+      settlementsSubtitle: (month, year) => `${month} ${year} · versements vers Bank of Africa •• 3291`,
       settlementsHeroLabel: "RÉGLÉ CE MOIS",
       settlementsHeroSub: (count, onTime) => `${count} règlements · T+1 · ${onTime} % des règlements à l'heure`,
       settlementsNext: "PROCHAIN",
@@ -61,7 +61,7 @@
       settlementsInProgress: "EN COURS",
       settlementsHistory: "HISTORIQUE RÉCENT",
       settlementsScheduled: "Prévu demain 9h00",
-      settlementsDone: "Réglé BMCE ••3291",
+      settlementsDone: "Réglé Bank of Africa ••3291",
       settlementsInstant: "Réglé · Virement Instant",
       // Conformité
       complianceTitle: "Conformité & Sécurité",
@@ -287,7 +287,7 @@
       terminalOrderCta: "Order · 48h delivery →",
       // Règlements
       settlementsTitle: "Settlements",
-      settlementsSubtitle: (month, year) => `${month} ${year} · payouts to BMCE •• 3291`,
+      settlementsSubtitle: (month, year) => `${month} ${year} · payouts to Bank of Africa •• 3291`,
       settlementsHeroLabel: "SETTLED THIS MONTH",
       settlementsHeroSub: (count, onTime) => `${count} settlements · T+1 · ${onTime}% of payouts on time`,
       settlementsNext: "NEXT",
@@ -301,7 +301,7 @@
       settlementsInProgress: "IN PROGRESS",
       settlementsHistory: "RECENT HISTORY",
       settlementsScheduled: "Scheduled tomorrow 9:00am",
-      settlementsDone: "Settled to BMCE ••3291",
+      settlementsDone: "Settled to Bank of Africa ••3291",
       settlementsInstant: "Settled · Instant Transfer",
       // Conformité
       complianceTitle: "Compliance & Security",
@@ -527,7 +527,7 @@
       terminalOrderCta: "اطلب · توصيل في 48 ساعة →",
       // Règlements
       settlementsTitle: "التسويات",
-      settlementsSubtitle: (month, year) => `${month} ${year} · الدفعات إلى BMCE •• 3291`,
+      settlementsSubtitle: (month, year) => `${month} ${year} · الدفعات إلى Bank of Africa •• 3291`,
       settlementsHeroLabel: "تمت تسويته هذا الشهر",
       settlementsHeroSub: (count, onTime) => `${count} تسويات · T+1 · ${onTime}٪ من التسويات في الوقت المحدد`,
       settlementsNext: "التالي",
@@ -541,7 +541,7 @@
       settlementsInProgress: "قيد التنفيذ",
       settlementsHistory: "السجل الحديث",
       settlementsScheduled: "مجدول غداً 9:00 صباحاً",
-      settlementsDone: "تمت التسوية إلى BMCE ••3291",
+      settlementsDone: "تمت التسوية إلى Bank of Africa ••3291",
       settlementsInstant: "تمت التسوية · تحويل فوري",
       // Conformité
       complianceTitle: "الامتثال والأمان",

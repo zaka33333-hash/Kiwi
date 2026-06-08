@@ -438,7 +438,7 @@ handlers['nav-transactions'] = () => {
               <tr><td style="color:var(--n-500);">${T.visaMcInterchange} (1,18 %)</td><td class="mono right" style="color:var(--danger);">−359,69 MAD</td></tr>
               <tr><td style="color:var(--n-500);">${T.kiwiNetworkFees} (0,30 %)</td><td class="mono right" style="color:var(--danger);">−91,45 MAD</td></tr>
               <tr><td style="color:var(--n-500);">${T.vatOnFees}</td><td class="mono right" style="color:var(--danger);">−90,23 MAD</td></tr>
-              <tr style="border-top:2px solid var(--ink);"><td><b>${T.netPaidOut} BMCE ••3291</b></td><td class="mono right"><b style="color:var(--atlas); font-size:15px;">29 941,13 MAD</b></td></tr>
+              <tr style="border-top:2px solid var(--ink);"><td><b>${T.netPaidOut} Bank of Africa ••3291</b></td><td class="mono right"><b style="color:var(--atlas); font-size:15px;">29 941,13 MAD</b></td></tr>
             </tbody>
           </table>
           <div style="margin-top:14px; padding:10px 14px; background:var(--mint-soft, rgba(125,242,176,0.18)); border-radius:9px; font-size:12.5px; color:var(--riad);">
@@ -1090,18 +1090,18 @@ handlers['nav-reglements'] = () => {
   const T = REGLEMENTS_STR[trLang()] || REGLEMENTS_STR.fr;
 
   const settles = [
-    ['28 avril', '29 941,13', `${T.settled} · BMCE ••3291`, 'ok'],
-    ['27 avril', '24 102,80', `${T.settled} · BMCE ••3291`, 'ok'],
+    ['28 avril', '29 941,13', `${T.settled} · Bank of Africa ••3291`, 'ok'],
+    ['27 avril', '24 102,80', `${T.settled} · Bank of Africa ••3291`, 'ok'],
     ['26 avril', '22 850,40', `${T.instantTransfer}`, 'ok'],
-    ['25 avril', '21 688,15', `${T.settled} · BMCE ••3291`, 'ok'],
-    ['24 avril', '17 290,60', `${T.settled} · BMCE ••3291`, 'ok'],
-    ['23 avril', '19 824,25', `${T.settled} · BMCE ••3291`, 'ok'],
-    ['22 avril', '23 091,50', `${T.settled} · BMCE ••3291`, 'ok'],
+    ['25 avril', '21 688,15', `${T.settled} · Bank of Africa ••3291`, 'ok'],
+    ['24 avril', '17 290,60', `${T.settled} · Bank of Africa ••3291`, 'ok'],
+    ['23 avril', '19 824,25', `${T.settled} · Bank of Africa ••3291`, 'ok'],
+    ['22 avril', '23 091,50', `${T.settled} · Bank of Africa ••3291`, 'ok'],
   ];
 
   drawer({
     title: T.settlements,
-    subtitle: T.subtitle('Avril', '2026', 'BMCE', '3291', '99,2'),
+    subtitle: T.subtitle('Avril', '2026', 'Bank of Africa', '3291', '99,2'),
     width: 760,
     body: `
       <div class="p-hero">
@@ -1157,7 +1157,7 @@ handlers['nav-reglements'] = () => {
           <button class="kb ghost" data-action="add-iban" style="padding:5px 10px; font-size:11.5px;">+ IBAN</button>
         </div>
         ${[
-          ['BMCE Bank', '••3291', 'Compte principal · 100 % du flux', 'ok', 'Rapproché'],
+          ['Bank of Africa', '••3291', 'Compte principal · 100 % du flux', 'ok', 'Rapproché'],
           ['Attijariwafa', '••8104', 'Backup · 0 % flux configuré', 'neutral', 'En attente'],
         ].map(([b, m, d, st, lbl]) => `
           <div style="display:grid; grid-template-columns:auto 1fr auto auto; gap:14px; padding:11px 0; border-top:1px solid var(--n-200); align-items:center;">
@@ -1180,7 +1180,7 @@ handlers['nav-reglements'] = () => {
             <tr><td style="color:var(--n-500);">Interchange Visa/MC (1,18 %)</td><td class="mono right" style="color:var(--danger);">−277,12 MAD</td></tr>
             <tr><td style="color:var(--n-500);">Frais réseau Kiwi (0,30 %)</td><td class="mono right" style="color:var(--danger);">−70,45 MAD</td></tr>
             <tr><td style="color:var(--n-500);">TVA sur frais</td><td class="mono right" style="color:var(--danger);">−46,23 MAD</td></tr>
-            <tr style="border-top:2px solid var(--ink);"><td><b>Net versé · BMCE ••3291</b></td><td class="mono right"><b style="color:var(--atlas); font-size:15px;">23 091,00 MAD</b></td></tr>
+            <tr style="border-top:2px solid var(--ink);"><td><b>Net versé · Bank of Africa ••3291</b></td><td class="mono right"><b style="color:var(--atlas); font-size:15px;">23 091,00 MAD</b></td></tr>
           </tbody>
         </table>
       </div>
@@ -5177,7 +5177,7 @@ handlers['bout-cat-publish'] = () => {
 
   handlers['promo-end'] = () => toast('Promo clôturée définitivement', { type: 'info', duration: 2800 });
 
-  handlers['promo-edit'] = (id) => toast('Édition · ' + (id || 'campagne'), { type: 'info', desc: 'Les modifications s\'appliquent immédiatement aux prochains paniers.', duration: 2600 });
+  handlers['promo-edit'] = (_el, id) => toast('Édition · ' + (id || 'campagne'), { type: 'info', desc: 'Les modifications s\'appliquent immédiatement aux prochains paniers.', duration: 2600 });
 
   handlers['promo-segment'] = (id) => {
     const btn = document.querySelector(`[data-action="promo-segment"][data-arg="${id}"]`);
