@@ -10835,6 +10835,14 @@ handlers['bout-cat-publish'] = () => {
       .kit-item.has-recipe:hover { background: var(--paper-soft); }
       .kit-recipe-ico { width: 14px; height: 14px; flex-shrink: 0; color: var(--n-400); margin-left: auto; opacity: 0; transition: opacity 140ms, color 140ms; align-self: center; }
       .kit-item.has-recipe:hover .kit-recipe-ico { opacity: 1; color: var(--atlas); }
+      /* Fire-schedule badge on each ticket item — shows when a sync-enabled
+         station is being delayed so the plate finishes with the slowest one,
+         or signals "served first" for stations with sync OFF (drinks etc.). */
+      .kit-fire { display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 99px; font-size: 9.5px; font-weight: 700; font-family: var(--mono); letter-spacing: 0.02em; vertical-align: middle; }
+      .kit-fire-wait { background: rgba(217,154,43,0.18); color: var(--warning); }
+      .kit-fire-now  { background: rgba(11,110,79,0.14);  color: var(--atlas); }
+      .kit-fire-fast { background: rgba(54,119,166,0.16); color: #3677A6; }
+      .kit-zoom .kit-fire { font-size: 11px; padding: 2px 9px; }
       .kit-zoom .kit-recipe-ico { width: 16px; height: 16px; opacity: 0.5; }
       .kit-zoom .kit-item.has-recipe:hover .kit-recipe-ico { opacity: 1; }
       .kit-recipe-backdrop { position: fixed; inset: 0; z-index: 9996; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(10,15,13,0.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); opacity: 0; transition: opacity 200ms ease; }
@@ -10958,16 +10966,69 @@ handlers['bout-cat-publish'] = () => {
       return `<span class="kit-type dineIn">${T.table(esc(o.table))}</span>`;
     };
 
+    /* ─── Per-ticket fire scheduler ──────────────────────────────────────
+     *  For each ticket, compute when each item should be FIRED so plates
+     *  finish together. Reads station prep + sync flag from
+     *  KiwiVenue.getStationState (configured in Menu › Stations cuisine).
+     *
+     *  Algorithm:
+     *    1. For each item, look up its station's avgPrepMin + sync.
+     *    2. targetReady = max prepMin across items where sync === true.
+     *    3. For each item:
+     *         · sync === false  →  fireDelay = 0 (start immediately)
+     *         · sync === true   →  fireDelay = targetReady − thisPrep
+     *
+     *  Returns an array of { fireDelay, prep, sync, station } for each
+     *  item in the same order as o.items.
+     * ────────────────────────────────────────────────────────────────── */
+    const scheduleTicket = (o) => {
+      const lookup = (sid) => {
+        try { return window.KiwiVenue?.getStationState?.(sid) || { avgPrepMin: 10, sync: true }; }
+        catch (_) { return { avgPrepMin: 10, sync: true }; }
+      };
+      const perItem = o.items.map((i) => {
+        const sid = i.stations && i.stations[0];
+        const st = lookup(sid);
+        return { prep: st.avgPrepMin, sync: st.sync, station: sid };
+      });
+      const syncPreps = perItem.filter((s) => s.sync).map((s) => s.prep);
+      const targetReady = syncPreps.length ? Math.max(...syncPreps) : 0;
+      return perItem.map((s) => ({
+        ...s,
+        fireDelay: s.sync ? Math.max(0, targetReady - s.prep) : 0,
+      }));
+    };
+
     /* Inner content of an order — shared by the board card and the zoom panel. */
     const orderInner = (o, withEye) => {
       const el = liveElapsed(o);
       const u = urgency(el);
       const isNew = o.status === 'new';
       const isReady = o.status === 'ready';
-      const items = o.items.map((i) => {
+      const schedule = scheduleTicket(o);
+      const items = o.items.map((i, idx) => {
         const off = activeStation !== 'all' && !i.stations.includes(activeStation);
         const hasRecipe = kdsHasRecipe(i.n);
-        return `<li class="kit-item${off ? ' kit-item-off' : ''}${hasRecipe ? ' has-recipe' : ''}"${hasRecipe ? ` data-kit-recipe="${esc(i.n)}"` : ''}><span class="kit-q">${i.q}</span><span class="kit-nm">${esc(i.n)}</span>${hasRecipe ? `<svg class="kit-recipe-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` : ''}</li>`;
+        const sched = schedule[idx];
+        /* Fire badge — visible on every non-ready ticket so the demo
+         * surfaces the scheduler clearly.
+         *   sync OFF                    → "→ servi en premier" (drinks-first)
+         *   sync ON  + fireDelay > 0    → "⏱ démarrer dans X min" (delayed)
+         *   sync ON  + fireDelay > 0 + elapsed past it → "⏱ en cours"
+         *   sync ON  + fireDelay = 0    → no badge (slowest, fires now) */
+        let fireBadge = '';
+        if (!isReady && sched) {
+          if (!sched.sync) {
+            fireBadge = `<span class="kit-fire kit-fire-fast">→ servi en premier</span>`;
+          } else if (sched.fireDelay > 0) {
+            const elapsedMin = Math.floor(el / 60);
+            const startsIn = Math.max(0, sched.fireDelay - elapsedMin);
+            fireBadge = startsIn > 0
+              ? `<span class="kit-fire kit-fire-wait">⏱ démarrer dans ${startsIn} min</span>`
+              : `<span class="kit-fire kit-fire-now">⏱ en cours</span>`;
+          }
+        }
+        return `<li class="kit-item${off ? ' kit-item-off' : ''}${hasRecipe ? ' has-recipe' : ''}"${hasRecipe ? ` data-kit-recipe="${esc(i.n)}"` : ''}><span class="kit-q">${i.q}</span><span class="kit-nm">${esc(i.n)}${fireBadge}</span>${hasRecipe ? `<svg class="kit-recipe-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>` : ''}</li>`;
       }).join('');
       const act = isReady
         ? ''

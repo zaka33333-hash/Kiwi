@@ -2952,18 +2952,26 @@
   const MI_TAGS = ['signature','top','premium','vegan','veg'];
   const MI_TAG_LABEL = { signature:'Signature', top:'Top', premium:'Premium', vegan:'Vegan', veg:'Végé' };
   const MI_STATIONS_ALL = ['cuisine-chaude','cuisine-froide','comptoir','bar','bar-jus','creperie','patisserie','glacier','hammam','cabine-1','cabine-2','cabine-3'];
-  /* Session-mutable. Owners can edit station status + meta via the
-   * Stations cuisine tab. Use a `let` so a wholesale rename can swap
-   * entries without `const` complaints. */
+  /* Session-mutable. Owners can edit status + meta + prep time + sync
+   * flag via the Stations cuisine tab. `let` so a wholesale rename can
+   * swap entries without `const` complaints.
+   *
+   * avgPrepMin · average minutes to prep an item at this station.
+   *              The KDS scheduler uses this to time multi-station
+   *              tickets so plates finish together.
+   * sync       · when true, items here are delayed so they finish at the
+   *              same time as the slowest sync-enabled station on the
+   *              ticket. When false, items fire immediately (typical for
+   *              drinks the owner wants served first as apéritif). */
   let MI_STATION_STATE = {
-    'cuisine-chaude': { dot: 'busy',    meta: '142 tickets aujourd\'hui' },
-    'cuisine-froide': { dot: 'on',      meta: 'Opérationnelle' },
-    'comptoir':       { dot: 'on',      meta: 'Opérationnelle' },
-    'bar':            { dot: 'on',      meta: 'Opérationnelle' },
-    'bar-jus':        { dot: 'on',      meta: 'Opérationnelle' },
-    'creperie':       { dot: 'pending', meta: '1 modificateur en attente' },
-    'patisserie':     { dot: 'on',      meta: 'Opérationnelle' },
-    'glacier':        { dot: 'off',     meta: 'Station fermée' },
+    'cuisine-chaude': { dot: 'busy',    meta: '142 tickets aujourd\'hui',       avgPrepMin: 18, sync: true  },
+    'cuisine-froide': { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 6,  sync: true  },
+    'comptoir':       { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 4,  sync: true  },
+    'bar':            { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 5,  sync: false },
+    'bar-jus':        { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 3,  sync: false },
+    'creperie':       { dot: 'pending', meta: '1 modificateur en attente',      avgPrepMin: 8,  sync: true  },
+    'patisserie':     { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 12, sync: true  },
+    'glacier':        { dot: 'off',     meta: 'Station fermée',                 avgPrepMin: 4,  sync: false },
   };
   /* Option groups — each group has multiple options with optional price delta.
    * Groups can be assigned to a whole sub-section (every item in that category
@@ -3126,7 +3134,31 @@
     if (!miStations[venue]) miStations[venue] = [...new Set((MENU[venue] || []).map(i => i.station))];
     return miStations[venue];
   }
-  function miStationState(s) { return MI_STATION_STATE[s] || { dot: 'on', meta: 'Opérationnelle' }; }
+  /* The KDS uses a different (shorter) station vocabulary than the Menu
+   * page — this maps KDS IDs onto Menu IDs so a single configuration in
+   * "Stations cuisine" drives both. Demo legacy — production would
+   * unify the two vocabularies. */
+  const MI_STATION_ALIASES = {
+    cuisson:  'cuisine-chaude',
+    salade:   'cuisine-froide',
+    boissons: 'bar-jus',
+    pastry:   'patisserie',
+    crepes:   'creperie',
+    bbq:      'cuisine-chaude',
+  };
+  /* Resolve a station's state with sensible defaults for any missing field.
+   * Stations added via the modal start with avgPrepMin=10 + sync=true.
+   * Also resolves KDS-style aliases (cuisson → cuisine-chaude etc.). */
+  function miStationState(s) {
+    const key = MI_STATION_ALIASES[s] || s;
+    const base = MI_STATION_STATE[key] || {};
+    return {
+      dot: base.dot || 'on',
+      meta: base.meta || 'Opérationnelle',
+      avgPrepMin: typeof base.avgPrepMin === 'number' ? base.avgPrepMin : 10,
+      sync: typeof base.sync === 'boolean' ? base.sync : true,
+    };
+  }
   function miMedian(arr) {
     if (!arr.length) return 0;
     const s = [...arr].sort((a, b) => a - b), n = s.length;
@@ -3603,32 +3635,51 @@
       const st = miStationState(s);
       const routed = items.filter(i => i.station === s).length;
       const sample = items.filter(i => i.station === s).slice(0, 3).map(i => eqEsc(i.name)).join(', ');
+      const syncChip = st.sync
+        ? `<span class="mi-station-chip mi-station-chip-sync">⏱ ${st.avgPrepMin} min · synchronisé</span>`
+        : `<span class="mi-station-chip mi-station-chip-fast">⏱ ${st.avgPrepMin} min · servi en premier</span>`;
       return `
         <div class="mi-station mi-station-card" data-action="mi-station" data-arg="${s}">
           <button type="button" class="mi-station-x" data-action="mi-remove-station" data-arg="${s}" aria-label="Retirer la station">${miSvg('plus', 11)}</button>
           <div class="mi-station-top"><span class="mi-st-dot ${st.dot}"></span><span class="mi-station-name">${eqEsc(s)}</span></div>
           <div class="mi-station-meta">${eqEsc(st.meta)}</div>
+          ${syncChip}
           <div class="mi-station-routed">${routed} article${routed > 1 ? 's' : ''} routé${routed > 1 ? 's' : ''}${sample ? ` · ${sample}${routed > 3 ? '…' : ''}` : ''}</div>
           <div class="mi-station-edit">Cliquer pour éditer →</div>
         </div>`;
     }).join('');
+
+    /* Build a concrete demo example from the actual station data. */
+    const syncStations = stationIds.filter(s => miStationState(s).sync);
+    const fastStations = stationIds.filter(s => !miStationState(s).sync);
+    const slowest = syncStations
+      .map(s => ({ name: s, t: miStationState(s).avgPrepMin }))
+      .sort((a, b) => b.t - a.t)[0];
 
     return `
       <div class="mi-section">
         <div class="mi-recettes-head">
           <div>
             <div class="mi-title">Stations cuisine</div>
-            <div class="mi-sub">Routage des plats vers les postes · ajoutez, renommez, désactivez à la volée.</div>
+            <div class="mi-sub">Routage des plats vers les postes · ajoutez, renommez, ajustez les temps à la volée.</div>
           </div>
           <button class="btn-slim primary" data-action="mi-add-station">${miSvg('plus', 13)}<span>Ajouter une station</span></button>
         </div>
         ${kpis}
         <div class="mi-stations">${stationCards}</div>
         <div class="mi-ai" data-stations-scripted>
-          <div class="mi-ai-eyebrow">Kiwi AI · Routage</div>
-          <div class="mi-ai-t">Comment fonctionne le routage</div>
-          <div class="mi-ai-b">Chaque article du menu est envoyé à une seule station. Quand un ticket arrive en cuisine, le KDS répartit les plats automatiquement. Les statuts <b>busy</b> et <b>pending</b> sont des signaux live remontés par les écrans cuisine — ils s'auto-rafraîchissent toutes les 30 s.</div>
-          <div class="mi-ai-a">→ Pour réassigner un plat à une autre station, ouvrez-le depuis l'onglet Menu &amp; modificateurs (champ « Station de routage »).</div>
+          <div class="mi-ai-eyebrow">Kiwi AI · Routage intelligent</div>
+          <div class="mi-ai-t">Plats synchronisés pour servir ensemble (ou pas)</div>
+          <div class="mi-ai-b">
+            Chaque station a un <b>temps de préparation moyen</b> et un drapeau <b>synchroniser / servir en premier</b>.
+            Quand un ticket arrive avec plusieurs plats, Kiwi calcule le démarrage de chaque poste pour que les plats <b>synchronisés</b> finissent ensemble — la table est servie en une seule fois, plus de plats froids qui attendent.
+            ${fastStations.length ? `Les stations <b>« servir en premier »</b> (${fastStations.map(s => `<i>${eqEsc(s)}</i>`).join(', ')}) démarrent toujours immédiatement — typiquement les boissons, qui arrivent avant le plat.` : ''}
+          </div>
+          <div class="mi-ai-a">
+            → Exemple : ticket avec un tajine (cuisine-chaude · ${miStationState('cuisine-chaude').avgPrepMin || 18} min) + une salade (cuisine-froide · ${miStationState('cuisine-froide').avgPrepMin || 6} min) + un thé (bar-jus · ${miStationState('bar-jus').avgPrepMin || 3} min).
+            ${slowest ? `Le KDS lance le tajine immédiatement, retarde la salade de ${Math.max(0, slowest.t - (miStationState('cuisine-froide').avgPrepMin || 6))} min` : ''}
+            ${miStationState('bar-jus').sync ? '' : ', mais envoie le thé tout de suite'} pour que tout arrive à temps.
+          </div>
         </div>
       </div>`;
   }
@@ -4960,6 +5011,21 @@
           <label class="kf-label">Description (visible sur le KDS)</label>
           <input class="kf-input" data-mesf="meta" value="${eqEsc(state.meta)}" placeholder="Ex. Opérationnelle · 8 tickets en attente" />
         </div>
+        <div class="kf-group">
+          <label class="kf-label">Temps de préparation moyen</label>
+          <div class="mi-est-prep">
+            <input class="kf-input mi-est-prep-input" data-mesf="prep" type="number" min="1" max="60" value="${state.avgPrepMin}" />
+            <span class="mi-est-prep-unit">minutes par plat</span>
+          </div>
+          <div class="kf-help">Sert au moteur de routage du KDS : il décale le démarrage des plats rapides pour que tous les plats d'un même ticket arrivent ensemble en salle.</div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Synchronisation avec les autres stations</label>
+          <div class="mi-est-sync">
+            <label class="mi-est-sync-opt"><input type="radio" name="mes-sync" data-mesf="sync" value="on"  ${state.sync ? 'checked' : ''}/><div><b>Synchroniser</b><span>Cette station attend les autres — les plats d'un même ticket arrivent ensemble.</span></div></label>
+            <label class="mi-est-sync-opt"><input type="radio" name="mes-sync" data-mesf="sync" value="off" ${state.sync ? '' : 'checked'}/><div><b>Servir en premier</b><span>Cette station prépare dès réception — idéal pour boissons / amuse-bouche.</span></div></label>
+          </div>
+        </div>
         ${sampleHtml}`,
       foot: `<button class="kb ghost" data-mi-cancel>Annuler</button><button class="kb danger" data-mi-del>Supprimer la station</button><button class="eq-cta-gradient" data-mi-save>Enregistrer</button>`,
     });
@@ -4971,6 +5037,8 @@
       const newName = nameInput.value.trim().toLowerCase().replace(/\s+/g, '-');
       const newStatus = back.querySelector('[data-mesf="status"]:checked')?.value || state.dot;
       const newMeta = back.querySelector('[data-mesf="meta"]').value.trim() || state.meta;
+      const newPrep = Math.max(1, Math.min(60, parseInt(back.querySelector('[data-mesf="prep"]').value, 10) || state.avgPrepMin));
+      const newSync = back.querySelector('[data-mesf="sync"]:checked')?.value === 'on';
       const list = miGetStations(venue);
       if (!newName) { nameInput.classList.add('eq-invalid'); return; }
       if (newName !== stationId && list.includes(newName)) {
@@ -4978,16 +5046,16 @@
         Kiwi.toast('Une station avec ce nom existe déjà', { type: 'warn' });
         return;
       }
+      const nextEntry = { dot: newStatus, meta: newMeta, avgPrepMin: newPrep, sync: newSync };
       /* Rename cascade if name changed. */
       if (newName !== stationId) {
         const idx = list.indexOf(stationId);
         if (idx > -1) list[idx] = newName;
         routedItems.forEach(i => { i.station = newName; });
-        /* Move the state entry across. */
-        MI_STATION_STATE[newName] = { dot: newStatus, meta: newMeta };
+        MI_STATION_STATE[newName] = nextEntry;
         delete MI_STATION_STATE[stationId];
       } else {
-        MI_STATION_STATE[stationId] = { dot: newStatus, meta: newMeta };
+        MI_STATION_STATE[stationId] = nextEntry;
       }
       m.close();
       Kiwi.toast(`Station « ${newName} » enregistrée`, { type: 'success' });
@@ -6731,6 +6799,11 @@
     /* Stock & approvisionnement page data — see assets/stock.js */
     getInventory: id => INVENTORY[id || currentVenue] || [],
     getSuppliers: () => SUPPLIERS,
+    /* Kitchen station state — used by the KDS to compute fire schedules
+     * so multi-station tickets finish together (avgPrepMin + sync flag,
+     * configured from Menu › Stations cuisine). */
+    getStationState: (s) => miStationState(s),
+    getStations: (id) => miGetStations(id || currentVenue),
     getHeroAiRec: id => {
       const v = id || currentVenue;
       if (isCustom(v)) {
