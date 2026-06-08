@@ -1066,6 +1066,11 @@
   const MIN_SCORE = 2;
   const CONJ_RX = /(\bet\b|\band\b|\+|aussi|also|ainsi que|en plus|as well|و )/;
   const PRICE_VERB = /augment|hauss|baiss|monter|raise|increase|lower|cut|reduce|رفع|خفض|زيادة|تخفيض/;
+  /* One-slot conversational memory: the last amount-driven scenario, so a
+   * follow-up correction can refine it instead of being mis-routed. */
+  let lastScenario = null;
+  const REFINE_LEAD = /^\s*(non|nan|nope|no\b|en fait|plutot|disons|mettons|admettons|sinon|ok\b|d.?accord|et\b|et si|and\b|actually|rather|make it|let.?s say|lets say|si c.?etait|what if)/;
+  const isRefinement = (raw, q) => (parseAmount(raw) != null || parsePercent(raw) != null) && REFINE_LEAD.test(q);
 
   const INTENTS = [
     { id: 'greet', run: () => sHelp(), sig: [
@@ -1102,7 +1107,9 @@
     ] },
     { id: 'revenue', run: () => sRevenue(), sig: [
       [/chiffre|revenu|encaiss|vente|recette|revenue|sales|turnover|income|مداخيل|مبيعات|دخل|معاملات/, 3],
-      [/\bca\b|رقم المعاملات/, 2],
+      // "ca" = chiffre d'affaires, but skip the French pronoun "ça" (ça va / ça
+      // coûte / ça nous…) so a casual sentence isn't force-fit into revenue.
+      [/\bca\b(?!\s*(va|coute|fait|sera|nous|me|te|vous|donne|rapporte|ira|peut))|رقم المعاملات/, 2],
     ] },
     { id: 'profit', run: () => sProfit(), sig: [
       [/benefice|profit|resultat|earn|bottom line|net income|make money|ربح|ارباح|صافي|نتيجة/, 3],
@@ -1136,6 +1143,15 @@
     const ranked = classify(q, raw);
     const combos = ranked.filter((r) => (r.id === 'hire' || r.id === 'price') && r.score >= 3);
     if (combos.length >= 2 && CONJ_RX.test(' ' + q + ' ')) return { kind: 'compound', raw, q };
+    // Conversational refinement: a correction carrying a new number right after an
+    // amount-driven scenario re-runs THAT scenario ("non ça va nous coûter 3000 dh",
+    // "plutôt 5000", "et à 4000 ?") — unless the message states a new strong intent.
+    const strong = ranked.length && ranked[0].score >= 3;
+    if (lastScenario && !strong && isRefinement(raw, q)) {
+      if (lastScenario === 'compound') return { kind: 'compound', raw, q, refine: true };
+      const it = INTENTS.find((i) => i.id === lastScenario);
+      if (it) return { kind: lastScenario, raw, q, run: it.run, refine: true };
+    }
     if (ranked.length && ranked[0].score >= MIN_SCORE) return { kind: ranked[0].id, raw, q, run: ranked[0].run };
     if (evalMath(raw) != null) return { kind: 'math', raw, q };
     return { kind: null, raw, q };
@@ -1144,6 +1160,8 @@
   function respond(rawIn) {
     syncProfile();   // reason off whatever venue is active right now
     const d = decideRoute(rawIn);
+    // Remember amount-driven scenarios so the next correction can refine them.
+    if (d.kind === 'hire' || d.kind === 'afford' || d.kind === 'price' || d.kind === 'compound') lastScenario = d.kind;
     if (d.kind === 'math') return sCalc(d.raw, evalMath(d.raw));
     if (d.kind === 'action') return sAction(d.action);
     if (d.kind === 'compound') return sCompound(d.raw);
@@ -1176,10 +1194,29 @@
   ];
   function routeLabel(s) { const d = decideRoute(s); return d.kind === null ? 'llm' : d.kind; }
   function runEval() {
+    lastScenario = null;   // stateless harness — never inherit conversation context
     const fails = [];
     EVAL_SET.forEach((row) => { const got = routeLabel(row[0]); if (got !== row[1]) fails.push({ q: row[0], expected: row[1], got }); });
     const pass = EVAL_SET.length - fails.length;
     return { total: EVAL_SET.length, pass, accuracy: Math.round(pass / EVAL_SET.length * 1000) / 10, fails };
+  }
+  /* Conversational-refinement checks — these DO exercise the one-slot memory, so
+   * they verify a follow-up correction re-runs the right scenario, that a clear
+   * new intent still wins, and that a bare "ça va" no longer hits revenue. */
+  function runConvoTest() {
+    const cases = [];
+    const check = (setup, q, expected) => { lastScenario = setup; const got = routeLabel(q); cases.push({ q, expected, got, ok: got === expected }); };
+    check('hire', 'non ça va nous coûter 3000 dh par mois', 'hire');
+    check('hire', 'plutôt 5000', 'hire');
+    check('hire', 'et à 4000 ?', 'hire');
+    check('afford', 'non plutôt 90000', 'afford');
+    check('hire', "et si j'augmente les prix de 5%", 'price');  // new strong intent wins
+    check('hire', 'montre mes charges', 'charges');             // no number → not a refinement
+    check('price', 'non', 'llm');                               // correction without a number can't hijack
+    check(null, 'ça va aujourd’hui ?', 'llm');                  // standalone "ça va" is not revenue
+    lastScenario = null;
+    const fails = cases.filter((c) => !c.ok);
+    return { total: cases.length, pass: cases.length - fails.length, fails };
   }
   /* Unit checks for the numeric guardrail detectors (profile = ATLAS demo). */
   function runGuardTest() {
@@ -1199,6 +1236,7 @@
   window.KiwiAgentEval = runEval;
   window.KiwiAgentRoute = routeLabel;
   window.KiwiGuardTest = runGuardTest;
+  window.KiwiAgentConvoTest = runConvoTest;
 
   /* ═══════════════ IN-BROWSER LLM · WebLLM ═══════════════
    * Anything the deterministic engine doesn't recognise is answered by an
