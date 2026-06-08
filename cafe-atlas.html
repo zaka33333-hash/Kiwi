@@ -215,7 +215,7 @@
       width: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
       gap: 6px;
       margin-top: 18px;
     }
@@ -1140,7 +1140,7 @@
       width: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
       gap: 4px;
       margin-top: 18px;
     }
@@ -1280,7 +1280,7 @@
       width: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
       gap: 4px;
       margin-top: 18px;
     }
@@ -2108,6 +2108,10 @@
       border-radius: 999px;
       padding: 3px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    [dir="rtl"] .lang-picker {
+      right: auto;
+      left: 14px;
     }
     .lang-btn {
       min-width: 30px;
