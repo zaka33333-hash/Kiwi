@@ -1416,6 +1416,565 @@
     }
     .ready-cta:active { transform: scale(0.98); }
     .ready-cta svg { width: 16px; height: 16px; }
+
+    /* =========================================================
+       CUSTOMIZATION SHEET (item options + special request)
+       ========================================================= */
+    .custom-sheet {
+      position: absolute;
+      inset: 0;
+      z-index: 230;
+      pointer-events: none;
+    }
+    .custom-sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,10,0);
+      transition: background 280ms ease;
+    }
+    .custom-sheet-panel {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: #fff;
+      border-radius: 22px 22px 0 0;
+      padding: 12px 22px calc(22px + var(--safe-bottom));
+      max-height: 90%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 420ms cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 0 -20px 40px rgba(0,0,0,0.18);
+    }
+    .custom-sheet.is-open { pointer-events: auto; }
+    .custom-sheet.is-open .custom-sheet-backdrop { background: rgba(10,10,10,0.55); }
+    .custom-sheet.is-open .custom-sheet-panel { transform: translateY(0); }
+
+    .custom-header {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .custom-img {
+      width: 58px; height: 58px;
+      border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      background: linear-gradient(135deg, #6F4A2E 0%, #B68A5E 100%);
+    }
+    .custom-img.coffee { background: linear-gradient(135deg, #6F4A2E 0%, #B68A5E 100%); }
+    .custom-img.pastry { background: linear-gradient(135deg, #C99A4F 0%, #F2D08B 100%); }
+    .custom-img.savory { background: linear-gradient(135deg, #6A8C3F 0%, #B4D281 100%); }
+    .custom-img.drink  { background: linear-gradient(135deg, #2D7F8C 0%, #6FC6D2 100%); }
+    .custom-img svg { width: 26px; height: 26px; }
+    .custom-info { min-width: 0; }
+    .custom-name {
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .custom-desc {
+      font-size: 12px;
+      color: var(--ink-3);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+    .custom-base {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-2);
+      margin-top: 4px;
+      letter-spacing: -0.005em;
+    }
+
+    .custom-scroll {
+      flex: 1;
+      overflow-y: auto;
+      margin: 12px -4px 0;
+      padding: 0 4px 6px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .option-group { margin-top: 16px; }
+    .option-group:first-child { margin-top: 4px; }
+    .option-group-label {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 9px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .option-group-label .opt-type {
+      font-family: var(--sans);
+      text-transform: none;
+      letter-spacing: -0.01em;
+      font-size: 11px;
+      color: var(--ink-4);
+    }
+    .option-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .option-chip {
+      padding: 10px 13px;
+      background: var(--paper-mute);
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-2);
+      letter-spacing: -0.005em;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid transparent;
+      transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 140ms ease;
+    }
+    .option-chip:active { transform: scale(0.96); }
+    .option-chip.is-active {
+      background: var(--mint-tint);
+      color: var(--forest);
+      border-color: var(--mint-edge);
+    }
+    .option-chip .delta {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--ink-4);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .option-chip.is-active .delta { color: var(--forest); }
+
+    .custom-note-section { margin-top: 18px; }
+    .custom-note-label {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .custom-note-label .meta {
+      font-family: var(--sans);
+      text-transform: none;
+      letter-spacing: -0.01em;
+      font-size: 11px;
+      color: var(--ink-4);
+    }
+    .custom-note-input {
+      width: 100%;
+      min-height: 60px;
+      padding: 12px 14px;
+      background: var(--paper-mute);
+      border: 1px solid var(--line-soft);
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-family: var(--sans);
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      line-height: 1.45;
+      resize: none;
+      outline: none;
+      transition: border-color 180ms ease, background 180ms ease;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .custom-note-input:focus {
+      border-color: var(--mint-edge);
+      background: #fff;
+    }
+    .custom-note-input::placeholder { color: var(--ink-4); }
+
+    .custom-footer {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line-soft);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .custom-price { display: flex; flex-direction: column; }
+    .custom-price-label {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .custom-price-value {
+      font-family: var(--mono);
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-top: 2px;
+      letter-spacing: -0.01em;
+      font-feature-settings: "tnum" 1;
+    }
+    .custom-add-btn {
+      margin-left: auto;
+      padding: 14px 22px;
+      background: var(--gradient);
+      color: #fff;
+      border-radius: 14px;
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 200ms ease;
+      white-space: nowrap;
+    }
+    .custom-add-btn:active { transform: scale(0.97); }
+    .custom-add-btn svg { width: 15px; height: 15px; }
+
+    /* =========================================================
+       SERVICE BAR (call server / ask bill) — table mode only
+       ========================================================= */
+    .service-bar {
+      display: flex;
+      gap: 8px;
+      padding: 0 22px 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .service-bar::-webkit-scrollbar { display: none; }
+    .service-bar[hidden] { display: none !important; }
+    .service-pill {
+      flex: 0 0 auto;
+      padding: 9px 13px 9px 11px;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: var(--shadow-card);
+      transition: background 200ms ease, color 200ms ease, transform 140ms ease, border-color 200ms ease;
+    }
+    .service-pill:active { transform: scale(0.96); }
+    .service-pill svg { width: 14px; height: 14px; color: var(--forest); }
+    .service-pill.is-pulled {
+      background: var(--mint-tint);
+      border-color: var(--mint-edge);
+      color: var(--forest);
+    }
+    .service-pill.is-pulled svg { color: var(--forest); }
+
+    /* =========================================================
+       Cart-row enrichment (variants + notes)
+       ========================================================= */
+    .cart-row .info { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .cart-item-opts {
+      font-size: 11px;
+      color: var(--ink-3);
+      line-height: 1.35;
+      font-weight: 400;
+    }
+    .cart-item-note {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 12px;
+      color: var(--forest);
+      line-height: 1.35;
+    }
+    .cart-item-note::before { content: '“'; opacity: 0.6; }
+    .cart-item-note::after  { content: '”'; opacity: 0.6; }
+
+    /* =========================================================
+       BILL SHEET (à-table addition with gamified tip jar)
+       ========================================================= */
+    .bill-sheet {
+      position: absolute;
+      inset: 0;
+      z-index: 235;
+      pointer-events: none;
+    }
+    .bill-sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,10,0);
+      transition: background 280ms ease;
+    }
+    .bill-sheet-panel {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: #fff;
+      border-radius: 22px 22px 0 0;
+      padding: 12px 22px calc(22px + var(--safe-bottom));
+      max-height: 92%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 420ms cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 0 -20px 40px rgba(0,0,0,0.18);
+    }
+    .bill-sheet.is-open { pointer-events: auto; }
+    .bill-sheet.is-open .bill-sheet-backdrop { background: rgba(10,10,10,0.55); }
+    .bill-sheet.is-open .bill-sheet-panel { transform: translateY(0); }
+
+    .bill-title {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.022em;
+      margin: 0 0 4px;
+    }
+    .bill-subtitle {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin: 0 0 12px;
+    }
+    .bill-items {
+      list-style: none;
+      padding: 0; margin: 0 0 4px;
+      overflow-y: auto;
+      max-height: 24vh;
+    }
+    .bill-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 7px 0;
+      font-size: 13.5px;
+      color: var(--ink);
+      border-bottom: 1px dashed var(--line-soft);
+    }
+    .bill-row:last-child { border-bottom: 0; }
+    .bill-row-info { min-width: 0; }
+    .bill-row-name { font-weight: 500; }
+    .bill-row-opts {
+      font-size: 11px;
+      color: var(--ink-3);
+      margin-top: 1px;
+      line-height: 1.35;
+    }
+    .bill-row-price {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--ink-2);
+      white-space: nowrap;
+    }
+    .bill-empty {
+      text-align: center;
+      padding: 22px 0;
+      color: var(--ink-3);
+      font-size: 13px;
+    }
+    .bill-subtotal {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 12px 0 8px;
+      border-top: 1px solid var(--line-soft);
+      font-size: 13.5px;
+      color: var(--ink-2);
+    }
+    .bill-subtotal .val {
+      font-family: var(--mono);
+      font-size: 14.5px;
+      color: var(--ink);
+      font-feature-settings: "tnum" 1;
+    }
+
+    /* Tip section — gamified */
+    .tip-section {
+      background: linear-gradient(160deg, #F6F8F2 0%, #EAEFE2 100%);
+      border-radius: 18px;
+      padding: 16px 16px 18px;
+      margin: 6px 0 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .tip-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(55% 45% at 80% 25%, rgba(125,242,176,0.20), transparent 60%),
+        radial-gradient(55% 45% at 20% 80%, rgba(31,93,60,0.08), transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .tip-section > * { position: relative; z-index: 1; }
+
+    .tip-eyebrow {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      text-align: center;
+      display: block;
+    }
+
+    .tip-jar-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 4px 0 6px;
+    }
+    .tip-jar-svg {
+      width: 100px;
+      height: 124px;
+      display: block;
+    }
+    .tip-jar-fill {
+      transform: translateY(86px);
+      transition: transform 760ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .tip-jar-shimmer {
+      opacity: 0;
+      transition: opacity 320ms ease;
+    }
+    .tip-jar-wrap.is-fancy .tip-jar-shimmer { opacity: 0.6; }
+
+    .tip-amount {
+      font-family: var(--mono);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--forest);
+      margin-top: 6px;
+      letter-spacing: -0.01em;
+      font-feature-settings: "tnum" 1;
+      transition: color 200ms ease;
+    }
+    .tip-amount.is-zero { color: var(--ink-4); }
+
+    .tip-level {
+      text-align: center;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 20px;
+      color: var(--forest);
+      letter-spacing: -0.005em;
+      margin: 2px 0 0;
+      transition: color 280ms ease;
+    }
+    .tip-level.is-empty {
+      font-family: var(--sans);
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--ink-4);
+    }
+    .tip-level.is-celebrated {
+      color: var(--forest-deep);
+    }
+
+    /* Sparkles overlay when tip is high */
+    .tip-jar-sparkle {
+      position: absolute;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 6px rgba(125,242,176,0.7);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .tip-jar-wrap.is-overflow .tip-jar-sparkle {
+      animation: tip-sparkle 1800ms ease-out infinite;
+    }
+    .tip-jar-wrap.is-overflow .tip-jar-sparkle.sp-1 { left: 18%;  top: 22%; animation-delay: 0ms; }
+    .tip-jar-wrap.is-overflow .tip-jar-sparkle.sp-2 { right: 16%; top: 20%; animation-delay: 450ms; }
+    .tip-jar-wrap.is-overflow .tip-jar-sparkle.sp-3 { left: 38%;  top: 8%;  animation-delay: 900ms; }
+    .tip-jar-wrap.is-overflow .tip-jar-sparkle.sp-4 { right: 32%; top: 34%; animation-delay: 1350ms; }
+    @keyframes tip-sparkle {
+      0%   { opacity: 0; transform: translate(0, 4px) scale(0.4); }
+      25%  { opacity: 1; transform: translate(0, -6px) scale(1.05); }
+      100% { opacity: 0; transform: translate(0, -22px) scale(0.5); }
+    }
+
+    .tip-chips {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .tip-chip {
+      padding: 9px 14px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--line-soft);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      transition: background 220ms ease, color 220ms ease, transform 140ms ease, border-color 220ms ease;
+      font-feature-settings: "tnum" 1;
+    }
+    .tip-chip:active { transform: scale(0.94); }
+    .tip-chip.is-active {
+      background: var(--ink);
+      color: var(--paper-cream);
+      border-color: var(--ink);
+    }
+    .tip-chip.is-zero {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-3);
+    }
+    .tip-chip.is-zero.is-active {
+      background: var(--paper-mute);
+      color: var(--ink-3);
+      border-color: var(--line);
+    }
+
+    .bill-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 12px 0;
+      border-top: 1px solid var(--line-soft);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .bill-total .val {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      font-feature-settings: "tnum" 1;
+    }
+    .bill-confirm-btn {
+      width: 100%;
+      margin-top: 6px;
+      padding: 16px 18px;
+      background: var(--gradient);
+      color: #fff;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 200ms ease;
+    }
+    .bill-confirm-btn:active { transform: scale(0.98); }
+    .bill-confirm-btn svg { width: 16px; height: 16px; }
   </style>
 </head>
 
@@ -1517,6 +2076,17 @@
           <i data-lucide="utensils"></i>
           <span id="menu-badge-text">Table —</span>
         </span>
+      </div>
+
+      <div class="service-bar" id="service-bar" hidden>
+        <button class="service-pill" type="button" data-service="call-server">
+          <i data-lucide="bell-ring"></i>
+          <span>Appeler un serveur</span>
+        </button>
+        <button class="service-pill" type="button" data-service="ask-bill">
+          <i data-lucide="receipt"></i>
+          <span>Demander l'addition</span>
+        </button>
       </div>
 
       <div class="menu-tabs" role="tablist">
@@ -1650,6 +2220,136 @@
       <span id="toast-text">Ajouté</span>
     </div>
 
+    <!-- ============ CUSTOMIZATION SHEET ============ -->
+    <div class="custom-sheet" id="custom-sheet" aria-hidden="true">
+      <div class="custom-sheet-backdrop" data-close-custom></div>
+      <div class="custom-sheet-panel">
+        <div class="cart-handle" data-close-custom></div>
+        <div class="custom-header">
+          <div class="custom-img" id="custom-img">
+            <i data-lucide="coffee"></i>
+          </div>
+          <div class="custom-info">
+            <div class="custom-name" id="custom-name">—</div>
+            <div class="custom-desc" id="custom-desc">—</div>
+            <div class="custom-base" id="custom-base">À partir de — MAD</div>
+          </div>
+        </div>
+
+        <div class="custom-scroll">
+          <div id="custom-options"></div>
+
+          <div class="custom-note-section">
+            <label class="custom-note-label" for="custom-note-input">
+              <span>Demande spéciale</span>
+              <span class="meta">facultatif</span>
+            </label>
+            <textarea class="custom-note-input" id="custom-note-input" rows="2"
+                      placeholder="Ex: peu de glaçons, sans sel, allergie aux noix…"></textarea>
+          </div>
+        </div>
+
+        <div class="custom-footer">
+          <div class="custom-price">
+            <div class="custom-price-label">Prix</div>
+            <div class="custom-price-value" id="custom-price-value">0 MAD</div>
+          </div>
+          <button class="custom-add-btn" type="button" id="custom-add-btn">
+            <i data-lucide="plus"></i>
+            <span>Ajouter</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ BILL SHEET (à-table addition + gamified tip) ============ -->
+    <div class="bill-sheet" id="bill-sheet" aria-hidden="true">
+      <div class="bill-sheet-backdrop" data-close-bill></div>
+      <div class="bill-sheet-panel">
+        <div class="cart-handle" data-close-bill></div>
+        <h2 class="bill-title">Votre addition</h2>
+        <div class="bill-subtitle">Table <span id="bill-table">—</span> · Café Atlas</div>
+
+        <ul class="bill-items" id="bill-items">
+          <li class="bill-empty">Aucune commande passée — ajoutez d'abord au menu.</li>
+        </ul>
+
+        <div class="bill-subtotal">
+          <span>Sous-total</span>
+          <span class="val" id="bill-subtotal-value">0 MAD</span>
+        </div>
+
+        <!-- Tip section — gamified -->
+        <div class="tip-section">
+          <span class="tip-eyebrow">— Pourboire pour l'équipe</span>
+          <div class="tip-jar-wrap" id="tip-jar-wrap">
+            <span class="tip-jar-sparkle sp-1" aria-hidden="true"></span>
+            <span class="tip-jar-sparkle sp-2" aria-hidden="true"></span>
+            <span class="tip-jar-sparkle sp-3" aria-hidden="true"></span>
+            <span class="tip-jar-sparkle sp-4" aria-hidden="true"></span>
+            <svg class="tip-jar-svg" viewBox="0 0 100 124" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="tipGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"  stop-color="#7DF2B0"/>
+                  <stop offset="55%" stop-color="#3FB67A"/>
+                  <stop offset="100%" stop-color="#1F5D3C"/>
+                </linearGradient>
+                <linearGradient id="tipShimmer" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"  stop-color="rgba(255,255,255,0.45)"/>
+                  <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+                </linearGradient>
+                <clipPath id="jarInside">
+                  <rect x="22" y="32" width="56" height="84" rx="6"/>
+                </clipPath>
+              </defs>
+
+              <!-- Jar body (glass) -->
+              <rect x="20" y="30" width="60" height="88" rx="9"
+                    fill="#FFFFFF" stroke="#C7C5BE" stroke-width="1.4"/>
+
+              <!-- Fill (clipped by jar inside) -->
+              <g clip-path="url(#jarInside)">
+                <rect class="tip-jar-fill" id="tip-jar-fill"
+                      x="22" y="32" width="56" height="84" fill="url(#tipGrad)"/>
+                <rect class="tip-jar-shimmer" id="tip-jar-shimmer"
+                      x="22" y="32" width="56" height="14" fill="url(#tipShimmer)"
+                      style="transform: translateY(86px);"/>
+              </g>
+
+              <!-- Glass reflection -->
+              <path d="M27 42 Q26 70 27 102" stroke="rgba(255,255,255,0.55)"
+                    stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M73 42 Q73 60 73 75" stroke="rgba(255,255,255,0.3)"
+                    stroke-width="1.4" stroke-linecap="round" fill="none"/>
+
+              <!-- Rim + lid (drawn last) -->
+              <rect x="18" y="26" width="64" height="7" rx="3" fill="#3A3833"/>
+              <rect x="24" y="12" width="52" height="15" rx="3" fill="#262420"/>
+              <rect x="28" y="14" width="44" height="3" rx="1.5" fill="#5A5852"/>
+            </svg>
+            <div class="tip-amount" id="tip-amount">+0 MAD</div>
+          </div>
+          <div class="tip-level" id="tip-level">L'équipe vous remercie</div>
+          <div class="tip-chips" id="tip-chips">
+            <button class="tip-chip is-zero" type="button" data-tip="0">Pas de pourboire</button>
+            <button class="tip-chip" type="button" data-tip="10">10%</button>
+            <button class="tip-chip is-active" type="button" data-tip="15">15%</button>
+            <button class="tip-chip" type="button" data-tip="20">20%</button>
+            <button class="tip-chip" type="button" data-tip="25">25%</button>
+          </div>
+        </div>
+
+        <div class="bill-total">
+          <span>Total à régler</span>
+          <span class="val" id="bill-total-value">0 MAD</span>
+        </div>
+        <button class="bill-confirm-btn" type="button" id="bill-confirm-btn">
+          <i data-lucide="hand-platter"></i>
+          <span>Le serveur arrive avec l'addition</span>
+        </button>
+      </div>
+    </div>
+
     <!-- ============ Cart sheet (overlay) ============ -->
     <div class="cart-sheet" id="cart-sheet" aria-hidden="true">
       <div class="cart-sheet-backdrop" data-close-cart></div>
@@ -1682,20 +2382,96 @@
     const $  = (s, c = document) => c.querySelector(s);
     const $$ = (s, c = document) => [...c.querySelectorAll(s)];
 
+    /* ============ option presets — shared across items ============ */
+    const OPT = {
+      sucre: {
+        key: 'sucre', label: 'Sucre', type: 'single', default: 'normal',
+        choices: [
+          { id: 'normal', label: 'Sucré', delta: 0 },
+          { id: 'leger',  label: 'Peu sucré', delta: 0 },
+          { id: 'sans',   label: 'Sans sucre', delta: 0 },
+          { id: 'brun',   label: 'Sucre brun', delta: 0 },
+        ],
+      },
+      lait: {
+        key: 'lait', label: 'Type de lait', type: 'single', default: 'lait',
+        choices: [
+          { id: 'lait',   label: 'Lait classique', delta: 0 },
+          { id: 'amande', label: "Lait d'amande", delta: 5 },
+          { id: 'soja',   label: 'Lait de soja', delta: 5 },
+          { id: 'sans',   label: 'Sans lait', delta: 0 },
+        ],
+      },
+      shot: {
+        key: 'shot', label: 'Intensité', type: 'single', default: 'simple',
+        choices: [
+          { id: 'simple', label: 'Simple', delta: 0 },
+          { id: 'double', label: 'Double', delta: 5 },
+        ],
+      },
+      chauffer: {
+        key: 'chauffer', label: 'Préparation', type: 'single', default: 'froid',
+        choices: [
+          { id: 'froid', label: 'Tel quel', delta: 0 },
+          { id: 'chaud', label: 'Réchauffé', delta: 0 },
+        ],
+      },
+      pastryExtras: {
+        key: 'extras', label: 'Accompagnement', type: 'multi',
+        choices: [
+          { id: 'beurre',     label: 'Beurre',          delta: 2 },
+          { id: 'confiture',  label: 'Confiture maison', delta: 3 },
+          { id: 'miel',       label: "Miel d'oranger",  delta: 3 },
+        ],
+      },
+      pain: {
+        key: 'pain', label: 'Pain', type: 'single', default: 'campagne',
+        choices: [
+          { id: 'campagne', label: 'Pain de campagne', delta: 0 },
+          { id: 'complet',  label: 'Pain complet', delta: 0 },
+          { id: 'wrap',     label: 'En wrap', delta: 0 },
+        ],
+      },
+      retirer: {
+        key: 'retirer', label: 'Retirer', type: 'multi',
+        choices: [
+          { id: 'tomate',     label: 'Tomate',     delta: 0 },
+          { id: 'oignon',     label: 'Oignon',     delta: 0 },
+          { id: 'cornichons', label: 'Cornichons', delta: 0 },
+          { id: 'olives',     label: 'Olives',     delta: 0 },
+        ],
+      },
+      sauce: {
+        key: 'sauce', label: 'Sauce', type: 'single', default: 'classique',
+        choices: [
+          { id: 'classique', label: 'Sauce classique', delta: 0 },
+          { id: 'harissa',   label: 'Harissa épicée', delta: 0 },
+          { id: 'sans',      label: 'Sans sauce', delta: 0 },
+        ],
+      },
+      glace: {
+        key: 'glace', label: 'Glaçons', type: 'single', default: 'avec',
+        choices: [
+          { id: 'avec', label: 'Avec glaçons', delta: 0 },
+          { id: 'sans', label: 'Sans glaçons', delta: 0 },
+        ],
+      },
+    };
+
     /* ============ menu data ============ */
     const MENU = [
-      { id: 'espresso',     cat: 'coffee', name: 'Espresso',          desc: 'Court, intense, torréfaction du jour',           price: 12, icon: 'coffee' },
-      { id: 'noss-noss',    cat: 'coffee', name: 'Noss-noss',          desc: 'Moitié café, moitié lait chaud — la fierté locale', price: 16, icon: 'coffee' },
-      { id: 'cappuccino',   cat: 'coffee', name: 'Cappuccino',        desc: 'Mousse onctueuse, cacao en option',              price: 22, icon: 'coffee' },
-      { id: 'the-menthe',   cat: 'drink',  name: 'Thé à la menthe',   desc: 'Théière en argent, menthe fraîche, sucre à part', price: 22, icon: 'glass-water' },
-      { id: 'msemen',       cat: 'pastry', name: 'Msemen au miel',    desc: 'Crêpe feuilletée chaude, miel d\'oranger',       price: 18, icon: 'croissant' },
-      { id: 'briouate',     cat: 'pastry', name: 'Briouate aux amandes', desc: 'Pâte filo, amandes, eau de fleur d\'oranger', price: 14, icon: 'cookie' },
-      { id: 'croissant',    cat: 'pastry', name: 'Croissant beurre',  desc: 'Pur beurre · cuit ce matin',                     price: 12, icon: 'croissant' },
-      { id: 'sandwich-thon',cat: 'savory', name: 'Sandwich thon-olives', desc: 'Pain maison, thon, olives noires, harissa',  price: 32, icon: 'sandwich' },
-      { id: 'panini',       cat: 'savory', name: 'Panini fromage-tomate', desc: 'Ciabatta, mozzarella, tomate confite',      price: 28, icon: 'sandwich' },
-      { id: 'fresh-orange', cat: 'drink',  name: 'Jus d\'orange pressé', desc: 'Pressé minute, sans sucre ajouté',           price: 18, icon: 'glass-water' },
-      { id: 'avocado',      cat: 'drink',  name: 'Smoothie avocat-banane', desc: 'Lait d\'amande, miel, cardamome',          price: 26, icon: 'glass-water' },
-      { id: 'sparkling',    cat: 'drink',  name: 'Eau pétillante Oulmès', desc: '33cl · servie fraîche',                      price:  8, icon: 'glass-water' },
+      { id: 'espresso',     cat: 'coffee', name: 'Espresso',           desc: 'Court, intense, torréfaction du jour',           price: 12, icon: 'coffee',      options: [OPT.sucre, OPT.shot] },
+      { id: 'noss-noss',    cat: 'coffee', name: 'Noss-noss',           desc: 'Moitié café, moitié lait chaud — la fierté locale', price: 16, icon: 'coffee',   options: [OPT.sucre] },
+      { id: 'cappuccino',   cat: 'coffee', name: 'Cappuccino',         desc: 'Mousse onctueuse, cacao en option',              price: 22, icon: 'coffee',      options: [OPT.sucre, OPT.lait, OPT.shot] },
+      { id: 'the-menthe',   cat: 'drink',  name: 'Thé à la menthe',    desc: 'Théière en argent, menthe fraîche, sucre à part', price: 22, icon: 'glass-water', options: [OPT.sucre] },
+      { id: 'msemen',       cat: 'pastry', name: 'Msemen au miel',     desc: 'Crêpe feuilletée chaude, miel d\'oranger',       price: 18, icon: 'croissant',   options: [OPT.chauffer] },
+      { id: 'briouate',     cat: 'pastry', name: 'Briouate aux amandes', desc: 'Pâte filo, amandes, eau de fleur d\'oranger',  price: 14, icon: 'cookie',      options: [OPT.chauffer] },
+      { id: 'croissant',    cat: 'pastry', name: 'Croissant beurre',   desc: 'Pur beurre · cuit ce matin',                     price: 12, icon: 'croissant',   options: [OPT.chauffer, OPT.pastryExtras] },
+      { id: 'sandwich-thon',cat: 'savory', name: 'Sandwich thon-olives', desc: 'Pain maison, thon, olives noires, harissa',   price: 32, icon: 'sandwich',    options: [OPT.pain, OPT.retirer, OPT.sauce] },
+      { id: 'panini',       cat: 'savory', name: 'Panini fromage-tomate', desc: 'Ciabatta, mozzarella, tomate confite',       price: 28, icon: 'sandwich',    options: [OPT.pain, OPT.retirer] },
+      { id: 'fresh-orange', cat: 'drink',  name: 'Jus d\'orange pressé', desc: 'Pressé minute, sans sucre ajouté',             price: 18, icon: 'glass-water', options: [OPT.glace] },
+      { id: 'avocado',      cat: 'drink',  name: 'Smoothie avocat-banane', desc: 'Lait d\'amande, miel, cardamome',            price: 26, icon: 'glass-water', options: [OPT.sucre, OPT.glace] },
+      { id: 'sparkling',    cat: 'drink',  name: 'Eau pétillante Oulmès', desc: '33cl · servie fraîche',                       price:  8, icon: 'glass-water' },
     ];
     const ICON_CLASS = {
       coffee: 'coffee',
@@ -1710,7 +2486,18 @@
     let tableNumber = '';
     let orderNumber = '';        // takeout only — like "047"
     let prepRafId = null;        // animation handle for prep progress
+
+    // Cart: lineKey -> { id, options, note, unitPrice, qty }
     const cart = new Map();
+    // Already-sent orders (table mode session — used for bill)
+    const sentLines = []; // [{ id, options, note, unitPrice, qty }]
+    let sessionTotal = 0;
+    let tipPercent = 15; // default selection in bill
+
+    // Customizer state
+    let customizerItem = null;
+    let customizerSelections = {};
+    let customizerNote = '';
 
     /* ============ greeting flash (ported from kiwi-serveur) ============ */
     function runGreetingFlash() {
@@ -1803,12 +2590,56 @@
       if (window.lucide) window.lucide.createIcons();
     }
 
-    /* ============ cart logic ============ */
-    const priceOf = id => MENU.find(m => m.id === id)?.price || 0;
-    const nameOf  = id => MENU.find(m => m.id === id)?.name || '';
+    /* ============ cart logic — line keys support variants ============ */
+    const itemOf  = id => MENU.find(m => m.id === id);
+    const nameOf  = id => itemOf(id)?.name || '';
+    const basePriceOf = id => itemOf(id)?.price || 0;
+
+    function lineKey(id, options, note) {
+      const parts = [id];
+      const keys = Object.keys(options || {}).sort();
+      for (const k of keys) {
+        const v = options[k];
+        if (Array.isArray(v)) {
+          if (v.length) parts.push(`${k}=${v.slice().sort().join('+')}`);
+        } else if (v != null && v !== '') {
+          parts.push(`${k}=${v}`);
+        }
+      }
+      if (note) parts.push(`note=${note}`);
+      return parts.join('|');
+    }
+
+    function describeOptions(line) {
+      const item = itemOf(line.id);
+      if (!item || !item.options) return '';
+      const parts = [];
+      for (const opt of item.options) {
+        const sel = line.options?.[opt.key];
+        if (sel == null) continue;
+        if (opt.type === 'single') {
+          if (sel === opt.default) continue; // skip defaults
+          const choice = opt.choices.find(c => c.id === sel);
+          if (choice) parts.push(choice.label);
+        } else if (opt.type === 'multi' && Array.isArray(sel) && sel.length) {
+          const labels = sel
+            .map(id => opt.choices.find(c => c.id === id)?.label)
+            .filter(Boolean);
+          if (labels.length) {
+            const prefix = opt.key === 'retirer' ? 'Sans ' : '';
+            parts.push(prefix + labels.join(', ').toLowerCase());
+          }
+        }
+      }
+      return parts.join(' · ');
+    }
+
     function totals() {
       let count = 0, total = 0;
-      cart.forEach((qty, id) => { count += qty; total += qty * priceOf(id); });
+      cart.forEach(line => {
+        count += line.qty;
+        total += line.qty * line.unitPrice;
+      });
       return { count, total };
     }
     function refreshCartUI() {
@@ -1825,27 +2656,287 @@
         itemsEl.innerHTML = `<li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>`;
         return;
       }
-      itemsEl.innerHTML = [...cart.entries()].map(([id, qty]) => `
-        <li class="cart-row">
-          <span class="label">${nameOf(id)}</span>
-          <span class="qty">
-            <button type="button" data-dec="${id}" aria-label="Retirer">−</button>
-            <span>${qty}</span>
-            <button type="button" data-inc="${id}" aria-label="Ajouter">+</button>
-          </span>
-          <span class="row-price">${qty * priceOf(id)} MAD</span>
-        </li>
+      itemsEl.innerHTML = [...cart.entries()].map(([key, line]) => {
+        const safe = encodeURIComponent(key);
+        const opts = describeOptions(line);
+        const note = line.note ? `<div class="cart-item-note">${escapeHtml(line.note)}</div>` : '';
+        return `
+          <li class="cart-row">
+            <div class="info">
+              <span class="label">${nameOf(line.id)}</span>
+              ${opts ? `<div class="cart-item-opts">${opts}</div>` : ''}
+              ${note}
+            </div>
+            <span class="qty">
+              <button type="button" data-dec="${safe}" aria-label="Retirer">−</button>
+              <span>${line.qty}</span>
+              <button type="button" data-inc="${safe}" aria-label="Ajouter">+</button>
+            </span>
+            <span class="row-price">${line.qty * line.unitPrice} MAD</span>
+          </li>
+        `;
+      }).join('');
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function addLineToCart(line) {
+      const key = lineKey(line.id, line.options, line.note);
+      if (cart.has(key)) {
+        cart.get(key).qty += 1;
+      } else {
+        cart.set(key, { ...line, qty: 1 });
+      }
+      refreshCartUI();
+      showToast(`${nameOf(line.id)} · ajouté`);
+    }
+    function decFromCart(key) {
+      if (!cart.has(key)) return;
+      const line = cart.get(key);
+      line.qty -= 1;
+      if (line.qty <= 0) cart.delete(key);
+      refreshCartUI();
+    }
+    function incFromCart(key) {
+      if (!cart.has(key)) return;
+      cart.get(key).qty += 1;
+      refreshCartUI();
+    }
+
+    /* ============ + button on a menu item ============ */
+    function handleAddClick(itemId) {
+      const item = itemOf(itemId);
+      if (!item) return;
+      if (item.options && item.options.length > 0) {
+        openCustomizer(item);
+      } else {
+        addLineToCart({
+          id: itemId,
+          options: {},
+          note: '',
+          unitPrice: item.price,
+        });
+      }
+    }
+
+    /* ============ Customizer ============ */
+    function openCustomizer(item) {
+      customizerItem = item;
+      // Initialize with defaults
+      customizerSelections = {};
+      for (const opt of item.options || []) {
+        if (opt.type === 'single') customizerSelections[opt.key] = opt.default || opt.choices[0].id;
+        else customizerSelections[opt.key] = [];
+      }
+      customizerNote = '';
+
+      // Populate header
+      $('#custom-name').textContent = item.name;
+      $('#custom-desc').textContent = item.desc;
+      $('#custom-base').textContent = `À partir de ${item.price} MAD`;
+      const imgEl = $('#custom-img');
+      imgEl.className = 'custom-img ' + (ICON_CLASS[item.icon] || 'coffee');
+      imgEl.innerHTML = `<i data-lucide="${item.icon}"></i>`;
+
+      // Render option groups
+      const opts = $('#custom-options');
+      opts.innerHTML = (item.options || []).map(opt => `
+        <div class="option-group" data-opt="${opt.key}">
+          <div class="option-group-label">
+            <span>${opt.label}</span>
+            <span class="opt-type">${opt.type === 'multi' ? 'plusieurs possibles' : 'choisir 1'}</span>
+          </div>
+          <div class="option-chips">
+            ${opt.choices.map(c => `
+              <button class="option-chip" type="button"
+                      data-opt="${opt.key}" data-choice="${c.id}" data-type="${opt.type}">
+                <span>${c.label}</span>
+                ${c.delta ? `<span class="delta">+${c.delta} MAD</span>` : ''}
+              </button>
+            `).join('')}
+          </div>
+        </div>
       `).join('');
+
+      // Mark defaults as active
+      $$('.option-chip', opts).forEach(chip => {
+        const k = chip.dataset.opt, c = chip.dataset.choice, t = chip.dataset.type;
+        if (t === 'single' && customizerSelections[k] === c) chip.classList.add('is-active');
+      });
+
+      // Reset note
+      $('#custom-note-input').value = '';
+
+      refreshCustomizerPrice();
+      $('#custom-sheet').classList.add('is-open');
+      $('#custom-sheet').setAttribute('aria-hidden', 'false');
+      if (window.lucide) window.lucide.createIcons();
     }
-    function addToCart(id) {
-      cart.set(id, (cart.get(id) || 0) + 1);
-      refreshCartUI();
-      showToast(`${nameOf(id)} · ajouté`);
+    function closeCustomizer() {
+      $('#custom-sheet').classList.remove('is-open');
+      $('#custom-sheet').setAttribute('aria-hidden', 'true');
+      customizerItem = null;
     }
-    function decFromCart(id) {
-      const q = (cart.get(id) || 0) - 1;
-      if (q <= 0) cart.delete(id); else cart.set(id, q);
-      refreshCartUI();
+    function selectCustomizerChoice(optKey, choiceId, type) {
+      if (type === 'single') {
+        customizerSelections[optKey] = choiceId;
+      } else {
+        const arr = customizerSelections[optKey] || [];
+        const i = arr.indexOf(choiceId);
+        if (i >= 0) arr.splice(i, 1); else arr.push(choiceId);
+        customizerSelections[optKey] = arr;
+      }
+      // Update chip visuals
+      const group = document.querySelector(`.option-group[data-opt="${optKey}"]`);
+      if (!group) return;
+      if (type === 'single') {
+        $$('.option-chip', group).forEach(c => {
+          c.classList.toggle('is-active', c.dataset.choice === choiceId);
+        });
+      } else {
+        $$('.option-chip', group).forEach(c => {
+          c.classList.toggle('is-active', customizerSelections[optKey].includes(c.dataset.choice));
+        });
+      }
+      refreshCustomizerPrice();
+    }
+    function customizerUnitPrice() {
+      if (!customizerItem) return 0;
+      let p = customizerItem.price;
+      for (const opt of customizerItem.options || []) {
+        const sel = customizerSelections[opt.key];
+        if (opt.type === 'single' && sel) {
+          const c = opt.choices.find(c => c.id === sel);
+          if (c) p += (c.delta || 0);
+        } else if (opt.type === 'multi' && Array.isArray(sel)) {
+          for (const id of sel) {
+            const c = opt.choices.find(c => c.id === id);
+            if (c) p += (c.delta || 0);
+          }
+        }
+      }
+      return p;
+    }
+    function refreshCustomizerPrice() {
+      $('#custom-price-value').textContent = `${customizerUnitPrice()} MAD`;
+    }
+    function confirmCustomizer() {
+      if (!customizerItem) return;
+      customizerNote = $('#custom-note-input').value.trim();
+      addLineToCart({
+        id: customizerItem.id,
+        options: { ...customizerSelections },
+        note: customizerNote,
+        unitPrice: customizerUnitPrice(),
+      });
+      closeCustomizer();
+    }
+
+    /* ============ Service bar (table mode) ============ */
+    function callServer() {
+      const pill = document.querySelector('[data-service="call-server"]');
+      pill.classList.add('is-pulled');
+      showToast(`Un serveur arrive · Table ${tableNumber}`);
+      setTimeout(() => pill.classList.remove('is-pulled'), 4000);
+    }
+
+    /* ============ Bill sheet + gamified tip ============ */
+    function openBill() {
+      $('#bill-table').textContent = tableNumber;
+
+      // Aggregate sent lines by lineKey
+      const agg = new Map();
+      for (const l of sentLines) {
+        const key = lineKey(l.id, l.options, l.note);
+        if (agg.has(key)) agg.get(key).qty += l.qty;
+        else agg.set(key, { ...l });
+      }
+      const billItems = [...agg.values()];
+
+      const itemsEl = $('#bill-items');
+      if (billItems.length === 0) {
+        itemsEl.innerHTML = `<li class="bill-empty">Aucune commande passée — ajoutez d'abord au menu.</li>`;
+      } else {
+        itemsEl.innerHTML = billItems.map(l => {
+          const opts = describeOptions(l);
+          return `
+            <li class="bill-row">
+              <div class="bill-row-info">
+                <div class="bill-row-name">${l.qty}× ${nameOf(l.id)}</div>
+                ${opts ? `<div class="bill-row-opts">${opts}</div>` : ''}
+              </div>
+              <div class="bill-row-price">${l.qty * l.unitPrice} MAD</div>
+            </li>
+          `;
+        }).join('');
+      }
+
+      $('#bill-subtotal-value').textContent = `${sessionTotal} MAD`;
+      setTipPercent(billItems.length === 0 ? 0 : 15);
+
+      $('#bill-sheet').classList.add('is-open');
+      $('#bill-sheet').setAttribute('aria-hidden', 'false');
+    }
+    function closeBill() {
+      $('#bill-sheet').classList.remove('is-open');
+      $('#bill-sheet').setAttribute('aria-hidden', 'true');
+    }
+
+    const TIP_LEVELS = [
+      { min: 0,  max: 0,   label: 'Pas de pourboire',         empty: true },
+      { min: 1,  max: 8,   label: 'Un petit geste, merci' },
+      { min: 9,  max: 12,  label: 'C\'est sympa, merci' },
+      { min: 13, max: 17,  label: 'L\'équipe vous remercie' },
+      { min: 18, max: 22,  label: 'Très généreux — bravo' },
+      { min: 23, max: 100, label: 'Pourboire de chef', celebrated: true },
+    ];
+
+    function setTipPercent(pct) {
+      tipPercent = pct;
+      const tipAmt = Math.round(sessionTotal * pct / 100);
+      const total = sessionTotal + tipAmt;
+
+      const tipAmtEl = $('#tip-amount');
+      tipAmtEl.textContent = pct === 0 ? '+0 MAD' : `+${tipAmt} MAD`;
+      tipAmtEl.classList.toggle('is-zero', pct === 0);
+
+      // Jar fill — 20% tip fills jar to top, 25%+ overflows
+      const fillPct = Math.min(100, pct * 5);
+      const offset = 86 * (1 - fillPct / 100);
+      const fill = $('#tip-jar-fill');
+      const shimmer = $('#tip-jar-shimmer');
+      if (fill) fill.style.transform = `translateY(${offset}px)`;
+      if (shimmer) shimmer.style.transform = `translateY(${offset}px)`;
+
+      // Level label
+      const level = TIP_LEVELS.find(l => pct >= l.min && pct <= l.max) || TIP_LEVELS[0];
+      const lbl = $('#tip-level');
+      lbl.textContent = level.label;
+      lbl.classList.toggle('is-empty', !!level.empty);
+      lbl.classList.toggle('is-celebrated', !!level.celebrated);
+
+      // Sparkles + shimmer
+      const wrap = $('#tip-jar-wrap');
+      wrap.classList.toggle('is-overflow', pct >= 20);
+      wrap.classList.toggle('is-fancy', pct >= 13);
+
+      // Chip active state
+      $$('.tip-chip').forEach(c => {
+        c.classList.toggle('is-active', parseInt(c.dataset.tip, 10) === pct);
+      });
+
+      // Total
+      $('#bill-total-value').textContent = `${total} MAD`;
+    }
+
+    function confirmBill() {
+      const tipAmt = Math.round(sessionTotal * tipPercent / 100);
+      closeBill();
+      const msg = tipAmt > 0
+        ? `Addition demandée · ${sessionTotal + tipAmt} MAD (+${tipAmt} pourboire)`
+        : `Addition demandée · ${sessionTotal} MAD`;
+      showToast(msg);
     }
 
     /* ============ toast ============ */
@@ -1873,14 +2964,15 @@
       const btn = $('#send-btn');
       btn.classList.add('is-loading');
       const summary = [...cart.entries()]
-        .map(([id, qty]) => `${qty}× ${nameOf(id)}`)
+        .map(([, line]) => `${line.qty}× ${nameOf(line.id)}`)
         .join(' · ');
       const totalNow = totals().total;
+      // Snapshot current cart into sentLines (for à-table bill aggregation)
+      const linesCopy = [...cart.values()].map(l => ({ ...l, options: { ...l.options } }));
       setTimeout(() => {
         btn.classList.remove('is-loading');
         closeCart();
         if (orderMode === 'takeout') {
-          // Generate a 3-digit order number (40-99 range so it always feels alive)
           orderNumber = String(40 + Math.floor((performance.now() % 60))).padStart(3, '0');
           $('#cashier-number-digits').textContent = orderNumber;
           $('#prep-number').textContent = orderNumber;
@@ -1889,10 +2981,15 @@
           $('#cashier-total').textContent = totalNow + ' MAD';
           gotoScreen('screen-cashier');
         } else {
+          // Table mode — accumulate into the session for the bill
+          for (const l of linesCopy) sentLines.push(l);
+          sessionTotal += totalNow;
           $('#success-table').textContent = tableNumber;
           $('#success-items').textContent = summary || '—';
           gotoScreen('screen-success');
         }
+        cart.clear();
+        refreshCartUI();
       }, 1100);
     }
 
@@ -1924,16 +3021,19 @@
       const subtitle = $('#cart-subtitle');
       const note = $('#cart-note');
       const sendLabel = $('#send-label');
+      const serviceBar = $('#service-bar');
       if (orderMode === 'takeout') {
         badge.innerHTML = '<i data-lucide="shopping-bag"></i><span id="menu-badge-text">À emporter</span>';
         subtitle.textContent = 'À emporter · Café Atlas';
         note.innerHTML = 'Paiement à la <em>caisse</em> · on vous prévient quand c\'est prêt.';
         sendLabel.textContent = 'Passer commande';
+        serviceBar.hidden = true;
       } else {
         badge.innerHTML = `<i data-lucide="utensils"></i><span id="menu-badge-text">Table ${tableNumber}</span>`;
         subtitle.textContent = `Table ${tableNumber} · Café Atlas`;
         note.textContent = 'Paiement à la table après votre dernière commande.';
         sendLabel.textContent = 'Envoyer en cuisine';
+        serviceBar.hidden = false;
       }
       if (window.lucide) window.lucide.createIcons();
     }
@@ -2082,7 +3182,9 @@
       // moving to the button; the click still fires normally.
       const appEl = document.querySelector('.app');
       appEl.addEventListener('mousedown', e => {
-        if (e.target.closest('button, [data-close-cart]')) e.preventDefault();
+        // Don't preventDefault on the note textarea — we want focus there
+        if (e.target.closest('.custom-note-input')) return;
+        if (e.target.closest('button, [data-close-cart], [data-close-custom], [data-close-bill]')) e.preventDefault();
       });
       // Snap back if anything else scrolls .app.
       appEl.addEventListener('scroll', () => {
@@ -2108,20 +3210,44 @@
         if (e.target.closest('#prep-perm-btn')) { askNotificationPermission(); return; }
         // Takeout: ready → restart
         if (e.target.closest('#ready-cta')) { restartMenu(); return; }
-        // Add to cart
+        // Add to cart — opens customizer if item has options
         const addBtn = e.target.closest('[data-add]');
         if (addBtn) {
-          addToCart(addBtn.dataset.add);
+          handleAddClick(addBtn.dataset.add);
           addBtn.classList.remove('is-popped');
           void addBtn.offsetWidth;
           addBtn.classList.add('is-popped');
           return;
         }
-        // Cart qty
+        // Cart qty (uses encoded lineKey)
         const incBtn = e.target.closest('[data-inc]');
-        if (incBtn) { addToCart(incBtn.dataset.inc); return; }
+        if (incBtn) { incFromCart(decodeURIComponent(incBtn.dataset.inc)); return; }
         const decBtn = e.target.closest('[data-dec]');
-        if (decBtn) { decFromCart(decBtn.dataset.dec); return; }
+        if (decBtn) { decFromCart(decodeURIComponent(decBtn.dataset.dec)); return; }
+
+        // Customizer chip
+        const optChip = e.target.closest('.option-chip');
+        if (optChip) {
+          selectCustomizerChoice(optChip.dataset.opt, optChip.dataset.choice, optChip.dataset.type);
+          return;
+        }
+        if (e.target.closest('#custom-add-btn')) { confirmCustomizer(); return; }
+        if (e.target.closest('[data-close-custom]')) { closeCustomizer(); return; }
+
+        // Service bar (table mode)
+        const serviceBtn = e.target.closest('[data-service]');
+        if (serviceBtn) {
+          const action = serviceBtn.dataset.service;
+          if (action === 'call-server') callServer();
+          else if (action === 'ask-bill') openBill();
+          return;
+        }
+
+        // Bill sheet
+        if (e.target.closest('[data-close-bill]')) { closeBill(); return; }
+        const tipChip = e.target.closest('.tip-chip');
+        if (tipChip) { setTipPercent(parseInt(tipChip.dataset.tip, 10)); return; }
+        if (e.target.closest('#bill-confirm-btn')) { confirmBill(); return; }
         // Tabs
         const tab = e.target.closest('.menu-tab');
         if (tab) {
