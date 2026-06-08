@@ -2952,7 +2952,10 @@
   const MI_TAGS = ['signature','top','premium','vegan','veg'];
   const MI_TAG_LABEL = { signature:'Signature', top:'Top', premium:'Premium', vegan:'Vegan', veg:'Végé' };
   const MI_STATIONS_ALL = ['cuisine-chaude','cuisine-froide','comptoir','bar','bar-jus','creperie','patisserie','glacier','hammam','cabine-1','cabine-2','cabine-3'];
-  const MI_STATION_STATE = {
+  /* Session-mutable. Owners can edit station status + meta via the
+   * Stations cuisine tab. Use a `let` so a wholesale rename can swap
+   * entries without `const` complaints. */
+  let MI_STATION_STATE = {
     'cuisine-chaude': { dot: 'busy',    meta: '142 tickets aujourd\'hui' },
     'cuisine-froide': { dot: 'on',      meta: 'Opérationnelle' },
     'comptoir':       { dot: 'on',      meta: 'Opérationnelle' },
@@ -3313,7 +3316,8 @@
       if (back) back.querySelector('.kiwi-modal-close')?.click();
       miOpenGroupModal(miGroupById(gid), { attachToItemId: itemId });
     };
-    H['mi-station']      = (_el, id) => Kiwi.toast(`Configuration de la station ${id}`, { type: 'info', desc: 'Routage, imprimante, écran KDS.' });
+    H['mi-station']      = (_el, id) => miOpenEditStationModal(id);
+    H['mi-edit-station'] = (_el, id) => miOpenEditStationModal(id);
     H['mi-add-station']  = () => miOpenAddStationModal();
     H['mi-remove-station'] = (_el, id) => miRemoveStation(id);
     H['mi-reroute-item'] = (el, id) => miRerouteItem(id, el);
@@ -3528,19 +3532,10 @@
     const groupsGlobal = MI_MOD_GROUPS.filter(g => g.isGlobal).length;
     const groupsStats = `<div class="mi-section-sub">${MI_MOD_GROUPS.length} groupe${MI_MOD_GROUPS.length > 1 ? 's' : ''} · ${groupsApplied} appliqué${groupsApplied > 1 ? 's' : ''} · ${groupsGlobal} global${groupsGlobal > 1 ? 'aux' : ''}</div>`;
 
-    /* Stations — session-mutable list (add / remove) */
-    const stationIds = miGetStations(venue);
-    const connected = stationIds.filter(s => miStationState(s).dot !== 'off').length;
-    const stationCards = stationIds.map(s => {
-      const st = miStationState(s);
-      const routed = allItems.filter(i => i.station === s).length;
-      return `
-        <div class="mi-station" data-action="mi-station" data-arg="${s}">
-          <button type="button" class="mi-station-x" data-action="mi-remove-station" data-arg="${s}" aria-label="Retirer la station">${miSvg('plus', 11)}</button>
-          <div class="mi-station-top"><span class="mi-st-dot ${st.dot}"></span><span class="mi-station-name">${eqEsc(s)}</span></div>
-          <div class="mi-station-meta">${eqEsc(st.meta)} · ${routed} article${routed > 1 ? 's' : ''}</div>
-        </div>`;
-    }).join('');
+    /* Note: Routage cuisine section moved to its own "Stations cuisine"
+     * tab — miStationsTabHtml. Lives at a top-level pill so it can carry
+     * its own rich content (edit modal, KPIs, routing matrix) without
+     * crowding the menu editor. */
 
     return `
       <div class="mi-section">
@@ -3568,15 +3563,73 @@
         <div class="mi-collapse-body">
           <div class="mi-groups-grid">${groupsHtml}</div>
         </div>
-      </div>
+      </div>`;
+  }
 
-      <div class="mi-section">
-        <div class="mi-section-head">
-          <h3>Routage cuisine</h3>
-          <button class="btn-slim" data-action="mi-add-station">${miSvg('plus', 13)}<span>Ajouter une station</span></button>
+  /* ═══════════ TAB · STATIONS CUISINE ═══════════════════════════════════
+   * Full-page station routing editor. Reachable via the "Stations cuisine"
+   * pill on the Menu page. Owners can add / rename / edit status / remove
+   * stations. Click a station → edit modal; the X button on each card
+   * triggers the remove confirm. All edits are session-mutable.
+   * ═════════════════════════════════════════════════════════════════════ */
+  function miStationsTabHtml() {
+    const venue = miMenuVenue();
+    const items = MENU[venue] || [];
+    const stationIds = miGetStations(venue);
+    const connected = stationIds.filter(s => miStationState(s).dot !== 'off').length;
+    const totalRouted = items.length;
+    const unrouted = items.filter(i => !stationIds.includes(i.station)).length;
+
+    const kpis = `
+      <div class="mi-kpi-grid">
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Stations actives</div>
+          <div class="mi-kpi-v">${connected} / ${stationIds.length}</div>
+          <div class="mi-kpi-sub">${connected === stationIds.length ? 'toutes opérationnelles' : `${stationIds.length - connected} hors service`}</div>
         </div>
-        <div class="mi-section-sub">Routage actif : ${connected} stations connectées sur ${stationIds.length}</div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Articles routés</div>
+          <div class="mi-kpi-v">${totalRouted}</div>
+          <div class="mi-kpi-sub">sur l'ensemble du menu</div>
+        </div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Articles non routés</div>
+          <div class="mi-kpi-v ${unrouted > 0 ? 'mi-recipe-warn' : ''}">${unrouted}</div>
+          <div class="mi-kpi-sub">${unrouted === 0 ? '✓ routage complet' : 'à réassigner'}</div>
+        </div>
+      </div>`;
+
+    const stationCards = stationIds.map(s => {
+      const st = miStationState(s);
+      const routed = items.filter(i => i.station === s).length;
+      const sample = items.filter(i => i.station === s).slice(0, 3).map(i => eqEsc(i.name)).join(', ');
+      return `
+        <div class="mi-station mi-station-card" data-action="mi-station" data-arg="${s}">
+          <button type="button" class="mi-station-x" data-action="mi-remove-station" data-arg="${s}" aria-label="Retirer la station">${miSvg('plus', 11)}</button>
+          <div class="mi-station-top"><span class="mi-st-dot ${st.dot}"></span><span class="mi-station-name">${eqEsc(s)}</span></div>
+          <div class="mi-station-meta">${eqEsc(st.meta)}</div>
+          <div class="mi-station-routed">${routed} article${routed > 1 ? 's' : ''} routé${routed > 1 ? 's' : ''}${sample ? ` · ${sample}${routed > 3 ? '…' : ''}` : ''}</div>
+          <div class="mi-station-edit">Cliquer pour éditer →</div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="mi-section">
+        <div class="mi-recettes-head">
+          <div>
+            <div class="mi-title">Stations cuisine</div>
+            <div class="mi-sub">Routage des plats vers les postes · ajoutez, renommez, désactivez à la volée.</div>
+          </div>
+          <button class="btn-slim primary" data-action="mi-add-station">${miSvg('plus', 13)}<span>Ajouter une station</span></button>
+        </div>
+        ${kpis}
         <div class="mi-stations">${stationCards}</div>
+        <div class="mi-ai" data-stations-scripted>
+          <div class="mi-ai-eyebrow">Kiwi AI · Routage</div>
+          <div class="mi-ai-t">Comment fonctionne le routage</div>
+          <div class="mi-ai-b">Chaque article du menu est envoyé à une seule station. Quand un ticket arrive en cuisine, le KDS répartit les plats automatiquement. Les statuts <b>busy</b> et <b>pending</b> sont des signaux live remontés par les écrans cuisine — ils s'auto-rafraîchissent toutes les 30 s.</div>
+          <div class="mi-ai-a">→ Pour réassigner un plat à une autre station, ouvrez-le depuis l'onglet Menu &amp; modificateurs (champ « Station de routage »).</div>
+        </div>
       </div>`;
   }
   function miListHtml(list) {
@@ -4843,7 +4896,7 @@
       const idx = list.indexOf(st);
       if (idx > -1) list.splice(idx, 1);
       Kiwi.toast(`Station « ${st} » retirée`, { type: 'success', desc: routed.length ? `${routed.length} article(s) → ${fallback}` : '' });
-      if (miTab === 'menu') miRenderTab1Body();
+      if (miTab === 'menu' || miTab === 'stations') miRenderTab1Body();
     };
   }
   function miOpenAddStationModal() {
@@ -4865,10 +4918,84 @@
       list.push(name);
       m.close();
       Kiwi.toast(`Station « ${name} » ajoutée`, { type: 'success' });
-      if (miTab === 'menu') miRenderTab1Body();
+      if (miTab === 'menu' || miTab === 'stations') miRenderTab1Body();
     };
     m.el.querySelector('[data-msf="name"]').addEventListener('input', e => e.target.classList.remove('eq-invalid'));
   }
+
+  /* Edit station modal — opens when a station card is clicked. Lets owners
+   * rename the station (which cascades to all routed items + the venue's
+   * station list), change its status (on / busy / pending / off), and edit
+   * the descriptive meta text. Includes a "Supprimer" button that calls
+   * the same confirm flow as the X. */
+  function miOpenEditStationModal(stationId) {
+    const venue = miMenuVenue();
+    const items = MENU[venue] || [];
+    const routedItems = items.filter(i => i.station === stationId);
+    const state = miStationState(stationId);
+
+    /* Sample list of routed dishes, capped + with a 'voir tous' link if more. */
+    const sampleHtml = routedItems.length
+      ? `<div class="kf-help" style="margin-top:6px;">Articles routés (${routedItems.length}) : ${routedItems.slice(0, 6).map(i => `<b style="color:var(--ink);font-weight:500;">${eqEsc(i.name)}</b>`).join(', ')}${routedItems.length > 6 ? `, +${routedItems.length - 6} autres` : ''}.</div>`
+      : `<div class="kf-help" style="margin-top:6px;">Aucun article ne pointe encore vers cette station.</div>`;
+
+    const m = Kiwi.modal({
+      tag: 'STATION', title: `Éditer · « ${stationId} »`, width: 520,
+      body: `
+        <div class="kf-group">
+          <label class="kf-label">Nom de la station</label>
+          <input class="kf-input" data-mesf="name" value="${eqEsc(stationId)}" placeholder="cuisine-chaude" />
+          <div class="kf-help">Lettres minuscules, tirets autorisés. La modification renomme aussi tous les articles routés.</div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Statut opérationnel</label>
+          <div class="mi-est-status">
+            <label class="mi-est-status-opt"><input type="radio" name="mes-status" data-mesf="status" value="on" ${state.dot === 'on' ? 'checked' : ''}/><span class="mi-st-dot on"></span> Opérationnelle</label>
+            <label class="mi-est-status-opt"><input type="radio" name="mes-status" data-mesf="status" value="busy" ${state.dot === 'busy' ? 'checked' : ''}/><span class="mi-st-dot busy"></span> En charge (busy)</label>
+            <label class="mi-est-status-opt"><input type="radio" name="mes-status" data-mesf="status" value="pending" ${state.dot === 'pending' ? 'checked' : ''}/><span class="mi-st-dot pending"></span> En attente</label>
+            <label class="mi-est-status-opt"><input type="radio" name="mes-status" data-mesf="status" value="off" ${state.dot === 'off' ? 'checked' : ''}/><span class="mi-st-dot off"></span> Hors service</label>
+          </div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Description (visible sur le KDS)</label>
+          <input class="kf-input" data-mesf="meta" value="${eqEsc(state.meta)}" placeholder="Ex. Opérationnelle · 8 tickets en attente" />
+        </div>
+        ${sampleHtml}`,
+      foot: `<button class="kb ghost" data-mi-cancel>Annuler</button><button class="kb danger" data-mi-del>Supprimer la station</button><button class="eq-cta-gradient" data-mi-save>Enregistrer</button>`,
+    });
+    const back = m.el;
+    back.querySelector('[data-mi-cancel]').onclick = m.close;
+    back.querySelector('[data-mi-del]').onclick = () => { m.close(); setTimeout(() => miRemoveStation(stationId), 220); };
+    back.querySelector('[data-mi-save]').onclick = () => {
+      const nameInput = back.querySelector('[data-mesf="name"]');
+      const newName = nameInput.value.trim().toLowerCase().replace(/\s+/g, '-');
+      const newStatus = back.querySelector('[data-mesf="status"]:checked')?.value || state.dot;
+      const newMeta = back.querySelector('[data-mesf="meta"]').value.trim() || state.meta;
+      const list = miGetStations(venue);
+      if (!newName) { nameInput.classList.add('eq-invalid'); return; }
+      if (newName !== stationId && list.includes(newName)) {
+        nameInput.classList.add('eq-invalid');
+        Kiwi.toast('Une station avec ce nom existe déjà', { type: 'warn' });
+        return;
+      }
+      /* Rename cascade if name changed. */
+      if (newName !== stationId) {
+        const idx = list.indexOf(stationId);
+        if (idx > -1) list[idx] = newName;
+        routedItems.forEach(i => { i.station = newName; });
+        /* Move the state entry across. */
+        MI_STATION_STATE[newName] = { dot: newStatus, meta: newMeta };
+        delete MI_STATION_STATE[stationId];
+      } else {
+        MI_STATION_STATE[stationId] = { dot: newStatus, meta: newMeta };
+      }
+      m.close();
+      Kiwi.toast(`Station « ${newName} » enregistrée`, { type: 'success' });
+      if (miTab === 'stations' || miTab === 'menu') miRenderTab1Body();
+    };
+    back.querySelector('[data-mesf="name"]').addEventListener('input', e => e.target.classList.remove('eq-invalid'));
+  }
+
   function miOpenAddSubModal() {
     const venue = miMenuVenue();
     const stations = miGetStations(venue);
