@@ -1899,14 +1899,13 @@
     try { return JSON.parse(localStorage.getItem('kiwiKpiLayout')) || {}; }
     catch (_) { return {}; }
   }
-  /* Per-vertical KPI count — restaurants and spas get 7 tiles (room
-   * for "Temps moyen à table"); boutique + fusion stay at 6. */
-  const KPI_COUNT_BY_TYPE = { restaurant: 7, spa: 7, boutique: 6, fusion: 6 };
-  function kpiCountFor(venueType) { return KPI_COUNT_BY_TYPE[venueType] || 6; }
+  /* KPI band always shows 6 tiles. Owners can swap any of them via the
+   * Personnaliser drawer (e.g. include "Temps moyen à table" instead of
+   * one of the defaults). The cap is uniform across all venue types. */
+  const KPI_MAX = 6;
   function getKpiLayout(venueType) {
     const L = loadKpiLayouts()[venueType];
-    const max = kpiCountFor(venueType);
-    return (Array.isArray(L) && L.length === max && L.every((k) => KPI_CATALOG[k])) ? L : null;
+    return (Array.isArray(L) && L.length === KPI_MAX && L.every((k) => KPI_CATALOG[k])) ? L : null;
   }
   function saveKpiLayout(venueType, keys) {
     const all = loadKpiLayouts(); all[venueType] = keys;
@@ -2061,7 +2060,7 @@
     const available = Object.keys(KPI_CATALOG).filter((k) => {
       try { return !!KPI_CATALOG[k].derive(data, ctx); } catch (_) { return false; }
     });
-    const maxKpis = kpiCountFor(venueType);
+    const maxKpis = KPI_MAX;
     let selected = (getKpiLayout(venueType) || defaultKpiKeys(venueType))
       .filter((k) => available.includes(k)).slice(0, maxKpis);
 
