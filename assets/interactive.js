@@ -7,6 +7,10 @@
 
   /* i18n — current locale (fr default); window.KiwiI18n owns the master dict. */
   const kiwiLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+  /* Pick a localized string for the current UI language. Use for dynamically
+   * generated copy (toasts, dropdown menus) that can't carry a data-i18n
+   * attribute. Falls back to French if a locale is missing. */
+  const tr = (o) => (o == null ? '' : (o[kiwiLang()] ?? o.fr ?? ''));
 
   const GENERAL_STR = {
     fr: {
@@ -156,7 +160,7 @@
       desc: 'Votre compte Kiwi est activé en 3 minutes, directement depuis ce site.',
       steps: ['Type de commerce', 'Identité', 'Activation'],
       step_prefix: 'ÉTAPE',
-      finish_button: 'Terminer l\'inscription ✓',
+      finish_button: 'Terminer l\'inscription',
       business_resto: 'Restaurant / café',
       business_resto_desc: 'Plan de salle, tables, split bill, ticket cuisine inclus.',
       business_retail: 'Commerce de détail',
@@ -175,7 +179,7 @@
       phone_placeholder: '+212 6 xx xx xx xx',
       city_label: 'Ville',
       city_placeholder: 'Casablanca',
-      kyc_notice: '🔒 Vos données restent hébergées au Maroc. KYC automatique via votre CIN à l\'étape suivante.',
+      kyc_notice: 'Vos données restent hébergées au Maroc. KYC automatique via votre CIN à l\'étape suivante.',
       ready_title: 'Votre compte Kiwi est prêt.',
       ready_desc: 'Vous recevez votre terminal PAX A920 gratuitement sous 48h. En attendant, commencez à encaisser dès maintenant sur votre téléphone.',
       subscription_label: 'ABONNEMENT',
@@ -195,7 +199,7 @@
       desc: 'Your Kiwi account is activated in 3 minutes, directly from this site.',
       steps: ['Business Type', 'Identity', 'Activation'],
       step_prefix: 'STEP',
-      finish_button: 'Finish registration ✓',
+      finish_button: 'Finish registration',
       business_resto: 'Restaurant / café',
       business_resto_desc: 'Floor plan, tables, split bill, kitchen ticket included.',
       business_retail: 'Retail',
@@ -214,7 +218,7 @@
       phone_placeholder: '+212 6 xx xx xx xx',
       city_label: 'City',
       city_placeholder: 'Casablanca',
-      kyc_notice: '🔒 Your data remains hosted in Morocco. Automatic KYC via your CIN in the next step.',
+      kyc_notice: 'Your data remains hosted in Morocco. Automatic KYC via your CIN in the next step.',
       ready_title: 'Your Kiwi account is ready.',
       ready_desc: 'You will receive your free PAX A920 terminal within 48 hours. In the meantime, start taking payments now on your phone.',
       subscription_label: 'SUBSCRIPTION',
@@ -234,7 +238,7 @@
       desc: 'يتم تفعيل حسابك في كيوي في 3 دقائق، مباشرة من هذا الموقع.',
       steps: ['نوع النشاط', 'الهوية', 'التفعيل'],
       step_prefix: 'خطوة',
-      finish_button: 'إنهاء التسجيل ✓',
+      finish_button: 'إنهاء التسجيل',
       business_resto: 'مطعم / مقهى',
       business_resto_desc: 'خطة القاعة، الطاولات، تقسيم الفاتورة، تذكرة المطبخ متضمنة.',
       business_retail: 'تجارة التجزئة',
@@ -253,7 +257,7 @@
       phone_placeholder: 'xx xx xx 6 212+',
       city_label: 'المدينة',
       city_placeholder: 'الدار البيضاء',
-      kyc_notice: '🔒 بياناتك تبقى مستضافة في المغرب. التحقق من الهوية تلقائي عبر بطاقتكم الوطنية في الخطوة التالية.',
+      kyc_notice: 'بياناتك تبقى مستضافة في المغرب. التحقق من الهوية تلقائي عبر بطاقتكم الوطنية في الخطوة التالية.',
       ready_title: 'حسابك في كيوي جاهز.',
       ready_desc: 'ستستلم جهاز PAX A920 مجانًا في غضون 48 ساعة. في هذه الأثناء، ابدأ في تحصيل المدفوعات الآن على هاتفك.',
       subscription_label: 'الاشتراك',
@@ -1158,6 +1162,25 @@ ar: {
   /* ═══════════════════════ HANDLERS ═══════════════════════ */
   const handlers = {
 
+    /* Generic "Annuler / Fermer" affordances for locally-built modals & drawers
+     * (e.g. the Spa-CRM forms in pages-pro.js). They route the click to the
+     * overlay's real close button so scroll-lock + focus-return run correctly. */
+    'dismiss-modal': (el) => {
+      const back = el?.closest?.('.kiwi-backdrop') || document.querySelector('.kiwi-backdrop');
+      back?.querySelector('.kiwi-modal-close')?.click();
+    },
+    'dismiss-drawer': (el) => {
+      const back = el?.closest?.('.kiwi-drawer-backdrop') || document.querySelector('.kiwi-drawer-backdrop');
+      back?.querySelector('.kiwi-drawer-close')?.click();
+    },
+
+    'manage-billing': () => toast(
+      tr({ fr: 'Gestion de l\'abonnement', en: 'Manage subscription', ar: 'إدارة الاشتراك' }),
+      { type: 'info', desc: tr({
+        fr: 'Kiwi Pro · 699 MAD/mois · prélèvement le 1er du mois. Sans engagement.',
+        en: 'Kiwi Pro · 699 MAD/month · charged on the 1st. No commitment.',
+        ar: 'كيوي برو · 699 درهم/شهر · الخصم يوم 1. بدون التزام.' }) }),
+
     'signup': () => {
       let step = 0;
       let business = 'resto';
@@ -1441,7 +1464,7 @@ ar: {
             ${settingsRow('🟠', 'Glovo', 'Connecté · 1 420 MAD aujourd\'hui', { toggle: true, on: setOn('glovo'), action: 'settings-toggle', arg: 'glovo' })}
             ${settingsRow('🔴', 'Jumia Food', 'Connecté · 24 commandes', { toggle: true, on: setOn('jumia'), action: 'settings-toggle', arg: 'jumia' })}
             ${settingsRow('📊', 'Comptabilité', 'Export quotidien OCP', { toggle: true, on: setOn('compta'), action: 'settings-toggle', arg: 'compta' })}
-            ${settingsRow('🏦', 'BMCE Banque', 'IBAN vérifié ••3291', { toggle: true, on: setOn('bmce'), action: 'settings-toggle', arg: 'bmce' })}
+            ${settingsRow('🏦', 'Bank of Africa', 'IBAN vérifié ••3291', { toggle: true, on: setOn('bmce'), action: 'settings-toggle', arg: 'bmce' })}
           </div>
         </div>
       `,
@@ -1514,7 +1537,7 @@ ar: {
       m.el.addEventListener('click', (e) => {
         if (!e.target.closest('[data-ev-save]')) return;
         const name = (m.el.querySelector('[data-ev-name]').value || '').trim();
-        if (!name) { toast('Le nom de l\'activité est requis', { type: 'pend', force: true }); return; }
+        if (!name) { toast(tr({fr:'Le nom de l\'activité est requis', en:'Activity name is required', ar:'اسم النشاط مطلوب'}), { type: 'pend', force: true }); return; }
         KV.updateVenue(KV.getVenue(), {
           name,
           location: m.el.querySelector('[data-ev-city]').value,
@@ -1524,7 +1547,7 @@ ar: {
         m.close();
         // The Settings drawer behind now holds stale values — close it too.
         document.querySelectorAll('.kiwi-drawer-backdrop').forEach((b) => b.__kiwiClose && b.__kiwiClose());
-        toast('Boutique mise à jour', { type: 'success', force: true });
+        toast(tr({fr:'Boutique mise à jour', en:'Shop updated', ar:'تم تحديث المتجر'}), { type: 'success', force: true });
       });
     },
 
@@ -1538,19 +1561,19 @@ ar: {
       const TYPES = [
         { id: 'restaurant', base: 'restaurant', primary: true, label: 'Restaurant',          icon: ic('<path d="M3 3v6a2 2 0 002 2h1v10M6 11V3M11 3c-1 0-2 1.6-2 4s1 4 2 4 2-1.6 2-4-1-4-2-4zM11 11v10"/>') },
         { id: 'boutique',   base: 'boutique',   primary: true, label: 'Boutique',            icon: ic('<path d="M6 2 3 6v13a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/>') },
-        { id: 'spa',        base: 'spa',        primary: true, label: 'Spa / Bien-être',     icon: ic('<path d="M11 20A7 7 0 019.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>') },
-        { id: 'cafe',       base: 'restaurant',                label: 'Café / Salon de thé', icon: ic('<path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4z"/><path d="M6 2v2.5M10 2v2.5M14 2v2.5"/>') },
-        { id: 'fastfood',   base: 'restaurant',                label: 'Fast-food / Snack',   icon: ic('<path d="M3 11a9 9 0 0118 0"/><path d="M2 15h20"/><path d="M5 19h14a2 2 0 002-2H3a2 2 0 002 2z"/><path d="M7.5 7.6h.01M12 6.6h.01M16.5 7.6h.01"/>') },
-        { id: 'bakery',     base: 'restaurant',                label: 'Boulangerie',         icon: ic('<path d="M4 13a8 4.5 0 0116 0v4.5A1.5 1.5 0 0118.5 19h-13A1.5 1.5 0 014 17.5z"/><path d="M9.5 13.5v5M14.5 13.5v5"/>') },
+        { id: 'spa',        base: 'spa',        primary: true, label: tr({fr:'Spa / Bien-être', en:'Spa / Wellness', ar:'سبا / عافية'}),     icon: ic('<path d="M11 20A7 7 0 019.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>') },
+        { id: 'cafe',       base: 'restaurant',                label: tr({fr:'Café / Salon de thé', en:'Café / Tea room', ar:'مقهى / صالون شاي'}), icon: ic('<path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4z"/><path d="M6 2v2.5M10 2v2.5M14 2v2.5"/>') },
+        { id: 'fastfood',   base: 'restaurant',                label: tr({fr:'Fast-food / Snack', en:'Fast food / Snack', ar:'وجبات سريعة / سناك'}),   icon: ic('<path d="M3 11a9 9 0 0118 0"/><path d="M2 15h20"/><path d="M5 19h14a2 2 0 002-2H3a2 2 0 002 2z"/><path d="M7.5 7.6h.01M12 6.6h.01M16.5 7.6h.01"/>') },
+        { id: 'bakery',     base: 'restaurant',                label: tr({fr:'Boulangerie', en:'Bakery', ar:'مخبزة'}),         icon: ic('<path d="M4 13a8 4.5 0 0116 0v4.5A1.5 1.5 0 0118.5 19h-13A1.5 1.5 0 014 17.5z"/><path d="M9.5 13.5v5M14.5 13.5v5"/>') },
         { id: 'pizzeria',   base: 'restaurant',                label: 'Pizzeria',            icon: ic('<path d="M3 7l9 14 9-14z"/><path d="M3 7a30 30 0 0118 0"/><path d="M9.5 11h.01M13 13.5h.01M11 16.5h.01"/>') },
-        { id: 'traiteur',   base: 'restaurant',                label: 'Traiteur',            icon: ic('<path d="M4 17a8 8 0 0116 0z"/><path d="M2 17h20"/><path d="M12 5v4"/><path d="M10.5 5h3"/>') },
+        { id: 'traiteur',   base: 'restaurant',                label: tr({fr:'Traiteur', en:'Caterer', ar:'خدمات تقديم الطعام'}),            icon: ic('<path d="M4 17a8 8 0 0116 0z"/><path d="M2 17h20"/><path d="M12 5v4"/><path d="M10.5 5h3"/>') },
         { id: 'foodtruck',  base: 'restaurant',                label: 'Food truck',          icon: ic('<path d="M14 17V6a1 1 0 00-1-1H3a1 1 0 00-1 1v11h2"/><path d="M14 9h4l4 4v4h-2"/><path d="M9 17h2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>') },
-        { id: 'epicerie',   base: 'boutique',                  label: 'Épicerie',            icon: ic('<path d="M3 4h2l2.6 11.4a1 1 0 001 .8h8.8a1 1 0 001-.8L21 8H6"/><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/>') },
+        { id: 'epicerie',   base: 'boutique',                  label: tr({fr:'Épicerie', en:'Grocery', ar:'بقالة'}),            icon: ic('<path d="M3 4h2l2.6 11.4a1 1 0 001 .8h8.8a1 1 0 001-.8L21 8H6"/><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/>') },
         { id: 'pharmacie',  base: 'boutique',                  label: 'Pharmacie',           icon: ic('<path d="M9.5 3h5a1 1 0 011 1v4.5H20a1 1 0 011 1v5a1 1 0 01-1 1h-4.5V20a1 1 0 01-1 1h-5a1 1 0 01-1-1v-4.5H4a1 1 0 01-1-1v-5a1 1 0 011-1h4.5V4a1 1 0 011-1z"/>') },
-        { id: 'librairie',  base: 'boutique',                  label: 'Librairie',           icon: ic('<path d="M12 7v14"/><path d="M3 18a1 1 0 01-1-1V4a1 1 0 011-1h5a3 3 0 013 3v14a3 3 0 00-3-3z"/><path d="M21 18a1 1 0 001-1V4a1 1 0 00-1-1h-5a3 3 0 00-3 3v14a3 3 0 013-3z"/>') },
-        { id: 'fleuriste',  base: 'boutique',                  label: 'Fleuriste',           icon: ic('<path d="M12 22V12"/><path d="M12 12C9 12 7 9.5 7 6c4 0 5 2.5 5 6z"/><path d="M12 12c3 0 5-2.5 5-6-4 0-5 2.5-5 6z"/><path d="M8 22h8"/>') },
-        { id: 'coiffure',   base: 'spa',                       label: 'Salon de coiffure',   icon: ic('<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/>') },
-        { id: 'sport',      base: 'spa',                       label: 'Salle de sport',      icon: ic('<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>') },
+        { id: 'librairie',  base: 'boutique',                  label: tr({fr:'Librairie', en:'Bookshop', ar:'مكتبة'}),           icon: ic('<path d="M12 7v14"/><path d="M3 18a1 1 0 01-1-1V4a1 1 0 011-1h5a3 3 0 013 3v14a3 3 0 00-3-3z"/><path d="M21 18a1 1 0 001-1V4a1 1 0 00-1-1h-5a3 3 0 00-3 3v14a3 3 0 013-3z"/>') },
+        { id: 'fleuriste',  base: 'boutique',                  label: tr({fr:'Fleuriste', en:'Florist', ar:'محل أزهار'}),           icon: ic('<path d="M12 22V12"/><path d="M12 12C9 12 7 9.5 7 6c4 0 5 2.5 5 6z"/><path d="M12 12c3 0 5-2.5 5-6-4 0-5 2.5-5 6z"/><path d="M8 22h8"/>') },
+        { id: 'coiffure',   base: 'spa',                       label: tr({fr:'Salon de coiffure', en:'Hair salon', ar:'صالون حلاقة'}),   icon: ic('<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/>') },
+        { id: 'sport',      base: 'spa',                       label: tr({fr:'Salle de sport', en:'Gym', ar:'صالة رياضية'}),      icon: ic('<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>') },
       ];
       const moreCount = TYPES.filter((t) => !t.primary).length;
       const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;';
@@ -1609,29 +1632,29 @@ ar: {
         }
         if (e.target.closest('[data-ob-create]')) {
           const name = (nameInput.value || '').trim();
-          if (!name) { toast('Donnez un nom à votre activité', { type: 'pend', force: true }); nameInput.focus(); return; }
+          if (!name) { toast(tr({fr:'Donnez un nom à votre activité', en:'Give your business a name', ar:'أدخل اسم نشاطك التجاري'}), { type: 'pend', force: true }); nameInput.focus(); return; }
           const city = (m.el.querySelector('[data-ob-city]').value || '').trim();
           const goal = +(m.el.querySelector('[data-ob-goal]').value) || 0;
           const def = TYPES.find((x) => x.id === picked) || TYPES[0];
           let id = null;
           try { id = window.KiwiVenue?.createVenue?.({ type: def.base, typeLabel: def.label, name, location: city, goal }); } catch (_) {}
-          if (!id) { toast('Création impossible', { type: 'pend', force: true }); return; }
+          if (!id) { toast(tr({fr:'Création impossible', en:'Creation failed', ar:'تعذّر الإنشاء'}), { type: 'pend', force: true }); return; }
           m.close();
           try { window.KiwiVenue.setVenue(id); } catch (_) {}
           // A brand-new venue should land on "Aujourd'hui", not a stale range.
           const todayPill = document.querySelector('[data-action="date-range"][data-range="aujourdhui"]');
           if (todayPill && !todayPill.classList.contains('on')) todayPill.click();
           confetti();
-          toast('Votre tableau de bord est prêt', { type: 'success', force: true,
-            desc: `${name} — enregistrez votre première vente pour le voir prendre vie.` });
+          toast(tr({fr:'Votre tableau de bord est prêt', en:'Your dashboard is ready', ar:'لوحة التحكم جاهزة'}), { type: 'success', force: true,
+            desc: `${name} — ${tr({fr:'enregistrez votre première vente pour le voir prendre vie.', en:'record your first sale to see it come alive.', ar:'سجّل أول عملية بيع لتراها تنبض بالحياة.'})}` });
         }
       });
     },
 
     'export': () => {
-      toast('Préparation de l\'export…', { type: 'info', duration: 1600 });
+      toast(tr({fr:'Préparation de l\'export…', en:'Preparing export…', ar:'جارٍ تجهيز التصدير…'}), { type: 'info', duration: 1600 });
       setTimeout(() => {
-        toast('Export CSV prêt', { type: 'success', desc: '182 transactions · 24 avril 2026', action: { label: 'Télécharger', onClick: () => toast('Téléchargement démarré', {type:'info'}) } });
+        toast(tr({fr:'Export CSV prêt', en:'CSV export ready', ar:'ملف CSV جاهز'}), { type: 'success', desc: '182 transactions · 24 avril 2026', action: { label: tr({fr:'Télécharger', en:'Download', ar:'تنزيل'}), onClick: () => toast(tr({fr:'Téléchargement démarré', en:'Download started', ar:'بدأ التنزيل'}), {type:'info'}) } });
       }, 1800);
     },
 
@@ -1668,24 +1691,24 @@ ar: {
         }
         const met = e.target.closest('[data-method]');
         if (met) {
-          if (!amount) { toast('Saisissez un montant', {type: 'warn'}); return; }
+          if (!amount) { toast(tr({fr:'Saisissez un montant', en:'Enter an amount', ar:'أدخل المبلغ'}), {type: 'warn'}); return; }
           const method = met.dataset.method;
           // On a user-created venue, a sale is REAL — persist it and let the
           // dashboard (hero · KPIs · feed) recompute from the sales store.
           const KV = window.KiwiVenue;
           if (KV && KV.isCustom && KV.isCustom() && window.KiwiSales) {
             const num = parseFloat(String(amount).replace(',', '.')) || 0;
-            if (num <= 0) { toast('Montant invalide', { type: 'pend', force: true }); return; }
+            if (num <= 0) { toast(tr({fr:'Montant invalide', en:'Invalid amount', ar:'المبلغ غير صالح'}), { type: 'pend', force: true }); return; }
             m.close();
             window.KiwiSales.add(KV.getVenue(), { amount: num, method });
             const ML = { card: 'carte', qr: 'QR Wallet', link: 'lien de paiement' };
-            toast('Vente enregistrée', { type: 'success', force: true, desc: `${amount} MAD · ${ML[method] || method}` });
+            toast(tr({fr:'Vente enregistrée', en:'Sale recorded', ar:'تم تسجيل البيع'}), { type: 'success', force: true, desc: `${amount} MAD · ${ML[method] || method}` });
             return;
           }
           m.close();
-          if (method === 'card') toast(`En attente de la carte · ${amount} MAD`, {type: 'info', desc: 'Présentez la carte au terminal ou téléphone'});
-          if (method === 'qr') toast(`QR généré · ${amount} MAD`, {type: 'info', desc: 'Client scanne depuis Kiwi Wallet'});
-          if (method === 'link') toast('Lien de paiement copié', {type: 'success', desc: 'Envoyez-le par WhatsApp à votre client'});
+          if (method === 'card') toast(`${tr({fr:'En attente de la carte', en:'Waiting for card', ar:'في انتظار البطاقة'})} · ${amount} MAD`, {type: 'info', desc: tr({fr:'Présentez la carte au terminal ou téléphone', en:'Present the card to the terminal or phone', ar:'قدّم البطاقة للطرفية أو الهاتف'})});
+          if (method === 'qr') toast(`${tr({fr:'QR généré', en:'QR generated', ar:'تم إنشاء QR'})} · ${amount} MAD`, {type: 'info', desc: tr({fr:'Client scanne depuis Kiwi Wallet', en:'Customer scans from Kiwi Wallet', ar:'يمسح العميل الرمز من Kiwi Wallet'})});
+          if (method === 'link') toast(tr({fr:'Lien de paiement copié', en:'Payment link copied', ar:'تم نسخ رابط الدفع'}), {type: 'success', desc: tr({fr:'Envoyez-le par WhatsApp à votre client', en:'Send it via WhatsApp to your customer', ar:'أرسله عبر WhatsApp لعميلك'})});
         }
       });
     },
@@ -1699,7 +1722,7 @@ ar: {
           <div style="background:var(--atlas); color:var(--paper); border-radius:14px; padding:22px; margin-bottom:18px;">
             <div style="font-size:11px; color:var(--mint); letter-spacing:0.1em; font-family:var(--mono);">VOUS ALLEZ RECEVOIR</div>
             <div style="font-size:42px; font-weight:600; letter-spacing:-0.035em; line-height:1; margin-top:6px; font-feature-settings:'tnum' 1;">23 089,50 <span style="font-size:18px; opacity:0.7;">MAD</span></div>
-            <div style="font-size:13px; color:#c6ead4; margin-top:10px;">Sur BMCE ••3291 · d\'ici 10 secondes</div>
+            <div style="font-size:13px; color:#c6ead4; margin-top:10px;">Sur Bank of Africa ••3291 · d\'ici 10 secondes</div>
           </div>
           <div style="display:flex; flex-direction:column; gap:6px; font-size:13.5px;">
             <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--n-200);"><span style="color:var(--n-500);">Montant brut</span><span class="mono" style="font-family:var(--mono); font-weight:500;">23 091,00 MAD</span></div>
@@ -1716,8 +1739,8 @@ ar: {
         if (e.target.closest('[data-dismiss]')) m.close();
         if (e.target.closest('[data-confirm-settle]')) {
           m.close();
-          toast('Règlement en cours…', {type: 'info', duration: 2000});
-          setTimeout(() => toast('23 089,50 MAD crédités sur BMCE ••3291', {type: 'success', desc: 'Virement Instantané exécuté en 8,4 s'}), 2200);
+          toast(tr({fr:'Règlement en cours…', en:'Settlement in progress…', ar:'جارٍ تنفيذ التسوية…'}), {type: 'info', duration: 2000});
+          setTimeout(() => toast(tr({fr:'23 089,50 MAD crédités sur Bank of Africa ••3291', en:'23 089,50 MAD credited to Bank of Africa ••3291', ar:'23 089,50 MAD مُضافة إلى Bank of Africa ••3291'}), {type: 'success', desc: tr({fr:'Virement Instantané exécuté en 8,4 s', en:'Instant Transfer executed in 8.4 s', ar:'تم تنفيذ التحويل الفوري في 8,4 ثانية'})}), 2200);
         }
       });
     },
@@ -1765,7 +1788,7 @@ ar: {
             <div class="tx-timeline-item last">
               <div class="t">25 avril 09:00</div>
               <div class="n">Règlement prévu</div>
-              <div class="d">Inclus dans le batch de 23 089,50 MAD → BMCE ••3291</div>
+              <div class="d">Inclus dans le batch de 23 089,50 MAD → Bank of Africa ••3291</div>
             </div>
           </div>
         `,
@@ -1776,8 +1799,8 @@ ar: {
         `
       });
       document.body.addEventListener('click', function once(e) {
-        if (e.target.closest('[data-refund]')) { document.querySelector('.kiwi-backdrop .kiwi-modal-close')?.click(); setTimeout(() => toast('Choisir montant à rembourser', {type:'info'}), 220); }
-        if (e.target.closest('[data-print]')) toast('Reçu envoyé par WhatsApp à Karim B.', {type:'success'});
+        if (e.target.closest('[data-refund]')) { document.querySelector('.kiwi-backdrop .kiwi-modal-close')?.click(); setTimeout(() => toast(tr({fr:'Choisir montant à rembourser', en:'Choose amount to refund', ar:'اختر المبلغ المراد استرداده'}), {type:'info'}), 220); }
+        if (e.target.closest('[data-print]')) toast(tr({fr:'Reçu envoyé par WhatsApp à Karim B.', en:'Receipt sent via WhatsApp to Karim B.', ar:'تم إرسال الإيصال عبر WhatsApp إلى Karim B.'}), {type:'success'});
         if (e.target.closest('[data-dismiss]')) document.querySelector('.kiwi-backdrop .kiwi-modal-close')?.click();
         document.body.removeEventListener('click', once);
       });
@@ -1973,7 +1996,7 @@ ar: {
       subtitle: 'Connectez vos outils favoris',
       body: `
         <input class="kf-input" placeholder="Rechercher une intégration…" style="margin-bottom:16px;" />
-        ${['Careem','inDrive','Toptal','Yassir','Fenix','Wafacash','Inwi Money','Orange Money','Odoo','QuickBooks','Bank of Africa','CIH','AttijariWafa'].map(n => `
+        ${['Careem','inDrive','Toptal','Yassir','Fenix','Wafacash','Inwi Money','Orange Money','Odoo','QuickBooks','Bank of Africa','CIH','Attijariwafa Bank'].map(n => `
           <div class="notif" style="border-radius:10px; padding:12px; cursor:pointer;">
             <div class="n-ico" style="font-weight:700; color:var(--atlas); background:var(--paper-soft);">${n.charAt(0)}</div>
             <div class="n-body"><div class="n-title">${n}</div><div class="n-desc">Connexion en un clic via API officielle</div></div>
@@ -1988,18 +2011,18 @@ ar: {
       { label: 'Café Atlas · Agdal (Rabat)', icon: '<div style="width:18px; height:18px; background:var(--riad); border-radius:5px;"></div>' },
       { label: 'Café Atlas · Marrakech', icon: '<div style="width:18px; height:18px; background:#D99A2B; border-radius:5px;"></div>' },
       { sep: true },
-      { label: '+ Ajouter un emplacement', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>', onClick: () => toast('Assistant de nouvel emplacement', {type:'info'}) },
+      { label: tr({fr:'+ Ajouter un emplacement', en:'+ Add a location', ar:'+ إضافة موقع'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>', onClick: () => toast(tr({fr:'Assistant de nouvel emplacement', en:'New location wizard', ar:'معالج الموقع الجديد'}), {type:'info'}) },
       { label: 'Paramètres multi-boutiques', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>', onClick: () => handlers.settings() },
     ]),
 
     'profile-menu': (el) => menu(el, [
       { head: 'RACHID BENHIMA' },
-      { label: 'Mon profil', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/></svg>', onClick: () => toast('Profil ouvert', {type:'info'}) },
+      { label: tr({fr:'Mon profil', en:'My profile', ar:'ملفي الشخصي'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/></svg>', onClick: () => toast(tr({fr:'Profil ouvert', en:'Profile opened', ar:'تم فتح الملف الشخصي'}), {type:'info'}) },
       { label: 'Paramètres', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>', onClick: () => handlers.settings() },
-      { label: 'Facturation', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>', onClick: () => toast('Historique factures Kiwi', {type:'info'}) },
+      { label: tr({fr:'Facturation', en:'Billing', ar:'الفواتير'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>', onClick: () => toast(tr({fr:'Historique factures Kiwi', en:'Kiwi invoice history', ar:'سجل فواتير Kiwi'}), {type:'info'}) },
       { sep: true },
-      { label: 'Centre d\'aide', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 016 0c0 2-3 2-3 4M12 17h.01"/></svg>', onClick: () => toast('help.kiwi.ma', {type:'info'}) },
-      { label: 'Se déconnecter', danger: true, icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>', onClick: () => { toast('Déconnexion…', {type:'info'}); setTimeout(() => location.href = 'index.html', 800); } },
+      { label: tr({fr:'Centre d\'aide', en:'Help centre', ar:'مركز المساعدة'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 016 0c0 2-3 2-3 4M12 17h.01"/></svg>', onClick: () => toast('help.kiwi.ma', {type:'info'}) },
+      { label: tr({fr:'Se déconnecter', en:'Sign out', ar:'تسجيل الخروج'}), danger: true, icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>', onClick: () => { toast(tr({fr:'Déconnexion…', en:'Signing out…', ar:'جارٍ تسجيل الخروج…'}), {type:'info'}); setTimeout(() => location.href = 'index.html', 800); } },
     ]),
 
     'download-app': () => {
@@ -2027,13 +2050,13 @@ ar: {
         `
       });
       m.el.addEventListener('click', (e) => {
-        if (e.target.closest('[data-sms]')) { m.close(); toast('SMS envoyé', {type:'success', desc:'Ouvrez le lien pour installer Kiwi Wallet'}); }
+        if (e.target.closest('[data-sms]')) { m.close(); toast(tr({fr:'SMS envoyé', en:'SMS sent', ar:'تم إرسال الرسالة'}), {type:'success', desc:tr({fr:'Ouvrez le lien pour installer Kiwi Wallet', en:'Open the link to install Kiwi Wallet', ar:'افتح الرابط لتثبيت Kiwi Wallet'})}); }
       });
     },
 
     'download-kit': () => {
-      toast('Préparation du kit de marque…', {type:'info', duration:1500});
-      setTimeout(() => toast('Kit téléchargé', {type:'success', desc:'Logo · Palette · Typographies · Mockups · 24 Mo'}), 1700);
+      toast(tr({fr:'Préparation du kit de marque…', en:'Preparing brand kit…', ar:'جارٍ تجهيز مجموعة الهوية البصرية…'}), {type:'info', duration:1500});
+      setTimeout(() => toast(tr({fr:'Kit téléchargé', en:'Kit downloaded', ar:'تم تنزيل المجموعة'}), {type:'success', desc:'Logo · Palette · Typographies · Mockups · 24 Mo'}), 1700);
     },
 
     'lang-switch': (el) => {
@@ -2090,8 +2113,8 @@ ar: {
     }),
 
     'download-deck': () => {
-      toast('Téléchargement du deck…', {type:'info', duration: 1400});
-      setTimeout(() => toast('Deck PDF envoyé', {type:'success', desc:'NDA inclus · valable 48 h'}), 1600);
+      toast(tr({fr:'Téléchargement du deck…', en:'Downloading pitch deck…', ar:'جارٍ تنزيل العرض التقديمي…'}), {type:'info', duration: 1400});
+      setTimeout(() => toast(tr({fr:'Deck PDF envoyé', en:'PDF deck sent', ar:'تم إرسال ملف العرض'}), {type:'success', desc:tr({fr:'NDA inclus · valable 48 h', en:'NDA included · valid 48 h', ar:'يشمل اتفاقية عدم الإفصاح · صالح 48 ساعة'})}), 1600);
     },
 
     'kpi-detail': (el, arg) => {
