@@ -1,384 +1,157 @@
-/* ═══════════════════════════════════════════════════════════════════════════
- * Kiwi · Growth CRM — Clients & Marketing
- *
- * Adds handler: growth-crm
- * Requires interactive.js (Kiwi.toast, Kiwi.drawer, Kiwi.handlers, Kiwi.confetti).
- * ─────────────────────────────────────────────────────────────────────────── */
+/* Kiwi · Croissance — Clients & Marketing (guest CRM + campaign composer).
+ * Premium surface on the growth-kit. Requires interactive.js + growth-kit.js. */
 (() => {
   'use strict';
   if (!window.Kiwi) { console.warn('growth-crm.js loaded before interactive.js'); return; }
-  const { toast, drawer, handlers, confetti } = window.Kiwi;
-  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+  const { drawer, toast, confetti } = window.Kiwi;
+  const lang = () => (window.KiwiI18n?.getLang?.() || 'fr');
   const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
 
-  /* ─── Injected styles ─── */
-  const CSS = `
-  .crm-wrap { display: flex; flex-direction: column; gap: 28px; }
+  const SEG = [
+    { id: 'reg', n: 218, c: 'var(--atlas)', reach: 218, lift: 9200 },
+    { id: 'vip', n: 34,  c: '#C99A2E',      reach: 34,  lift: 5600 },
+    { id: 'new', n: 96,  c: '#3E78C9',      reach: 96,  lift: 4100 },
+    { id: 'win', n: 142, c: '#C0492F',      reach: 142, lift: 6800 },
+  ];
+  const GUESTS = [
+    { nm: 'Salma F.',   v: 31, sp: 11780, last: 2,  seg: 'vip' },
+    { nm: 'Nawal K.',   v: 24, sp: 3408,  last: 3,  seg: 'reg' },
+    { nm: 'Imane S.',   v: 22, sp: 3124,  last: 7,  seg: 'reg' },
+    { nm: 'Karim B.',   v: 19, sp: 2698,  last: 5,  seg: 'reg' },
+    { nm: 'Youssef A.', v: 14, sp: 2210,  last: 41, seg: 'win' },
+    { nm: 'Mehdi C.',   v: 8,  sp: 1136,  last: 12, seg: 'new' },
+    { nm: 'Hind M.',    v: 6,  sp: 940,   last: 38, seg: 'win' },
+    { nm: 'Walid F.',   v: 5,  sp: 720,   last: 9,  seg: 'new' },
+  ];
 
-  /* Section label */
-  .crm-section-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--n-500); margin-bottom: 10px; }
-
-  /* Segment grid */
-  .crm-segments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  @media (max-width: 900px) { .crm-segments { grid-template-columns: repeat(2, 1fr); } }
-  .crm-seg-card { background: #fff; border: 1.5px solid var(--n-200); border-radius: 14px; padding: 18px; cursor: pointer; transition: border-color 150ms, box-shadow 150ms; position: relative; }
-  .crm-seg-card:hover { border-color: var(--atlas); }
-  .crm-seg-card.crm-selected { border-color: var(--atlas); box-shadow: 0 0 0 3px rgba(11,110,79,0.12); }
-  .crm-seg-card .crm-seg-count { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; font-feature-settings: "tnum" 1; color: var(--ink); }
-  .crm-seg-card .crm-seg-label { font-size: 13px; font-weight: 500; color: var(--ink); margin-top: 4px; }
-  .crm-seg-card .crm-seg-sub { font-size: 11.5px; color: var(--n-500); margin-top: 2px; font-feature-settings: "tnum" 1; }
-  .crm-seg-card .crm-seg-dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 14px; right: 14px; }
-  .crm-seg-dot.crm-dot-green { background: var(--atlas); }
-  .crm-seg-dot.crm-dot-gold { background: #D4A017; }
-  .crm-seg-dot.crm-dot-blue { background: #3B82F6; }
-  .crm-seg-dot.crm-dot-red { background: #EF4444; }
-  html[data-theme="dark"] .crm-seg-card { background: var(--paper-soft); }
-
-  /* Guest table */
-  .crm-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--n-200); }
-  .crm-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  .crm-table thead tr { background: var(--paper-soft); }
-  .crm-table th { padding: 11px 16px; text-align: start; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-weight: 500; white-space: nowrap; }
-  .crm-table td { padding: 12px 16px; border-top: 1px solid var(--n-200); color: var(--ink); vertical-align: middle; }
-  .crm-table tbody tr:hover td { background: var(--paper-soft); }
-  .crm-table .crm-name { font-weight: 500; }
-  .crm-table .crm-mono { font-family: var(--mono); font-feature-settings: "tnum" 1; }
-  .crm-table .crm-muted { color: var(--n-500); }
-  .crm-table .crm-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; }
-  .crm-tag-reg { background: rgba(11,110,79,0.10); color: var(--atlas); }
-  .crm-tag-vip { background: rgba(212,160,23,0.12); color: #A07010; }
-  .crm-tag-new { background: rgba(59,130,246,0.10); color: #2563EB; }
-  .crm-tag-lost { background: rgba(239,68,68,0.10); color: #DC2626; }
-  html[data-theme="dark"] .crm-tag-reg { background: rgba(11,110,79,0.22); color: var(--mint); }
-  html[data-theme="dark"] .crm-tag-vip { background: rgba(212,160,23,0.22); color: #F0C040; }
-  html[data-theme="dark"] .crm-tag-new { background: rgba(59,130,246,0.22); color: #93C5FD; }
-  html[data-theme="dark"] .crm-tag-lost { background: rgba(239,68,68,0.22); color: #FCA5A5; }
-
-  /* Composer */
-  .crm-composer { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 20px; }
-  html[data-theme="dark"] .crm-composer { background: var(--paper-soft); }
-  .crm-channel-chips { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .crm-chip { padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--n-200); background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 150ms; color: var(--ink); }
-  .crm-chip:hover { border-color: var(--atlas); }
-  .crm-chip.crm-chip-active { border-color: var(--atlas); background: var(--atlas); color: #fff; }
-  html[data-theme="dark"] .crm-chip { background: var(--paper-soft); }
-  .crm-template-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-  .crm-template-row label { font-size: 12.5px; color: var(--n-600); white-space: nowrap; }
-  .crm-template-row select { flex: 1; padding: 9px 12px; border: 1px solid var(--n-200); border-radius: 10px; background: #fff; font-family: var(--sans); font-size: 13.5px; color: var(--ink); outline: none; cursor: pointer; }
-  .crm-template-row select:focus { border-color: var(--atlas); }
-  html[data-theme="dark"] .crm-template-row select { background: var(--paper-soft); border-color: var(--n-200); }
-  .crm-preview-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--n-500); margin-bottom: 8px; }
-  .crm-bubble-wrap { display: flex; justify-content: flex-end; margin-bottom: 14px; }
-  .crm-bubble { max-width: 78%; background: var(--atlas); color: #fff; border-radius: 18px 18px 4px 18px; padding: 12px 16px; font-size: 14px; line-height: 1.55; }
-  .crm-bubble .crm-bubble-time { font-size: 10.5px; opacity: 0.65; margin-top: 6px; text-align: end; font-family: var(--mono); }
-  .crm-stats-row { display: flex; gap: 10px; margin-bottom: 18px; }
-  .crm-stat-pill { flex: 1; background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 10px; padding: 11px 14px; }
-  .crm-stat-pill .crm-pill-l { font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); }
-  .crm-stat-pill .crm-pill-v { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin-top: 3px; font-feature-settings: "tnum" 1; color: var(--ink); }
-  .crm-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--n-200); }
-
-  /* RTL */
-  [dir="rtl"] .crm-table th, [dir="rtl"] .crm-table td { text-align: right; }
-  [dir="rtl"] .crm-bubble { border-radius: 18px 18px 18px 4px; }
-  [dir="rtl"] .crm-bubble .crm-bubble-time { text-align: start; }
-  [dir="rtl"] .crm-footer { justify-content: flex-start; }
-
-  /* Dark overrides */
-  html[data-theme="dark"] .crm-table thead tr { background: rgba(255,255,255,0.04); }
-  html[data-theme="dark"] .crm-table tbody tr:hover td { background: rgba(255,255,255,0.04); }
-  `;
-  const st = document.createElement('style');
-  st.textContent = CSS;
-  document.head.appendChild(st);
-
-  /* ─── Strings ─── */
   const STR = {
-    fr: {
-      title: 'Clients & Marketing',
-      subtitle: 'Fidélisation · Segmentation · Campagnes',
-      secSegments: 'SEGMENTS',
-      secGuests: 'CLIENTS RÉGULIERS',
-      secComposer: 'COMPOSER UN MESSAGE',
-      segReg: 'Réguliers', segRegSub: 'Panier moy. 142 MAD',
-      segVip: 'VIP', segVipSub: 'Panier moy. 380 MAD',
-      segNew: 'Nouveaux ce mois', segNewSub: 'Acquis en juin',
-      segLost: 'À reconquérir', segLostSub: 'Non revenus depuis 30 j',
-      colName: 'Client', colVisits: 'Visites', colSpend: 'Total dépensé', colLast: 'Dernière visite', colSeg: 'Segment',
-      tagReg: 'Régulier', tagVip: 'VIP', tagNew: 'Nouveau', tagLost: 'À reconquérir',
-      chWa: 'WhatsApp', chSms: 'SMS', chEmail: 'Email',
-      tplLabel: 'Modèle',
-      tplWelcome: 'Mot de bienvenue',
-      tplBirthday: 'Anniversaire',
-      tplNew: 'Nouveauté à la carte',
-      tplOffer: 'Offre -15 %',
-      previewLabel: 'APERÇU DU MESSAGE',
-      pillAudience: 'AUDIENCE', pillRevenue: 'UPLIFT ESTIMÉ',
-      sendBtn: 'Programmer le message',
-      closeBtn: 'Fermer',
-      toastTitle: 'Message programmé',
-      toastDesc: 'Votre campagne sera envoyée dans les 24 h.',
-      msgWelcome: 'Bonjour {prénom}, merci de faire partie de la famille Café Atlas. Un café offert à votre prochaine visite, c\'est notre façon de vous dire merci.',
-      msgBirthday: 'Joyeux anniversaire {prénom} ! Chez Café Atlas, ce jour est spécial pour nous aussi. Un dessert maison vous attend — à bientôt !',
-      msgNew: 'Bonne nouvelle {prénom}, notre carte s\'enrichit ! Nouveaux plats, nouvelles saveurs. On vous attend pour les découvrir en avant-première.',
-      msgOffer: 'Offre exclusive pour vous, {prénom} : -15 % sur votre prochaine commande chez Café Atlas. Valable 7 jours — à bientôt !',
-    },
-    en: {
-      title: 'Customers & Marketing',
-      subtitle: 'Retention · Segmentation · Campaigns',
-      secSegments: 'SEGMENTS',
-      secGuests: 'REGULAR GUESTS',
-      secComposer: 'COMPOSE A MESSAGE',
-      segReg: 'Regulars', segRegSub: 'Avg basket 142 MAD',
-      segVip: 'VIP', segVipSub: 'Avg basket 380 MAD',
-      segNew: 'New this month', segNewSub: 'Acquired in June',
-      segLost: 'To win back', segLostSub: 'Not seen in 30 days',
-      colName: 'Guest', colVisits: 'Visits', colSpend: 'Total spent', colLast: 'Last visit', colSeg: 'Segment',
-      tagReg: 'Regular', tagVip: 'VIP', tagNew: 'New', tagLost: 'Lapsed',
-      chWa: 'WhatsApp', chSms: 'SMS', chEmail: 'Email',
-      tplLabel: 'Template',
-      tplWelcome: 'Welcome note',
-      tplBirthday: 'Birthday',
-      tplNew: 'New menu item',
-      tplOffer: '-15% offer',
-      previewLabel: 'MESSAGE PREVIEW',
-      pillAudience: 'AUDIENCE', pillRevenue: 'EST. UPLIFT',
-      sendBtn: 'Schedule message',
-      closeBtn: 'Close',
-      toastTitle: 'Message scheduled',
-      toastDesc: 'Your campaign will be sent within 24 hours.',
-      msgWelcome: 'Hi {prénom}, thank you for being part of the Café Atlas family. We\'re offering you a complimentary coffee on your next visit — our way of saying thank you.',
-      msgBirthday: 'Happy birthday {prénom}! At Café Atlas, today is special for us too. A homemade dessert is waiting for you — see you soon!',
-      msgNew: 'Great news {prénom} — our menu just got an upgrade! New dishes, new flavours. Come discover them first.',
-      msgOffer: 'Exclusive deal for you, {prénom}: -15% on your next order at Café Atlas. Valid for 7 days — see you soon!',
-    },
-    ar: {
-      title: 'العملاء والتسويق',
-      subtitle: 'الولاء · التصنيف · الحملات',
-      secSegments: 'الشرائح',
-      secGuests: 'الزبائن المنتظمون',
-      secComposer: 'إنشاء رسالة',
-      segReg: 'منتظمون', segRegSub: 'متوسط السلة 142 درهم',
-      segVip: 'VIP', segVipSub: 'متوسط السلة 380 درهم',
-      segNew: 'جدد هذا الشهر', segNewSub: 'انضموا في يونيو',
-      segLost: 'استعادتهم', segLostSub: 'لم يزوروا منذ 30 يومًا',
-      colName: 'الزبون', colVisits: 'الزيارات', colSpend: 'المجموع المنفق', colLast: 'آخر زيارة', colSeg: 'الشريحة',
-      tagReg: 'منتظم', tagVip: 'VIP', tagNew: 'جديد', tagLost: 'متوقف',
-      chWa: 'واتساب', chSms: 'SMS', chEmail: 'البريد',
-      tplLabel: 'النموذج',
-      tplWelcome: 'رسالة ترحيب',
-      tplBirthday: 'عيد ميلاد',
-      tplNew: 'جديد في القائمة',
-      tplOffer: 'عرض -15 %',
-      previewLabel: 'معاينة الرسالة',
-      pillAudience: 'الجمهور', pillRevenue: 'التوقعات',
-      sendBtn: 'جدولة الرسالة',
-      closeBtn: 'إغلاق',
-      toastTitle: 'تمت جدولة الرسالة',
-      toastDesc: 'ستُرسل حملتك خلال 24 ساعة.',
-      msgWelcome: 'مرحبًا {prénom}، شكرًا لانضمامك إلى عائلة كافيه أطلس. قهوة مجانية تنتظرك في زيارتك القادمة — هذه طريقتنا في قول شكرًا.',
-      msgBirthday: 'عيد ميلاد سعيد {prénom}! في كافيه أطلس، هذا اليوم مميز لنا أيضًا. حلوى منزلية تنتظرك — إلى اللقاء!',
-      msgNew: 'أخبار رائعة {prénom}، قائمتنا تجددت! أطباق جديدة ونكهات مبتكرة تنتظرك.',
-      msgOffer: 'عرض حصري لك {prénom}: خصم 15% على طلبك القادم في كافيه أطلس. صالح لمدة 7 أيام.',
-    }
+    fr: { title: 'Clients & Marketing', sub: 'Vos clients, segmentés — et la bonne relance, au bon moment.',
+      segLabel: { reg: 'Réguliers', vip: 'VIP', new: 'Nouveaux ce mois', win: 'À reconquérir' },
+      segSub: { reg: 'Panier moy. 142 MAD', vip: 'Panier moy. 380 MAD', new: 'Acquis en juin', win: 'Non revenus depuis 30 j' },
+      clients: 'CLIENTS', th: { c: 'Client', v: 'Visites', s: 'Dépensé', l: 'Dernière visite', g: 'Segment' },
+      ago: (d) => `il y a ${d} j`, segTag: { reg: 'Régulier', vip: 'VIP', new: 'Nouveau', win: 'Dormant' },
+      composer: 'CAMPAGNE', cTo: 'Cible', cChan: 'Canal', cTpl: 'Message',
+      tpls: ['Mot de bienvenue', 'Anniversaire', 'Nouveauté à la carte', 'Offre −15 %'],
+      preview: 'Aperçu', msg: (seg) => `Bonjour {prénom}, vous nous avez manqué chez Café Atlas. Un thé à la menthe vous attend — −15 % sur votre prochaine visite cette semaine.`,
+      reach: 'Audience', lift: 'CA estimé', send: 'Programmer le message',
+      toastT: 'Campagne programmée', toastD: (n) => `${n} clients · WhatsApp · départ demain 10h.`, close: 'Fermer' },
+    en: { title: 'Customers & Marketing', sub: 'Your customers, segmented — and the right nudge at the right time.',
+      segLabel: { reg: 'Regulars', vip: 'VIP', new: 'New this month', win: 'Win back' },
+      segSub: { reg: 'Avg basket 142 MAD', vip: 'Avg basket 380 MAD', new: 'Acquired in June', win: 'Not back in 30 days' },
+      clients: 'CUSTOMERS', th: { c: 'Customer', v: 'Visits', s: 'Spent', l: 'Last visit', g: 'Segment' },
+      ago: (d) => `${d}d ago`, segTag: { reg: 'Regular', vip: 'VIP', new: 'New', win: 'Dormant' },
+      composer: 'CAMPAIGN', cTo: 'Target', cChan: 'Channel', cTpl: 'Message',
+      tpls: ['Welcome note', 'Birthday', 'New on the menu', '−15 % offer'],
+      preview: 'Preview', msg: () => `Hi {first name}, we've missed you at Café Atlas. A mint tea is waiting — −15 % on your next visit this week.`,
+      reach: 'Audience', lift: 'Est. revenue', send: 'Schedule the message',
+      toastT: 'Campaign scheduled', toastD: (n) => `${n} customers · WhatsApp · sends tomorrow 10am.`, close: 'Close' },
+    ar: { title: 'العملاء والتسويق', sub: 'عملاؤك، مقسّمون — والرسالة المناسبة في الوقت المناسب.',
+      segLabel: { reg: 'دائمون', vip: 'كبار', new: 'جدد هذا الشهر', win: 'لاستعادتهم' },
+      segSub: { reg: 'متوسط السلة 142 درهم', vip: 'متوسط السلة 380 درهم', new: 'اكتُسبوا في يونيو', win: 'لم يعودوا منذ 30 يومًا' },
+      clients: 'العملاء', th: { c: 'العميل', v: 'الزيارات', s: 'الإنفاق', l: 'آخر زيارة', g: 'الفئة' },
+      ago: (d) => `منذ ${d} ي`, segTag: { reg: 'دائم', vip: 'كبير', new: 'جديد', win: 'خامل' },
+      composer: 'حملة', cTo: 'الهدف', cChan: 'القناة', cTpl: 'الرسالة',
+      tpls: ['رسالة ترحيب', 'عيد ميلاد', 'جديد في القائمة', 'عرض −15٪'],
+      preview: 'معاينة', msg: () => `مرحبًا {الاسم}، اشتقنا إليك في مقهى أطلس. شاي بالنعناع بانتظارك — −15٪ على زيارتك القادمة هذا الأسبوع.`,
+      reach: 'الجمهور', lift: 'الإيراد المقدّر', send: 'جدولة الرسالة',
+      toastT: 'تمت جدولة الحملة', toastD: (n) => `${n} عميل · واتساب · الإرسال غدًا 10ص.`, close: 'إغلاق' },
   };
 
-  /* ─── Guest data ─── */
-  const GUESTS = [
-    { name: 'Nawal K.',   visits: 24, spend: 3408, last: 'il y a 3 j',  seg: 'reg' },
-    { name: 'Karim B.',   visits: 19, spend: 2698, last: 'il y a 5 j',  seg: 'reg' },
-    { name: 'Salma F.',   visits: 31, spend: 11780, last: 'il y a 2 j', seg: 'vip' },
-    { name: 'Mehdi C.',   visits: 8,  spend: 1136, last: 'il y a 12 j', seg: 'new' },
-    { name: 'Imane S.',   visits: 22, spend: 3124, last: 'il y a 7 j',  seg: 'reg' },
-    { name: 'Youssef A.', visits: 12, spend: 4560, last: 'il y a 41 j', seg: 'lost' },
-    { name: 'Hind M.',    visits: 5,  spend: 710,  last: 'il y a 38 j', seg: 'lost' },
-    { name: 'Walid F.',   visits: 28, spend: 10640, last: 'il y a 1 j', seg: 'vip' },
-  ];
+  const CSS = `
+  .crm-segs { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .crm-seg { background:#fff; border:1px solid var(--n-200); border-radius:16px; padding:16px 17px; cursor:pointer; position:relative; transition:border-color .15s, box-shadow .15s, transform .15s; }
+  .crm-seg:hover { box-shadow:0 10px 24px -16px rgba(10,15,13,.3); transform:translateY(-2px); }
+  .crm-seg.sel { border-color:var(--atlas); box-shadow:0 0 0 1px var(--atlas); }
+  .crm-seg .dot { position:absolute; top:16px; inset-inline-end:16px; width:8px; height:8px; border-radius:50%; }
+  .crm-seg .n { font-family:var(--serif); font-size:34px; line-height:1; letter-spacing:-.01em; }
+  .crm-seg .l { font-size:13px; font-weight:600; margin-top:8px; } .crm-seg .s { font-size:11.5px; color:var(--n-500); margin-top:2px; }
 
-  /* Segment config */
-  const SEGS = [
-    { id: 'reg',  count: 218, dotCls: 'crm-dot-green', audience: 218, uplift: 4360 },
-    { id: 'vip',  count: 34,  dotCls: 'crm-dot-gold',  audience: 34,  uplift: 6800 },
-    { id: 'new',  count: 96,  dotCls: 'crm-dot-blue',  audience: 96,  uplift: 2880 },
-    { id: 'lost', count: 142, dotCls: 'crm-dot-red',   audience: 142, uplift: 6800 },
-  ];
+  .crm-grid { display:grid; grid-template-columns:1fr 360px; gap:18px; margin-top:20px; align-items:start; }
+  .crm-colt { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--n-500); margin-bottom:10px; }
+  .crm-tbl { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--n-200); border-radius:16px; overflow:hidden; }
+  .crm-tbl th { font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--n-500); text-align:start; padding:11px 14px; background:var(--paper-soft); font-weight:500; }
+  .crm-tbl td { padding:12px 14px; font-size:13px; border-top:1px solid var(--n-200); }
+  .crm-tbl td.mono { font-family:var(--mono); font-size:12px; } .crm-tbl tr:hover td { background:var(--paper-soft); }
+  .crm-tag { font-size:10.5px; font-family:var(--mono); padding:3px 9px; border-radius:999px; }
+  .crm-tag.reg { background:var(--mint-soft); color:#075238; } .crm-tag.vip { background:#FBF0D6; color:#8A6210; } .crm-tag.new { background:#E4ECF8; color:#3E78C9; } .crm-tag.win { background:#FBE3DD; color:#C0492F; }
 
-  const TEMPLATES = ['welcome', 'birthday', 'new', 'offer'];
+  .crm-comp { background:#fff; border:1px solid var(--n-200); border-radius:18px; padding:18px; }
+  .crm-comp h4 { margin:0 0 14px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--n-500); font-weight:500; }
+  .crm-f { margin-bottom:12px; } .crm-f .fl { font-size:11px; color:var(--n-500); margin-bottom:6px; }
+  .crm-chips { display:flex; gap:7px; flex-wrap:wrap; }
+  .crm-chip { font-size:12px; padding:6px 12px; border-radius:9px; border:1px solid var(--n-200); background:#fff; cursor:pointer; transition:all .12s; }
+  .crm-chip.on { background:var(--atlas); color:#fff; border-color:var(--atlas); }
+  .crm-sel { width:100%; font-size:13px; padding:9px 12px; border:1px solid var(--n-200); border-radius:10px; background:#fff; color:var(--ink); font-family:inherit; }
+  .crm-bubble { background:#DCF8C6; color:#0A1F12; border-radius:4px 14px 14px 14px; padding:11px 13px; font-size:12.5px; line-height:1.5; position:relative; box-shadow:0 1px 2px rgba(10,15,13,.12); }
+  html[data-theme="dark"] .crm-bubble { background:#114b35; color:#eafff3; }
+  .crm-wa { display:flex; align-items:center; gap:7px; font-size:10.5px; color:var(--n-500); margin-bottom:7px; font-family:var(--mono); letter-spacing:.04em; }
+  .crm-wa i { width:7px;height:7px;border-radius:50%; background:#25D366; }
+  .crm-kpis { display:flex; gap:10px; margin:14px 0; }
+  .crm-kpi { flex:1; background:var(--paper-soft); border-radius:12px; padding:11px 13px; }
+  .crm-kpi .v { font-family:var(--serif); font-size:21px; } .crm-kpi .l { font-size:10.5px; color:var(--n-500); margin-top:1px; }
+  .crm-send { width:100%; }
 
-  handlers['growth-crm'] = () => {
-    const T = STR[trLang()] || STR.fr;
-    const isAr = trLang() === 'ar';
-    const dir = isAr ? 'rtl' : 'ltr';
+  .crm-foot { display:flex; justify-content:flex-end; margin-top:22px; }
+  html[data-theme="dark"] .crm-seg, html[data-theme="dark"] .crm-tbl, html[data-theme="dark"] .crm-comp { background:#131916; border-color:#26302b; }
+  html[data-theme="dark"] .crm-tbl th, html[data-theme="dark"] .crm-kpi { background:#0f1714; } html[data-theme="dark"] .crm-tbl td { border-color:#26302b; }
+  html[data-theme="dark"] .crm-tbl tr:hover td, html[data-theme="dark"] .crm-chip { background:#0f1714; }
+  html[data-theme="dark"] .crm-chip { border-color:#26302b; } html[data-theme="dark"] .crm-sel { background:#0f1714; border-color:#26302b; color:var(--paper); }
+  @media (max-width:860px){ .crm-segs{grid-template-columns:1fr 1fr;} .crm-grid{grid-template-columns:1fr;} }
+  `;
+  const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
 
-    /* helpers */
-    const segLabel = (s) => ({ reg: T.tagReg, vip: T.tagVip, new: T.tagNew, lost: T.tagLost }[s] || s);
-    const segTagCls = (s) => ({ reg: 'crm-tag-reg', vip: 'crm-tag-vip', new: 'crm-tag-new', lost: 'crm-tag-lost' }[s] || 'crm-tag-reg');
+  window.Kiwi.handlers['growth-crm'] = () => {
+    const T = STR[lang()] || STR.fr;
+    const KIT = window.KiwiKit;
+    let sel = 'win';
+    const segData = (id) => SEG.find(s => s.id === id);
 
-    const segName = (id) => ({ reg: T.segReg, vip: T.segVip, new: T.segNew, lost: T.segLost }[id]);
-    const segSub  = (id) => ({ reg: T.segRegSub, vip: T.segVipSub, new: T.segNewSub, lost: T.segLostSub }[id]);
-    const tplMsg  = (k) => ({ welcome: T.msgWelcome, birthday: T.msgBirthday, new: T.msgNew, offer: T.msgOffer }[k] || T.msgWelcome);
-    const tplName = (k) => ({ welcome: T.tplWelcome, birthday: T.tplBirthday, new: T.tplNew, offer: T.tplOffer }[k]);
+    const body = `<div class="gk-reveal-root">
+      <div class="crm-segs">${SEG.map(s => `<div class="crm-seg ${s.id === sel ? 'sel' : ''}" data-crm-seg="${s.id}">
+        <span class="dot" style="background:${s.c}"></span>
+        <div class="n">${fmt(s.n)}</div><div class="l">${T.segLabel[s.id]}</div><div class="s">${T.segSub[s.id]}</div></div>`).join('')}</div>
 
-    /* track state */
-    let activeSeg = 'lost';
-    let activeCh  = 'wa';
-    let activeTpl = 'offer';
-
-    /* ── Segment cards ── */
-    const segCards = SEGS.map(s => `
-      <div class="crm-seg-card${s.id === activeSeg ? ' crm-selected' : ''}" data-crm-seg="${s.id}">
-        <span class="crm-seg-dot ${s.dotCls}"></span>
-        <div class="crm-seg-count">${fmt(s.count)}</div>
-        <div class="crm-seg-label">${segName(s.id)}</div>
-        <div class="crm-seg-sub">${segSub(s.id)}</div>
-      </div>`).join('');
-
-    /* ── Guest rows ── */
-    const guestRows = GUESTS.map(g => `
-      <tr>
-        <td class="crm-name">${g.name}</td>
-        <td class="crm-mono">${g.visits}</td>
-        <td class="crm-mono">${fmt(g.spend)} MAD</td>
-        <td class="crm-muted">${g.last}</td>
-        <td><span class="crm-tag ${segTagCls(g.seg)}">${segLabel(g.seg)}</span></td>
-      </tr>`).join('');
-
-    /* ── Channel chips ── */
-    const chipsHtml = () => ['wa', 'sms', 'email'].map(ch => `
-      <button class="crm-chip${activeCh === ch ? ' crm-chip-active' : ''}" data-crm-ch="${ch}">
-        ${ch === 'wa' ? T.chWa : ch === 'sms' ? T.chSms : T.chEmail}
-      </button>`).join('');
-
-    /* ── Template select ── */
-    const tplOpts = () => TEMPLATES.map(k => `<option value="${k}"${k === activeTpl ? ' selected' : ''}>${tplName(k)}</option>`).join('');
-
-    /* ── Audience & uplift for active segment ── */
-    const segData = () => SEGS.find(s => s.id === activeSeg) || SEGS[3];
-
-    /* ── Message bubble ── */
-    const bubbleMsg = () => tplMsg(activeTpl).replace('{prénom}', isAr ? 'سمية' : 'Samia');
-
-    /* ── Composer block (re-rendered on interaction) ── */
-    const composerInner = () => {
-      const sd = segData();
-      return `
-        <div class="crm-channel-chips">${chipsHtml()}</div>
-        <div class="crm-template-row">
-          <label for="crm-tpl-sel">${T.tplLabel}</label>
-          <select id="crm-tpl-sel" data-crm-tpl-select>
-            ${tplOpts()}
-          </select>
-        </div>
-        <div class="crm-preview-label">${T.previewLabel}</div>
-        <div class="crm-bubble-wrap">
-          <div class="crm-bubble">
-            <span id="crm-bubble-text">${bubbleMsg()}</span>
-            <div class="crm-bubble-time">14:22</div>
-          </div>
-        </div>
-        <div class="crm-stats-row">
-          <div class="crm-stat-pill">
-            <div class="crm-pill-l">${T.pillAudience}</div>
-            <div class="crm-pill-v" id="crm-audience">${fmt(sd.audience)} clients</div>
-          </div>
-          <div class="crm-stat-pill">
-            <div class="crm-pill-l">${T.pillRevenue}</div>
-            <div class="crm-pill-v" id="crm-uplift">≈ ${fmt(sd.uplift)} MAD</div>
-          </div>
-        </div>
-        <button class="kb atlas" data-crm-send>${T.sendBtn}</button>`;
-    };
-
-    /* ── Full drawer body ── */
-    const body = `
-      <div class="crm-wrap" dir="${dir}">
-
-        <!-- 1. Segments -->
-        <section>
-          <div class="crm-section-label">${T.secSegments}</div>
-          <div class="crm-segments" id="crm-seg-grid">${segCards}</div>
-        </section>
-
-        <!-- 2. Guest list -->
-        <section>
-          <div class="crm-section-label">${T.secGuests}</div>
-          <div class="crm-table-wrap">
-            <table class="crm-table">
-              <thead>
-                <tr>
-                  <th>${T.colName}</th>
-                  <th>${T.colVisits}</th>
-                  <th>${T.colSpend}</th>
-                  <th>${T.colLast}</th>
-                  <th>${T.colSeg}</th>
-                </tr>
-              </thead>
-              <tbody>${guestRows}</tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- 3. Composer -->
-        <section>
-          <div class="crm-section-label">${T.secComposer}</div>
-          <div class="crm-composer" id="crm-composer">${composerInner()}</div>
-        </section>
-
-        <!-- Footer -->
-        <div class="crm-footer">
-          <button class="kb ghost" data-dismiss>${T.closeBtn}</button>
+      <div class="crm-grid">
+        <div>
+          <div class="crm-colt">${T.clients}</div>
+          <table class="crm-tbl"><thead><tr><th>${T.th.c}</th><th>${T.th.v}</th><th>${T.th.s}</th><th>${T.th.l}</th><th>${T.th.g}</th></tr></thead>
+          <tbody>${GUESTS.map(g => `<tr><td style="font-weight:500">${g.nm}</td><td class="mono">${g.v}</td><td class="mono">${fmt(g.sp)} MAD</td><td style="color:var(--n-500)">${T.ago(g.last)}</td><td><span class="crm-tag ${g.seg}">${T.segTag[g.seg]}</span></td></tr>`).join('')}</tbody></table>
         </div>
 
-      </div>`;
+        <div class="crm-comp">
+          <h4>${T.composer}</h4>
+          <div class="crm-f"><div class="fl">${T.cTo}</div><div class="crm-chips"><span class="crm-chip on" data-crm-target>${T.segLabel[sel]} · <b data-crm-reach>${fmt(segData(sel).reach)}</b></span></div></div>
+          <div class="crm-f"><div class="fl">${T.cChan}</div><div class="crm-chips">
+            <button class="crm-chip on" data-crm-chan>WhatsApp</button><button class="crm-chip" data-crm-chan>SMS</button><button class="crm-chip" data-crm-chan>Email</button></div></div>
+          <div class="crm-f"><div class="fl">${T.cTpl}</div><select class="crm-sel">${T.tpls.map(t => `<option>${t}</option>`).join('')}</select></div>
+          <div class="crm-f"><div class="crm-wa"><i></i>${T.preview} · WhatsApp</div><div class="crm-bubble">${T.msg(sel)}</div></div>
+          <div class="crm-kpis">
+            <div class="crm-kpi"><div class="v" data-crm-reach2>${fmt(segData(sel).reach)}</div><div class="l">${T.reach}</div></div>
+            <div class="crm-kpi"><div class="v" data-crm-lift>≈ ${fmt(segData(sel).lift)}</div><div class="l">${T.lift} (MAD)</div></div>
+          </div>
+          <button class="kb atlas crm-send" data-crm-send>${T.send}</button>
+        </div>
+      </div>
+      <div class="crm-foot"><button class="kb ghost" data-dismiss>${T.close}</button></div>
+    </div>`;
 
-    const d = drawer({ title: T.title, subtitle: T.subtitle, fullpage: true, body });
-
-    /* ── Event delegation ── */
+    const d = drawer({ title: T.title, subtitle: T.sub, fullpage: true, body });
+    if (KIT) KIT.reveal(d.el.querySelector('.gk-reveal-root'));
+    const root = d.el;
     d.el.addEventListener('click', (e) => {
-      /* close */
-      if (e.target.closest('[data-dismiss]')) { d.close(); return; }
-
-      /* segment card */
-      const segCard = e.target.closest('[data-crm-seg]');
-      if (segCard) {
-        activeSeg = segCard.dataset.crmSeg;
-        d.el.querySelectorAll('.crm-seg-card').forEach(c => {
-          c.classList.toggle('crm-selected', c.dataset.crmSeg === activeSeg);
-        });
-        const comp = d.el.querySelector('#crm-composer');
-        if (comp) comp.innerHTML = composerInner();
-        attachSelectListener(d.el);
-        return;
-      }
-
-      /* channel chip */
-      const chip = e.target.closest('[data-crm-ch]');
-      if (chip) {
-        activeCh = chip.dataset.crmCh;
-        d.el.querySelectorAll('.crm-chip').forEach(c => {
-          c.classList.toggle('crm-chip-active', c.dataset.crmCh === activeCh);
-        });
-        return;
-      }
-
-      /* send */
-      if (e.target.closest('[data-crm-send]')) {
-        confetti && confetti();
-        toast(T.toastTitle, { desc: T.toastDesc, type: 'success' });
-        return;
+      const sg = e.target.closest('[data-crm-seg]');
+      const ch = e.target.closest('[data-crm-chan]');
+      if (sg) {
+        sel = sg.dataset.crmSeg; const sd = segData(sel);
+        root.querySelectorAll('[data-crm-seg]').forEach(x => x.classList.toggle('sel', x === sg));
+        root.querySelector('[data-crm-target]').innerHTML = `${T.segLabel[sel]} · <b data-crm-reach>${fmt(sd.reach)}</b>`;
+        root.querySelector('[data-crm-reach2]').textContent = fmt(sd.reach);
+        root.querySelector('[data-crm-lift]').textContent = '≈ ' + fmt(sd.lift);
+      } else if (ch) {
+        root.querySelectorAll('[data-crm-chan]').forEach(x => x.classList.toggle('on', x === ch));
+      } else if (e.target.closest('[data-crm-send]')) {
+        confetti && confetti(); toast(T.toastT, { type: 'success', desc: T.toastD(fmt(segData(sel).reach)) });
       }
     });
-
-    /* template select change */
-    const attachSelectListener = (root) => {
-      const sel = root.querySelector('[data-crm-tpl-select]');
-      if (!sel) return;
-      sel.addEventListener('change', () => {
-        activeTpl = sel.value;
-        const bt = root.querySelector('#crm-bubble-text');
-        if (bt) bt.textContent = bubbleMsg();
-      });
-    };
-    attachSelectListener(d.el);
   };
-
 })();

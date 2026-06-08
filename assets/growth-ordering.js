@@ -1,554 +1,201 @@
-/* ═══════════════════════════════════════════════════════════════════════════
- * Kiwi · Commande en ligne (Online Ordering)
- *
- * Kiwi's answer to Toast Online Ordering and the anti-Glovo / anti-Jumia wedge:
- * a merchant-branded ordering storefront (kiwi.shop/cafe-atlas) with 0 %
- * commission, channel connectors, and a live online-order inbox.
- *
- * Single fullpage drawer, handler key 'growth-ordering'.
- * Requires interactive.js (Kiwi.toast / drawer / handlers / confetti) and,
- * optionally, KiwiVenue.getMenuItems() for real menu names in the inbox.
- * Mirrors the architecture of assets/features.js. Every class is "ord-" scoped.
- * ─────────────────────────────────────────────────────────────────────────── */
+/* Kiwi · Croissance — Commande en ligne (commission-free online ordering).
+ * The anti-aggregator wedge: your own branded storefront at 0 % commission.
+ * Premium surface built on the growth-kit (branded QR, hero atmosphere, serif,
+ * staggered reveal). Requires interactive.js + growth-kit.js. */
 (() => {
   'use strict';
   if (!window.Kiwi) { console.warn('growth-ordering.js loaded before interactive.js'); return; }
-  const { toast, modal, drawer, handlers, confetti } = window.Kiwi;
-  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+  const { drawer, toast, confetti } = window.Kiwi;
+  const lang = () => (window.KiwiI18n?.getLang?.() || 'fr');
   const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
 
-  /* ─── Injected styles — every selector prefixed "ord-" ─── */
-  const CSS = `
-  .ord-grid { display: grid; gap: 16px; }
-  @media (min-width: 880px) { .ord-grid.ord-2 { grid-template-columns: 1.1fr 0.9fr; align-items: start; } }
-  .ord-card { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 18px; }
-  .ord-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--n-500); }
-  .ord-sectionhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 26px 2px 12px; }
-  .ord-sectionhead .ord-h { font-size: 16px; font-weight: 600; letter-spacing: -0.015em; }
-  .ord-sectionhead .ord-meta { font-size: 12px; color: var(--n-500); }
+  const BASE = 48200;                              // online sales / month (MAD)
+  const CH = [
+    { id: 'kiwi',  label: 'Kiwi Direct', sub: { fr: '0 % commission · paiement Kiwi', en: '0 % commission · Kiwi payment', ar: '0٪ عمولة · دفع كيوي' }, state: 'on' },
+    { id: 'glovo', label: 'Glovo',       sub: { fr: 'Agrégateur · ~30 %', en: 'Aggregator · ~30 %', ar: 'وسيط · ~30٪' }, state: 'linked' },
+    { id: 'jumia', label: 'Jumia Food',  sub: { fr: 'Agrégateur · ~28 %', en: 'Aggregator · ~28 %', ar: 'وسيط · ~28٪' }, state: 'connect' },
+    { id: 'cc',    label: 'Click & Collect', sub: { fr: 'Retrait en boutique', en: 'In-store pickup', ar: 'الاستلام من المتجر' }, state: 'on' },
+    { id: 'liv',   label: 'Livraison Kiwi', sub: { fr: 'Flotte Kiwi · tarif fixe', en: 'Kiwi fleet · flat fee', ar: 'أسطول كيوي · سعر ثابت' }, state: 'connect' },
+  ];
 
-  /* 1 · Storefront hero */
-  .ord-hero { background: linear-gradient(135deg, var(--atlas), var(--riad-deep)); color: var(--paper); border-radius: 16px; padding: 22px; position: relative; overflow: hidden; }
-  .ord-hero::before { content: ""; position: absolute; top: -90px; inset-inline-end: -70px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(125,242,176,0.34), transparent 62%); pointer-events: none; }
-  .ord-hero .ord-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: #c6ead4; }
-  .ord-hero .ord-storename { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-top: 8px; }
-  .ord-hero .ord-storesub { font-size: 13px; color: #c6ead4; margin-top: 4px; line-height: 1.45; }
-  .ord-hero-body { position: relative; display: flex; gap: 18px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
-  .ord-hero-left { flex: 1; min-width: 220px; }
-  .ord-urlbar { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; padding: 10px 12px; font-family: var(--mono); font-size: 13px; }
-  .ord-urlbar .ord-url { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ord-urlbar .ord-copy { margin-inline-start: auto; color: var(--mint); font-weight: 500; cursor: pointer; font-family: var(--sans); font-size: 12.5px; white-space: nowrap; }
-  .ord-hero-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-  .ord-qr { width: 108px; height: 108px; flex-shrink: 0; background: #fff; padding: 9px; border-radius: 12px; background-image: repeating-linear-gradient(0deg, var(--ink) 0 6px, transparent 6px 12px), repeating-linear-gradient(90deg, var(--ink) 0 6px, transparent 6px 12px); background-clip: content-box; }
-  .ord-toggle { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; font-size: 13px; }
-  .ord-switch { position: relative; width: 46px; height: 27px; flex-shrink: 0; border-radius: 14px; background: var(--n-300); transition: background 200ms; }
-  .ord-switch::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff; transition: inset-inline-start 200ms; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
-  .ord-toggle.on .ord-switch { background: var(--mint); }
-  .ord-toggle.on .ord-switch::after { inset-inline-start: 22px; }
-  .ord-hero .ord-toggle.on .ord-switch { background: var(--mint); }
-  .ord-statusline { display: flex; align-items: center; gap: 7px; margin-top: 14px; font-size: 12.5px; color: #c6ead4; }
-  .ord-statusdot { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px rgba(125,242,176,0.22); }
-  .ord-statusline.ord-off .ord-statusdot { background: var(--n-400); box-shadow: none; }
-
-  /* 2 · Commission savings */
-  .ord-save { background: var(--mint-soft); border: 1px solid transparent; border-radius: 16px; padding: 22px; }
-  .ord-save .ord-savetop { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  .ord-save .ord-savevol { font-family: var(--mono); font-size: 12px; color: var(--riad); }
-  .ord-save .ord-savehead { font-size: 15px; font-weight: 600; color: var(--riad); letter-spacing: -0.01em; }
-  .ord-save .ord-savebig { font-size: 38px; font-weight: 600; letter-spacing: -0.03em; color: var(--atlas); margin-top: 6px; font-feature-settings: "tnum" 1; }
-  .ord-save .ord-savebig .ord-u { font-size: 16px; color: var(--riad); margin-inline-start: 4px; }
-  .ord-save .ord-savesub { font-size: 13px; color: var(--riad); margin-top: 4px; line-height: 1.45; }
-  .ord-bars { display: grid; gap: 10px; margin-top: 18px; }
-  .ord-bar { display: grid; grid-template-columns: 116px 1fr auto; align-items: center; gap: 12px; }
-  .ord-bar .ord-barname { font-size: 13px; font-weight: 500; color: var(--riad); }
-  .ord-bar .ord-bartrack { height: 26px; border-radius: 7px; background: rgba(5,59,44,0.1); overflow: hidden; }
-  .ord-bar .ord-barfill { height: 100%; width: 0; border-radius: 7px; transition: width 800ms cubic-bezier(0.32,0.72,0,1); }
-  .ord-bar .ord-barfill.ord-kiwi { background: var(--atlas); }
-  .ord-bar .ord-barfill.ord-rival { background: var(--n-400); }
-  .ord-bar .ord-barval { font-family: var(--mono); font-size: 12.5px; font-weight: 500; color: var(--riad); white-space: nowrap; text-align: end; min-width: 92px; }
-  .ord-bar .ord-barval .ord-net { color: var(--atlas); }
-  .ord-bar .ord-barval .ord-fee { color: var(--danger); }
-
-  /* 3 · Channels */
-  .ord-channels { display: grid; gap: 10px; }
-  @media (min-width: 620px) { .ord-channels { grid-template-columns: 1fr 1fr; } }
-  .ord-channel { display: flex; align-items: center; gap: 13px; padding: 14px; border: 1px solid var(--n-200); border-radius: 12px; background: #fff; }
-  .ord-channel .ord-chico { width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 600; font-size: 14px; background: var(--paper-soft); color: var(--n-600); }
-  .ord-channel .ord-chico.ord-kiwi { background: var(--atlas); color: var(--paper); }
-  .ord-channel .ord-chbody { flex: 1; min-width: 0; }
-  .ord-channel .ord-chname { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
-  .ord-channel .ord-chmeta { font-size: 12px; color: var(--n-500); margin-top: 2px; }
-
-  /* 4 · Order inbox */
-  .ord-inbox { border: 1px solid var(--n-200); border-radius: 14px; overflow: hidden; background: #fff; }
-  .ord-order { display: grid; grid-template-columns: 58px 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--n-200); cursor: pointer; transition: background 150ms; }
-  .ord-order:last-child { border-bottom: 0; }
-  .ord-order:hover { background: var(--paper-soft); }
-  .ord-order .ord-time { font-family: var(--mono); font-size: 12px; color: var(--n-500); }
-  .ord-order .ord-cust { font-size: 14px; font-weight: 500; letter-spacing: -0.01em; }
-  .ord-order .ord-items { font-size: 12.5px; color: var(--n-500); margin-top: 2px; line-height: 1.4; }
-  .ord-order .ord-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-  .ord-order .ord-amt { font-family: var(--mono); font-size: 14px; font-weight: 500; white-space: nowrap; }
-  .ord-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 500; white-space: nowrap; }
-  .ord-chip.ord-kiwi { background: var(--mint-soft); color: var(--riad); }
-  .ord-chip.ord-glovo { background: #FFE9C7; color: #8A5A00; }
-  .ord-chip.ord-jumia { background: #FBD9D2; color: #9A2C1A; }
-  .ord-chip.ord-new { background: var(--atlas); color: var(--paper); }
-  .ord-chip.ord-prep { background: #FFF0D0; color: #8A5A00; }
-  .ord-chip.ord-ready { background: var(--mint-soft); color: var(--riad); }
-  .ord-foot-note { font-size: 12px; color: var(--n-500); text-align: center; margin-top: 14px; }
-
-  /* Dark-mode overrides for the custom-background surfaces */
-  html[data-theme="dark"] .ord-card,
-  html[data-theme="dark"] .ord-channel,
-  html[data-theme="dark"] .ord-inbox { background: var(--paper-soft); border-color: var(--n-200); }
-  html[data-theme="dark"] .ord-order:hover { background: var(--paper-muted); }
-  html[data-theme="dark"] .ord-channel .ord-chico { background: var(--paper-muted); }
-  html[data-theme="dark"] .ord-save { background: rgba(125,242,176,0.1); }
-  html[data-theme="dark"] .ord-save .ord-savehead,
-  html[data-theme="dark"] .ord-save .ord-savesub,
-  html[data-theme="dark"] .ord-save .ord-savevol,
-  html[data-theme="dark"] .ord-save .ord-savebig .ord-u,
-  html[data-theme="dark"] .ord-bar .ord-barname,
-  html[data-theme="dark"] .ord-bar .ord-barval { color: var(--mint); }
-  html[data-theme="dark"] .ord-save .ord-savebig { color: var(--mint); }
-  html[data-theme="dark"] .ord-bar .ord-bartrack { background: rgba(125,242,176,0.14); }
-  html[data-theme="dark"] .ord-chip.ord-glovo { background: rgba(217,154,43,0.18); color: #E7B860; }
-  html[data-theme="dark"] .ord-chip.ord-jumia { background: rgba(201,74,58,0.2); color: #E89384; }
-  html[data-theme="dark"] .ord-chip.ord-prep { background: rgba(217,154,43,0.18); color: #E7B860; }
-  `;
-  const st = document.createElement('style');
-  st.textContent = CSS;
-  document.head.appendChild(st);
-
-  /* ─── Economics (mocked monthly online volume) ─── */
-  const MONTHLY = 48200;            // MAD/month of online orders
-  const GLOVO_RATE = 0.30;          // ~30 %
-  const JUMIA_RATE = 0.28;          // ~28 %
-  const glovoFee = MONTHLY * GLOVO_RATE;   // 14 460
-  const jumiaFee = MONTHLY * JUMIA_RATE;   // 13 496
-  const URL = 'kiwi.shop/cafe-atlas';
-
-  /* ─── Trilingual strings ─── */
   const STR = {
-    fr: {
-      title: 'Commande en ligne',
-      subtitle: 'Votre boutique de commande à 0 % de commission · le wedge anti-Glovo',
-      // hero
-      heroEyebrow: 'VOTRE BOUTIQUE KIWI',
-      storeName: 'Café Atlas · Maarif',
-      storeSub: 'Commande et paiement en ligne, livraison ou retrait — sans intermédiaire.',
-      copy: 'Copier',
-      copied: 'Lien de la boutique copié',
-      preview: 'Aperçu de la boutique',
-      previewToast: 'Aperçu de la boutique ouvert',
-      previewDesc: `${URL} · vue client`,
-      storefrontOn: 'Boutique en ligne',
-      live: 'En ligne · accessible aux clients',
-      paused: 'En pause · masquée aux clients',
-      toggledOn: 'Boutique en ligne activée',
-      toggledOnDesc: 'Vos clients peuvent commander dès maintenant.',
-      toggledOff: 'Boutique mise en pause',
-      toggledOffDesc: 'La page ne prend plus de commandes.',
-      // savings
-      saveLabel: 'CE QUE VOUS GARDEZ',
-      saveVol: (v) => `Sur ${v} MAD/mois de commandes en ligne`,
-      saveHead: 'Commission par canal',
-      saveBig: (v) => `Vous gardez ${v} MAD/mois de plus qu'avec Glovo.`,
-      saveSub: 'Kiwi Direct ne prélève aucune commission. Les agrégateurs en gardent près du tiers.',
-      kiwiDirect: 'Kiwi Direct',
-      glovo: 'Glovo',
-      jumia: 'Jumia Food',
-      netKept: (v) => `${v} net`,
-      feeLost: (v) => `−${v}`,
-      pct0: '0 %',
-      pctGlovo: '~30 %',
-      pctJumia: '~28 %',
-      // channels
-      channelsLabel: 'Canaux de vente',
-      channelsMeta: 'Connectez vos points de vente en ligne',
-      chKiwiName: 'Kiwi Direct',
-      chKiwiMeta: '0 % commission · paiement Kiwi',
-      chGlovoMeta: 'Agrégateur · ~30 %',
-      chJumiaMeta: 'Agrégateur · ~28 %',
-      chCollectName: 'Click & Collect',
-      chCollectMeta: 'Retrait en boutique',
-      chDeliveryName: 'Livraison Kiwi',
-      chDeliveryMeta: 'Flotte Kiwi · tarif fixe',
-      stActivated: 'Activé',
-      stConnected: 'Connecté',
-      stConnect: 'Connecter',
-      chToastOn: (n) => `${n} activé`,
-      chToastOff: (n) => `${n} désactivé`,
-      chToastConn: (n) => `${n} connecté`,
-      chToastConnDesc: 'Les commandes arriveront dans votre boîte de réception.',
-      // inbox
-      inboxLabel: 'Commandes en ligne',
-      inboxMeta: (n) => `${n} commandes aujourd'hui`,
-      stNew: 'Nouveau',
-      stPrep: 'En préparation',
-      stReady: 'Prêt',
-      sentToKitchen: 'Commande envoyée en cuisine',
-      sentDesc: (c) => `${c} · ticket imprimé au passe`,
-      footNote: 'Mis à jour en temps réel · règlement T+1 sur votre Kiwi Compte.',
-      // footer
-      activate: 'Activer la boutique en ligne',
-      close: 'Fermer',
-      activatedTitle: 'Boutique en ligne activée',
-      activatedDesc: `${URL} est en ligne · partagez le lien à vos clients.`,
-    },
-    en: {
-      title: 'Online ordering',
-      subtitle: 'Your 0%-commission ordering storefront · the anti-Glovo wedge',
-      heroEyebrow: 'YOUR KIWI STOREFRONT',
-      storeName: 'Café Atlas · Maarif',
-      storeSub: 'Order and pay online, delivery or pickup — with no middleman.',
-      copy: 'Copy',
-      copied: 'Storefront link copied',
-      preview: 'Preview storefront',
-      previewToast: 'Storefront preview opened',
-      previewDesc: `${URL} · customer view`,
-      storefrontOn: 'Online storefront',
-      live: 'Live · open to customers',
-      paused: 'Paused · hidden from customers',
-      toggledOn: 'Online storefront enabled',
-      toggledOnDesc: 'Your customers can order right now.',
-      toggledOff: 'Storefront paused',
-      toggledOffDesc: 'The page is no longer taking orders.',
-      saveLabel: 'WHAT YOU KEEP',
-      saveVol: (v) => `On ${v} MAD/month of online orders`,
-      saveHead: 'Commission per channel',
-      saveBig: (v) => `You keep ${v} MAD/month more than with Glovo.`,
-      saveSub: 'Kiwi Direct takes zero commission. Aggregators keep almost a third.',
-      kiwiDirect: 'Kiwi Direct',
-      glovo: 'Glovo',
-      jumia: 'Jumia Food',
-      netKept: (v) => `${v} net`,
-      feeLost: (v) => `−${v}`,
-      pct0: '0%',
-      pctGlovo: '~30%',
-      pctJumia: '~28%',
-      channelsLabel: 'Sales channels',
-      channelsMeta: 'Connect your online points of sale',
-      chKiwiName: 'Kiwi Direct',
-      chKiwiMeta: '0% commission · Kiwi payment',
-      chGlovoMeta: 'Aggregator · ~30%',
-      chJumiaMeta: 'Aggregator · ~28%',
-      chCollectName: 'Click & Collect',
-      chCollectMeta: 'In-store pickup',
-      chDeliveryName: 'Kiwi Delivery',
-      chDeliveryMeta: 'Kiwi fleet · flat rate',
-      stActivated: 'Activated',
-      stConnected: 'Connected',
-      stConnect: 'Connect',
-      chToastOn: (n) => `${n} activated`,
-      chToastOff: (n) => `${n} disabled`,
-      chToastConn: (n) => `${n} connected`,
-      chToastConnDesc: 'Orders will land in your inbox.',
-      inboxLabel: 'Online orders',
-      inboxMeta: (n) => `${n} orders today`,
-      stNew: 'New',
-      stPrep: 'Preparing',
-      stReady: 'Ready',
-      sentToKitchen: 'Order sent to the kitchen',
-      sentDesc: (c) => `${c} · ticket printed at the pass`,
-      footNote: 'Updated in real time · T+1 settlement to your Kiwi Account.',
-      activate: 'Enable online storefront',
-      close: 'Close',
-      activatedTitle: 'Online storefront enabled',
-      activatedDesc: `${URL} is live · share the link with your customers.`,
-    },
-    ar: {
-      title: 'الطلب عبر الإنترنت',
-      subtitle: 'متجر الطلب الخاص بك بعمولة 0٪ · الميزة في وجه غلوفو',
-      heroEyebrow: 'متجر كيوي الخاص بك',
-      storeName: 'مقهى أطلس · المعاريف',
-      storeSub: 'اطلب وادفع عبر الإنترنت، توصيل أو استلام — بدون وسيط.',
-      copy: 'نسخ',
-      copied: 'تم نسخ رابط المتجر',
-      preview: 'معاينة المتجر',
-      previewToast: 'تم فتح معاينة المتجر',
-      previewDesc: `${URL} · عرض العميل`,
-      storefrontOn: 'المتجر الإلكتروني',
-      live: 'مباشر · متاح للعملاء',
-      paused: 'متوقف مؤقتًا · مخفي عن العملاء',
-      toggledOn: 'تم تفعيل المتجر الإلكتروني',
-      toggledOnDesc: 'يمكن لعملائك الطلب الآن.',
-      toggledOff: 'تم إيقاف المتجر مؤقتًا',
-      toggledOffDesc: 'لم تعد الصفحة تستقبل الطلبات.',
-      saveLabel: 'ما الذي تحتفظ به',
-      saveVol: (v) => `على ${v} درهم/شهر من الطلبات عبر الإنترنت`,
-      saveHead: 'العمولة حسب القناة',
-      saveBig: (v) => `تحتفظ بـ ${v} درهم/شهر أكثر من غلوفو.`,
-      saveSub: 'كيوي دايركت لا تأخذ أي عمولة. أما المنصات الوسيطة فتحتفظ بثلث المبلغ تقريبًا.',
-      kiwiDirect: 'كيوي دايركت',
-      glovo: 'غلوفو',
-      jumia: 'جوميا فود',
-      netKept: (v) => `${v} صافٍ`,
-      feeLost: (v) => `−${v}`,
-      pct0: '0٪',
-      pctGlovo: '~30٪',
-      pctJumia: '~28٪',
-      channelsLabel: 'قنوات البيع',
-      channelsMeta: 'اربط نقاط البيع عبر الإنترنت',
-      chKiwiName: 'كيوي دايركت',
-      chKiwiMeta: '0٪ عمولة · دفع كيوي',
-      chGlovoMeta: 'منصة وسيطة · ~30٪',
-      chJumiaMeta: 'منصة وسيطة · ~28٪',
-      chCollectName: 'الطلب والاستلام',
-      chCollectMeta: 'الاستلام من المتجر',
-      chDeliveryName: 'توصيل كيوي',
-      chDeliveryMeta: 'أسطول كيوي · سعر ثابت',
-      stActivated: 'مفعّل',
-      stConnected: 'متصل',
-      stConnect: 'ربط',
-      chToastOn: (n) => `تم تفعيل ${n}`,
-      chToastOff: (n) => `تم تعطيل ${n}`,
-      chToastConn: (n) => `تم ربط ${n}`,
-      chToastConnDesc: 'ستصل الطلبات إلى صندوق الوارد.',
-      inboxLabel: 'الطلبات عبر الإنترنت',
-      inboxMeta: (n) => `${n} طلبات اليوم`,
-      stNew: 'جديد',
-      stPrep: 'قيد التحضير',
-      stReady: 'جاهز',
-      sentToKitchen: 'تم إرسال الطلب إلى المطبخ',
-      sentDesc: (c) => `${c} · تمت طباعة التذكرة عند الممر`,
-      footNote: 'يتم التحديث في الوقت الفعلي · تسوية في اليوم الموالي على حساب كيوي.',
-      activate: 'تفعيل المتجر الإلكتروني',
-      close: 'إغلاق',
-      activatedTitle: 'تم تفعيل المتجر الإلكتروني',
-      activatedDesc: `${URL} مباشر الآن · شارك الرابط مع عملائك.`,
-    },
+    fr: { title: 'Commande en ligne', sub: 'Votre boutique à 0 % de commission — la parade aux agrégateurs.',
+      eyebrow: 'VOTRE BOUTIQUE KIWI', tagline: 'Commande, paiement et retrait en ligne. Aucun intermédiaire, aucune commission.',
+      copy: 'Copier', copied: 'Lien copié', online: 'En ligne · visible par vos clients', scan: 'Scannez pour commander',
+      keepEyebrow: 'CE QUE VOUS GARDEZ', keepUnit: 'MAD/mois',
+      keepNote: () => `de plus qu'avec Glovo, chaque mois. Kiwi Direct ne prélève rien — les agrégateurs gardent près du tiers de chaque commande.`,
+      onBase: (b) => `Sur ${fmt(b)} MAD/mois en ligne`,
+      channels: 'Canaux de vente', channelsHint: 'Connectez vos points de vente',
+      on: 'Activé', linked: 'Connecté', connect: 'Connecter',
+      inbox: 'Commandes en ligne', inboxHint: (n) => `${n} aujourd'hui`,
+      st: { new: 'Nouveau', prep: 'En préparation', ready: 'Prêt' },
+      cta: 'Activer la boutique en ligne', close: 'Fermer', toastT: 'Boutique en ligne activée', toastD: 'kiwi.shop/cafe-atlas est en ligne · 0 % de commission.', sent: 'Commande envoyée en cuisine' },
+    en: { title: 'Online ordering', sub: 'Your storefront at 0 % commission — the counter to aggregators.',
+      eyebrow: 'YOUR KIWI STOREFRONT', tagline: 'Order, pay and pick up online. No middleman, no commission.',
+      copy: 'Copy', copied: 'Link copied', online: 'Live · visible to your customers', scan: 'Scan to order',
+      keepEyebrow: 'WHAT YOU KEEP', keepUnit: 'MAD/mo',
+      keepNote: () => `more than with Glovo, every month. Kiwi Direct takes nothing — aggregators keep nearly a third of every order.`,
+      onBase: (b) => `On ${fmt(b)} MAD/mo online`,
+      channels: 'Sales channels', channelsHint: 'Connect your points of sale',
+      on: 'On', linked: 'Connected', connect: 'Connect',
+      inbox: 'Online orders', inboxHint: (n) => `${n} today`,
+      st: { new: 'New', prep: 'Preparing', ready: 'Ready' },
+      cta: 'Turn on the online store', close: 'Close', toastT: 'Online store activated', toastD: 'kiwi.shop/cafe-atlas is live · 0 % commission.', sent: 'Order sent to the kitchen' },
+    ar: { title: 'الطلب عبر الإنترنت', sub: 'متجرك بعمولة 0٪ — الرد على الوسطاء.',
+      eyebrow: 'متجرك على كيوي', tagline: 'الطلب والدفع والاستلام عبر الإنترنت. بدون وسيط، بدون عمولة.',
+      copy: 'نسخ', copied: 'تم نسخ الرابط', online: 'مباشر · ظاهر لعملائك', scan: 'امسح للطلب',
+      keepEyebrow: 'ما تحتفظ به', keepUnit: 'درهم/شهر',
+      keepNote: () => `أكثر من Glovo، كل شهر. كيوي دايركت لا يأخذ شيئًا — الوسطاء يحتفظون بقرابة ثلث كل طلب.`,
+      onBase: (b) => `على ${fmt(b)} درهم/شهر عبر الإنترنت`,
+      channels: 'قنوات البيع', channelsHint: 'اربط نقاط بيعك',
+      on: 'مفعّل', linked: 'متصل', connect: 'ربط',
+      inbox: 'الطلبات عبر الإنترنت', inboxHint: (n) => `${n} اليوم`,
+      st: { new: 'جديد', prep: 'قيد التحضير', ready: 'جاهز' },
+      cta: 'تفعيل المتجر الإلكتروني', close: 'إغلاق', toastT: 'تم تفعيل المتجر', toastD: 'kiwi.shop/cafe-atlas مباشر · عمولة 0٪.', sent: 'أُرسل الطلب إلى المطبخ' },
   };
 
-  /* ─── Resolve real menu names from KiwiVenue, with safe fallbacks ─── */
-  function menuName(id, fallback) {
-    const items = (window.KiwiVenue?.getMenuItems?.() || []);
-    const hit = items.find((i) => i.id === id);
-    return hit ? hit.name : fallback;
-  }
+  const CSS = `
+  .ord-grid { display:grid; grid-template-columns:1.05fr .95fr; gap:16px; }
+  .ord-hero { padding:24px; display:flex; gap:22px; align-items:center; }
+  .ord-hero-l { flex:1; min-width:0; }
+  .ord-eyebrow { font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; color:var(--mint); }
+  .ord-name { font-size:30px; line-height:1.05; margin:7px 0 9px; color:var(--paper); }
+  .ord-tag { font-size:13px; color:#cdeed9; line-height:1.5; max-width:34ch; }
+  .ord-link { margin-top:16px; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16); border-radius:12px; padding:11px 14px; }
+  .ord-link .u { font-family:var(--mono); font-size:13px; color:var(--paper); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ord-link .cp { font-size:12.5px; color:var(--mint); font-weight:600; cursor:pointer; background:none; border:0; white-space:nowrap; }
+  .ord-statusrow { margin-top:14px; display:flex; align-items:center; gap:12px; }
+  .ord-status { display:flex; align-items:center; gap:7px; font-size:12px; color:#cdeed9; }
+  .ord-status .dot { width:7px; height:7px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 3px rgba(125,242,176,.18); }
+  .ord-hero-r { text-align:center; flex:0 0 auto; }
+  .ord-scan { font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:#cdeed9; margin-top:10px; }
 
-  /* ═══════════════════ ONLINE ORDERING ═══════════════════ */
-  handlers['growth-ordering'] = () => {
-    const T = STR[trLang()] || STR.fr;
-    let storeOn = true;
+  .ord-keep { padding:22px; background:var(--mint-soft); border:1px solid rgba(11,110,79,.14); border-radius:20px; }
+  .ord-keep-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .ord-keep-eyebrow { font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; color:var(--atlas); }
+  .ord-keep-base { font-size:11.5px; color:var(--n-600); }
+  .ord-keep-big { font-size:42px; color:var(--riad); margin:8px 0 4px; line-height:1; }
+  .ord-keep-big .un { font-size:15px; font-family:var(--sans); color:var(--atlas); font-weight:600; margin-inline-start:6px; }
+  .ord-keep-note { font-size:12.5px; color:var(--n-700); line-height:1.5; }
+  .ord-bars { margin-top:16px; display:flex; flex-direction:column; gap:11px; }
+  .ord-bar-row { display:grid; grid-template-columns:96px 1fr auto; gap:12px; align-items:center; }
+  .ord-bar-lbl { font-size:12.5px; color:var(--ink); font-weight:500; }
+  .ord-bar-lbl .r { font-family:var(--mono); font-size:11px; color:var(--n-500); margin-inline-start:4px; }
+  .ord-bar { height:12px; border-radius:6px; background:#dfeee5; overflow:hidden; display:flex; }
+  .ord-bar .keep { background:var(--atlas); height:100%; }
+  .ord-bar .lost { background:#E06A52; height:100%; }
+  .ord-bar-val { font-family:var(--mono); font-size:12px; text-align:end; min-width:62px; }
+  .ord-bar-val.good { color:var(--atlas); } .ord-bar-val.bad { color:#C0492F; }
 
-    // Real menu names (live from the venue's menu engine; fallbacks if absent).
-    const salade = menuName('ca-e01', 'Salade marocaine');
-    const harira = menuName('ca-e03', 'Harira');
-    const kefta  = menuName('ca-t01', 'Tajine kefta');
-    const lait   = menuName('ca-b03', 'Café au lait');
-    const jus    = menuName('ca-b05', 'Jus orange pressé');
-    const the    = menuName('ca-b01', 'Thé à la menthe');
-    const couscous = menuName('ca-c01', 'Couscous royal');
+  .ord-sec { margin-top:26px; display:flex; align-items:baseline; justify-content:space-between; }
+  .ord-sec-t { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--n-500); }
+  .ord-sec-h { font-size:11.5px; color:var(--n-500); }
+  .ord-chs { margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .ord-ch { display:flex; align-items:center; gap:12px; background:#fff; border:1px solid var(--n-200); border-radius:14px; padding:13px 15px; transition:border-color .15s, box-shadow .15s; }
+  .ord-ch:hover { border-color:var(--n-300); box-shadow:0 6px 18px -12px rgba(10,15,13,.25); }
+  .ord-ch-ic { width:38px; height:38px; border-radius:11px; flex:0 0 auto; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; }
+  .ord-ch-b { flex:1; min-width:0; } .ord-ch-n { font-size:13.5px; font-weight:600; } .ord-ch-s { font-size:11.5px; color:var(--n-500); margin-top:1px; }
+  .ord-pill { font-size:10.5px; font-family:var(--mono); padding:3px 9px; border-radius:999px; background:var(--mint-soft); color:#075238; white-space:nowrap; }
+  .ord-connect { font-size:12px; font-weight:600; color:var(--atlas); background:var(--mint-soft); border:0; border-radius:9px; padding:7px 13px; cursor:pointer; transition:background .15s; white-space:nowrap; }
+  .ord-connect:hover { background:#c8ecd6; }
 
-    const channels = [
-      { key: 'kiwi',     name: T.chKiwiName,     meta: T.chKiwiMeta,     state: 'on',      icon: 'kiwi', glyph: 'K' },
-      { key: 'glovo',    name: 'Glovo',          meta: T.chGlovoMeta,    state: 'conn',    icon: '',     glyph: 'G' },
-      { key: 'jumia',    name: 'Jumia Food',     meta: T.chJumiaMeta,    state: 'connect', icon: '',     glyph: 'J' },
-      { key: 'collect',  name: T.chCollectName,  meta: T.chCollectMeta,  state: 'on',      icon: '',     glyph: 'C&C' },
-      { key: 'delivery', name: T.chDeliveryName, meta: T.chDeliveryMeta, state: 'connect', icon: '',     glyph: 'KD' },
-    ];
+  .ord-feed { margin-top:12px; border:1px solid var(--n-200); border-radius:16px; overflow:hidden; background:#fff; }
+  .ord-o { display:grid; grid-template-columns:auto 1fr auto auto; gap:14px; align-items:center; padding:13px 16px; cursor:pointer; transition:background .12s; }
+  .ord-o + .ord-o { border-top:1px solid var(--n-200); }
+  .ord-o:hover { background:var(--paper-soft); }
+  .ord-o-ch { font-size:10px; font-family:var(--mono); letter-spacing:.04em; padding:4px 9px; border-radius:7px; white-space:nowrap; }
+  .ord-o-ch.kiwi { background:var(--mint-soft); color:#075238; } .ord-o-ch.glovo { background:#FFE9D6; color:#B5651D; } .ord-o-ch.jumia { background:#FDE2E8; color:#B23A5A; }
+  .ord-o-m { min-width:0; } .ord-o-who { font-size:13px; font-weight:500; } .ord-o-it { font-size:11.5px; color:var(--n-500); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ord-o-amt { font-family:var(--mono); font-size:13px; font-weight:500; }
+  .ord-o-st { font-size:10.5px; font-family:var(--mono); padding:3px 8px; border-radius:6px; white-space:nowrap; }
+  .ord-o-st.new { background:var(--atlas); color:#fff; } .ord-o-st.prep { background:#FFF2D6; color:#8A6210; } .ord-o-st.ready { background:var(--mint-soft); color:#075238; }
+
+  .ord-foot { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
+
+  html[data-theme="dark"] .ord-ch, html[data-theme="dark"] .ord-feed { background:#131916; border-color:#26302b; }
+  html[data-theme="dark"] .ord-ch:hover { border-color:#34403a; }
+  html[data-theme="dark"] .ord-o:hover { background:#0f1714; }
+  html[data-theme="dark"] .ord-keep { background:rgba(125,242,176,.07); border-color:rgba(125,242,176,.16); }
+  html[data-theme="dark"] .ord-keep-big { color:var(--paper); } html[data-theme="dark"] .ord-keep-note { color:#b8c2bc; }
+  html[data-theme="dark"] .ord-bar { background:#26302b; }
+  @media (max-width:880px){ .ord-grid{grid-template-columns:1fr;} .ord-chs{grid-template-columns:1fr;} .ord-hero{flex-direction:column; text-align:center;} .ord-hero-l{text-align:center;} }
+  `;
+  const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
+
+  window.Kiwi.handlers['growth-ordering'] = () => {
+    const T = STR[lang()] || STR.fr;
+    const items = (window.KiwiVenue?.getMenuItems?.() || []).filter(i => i.price > 0);
+    const pick = (i) => (items[i % items.length] || {}).name || 'Tajine kefta';
+    const KIT = window.KiwiKit;
+
+    const bar = (rate, label) => {
+      const keepPct = (1 - rate) * 100, lostPct = rate * 100, lostMad = Math.round(BASE * rate);
+      return `<div class="ord-bar-row">
+        <div class="ord-bar-lbl">${label}<span class="r">${rate === 0 ? '0 %' : '−' + Math.round(rate * 100) + ' %'}</span></div>
+        <div class="ord-bar"><span class="keep" style="width:${keepPct}%"></span>${lostPct ? `<span class="lost" style="width:${lostPct}%"></span>` : ''}</div>
+        <div class="ord-bar-val ${rate === 0 ? 'good' : 'bad'}">${rate === 0 ? fmt(BASE) + ' net' : '−' + fmt(lostMad)}</div>
+      </div>`;
+    };
 
     const orders = [
-      { time: '12:48', ch: 'kiwi',  chLabel: T.kiwiDirect, cust: 'Nawal K.',   items: [kefta, the],      amt: 210, status: 'new' },
-      { time: '12:41', ch: 'glovo', chLabel: 'Glovo',      cust: 'Karim B.',   items: [couscous],        amt: 220, status: 'prep' },
-      { time: '12:33', ch: 'kiwi',  chLabel: T.kiwiDirect, cust: 'Salma F.',   items: [salade, jus],     amt: 95,  status: 'prep' },
-      { time: '12:25', ch: 'jumia', chLabel: 'Jumia',      cust: 'Mehdi C.',   items: [harira, lait],    amt: 53,  status: 'ready' },
-      { time: '12:18', ch: 'kiwi',  chLabel: T.kiwiDirect, cust: 'Imane S.',   items: [kefta, salade],   amt: 225, status: 'ready' },
-      { time: '12:06', ch: 'glovo', chLabel: 'Glovo',      cust: 'Youssef A.', items: [couscous, the],   amt: 250, status: 'ready' },
+      { ch: 'kiwi', who: 'Nawal K.', it: [0, 8], amt: 176, st: 'new' },
+      { ch: 'glovo', who: 'Karim B.', it: [6], amt: 95, st: 'prep' },
+      { ch: 'kiwi', who: 'Salma F.', it: [2, 9], amt: 142, st: 'prep' },
+      { ch: 'jumia', who: 'Mehdi C.', it: [6, 8], amt: 88, st: 'ready' },
+      { ch: 'kiwi', who: 'Imane S.', it: [2], amt: 50, st: 'ready' },
+      { ch: 'kiwi', who: 'Youssef A.', it: [0], amt: 180, st: 'ready' },
     ];
+    const chColor = { kiwi: 'background:var(--riad);color:var(--mint)', glovo: 'background:#FFE9D6;color:#B5651D', jumia: 'background:#FDE2E8;color:#B23A5A', cc: 'background:var(--paper-soft);color:var(--n-600)', liv: 'background:var(--paper-soft);color:var(--n-600)' };
+    const chState = (s) => s === 'connect' ? `<button class="ord-connect" data-ord-connect>${T.connect}</button>`
+      : `<span class="ord-pill">${s === 'on' ? T.on : T.linked}</span><button class="gk-tg on" data-ord-tg></button>`;
 
-    const chState = (s) =>
-      s === 'on' ? `<span class="ord-chip ord-ready" data-chstate>${T.stActivated}</span>`
-      : s === 'conn' ? `<span class="ord-chip ord-ready" data-chstate>${T.stConnected}</span>`
-      : `<button class="kb ghost" data-connect style="padding:7px 14px;">${T.stConnect}</button>`;
-
-    const chToggle = (c) => c.state === 'connect' ? '' :
-      `<label class="ord-toggle on" data-chtoggle="${c.key}" data-chname="${c.name}">
-         <span class="ord-switch"></span>
-       </label>`;
-
-    const statusChip = (s) =>
-      s === 'new'  ? `<span class="ord-chip ord-new">${T.stNew}</span>`
-      : s === 'prep' ? `<span class="ord-chip ord-prep">${T.stPrep}</span>`
-      : `<span class="ord-chip ord-ready">${T.stReady}</span>`;
-
-    const orderRow = (o, i) => `
-      <div class="ord-order" data-order="${i}" data-cust="${o.cust}">
-        <div class="ord-time">${o.time}</div>
-        <div>
-          <div class="ord-cust">${o.cust}</div>
-          <div class="ord-items">${o.items.join(' · ')}</div>
-        </div>
-        <div class="ord-right">
-          <div class="ord-amt">${fmt(o.amt)} MAD</div>
-          <span class="ord-chip ord-${o.ch}">${o.chLabel}</span>
-          ${statusChip(o.status)}
-        </div>
-      </div>`;
-
-    const body = `
-      <div class="ord-grid ord-2">
-        <!-- 1 · Storefront hero -->
-        <div class="ord-hero">
-          <div class="ord-eyebrow">${T.heroEyebrow}</div>
-          <div class="ord-storename">${T.storeName}</div>
-          <div class="ord-storesub">${T.storeSub}</div>
-          <div class="ord-hero-body">
-            <div class="ord-hero-left">
-              <div class="ord-urlbar">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="2"><path d="M10 14a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 10a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-                <span class="ord-url">${URL}</span>
-                <span class="ord-copy" data-copy="${URL}">${T.copy}</span>
-              </div>
-              <div class="ord-hero-actions">
-                <button class="kb ghost" data-preview style="border-color:rgba(255,255,255,0.25); color:var(--paper);">${T.preview}</button>
-                <label class="ord-toggle on" data-store-toggle>
-                  <span class="ord-switch"></span>
-                  <span data-store-label>${T.storefrontOn}</span>
-                </label>
-              </div>
-              <div class="ord-statusline" data-store-status>
-                <span class="ord-statusdot"></span><span data-store-statustext>${T.live}</span>
-              </div>
-            </div>
-            <div class="ord-qr" aria-hidden="true"></div>
+    const body = `<div class="gk-reveal-root">
+      <div class="ord-grid">
+        <div class="gk-hero ord-hero">
+          <div class="ord-hero-l">
+            <div class="ord-eyebrow">${T.eyebrow}</div>
+            <div class="ord-name gk-serif">Café Atlas · Maarif</div>
+            <div class="ord-tag">${T.tagline}</div>
+            <div class="ord-link"><span class="u">kiwi.shop/cafe-atlas</span><button class="cp" data-ord-copy>${T.copy}</button></div>
+            <div class="ord-statusrow"><span class="ord-status"><span class="dot"></span>${T.online}</span><button class="gk-tg on" data-ord-tg></button></div>
           </div>
+          <div class="ord-hero-r">${KIT ? KIT.qr(116) : ''}<div class="ord-scan">${T.scan}</div></div>
         </div>
 
-        <!-- 2 · Commission savings -->
-        <div class="ord-save">
-          <div class="ord-savetop">
-            <div>
-              <div class="ord-label" style="color:var(--riad);">${T.saveLabel}</div>
-              <div class="ord-savehead" style="margin-top:6px;">${T.saveHead}</div>
-            </div>
-            <div class="ord-savevol">${T.saveVol(fmt(MONTHLY))}</div>
-          </div>
-          <div class="ord-savebig">+${fmt(glovoFee)}<span class="ord-u">MAD/mois</span></div>
-          <div class="ord-savesub">${T.saveBig(`<b>${fmt(glovoFee)}</b>`)} ${T.saveSub}</div>
-          <div class="ord-bars">
-            <div class="ord-bar">
-              <div class="ord-barname">${T.kiwiDirect} <span style="font-family:var(--mono);font-weight:400;">${T.pct0}</span></div>
-              <div class="ord-bartrack"><span class="ord-barfill ord-kiwi" data-fill="2"></span></div>
-              <div class="ord-barval"><span class="ord-net">${T.netKept(fmt(MONTHLY))}</span></div>
-            </div>
-            <div class="ord-bar">
-              <div class="ord-barname">${T.glovo} <span style="font-family:var(--mono);font-weight:400;">${T.pctGlovo}</span></div>
-              <div class="ord-bartrack"><span class="ord-barfill ord-rival" data-fill="30"></span></div>
-              <div class="ord-barval"><span class="ord-fee">${T.feeLost(fmt(glovoFee))}</span></div>
-            </div>
-            <div class="ord-bar">
-              <div class="ord-barname">${T.jumia} <span style="font-family:var(--mono);font-weight:400;">${T.pctJumia}</span></div>
-              <div class="ord-bartrack"><span class="ord-barfill ord-rival" data-fill="28"></span></div>
-              <div class="ord-barval"><span class="ord-fee">${T.feeLost(fmt(jumiaFee))}</span></div>
-            </div>
-          </div>
+        <div class="ord-keep">
+          <div class="ord-keep-top"><span class="ord-keep-eyebrow">${T.keepEyebrow}</span><span class="ord-keep-base">${T.onBase(BASE)}</span></div>
+          <div class="ord-keep-big gk-serif">+${fmt(BASE * 0.30)}<span class="un">${T.keepUnit}</span></div>
+          <div class="ord-keep-note">${T.keepNote()}</div>
+          <div class="ord-bars">${bar(0, 'Kiwi Direct')}${bar(0.30, 'Glovo')}${bar(0.28, 'Jumia Food')}</div>
         </div>
       </div>
 
-      <!-- 3 · Channels -->
-      <div class="ord-sectionhead">
-        <div class="ord-h">${T.channelsLabel}</div>
-        <div class="ord-meta">${T.channelsMeta}</div>
-      </div>
-      <div class="ord-channels">
-        ${channels.map((c) => `
-          <div class="ord-channel">
-            <div class="ord-chico ${c.icon === 'kiwi' ? 'ord-kiwi' : ''}">${c.glyph}</div>
-            <div class="ord-chbody">
-              <div class="ord-chname">${c.name}</div>
-              <div class="ord-chmeta">${c.meta}</div>
-            </div>
-            ${c.state === 'connect' ? chState(c.state) : `<div style="display:flex;align-items:center;gap:10px;">${chState(c.state)}${chToggle(c)}</div>`}
-          </div>`).join('')}
-      </div>
+      <div class="ord-sec"><span class="ord-sec-t">${T.channels}</span><span class="ord-sec-h">${T.channelsHint}</span></div>
+      <div class="ord-chs">${CH.map(c => `<div class="ord-ch">
+        <div class="ord-ch-ic" style="${chColor[c.id]}">${c.label[0]}</div>
+        <div class="ord-ch-b"><div class="ord-ch-n">${c.label}</div><div class="ord-ch-s">${c.sub[lang()] || c.sub.fr}</div></div>
+        ${chState(c.state)}</div>`).join('')}</div>
 
-      <!-- 4 · Order inbox -->
-      <div class="ord-sectionhead">
-        <div class="ord-h">${T.inboxLabel}</div>
-        <div class="ord-meta">${T.inboxMeta(orders.length)}</div>
-      </div>
-      <div class="ord-inbox">
-        ${orders.map(orderRow).join('')}
-      </div>
-      <div class="ord-foot-note">${T.footNote}</div>
-    `;
+      <div class="ord-sec"><span class="ord-sec-t">${T.inbox}</span><span class="ord-sec-h">${T.inboxHint(orders.length)}</span></div>
+      <div class="ord-feed">${orders.map(o => `<div class="ord-o" data-ord-order>
+        <div class="ord-o-ch ${o.ch}">${o.ch === 'kiwi' ? 'Kiwi' : o.ch === 'glovo' ? 'Glovo' : 'Jumia'}</div>
+        <div class="ord-o-m"><div class="ord-o-who">${o.who}</div><div class="ord-o-it">${o.it.map(pick).join(' · ')}</div></div>
+        <div class="ord-o-amt">${fmt(o.amt)} MAD</div>
+        <div class="ord-o-st ${o.st}">${T.st[o.st]}</div></div>`).join('')}</div>
 
-    const foot = `
-      <button class="kb ghost" data-dismiss style="flex:1; justify-content:center;">${T.close}</button>
-      <button class="kb atlas" data-activate style="flex:2; justify-content:center;">${T.activate}</button>`;
+      <div class="ord-foot"><button class="kb ghost" data-dismiss>${T.close}</button><button class="kb atlas" data-ord-cta>${T.cta}</button></div>
+    </div>`;
 
-    const d = drawer({ title: T.title, subtitle: T.subtitle, fullpage: true, body, foot });
-
-    // Animate the commission bars once mounted.
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      d.el.querySelectorAll('[data-fill]').forEach((el) => { el.style.width = el.dataset.fill + '%'; });
-    }));
-
+    const d = drawer({ title: T.title, subtitle: T.sub, fullpage: true, body });
+    if (KIT) KIT.reveal(d.el.querySelector('.gk-reveal-root'));
     d.el.addEventListener('click', (e) => {
-      // Copy storefront URL
-      const copy = e.target.closest('[data-copy]');
-      if (copy) {
-        navigator.clipboard?.writeText('https://' + copy.dataset.copy);
-        toast(T.copied, { type: 'success', desc: copy.dataset.copy });
-        return;
-      }
-      // Preview storefront
-      if (e.target.closest('[data-preview]')) {
-        toast(T.previewToast, { type: 'info', desc: T.previewDesc });
-        return;
-      }
-      // Storefront ON/OFF master toggle
-      const storeT = e.target.closest('[data-store-toggle]');
-      if (storeT) {
-        e.preventDefault();
-        storeOn = !storeOn;
-        storeT.classList.toggle('on', storeOn);
-        const statusEl = d.el.querySelector('[data-store-status]');
-        statusEl?.classList.toggle('ord-off', !storeOn);
-        const txt = d.el.querySelector('[data-store-statustext]');
-        if (txt) txt.textContent = storeOn ? T.live : T.paused;
-        toast(storeOn ? T.toggledOn : T.toggledOff, {
-          type: storeOn ? 'success' : 'info',
-          desc: storeOn ? T.toggledOnDesc : T.toggledOffDesc,
-        });
-        return;
-      }
-      // Channel connect button
-      const conn = e.target.closest('[data-connect]');
-      if (conn) {
-        const name = conn.closest('.ord-channel')?.querySelector('.ord-chname')?.textContent || '';
-        conn.outerHTML = `<span class="ord-chip ord-ready">${T.stConnected}</span>`;
-        toast(T.chToastConn(name), { type: 'success', desc: T.chToastConnDesc });
-        return;
-      }
-      // Channel on/off toggle
-      const chT = e.target.closest('[data-chtoggle]');
-      if (chT) {
-        e.preventDefault();
-        const isOn = chT.classList.toggle('on');
-        const name = chT.dataset.chname || '';
-        toast(isOn ? T.chToastOn(name) : T.chToastOff(name), { type: isOn ? 'success' : 'info' });
-        return;
-      }
-      // Order row → send to kitchen
-      const row = e.target.closest('[data-order]');
-      if (row) {
-        toast(T.sentToKitchen, { type: 'success', desc: T.sentDesc(row.dataset.cust) });
-        return;
-      }
-      // Footer CTA → confetti + success
-      if (e.target.closest('[data-activate]')) {
-        confetti();
-        toast(T.activatedTitle, { type: 'success', desc: T.activatedDesc });
-        return;
-      }
-      // [data-dismiss] (Fermer) is handled by the drawer backdrop listener.
+      const cp = e.target.closest('[data-ord-copy]');
+      const cn = e.target.closest('[data-ord-connect]');
+      if (cp) { cp.textContent = T.copied; toast(T.copied, { type: 'success' }); }
+      else if (e.target.closest('[data-ord-tg]')) { e.target.closest('[data-ord-tg]').classList.toggle('on'); }
+      else if (cn) { cn.outerHTML = `<span class="ord-pill">${T.linked}</span><button class="gk-tg on" data-ord-tg></button>`; toast(T.linked, { type: 'success' }); }
+      else if (e.target.closest('[data-ord-order]')) { toast(T.sent, { type: 'info' }); }
+      else if (e.target.closest('[data-ord-cta]')) { confetti && confetti(); toast(T.toastT, { type: 'success', desc: T.toastD }); }
     });
   };
-
-  /* Expose for command palette / programmatic launch, mirroring KiwiFeatures. */
-  window.KiwiGrowthOrdering = { open: () => handlers['growth-ordering']() };
 })();

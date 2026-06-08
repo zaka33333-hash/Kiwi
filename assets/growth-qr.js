@@ -1,278 +1,141 @@
-/* ═══════════════════════════════════════════════════════════════════════════
- * Kiwi · growth-qr.js — "Commander à table" / Order & Pay at the table
- *
- * Guest scans a table QR, browses the menu, orders and pays from their phone.
- * Requires interactive.js (Kiwi.toast, Kiwi.drawer, Kiwi.handlers, Kiwi.confetti).
- * ─────────────────────────────────────────────────────────────────────────── */
+/* Kiwi · Croissance — Commander à table (QR Order & Pay).
+ * The guest scans the table QR, browses the menu, orders and pays from their
+ * phone — no waiter. Premium surface on the growth-kit. Requires
+ * interactive.js + growth-kit.js. */
 (() => {
   'use strict';
   if (!window.Kiwi) { console.warn('growth-qr.js loaded before interactive.js'); return; }
-  const { toast, drawer, handlers, confetti } = window.Kiwi;
-  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+  const { drawer, toast, confetti } = window.Kiwi;
+  const lang = () => (window.KiwiI18n?.getLang?.() || 'fr');
   const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
 
-  /* ─── Styles ─── */
-  const CSS = `
-  .qro-wrap { display: flex; flex-direction: column; gap: 28px; }
-
-  /* Intro band */
-  .qro-intro { background: linear-gradient(135deg, var(--atlas), var(--riad)); color: var(--paper); border-radius: 14px; padding: 20px 22px; }
-  .qro-intro p { font-size: 13.5px; line-height: 1.5; opacity: 0.92; margin: 0 0 16px; }
-  .qro-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .qro-chip { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 5px 13px; font-size: 12px; font-family: var(--mono); letter-spacing: 0.02em; }
-
-  /* Section labels */
-  .qro-section-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--n-500); margin-bottom: 12px; }
-
-  /* Tables grid */
-  .qro-tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-  .qro-table-card { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  html[data-theme="dark"] .qro-table-card { background: var(--paper-soft); border-color: var(--n-200); }
-  .qro-table-num { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
-  .qro-qr { width: 54px; height: 54px; border: 2px solid var(--ink); border-radius: 6px; background-color: #fff; background-image: repeating-linear-gradient(0deg, var(--ink) 0 5px, transparent 5px 10px), repeating-linear-gradient(90deg, var(--ink) 0 5px, transparent 5px 10px); background-size: 10px 10px; flex-shrink: 0; }
-  .qro-status { font-size: 11px; font-family: var(--mono); border-radius: 20px; padding: 3px 9px; border: 1px solid transparent; }
-  .qro-status.libre { color: var(--atlas); border-color: var(--atlas); background: rgba(11,110,79,0.07); }
-  .qro-status.occupee { color: #b45309; border-color: #f59e0b; background: rgba(245,158,11,0.08); }
-  .qro-status.commande { color: var(--atlas); border-color: var(--mint); background: rgba(125,242,176,0.15); }
-
-  /* Print row */
-  .qro-print-row { display: flex; justify-content: flex-end; margin-top: 6px; }
-
-  /* Phone mockup */
-  .qro-phone-wrap { display: flex; justify-content: center; }
-  .qro-phone { width: 276px; background: #f3f4f6; border: 6px solid #1a1a1a; border-radius: 36px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); overflow: hidden; position: relative; }
-  .qro-phone-notch { background: #1a1a1a; height: 26px; display: flex; align-items: center; justify-content: center; }
-  .qro-phone-notch-pill { width: 70px; height: 8px; background: #333; border-radius: 6px; }
-  .qro-phone-header { background: var(--atlas); color: var(--paper); padding: 14px 16px 12px; text-align: center; }
-  .qro-phone-header .venue { font-weight: 700; font-size: 15px; letter-spacing: -0.02em; }
-  .qro-phone-header .sub { font-size: 11px; opacity: 0.75; margin-top: 2px; }
-  .qro-phone-body { background: #fff; padding: 0 0 60px; }
-  .qro-phone-cat { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--mono); color: #6b7280; padding: 12px 14px 6px; }
-  .qro-phone-item { display: flex; align-items: center; padding: 9px 14px; border-bottom: 1px solid #f1f1f1; gap: 10px; }
-  .qro-phone-item .iname { flex: 1; font-size: 13px; font-weight: 500; color: #111; }
-  .qro-phone-item .iprice { font-size: 12.5px; color: #374151; font-family: var(--mono); margin-inline-end: 8px; }
-  .qro-phone-item .iadd { width: 26px; height: 26px; background: var(--atlas); color: #fff; border: 0; border-radius: 50%; font-size: 18px; line-height: 1; cursor: default; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 50%; }
-  .qro-phone-cart { position: absolute; bottom: 0; left: 0; right: 0; background: var(--atlas); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
-  .qro-phone-cart .cart-info { font-size: 12.5px; opacity: 0.9; }
-  .qro-phone-cart .pay-btn { background: var(--mint); color: var(--riad); font-weight: 700; font-size: 12.5px; padding: 7px 16px; border-radius: 20px; border: 0; cursor: default; }
-
-  /* Footer actions */
-  .qro-footer { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 4px; }
-
-  /* RTL adjustments */
-  html[dir="rtl"] .qro-chips { direction: rtl; }
-  html[dir="rtl"] .qro-phone-header, html[dir="rtl"] .qro-phone-body { direction: rtl; }
-
-  /* Dark mode */
-  html[data-theme="dark"] .qro-intro { background: linear-gradient(135deg, var(--atlas), #032e22); }
-  html[data-theme="dark"] .qro-phone { border-color: #2a2a2a; background: #1c1c1e; }
-  html[data-theme="dark"] .qro-phone-body { background: #1c1c1e; }
-  html[data-theme="dark"] .qro-phone-item { border-bottom-color: #2c2c2e; }
-  html[data-theme="dark"] .qro-phone-item .iname { color: #f1f1f1; }
-  html[data-theme="dark"] .qro-phone-item .iprice { color: #9ca3af; }
-  html[data-theme="dark"] .qro-phone-cat { color: #6b7280; }
-  `;
-  const st = document.createElement('style');
-  st.textContent = CSS;
-  document.head.appendChild(st);
-
-  /* ─── Strings ─── */
-  const STR = {
-    fr: {
-      title: 'Commander à table',
-      subtitle: 'Le client scanne, commande et paie depuis son téléphone. Sans attendre.',
-      introProp: 'Offrez à vos clients une expérience self-service : ils scannent le QR code de leur table, parcourent votre carte, commandent et paient en quelques secondes — sans intervention du personnel.',
-      chip1: '32 % des tables via QR',
-      chip2: 'panier QR +18 %',
-      chip3: 'service −7 min',
-      sectionTables: 'TABLES — QR CODES',
-      sectionPreview: 'APERÇU CLIENT',
-      previewSub: 'Expérience sur téléphone du client',
-      libre: 'Libre',
-      occupee: 'Occupée',
-      commande: 'Commande en cours',
-      printQr: 'Imprimer les QR',
-      printToast: 'Impression lancée',
-      printToastDesc: 'Les QR codes de vos 12 tables sont envoyés à l\'imprimante.',
-      cat1: 'ENTRÉES',
-      cat2: 'BOISSONS',
-      cartInfo: '2 articles · 95 MAD',
-      payBtn: 'Payer',
-      activate: 'Activer la commande à table',
-      activateToast: 'Fonctionnalité activée',
-      activateToastDesc: 'La commande à table est maintenant disponible pour vos clients.',
-      close: 'Fermer',
-    },
-    en: {
-      title: 'Order & Pay at the table',
-      subtitle: 'Guests scan, order and pay from their phone — no waiter needed.',
-      introProp: 'Give your guests a seamless self-service experience: they scan the QR code on their table, browse your menu, order and pay in seconds — no staff required.',
-      chip1: '32% of tables via QR',
-      chip2: 'QR basket +18%',
-      chip3: 'service −7 min',
-      sectionTables: 'TABLES — QR CODES',
-      sectionPreview: 'GUEST PREVIEW',
-      previewSub: 'Guest phone experience',
-      libre: 'Available',
-      occupee: 'Occupied',
-      commande: 'Order in progress',
-      printQr: 'Print QR codes',
-      printToast: 'Print job started',
-      printToastDesc: 'QR codes for your 12 tables have been sent to the printer.',
-      cat1: 'STARTERS',
-      cat2: 'DRINKS',
-      cartInfo: '2 items · 95 MAD',
-      payBtn: 'Pay',
-      activate: 'Activate table ordering',
-      activateToast: 'Feature activated',
-      activateToastDesc: 'Table ordering is now live for your guests.',
-      close: 'Close',
-    },
-    ar: {
-      title: 'الطلب من الطاولة',
-      subtitle: 'يمسح الضيف الرمز ويطلب ويدفع من هاتفه — دون انتظار النادل.',
-      introProp: 'امنح ضيوفك تجربة خدمة ذاتية سلسة: يمسحون رمز QR على طاولتهم، يتصفحون قائمة الطعام، يطلبون ويدفعون في ثوانٍ — دون الحاجة لأي موظف.',
-      chip1: '32% من الطاولات عبر QR',
-      chip2: 'سلة QR أعلى بـ 18%',
-      chip3: 'الخدمة أسرع بـ 7 د',
-      sectionTables: 'الطاولات — رموز QR',
-      sectionPreview: 'معاينة تجربة الضيف',
-      previewSub: 'تجربة الضيف على الهاتف',
-      libre: 'متاحة',
-      occupee: 'مشغولة',
-      commande: 'طلب قيد التنفيذ',
-      printQr: 'طباعة رموز QR',
-      printToast: 'بدأت الطباعة',
-      printToastDesc: 'تم إرسال رموز QR لـ 12 طاولة إلى الطابعة.',
-      cat1: 'المقبلات',
-      cat2: 'المشروبات',
-      cartInfo: 'مقالتان · 95 MAD',
-      payBtn: 'الدفع',
-      activate: 'تفعيل الطلب من الطاولة',
-      activateToast: 'تم تفعيل الميزة',
-      activateToastDesc: 'أصبح الطلب من الطاولة متاحاً لضيوفك الآن.',
-      close: 'إغلاق',
-    },
-  };
-
-  /* ─── Table status distribution (deterministic) ─── */
-  const TABLE_STATUS = [
-    'libre','occupee','commande','libre','occupee','libre',
-    'commande','libre','occupee','libre','libre','commande',
+  const TABLES = [
+    { t: 'T1', s: 'free' }, { t: 'T2', s: 'busy' }, { t: 'T3', s: 'ordering' }, { t: 'T4', s: 'free' },
+    { t: 'T5', s: 'busy' }, { t: 'T6', s: 'free' }, { t: 'T7', s: 'ordering' }, { t: 'T8', s: 'free' },
+    { t: 'T9', s: 'busy' }, { t: 'T10', s: 'free' }, { t: 'T11', s: 'free' }, { t: 'T12', s: 'ordering' },
   ];
 
-  /* ─── Handler ─── */
-  handlers['growth-qr'] = () => {
-    const T = STR[trLang()] || STR.fr;
-    const lang = trLang();
-
-    /* Menu items from venue or safe fallback */
-    const allItems = (window.KiwiVenue?.getMenuItems?.() || [
-      { id: 1, name: 'Salade marocaine',  category: 'entrees',  price: 45  },
-      { id: 2, name: 'Harira',            category: 'entrees',  price: 35  },
-      { id: 3, name: 'Briouates',         category: 'entrees',  price: 38  },
-      { id: 4, name: 'Café au lait',      category: 'boissons', price: 18  },
-      { id: 5, name: 'Jus d\'avocat',     category: 'boissons', price: 50  },
-      { id: 6, name: 'Thé à la menthe',   category: 'boissons', price: 15  },
-    ]);
-
-    const entrees  = allItems.filter(i => i.category === 'entrees'  || i.category === 'starters').slice(0, 3);
-    const boissons = allItems.filter(i => i.category === 'boissons' || i.category === 'drinks').slice(0, 3);
-
-    /* Fall back gracefully if categories missing */
-    const preview1 = entrees.length  ? entrees  : allItems.slice(0, 3);
-    const preview2 = boissons.length ? boissons : allItems.slice(3, 6);
-
-    const renderItem = (item) => `
-      <div class="qro-phone-item">
-        <span class="iname">${item.name}</span>
-        <span class="iprice">${fmt(item.price)} MAD</span>
-        <button class="iadd" tabindex="-1" aria-hidden="true">+</button>
-      </div>`;
-
-    /* Tables grid */
-    const tablesHtml = Array.from({ length: 12 }, (_, i) => {
-      const num = i + 1;
-      const st = TABLE_STATUS[i];
-      const label = T[st];
-      return `
-        <div class="qro-table-card">
-          <span class="qro-table-num">T${num}</span>
-          <div class="qro-qr" role="img" aria-label="QR table ${num}"></div>
-          <span class="qro-status ${st}">${label}</span>
-        </div>`;
-    }).join('');
-
-    const body = `
-      <div class="qro-wrap">
-
-        <!-- 1. Intro -->
-        <div class="qro-intro">
-          <p>${T.introProp}</p>
-          <div class="qro-chips">
-            <span class="qro-chip">${T.chip1}</span>
-            <span class="qro-chip">${T.chip2}</span>
-            <span class="qro-chip">${T.chip3}</span>
-          </div>
-        </div>
-
-        <!-- 2. Tables -->
-        <div>
-          <div class="qro-section-label">${T.sectionTables}</div>
-          <div class="qro-tables">${tablesHtml}</div>
-          <div class="qro-print-row" style="margin-top:12px">
-            <button class="kb ghost" data-action="qro-print">${T.printQr}</button>
-          </div>
-        </div>
-
-        <!-- 3. Guest preview -->
-        <div>
-          <div class="qro-section-label">${T.sectionPreview}</div>
-          <p style="font-size:12.5px;color:var(--n-500);margin:0 0 14px;line-height:1.5">${T.previewSub}</p>
-          <div class="qro-phone-wrap">
-            <div class="qro-phone" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
-              <div class="qro-phone-notch"><div class="qro-phone-notch-pill"></div></div>
-              <div class="qro-phone-header">
-                <div class="venue">Café Atlas · Maarif</div>
-                <div class="sub">T4 &mdash; ${lang === 'ar' ? 'قائمة الطعام' : lang === 'en' ? 'Menu' : 'Carte'}</div>
-              </div>
-              <div class="qro-phone-body">
-                <div class="qro-phone-cat">${T.cat1}</div>
-                ${preview1.map(renderItem).join('')}
-                <div class="qro-phone-cat">${T.cat2}</div>
-                ${preview2.map(renderItem).join('')}
-              </div>
-              <div class="qro-phone-cart">
-                <span class="cart-info">${T.cartInfo}</span>
-                <button class="pay-btn">${T.payBtn}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Footer -->
-        <div class="qro-footer">
-          <button class="kb atlas" data-action="qro-activate">${T.activate}</button>
-          <button class="kb ghost" data-dismiss="drawer">${T.close}</button>
-        </div>
-
-      </div>`;
-
-    const d = drawer({ title: T.title, subtitle: T.subtitle, fullpage: true, body });
-
-    d.el.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action]');
-      if (!btn) return;
-      const action = btn.dataset.action;
-      const TT = STR[trLang()] || STR.fr;
-
-      if (action === 'qro-print') {
-        toast(TT.printToast, { desc: TT.printToastDesc, type: 'success' });
-      } else if (action === 'qro-activate') {
-        confetti && confetti();
-        toast(TT.activateToast, { desc: TT.activateToastDesc, type: 'success' });
-      }
-    });
+  const STR = {
+    fr: { title: 'Commander à table', sub: 'Le client scanne, commande et paie depuis son téléphone — sans attendre.',
+      eyebrow: 'EXPÉRIENCE SANS CONTACT', head: 'Sans serveur, sans attente',
+      lede: 'Chaque table porte son QR. Le client parcourt votre carte, commande et règle en quelques secondes — la commande tombe directement en cuisine.',
+      s1: 'des tables via QR', s2: 'panier QR', s3: 'sur le service',
+      preview: 'APERÇU CLIENT', tables: 'TABLES', tablesHint: '1 QR par table',
+      menu: 'Carte', add: 'Ajouter', cart: (n, m) => `${n} articles · ${fmt(m)} MAD`, pay: 'Payer',
+      free: 'Libre', busy: 'Occupée', ordering: 'Commande',
+      print: 'Imprimer les QR', cta: 'Activer la commande à table', close: 'Fermer',
+      toastP: 'QR des tables envoyés à l\'impression', toastA: 'Commande à table activée', toastAD: '12 tables · paiement Kiwi · commande en cuisine en direct.' },
+    en: { title: 'Order at the table', sub: 'The guest scans, orders and pays from their phone — no waiting.',
+      eyebrow: 'CONTACTLESS EXPERIENCE', head: 'No waiter, no waiting',
+      lede: 'Every table carries its QR. The guest browses your menu, orders and pays in seconds — the order drops straight into the kitchen.',
+      s1: 'of tables via QR', s2: 'QR basket', s3: 'on service time',
+      preview: 'GUEST PREVIEW', tables: 'TABLES', tablesHint: '1 QR per table',
+      menu: 'Menu', add: 'Add', cart: (n, m) => `${n} items · ${fmt(m)} MAD`, pay: 'Pay',
+      free: 'Free', busy: 'Seated', ordering: 'Ordering',
+      print: 'Print the QR codes', cta: 'Turn on order at the table', close: 'Close',
+      toastP: 'Table QR codes sent to print', toastA: 'Order at the table activated', toastAD: '12 tables · Kiwi payment · live kitchen orders.' },
+    ar: { title: 'الطلب من الطاولة', sub: 'الزبون يمسح، يطلب ويدفع من هاتفه — بدون انتظار.',
+      eyebrow: 'تجربة بدون تلامس', head: 'بدون نادل، بدون انتظار',
+      lede: 'كل طاولة تحمل رمزها. يتصفّح الزبون قائمتك، يطلب ويدفع في ثوانٍ — ويصل الطلب مباشرة إلى المطبخ.',
+      s1: 'من الطاولات عبر QR', s2: 'سلة QR', s3: 'على وقت الخدمة',
+      preview: 'معاينة الزبون', tables: 'الطاولات', tablesHint: 'رمز لكل طاولة',
+      menu: 'القائمة', add: 'إضافة', cart: (n, m) => `${n} أصناف · ${fmt(m)} درهم`, pay: 'الدفع',
+      free: 'فارغة', busy: 'مشغولة', ordering: 'تطلب',
+      print: 'طباعة رموز QR', cta: 'تفعيل الطلب من الطاولة', close: 'إغلاق',
+      toastP: 'تم إرسال رموز الطاولات للطباعة', toastA: 'تم تفعيل الطلب من الطاولة', toastAD: '12 طاولة · دفع كيوي · طلبات مباشرة للمطبخ.' },
   };
 
+  const CSS = `
+  .qro-hero { padding:24px 26px; }
+  .qro-eyebrow { font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; color:var(--mint); }
+  .qro-head { font-size:30px; line-height:1.08; color:var(--paper); margin:8px 0 10px; }
+  .qro-lede { font-size:13.5px; color:#cdeed9; line-height:1.55; max-width:62ch; }
+  .qro-stats { display:flex; gap:26px; margin-top:20px; flex-wrap:wrap; }
+  .qro-stat .v { font-size:26px; color:var(--paper); } .qro-stat .v.serif { font-family:var(--serif); }
+  .qro-stat .l { font-size:11.5px; color:#cdeed9; margin-top:2px; }
+
+  .qro-grid { display:grid; grid-template-columns:300px 1fr; gap:22px; margin-top:20px; align-items:start; }
+  .qro-col-t { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--n-500); display:flex; justify-content:space-between; }
+
+  /* Phone */
+  .qro-phone { margin-top:12px; width:300px; border-radius:34px; background:var(--ink); padding:11px; box-shadow:0 30px 60px -28px rgba(10,15,13,.5); }
+  .qro-screen { background:var(--paper); border-radius:25px; overflow:hidden; }
+  .qro-ph-head { background:linear-gradient(150deg,var(--riad),var(--atlas)); color:var(--paper); padding:18px 18px 16px; text-align:center; }
+  .qro-ph-name { font-family:var(--serif); font-size:19px; } .qro-ph-tbl { font-size:11px; color:#cdeed9; margin-top:2px; font-family:var(--mono); letter-spacing:.06em; }
+  .qro-ph-body { padding:14px 16px 0; max-height:300px; overflow:hidden; }
+  .qro-ph-cat { font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:var(--n-500); margin:10px 0 8px; }
+  .qro-ph-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--n-200); }
+  .qro-ph-item .nm { flex:1; font-size:13px; } .qro-ph-item .pr { font-family:var(--mono); font-size:12px; color:var(--n-600); }
+  .qro-ph-add { width:24px; height:24px; border-radius:8px; background:var(--mint-soft); color:var(--atlas); border:0; font-size:15px; line-height:1; cursor:pointer; flex:0 0 auto; }
+  .qro-ph-cart { background:var(--ink); color:var(--paper); margin:14px; border-radius:14px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
+  .qro-ph-cart .c { font-size:12.5px; } .qro-ph-cart .pay { background:var(--mint); color:var(--riad); font-weight:600; font-size:13px; padding:7px 16px; border-radius:9px; }
+
+  .qro-tables { margin-top:12px; display:grid; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:12px; }
+  .qro-tile { background:#fff; border:1px solid var(--n-200); border-radius:16px; padding:14px 12px 12px; text-align:center; transition:border-color .15s, box-shadow .15s, transform .15s; }
+  .qro-tile:hover { border-color:var(--n-300); box-shadow:0 10px 24px -16px rgba(10,15,13,.3); transform:translateY(-2px); }
+  .qro-tile .t { font-family:var(--mono); font-size:12px; color:var(--n-600); margin-bottom:9px; }
+  .qro-tile .gk-qr { padding:7px; border-radius:12px; }
+  .qro-st { display:inline-block; margin-top:10px; font-size:10.5px; font-family:var(--mono); padding:3px 9px; border-radius:999px; }
+  .qro-st.free { background:var(--paper-soft); color:var(--n-600); } .qro-st.busy { background:#FFF2D6; color:#8A6210; } .qro-st.ordering { background:var(--mint-soft); color:#075238; }
+
+  .qro-foot { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
+
+  html[data-theme="dark"] .qro-tile { background:#131916; border-color:#26302b; }
+  html[data-theme="dark"] .qro-screen { background:#0f1714; } html[data-theme="dark"] .qro-ph-item { border-color:#26302b; }
+  @media (max-width:820px){ .qro-grid{grid-template-columns:1fr;} .qro-phone{margin:12px auto 0;} }
+  `;
+  const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
+
+  window.Kiwi.handlers['growth-qr'] = () => {
+    const T = STR[lang()] || STR.fr;
+    const KIT = window.KiwiKit;
+    const items = (window.KiwiVenue?.getMenuItems?.() || []).filter(i => i.price > 0);
+    const byCat = (cat, n) => items.filter(i => i.category === cat).slice(0, n);
+    const menu = [
+      { c: lang() === 'ar' ? 'مقبلات' : 'Entrées', items: byCat('entrees', 3) },
+      { c: lang() === 'ar' ? 'أطباق' : 'Plats', items: byCat('tajines', 3) },
+    ];
+    const menuHtml = menu.map(g => `<div class="qro-ph-cat">${g.c}</div>` + g.items.map(it =>
+      `<div class="qro-ph-item"><span class="nm">${it.name}</span><span class="pr">${fmt(it.price)}</span><button class="qro-ph-add" data-qro-add>+</button></div>`).join('')).join('');
+
+    const body = `<div class="gk-reveal-root">
+      <div class="gk-hero qro-hero">
+        <div class="qro-eyebrow">${T.eyebrow}</div>
+        <div class="qro-head gk-serif">${T.head}</div>
+        <div class="qro-lede">${T.lede}</div>
+        <div class="qro-stats">
+          <div class="qro-stat"><div class="v serif">32 %</div><div class="l">${T.s1}</div></div>
+          <div class="qro-stat"><div class="v serif">+18 %</div><div class="l">${T.s2}</div></div>
+          <div class="qro-stat"><div class="v serif">−7 min</div><div class="l">${T.s3}</div></div>
+        </div>
+      </div>
+
+      <div class="qro-grid">
+        <div>
+          <div class="qro-col-t"><span>${T.preview}</span></div>
+          <div class="qro-phone"><div class="qro-screen">
+            <div class="qro-ph-head"><div class="qro-ph-name">Café Atlas · Maarif</div><div class="qro-ph-tbl">T4 — ${T.menu}</div></div>
+            <div class="qro-ph-body">${menuHtml}</div>
+            <div class="qro-ph-cart"><span class="c">${T.cart(2, 95)}</span><span class="pay">${T.pay}</span></div>
+          </div></div>
+        </div>
+        <div>
+          <div class="qro-col-t"><span>${T.tables}</span><span style="text-transform:none;letter-spacing:0;color:var(--n-500);">${T.tablesHint}</span></div>
+          <div class="qro-tables">${TABLES.map(tb => `<div class="qro-tile">
+            <div class="t">${tb.t}</div>${KIT ? KIT.qr(74) : ''}
+            <div class="qro-st ${tb.s}">${T[tb.s]}</div></div>`).join('')}</div>
+        </div>
+      </div>
+
+      <div class="qro-foot"><button class="kb ghost" data-dismiss>${T.close}</button><button class="kb ghost" data-qro-print>${T.print}</button><button class="kb atlas" data-qro-cta>${T.cta}</button></div>
+    </div>`;
+
+    const d = drawer({ title: T.title, subtitle: T.sub, fullpage: true, body });
+    if (KIT) KIT.reveal(d.el.querySelector('.gk-reveal-root'));
+    d.el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-qro-add]')) { toast(T.add, { type: 'success' }); }
+      else if (e.target.closest('[data-qro-print]')) { toast(T.toastP, { type: 'info' }); }
+      else if (e.target.closest('[data-qro-cta]')) { confetti && confetti(); toast(T.toastA, { type: 'success', desc: T.toastAD }); }
+    });
+  };
 })();

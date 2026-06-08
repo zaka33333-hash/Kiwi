@@ -1,376 +1,148 @@
-/* ═══════════════════════════════════════════════════════════════════════════
- * Kiwi · growth-giftcards.js
- *
- * "Cartes cadeaux" feature — issue, track, and redeem branded gift cards
- * tied to Kiwi Wallet. Mirrors the handler pattern in features.js.
- *
- * Requires: interactive.js (Kiwi.toast, Kiwi.drawer, Kiwi.handlers, Kiwi.confetti)
- * ─────────────────────────────────────────────────────────────────────────── */
+/* Kiwi · Croissance — Cartes cadeaux (gift cards · issue & redeem).
+ * Premium surface on the growth-kit. Requires interactive.js + growth-kit.js. */
 (() => {
   'use strict';
   if (!window.Kiwi) { console.warn('growth-giftcards.js loaded before interactive.js'); return; }
-  const { toast, drawer, handlers, confetti } = window.Kiwi;
-  const trLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+  const { drawer, toast, confetti } = window.Kiwi;
+  const lang = () => (window.KiwiI18n?.getLang?.() || 'fr');
   const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
 
-  /* ─── Injected styles — every class prefixed "gft-" ─── */
-  const CSS = `
-    .gft-issue-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
-    @media (max-width: 700px) { .gft-issue-wrap { grid-template-columns: 1fr; } }
-
-    .gft-card-visual {
-      background: linear-gradient(135deg, var(--atlas) 0%, var(--riad) 100%);
-      border-radius: 18px; padding: 26px 24px 22px; color: var(--paper);
-      position: relative; overflow: hidden; aspect-ratio: 1.58;
-      display: flex; flex-direction: column; justify-content: space-between;
-      max-width: 340px;
-    }
-    .gft-card-visual::before {
-      content: ""; position: absolute; top: -60px; right: -50px;
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(125,242,176,0.35), transparent 65%);
-      pointer-events: none;
-    }
-    .gft-card-brand { font-size: 20px; font-weight: 700; letter-spacing: -0.05em; position: relative; }
-    .gft-card-brand span { color: var(--mint); }
-    .gft-card-venue {
-      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-      color: rgba(247,245,240,0.65); margin-top: 3px;
-      font-family: var(--mono); position: relative;
-    }
-    .gft-card-code { font-family: var(--mono); font-size: 15px; letter-spacing: 0.14em; position: relative; }
-    .gft-card-amount {
-      font-size: 32px; font-weight: 700; letter-spacing: -0.04em;
-      position: relative; font-feature-settings: "tnum" 1;
-    }
-    .gft-card-amount .gft-cur { font-size: 14px; font-weight: 500; margin-inline-start: 4px; vertical-align: super; }
-
-    .gft-label {
-      font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase;
-      color: var(--n-500); font-family: var(--mono); margin-bottom: 8px;
-    }
-    .gft-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .gft-chip {
-      padding: 8px 18px; border: 1px solid var(--n-200); border-radius: 999px;
-      background: #fff; font-size: 13.5px; font-weight: 500; cursor: pointer;
-      transition: border-color 150ms, background 150ms, color 150ms;
-      color: var(--ink); font-family: var(--mono);
-    }
-    .gft-chip:hover { border-color: var(--atlas); }
-    .gft-chip.gft-selected { border-color: var(--atlas); background: var(--atlas); color: var(--paper); }
-    html[data-theme="dark"] .gft-chip { background: var(--paper-soft); border-color: var(--n-200); }
-    html[data-theme="dark"] .gft-chip.gft-selected { background: var(--atlas); color: var(--paper); }
-
-    .gft-free-input { display: none; margin-bottom: 16px; }
-    .gft-free-input.gft-visible { display: block; }
-    .gft-free-input input {
-      width: 100%; border: 1px solid var(--n-200); border-radius: 10px;
-      padding: 11px 14px; font-size: 14px; font-family: var(--mono);
-      background: #fff; color: var(--ink); outline: none;
-      transition: border-color 150ms; box-sizing: border-box;
-    }
-    .gft-free-input input:focus { border-color: var(--atlas); }
-    html[data-theme="dark"] .gft-free-input input { background: var(--paper-soft); border-color: var(--n-200); }
-
-    .gft-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-    .gft-field input {
-      width: 100%; border: 1px solid var(--n-200); border-radius: 10px;
-      padding: 11px 14px; font-size: 14px; background: #fff; color: var(--ink);
-      outline: none; transition: border-color 150ms; box-sizing: border-box;
-      font-family: var(--sans);
-    }
-    .gft-field input:focus { border-color: var(--atlas); }
-    html[data-theme="dark"] .gft-field input { background: var(--paper-soft); border-color: var(--n-200); }
-
-    .gft-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0 24px; }
-    @media (max-width: 600px) { .gft-stats { grid-template-columns: 1fr; } }
-    .gft-stat { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 18px; }
-    html[data-theme="dark"] .gft-stat { background: var(--paper-soft); border-color: var(--n-200); }
-    .gft-stat .gft-stat-l {
-      font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--n-500); font-family: var(--mono);
-    }
-    .gft-stat .gft-stat-v {
-      font-size: 26px; font-weight: 700; letter-spacing: -0.035em;
-      margin-top: 6px; font-feature-settings: "tnum" 1; color: var(--ink);
-    }
-    .gft-stat .gft-stat-sub { font-size: 11px; color: var(--n-500); margin-top: 2px; }
-
-    .gft-cards-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
-    .gft-row {
-      background: #fff; border: 1px solid var(--n-200); border-radius: 12px;
-      padding: 14px 16px; display: grid;
-      grid-template-columns: auto 1fr auto auto; gap: 14px; align-items: center;
-    }
-    html[data-theme="dark"] .gft-row { background: var(--paper-soft); border-color: var(--n-200); }
-    .gft-row-code { font-family: var(--mono); font-size: 12.5px; color: var(--n-600); white-space: nowrap; }
-    .gft-row-info { min-width: 0; }
-    .gft-row-name { font-size: 13.5px; font-weight: 500; color: var(--ink); }
-    .gft-row-meta { font-size: 12px; color: var(--n-500); margin-top: 2px; font-family: var(--mono); }
-    .gft-row-expiry { font-size: 11.5px; color: var(--n-500); font-family: var(--mono); text-align: end; white-space: nowrap; }
-    .gft-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 500; white-space: nowrap; }
-    .gft-badge.active  { background: rgba(11,110,79,0.10); color: var(--atlas); }
-    .gft-badge.used    { background: var(--n-200); color: var(--n-600); }
-    .gft-badge.expired { background: rgba(200,50,50,0.10); color: #C22; }
-    html[data-theme="dark"] .gft-badge.active  { background: rgba(125,242,176,0.15); color: var(--mint); }
-    html[data-theme="dark"] .gft-badge.used    { background: rgba(255,255,255,0.08); color: var(--n-500); }
-    html[data-theme="dark"] .gft-badge.expired { background: rgba(220,50,50,0.15); color: #f87; }
-
-    .gft-redeem-box { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 20px; margin-bottom: 28px; }
-    html[data-theme="dark"] .gft-redeem-box { background: var(--paper-soft); border-color: var(--n-200); }
-    .gft-redeem-row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
-    .gft-redeem-row input {
-      flex: 1; border: 1px solid var(--n-200); border-radius: 10px;
-      padding: 11px 14px; font-size: 14px; font-family: var(--mono);
-      background: #fff; color: var(--ink); outline: none;
-      transition: border-color 150ms; box-sizing: border-box;
-    }
-    .gft-redeem-row input:focus { border-color: var(--atlas); }
-    html[data-theme="dark"] .gft-redeem-row input { background: var(--paper-soft); border-color: var(--n-200); }
-
-    .gft-section-title {
-      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-      font-family: var(--mono); color: var(--n-500); margin: 28px 0 14px;
-    }
-    .gft-footer { padding-top: 8px; border-top: 1px solid var(--n-200); margin-top: 8px; }
-    [dir="rtl"] .gft-row { direction: rtl; }
-    [dir="rtl"] .gft-issue-wrap { direction: rtl; }
-  `;
-
-  const st = document.createElement('style');
-  st.textContent = CSS;
-  document.head.appendChild(st);
-
-  /* ─── Strings ─── */
-  const STR = {
-    fr: {
-      title: 'Cartes cadeaux',
-      subtitle: 'Émettez et gérez les cartes cadeaux Café Atlas · Kiwi Wallet',
-      issueTitle: 'ÉMETTRE UNE CARTE CADEAU',
-      amountLabel: 'MONTANT',
-      chip100: '100 MAD', chip200: '200 MAD', chip500: '500 MAD', chipFree: 'Montant libre',
-      freeHint: 'Montant en MAD',
-      recipientLabel: 'DESTINATAIRE',
-      fieldName: 'Nom du destinataire', fieldPhone: 'Téléphone (WhatsApp)',
-      sendBtn: 'Envoyer par WhatsApp',
-      sentTitle: 'Carte cadeau envoyée', sentDesc: 'La carte a été partagée par WhatsApp.',
-      statsTitle: 'APERÇU DU MOIS',
-      stat1L: 'Cartes émises', stat1V: '38', stat1Sub: 'ce mois',
-      stat2L: 'Solde en circulation', stat2Sub: 'à dépenser',
-      stat3L: "Taux d'utilisation", stat3V: '71 %', stat3Sub: 'des cartes actives',
-      activeTitle: 'CARTES ACTIVES',
-      redeemTitle: 'VÉRIFIER / ENCAISSER',
-      redeemLabel: 'Code carte cadeau', redeemPlaceholder: 'Saisir un code cadeau',
-      redeemBtn: 'Vérifier le solde',
-      redeemToastTitle: 'Solde vérifié', redeemToastDesc: 'Solde : 200 MAD · valable jusqu\'au 31/12/2026',
-      statusActive: 'Active', statusUsed: 'Utilisée', statusExpired: 'Expirée',
-      expiryLabel: 'Exp.', balanceOf: '/', madUnit: 'MAD', closeBtn: 'Fermer',
-    },
-    en: {
-      title: 'Gift cards',
-      subtitle: 'Issue and manage Café Atlas gift cards · Kiwi Wallet',
-      issueTitle: 'ISSUE A GIFT CARD',
-      amountLabel: 'AMOUNT',
-      chip100: '100 MAD', chip200: '200 MAD', chip500: '500 MAD', chipFree: 'Custom amount',
-      freeHint: 'Amount in MAD',
-      recipientLabel: 'RECIPIENT',
-      fieldName: "Recipient's name", fieldPhone: 'Phone (WhatsApp)',
-      sendBtn: 'Send via WhatsApp',
-      sentTitle: 'Gift card sent', sentDesc: 'The card has been shared via WhatsApp.',
-      statsTitle: 'THIS MONTH',
-      stat1L: 'Cards issued', stat1V: '38', stat1Sub: 'this month',
-      stat2L: 'Outstanding balance', stat2Sub: 'to spend',
-      stat3L: 'Redemption rate', stat3V: '71 %', stat3Sub: 'of active cards',
-      activeTitle: 'ACTIVE CARDS',
-      redeemTitle: 'CHECK / REDEEM',
-      redeemLabel: 'Gift card code', redeemPlaceholder: 'Enter a gift card code',
-      redeemBtn: 'Check balance',
-      redeemToastTitle: 'Balance verified', redeemToastDesc: 'Balance: 200 MAD · valid until 31/12/2026',
-      statusActive: 'Active', statusUsed: 'Used', statusExpired: 'Expired',
-      expiryLabel: 'Exp.', balanceOf: '/', madUnit: 'MAD', closeBtn: 'Close',
-    },
-    ar: {
-      title: 'بطاقات الهدايا',
-      subtitle: 'إصدار وإدارة بطاقات هدايا كافيه أطلس · محفظة كيوي',
-      issueTitle: 'إصدار بطاقة هدية',
-      amountLabel: 'المبلغ',
-      chip100: '100 درهم', chip200: '200 درهم', chip500: '500 درهم', chipFree: 'مبلغ حر',
-      freeHint: 'المبلغ بالدرهم',
-      recipientLabel: 'المستلم',
-      fieldName: 'اسم المستلم', fieldPhone: 'الهاتف (واتساب)',
-      sendBtn: 'إرسال عبر واتساب',
-      sentTitle: 'تم إرسال البطاقة', sentDesc: 'تمت مشاركة البطاقة عبر واتساب.',
-      statsTitle: 'إحصاءات الشهر',
-      stat1L: 'بطاقات صادرة', stat1V: '38', stat1Sub: 'هذا الشهر',
-      stat2L: 'الرصيد المتداول', stat2Sub: 'للإنفاق',
-      stat3L: 'معدل الاستخدام', stat3V: '71 %', stat3Sub: 'من البطاقات النشطة',
-      activeTitle: 'البطاقات النشطة',
-      redeemTitle: 'التحقق / الصرف',
-      redeemLabel: 'رمز بطاقة الهدية', redeemPlaceholder: 'أدخل رمز البطاقة',
-      redeemBtn: 'التحقق من الرصيد',
-      redeemToastTitle: 'تم التحقق من الرصيد', redeemToastDesc: 'الرصيد: 200 درهم · صالح حتى 31/12/2026',
-      statusActive: 'نشطة', statusUsed: 'مستخدمة', statusExpired: 'منتهية',
-      expiryLabel: 'انتهاء', balanceOf: '/', madUnit: 'درهم', closeBtn: 'إغلاق',
-    },
-  };
-
-  /* ─── Mock active-cards data ─── */
-  const CARDS_DATA = [
-    { code: 'KIWI   4821', name: 'Yasmine Benali',   bal: 120, total: 200, expiry: '31/12/2026', status: 'active'  },
-    { code: 'KIWI   7203', name: 'Karim Tazi',       bal: 500, total: 500, expiry: '31/03/2027', status: 'active'  },
-    { code: 'KIWI   3310', name: 'Fatima Ouhajji',   bal:   0, total: 100, expiry: '28/02/2026', status: 'used'    },
-    { code: 'KIWI   9987', name: 'Mehdi Chraibi',    bal:  80, total: 200, expiry: '30/06/2026', status: 'active'  },
-    { code: 'KIWI   1145', name: 'Salma Idrissi',    bal:   0, total: 500, expiry: '31/01/2026', status: 'expired' },
-    { code: 'KIWI   6674', name: 'Omar El Fassi',    bal: 200, total: 200, expiry: '31/12/2026', status: 'active'  },
+  const CARDS = [
+    { code: '4821', to: 'Yasmine Benali', bal: 120, tot: 200, exp: '12/2026', st: 'active' },
+    { code: '7390', to: 'Karim Tazi',     bal: 500, tot: 500, exp: '03/2027', st: 'active' },
+    { code: '2654', to: 'Sofia Amrani',   bal: 0,   tot: 200, exp: '11/2026', st: 'used' },
+    { code: '9182', to: 'Omar Cherkaoui', bal: 80,  tot: 100, exp: '09/2026', st: 'active' },
+    { code: '5037', to: 'Lina Saadi',     bal: 200, tot: 200, exp: '01/2027', st: 'active' },
+    { code: '1148', to: 'Hamza El Fassi', bal: 0,   tot: 300, exp: '05/2026', st: 'expired' },
   ];
 
-  /* ─── Handler ─── */
-  handlers['growth-giftcards'] = () => {
-    const T   = STR[trLang()] || STR.fr;
-    const isAr = trLang() === 'ar';
-    const madSuffix = () => (trLang() === 'ar' ? ' درهم' : '<span class="gft-cur">MAD</span>');
+  const STR = {
+    fr: { title: 'Cartes cadeaux', sub: 'Émettez une carte en quelques secondes — encaissée d\'avance, dépensée chez vous.',
+      issue: 'ÉMETTRE UNE CARTE', amount: 'Montant', free: 'Libre', recipient: 'Destinataire',
+      namePh: 'Nom', phonePh: 'Téléphone (WhatsApp)', send: 'Envoyer par WhatsApp',
+      statsEm: 'Émises ce mois', statsCirc: 'En circulation', statsUse: 'Taux d\'utilisation',
+      active: 'CARTES ACTIVES', th: { code: 'Carte', to: 'Bénéficiaire', bal: 'Solde', exp: 'Expire', st: 'Statut' },
+      stL: { active: 'Active', used: 'Utilisée', expired: 'Expirée' },
+      redeem: 'Vérifier un solde', redeemPh: 'Saisir un code cadeau', check: 'Vérifier',
+      sent: 'Carte cadeau envoyée', sentD: (a) => `${fmt(a)} MAD · lien WhatsApp prêt à partager.`,
+      bal: (b) => `Solde : ${fmt(b)} MAD · valable jusqu'au 31/12/2026`, close: 'Fermer' },
+    en: { title: 'Gift cards', sub: 'Issue a card in seconds — paid upfront, spent with you.',
+      issue: 'ISSUE A CARD', amount: 'Amount', free: 'Custom', recipient: 'Recipient',
+      namePh: 'Name', phonePh: 'Phone (WhatsApp)', send: 'Send via WhatsApp',
+      statsEm: 'Issued this month', statsCirc: 'In circulation', statsUse: 'Redemption rate',
+      active: 'ACTIVE CARDS', th: { code: 'Card', to: 'Recipient', bal: 'Balance', exp: 'Expires', st: 'Status' },
+      stL: { active: 'Active', used: 'Used', expired: 'Expired' },
+      redeem: 'Check a balance', redeemPh: 'Enter a gift code', check: 'Check',
+      sent: 'Gift card sent', sentD: (a) => `${fmt(a)} MAD · WhatsApp link ready to share.`,
+      bal: (b) => `Balance: ${fmt(b)} MAD · valid until 31/12/2026`, close: 'Close' },
+    ar: { title: 'بطاقات الهدايا', sub: 'أصدر بطاقة في ثوانٍ — مدفوعة مسبقًا، تُنفق عندك.',
+      issue: 'إصدار بطاقة', amount: 'المبلغ', free: 'مبلغ حر', recipient: 'المستفيد',
+      namePh: 'الاسم', phonePh: 'الهاتف (واتساب)', send: 'إرسال عبر واتساب',
+      statsEm: 'صادرة هذا الشهر', statsCirc: 'قيد التداول', statsUse: 'معدل الاستخدام',
+      active: 'البطاقات النشطة', th: { code: 'البطاقة', to: 'المستفيد', bal: 'الرصيد', exp: 'تنتهي', st: 'الحالة' },
+      stL: { active: 'نشطة', used: 'مستخدمة', expired: 'منتهية' },
+      redeem: 'التحقق من رصيد', redeemPh: 'أدخل رمز هدية', check: 'تحقّق',
+      sent: 'تم إرسال البطاقة', sentD: (a) => `${fmt(a)} درهم · رابط واتساب جاهز للمشاركة.`,
+      bal: (b) => `الرصيد: ${fmt(b)} درهم · صالحة حتى 31/12/2026`, close: 'إغلاق' },
+  };
 
-    /* Build active-cards rows */
-    const cardRows = CARDS_DATA.map((c) => {
-      const statusKey = c.status === 'active' ? T.statusActive
-        : c.status === 'used' ? T.statusUsed : T.statusExpired;
-      return [
-        '<div class="gft-row">',
-        '<span class="gft-row-code">' + c.code + '</span>',
-        '<div class="gft-row-info">',
-        '<div class="gft-row-name">' + c.name + '</div>',
-        '<div class="gft-row-meta">' + fmt(c.bal) + ' ' + T.balanceOf + ' ' + fmt(c.total) + ' ' + T.madUnit + '</div>',
-        '</div>',
-        '<div class="gft-row-expiry">' + T.expiryLabel + ' ' + c.expiry + '</div>',
-        '<span class="gft-badge ' + c.status + '">' + statusKey + '</span>',
-        '</div>',
-      ].join('');
-    }).join('');
+  const CSS = `
+  .gft-grid { display:grid; grid-template-columns:330px 1fr; gap:20px; align-items:start; }
+  .gft-colt { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--n-500); margin-bottom:12px; }
 
-    const stat2V = fmt(7250) + ' ' + T.madUnit;
+  /* The gift card */
+  .gft-card { position:relative; overflow:hidden; aspect-ratio:1.6/1; border-radius:18px; color:var(--paper);
+    background:linear-gradient(135deg, var(--riad) 0%, var(--atlas) 70%); padding:20px; display:flex; flex-direction:column; justify-content:space-between;
+    box-shadow:0 24px 48px -22px rgba(11,110,79,.7); }
+  .gft-card::before { content:''; position:absolute; inset:0; background:radial-gradient(110% 80% at 85% -15%, rgba(125,242,176,.28), transparent 55%); }
+  .gft-card::after { content:''; position:absolute; top:-60%; left:-20%; width:60%; height:220%; transform:rotate(18deg); background:linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent); }
+  .gft-card > * { position:relative; }
+  .gft-card .top { display:flex; align-items:center; justify-content:space-between; }
+  .gft-card .brand { font-weight:700; font-size:18px; letter-spacing:-.04em; } .gft-card .brand i { color:var(--mint); }
+  .gft-card .chip { width:34px; height:26px; border-radius:6px; background:linear-gradient(135deg,#d9c47a,#b89a3e); opacity:.85; }
+  .gft-card .code { font-family:var(--mono); font-size:15px; letter-spacing:.18em; }
+  .gft-card .amt { font-family:var(--serif); font-size:34px; line-height:1; }
 
-    const body = [
-      '<div' + (isAr ? ' dir="rtl"' : '') + '>',
+  .gft-amts { display:flex; gap:8px; margin:16px 0 12px; flex-wrap:wrap; }
+  .gft-amt { font-family:var(--mono); font-size:13px; padding:9px 14px; border-radius:11px; border:1px solid var(--n-200); background:#fff; cursor:pointer; transition:all .12s; }
+  .gft-amt.on { background:var(--atlas); color:#fff; border-color:var(--atlas); }
+  .gft-in { width:100%; font-size:13px; padding:10px 12px; border:1px solid var(--n-200); border-radius:10px; margin-bottom:9px; background:#fff; color:var(--ink); font-family:inherit; }
+  .gft-send { width:100%; margin-top:4px; }
 
-      /* 1. Issue hero */
-      '<p class="gft-section-title">' + T.issueTitle + '</p>',
-      '<div class="gft-issue-wrap">',
+  .gft-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .gft-stat { background:#fff; border:1px solid var(--n-200); border-radius:15px; padding:15px 16px; }
+  .gft-stat .v { font-family:var(--serif); font-size:26px; line-height:1; } .gft-stat .l { font-size:11.5px; color:var(--n-500); margin-top:6px; }
 
-        '<div class="gft-card-visual" aria-hidden="true">',
-          '<div>',
-            '<div class="gft-card-brand">Kiwi<span>·</span></div>',
-            '<div class="gft-card-venue">Café Atlas · Maarif, Casablanca</div>',
-          '</div>',
-          '<div>',
-            '<div class="gft-card-code" id="gft-vis-code">KIWI   4821</div>',
-            '<div class="gft-card-amount" id="gft-vis-amount">200<span class="gft-cur">MAD</span></div>',
-          '</div>',
-        '</div>',
+  .gft-tbl { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--n-200); border-radius:16px; overflow:hidden; margin-top:14px; }
+  .gft-tbl th { font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--n-500); text-align:start; padding:11px 14px; background:var(--paper-soft); font-weight:500; }
+  .gft-tbl td { padding:12px 14px; font-size:13px; border-top:1px solid var(--n-200); } .gft-tbl td.mono { font-family:var(--mono); font-size:12px; }
+  .gft-tbl tr:hover td { background:var(--paper-soft); }
+  .gft-bal { display:flex; align-items:center; gap:8px; } .gft-bal .track { width:54px; height:5px; border-radius:3px; background:var(--n-200); overflow:hidden; } .gft-bal .fill { height:100%; background:var(--atlas); }
+  .gft-stt { font-size:10.5px; font-family:var(--mono); padding:3px 9px; border-radius:999px; } .gft-stt.active { background:var(--mint-soft); color:#075238; } .gft-stt.used { background:var(--paper-soft); color:var(--n-500); } .gft-stt.expired { background:#FBE3DD; color:#C0492F; }
 
-        '<div>',
-          '<p class="gft-label">' + T.amountLabel + '</p>',
-          '<div class="gft-chips">',
-            '<button class="gft-chip" data-amt="100">' + T.chip100 + '</button>',
-            '<button class="gft-chip gft-selected" data-amt="200">' + T.chip200 + '</button>',
-            '<button class="gft-chip" data-amt="500">' + T.chip500 + '</button>',
-            '<button class="gft-chip" data-amt="free">' + T.chipFree + '</button>',
-          '</div>',
-          '<div class="gft-free-input" id="gft-free-wrap">',
-            '<input type="number" id="gft-free-val" min="10" max="5000" placeholder="' + T.freeHint + '" />',
-          '</div>',
-          '<p class="gft-label">' + T.recipientLabel + '</p>',
-          '<div class="gft-fields">',
-            '<div class="gft-field"><input type="text" id="gft-name" placeholder="' + T.fieldName + '" autocomplete="off" /></div>',
-            '<div class="gft-field"><input type="tel" id="gft-phone" placeholder="' + T.fieldPhone + '" autocomplete="off" /></div>',
-          '</div>',
-          '<button class="kb atlas" data-action="gft-send">' + T.sendBtn + '</button>',
-        '</div>',
-      '</div>',
+  .gft-redeem { margin-top:16px; display:flex; gap:9px; } .gft-redeem .gft-in { margin:0; flex:1; }
+  .gft-foot { display:flex; justify-content:flex-end; margin-top:22px; }
+  html[data-theme="dark"] .gft-amt, html[data-theme="dark"] .gft-in, html[data-theme="dark"] .gft-stat, html[data-theme="dark"] .gft-tbl { background:#131916; border-color:#26302b; color:var(--paper); }
+  html[data-theme="dark"] .gft-tbl th { background:#0f1714; } html[data-theme="dark"] .gft-tbl td { border-color:#26302b; } html[data-theme="dark"] .gft-tbl tr:hover td { background:#0f1714; }
+  @media (max-width:820px){ .gft-grid{grid-template-columns:1fr;} .gft-stats{grid-template-columns:1fr 1fr;} }
+  `;
+  const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
 
-      /* 2. Stats row */
-      '<p class="gft-section-title">' + T.statsTitle + '</p>',
-      '<div class="gft-stats">',
-        '<div class="gft-stat"><div class="gft-stat-l">' + T.stat1L + '</div><div class="gft-stat-v">' + T.stat1V + '</div><div class="gft-stat-sub">' + T.stat1Sub + '</div></div>',
-        '<div class="gft-stat"><div class="gft-stat-l">' + T.stat2L + '</div><div class="gft-stat-v">' + stat2V + '</div><div class="gft-stat-sub">' + T.stat2Sub + '</div></div>',
-        '<div class="gft-stat"><div class="gft-stat-l">' + T.stat3L + '</div><div class="gft-stat-v">' + T.stat3V + '</div><div class="gft-stat-sub">' + T.stat3Sub + '</div></div>',
-      '</div>',
+  window.Kiwi.handlers['growth-giftcards'] = () => {
+    const T = STR[lang()] || STR.fr;
+    let amt = 200;
 
-      /* 3. Active cards list */
-      '<p class="gft-section-title">' + T.activeTitle + '</p>',
-      '<div class="gft-cards-list">' + cardRows + '</div>',
+    const body = `<div class="gk-reveal-root">
+      <div class="gft-grid">
+        <div>
+          <div class="gft-colt">${T.issue}</div>
+          <div class="gft-card">
+            <div class="top"><div class="brand">kiwi<i>.</i></div><div class="chip"></div></div>
+            <div>
+              <div class="code">KIWI ···· <span data-gft-code>4821</span></div>
+              <div class="amt gk-serif" data-gft-cardamt>${fmt(amt)} <span style="font-size:15px;font-family:var(--sans);">MAD</span></div>
+            </div>
+          </div>
+          <div class="gft-amts">
+            ${[100, 200, 500].map(a => `<button class="gft-amt ${a === amt ? 'on' : ''}" data-gft-amt="${a}">${a} MAD</button>`).join('')}
+            <button class="gft-amt" data-gft-amt="free">${T.free}</button>
+          </div>
+          <input class="gft-in" placeholder="${T.namePh}" />
+          <input class="gft-in" placeholder="${T.phonePh}" />
+          <button class="kb atlas gft-send" data-gft-send>${T.send}</button>
+        </div>
 
-      /* 4. Redeem box */
-      '<p class="gft-section-title">' + T.redeemTitle + '</p>',
-      '<div class="gft-redeem-box">',
-        '<p class="gft-label">' + T.redeemLabel + '</p>',
-        '<div class="gft-redeem-row">',
-          '<input type="text" id="gft-redeem-code" placeholder="' + T.redeemPlaceholder + '" autocomplete="off" />',
-          '<button class="kb ghost" data-action="gft-check">' + T.redeemBtn + '</button>',
-        '</div>',
-      '</div>',
+        <div>
+          <div class="gft-stats">
+            <div class="gft-stat"><div class="v">38</div><div class="l">${T.statsEm}</div></div>
+            <div class="gft-stat"><div class="v">7 250</div><div class="l">${T.statsCirc} (MAD)</div></div>
+            <div class="gft-stat"><div class="v">71 %</div><div class="l">${T.statsUse}</div></div>
+          </div>
+          <div class="gft-colt" style="margin-top:20px;">${T.active}</div>
+          <table class="gft-tbl"><thead><tr><th>${T.th.code}</th><th>${T.th.to}</th><th>${T.th.bal}</th><th>${T.th.exp}</th><th>${T.th.st}</th></tr></thead>
+          <tbody>${CARDS.map(c => `<tr>
+            <td class="mono">···· ${c.code}</td><td style="font-weight:500">${c.to}</td>
+            <td><div class="gft-bal"><span class="track"><span class="fill" style="width:${Math.round(c.bal / c.tot * 100)}%"></span></span><span class="mono" style="font-size:11.5px">${fmt(c.bal)}/${fmt(c.tot)}</span></div></td>
+            <td class="mono" style="color:var(--n-500)">${c.exp}</td><td><span class="gft-stt ${c.st}">${T.stL[c.st]}</span></td></tr>`).join('')}</tbody></table>
+          <div class="gft-redeem"><input class="gft-in" placeholder="${T.redeemPh}" data-gft-redeem /><button class="kb ghost" data-gft-check>${T.check}</button></div>
+        </div>
+      </div>
+      <div class="gft-foot"><button class="kb ghost" data-dismiss>${T.close}</button></div>
+    </div>`;
 
-      /* 5. Footer */
-      '<div class="gft-footer"><button class="kb ghost" data-dismiss="true">' + T.closeBtn + '</button></div>',
-
-      '</div>',
-    ].join('');
-
-    const d = drawer({ title: T.title, subtitle: T.subtitle, fullpage: true, body });
-
-    /* Wire free-amount input after DOM is live */
-    const freeInput = d.el.querySelector('#gft-free-val');
-    if (freeInput) {
-      freeInput.addEventListener('input', () => {
-        const v = parseInt(freeInput.value, 10);
-        if (!isNaN(v) && v > 0) {
-          const visAmt = d.el.querySelector('#gft-vis-amount');
-          if (visAmt) { visAmt.textContent = ''; visAmt.insertAdjacentHTML('beforeend', fmt(v) + madSuffix()); }
-        }
-      });
-    }
-
+    const d = drawer({ title: T.title, subtitle: T.sub, fullpage: true, body });
+    if (window.KiwiKit) window.KiwiKit.reveal(d.el.querySelector('.gk-reveal-root'));
+    const root = d.el;
     d.el.addEventListener('click', (e) => {
-      const target = e.target.closest('[data-amt], [data-action], [data-dismiss]');
-      if (!target) return;
-
-      /* Amount chip selection */
-      if (Object.prototype.hasOwnProperty.call(target.dataset, 'amt')) {
-        d.el.querySelectorAll('.gft-chip').forEach((c) => c.classList.remove('gft-selected'));
-        target.classList.add('gft-selected');
-        const freeWrap = d.el.querySelector('#gft-free-wrap');
-        if (target.dataset.amt === 'free') {
-          if (freeWrap) freeWrap.classList.add('gft-visible');
-        } else {
-          if (freeWrap) freeWrap.classList.remove('gft-visible');
-          const amt = parseInt(target.dataset.amt, 10);
-          const visAmt = d.el.querySelector('#gft-vis-amount');
-          if (visAmt) { visAmt.textContent = ''; visAmt.insertAdjacentHTML('beforeend', fmt(amt) + madSuffix()); }
-        }
-        return;
-      }
-
-      const action = target.dataset.action;
-
-      /* Send gift card */
-      if (action === 'gft-send') {
-        const T2 = STR[trLang()] || STR.fr;
-        confetti();
-        toast(T2.sentTitle, { desc: T2.sentDesc, type: 'success' });
-        return;
-      }
-
-      /* Verify / redeem */
-      if (action === 'gft-check') {
-        const T2 = STR[trLang()] || STR.fr;
-        toast(T2.redeemToastTitle, { desc: T2.redeemToastDesc, type: 'info' });
-        return;
-      }
-
-      /* Dismiss */
-      if (target.dataset.dismiss) {
-        d.close();
+      const a = e.target.closest('[data-gft-amt]');
+      if (a) {
+        root.querySelectorAll('[data-gft-amt]').forEach(x => x.classList.toggle('on', x === a));
+        if (a.dataset.gftAmt !== 'free') { amt = +a.dataset.gftAmt; root.querySelector('[data-gft-cardamt]').innerHTML = `${fmt(amt)} <span style="font-size:15px;font-family:var(--sans);">MAD</span>`; }
+      } else if (e.target.closest('[data-gft-send]')) {
+        confetti && confetti(); toast(T.sent, { type: 'success', desc: T.sentD(amt) });
+      } else if (e.target.closest('[data-gft-check]')) {
+        toast(T.redeem, { type: 'info', desc: T.bal(200) });
       }
     });
   };
-
 })();
