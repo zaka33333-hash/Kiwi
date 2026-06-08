@@ -481,19 +481,23 @@
     return `
       <div class="fin-bev fin-card">
         <div class="fin-eyebrow"><span>${esc(t('bevTitle'))}</span><span class="fin-eyebrow-sub">${esc(t('bevSub'))}</span></div>
-        <div class="fin-bev-fixed">
-          <div class="fin-bev-row"><span>${esc(t('bevRent'))}</span><span>${fmtMad(fc.rent)}</span></div>
-          <div class="fin-bev-row"><span>${esc(t('bevSalaries'))}</span><span>${fmtMad(fc.salaries)}</span></div>
-          <div class="fin-bev-row"><span>${esc(t('bevUtilities'))}</span><span>${fmtMad(fc.utilities)}</span></div>
-          <div class="fin-bev-row"><span>${esc(t('bevOther'))}</span><span>${fmtMad(fc.other)}</span></div>
-          <div class="fin-bev-row fin-bev-row-total"><span>${esc(t('bevTotal'))}</span><span>${fmtMad(total)}</span></div>
+        <div class="fin-bev-split">
+          <div class="fin-bev-fixed">
+            <div class="fin-bev-row"><span>${esc(t('bevRent'))}</span><span>${fmtMad(fc.rent)}</span></div>
+            <div class="fin-bev-row"><span>${esc(t('bevSalaries'))}</span><span>${fmtMad(fc.salaries)}</span></div>
+            <div class="fin-bev-row"><span>${esc(t('bevUtilities'))}</span><span>${fmtMad(fc.utilities)}</span></div>
+            <div class="fin-bev-row"><span>${esc(t('bevOther'))}</span><span>${fmtMad(fc.other)}</span></div>
+            <div class="fin-bev-row fin-bev-row-total"><span>${esc(t('bevTotal'))}</span><span>${fmtMad(total)}</span></div>
+          </div>
+          <div class="fin-bev-right">
+            <div class="fin-bev-daily">
+              <div class="fin-bev-daily-l">${esc(t('bevDaily'))}</div>
+              <div class="fin-bev-daily-v">${fmtMad(dailyBE)}</div>
+              <div class="fin-bev-daily-sub">${esc(t('bevDailySub', WORKING_DAYS))}</div>
+            </div>
+            ${verdictHtml}
+          </div>
         </div>
-        <div class="fin-bev-daily">
-          <div class="fin-bev-daily-l">${esc(t('bevDaily'))}</div>
-          <div class="fin-bev-daily-v">${fmtMad(dailyBE)}</div>
-          <div class="fin-bev-daily-sub">${esc(t('bevDailySub', WORKING_DAYS))}</div>
-        </div>
-        ${verdictHtml}
       </div>`;
   }
 
@@ -826,10 +830,8 @@
         </div>
         <div class="fin-grid">
           ${pnlHtml()}
-          <div class="fin-col">
-            ${budgetHtml()}
-            ${breakevenHtml()}
-          </div>
+          ${budgetHtml()}
+          ${breakevenHtml()}
           ${serviceHtml()}
           ${priceHtml()}
           ${tvaHtml()}
