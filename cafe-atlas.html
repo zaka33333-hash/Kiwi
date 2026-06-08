@@ -388,7 +388,8 @@
       align-items: flex-start;
       gap: 2px;
     }
-    .menu-cafe .table-badge { margin-top: 6px; }
+    .service-bar .table-badge { flex: 0 0 auto; }
+    .service-bar.is-takeout .service-pill { display: none; }
     .menu-cafe .name {
       font-size: 18px;
       font-weight: 600;
@@ -2268,21 +2269,21 @@
         <div class="menu-cafe">
           <div class="name">Café Atlas</div>
           <div class="ctx" data-i18n="menu_loc">Médina · Tanger</div>
-          <span class="table-badge" id="menu-badge">
-            <i data-lucide="utensils"></i>
-            <span id="menu-badge-text">Table —</span>
-          </span>
         </div>
       </div>
 
-      <div class="service-bar" id="service-bar" hidden>
+      <div class="service-bar" id="service-bar">
+        <span class="table-badge" id="menu-badge">
+          <i data-lucide="utensils"></i>
+          <span id="menu-badge-text">Table —</span>
+        </span>
         <button class="service-pill" type="button" data-service="call-server">
           <i data-lucide="bell-ring"></i>
           <span data-i18n="service_call">Appeler un serveur</span>
         </button>
         <button class="service-pill" type="button" data-service="ask-bill">
           <i data-lucide="receipt"></i>
-          <span data-i18n="service_bill">Demander l'addition</span>
+          <span data-i18n="service_bill">Addition</span>
         </button>
       </div>
 
@@ -2614,7 +2615,7 @@
         tab_drink: "Boissons",
         tag_new: "Nouveau",
         service_call: "Appeler un serveur",
-        service_bill: "Demander l'addition",
+        service_bill: "Addition",
         cart_pill: "Voir ma commande",
         custom_from: "À partir de",
         custom_note_label: "Demande spéciale",
@@ -2755,7 +2756,7 @@
         tab_drink: "Drinks",
         tag_new: "New",
         service_call: "Call the waiter",
-        service_bill: "Ask for the check",
+        service_bill: "Bill",
         cart_pill: "View my order",
         custom_from: "From",
         custom_note_label: "Special request",
@@ -2896,7 +2897,7 @@
         tab_drink: "مشروبات",
         tag_new: "جديد",
         service_call: "عيّط على الجارسون",
-        service_bill: "طلب الحساب",
+        service_bill: "الحساب",
         cart_pill: "شوف الطلب ديالي",
         custom_from: "إبتدا من",
         custom_note_label: "طلب خاص",
@@ -3790,12 +3791,14 @@
         subtitle.textContent = t('cart_subtitle_takeout');
         note.innerHTML = t('cart_note_takeout_html');
         sendLabel.textContent = t('send_takeout');
-        serviceBar.hidden = true;
+        serviceBar.classList.add('is-takeout');
+        serviceBar.hidden = false;
       } else {
         badge.innerHTML = `<i data-lucide="utensils"></i><span id="menu-badge-text">${t('badge_table')} ${tableNumber}</span>`;
         subtitle.textContent = t('cart_subtitle_table').replace('{n}', tableNumber);
         note.textContent = t('cart_note_table');
         sendLabel.textContent = t('send_table');
+        serviceBar.classList.remove('is-takeout');
         serviceBar.hidden = false;
       }
       if (window.lucide) window.lucide.createIcons();
