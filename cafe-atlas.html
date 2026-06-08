@@ -1716,7 +1716,8 @@
       border-radius: 22px 22px 0 0;
       padding: 12px 22px calc(22px + var(--safe-bottom));
       max-height: 92%;
-      overflow: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       display: flex;
       flex-direction: column;
       transform: translateY(100%);
@@ -2331,7 +2332,7 @@
           </div>
           <div class="tip-level" id="tip-level">L'équipe vous remercie</div>
           <div class="tip-chips" id="tip-chips">
-            <button class="tip-chip is-zero" type="button" data-tip="0">Pas de pourboire</button>
+            <button class="tip-chip is-zero" type="button" data-tip="0" aria-label="Pas de pourboire">0%</button>
             <button class="tip-chip" type="button" data-tip="10">10%</button>
             <button class="tip-chip is-active" type="button" data-tip="15">15%</button>
             <button class="tip-chip" type="button" data-tip="20">20%</button>
