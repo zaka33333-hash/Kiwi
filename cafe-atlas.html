@@ -17,7 +17,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter+Tight:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 
@@ -48,6 +48,7 @@
       --sans:  "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       --serif: "Instrument Serif", "Times New Roman", serif;
       --mono:  "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+      --arabic: "IBM Plex Sans Arabic", "Inter Tight", -apple-system, system-ui, sans-serif;
 
       --shadow-card: 0 1px 2px rgba(17,17,17,.04), 0 4px 10px rgba(17,17,17,.05);
       --gradient: linear-gradient(135deg, #1F5D3C 0%, #3FB67A 100%);
@@ -1976,17 +1977,110 @@
     }
     .bill-confirm-btn:active { transform: scale(0.98); }
     .bill-confirm-btn svg { width: 16px; height: 16px; }
+
+    /* =========================================================
+       LANGUAGE SWITCHER (floating top-right segmented pill)
+       ========================================================= */
+    .lang-picker {
+      position: absolute;
+      top: calc(var(--safe-top) + 8px);
+      right: 14px;
+      z-index: 95;
+      display: flex;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--line-soft);
+      border-radius: 999px;
+      padding: 3px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .lang-btn {
+      min-width: 30px;
+      height: 26px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--ink-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 200ms ease, color 200ms ease;
+      font-family: var(--sans);
+    }
+    .lang-btn[data-lang="ar"] {
+      font-family: var(--arabic);
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+    .lang-btn.is-active {
+      background: var(--ink);
+      color: var(--paper-cream);
+    }
+
+    /* Hide picker over modal sheets so it doesn't sit on top of the backdrop */
+    .custom-sheet.is-open ~ .lang-picker,
+    .cart-sheet.is-open ~ .lang-picker,
+    .bill-sheet.is-open ~ .lang-picker { opacity: 0.4; pointer-events: none; }
+    /* Tone down over greeting/ready/cashier dark or full-bleed surfaces */
+    .screen-ready.is-active ~ .lang-picker { display: none; }
+    .kiwi-greet.is-visible ~ .lang-picker { display: none; }
+
+    /* =========================================================
+       Arabic / RTL adjustments
+       ========================================================= */
+    [dir="rtl"] body { font-family: var(--arabic); }
+    [dir="rtl"] .brand-mark,
+    [dir="rtl"] .menu-cafe .name,
+    [dir="rtl"] .custom-name,
+    [dir="rtl"] .mode-card .mode-label,
+    [dir="rtl"] .bill-title,
+    [dir="rtl"] .success-title,
+    [dir="rtl"] .prep-title,
+    [dir="rtl"] .ready-title,
+    [dir="rtl"] .cashier-instruction,
+    [dir="rtl"] .table-ask,
+    [dir="rtl"] .mode-ask { font-family: var(--arabic); }
+    [dir="rtl"] .mode-card .mode-chev svg { transform: rotate(180deg); }
+    [dir="rtl"] .back-affordance svg { transform: rotate(180deg); }
+    [dir="rtl"] .continue-btn svg { transform: rotate(180deg); }
+    [dir="rtl"] .success-cta svg,
+    [dir="rtl"] .ready-cta svg { transform: rotate(180deg); }
+    /* keep numbers in their LTR pattern even in RTL pages */
+    [dir="rtl"] .table-digit,
+    [dir="rtl"] .cashier-number,
+    [dir="rtl"] .tip-amount,
+    [dir="rtl"] .cart-total,
+    [dir="rtl"] .bill-subtotal .val,
+    [dir="rtl"] .bill-total .val,
+    [dir="rtl"] .item-price,
+    [dir="rtl"] .row-price,
+    [dir="rtl"] .cart-row .qty,
+    [dir="rtl"] .cashier-recap-total strong,
+    [dir="rtl"] .custom-price-value,
+    [dir="rtl"] .prep-eta strong,
+    [dir="rtl"] #cart-grand { direction: ltr; unicode-bidi: isolate; }
+    /* Greeting em-clip behaves the same in RTL — just measured by the script */
   </style>
 </head>
 
 <body>
   <div class="app" id="app">
 
+    <!-- ============ LANGUAGE PICKER (floating top-right) ============ -->
+    <div class="lang-picker" id="lang-picker" role="group" aria-label="Langue">
+      <button class="lang-btn" type="button" data-lang="ar" aria-label="الدارجة">د</button>
+      <button class="lang-btn" type="button" data-lang="en">EN</button>
+      <button class="lang-btn is-active" type="button" data-lang="fr">FR</button>
+    </div>
+
     <!-- ============ GREETING FLASH (overlay) ============ -->
     <div class="kiwi-greet" data-kiwi-greet aria-hidden="true">
       <div class="kiwi-greet-inner">
-        <h1><span id="greet-line1">Bonjour,</span><br><em id="greet-em">bienvenue au café Atlas.</em></h1>
-        <div class="kiwi-greet-sub" id="greet-sub">Médina · Tanger · <em>commandez depuis votre table</em></div>
+        <h1><span id="greet-line1" data-i18n="greet_line1">Bonjour,</span><br><em id="greet-em" data-i18n="greet_em">bienvenue au café Atlas.</em></h1>
+        <div class="kiwi-greet-sub" id="greet-sub"><span data-i18n="greet_sub_loc">Médina · Tanger</span> · <em data-i18n="greet_sub_em">commandez depuis votre table</em></div>
       </div>
     </div>
 
@@ -1994,34 +2088,34 @@
     <section class="screen screen-mode is-active" id="screen-mode">
       <div class="table-top">
         <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
-        <div class="brand-tag">— Médina, Tanger</div>
+        <div class="brand-tag" data-i18n="brand_tag">— Médina, Tanger</div>
       </div>
 
       <div class="mode-mid">
-        <p class="mode-ask">Comment commandez-vous <em>aujourd'hui</em> ?</p>
-        <p class="mode-sub">Choisissez votre formule pour démarrer.</p>
+        <p class="mode-ask"><span data-i18n="mode_ask_pre">Comment commandez-vous</span> <em data-i18n="mode_ask_em">aujourd'hui</em><span data-i18n="mode_ask_post"> ?</span></p>
+        <p class="mode-sub" data-i18n="mode_sub">Choisissez votre formule pour démarrer.</p>
       </div>
 
       <div class="mode-cards">
         <button class="mode-card" type="button" data-mode="table">
           <span class="mode-icon"><i data-lucide="utensils"></i></span>
           <span class="mode-body">
-            <span class="mode-label">Je suis à table</span>
-            <span class="mode-desc">Commande envoyée au serveur · paiement à la table</span>
+            <span class="mode-label" data-i18n="mode_table_label">Je suis à table</span>
+            <span class="mode-desc" data-i18n="mode_table_desc">Commande envoyée au serveur · paiement à la table</span>
           </span>
           <span class="mode-chev"><i data-lucide="chevron-right"></i></span>
         </button>
         <button class="mode-card" type="button" data-mode="takeout">
           <span class="mode-icon"><i data-lucide="shopping-bag"></i></span>
           <span class="mode-body">
-            <span class="mode-label">À emporter</span>
-            <span class="mode-desc">Paiement à la caisse · on vous prévient quand c'est prêt</span>
+            <span class="mode-label" data-i18n="mode_takeout_label">À emporter</span>
+            <span class="mode-desc" data-i18n="mode_takeout_desc">Paiement à la caisse · on vous prévient quand c'est prêt</span>
           </span>
           <span class="mode-chev"><i data-lucide="chevron-right"></i></span>
         </button>
       </div>
 
-      <div class="mode-foot">Café Atlas · service self-order</div>
+      <div class="mode-foot" data-i18n="mode_foot">Café Atlas · service self-order</div>
     </section>
 
     <!-- ============ TABLE-NUMBER ENTRY ============ -->
@@ -2031,15 +2125,15 @@
       </button>
       <div class="table-top">
         <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
-        <div class="brand-tag">— Médina, Tanger</div>
+        <div class="brand-tag" data-i18n="brand_tag">— Médina, Tanger</div>
       </div>
 
       <div class="table-mid">
-        <p class="table-ask">Quel est votre <em>numéro de table</em> ?</p>
+        <p class="table-ask"><span data-i18n="table_ask_pre">Quel est votre</span> <em data-i18n="table_ask_em">numéro de table</em><span data-i18n="table_ask_post"> ?</span></p>
         <div class="table-num-display" id="table-display">
           <span class="table-digit is-placeholder">—</span>
         </div>
-        <p class="table-hint">Le numéro est gravé sur le bois de la table</p>
+        <p class="table-hint" data-i18n="table_hint">Le numéro est gravé sur le bois de la table</p>
       </div>
 
       <div class="numpad" id="numpad" role="group" aria-label="Clavier numérique">
@@ -2060,7 +2154,7 @@
       </div>
 
       <button class="continue-btn" id="continue-btn" type="button">
-        <span>Continuer</span>
+        <span data-i18n="btn_continue">Continuer</span>
         <i data-lucide="arrow-right"></i>
       </button>
     </section>
@@ -2071,7 +2165,7 @@
       <div class="menu-top">
         <div class="menu-cafe">
           <div class="name">Café Atlas</div>
-          <div class="ctx">Médina · Tanger</div>
+          <div class="ctx" data-i18n="menu_loc">Médina · Tanger</div>
         </div>
         <span class="table-badge" id="menu-badge">
           <i data-lucide="utensils"></i>
@@ -2082,20 +2176,20 @@
       <div class="service-bar" id="service-bar" hidden>
         <button class="service-pill" type="button" data-service="call-server">
           <i data-lucide="bell-ring"></i>
-          <span>Appeler un serveur</span>
+          <span data-i18n="service_call">Appeler un serveur</span>
         </button>
         <button class="service-pill" type="button" data-service="ask-bill">
           <i data-lucide="receipt"></i>
-          <span>Demander l'addition</span>
+          <span data-i18n="service_bill">Demander l'addition</span>
         </button>
       </div>
 
       <div class="menu-tabs" role="tablist">
-        <button class="menu-tab is-active" data-tab="all">Tout</button>
-        <button class="menu-tab" data-tab="coffee">Café</button>
-        <button class="menu-tab" data-tab="pastry">Pâtisserie</button>
-        <button class="menu-tab" data-tab="savory">Salé</button>
-        <button class="menu-tab" data-tab="drink">Boissons</button>
+        <button class="menu-tab is-active" data-tab="all" data-i18n="tab_all">Tout</button>
+        <button class="menu-tab" data-tab="coffee" data-i18n="tab_coffee">Café</button>
+        <button class="menu-tab" data-tab="pastry" data-i18n="tab_pastry">Pâtisserie</button>
+        <button class="menu-tab" data-tab="savory" data-i18n="tab_savory">Salé</button>
+        <button class="menu-tab" data-tab="drink" data-i18n="tab_drink">Boissons</button>
       </div>
 
       <div class="menu-list" id="menu-list"></div>
@@ -2103,7 +2197,7 @@
       <button class="cart-pill" id="cart-pill" type="button">
         <span class="cart-left">
           <span class="cart-count-chip" id="cart-count">0</span>
-          <span>Voir ma commande</span>
+          <span data-i18n="cart_pill">Voir ma commande</span>
         </span>
         <span class="cart-total" id="cart-total">0 MAD</span>
       </button>
@@ -2117,18 +2211,18 @@
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         </div>
-        <h1 class="success-title">Commande envoyée<br/><em>en cuisine.</em></h1>
-        <div class="success-eta">Table <span id="success-table">—</span> · prêt dans <em>4–6 min</em></div>
+        <h1 class="success-title"><span data-i18n="success_title_a">Commande envoyée</span><br/><em data-i18n="success_title_em">en cuisine.</em></h1>
+        <div class="success-eta"><span data-i18n="success_eta_pre">Table</span> <span id="success-table">—</span> <span data-i18n="success_eta_mid">· prêt dans</span> <em data-i18n="success_eta_em">4–6 min</em></div>
         <div class="success-recap">
-          <div class="recap-title">Votre commande</div>
+          <div class="recap-title" data-i18n="success_recap">Votre commande</div>
           <div id="success-items">—</div>
         </div>
       </div>
       <div class="success-bottom">
-        <p class="success-note">Le paiement se fait à votre table. Vous pouvez ajouter d'autres articles si vous voulez.</p>
+        <p class="success-note" data-i18n="success_note">Le paiement se fait à votre table. Vous pouvez ajouter d'autres articles si vous voulez.</p>
         <button class="success-cta" id="restart-btn" type="button">
           <i data-lucide="plus"></i>
-          <span>Ajouter à ma commande</span>
+          <span data-i18n="success_cta">Ajouter à ma commande</span>
         </button>
       </div>
     </section>
@@ -2137,18 +2231,18 @@
     <section class="screen screen-cashier" id="screen-cashier">
       <div class="cashier-top">
         <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
-        <div class="cashier-eyebrow">— à emporter</div>
+        <div class="cashier-eyebrow" data-i18n="cashier_eyebrow">— à emporter</div>
       </div>
 
       <div class="cashier-mid">
         <div class="cashier-number"><span class="hash">#</span><span id="cashier-number-digits">000</span></div>
-        <p class="cashier-instruction">Présentez ce numéro à la <em>caisse</em> pour régler.</p>
+        <p class="cashier-instruction"><span data-i18n="cashier_instr_pre">Présentez ce numéro à la</span> <em data-i18n="cashier_instr_em">caisse</em> <span data-i18n="cashier_instr_post">pour régler.</span></p>
 
         <div class="cashier-recap">
-          <div class="cashier-recap-title">Votre commande</div>
+          <div class="cashier-recap-title" data-i18n="cashier_recap">Votre commande</div>
           <div class="cashier-recap-items" id="cashier-items">—</div>
           <div class="cashier-recap-total">
-            <span>Total</span>
+            <span data-i18n="cashier_total">Total</span>
             <strong id="cashier-total">0 MAD</strong>
           </div>
         </div>
@@ -2157,9 +2251,9 @@
       <div class="cashier-bottom">
         <button class="cashier-confirm-btn" type="button" id="cashier-confirm-btn">
           <i data-lucide="check"></i>
-          <span>Paiement confirmé à la caisse</span>
+          <span data-i18n="cashier_confirm">Paiement confirmé à la caisse</span>
         </button>
-        <p class="cashier-hint">Le caissier valide votre paiement. Une fois validé, vous pouvez sortir — on vous prévient quand c'est prêt.</p>
+        <p class="cashier-hint" data-i18n="cashier_hint">Le caissier valide votre paiement. Une fois validé, vous pouvez sortir — on vous prévient quand c'est prêt.</p>
       </div>
     </section>
 
@@ -2167,7 +2261,7 @@
     <section class="screen screen-preparing" id="screen-preparing">
       <div class="prep-top">
         <div class="brand-mark">Café Atlas<i aria-hidden="true"></i></div>
-        <div class="cashier-eyebrow">— commande #<span id="prep-number">000</span></div>
+        <div class="cashier-eyebrow"><span data-i18n="prep_eyebrow_pre">— commande #</span><span id="prep-number">000</span></div>
       </div>
 
       <div class="prep-mid">
@@ -2177,20 +2271,20 @@
             <line x1="6" y1="17" x2="18" y2="17"/>
           </svg>
         </div>
-        <h1 class="prep-title">En préparation <em>en cuisine.</em></h1>
+        <h1 class="prep-title"><span data-i18n="prep_title_pre">En préparation</span> <em data-i18n="prep_title_em">en cuisine.</em></h1>
         <div class="prep-eta-row">
-          <div class="prep-eta">Prêt dans <strong id="prep-eta">8 s</strong></div>
+          <div class="prep-eta"><span data-i18n="prep_ready_in">Prêt dans</span> <strong id="prep-eta">8 s</strong></div>
           <div class="prep-bar" aria-hidden="true"><div class="prep-bar-fill" id="prep-bar-fill"></div></div>
         </div>
         <div class="prep-perm" id="prep-perm">
           <span class="perm-icon"><i data-lucide="bell"></i></span>
           <span class="perm-body" id="prep-perm-body">Recevez une notification quand c'est prêt — gardez votre téléphone à côté.</span>
-          <button class="prep-perm-btn" type="button" id="prep-perm-btn">Activer</button>
+          <button class="prep-perm-btn" type="button" id="prep-perm-btn" data-i18n="prep_perm_btn">Activer</button>
         </div>
       </div>
 
       <div class="prep-bottom">
-        <p class="prep-note">Vous pouvez attendre <em>où vous voulez</em>. Votre téléphone vibre et sonne dès que c'est prêt.</p>
+        <p class="prep-note"><span data-i18n="prep_note_pre">Vous pouvez attendre</span> <em data-i18n="prep_note_em">où vous voulez</em><span data-i18n="prep_note_post">. Votre téléphone vibre et sonne dès que c'est prêt.</span></p>
       </div>
     </section>
 
@@ -2204,13 +2298,13 @@
             <path d="M16 10 a4 4 0 0 1 -8 0"/>
           </svg>
         </div>
-        <h1 class="ready-title">Votre commande<br/>est <em>prête.</em></h1>
-        <div class="ready-sub">#<span id="ready-number">000</span> · café atlas · médina</div>
+        <h1 class="ready-title"><span data-i18n="ready_title_a">Votre commande est</span> <em data-i18n="ready_title_em">prête.</em></h1>
+        <div class="ready-sub">#<span id="ready-number">000</span><span data-i18n="ready_loc_post"> · café atlas · médina</span></div>
       </div>
       <div class="ready-bottom">
         <button class="ready-cta" type="button" id="ready-cta">
           <i data-lucide="arrow-right"></i>
-          <span>Récupérer au comptoir</span>
+          <span data-i18n="ready_cta">Récupérer au comptoir</span>
         </button>
       </div>
     </section>
@@ -2233,7 +2327,7 @@
           <div class="custom-info">
             <div class="custom-name" id="custom-name">—</div>
             <div class="custom-desc" id="custom-desc">—</div>
-            <div class="custom-base" id="custom-base">À partir de — MAD</div>
+            <div class="custom-base" id="custom-base">— MAD</div>
           </div>
         </div>
 
@@ -2242,22 +2336,23 @@
 
           <div class="custom-note-section">
             <label class="custom-note-label" for="custom-note-input">
-              <span>Demande spéciale</span>
-              <span class="meta">facultatif</span>
+              <span data-i18n="custom_note_label">Demande spéciale</span>
+              <span class="meta" data-i18n="custom_note_optional">facultatif</span>
             </label>
             <textarea class="custom-note-input" id="custom-note-input" rows="2"
-                      placeholder="Ex: peu de glaçons, sans sel, allergie aux noix…"></textarea>
+                      data-i18n-placeholder="custom_note_placeholder"
+                      placeholder="Ex : peu de glaçons, sans sel, allergie aux noix…"></textarea>
           </div>
         </div>
 
         <div class="custom-footer">
           <div class="custom-price">
-            <div class="custom-price-label">Prix</div>
+            <div class="custom-price-label" data-i18n="custom_price">Prix</div>
             <div class="custom-price-value" id="custom-price-value">0 MAD</div>
           </div>
           <button class="custom-add-btn" type="button" id="custom-add-btn">
             <i data-lucide="plus"></i>
-            <span>Ajouter</span>
+            <span data-i18n="btn_add">Ajouter</span>
           </button>
         </div>
       </div>
@@ -2268,21 +2363,21 @@
       <div class="bill-sheet-backdrop" data-close-bill></div>
       <div class="bill-sheet-panel">
         <div class="cart-handle" data-close-bill></div>
-        <h2 class="bill-title">Votre addition</h2>
-        <div class="bill-subtitle">Table <span id="bill-table">—</span> · Café Atlas</div>
+        <h2 class="bill-title" data-i18n="bill_title">Votre addition</h2>
+        <div class="bill-subtitle" id="bill-subtitle">Table <span id="bill-table">—</span> · Café Atlas</div>
 
         <ul class="bill-items" id="bill-items">
-          <li class="bill-empty">Aucune commande passée — ajoutez d'abord au menu.</li>
+          <li class="bill-empty" data-i18n="bill_empty">Aucune commande passée — ajoutez d'abord au menu.</li>
         </ul>
 
         <div class="bill-subtotal">
-          <span>Sous-total</span>
+          <span data-i18n="bill_subtotal">Sous-total</span>
           <span class="val" id="bill-subtotal-value">0 MAD</span>
         </div>
 
         <!-- Tip section — gamified -->
         <div class="tip-section">
-          <span class="tip-eyebrow">— Pourboire pour l'équipe</span>
+          <span class="tip-eyebrow" data-i18n="tip_eyebrow">— Pourboire pour l'équipe</span>
           <div class="tip-jar-wrap" id="tip-jar-wrap">
             <span class="tip-jar-sparkle sp-1" aria-hidden="true"></span>
             <span class="tip-jar-sparkle sp-2" aria-hidden="true"></span>
@@ -2341,12 +2436,12 @@
         </div>
 
         <div class="bill-total">
-          <span>Total à régler</span>
+          <span data-i18n="bill_total">Total à régler</span>
           <span class="val" id="bill-total-value">0 MAD</span>
         </div>
         <button class="bill-confirm-btn" type="button" id="bill-confirm-btn">
           <i data-lucide="hand-platter"></i>
-          <span>Le serveur arrive avec l'addition</span>
+          <span data-i18n="bill_confirm">Le serveur arrive avec l'addition</span>
         </button>
       </div>
     </div>
@@ -2356,13 +2451,13 @@
       <div class="cart-sheet-backdrop" data-close-cart></div>
       <div class="cart-sheet-panel">
         <div class="cart-handle" data-close-cart></div>
-        <h2 class="cart-title">Votre commande</h2>
+        <h2 class="cart-title" data-i18n="cart_title">Votre commande</h2>
         <div class="cart-subtitle" id="cart-subtitle">Table — · Café Atlas</div>
         <ul class="cart-items" id="cart-items">
-          <li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>
+          <li class="cart-empty" data-i18n="cart_empty">Panier vide — choisissez quelque chose au menu.</li>
         </ul>
         <div class="cart-totals">
-          <span>Total</span>
+          <span data-i18n="cart_total">Total</span>
           <span class="grand" id="cart-grand">0 MAD</span>
         </div>
         <p class="cart-note" id="cart-note">Paiement à la table après votre dernière commande.</p>
@@ -2382,6 +2477,517 @@
     /* ============ helpers ============ */
     const $  = (s, c = document) => c.querySelector(s);
     const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+
+    /* ============ i18n dictionary (Darija / EN / FR) ============ */
+    const I18N = {
+      fr: {
+        greet_line1: "Bonjour,",
+        greet_em: "bienvenue au café Atlas.",
+        greet_sub_loc: "Médina · Tanger",
+        greet_sub_em: "commandez depuis votre table",
+        brand_tag: "— Médina, Tanger",
+        mode_ask_pre: "Comment commandez-vous",
+        mode_ask_em: "aujourd'hui",
+        mode_ask_post: "?",
+        mode_sub: "Choisissez votre formule pour démarrer.",
+        mode_table_label: "Je suis à table",
+        mode_table_desc: "Commande envoyée au serveur · paiement à la table",
+        mode_takeout_label: "À emporter",
+        mode_takeout_desc: "Paiement à la caisse · on vous prévient quand c'est prêt",
+        mode_foot: "Café Atlas · service self-order",
+        table_ask_pre: "Quel est votre",
+        table_ask_em: "numéro de table",
+        table_ask_post: "?",
+        table_hint: "Le numéro est gravé sur le bois de la table",
+        btn_continue: "Continuer",
+        menu_loc: "Médina · Tanger",
+        badge_takeout: "À emporter",
+        badge_table: "Table",
+        tab_all: "Tout",
+        tab_coffee: "Café",
+        tab_pastry: "Pâtisserie",
+        tab_savory: "Salé",
+        tab_drink: "Boissons",
+        service_call: "Appeler un serveur",
+        service_bill: "Demander l'addition",
+        cart_pill: "Voir ma commande",
+        custom_from: "À partir de",
+        custom_note_label: "Demande spéciale",
+        custom_note_optional: "facultatif",
+        custom_note_placeholder: "Ex : peu de glaçons, sans sel, allergie aux noix…",
+        custom_price: "Prix",
+        btn_add: "Ajouter",
+        opt_choose_one: "choisir 1",
+        opt_choose_many: "plusieurs possibles",
+        opt_label_sucre: "Sucre",
+        opt_label_lait: "Type de lait",
+        opt_label_shot: "Intensité",
+        opt_label_chauffer: "Préparation",
+        opt_label_extras: "Accompagnement",
+        opt_label_pain: "Pain",
+        opt_label_retirer: "Retirer",
+        opt_label_sauce: "Sauce",
+        opt_label_glace: "Glaçons",
+        opt_sucre_normal: "Sucré",
+        opt_sucre_leger: "Peu sucré",
+        opt_sucre_sans: "Sans sucre",
+        opt_sucre_brun: "Sucre brun",
+        opt_lait_lait: "Lait classique",
+        opt_lait_amande: "Lait d'amande",
+        opt_lait_soja: "Lait de soja",
+        opt_lait_sans: "Sans lait",
+        opt_shot_simple: "Simple",
+        opt_shot_double: "Double",
+        opt_chauffer_froid: "Tel quel",
+        opt_chauffer_chaud: "Réchauffé",
+        opt_extras_beurre: "Beurre",
+        opt_extras_confiture: "Confiture maison",
+        opt_extras_miel: "Miel d'oranger",
+        opt_pain_campagne: "Pain de campagne",
+        opt_pain_complet: "Pain complet",
+        opt_pain_wrap: "En wrap",
+        opt_retirer_tomate: "Tomate",
+        opt_retirer_oignon: "Oignon",
+        opt_retirer_cornichons: "Cornichons",
+        opt_retirer_olives: "Olives",
+        opt_sauce_classique: "Sauce classique",
+        opt_sauce_harissa: "Harissa épicée",
+        opt_sauce_sans: "Sans sauce",
+        opt_glace_avec: "Avec glaçons",
+        opt_glace_sans: "Sans glaçons",
+        opt_retirer_prefix: "Sans ",
+        cart_title: "Votre commande",
+        cart_empty: "Panier vide — choisissez quelque chose au menu.",
+        cart_total: "Total",
+        cart_note_table: "Paiement à la table après votre dernière commande.",
+        cart_note_takeout_html: "Paiement à la <em>caisse</em> · on vous prévient quand c'est prêt.",
+        cart_subtitle_table: "Table {n} · Café Atlas",
+        cart_subtitle_takeout: "À emporter · Café Atlas",
+        send_table: "Envoyer en cuisine",
+        send_takeout: "Passer commande",
+        success_title_a: "Commande envoyée",
+        success_title_em: "en cuisine.",
+        success_eta_pre: "Table",
+        success_eta_mid: "· prêt dans",
+        success_eta_em: "4–6 min",
+        success_recap: "Votre commande",
+        success_note: "Le paiement se fait à votre table. Vous pouvez ajouter d'autres articles si vous voulez.",
+        success_cta: "Ajouter à ma commande",
+        cashier_eyebrow: "— à emporter",
+        cashier_instr_pre: "Présentez ce numéro à la",
+        cashier_instr_em: "caisse",
+        cashier_instr_post: "pour régler.",
+        cashier_recap: "Votre commande",
+        cashier_total: "Total",
+        cashier_confirm: "Paiement confirmé à la caisse",
+        cashier_hint: "Le caissier valide votre paiement. Une fois validé, vous pouvez sortir — on vous prévient quand c'est prêt.",
+        prep_eyebrow_pre: "— commande #",
+        prep_title_pre: "En préparation",
+        prep_title_em: "en cuisine.",
+        prep_ready_in: "Prêt dans",
+        prep_now: "maintenant",
+        prep_perm_default: "Recevez une notification quand c'est prêt — gardez votre téléphone à côté.",
+        prep_perm_granted_html: "<strong>Notifications activées.</strong> On vous prévient même si vous quittez la page.",
+        prep_perm_denied: "Notifications refusées — gardez la page ouverte, vibration et son utilisés.",
+        prep_perm_unsupported: "Ce navigateur ne gère pas les notifications — gardez la page ouverte, on vous prévient ici.",
+        prep_perm_btn: "Activer",
+        prep_note_pre: "Vous pouvez attendre",
+        prep_note_em: "où vous voulez",
+        prep_note_post: ". Votre téléphone vibre et sonne dès que c'est prêt.",
+        ready_title_a: "Votre commande est",
+        ready_title_em: "prête.",
+        ready_loc_post: " · café atlas · médina",
+        ready_cta: "Récupérer au comptoir",
+        bill_title: "Votre addition",
+        bill_empty: "Aucune commande passée — ajoutez d'abord au menu.",
+        bill_subtotal: "Sous-total",
+        tip_eyebrow: "— Pourboire pour l'équipe",
+        tip_level_0: "Pas de pourboire",
+        tip_level_1: "Un petit geste, merci",
+        tip_level_2: "C'est sympa, merci",
+        tip_level_3: "L'équipe vous remercie",
+        tip_level_4: "Très généreux — bravo",
+        tip_level_5: "Pourboire de chef",
+        bill_total: "Total à régler",
+        bill_confirm: "Le serveur arrive avec l'addition",
+        toast_added: "ajouté",
+        toast_server_coming_pre: "Un serveur arrive · Table",
+        toast_bill_asked_pre: "Addition demandée ·",
+        toast_bill_tip_post: "pourboire",
+        notif_ready_title: "Café Atlas",
+        notif_ready_body_pre: "Commande #",
+        notif_ready_body_post: "prête à récupérer.",
+        currency: "MAD",
+      },
+      en: {
+        greet_line1: "Hello,",
+        greet_em: "welcome to café Atlas.",
+        greet_sub_loc: "Médina · Tangier",
+        greet_sub_em: "order from your table",
+        brand_tag: "— Médina, Tangier",
+        mode_ask_pre: "How are you ordering",
+        mode_ask_em: "today",
+        mode_ask_post: "?",
+        mode_sub: "Pick how you want to start.",
+        mode_table_label: "I'm at a table",
+        mode_table_desc: "Order goes to the waiter · pay at your table",
+        mode_takeout_label: "Takeout",
+        mode_takeout_desc: "Pay at the counter · we'll notify you when it's ready",
+        mode_foot: "Café Atlas · self-order service",
+        table_ask_pre: "What's your",
+        table_ask_em: "table number",
+        table_ask_post: "?",
+        table_hint: "The number is engraved on the table",
+        btn_continue: "Continue",
+        menu_loc: "Médina · Tangier",
+        badge_takeout: "Takeout",
+        badge_table: "Table",
+        tab_all: "All",
+        tab_coffee: "Coffee",
+        tab_pastry: "Pastries",
+        tab_savory: "Savory",
+        tab_drink: "Drinks",
+        service_call: "Call the waiter",
+        service_bill: "Ask for the check",
+        cart_pill: "View my order",
+        custom_from: "From",
+        custom_note_label: "Special request",
+        custom_note_optional: "optional",
+        custom_note_placeholder: "Ex: less ice, no salt, nut allergy…",
+        custom_price: "Price",
+        btn_add: "Add",
+        opt_choose_one: "pick 1",
+        opt_choose_many: "pick any",
+        opt_label_sucre: "Sugar",
+        opt_label_lait: "Milk type",
+        opt_label_shot: "Strength",
+        opt_label_chauffer: "Preparation",
+        opt_label_extras: "Sides",
+        opt_label_pain: "Bread",
+        opt_label_retirer: "Remove",
+        opt_label_sauce: "Sauce",
+        opt_label_glace: "Ice",
+        opt_sucre_normal: "Sweet",
+        opt_sucre_leger: "Lightly sweet",
+        opt_sucre_sans: "No sugar",
+        opt_sucre_brun: "Brown sugar",
+        opt_lait_lait: "Regular milk",
+        opt_lait_amande: "Almond milk",
+        opt_lait_soja: "Soy milk",
+        opt_lait_sans: "No milk",
+        opt_shot_simple: "Single",
+        opt_shot_double: "Double",
+        opt_chauffer_froid: "As is",
+        opt_chauffer_chaud: "Warmed up",
+        opt_extras_beurre: "Butter",
+        opt_extras_confiture: "House jam",
+        opt_extras_miel: "Orange-blossom honey",
+        opt_pain_campagne: "Country bread",
+        opt_pain_complet: "Whole-grain bread",
+        opt_pain_wrap: "Wrap",
+        opt_retirer_tomate: "Tomato",
+        opt_retirer_oignon: "Onion",
+        opt_retirer_cornichons: "Pickles",
+        opt_retirer_olives: "Olives",
+        opt_sauce_classique: "Classic sauce",
+        opt_sauce_harissa: "Spicy harissa",
+        opt_sauce_sans: "No sauce",
+        opt_glace_avec: "With ice",
+        opt_glace_sans: "No ice",
+        opt_retirer_prefix: "No ",
+        cart_title: "Your order",
+        cart_empty: "Cart is empty — pick something from the menu.",
+        cart_total: "Total",
+        cart_note_table: "Payment happens at the table after your last order.",
+        cart_note_takeout_html: "Pay at the <em>counter</em> · we'll notify you when it's ready.",
+        cart_subtitle_table: "Table {n} · Café Atlas",
+        cart_subtitle_takeout: "Takeout · Café Atlas",
+        send_table: "Send to kitchen",
+        send_takeout: "Place order",
+        success_title_a: "Order sent to",
+        success_title_em: "the kitchen.",
+        success_eta_pre: "Table",
+        success_eta_mid: "· ready in",
+        success_eta_em: "4–6 min",
+        success_recap: "Your order",
+        success_note: "You'll pay at your table. Feel free to add more items if you want.",
+        success_cta: "Add to my order",
+        cashier_eyebrow: "— takeout",
+        cashier_instr_pre: "Show this number at the",
+        cashier_instr_em: "counter",
+        cashier_instr_post: "to pay.",
+        cashier_recap: "Your order",
+        cashier_total: "Total",
+        cashier_confirm: "Payment confirmed at counter",
+        cashier_hint: "The cashier validates your payment. Once validated, you can step out — we'll notify you when it's ready.",
+        prep_eyebrow_pre: "— order #",
+        prep_title_pre: "Preparing",
+        prep_title_em: "in the kitchen.",
+        prep_ready_in: "Ready in",
+        prep_now: "now",
+        prep_perm_default: "Get notified when it's ready — keep your phone nearby.",
+        prep_perm_granted_html: "<strong>Notifications on.</strong> We'll alert you even if you leave this page.",
+        prep_perm_denied: "Notifications denied — keep the page open, vibration and sound will play.",
+        prep_perm_unsupported: "This browser doesn't support notifications — keep the page open, we'll notify you here.",
+        prep_perm_btn: "Enable",
+        prep_note_pre: "You can wait",
+        prep_note_em: "wherever you like",
+        prep_note_post: ". Your phone vibrates and chimes the moment it's ready.",
+        ready_title_a: "Your order is",
+        ready_title_em: "ready.",
+        ready_loc_post: " · café atlas · médina",
+        ready_cta: "Pick up at the counter",
+        bill_title: "Your check",
+        bill_empty: "No orders placed — add something from the menu first.",
+        bill_subtotal: "Subtotal",
+        tip_eyebrow: "— Tip for the team",
+        tip_level_0: "No tip",
+        tip_level_1: "A small gesture, thanks",
+        tip_level_2: "That's nice, thanks",
+        tip_level_3: "The team thanks you",
+        tip_level_4: "Very generous — bravo",
+        tip_level_5: "A chef's tip",
+        bill_total: "Total to pay",
+        bill_confirm: "Your waiter is bringing the check",
+        toast_added: "added",
+        toast_server_coming_pre: "Waiter coming · Table",
+        toast_bill_asked_pre: "Check requested ·",
+        toast_bill_tip_post: "tip",
+        notif_ready_title: "Café Atlas",
+        notif_ready_body_pre: "Order #",
+        notif_ready_body_post: "ready to pick up.",
+        currency: "MAD",
+      },
+      ar: {
+        greet_line1: "السلام،",
+        greet_em: "مرحبا بيكم فكافي أطلس.",
+        greet_sub_loc: "المدينة · طنجة",
+        greet_sub_em: "اطلب من الطاولة ديالك",
+        brand_tag: "— المدينة، طنجة",
+        mode_ask_pre: "كيفاش بغيتي تطلب",
+        mode_ask_em: "اليوم",
+        mode_ask_post: "؟",
+        mode_sub: "اختار طريقة الطلب باش نبداو.",
+        mode_table_label: "أنا فالطاولة",
+        mode_table_desc: "الطلب كيوصل للجارسون · الخلاص فالطاولة",
+        mode_takeout_label: "للأخذ معايا",
+        mode_takeout_desc: "الخلاص فالكاييس · غادي نخبروك ملي يكون واجد",
+        mode_foot: "كافي أطلس · خدمة الطلب الذاتي",
+        table_ask_pre: "شنو هو",
+        table_ask_em: "رقم الطاولة ديالك",
+        table_ask_post: "؟",
+        table_hint: "الرقم مكتوب على الطاولة",
+        btn_continue: "كمل",
+        menu_loc: "المدينة · طنجة",
+        badge_takeout: "للأخذ",
+        badge_table: "طاولة",
+        tab_all: "الكل",
+        tab_coffee: "قهوة",
+        tab_pastry: "حلويات",
+        tab_savory: "ساندويتش",
+        tab_drink: "مشروبات",
+        service_call: "عيّط على الجارسون",
+        service_bill: "طلب الحساب",
+        cart_pill: "شوف الطلب ديالي",
+        custom_from: "إبتدا من",
+        custom_note_label: "طلب خاص",
+        custom_note_optional: "اختياري",
+        custom_note_placeholder: "مثلاً: شوية ديال الجليد، بلا ملح، حساسية…",
+        custom_price: "الثمن",
+        btn_add: "زيد",
+        opt_choose_one: "اختار 1",
+        opt_choose_many: "اختار اللي بغيتي",
+        opt_label_sucre: "السكر",
+        opt_label_lait: "نوع الحليب",
+        opt_label_shot: "القوة",
+        opt_label_chauffer: "التحضير",
+        opt_label_extras: "إضافات",
+        opt_label_pain: "الخبز",
+        opt_label_retirer: "حيد",
+        opt_label_sauce: "الصلصة",
+        opt_label_glace: "الجليد",
+        opt_sucre_normal: "بالسكر",
+        opt_sucre_leger: "شوية ديال السكر",
+        opt_sucre_sans: "بلا سكر",
+        opt_sucre_brun: "سكر بني",
+        opt_lait_lait: "حليب عادي",
+        opt_lait_amande: "حليب اللوز",
+        opt_lait_soja: "حليب الصوجا",
+        opt_lait_sans: "بلا حليب",
+        opt_shot_simple: "عادي",
+        opt_shot_double: "مضاعف",
+        opt_chauffer_froid: "كما هو",
+        opt_chauffer_chaud: "مسخّن",
+        opt_extras_beurre: "زبدة",
+        opt_extras_confiture: "كنفيتور",
+        opt_extras_miel: "عسل البرتقال",
+        opt_pain_campagne: "خبز البلدية",
+        opt_pain_complet: "خبز كامل",
+        opt_pain_wrap: "راب",
+        opt_retirer_tomate: "ماطيشة",
+        opt_retirer_oignon: "بصلة",
+        opt_retirer_cornichons: "خيار",
+        opt_retirer_olives: "زيتون",
+        opt_sauce_classique: "صلصة عادية",
+        opt_sauce_harissa: "حريسة حارة",
+        opt_sauce_sans: "بلا صلصة",
+        opt_glace_avec: "بالجليد",
+        opt_glace_sans: "بلا جليد",
+        opt_retirer_prefix: "بلا ",
+        cart_title: "الطلب ديالك",
+        cart_empty: "الطلب خاوي — اختار شي حاجة من المنيو.",
+        cart_total: "المجموع",
+        cart_note_table: "الخلاص فالطاولة من بعد آخر طلب.",
+        cart_note_takeout_html: "الخلاص فـ<em>الكاييس</em> · غادي نخبروك ملي يكون واجد.",
+        cart_subtitle_table: "طاولة {n} · كافي أطلس",
+        cart_subtitle_takeout: "للأخذ · كافي أطلس",
+        send_table: "صيفط للمطبخ",
+        send_takeout: "أكد الطلب",
+        success_title_a: "الطلب تصيفط",
+        success_title_em: "للمطبخ.",
+        success_eta_pre: "طاولة",
+        success_eta_mid: "· غادي يكون واجد ف",
+        success_eta_em: "4–6 دقايق",
+        success_recap: "الطلب ديالك",
+        success_note: "الخلاص فالطاولة. تقدر تزيد طلبات أخرى إلا بغيتي.",
+        success_cta: "زيد لطلبي",
+        cashier_eyebrow: "— للأخذ",
+        cashier_instr_pre: "ورّي هاد الرقم فـ",
+        cashier_instr_em: "الكاييس",
+        cashier_instr_post: "باش تخلص.",
+        cashier_recap: "الطلب ديالك",
+        cashier_total: "المجموع",
+        cashier_confirm: "الخلاص تأكد فالكاييس",
+        cashier_hint: "الكاييس كيصادق على الخلاص ديالك. ملي يصادق، تقدر تخرج — غادي نخبروك ملي يكون واجد.",
+        prep_eyebrow_pre: "— طلب رقم #",
+        prep_title_pre: "فالتحضير",
+        prep_title_em: "فالمطبخ.",
+        prep_ready_in: "واجد ف",
+        prep_now: "دابا",
+        prep_perm_default: "خد إشعار ملي يكون واجد — خلي تلفونك معاك.",
+        prep_perm_granted_html: "<strong>الإشعارات مفعلة.</strong> غادي نخبروك حتى إلا خرجتي من الصفحة.",
+        prep_perm_denied: "الإشعارات مرفوضة — خلي الصفحة محلولة، الإهتزاز والصوت غادي يخدمو.",
+        prep_perm_unsupported: "هاد المتصفح ما كيدعمش الإشعارات — خلي الصفحة محلولة، غادي نخبروك هنا.",
+        prep_perm_btn: "فعّل",
+        prep_note_pre: "تقدر تستنى",
+        prep_note_em: "فين بغيتي",
+        prep_note_post: ". تلفونك غادي يهز ويصوّت ملي يكون واجد.",
+        ready_title_a: "الطلب ديالك",
+        ready_title_em: "واجد.",
+        ready_loc_post: " · كافي أطلس · المدينة",
+        ready_cta: "خد الطلب من الكونتوار",
+        bill_title: "الحساب ديالك",
+        bill_empty: "ما عندك حتى طلب — زيد شي حاجة من المنيو أول.",
+        bill_subtotal: "المجموع الفرعي",
+        tip_eyebrow: "— البقشيش للفريق",
+        tip_level_0: "بلا بقشيش",
+        tip_level_1: "شوية، شكراً",
+        tip_level_2: "مزيان، شكراً",
+        tip_level_3: "الفريق كيشكروك",
+        tip_level_4: "كريم بزاف — برافو",
+        tip_level_5: "بقشيش ديال الشيف",
+        bill_total: "المجموع للخلاص",
+        bill_confirm: "الجارسون جاي بالحساب",
+        toast_added: "تزاد",
+        toast_server_coming_pre: "الجارسون جاي · طاولة",
+        toast_bill_asked_pre: "الحساب تطلب ·",
+        toast_bill_tip_post: "بقشيش",
+        notif_ready_title: "كافي أطلس",
+        notif_ready_body_pre: "طلب #",
+        notif_ready_body_post: "واجد، تقدر تخدو.",
+        currency: "درهم",
+      },
+    };
+
+    /* ============ menu item translations ============ */
+    const MENU_I18N = {
+      fr: {
+        espresso:       { name: "Espresso",             desc: "Court, intense, torréfaction du jour" },
+        "noss-noss":    { name: "Noss-noss",            desc: "Moitié café, moitié lait chaud — la fierté locale" },
+        cappuccino:     { name: "Cappuccino",           desc: "Mousse onctueuse, cacao en option" },
+        "the-menthe":   { name: "Thé à la menthe",      desc: "Théière en argent, menthe fraîche, sucre à part" },
+        msemen:         { name: "Msemen au miel",       desc: "Crêpe feuilletée chaude, miel d'oranger" },
+        briouate:       { name: "Briouate aux amandes", desc: "Pâte filo, amandes, eau de fleur d'oranger" },
+        croissant:      { name: "Croissant beurre",     desc: "Pur beurre · cuit ce matin" },
+        "sandwich-thon":{ name: "Sandwich thon-olives", desc: "Pain maison, thon, olives noires, harissa" },
+        panini:         { name: "Panini fromage-tomate",desc: "Ciabatta, mozzarella, tomate confite" },
+        "fresh-orange": { name: "Jus d'orange pressé",  desc: "Pressé minute, sans sucre ajouté" },
+        avocado:        { name: "Smoothie avocat-banane", desc: "Lait d'amande, miel, cardamome" },
+        sparkling:      { name: "Eau pétillante Oulmès", desc: "33 cl · servie fraîche" },
+      },
+      en: {
+        espresso:       { name: "Espresso",           desc: "Short, intense — today's roast" },
+        "noss-noss":    { name: "Noss-noss",          desc: "Half coffee, half hot milk — the local pride" },
+        cappuccino:     { name: "Cappuccino",         desc: "Silky foam, cocoa optional" },
+        "the-menthe":   { name: "Mint tea",           desc: "Silver teapot, fresh mint, sugar on the side" },
+        msemen:         { name: "Msemen with honey",  desc: "Warm flaky pancake, orange-blossom honey" },
+        briouate:       { name: "Almond briouate",    desc: "Filo pastry, almonds, orange-blossom water" },
+        croissant:      { name: "Butter croissant",   desc: "All butter · baked this morning" },
+        "sandwich-thon":{ name: "Tuna-olive sandwich",desc: "House bread, tuna, black olives, harissa" },
+        panini:         { name: "Cheese-tomato panini",desc: "Ciabatta, mozzarella, slow-roasted tomato" },
+        "fresh-orange": { name: "Fresh-pressed orange juice", desc: "Pressed to order, no added sugar" },
+        avocado:        { name: "Avocado-banana smoothie",  desc: "Almond milk, honey, cardamom" },
+        sparkling:      { name: "Oulmès sparkling water", desc: "33 cl · served chilled" },
+      },
+      ar: {
+        espresso:       { name: "إسبريسو",            desc: "قصير، قوي، تحميص اليوم" },
+        "noss-noss":    { name: "نص نص",              desc: "نص قهوة نص حليب سخون — الفخر المحلي" },
+        cappuccino:     { name: "كابوتشينو",          desc: "رغوة ناعمة، كاكاو اختياري" },
+        "the-menthe":   { name: "أتاي بالنعناع",      desc: "إبريق فضة، نعناع طري، السكر جنبا" },
+        msemen:         { name: "مسمن بالعسل",        desc: "مسمن سخون، عسل البرتقال" },
+        briouate:       { name: "بريوات باللوز",      desc: "عجين رقيق، اللوز، ماء الزهر" },
+        croissant:      { name: "كرواسون بالزبدة",    desc: "زبدة طبيعية · مخبوز هاد الصباح" },
+        "sandwich-thon":{ name: "ساندويتش طون وزيتون", desc: "خبز محلي، طون، زيتون كحل، حريسة" },
+        panini:         { name: "بانيني فرماج وماطيشة", desc: "تشاباتا، موزاريلا، ماطيشة محمصة" },
+        "fresh-orange": { name: "عصير ليمون فريسكو",  desc: "معصور دابا، بلا سكر زائد" },
+        avocado:        { name: "سموتي أفوكا وبنانا", desc: "حليب اللوز، عسل، حبهان" },
+        sparkling:      { name: "ما أولماس غازية",   desc: "33 سل · كيخدم بارد" },
+      },
+    };
+
+    /* ============ i18n state + helpers ============ */
+    let currentLang = (() => {
+      try { return localStorage.getItem('cafeAtlasLang') || 'fr'; } catch (_) { return 'fr'; }
+    })();
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) ?? I18N.fr[key] ?? key;
+    }
+    function itemI18n(id) {
+      return (MENU_I18N[currentLang] && MENU_I18N[currentLang][id]) || MENU_I18N.fr[id] || { name: id, desc: '' };
+    }
+    function applyStaticI18n() {
+      $$('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        const val = t(key);
+        if (/_html$/.test(key)) el.innerHTML = val;
+        else el.textContent = val;
+      });
+      $$('[data-i18n-placeholder]').forEach(el => {
+        el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder));
+      });
+    }
+    function applyLang(lang) {
+      if (!I18N[lang]) lang = 'fr';
+      currentLang = lang;
+      try { localStorage.setItem('cafeAtlasLang', lang); } catch (_) {}
+      document.documentElement.lang = lang;
+      document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+      // Picker visual
+      $$('.lang-btn').forEach(b => b.classList.toggle('is-active', b.dataset.lang === lang));
+      // Static
+      applyStaticI18n();
+      // Dynamic
+      if (typeof renderMenu === 'function') {
+        const activeTab = document.querySelector('.menu-tab.is-active')?.dataset.tab || 'all';
+        renderMenu(activeTab);
+      }
+      if (typeof applyMenuMode === 'function' && orderMode) applyMenuMode();
+      if (typeof refreshCartUI === 'function') refreshCartUI();
+      if (typeof refreshPermBanner === 'function') refreshPermBanner();
+      if (typeof setTipPercent === 'function' && document.querySelector('#bill-sheet').classList.contains('is-open')) {
+        setTipPercent(tipPercent);
+      }
+    }
 
     /* ============ option presets — shared across items ============ */
     const OPT = {
@@ -2575,26 +3181,30 @@
     function renderMenu(filter = 'all') {
       const list = $('#menu-list');
       const items = MENU.filter(m => filter === 'all' || m.cat === filter);
-      list.innerHTML = items.map(m => `
+      list.innerHTML = items.map(m => {
+        const i = itemI18n(m.id);
+        return `
         <article class="menu-item">
           <div class="item-img ${ICON_CLASS[m.icon] || 'coffee'}">
             <i data-lucide="${m.icon}"></i>
           </div>
           <div class="item-body">
-            <div class="item-name">${m.name}</div>
-            <div class="item-desc">${m.desc}</div>
-            <div class="item-price">${m.price} MAD</div>
+            <div class="item-name">${i.name}</div>
+            <div class="item-desc">${i.desc}</div>
+            <div class="item-price">${m.price} ${cur()}</div>
           </div>
-          <button class="item-add" type="button" data-add="${m.id}" aria-label="Ajouter ${m.name}">+</button>
+          <button class="item-add" type="button" data-add="${m.id}" aria-label="${t('btn_add')} ${i.name}">+</button>
         </article>
-      `).join('');
+      `;}).join('');
       if (window.lucide) window.lucide.createIcons();
     }
 
     /* ============ cart logic — line keys support variants ============ */
     const itemOf  = id => MENU.find(m => m.id === id);
-    const nameOf  = id => itemOf(id)?.name || '';
+    const nameOf  = id => itemI18n(id).name || itemOf(id)?.name || '';
+    const descOf  = id => itemI18n(id).desc || itemOf(id)?.desc || '';
     const basePriceOf = id => itemOf(id)?.price || 0;
+    const cur = () => t('currency');
 
     function lineKey(id, options, note) {
       const parts = [id];
@@ -2611,6 +3221,15 @@
       return parts.join('|');
     }
 
+    function choiceLabel(optKey, choiceId) {
+      const key = `opt_${optKey}_${choiceId}`;
+      return I18N[currentLang]?.[key] || I18N.fr[key]
+          || OPT[optKey]?.choices.find(c => c.id === choiceId)?.label
+          || choiceId;
+    }
+    function groupLabel(optKey) {
+      return t(`opt_label_${optKey}`) || OPT[optKey]?.label || optKey;
+    }
     function describeOptions(line) {
       const item = itemOf(line.id);
       if (!item || !item.options) return '';
@@ -2620,14 +3239,11 @@
         if (sel == null) continue;
         if (opt.type === 'single') {
           if (sel === opt.default) continue; // skip defaults
-          const choice = opt.choices.find(c => c.id === sel);
-          if (choice) parts.push(choice.label);
+          parts.push(choiceLabel(opt.key, sel));
         } else if (opt.type === 'multi' && Array.isArray(sel) && sel.length) {
-          const labels = sel
-            .map(id => opt.choices.find(c => c.id === id)?.label)
-            .filter(Boolean);
+          const labels = sel.map(id => choiceLabel(opt.key, id)).filter(Boolean);
           if (labels.length) {
-            const prefix = opt.key === 'retirer' ? 'Sans ' : '';
+            const prefix = opt.key === 'retirer' ? t('opt_retirer_prefix') : '';
             parts.push(prefix + labels.join(', ').toLowerCase());
           }
         }
@@ -2647,14 +3263,14 @@
       const { count, total } = totals();
       const pill = $('#cart-pill');
       $('#cart-count').textContent = count;
-      $('#cart-total').textContent = `${total} MAD`;
-      $('#cart-grand').textContent = `${total} MAD`;
+      $('#cart-total').textContent = `${total} ${cur()}`;
+      $('#cart-grand').textContent = `${total} ${cur()}`;
       pill.classList.toggle('is-visible', count > 0);
       $('#send-btn').disabled = count === 0;
 
       const itemsEl = $('#cart-items');
       if (count === 0) {
-        itemsEl.innerHTML = `<li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>`;
+        itemsEl.innerHTML = `<li class="cart-empty">${t('cart_empty')}</li>`;
         return;
       }
       itemsEl.innerHTML = [...cart.entries()].map(([key, line]) => {
@@ -2669,11 +3285,11 @@
               ${note}
             </div>
             <span class="qty">
-              <button type="button" data-dec="${safe}" aria-label="Retirer">−</button>
+              <button type="button" data-dec="${safe}" aria-label="−">−</button>
               <span>${line.qty}</span>
-              <button type="button" data-inc="${safe}" aria-label="Ajouter">+</button>
+              <button type="button" data-inc="${safe}" aria-label="+">+</button>
             </span>
-            <span class="row-price">${line.qty * line.unitPrice} MAD</span>
+            <span class="row-price">${line.qty * line.unitPrice} ${cur()}</span>
           </li>
         `;
       }).join('');
@@ -2690,7 +3306,7 @@
         cart.set(key, { ...line, qty: 1 });
       }
       refreshCartUI();
-      showToast(`${nameOf(line.id)} · ajouté`);
+      showToast(`${nameOf(line.id)} · ${t('toast_added')}`);
     }
     function decFromCart(key) {
       if (!cart.has(key)) return;
@@ -2733,9 +3349,10 @@
       customizerNote = '';
 
       // Populate header
-      $('#custom-name').textContent = item.name;
-      $('#custom-desc').textContent = item.desc;
-      $('#custom-base').textContent = `À partir de ${item.price} MAD`;
+      const i = itemI18n(item.id);
+      $('#custom-name').textContent = i.name;
+      $('#custom-desc').textContent = i.desc;
+      $('#custom-base').textContent = `${t('custom_from')} ${item.price} ${cur()}`;
       const imgEl = $('#custom-img');
       imgEl.className = 'custom-img ' + (ICON_CLASS[item.icon] || 'coffee');
       imgEl.innerHTML = `<i data-lucide="${item.icon}"></i>`;
@@ -2745,15 +3362,15 @@
       opts.innerHTML = (item.options || []).map(opt => `
         <div class="option-group" data-opt="${opt.key}">
           <div class="option-group-label">
-            <span>${opt.label}</span>
-            <span class="opt-type">${opt.type === 'multi' ? 'plusieurs possibles' : 'choisir 1'}</span>
+            <span>${groupLabel(opt.key)}</span>
+            <span class="opt-type">${opt.type === 'multi' ? t('opt_choose_many') : t('opt_choose_one')}</span>
           </div>
           <div class="option-chips">
             ${opt.choices.map(c => `
               <button class="option-chip" type="button"
                       data-opt="${opt.key}" data-choice="${c.id}" data-type="${opt.type}">
-                <span>${c.label}</span>
-                ${c.delta ? `<span class="delta">+${c.delta} MAD</span>` : ''}
+                <span>${choiceLabel(opt.key, c.id)}</span>
+                ${c.delta ? `<span class="delta">+${c.delta} ${cur()}</span>` : ''}
               </button>
             `).join('')}
           </div>
@@ -2820,7 +3437,7 @@
       return p;
     }
     function refreshCustomizerPrice() {
-      $('#custom-price-value').textContent = `${customizerUnitPrice()} MAD`;
+      $('#custom-price-value').textContent = `${customizerUnitPrice()} ${cur()}`;
     }
     function confirmCustomizer() {
       if (!customizerItem) return;
@@ -2838,7 +3455,7 @@
     function callServer() {
       const pill = document.querySelector('[data-service="call-server"]');
       pill.classList.add('is-pulled');
-      showToast(`Un serveur arrive · Table ${tableNumber}`);
+      showToast(`${t('toast_server_coming_pre')} ${tableNumber}`);
       setTimeout(() => pill.classList.remove('is-pulled'), 4000);
     }
 
@@ -2857,7 +3474,7 @@
 
       const itemsEl = $('#bill-items');
       if (billItems.length === 0) {
-        itemsEl.innerHTML = `<li class="bill-empty">Aucune commande passée — ajoutez d'abord au menu.</li>`;
+        itemsEl.innerHTML = `<li class="bill-empty">${t('bill_empty')}</li>`;
       } else {
         itemsEl.innerHTML = billItems.map(l => {
           const opts = describeOptions(l);
@@ -2867,13 +3484,17 @@
                 <div class="bill-row-name">${l.qty}× ${nameOf(l.id)}</div>
                 ${opts ? `<div class="bill-row-opts">${opts}</div>` : ''}
               </div>
-              <div class="bill-row-price">${l.qty * l.unitPrice} MAD</div>
+              <div class="bill-row-price">${l.qty * l.unitPrice} ${cur()}</div>
             </li>
           `;
         }).join('');
       }
 
-      $('#bill-subtotal-value').textContent = `${sessionTotal} MAD`;
+      // Update bill subtitle (e.g. "Table 7 · Café Atlas")
+      const subtitleEl = $('#bill-subtitle');
+      if (subtitleEl) subtitleEl.innerHTML = `${t('badge_table')} <span id="bill-table">${tableNumber}</span> · Café Atlas`;
+
+      $('#bill-subtotal-value').textContent = `${sessionTotal} ${cur()}`;
       setTipPercent(billItems.length === 0 ? 0 : 15);
 
       $('#bill-sheet').classList.add('is-open');
@@ -2885,12 +3506,12 @@
     }
 
     const TIP_LEVELS = [
-      { min: 0,  max: 0,   label: 'Pas de pourboire',         empty: true },
-      { min: 1,  max: 8,   label: 'Un petit geste, merci' },
-      { min: 9,  max: 12,  label: 'C\'est sympa, merci' },
-      { min: 13, max: 17,  label: 'L\'équipe vous remercie' },
-      { min: 18, max: 22,  label: 'Très généreux — bravo' },
-      { min: 23, max: 100, label: 'Pourboire de chef', celebrated: true },
+      { min: 0,  max: 0,   key: 'tip_level_0', empty: true },
+      { min: 1,  max: 8,   key: 'tip_level_1' },
+      { min: 9,  max: 12,  key: 'tip_level_2' },
+      { min: 13, max: 17,  key: 'tip_level_3' },
+      { min: 18, max: 22,  key: 'tip_level_4' },
+      { min: 23, max: 100, key: 'tip_level_5', celebrated: true },
     ];
 
     function setTipPercent(pct) {
@@ -2899,7 +3520,7 @@
       const total = sessionTotal + tipAmt;
 
       const tipAmtEl = $('#tip-amount');
-      tipAmtEl.textContent = pct === 0 ? '+0 MAD' : `+${tipAmt} MAD`;
+      tipAmtEl.textContent = pct === 0 ? `+0 ${cur()}` : `+${tipAmt} ${cur()}`;
       tipAmtEl.classList.toggle('is-zero', pct === 0);
 
       // Jar fill — 20% tip fills jar to top, 25%+ overflows
@@ -2913,7 +3534,7 @@
       // Level label
       const level = TIP_LEVELS.find(l => pct >= l.min && pct <= l.max) || TIP_LEVELS[0];
       const lbl = $('#tip-level');
-      lbl.textContent = level.label;
+      lbl.textContent = t(level.key);
       lbl.classList.toggle('is-empty', !!level.empty);
       lbl.classList.toggle('is-celebrated', !!level.celebrated);
 
@@ -2928,15 +3549,15 @@
       });
 
       // Total
-      $('#bill-total-value').textContent = `${total} MAD`;
+      $('#bill-total-value').textContent = `${total} ${cur()}`;
     }
 
     function confirmBill() {
       const tipAmt = Math.round(sessionTotal * tipPercent / 100);
       closeBill();
       const msg = tipAmt > 0
-        ? `Addition demandée · ${sessionTotal + tipAmt} MAD (+${tipAmt} pourboire)`
-        : `Addition demandée · ${sessionTotal} MAD`;
+        ? `${t('toast_bill_asked_pre')} ${sessionTotal + tipAmt} ${cur()} (+${tipAmt} ${t('toast_bill_tip_post')})`
+        : `${t('toast_bill_asked_pre')} ${sessionTotal} ${cur()}`;
       showToast(msg);
     }
 
@@ -2979,7 +3600,7 @@
           $('#prep-number').textContent = orderNumber;
           $('#ready-number').textContent = orderNumber;
           $('#cashier-items').textContent = summary || '—';
-          $('#cashier-total').textContent = totalNow + ' MAD';
+          $('#cashier-total').textContent = `${totalNow} ${cur()}`;
           gotoScreen('screen-cashier');
         } else {
           // Table mode — accumulate into the session for the bill
@@ -3024,16 +3645,16 @@
       const sendLabel = $('#send-label');
       const serviceBar = $('#service-bar');
       if (orderMode === 'takeout') {
-        badge.innerHTML = '<i data-lucide="shopping-bag"></i><span id="menu-badge-text">À emporter</span>';
-        subtitle.textContent = 'À emporter · Café Atlas';
-        note.innerHTML = 'Paiement à la <em>caisse</em> · on vous prévient quand c\'est prêt.';
-        sendLabel.textContent = 'Passer commande';
+        badge.innerHTML = `<i data-lucide="shopping-bag"></i><span id="menu-badge-text">${t('badge_takeout')}</span>`;
+        subtitle.textContent = t('cart_subtitle_takeout');
+        note.innerHTML = t('cart_note_takeout_html');
+        sendLabel.textContent = t('send_takeout');
         serviceBar.hidden = true;
       } else {
-        badge.innerHTML = `<i data-lucide="utensils"></i><span id="menu-badge-text">Table ${tableNumber}</span>`;
-        subtitle.textContent = `Table ${tableNumber} · Café Atlas`;
-        note.textContent = 'Paiement à la table après votre dernière commande.';
-        sendLabel.textContent = 'Envoyer en cuisine';
+        badge.innerHTML = `<i data-lucide="utensils"></i><span id="menu-badge-text">${t('badge_table')} ${tableNumber}</span>`;
+        subtitle.textContent = t('cart_subtitle_table').replace('{n}', tableNumber);
+        note.textContent = t('cart_note_table');
+        sendLabel.textContent = t('send_table');
         serviceBar.hidden = false;
       }
       if (window.lucide) window.lucide.createIcons();
@@ -3067,7 +3688,7 @@
         const pct = Math.min(100, (elapsed / totalMs) * 100);
         bar.style.width = pct + '%';
         const remainingSec = Math.max(0, Math.ceil((totalMs - elapsed) / 1000));
-        eta.textContent = remainingSec === 0 ? 'maintenant' : remainingSec + ' s';
+        eta.textContent = remainingSec === 0 ? t('prep_now') : remainingSec + ' s';
         if (elapsed >= totalMs) {
           clearInterval(prepRafId);
           prepRafId = null;
@@ -3096,8 +3717,8 @@
       // System notification — only fires if the user previously granted permission.
       if ('Notification' in window && Notification.permission === 'granted') {
         try {
-          new Notification('Café Atlas', {
-            body: `Commande #${orderNumber} prête à récupérer.`,
+          new Notification(t('notif_ready_title'), {
+            body: `${t('notif_ready_body_pre')}${orderNumber} ${t('notif_ready_body_post')}`,
             tag: 'cafe-atlas-ready',
           });
         } catch (_) { /* iOS Safari throws unless installed as PWA */ }
@@ -3136,7 +3757,7 @@
       if (!banner || !('Notification' in window)) {
         if (banner) {
           banner.classList.add('is-denied');
-          body.textContent = 'Ce navigateur ne gère pas les notifications — gardez la page ouverte, on vous prévient ici.';
+          body.textContent = t('prep_perm_unsupported');
           btn.style.display = 'none';
         }
         return;
@@ -3145,16 +3766,16 @@
       banner.classList.remove('is-granted', 'is-denied');
       if (p === 'granted') {
         banner.classList.add('is-granted');
-        body.innerHTML = '<strong>Notifications activées.</strong> On vous prévient même si vous quittez la page.';
+        body.innerHTML = t('prep_perm_granted_html');
         btn.style.display = 'none';
       } else if (p === 'denied') {
         banner.classList.add('is-denied');
-        body.textContent = 'Notifications refusées — gardez la page ouverte, vibration et son utilisés.';
+        body.textContent = t('prep_perm_denied');
         btn.style.display = 'none';
       } else {
-        body.textContent = 'Recevez une notification quand c\'est prêt — gardez votre téléphone à côté.';
+        body.textContent = t('prep_perm_default');
         btn.style.display = '';
-        btn.textContent = 'Activer';
+        btn.textContent = t('prep_perm_btn');
       }
     }
 
@@ -3173,6 +3794,8 @@
 
     /* ============ wire it up ============ */
     document.addEventListener('DOMContentLoaded', () => {
+      // Apply saved language FIRST so the greeting flash measures the right em width
+      applyLang(currentLang);
       renderMenu('all');
       refreshCartUI();
       if (window.lucide) window.lucide.createIcons();
@@ -3194,6 +3817,9 @@
 
       // Delegated clicks
       document.addEventListener('click', e => {
+        // Language picker
+        const langBtn = e.target.closest('.lang-btn');
+        if (langBtn) { applyLang(langBtn.dataset.lang); return; }
         // Mode choice (à table / à emporter)
         const modeCard = e.target.closest('[data-mode]');
         if (modeCard) { chooseMode(modeCard.dataset.mode); return; }
