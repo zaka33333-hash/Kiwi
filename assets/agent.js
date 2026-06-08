@@ -762,6 +762,28 @@
     };
   }
 
+  /* ADVICE — surface the shared, data-derived insight engine (the SAME one the
+   * hero "Recommandations du jour" card uses, in insights.js) so the assistant
+   * and the dashboard are conscious of, and agree on, the same real facts. */
+  const ADVICE_INTRO = {
+    fr: 'Voici vos leviers les plus rentables, calculés sur vos chiffres réels :',
+    en: 'Here are your highest-impact levers, computed from your real numbers:',
+    ar: 'إليك أعلى الروافع ربحية، محسوبة من أرقامك الحقيقية:',
+  };
+  function sAdvice(q) {
+    if (B.partial) return partialReply();
+    const lng = detectQLang(q);
+    const ins = (window.KiwiInsights && window.KiwiInsights.compute) ? window.KiwiInsights.compute(undefined, lng) : [];
+    if (!ins.length) return null;   // no real data to ground on → let the LLM answer
+    const list = ins.slice(0, 3).map((i) =>
+      `<div style="border-inline-start:2px solid var(--atlas);padding:1px 0 1px 12px;margin:11px 0;">` +
+        `<div style="font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--atlas);">${escHtml(i.kpi)}</div>` +
+        `<div style="font-weight:600;margin:3px 0 2px;line-height:1.3;">${escHtml(i.title)}</div>` +
+        `<div style="font-size:13px;color:var(--n-600);line-height:1.45;">${escHtml(i.act)}</div>` +
+      `</div>`).join('');
+    return { text: `${ADVICE_INTRO[lng] || ADVICE_INTRO.fr}${list}`, follow: [tr().chips.price5, tr().chips.forecast] };
+  }
+
   function sBreakEven() {
     if (B.partial) return partialReply();
     const t = tr().breakeven;
@@ -1078,6 +1100,11 @@
       [/qui es|who are you|من انت|que (peux|sais)|what can you|ماذا تفعل/, 3],
       [/comment ca/, 3], [/\baide\b|\bhelp\b|مساعدة/, 2],
     ] },
+    { id: 'advice', run: (raw, q) => sAdvice(raw), sig: [
+      [/recommand|conseil|sugg[eé]r|suggestion|astuce|\btips?\b|\badvice\b|recommend|نصيحة|نصائح|توصية|اقتراح/, 3],
+      [/(augment|boost|d[eé]velopp|am[eé]lior|grow|increase|booster).{0,18}(vente|chiffre|\bca\b|marge|business|revenue|sales)|vendre plus|gagner plus|comment.*plus/, 3],
+      [/\bid[eé]es?\b|opportunit/, 2],
+    ] },
     { id: 'hire', run: (raw) => sHire(raw), sig: [
       [/embauch|recrut|engag|hire|recruit|توظيف|تشغيل|استخدام/, 3],
       [/serveur|cuisinier|barista|waiter|cook|نادل|طباخ|عامل/, 2],
@@ -1189,6 +1216,7 @@
     ['ouvre le menu', 'action'], ['montre les commandes', 'action'], ['open the kitchen screen', 'action'],
     ['crée un lien de paiement', 'action'], ['افتح المخزون', 'action'], ['montre-moi les réservations', 'action'],
     ['montre ma marge', 'margin'],
+    ['donne-moi des recommandations', 'advice'], ['comment augmenter mes ventes', 'advice'], ['any tips to grow my sales', 'advice'], ['نصيحة لزيادة مبيعاتي', 'advice'],
     ['2500 * 1.2', 'math'], ['(842300-261000)/842300', 'math'],
     ['quelle est la météo demain', 'llm'], ['raconte-moi une blague', 'llm'],
   ];

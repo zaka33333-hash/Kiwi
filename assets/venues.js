@@ -4444,6 +4444,12 @@
         };
         return W[fusionLang()] || W.fr;
       }
+      // Prefer a REAL, data-derived recommendation (menu margins × popularity,
+      // live hourly distribution) computed by the shared insight engine — the
+      // same one the AI agent uses. Falls back to the static rec if the engine
+      // can't produce one (e.g. not loaded yet, or too little data).
+      const real = window.KiwiInsights && window.KiwiInsights.heroRec && window.KiwiInsights.heroRec(v);
+      if (real) return real;
       const L = HERO_AI_REC[fusionLang()] || HERO_AI_REC.fr; return L[v] || L.cafeAtlas;
     },
     getHeatmapAiRec: id => {
