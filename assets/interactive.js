@@ -2139,11 +2139,11 @@ ar: {
 
     'profile-menu': (el) => menu(el, [
       { head: 'RACHID BENHIMA' },
-      { label: tr({fr:'Mon profil', en:'My profile', ar:'ملفي الشخصي'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/></svg>', onClick: () => toast(tr({fr:'Profil ouvert', en:'Profile opened', ar:'تم فتح الملف الشخصي'}), {type:'info'}) },
+      { label: tr({fr:'Mon profil', en:'My profile', ar:'ملفي الشخصي'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/></svg>', onClick: () => handlers['account-profile'] && handlers['account-profile']() },
       { label: 'Paramètres', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>', onClick: () => handlers.settings() },
-      { label: tr({fr:'Facturation', en:'Billing', ar:'الفواتير'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>', onClick: () => toast(tr({fr:'Historique factures Kiwi', en:'Kiwi invoice history', ar:'سجل فواتير Kiwi'}), {type:'info'}) },
+      { label: tr({fr:'Facturation', en:'Billing', ar:'الفواتير'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>', onClick: () => handlers['account-billing'] && handlers['account-billing']() },
       { sep: true },
-      { label: tr({fr:'Centre d\'aide', en:'Help centre', ar:'مركز المساعدة'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 016 0c0 2-3 2-3 4M12 17h.01"/></svg>', onClick: () => toast('help.kiwi.ma', {type:'info'}) },
+      { label: tr({fr:'Centre d\'aide', en:'Help centre', ar:'مركز المساعدة'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 016 0c0 2-3 2-3 4M12 17h.01"/></svg>', onClick: () => handlers['account-help'] && handlers['account-help']() },
       { label: tr({fr:'Se déconnecter', en:'Sign out', ar:'تسجيل الخروج'}), danger: true, icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>', onClick: () => { toast(tr({fr:'Déconnexion…', en:'Signing out…', ar:'جارٍ تسجيل الخروج…'}), {type:'info'}); setTimeout(() => location.href = 'index.html', 800); } },
     ]),
 
