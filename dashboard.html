@@ -5641,10 +5641,6 @@
        * only — any other entry (skip, other PIN) keeps it hidden. */
       if (val === '1111') {
         document.body.classList.remove('growth-locked');
-        /* 1111 also unlocks the Design 2026 "Liquid Glass" preview skin; a
-         * floating pill then lets the owner toggle it on/off (fully reversible). */
-        if (window.KiwiDesign2026) window.KiwiDesign2026.enable();
-        else { try { localStorage.setItem('kiwiDesign2026', '1'); } catch (e) {} }
       }
       /* Role gate:
        *   0000 / 0505 → reserved (onboard / marketing tease)
@@ -5660,6 +5656,10 @@
       try { localStorage.setItem('kiwiRole', role); } catch (_) {}
       document.body.classList.remove('role-owner', 'role-manager');
       document.body.classList.add('role-' + role);
+      /* Every passcode enables the Design 2026 "Liquid Glass" skin (the floating
+       * pill still toggles it off — fully reversible, state persists). */
+      if (window.KiwiDesign2026) window.KiwiDesign2026.enable();
+      else { try { localStorage.setItem('kiwiDesign2026', '1'); } catch (e) {} }
       /* Slight delay so the user sees the 4th cell fill before the celebration. */
       setTimeout(unlock, 140);
     }
