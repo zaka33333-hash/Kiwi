@@ -2608,56 +2608,169 @@ handlers['nav-payroll'] = () => {
 };
 
 /* ═══════════════════ RÉSERVATIONS & RDV ═══════════════════ */
+const RESV_STR = {
+  fr: {
+    title: 'Réservations & RDV',
+    subtitle: (name, covers, conf, wait) => `${name} · ${covers} couverts aujourd'hui · ${conf} réservations confirmées · ${wait} en liste d'attente`,
+    heroCovers: 'couverts prévus',
+    heroSub: (conf, dep) => `${conf} réservations confirmées · ${dep} acomptes attendus · 1 alerte de pacing à 19:00`,
+    calTitle: 'Calendrier 7 jours · couverts par créneau',
+    calSub: 'Hauteur = nombre de couverts · couleur = densité',
+    calm: 'Calme', busy: 'Soutenu', sat: 'Saturé', today: 'auj.', cov: 'couv.',
+    bookTitle: (d, n) => `Réservations ${d} · ${n} entrées`,
+    bookSub: 'Trié par heure · cliquez pour ouvrir le détail client',
+    newBtn: '+ Nouvelle',
+    th: ['HEURE', 'CLIENT', 'PARTY', 'NOTE', 'NO-SHOW', 'STATUT'],
+    confirmed: 'Confirmé', deposit: 'Acompte',
+    ns: { low: 'Faible', med: 'Modéré', high: 'Élevé' },
+    waitTitle: 'Liste d\'attente',
+    waitSub: 'Auto-promotion dès qu\'une table se libère',
+    autoOn: 'Auto-promote ON',
+    ready: (n, t) => `${n} pers · prêt dans ~${t} min`,
+    readyTable: (n, t, tb) => `${n} pers · prêt dans ~${t} min · place ${tb}`,
+    smsReady: 'SMS prêt →', sms: 'SMS',
+    waitFoot: 'SMS automatique « votre table est prête » dès qu\'une table de la bonne taille se libère.',
+    chanTitle: 'Canaux de réservation · 30 jours',
+    chanSub: '142 réservations · 18 % no-show prévenus par acompte',
+    chGoogle: 'Google Réserver', chWa: 'WhatsApp direct', chWalk: 'Walk-in', chSite: 'Site direct',
+    chanFoot: 'Google Réserver est synchronisé en temps réel · pas de double-booking possible.',
+    paceTitle: 'Alerte pacing · 19:00–19:15',
+    paceBody: '9 couverts arrivent dans la même fenêtre de 15 min. Cuisine sous tension prévue. <b>Buffer de 15 min recommandé</b> sur la prochaine réservation, ou décaler à 19:30.',
+    paceBtn: 'Appliquer buffer',
+    close: 'Fermer', addBtn: '+ Nouvelle réservation',
+  },
+  en: {
+    title: 'Reservations & appointments',
+    subtitle: (name, covers, conf, wait) => `${name} · ${covers} covers today · ${conf} confirmed reservations · ${wait} on the waitlist`,
+    heroCovers: 'covers expected',
+    heroSub: (conf, dep) => `${conf} confirmed reservations · ${dep} deposits pending · 1 pacing alert at 19:00`,
+    calTitle: '7-day calendar · covers per slot',
+    calSub: 'Height = number of covers · colour = density',
+    calm: 'Quiet', busy: 'Busy', sat: 'Full', today: 'today', cov: 'cov.',
+    bookTitle: (d, n) => `Reservations ${d} · ${n} entries`,
+    bookSub: 'Sorted by time · click to open the client detail',
+    newBtn: '+ New',
+    th: ['TIME', 'CLIENT', 'PARTY', 'NOTE', 'NO-SHOW', 'STATUS'],
+    confirmed: 'Confirmed', deposit: 'Deposit',
+    ns: { low: 'Low', med: 'Moderate', high: 'High' },
+    waitTitle: 'Waitlist',
+    waitSub: 'Auto-promotion as soon as a table frees up',
+    autoOn: 'Auto-promote ON',
+    ready: (n, t) => `${n} ppl · ready in ~${t} min`,
+    readyTable: (n, t, tb) => `${n} ppl · ready in ~${t} min · table ${tb}`,
+    smsReady: 'SMS ready →', sms: 'SMS',
+    waitFoot: 'Automatic "your table is ready" SMS as soon as a right-sized table frees up.',
+    chanTitle: 'Booking channels · 30 days',
+    chanSub: '142 reservations · 18% of no-shows prevented by deposits',
+    chGoogle: 'Reserve with Google', chWa: 'WhatsApp direct', chWalk: 'Walk-in', chSite: 'Direct website',
+    chanFoot: 'Reserve with Google syncs in real time · double-booking impossible.',
+    paceTitle: 'Pacing alert · 19:00–19:15',
+    paceBody: '9 covers arrive within the same 15-min window. Kitchen pressure expected. <b>15-min buffer recommended</b> on the next reservation, or shift it to 19:30.',
+    paceBtn: 'Apply buffer',
+    close: 'Close', addBtn: '+ New reservation',
+  },
+  ar: {
+    title: 'الحجوزات والمواعيد',
+    subtitle: (name, covers, conf, wait) => `${name} · ${covers} مقعدًا اليوم · ${conf} حجوزات مؤكدة · ${wait} في قائمة الانتظار`,
+    heroCovers: 'مقعدًا متوقعًا',
+    heroSub: (conf, dep) => `${conf} حجوزات مؤكدة · ${dep} عربون مرتقب · تنبيه تدفق عند 19:00`,
+    calTitle: 'تقويم 7 أيام · المقاعد لكل فترة',
+    calSub: 'الارتفاع = عدد المقاعد · اللون = الكثافة',
+    calm: 'هادئ', busy: 'نشِط', sat: 'مكتمل', today: 'اليوم', cov: 'مقعد',
+    bookTitle: (d, n) => `حجوزات ${d} · ${n} حجزًا`,
+    bookSub: 'مرتب حسب الساعة · انقر لفتح تفاصيل العميل',
+    newBtn: '+ جديد',
+    th: ['الساعة', 'العميل', 'العدد', 'ملاحظة', 'الغياب', 'الحالة'],
+    confirmed: 'مؤكد', deposit: 'عربون',
+    ns: { low: 'منخفض', med: 'متوسط', high: 'مرتفع' },
+    waitTitle: 'قائمة الانتظار',
+    waitSub: 'ترقية تلقائية فور تحرر طاولة',
+    autoOn: 'الترقية التلقائية مفعّلة',
+    ready: (n, t) => `${n} أشخاص · جاهز خلال ~${t} دقيقة`,
+    readyTable: (n, t, tb) => `${n} أشخاص · جاهز خلال ~${t} دقيقة · طاولة ${tb}`,
+    smsReady: 'رسالة جاهز ←', sms: 'SMS',
+    waitFoot: 'رسالة تلقائية « طاولتكم جاهزة » فور تحرر طاولة بالحجم المناسب.',
+    chanTitle: 'قنوات الحجز · 30 يومًا',
+    chanSub: '142 حجزًا · 18 % من الغيابات مُنعت بالعربون',
+    chGoogle: 'الحجز عبر Google', chWa: 'واتساب مباشر', chWalk: 'بدون موعد', chSite: 'الموقع مباشرة',
+    chanFoot: 'الحجز عبر Google متزامن في الوقت الفعلي · لا حجز مزدوج ممكن.',
+    paceTitle: 'تنبيه التدفق · 19:00–19:15',
+    paceBody: '9 مقاعد تصل في نفس نافذة الـ15 دقيقة. ضغط متوقع على المطبخ. <b>يُنصح بفاصل 15 دقيقة</b> قبل الحجز التالي، أو تأجيله إلى 19:30.',
+    paceBtn: 'تطبيق الفاصل',
+    close: 'إغلاق', addBtn: '+ حجز جديد',
+  },
+};
+
 handlers['nav-reservations'] = () => {
   const v = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas' };
-  const days = [
-    { n: 'Mar 21', covers: 32, blocks: [['11:30','13:30',12,'lunch'],['19:00','22:00',20,'dinner']] },
-    { n: 'Mer 22', covers: 28, blocks: [['12:00','14:00',10,'lunch'],['19:30','22:00',18,'dinner']] },
-    { n: 'Jeu 23', covers: 41, blocks: [['11:30','14:00',16,'lunch'],['19:00','22:30',25,'dinner']] },
-    { n: 'Ven 24', covers: 52, blocks: [['12:00','14:30',18,'lunch'],['19:30','23:00',34,'dinner']] },
-    { n: 'Sam 25', covers: 38, blocks: [['12:00','14:30',14,'lunch'],['19:00','22:30',24,'dinner']], today: true },
-    { n: 'Dim 26', covers: 22, blocks: [['12:00','15:00',22,'lunch']] },
-    { n: 'Lun 27', covers: 0,  blocks: [] },
+  const lang = trLang();
+  const T = RESV_STR[lang] || RESV_STR.fr;
+  const pk = (o) => (o == null ? '' : (o[lang] ?? o.fr ?? ''));
+  const escV = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  /* 7-day strip anchored on the real current date — labels follow the UI language. */
+  const LOC = { fr: 'fr-FR', en: 'en-GB', ar: 'ar-MA' };
+  const dShort = new Intl.DateTimeFormat(LOC[lang] || 'fr-FR', { weekday: 'short', day: 'numeric' });
+  const dLong = new Intl.DateTimeFormat(LOC[lang] || 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const now = new Date();
+  const COVERS = [38, 41, 52, 28, 32, 22, 18];
+  const BLOCKS = [
+    [['12:00','14:30',14,'lunch'],['19:00','22:30',24,'dinner']],
+    [['11:30','14:00',16,'lunch'],['19:00','22:30',25,'dinner']],
+    [['12:00','14:30',18,'lunch'],['19:30','23:00',34,'dinner']],
+    [['12:00','14:00',10,'lunch'],['19:30','22:00',18,'dinner']],
+    [['11:30','13:30',12,'lunch'],['19:00','22:00',20,'dinner']],
+    [['12:00','15:00',22,'lunch']],
+    [],
   ];
+  const days = COVERS.map((covers, i) => {
+    const d = new Date(now); d.setDate(now.getDate() + i);
+    return { n: dShort.format(d), covers, blocks: BLOCKS[i], today: i === 0 };
+  });
   const blockColor = (cap, type) => {
     if (cap >= 30) return 'var(--danger)';
     if (cap >= 18) return 'var(--warning)';
     return type === 'lunch' ? 'var(--atlas)' : 'var(--riad)';
   };
   const bookings = [
-    ['12:30', 'Famille Bensaïd',          4, 'Terrasse · sans porc',                'low',  'ok',   '12 visites'],
-    ['13:15', 'Tarik & Yasmine',          2, 'Salle · table tranquille',            'low',  'ok',   'Régulier'],
-    ['13:45', 'Karim Benhima',            3, 'Anniversaire · gâteau prévu',         'low',  'ok',   'Acompte 200'],
-    ['19:00', 'Société Atlas Pharma',     12,'Groupe · menu fixe',                  'med',  'pend', 'Acompte attendu'],
-    ['19:00', 'Famille Lahcen',           5, 'Terrasse · 2 enfants · chaise haute', 'high', 'ok',   'Pacing alert'],
-    ['19:15', 'Sophie & Yann',            2, 'Touristes · table fenêtre',           'med',  'ok',   'Anniversaire'],
-    ['20:00', 'Hassan & invités',         6, 'Salle · vin frais demandé',           'low',  'ok',   '—'],
-    ['21:00', 'Reservation +212 6 41 ··', 4, 'Sans préférence',                     'high', 'pend', '2 no-shows'],
+    { t: '12:30', n: 'Famille Bensaïd', p: 4, note: { fr: 'Terrasse · sans porc', en: 'Terrace · no pork', ar: 'تراس · بدون لحم خنزير' }, ns: 'low', st: 'ok', tag: { fr: '12 visites', en: '12 visits', ar: '12 زيارة' } },
+    { t: '13:15', n: 'Tarik & Yasmine', p: 2, note: { fr: 'Salle · table tranquille', en: 'Indoors · quiet table', ar: 'القاعة · طاولة هادئة' }, ns: 'low', st: 'ok', tag: { fr: 'Régulier', en: 'Regular', ar: 'زبون دائم' } },
+    { t: '13:45', n: 'Karim Benhima', p: 3, note: { fr: 'Anniversaire · gâteau prévu', en: 'Birthday · cake planned', ar: 'عيد ميلاد · كعكة مجهزة' }, ns: 'low', st: 'ok', tag: { fr: 'Acompte 200', en: 'Deposit 200', ar: 'عربون 200' } },
+    { t: '19:00', n: 'Société Atlas Pharma', p: 12, note: { fr: 'Groupe · menu fixe', en: 'Group · set menu', ar: 'مجموعة · قائمة محددة' }, ns: 'med', st: 'pend', tag: { fr: 'Acompte attendu', en: 'Deposit pending', ar: 'عربون مرتقب' } },
+    { t: '19:00', n: 'Famille Lahcen', p: 5, note: { fr: 'Terrasse · 2 enfants · chaise haute', en: 'Terrace · 2 kids · high chair', ar: 'تراس · طفلان · كرسي مرتفع' }, ns: 'high', st: 'ok', tag: { fr: 'Alerte pacing', en: 'Pacing alert', ar: 'تنبيه التدفق' } },
+    { t: '19:15', n: 'Sophie & Yann', p: 2, note: { fr: 'Touristes · table fenêtre', en: 'Tourists · window table', ar: 'سياح · طاولة بجانب النافذة' }, ns: 'med', st: 'ok', tag: { fr: 'Anniversaire', en: 'Birthday', ar: 'عيد ميلاد' } },
+    { t: '20:00', n: 'Hassan & invités', p: 6, note: { fr: 'Salle · vin frais demandé', en: 'Indoors · chilled wine requested', ar: 'القاعة · طلب نبيذ بارد' }, ns: 'low', st: 'ok', tag: { fr: '—', en: '—', ar: '—' } },
+    { t: '21:00', n: 'Reservation +212 6 41 ··', p: 4, note: { fr: 'Sans préférence', en: 'No preference', ar: 'بدون تفضيل' }, ns: 'high', st: 'pend', tag: { fr: '2 no-shows', en: '2 no-shows', ar: 'غيابان سابقان' } },
   ];
-  const noShowChip = { low: ['ok', 'Faible'], med: ['pend', 'Modéré'], high: ['ref', 'Élevé'] };
+  const confirmed = bookings.filter((b) => b.st === 'ok').length;
+  const pendingDep = bookings.filter((b) => b.st === 'pend').length;
+  const waitCount = 3;
+  const todayCovers = days[0].covers;
+  const todayLong = dLong.format(now);
+  const todayShort = dShort.format(now);
+  const noShowChip = { low: ['ok', T.ns.low], med: ['pend', T.ns.med], high: ['ref', T.ns.high] };
   window.Kiwi.appPage('reservations', {
-    title: 'Réservations & RDV',
-    subtitle: `${v.name} · 38 couverts samedi · 8 réservations confirmées · 3 en liste d'attente`,
+    title: T.title,
+    subtitle: T.subtitle(v.name, todayCovers, confirmed, waitCount),
     body: `
       <div class="p-hero">
-        <div class="l">SAMEDI 25 AVRIL · CAFÉ ATLAS</div>
-        <div class="big">38 <span style="font-size:18px; opacity:0.7;">couverts prévus</span></div>
-        <div class="sub">8 réservations confirmées · 2 acomptes attendus · 1 alerte de pacing à 19:00</div>
+        <div class="l">${escV(todayLong).toUpperCase()} · ${escV(v.name).toUpperCase()}</div>
+        <div class="big">${todayCovers} <span style="font-size:18px; opacity:0.7;">${T.heroCovers}</span></div>
+        <div class="sub">${T.heroSub(confirmed, pendingDep)}</div>
       </div>
 
       <div class="sh-section">
         <div class="sh-section-head">
-          <div><h4>Calendrier 7 jours · couverts par créneau</h4><div class="sub">Hauteur = nombre de couverts · couleur = densité</div></div>
+          <div><h4>${T.calTitle}</h4><div class="sub">${T.calSub}</div></div>
           <div class="resv-legend">
-            <span><i style="background:var(--atlas);"></i>Calme</span>
-            <span><i style="background:var(--warning);"></i>Soutenu</span>
-            <span><i style="background:var(--danger);"></i>Saturé</span>
+            <span><i style="background:var(--atlas);"></i>${T.calm}</span>
+            <span><i style="background:var(--warning);"></i>${T.busy}</span>
+            <span><i style="background:var(--danger);"></i>${T.sat}</span>
           </div>
         </div>
         <div class="resv-cal">
           ${days.map(d => `
             <div class="rcal-row">
-              <div class="rcal-name" style="${d.today ? 'color:var(--atlas); font-weight:600;' : ''}">${d.n}${d.today ? ' · auj.' : ''}<div style="font-size:10.5px; color:var(--n-500); font-family:var(--mono); margin-top:2px;">${d.covers} couv.</div></div>
+              <div class="rcal-name" style="${d.today ? 'color:var(--atlas); font-weight:600;' : ''}">${d.n}${d.today ? ' · ' + T.today : ''}<div style="font-size:10.5px; color:var(--n-500); font-family:var(--mono); margin-top:2px;">${d.covers} ${T.cov}</div></div>
               <div class="rcal-track">
                 ${d.blocks.map(([from, to, cap, type]) => {
                   const fH = parseInt(from); const tH = parseInt(to);
@@ -2674,22 +2787,22 @@ handlers['nav-reservations'] = () => {
 
       <div class="sh-section">
         <div class="sh-section-head">
-          <div><h4>Réservations samedi 25 · 8 entrées</h4><div class="sub">Trié par heure · cliquez pour ouvrir le détail client</div></div>
-          <button class="kb primary" data-action="add-reservation" style="padding:8px 12px; font-size:12.5px;">+ Nouvelle</button>
+          <div><h4>${T.bookTitle(todayShort, bookings.length)}</h4><div class="sub">${T.bookSub}</div></div>
+          <button class="kb primary" data-action="add-reservation" style="padding:8px 12px; font-size:12.5px;">${T.newBtn}</button>
         </div>
         <table class="p-table" style="font-size:12.5px;">
-          <thead><tr><th>HEURE</th><th>CLIENT</th><th class="right">PARTY</th><th>NOTE</th><th>NO-SHOW</th><th>STATUT</th></tr></thead>
+          <thead><tr><th>${T.th[0]}</th><th>${T.th[1]}</th><th class="right">${T.th[2]}</th><th>${T.th[3]}</th><th>${T.th[4]}</th><th>${T.th[5]}</th></tr></thead>
           <tbody>
-            ${bookings.map(([t, n, party, note, ns, st, tag]) => {
-              const [chipKind, chipLabel] = noShowChip[ns];
+            ${bookings.map((b) => {
+              const [chipKind, chipLabel] = noShowChip[b.ns];
               return `
-                <tr data-action="resv-detail" data-arg="${n}">
-                  <td class="mono"><b>${t}</b></td>
-                  <td><b>${n}</b><div style="font-size:11px; color:var(--n-500); margin-top:2px;">${tag}</div></td>
-                  <td class="mono right"><b>${party}</b> couv.</td>
-                  <td style="color:var(--n-500); font-size:12px;">${note}</td>
+                <tr data-action="resv-detail" data-arg="${escV(b.n)}">
+                  <td class="mono"><b>${b.t}</b></td>
+                  <td><b>${escV(b.n)}</b><div style="font-size:11px; color:var(--n-500); margin-top:2px;">${pk(b.tag)}</div></td>
+                  <td class="mono right"><b>${b.p}</b> ${T.cov}</td>
+                  <td style="color:var(--n-500); font-size:12px;">${pk(b.note)}</td>
                   <td><span class="chip ${chipKind}" style="font-size:10.5px;">${chipLabel}</span></td>
-                  <td><span class="chip ${st}">${st === 'ok' ? 'Confirmé' : 'Acompte'}</span></td>
+                  <td><span class="chip ${b.st}">${b.st === 'ok' ? T.confirmed : T.deposit}</span></td>
                 </tr>
               `;
             }).join('')}
@@ -2700,34 +2813,34 @@ handlers['nav-reservations'] = () => {
       <div class="sh-grid-2">
         <div class="sh-section" style="margin-bottom:12px;">
           <div class="sh-section-head" style="margin-bottom:10px;">
-            <div><h4>Liste d'attente</h4><div class="sub">Auto-promotion dès qu'une table se libère</div></div>
+            <div><h4>${T.waitTitle}</h4><div class="sub">${T.waitSub}</div></div>
             <label style="display:inline-flex; align-items:center; gap:8px; font-size:11.5px; color:var(--n-600);">
               <span style="position:relative; display:inline-block; width:32px; height:18px; background:var(--atlas); border-radius:999px;">
                 <span style="position:absolute; top:2px; left:16px; width:14px; height:14px; background:var(--paper); border-radius:50%; transition:all 200ms;"></span>
               </span>
-              Auto-promote ON
+              ${T.autoOn}
             </label>
           </div>
           <div class="resv-wait">
-            <div><b>+212 6 22 11 09 88</b><div class="m">2 pers · prêt dans ~12 min · place T7</div></div>
-            <button class="kb atlas" data-action="resv-sms">SMS prêt →</button>
+            <div><b>+212 6 22 11 09 88</b><div class="m">${T.readyTable(2, 12, 'T7')}</div></div>
+            <button class="kb atlas" data-action="resv-sms">${T.smsReady}</button>
           </div>
           <div class="resv-wait">
-            <div><b>Mehdi R.</b><div class="m">4 pers · prêt dans ~25 min</div></div>
-            <button class="kb ghost" data-action="resv-sms">SMS</button>
+            <div><b>Mehdi R.</b><div class="m">${T.ready(4, 25)}</div></div>
+            <button class="kb ghost" data-action="resv-sms">${T.sms}</button>
           </div>
           <div class="resv-wait">
-            <div><b>+212 6 41 02 76 12</b><div class="m">2 pers · prêt dans ~40 min</div></div>
-            <button class="kb ghost" data-action="resv-sms">SMS</button>
+            <div><b>+212 6 41 02 76 12</b><div class="m">${T.ready(2, 40)}</div></div>
+            <button class="kb ghost" data-action="resv-sms">${T.sms}</button>
           </div>
           <div class="rc-foot" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--n-200); font-size:11.5px; color:var(--n-500); line-height:1.45;">
-            SMS automatique « votre table est prête » dès qu'une table de la bonne taille se libère.
+            ${T.waitFoot}
           </div>
         </div>
 
         <div class="sh-section" style="margin-bottom:12px;">
           <div class="sh-section-head" style="margin-bottom:10px;">
-            <div><h4>Canaux de réservation · 30 jours</h4><div class="sub">142 réservations · 18 % no-show prévenus par acompte</div></div>
+            <div><h4>${T.chanTitle}</h4><div class="sub">${T.chanSub}</div></div>
           </div>
           <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px;">
             <svg viewBox="0 0 80 80" style="width:90px; height:90px; flex-shrink:0;">
@@ -2739,10 +2852,10 @@ handlers['nav-reservations'] = () => {
             </svg>
             <div style="flex:1; display:flex; flex-direction:column; gap:6px; font-size:12px;">
               ${[
-                ['var(--atlas)', 'Google Réserver',  60, 42],
-                ['#7DF2B0',      'WhatsApp direct',  43, 30],
-                ['#D99A2B',      'Walk-in',          28, 20],
-                ['var(--riad)',  'Site direct',      11, 8],
+                ['var(--atlas)', T.chGoogle,  60, 42],
+                ['#7DF2B0',      T.chWa,      43, 30],
+                ['#D99A2B',      T.chWalk,    28, 20],
+                ['var(--riad)',  T.chSite,    11, 8],
               ].map(([c, l, n, pct]) => `
                 <div style="display:grid; grid-template-columns:10px 1fr auto auto; gap:8px; align-items:center;">
                   <i style="display:inline-block; width:10px; height:10px; border-radius:2px; background:${c};"></i>
@@ -2754,7 +2867,7 @@ handlers['nav-reservations'] = () => {
             </div>
           </div>
           <div class="rc-foot" style="padding-top:10px; border-top:1px solid var(--n-200); font-size:11.5px; color:var(--n-500); line-height:1.45;">
-            Google Réserver est synchronisé en temps réel · pas de double-booking possible.
+            ${T.chanFoot}
           </div>
         </div>
       </div>
@@ -2762,15 +2875,15 @@ handlers['nav-reservations'] = () => {
       <div style="background:linear-gradient(135deg, #8A6210, #D99A2B); color:var(--paper); border-radius:14px; padding:16px 18px; display:flex; gap:14px; align-items:flex-start;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
         <div style="flex:1;">
-          <div style="font-weight:600; font-size:13.5px; margin-bottom:3px;">Alerte pacing · 19:00–19:15</div>
-          <div style="font-size:12.5px; line-height:1.45; opacity:0.95;">9 couverts arrivent dans la même fenêtre de 15 min. Cuisine sous tension prévue. <b>Buffer de 15 min recommandé</b> sur la prochaine réservation, ou décaler à 19:30.</div>
+          <div style="font-weight:600; font-size:13.5px; margin-bottom:3px;">${T.paceTitle}</div>
+          <div style="font-size:12.5px; line-height:1.45; opacity:0.95;">${T.paceBody}</div>
         </div>
-        <button class="kb" data-action="resv-buffer" style="background:rgba(255,255,255,0.2); color:var(--paper); padding:7px 12px; font-size:12px;">Appliquer buffer</button>
+        <button class="kb" data-action="resv-buffer" style="background:rgba(255,255,255,0.2); color:var(--paper); padding:7px 12px; font-size:12px;">${T.paceBtn}</button>
       </div>
     `,
     foot: `
-      <button class="kb ghost" data-dismiss>Fermer</button>
-      <button class="kb primary" data-action="add-reservation">+ Nouvelle réservation</button>
+      <button class="kb ghost" data-dismiss>${T.close}</button>
+      <button class="kb primary" data-action="add-reservation">${T.addBtn}</button>
     `,
   });
 };
