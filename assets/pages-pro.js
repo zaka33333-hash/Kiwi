@@ -348,7 +348,7 @@ handlers['nav-transactions'] = () => {
   const FILTERS     = [T.all, T.cards, T.mobile, T.cash, T.refunds];
 
   let host;
-  const dr = drawer({ title: T.title, subtitle: '…', width: 920, body: `<div data-tx-host></div>` });
+  const dr = window.Kiwi.appPage('transactions', { title: T.title, subtitle: '…', body: `<div data-tx-host></div>` });
   host = dr.el.querySelector('[data-tx-host]');
 
   function render() {
@@ -484,7 +484,7 @@ handlers['nav-transactions'] = () => {
     });
 
     /* Live subtitle */
-    const subEl = dr.el.querySelector('.kiwi-drawer-head p');
+    const subEl = dr.el.querySelector('.genpage-head p, .kiwi-drawer-head p');
     if (subEl) subEl.textContent = `${heroTotal} ${heroTotal > 1 ? T.orders : T.order} · ${fmt0(Math.abs(heroSum))} MAD · ${RANGE_LABEL[activeRange]}`;
   }
 
@@ -519,12 +519,14 @@ handlers['nav-transactions'] = () => {
   /* Live updates from the demo clock (only when viewing today). */
   if (window.KiwiDemoClock?.subscribe) {
     unsub = window.KiwiDemoClock.subscribe(() => {
-      if (!dr.el.isConnected) { unsub?.(); unsub = null; return; }
+      // Stop updating once we leave the Transactions page (the appPage host
+      // persists and is shared, so guard on the active page, not isConnected).
+      if (!dr.el || !dr.el.isConnected || (window.Kiwi && window.Kiwi.activePage !== 'transactions')) { unsub?.(); unsub = null; return; }
       if (activeRange !== 'aujourdhui') return;
       render();
     });
   }
-  const origClose = dr.close;
+  const origClose = dr.close || (() => {});
   dr.close = () => { unsub?.(); unsub = null; origClose(); };
 };
 
@@ -1027,10 +1029,9 @@ handlers['nav-terminaux'] = () => {
   }
 
   /* ── render the drawer ──────────────────────────────────────────────── */
-  drawer({
+  window.Kiwi.appPage('terminaux', {
     title: T.title,
     subtitle: T.subtitle(activeCount(), fleet.length),
-    width: 780,
     body: `<div id="term-fleet">${fleetHtml()}</div>`,
   });
   const cnt0 = document.querySelector('a[data-nav="terminaux"] .count');
@@ -1991,7 +1992,7 @@ handlers['nav-equipe'] = () => {
     });
 
     // Subtitle live counts
-    const subEl = dr.el.querySelector('.kiwi-drawer-head p');
+    const subEl = dr.el.querySelector('.genpage-head p, .kiwi-drawer-head p');
     if (subEl) subEl.textContent = `${v.name} · ${counts.onShift} en service · ${counts.onBreak} en pause · ${counts.off} hors service`;
 
     host.innerHTML = `
@@ -2634,10 +2635,9 @@ handlers['nav-reservations'] = () => {
     ['21:00', 'Reservation +212 6 41 ··', 4, 'Sans préférence',                     'high', 'pend', '2 no-shows'],
   ];
   const noShowChip = { low: ['ok', 'Faible'], med: ['pend', 'Modéré'], high: ['ref', 'Élevé'] };
-  drawer({
-    title: 'Réservations &amp; RDV',
+  window.Kiwi.appPage('reservations', {
+    title: 'Réservations & RDV',
     subtitle: `${v.name} · 38 couverts samedi · 8 réservations confirmées · 3 en liste d'attente`,
-    width: 920,
     body: `
       <div class="p-hero">
         <div class="l">SAMEDI 25 AVRIL · CAFÉ ATLAS</div>

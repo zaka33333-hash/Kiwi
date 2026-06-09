@@ -3229,8 +3229,73 @@ ar: {
 
   /* ─── Expose a tiny API for inline usage if needed ─── */
   const fullpage = (opts) => drawer({ ...opts, fullpage: true });
+
+  /* Re-host a destination's content as a full .app page — the standard format
+   * already used by Stock / Conformité / Menu / Équipe (body.page-X swap). Lets
+   * every sidebar destination open the same way instead of some sliding in as a
+   * partial side panel. Content keeps its [data-action] wiring (global delegation). */
+  (function injectGenpageCss() {
+    const css = `
+      .dash-genpage { display: none; padding: 0 0 48px; }
+      body.page-genpage .page-head,
+      body.page-genpage .dash-date-range,
+      body.page-genpage .dash-standard,
+      body.page-genpage .dash-fusion,
+      body.page-genpage .dash-equipe,
+      body.page-genpage .dash-menu,
+      body.page-genpage .dash-stock,
+      body.page-genpage .dash-finance,
+      body.page-genpage .dash-payroll { display: none !important; }
+      body.page-genpage .dash-genpage { display: block; animation: fade-in 220ms ease-out; }
+      .dash-genpage .genpage-head { padding: 8px 0 20px; }
+      .dash-genpage .genpage-head h1 { font-size: 34px; font-weight: 600; letter-spacing: -0.03em; color: var(--ink); margin: 0; line-height: 1.05; }
+      .dash-genpage .genpage-head p { font-family: var(--mono); font-size: 13px; color: var(--n-500); margin: 8px 0 0; }
+      .dash-genpage .genpage-body { max-width: 1080px; }
+      .dash-genpage .genpage-foot { max-width: 1080px; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }`;
+    const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+  })();
+  function appPage(navKey, opts) {
+    const o = opts || {};
+    // Mount into the same content wrapper the other .app-swap pages live in
+    // (the .container column), not .app directly — otherwise it lands in the
+    // sidebar grid column.
+    const container = document.querySelector('.container')
+      || (document.querySelector('.dash-standard') && document.querySelector('.dash-standard').parentElement)
+      || document.querySelector('.app');
+    if (!container) return null;
+    let host = container.querySelector('.dash-genpage');
+    if (!host) { host = document.createElement('div'); host.className = 'dash-genpage'; container.appendChild(host); }
+    while (host.firstChild) host.removeChild(host.firstChild);
+    // Head — plain text via textContent (native-escaped, no injection).
+    const head = document.createElement('div'); head.className = 'genpage-head';
+    const h1 = document.createElement('h1'); h1.textContent = o.title || ''; head.appendChild(h1);
+    if (o.subtitle) { const p = document.createElement('p'); p.textContent = o.subtitle; head.appendChild(p); }
+    host.appendChild(head);
+    // Body / foot — trusted app-rendered HTML (same contract as Kiwi.drawer's body).
+    const bodyEl = document.createElement('div'); bodyEl.className = 'genpage-body';
+    bodyEl.insertAdjacentHTML('beforeend', o.body || '');
+    host.appendChild(bodyEl);
+    if (o.foot) { const f = document.createElement('div'); f.className = 'genpage-foot'; f.insertAdjacentHTML('beforeend', o.foot); host.appendChild(f); }
+    // Swap into the page: clear any active page class, mark this one.
+    [...document.body.classList].forEach((c) => { if (c.indexOf('page-') === 0) document.body.classList.remove(c); });
+    document.body.classList.add('page-genpage');
+    const bc = document.querySelector('.breadcrumb');
+    if (bc) {
+      bc.textContent = 'Accueil ';
+      const sep = document.createElement('span'); sep.className = 'sep'; sep.textContent = '/'; bc.appendChild(sep);
+      bc.appendChild(document.createTextNode(' '));
+      const b = document.createElement('b'); b.textContent = o.title || ''; bc.appendChild(b);
+    }
+    setActivePage(navKey);
+    document.querySelectorAll('.sidebar nav a').forEach((a) => a.classList.remove('active'));
+    const navEl = document.querySelector(`.sidebar nav a[data-nav="${navKey}"]`);
+    if (navEl) navEl.classList.add('active');
+    window.scrollTo({ top: 0 });
+    return { el: host };
+  }
+
   window.Kiwi = {
-    toast, modal, drawer, fullpage, menu, commandPalette, confetti, handlers,
+    toast, modal, drawer, fullpage, appPage, menu, commandPalette, confetti, handlers,
     setActivePage, syncSidebar,
     get activePage() { return activePage; },
   };

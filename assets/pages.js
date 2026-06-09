@@ -2199,6 +2199,9 @@
     if (!a) return;
     e.preventDefault();
     const navKey = a.dataset.nav;
+    // Leaving an appPage() full-view: clear its body class so the destination we
+    // navigate to (dashboard or another .app-swap page) isn't masked by the genpage.
+    document.body.classList.remove('page-genpage');
     if (FULL_PAGE_NAVS.has(navKey)) {
       window.Kiwi?.setActivePage?.(navKey);
     }
