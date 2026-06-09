@@ -40,8 +40,9 @@ body.design-2026::after {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
 @keyframes g-drift { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-1.5%, 1.5%, 0) scale(1.06); } }
-/* keep content above the ambient layers */
-body.design-2026 .app, body.design-2026 .demo-banner, body.design-2026 .kiwi-lock { position: relative; z-index: 1; }
+/* keep the main content above the ambient layers — NOT .kiwi-lock (it's a fixed
+ * full-screen overlay with its own z-index; forcing position:relative collapsed it). */
+body.design-2026 .app, body.design-2026 .demo-banner { position: relative; z-index: 1; }
 
 /* ── 2 · Floating frosted topbar (the search/breadcrumb pill) ── */
 body.design-2026 .topbar {
