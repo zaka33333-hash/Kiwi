@@ -681,7 +681,7 @@
         </div>`).join('')
       : `<div class="cf-eq-hist-empty">${esc(t('eqDetailEmpty'))}</div>`;
     bd.innerHTML = `
-      <div class="cf-eq-detail" role="dialog">
+      <div class="cf-eq-detail" role="dialog" aria-modal="true">
         <div class="cf-eq-detail-head">
           <div>
             <div class="cf-eq-detail-eyebrow">${esc(item.type)}</div>
@@ -699,16 +699,37 @@
       </div>`;
     document.body.appendChild(bd);
     requestAnimationFrame(() => bd.classList.add('in'));
+    // Scroll-lock via the shared global counter (same as Kiwi.modal) so it stays
+    // balanced with the rest of the app and the page can't scroll behind the dialog.
+    window.__kiwiScrollLocks = (window.__kiwiScrollLocks || 0) + 1;
+    document.documentElement.classList.add('kiwi-locked');
     let closing = false;
     const close = () => {
       if (closing) return;
       closing = true;
       bd.classList.remove('in');
+      document.removeEventListener('keydown', onKey);
+      const n = Math.max(0, (window.__kiwiScrollLocks || 0) - 1);
+      window.__kiwiScrollLocks = n;
+      if (n === 0) document.documentElement.classList.remove('kiwi-locked');
       setTimeout(() => bd.remove(), 220);
     };
+    // Keyboard a11y: Escape closes; Tab is trapped inside the dialog.
+    const onKey = (e) => {
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'Tab') {
+        const f = bd.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener('keydown', onKey);
     bd.addEventListener('click', (e) => {
       if (e.target.closest('[data-cf-eq-close]') || !e.target.closest('.cf-eq-detail')) close();
     });
+    setTimeout(() => { const c = bd.querySelector('.cf-eq-detail-close'); if (c) c.focus(); }, 60);
   }
 
   /* ═══════════════════════════════════════════════════════════════════════
