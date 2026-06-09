@@ -2077,6 +2077,288 @@
     .bill-confirm-btn:active { transform: scale(0.98); }
     .bill-confirm-btn svg { width: 16px; height: 16px; }
 
+    /* "Diviser l'addition" secondary in bill sheet */
+    .bill-split-btn {
+      width: 100%;
+      margin-top: 6px;
+      padding: 14px 18px;
+      background: var(--paper-mute);
+      color: var(--ink);
+      border: 1px solid var(--line-soft);
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 200ms ease, background 200ms ease;
+    }
+    .bill-split-btn:active { transform: scale(0.98); background: var(--mint-tint); }
+    .bill-split-btn svg { width: 16px; height: 16px; color: var(--forest); }
+
+    /* =========================================================
+       SPLIT-BILL SHEET (égal / par article)
+       ========================================================= */
+    .split-sheet {
+      position: absolute;
+      inset: 0;
+      z-index: 240;
+      pointer-events: none;
+    }
+    .split-sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,10,0);
+      transition: background 280ms ease;
+    }
+    .split-sheet-panel {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      background: #fff;
+      border-radius: 22px 22px 0 0;
+      padding: 12px 22px calc(22px + var(--safe-bottom));
+      max-height: 92%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 420ms cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 0 -20px 40px rgba(0,0,0,0.18);
+    }
+    .split-sheet.is-open { pointer-events: auto; }
+    .split-sheet.is-open .split-sheet-backdrop { background: rgba(10,10,10,0.55); }
+    .split-sheet.is-open .split-sheet-panel { transform: translateY(0); }
+
+    .split-mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .split-mode-tab {
+      padding: 14px 14px;
+      background: var(--paper-mute);
+      border: 1.5px solid var(--line-soft);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      text-align: left;
+      transition: border-color 180ms ease, background 180ms ease;
+    }
+    .split-mode-tab.is-active {
+      background: var(--mint-tint);
+      border-color: var(--mint-edge);
+    }
+    .split-mode-tab .icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-3);
+      margin-bottom: 4px;
+    }
+    .split-mode-tab.is-active .icon { background: rgba(31,93,60,0.14); color: var(--forest); }
+    .split-mode-tab .icon svg { width: 18px; height: 18px; }
+    .split-mode-tab .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .split-mode-tab.is-active .title { color: var(--forest); }
+    .split-mode-tab .desc {
+      font-size: 11px;
+      color: var(--ink-4);
+      line-height: 1.35;
+      margin-top: 1px;
+    }
+
+    .split-section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin: 14px 0 8px;
+    }
+    .split-section-label:first-child { margin-top: 4px; }
+    .split-chips {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .split-chip {
+      min-width: 44px;
+      padding: 9px 16px;
+      background: var(--paper-mute);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-2);
+      font-feature-settings: "tnum" 1;
+      transition: background 180ms ease, color 180ms ease, transform 140ms ease;
+    }
+    .split-chip:active { transform: scale(0.94); }
+    .split-chip.is-active {
+      background: var(--ink);
+      color: var(--paper-cream);
+    }
+
+    .split-summary {
+      background: linear-gradient(160deg, #F6F8F2 0%, #EAEFE2 100%);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-top: 14px;
+    }
+    .split-summary .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+      color: var(--ink-3);
+      margin-bottom: 5px;
+    }
+    .split-summary .row .val {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--ink-2);
+      font-feature-settings: "tnum" 1;
+    }
+    .split-summary .per-person {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-top: 10px;
+      margin-top: 8px;
+      border-top: 1px solid var(--mint-edge);
+    }
+    .split-summary .per-person .lbl {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .split-summary .per-person .val {
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--forest);
+      letter-spacing: -0.01em;
+      font-feature-settings: "tnum" 1;
+    }
+
+    /* Par article — guest tabs + item pool */
+    .split-people-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+    .split-people-tabs::-webkit-scrollbar { display: none; }
+    .split-person-tab {
+      flex: 0 0 auto;
+      min-width: 84px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: var(--paper-mute);
+      border: 1.5px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      transition: background 180ms ease, border-color 180ms ease, transform 140ms ease;
+    }
+    .split-person-tab:active { transform: scale(0.96); }
+    .split-person-tab.is-active {
+      background: var(--forest);
+      color: #fff;
+      border-color: var(--forest);
+    }
+    .split-person-tab .name {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .split-person-tab .val {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      font-feature-settings: "tnum" 1;
+      opacity: 0.85;
+    }
+
+    .split-items-pool {
+      display: grid;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .split-pool-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      background: var(--paper-mute);
+      border: 1.5px solid transparent;
+      border-radius: 12px;
+      font-size: 13.5px;
+      color: var(--ink);
+      transition: background 180ms ease, border-color 180ms ease;
+    }
+    .split-pool-item .info { display: flex; gap: 8px; min-width: 0; align-items: baseline; }
+    .split-pool-item .qty { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+    .split-pool-item .name { font-weight: 500; letter-spacing: -0.005em; }
+    .split-pool-item .price {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-3);
+      white-space: nowrap;
+    }
+    .split-pool-item.is-mine {
+      background: var(--mint-tint);
+      border-color: var(--mint-edge);
+    }
+    .split-pool-item.is-mine .name { color: var(--forest); }
+    .split-pool-item.is-mine .price { color: var(--forest); }
+    .split-pool-item.is-other {
+      opacity: 0.5;
+      background: var(--paper-mute);
+    }
+    .split-pool-item.is-other::after {
+      content: attr(data-owner);
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-4);
+      margin-left: 6px;
+    }
+
+    .split-confirm-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 16px 18px;
+      background: var(--gradient);
+      color: #fff;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 200ms ease;
+    }
+    .split-confirm-btn:active { transform: scale(0.98); }
+    .split-confirm-btn svg { width: 16px; height: 16px; }
+
     /* =========================================================
        LANGUAGE SWITCHER (floating top-right segmented pill)
        ========================================================= */
@@ -2547,6 +2829,83 @@
           <i data-lucide="hand-platter"></i>
           <span data-i18n="bill_confirm">Le serveur arrive avec l'addition</span>
         </button>
+        <button class="bill-split-btn" type="button" id="open-split-btn">
+          <i data-lucide="split-square-vertical"></i>
+          <span data-i18n="split_open">Diviser l'addition</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ SPLIT-BILL SHEET ============ -->
+    <div class="split-sheet" id="split-sheet" aria-hidden="true">
+      <div class="split-sheet-backdrop" data-close-split></div>
+      <div class="split-sheet-panel">
+        <div class="cart-handle" data-close-split></div>
+        <h2 class="bill-title" data-i18n="split_title">Diviser l'addition</h2>
+        <div class="bill-subtitle" id="split-subtitle">Table — · 0 MAD</div>
+
+        <div class="split-mode-tabs">
+          <button class="split-mode-tab is-active" type="button" data-split-mode="egal">
+            <span class="icon"><i data-lucide="users"></i></span>
+            <span class="title" data-i18n="split_mode_egal">Parts égales</span>
+            <span class="desc" data-i18n="split_mode_egal_desc">Tout le monde paie la même somme</span>
+          </button>
+          <button class="split-mode-tab" type="button" data-split-mode="article">
+            <span class="icon"><i data-lucide="list"></i></span>
+            <span class="title" data-i18n="split_mode_article">Par article</span>
+            <span class="desc" data-i18n="split_mode_article_desc">Chacun paie ce qu'il a pris</span>
+          </button>
+        </div>
+
+        <!-- Égal mode -->
+        <div id="split-egal">
+          <div class="split-section-label" data-i18n="split_people_count">Nombre de personnes</div>
+          <div class="split-chips" id="split-egal-chips">
+            <button class="split-chip" type="button" data-egal-count="2">2</button>
+            <button class="split-chip is-active" type="button" data-egal-count="3">3</button>
+            <button class="split-chip" type="button" data-egal-count="4">4</button>
+            <button class="split-chip" type="button" data-egal-count="5">5</button>
+            <button class="split-chip" type="button" data-egal-count="6">6</button>
+            <button class="split-chip" type="button" data-egal-count="8">8</button>
+          </div>
+
+          <div class="split-summary">
+            <div class="row">
+              <span data-i18n="split_subtotal">Sous-total</span>
+              <span class="val" id="split-egal-subtotal">0 MAD</span>
+            </div>
+            <div class="row">
+              <span data-i18n="split_tip">Pourboire</span>
+              <span class="val" id="split-egal-tip">0 MAD</span>
+            </div>
+            <div class="per-person">
+              <span class="lbl" data-i18n="split_per_person">Par personne</span>
+              <span class="val" id="split-egal-per">0 MAD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Article mode -->
+        <div id="split-article" hidden>
+          <div class="split-section-label" data-i18n="split_people_count">Nombre de personnes</div>
+          <div class="split-chips" id="split-article-chips">
+            <button class="split-chip" type="button" data-article-count="2">2</button>
+            <button class="split-chip is-active" type="button" data-article-count="3">3</button>
+            <button class="split-chip" type="button" data-article-count="4">4</button>
+            <button class="split-chip" type="button" data-article-count="5">5</button>
+          </div>
+
+          <div class="split-section-label" data-i18n="split_select_person">Sélectionnez la personne</div>
+          <div class="split-people-tabs" id="split-people-tabs"></div>
+
+          <div class="split-section-label" data-i18n="split_tap_items">Tapez les articles consommés</div>
+          <div class="split-items-pool" id="split-items-pool"></div>
+        </div>
+
+        <button class="split-confirm-btn" type="button" id="split-confirm-btn">
+          <i data-lucide="check"></i>
+          <span data-i18n="split_confirm">Confirmer le partage</span>
+        </button>
       </div>
     </div>
 
@@ -2716,6 +3075,22 @@
         tip_level_5: "Pourboire de chef",
         bill_total: "Total à régler",
         bill_confirm: "Le serveur arrive avec l'addition",
+        split_open: "Diviser l'addition",
+        split_title: "Diviser l'addition",
+        split_subtitle_tpl: "Table {n} · {total} {cur} à partager",
+        split_mode_egal: "Parts égales",
+        split_mode_egal_desc: "Tout le monde paie la même somme",
+        split_mode_article: "Par article",
+        split_mode_article_desc: "Chacun paie ce qu'il a pris",
+        split_people_count: "Nombre de personnes",
+        split_subtotal: "Sous-total",
+        split_tip: "Pourboire",
+        split_per_person: "Par personne",
+        split_select_person: "Sélectionnez la personne",
+        split_tap_items: "Tapez les articles consommés",
+        split_confirm: "Confirmer le partage",
+        split_person_pre: "Conv.",
+        toast_split_egal: "Addition divisée ·",
         toast_added: "ajouté",
         toast_server_coming_pre: "Un serveur arrive · Table",
         toast_bill_asked_pre: "Addition demandée ·",
@@ -2857,6 +3232,22 @@
         tip_level_5: "A chef's tip",
         bill_total: "Total to pay",
         bill_confirm: "Your waiter is bringing the check",
+        split_open: "Split the bill",
+        split_title: "Split the bill",
+        split_subtitle_tpl: "Table {n} · {total} {cur} to split",
+        split_mode_egal: "Equal shares",
+        split_mode_egal_desc: "Everyone pays the same",
+        split_mode_article: "By item",
+        split_mode_article_desc: "Pay only what you ordered",
+        split_people_count: "Number of people",
+        split_subtotal: "Subtotal",
+        split_tip: "Tip",
+        split_per_person: "Per person",
+        split_select_person: "Pick the person",
+        split_tap_items: "Tap the items they had",
+        split_confirm: "Confirm the split",
+        split_person_pre: "Pers.",
+        toast_split_egal: "Bill split ·",
         toast_added: "added",
         toast_server_coming_pre: "Waiter coming · Table",
         toast_bill_asked_pre: "Check requested ·",
@@ -2998,6 +3389,22 @@
         tip_level_5: "بقشيش ديال الشيف",
         bill_total: "المجموع للخلاص",
         bill_confirm: "الجارسون جاي بالحساب",
+        split_open: "قسّم الحساب",
+        split_title: "قسّم الحساب",
+        split_subtitle_tpl: "طاولة {n} · {total} {cur} للتقسيم",
+        split_mode_egal: "بالتساوي",
+        split_mode_egal_desc: "الجميع كيخلصو نفس الشي",
+        split_mode_article: "حسب الطلب",
+        split_mode_article_desc: "كل واحد كيخلص اللي كلا",
+        split_people_count: "عدد الناس",
+        split_subtotal: "المجموع الفرعي",
+        split_tip: "البقشيش",
+        split_per_person: "للواحد",
+        split_select_person: "اختار الشخص",
+        split_tap_items: "كبس على الطلبات اللي كلاهم",
+        split_confirm: "أكد التقسيم",
+        split_person_pre: "ش.",
+        toast_split_egal: "الحساب تقسم ·",
         toast_added: "تزاد",
         toast_server_coming_pre: "الجارسون جاي · طاولة",
         toast_bill_asked_pre: "الحساب تطلب ·",
@@ -3099,6 +3506,9 @@
       if (typeof refreshPermBanner === 'function') refreshPermBanner();
       if (typeof setTipPercent === 'function' && document.querySelector('#bill-sheet').classList.contains('is-open')) {
         setTipPercent(tipPercent);
+      }
+      if (typeof refreshSplitUI === 'function' && document.querySelector('#split-sheet')?.classList.contains('is-open')) {
+        refreshSplitUI();
       }
     }
 
@@ -3214,6 +3624,15 @@
     const sentLines = []; // [{ id, options, note, unitPrice, qty }]
     let sessionTotal = 0;
     let tipPercent = 15; // default selection in bill
+
+    // Split state
+    let splitState = {
+      mode: 'egal',          // 'egal' | 'article'
+      egalCount: 3,
+      articleCount: 3,
+      selectedPerson: 0,
+      assignments: {},        // sentLine idx -> person idx
+    };
 
     // Customizer state
     let customizerItem = null;
@@ -3703,6 +4122,147 @@
       showToast(msg);
     }
 
+    /* ============ Split-bill (égal / par article) ============ */
+    function openSplit() {
+      if (sessionTotal === 0) return; // nothing to split
+      // Reset assignments when opening fresh
+      splitState.assignments = {};
+      splitState.selectedPerson = 0;
+      refreshSplitUI();
+      setSplitMode(splitState.mode);
+      $('#split-sheet').classList.add('is-open');
+      $('#split-sheet').setAttribute('aria-hidden', 'false');
+    }
+    function closeSplit() {
+      $('#split-sheet').classList.remove('is-open');
+      $('#split-sheet').setAttribute('aria-hidden', 'true');
+    }
+    function setSplitMode(mode) {
+      splitState.mode = mode;
+      $$('.split-mode-tab').forEach(tab =>
+        tab.classList.toggle('is-active', tab.dataset.splitMode === mode));
+      $('#split-egal').hidden = mode !== 'egal';
+      $('#split-article').hidden = mode !== 'article';
+      refreshSplitUI();
+    }
+    function setEgalCount(count) {
+      splitState.egalCount = count;
+      $$('[data-egal-count]').forEach(c =>
+        c.classList.toggle('is-active', parseInt(c.dataset.egalCount, 10) === count));
+      refreshSplitUI();
+    }
+    function setArticleCount(count) {
+      splitState.articleCount = count;
+      if (splitState.selectedPerson >= count) splitState.selectedPerson = 0;
+      // Drop any assignment that points to a now-out-of-range person
+      Object.keys(splitState.assignments).forEach(k => {
+        if (splitState.assignments[k] >= count) delete splitState.assignments[k];
+      });
+      $$('[data-article-count]').forEach(c =>
+        c.classList.toggle('is-active', parseInt(c.dataset.articleCount, 10) === count));
+      refreshSplitUI();
+    }
+    function setSplitPerson(idx) {
+      splitState.selectedPerson = idx;
+      renderSplitArticle();
+    }
+    function toggleSplitItem(lineIdx) {
+      const cur = splitState.assignments[lineIdx];
+      if (cur === splitState.selectedPerson) delete splitState.assignments[lineIdx];
+      else splitState.assignments[lineIdx] = splitState.selectedPerson;
+      renderSplitArticle();
+    }
+
+    function refreshSplitUI() {
+      const subtotal = sessionTotal;
+      const tipAmt = Math.round(sessionTotal * tipPercent / 100);
+      const grand = subtotal + tipAmt;
+      // Subtitle
+      const subtitleEl = $('#split-subtitle');
+      if (subtitleEl) {
+        subtitleEl.textContent = t('split_subtitle_tpl')
+          .replace('{n}', tableNumber)
+          .replace('{total}', grand)
+          .replace('{cur}', cur());
+      }
+      if (splitState.mode === 'egal') {
+        $('#split-egal-subtotal').textContent = `${subtotal} ${cur()}`;
+        $('#split-egal-tip').textContent = `${tipAmt} ${cur()}`;
+        const per = Math.ceil(grand / splitState.egalCount);
+        $('#split-egal-per').textContent = `${per} ${cur()}`;
+      } else {
+        renderSplitArticle();
+      }
+    }
+
+    function personSubtotal(personIdx) {
+      let sum = 0;
+      sentLines.forEach((line, idx) => {
+        if (splitState.assignments[idx] === personIdx) {
+          sum += line.qty * line.unitPrice;
+        }
+      });
+      return sum;
+    }
+
+    function renderSplitArticle() {
+      const tabsEl = $('#split-people-tabs');
+      const poolEl = $('#split-items-pool');
+      if (!tabsEl || !poolEl) return;
+
+      const people = Array.from({ length: splitState.articleCount }, (_, i) => i);
+      tabsEl.innerHTML = people.map(i => {
+        const total = personSubtotal(i);
+        const isActive = splitState.selectedPerson === i;
+        return `
+          <button class="split-person-tab ${isActive ? 'is-active' : ''}" type="button" data-split-person="${i}">
+            <span class="name">${t('split_person_pre')} ${i + 1}</span>
+            <span class="val">${total} ${cur()}</span>
+          </button>
+        `;
+      }).join('');
+
+      poolEl.innerHTML = sentLines.map((line, idx) => {
+        const owner = splitState.assignments[idx];
+        const isMine = owner === splitState.selectedPerson;
+        const isOther = owner != null && owner !== splitState.selectedPerson;
+        const ownerLabel = isOther ? `${t('split_person_pre')} ${owner + 1}` : '';
+        return `
+          <div class="split-pool-item ${isMine ? 'is-mine' : ''} ${isOther ? 'is-other' : ''}"
+               data-split-item="${idx}" ${isOther ? `data-owner="${escapeHtml(ownerLabel)}"` : ''}>
+            <span class="info">
+              <span class="qty">${line.qty}×</span>
+              <span class="name">${nameOf(line.id)}</span>
+            </span>
+            <span class="price">${line.qty * line.unitPrice} ${cur()}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function confirmSplit() {
+      const subtotal = sessionTotal;
+      const tipAmt = Math.round(sessionTotal * tipPercent / 100);
+      const grand = subtotal + tipAmt;
+      let msg;
+      if (splitState.mode === 'egal') {
+        const per = Math.ceil(grand / splitState.egalCount);
+        msg = `${t('toast_split_egal')} ${splitState.egalCount} × ${per} ${cur()}`;
+      } else {
+        const totals = [];
+        for (let i = 0; i < splitState.articleCount; i++) {
+          const sub = personSubtotal(i);
+          // Distribute tip proportionally per person
+          const tipShare = subtotal > 0 ? Math.round(tipAmt * (sub / subtotal)) : 0;
+          totals.push(sub + tipShare);
+        }
+        msg = `${t('toast_split_egal')} ${totals.map(x => `${x}`).join(' · ')} ${cur()}`;
+      }
+      closeSplit();
+      closeBill();
+      showToast(msg);
+    }
+
     /* ============ toast ============ */
     let toastTimer = null;
     function showToast(text) {
@@ -4019,6 +4579,21 @@
         const tipChip = e.target.closest('.tip-chip');
         if (tipChip) { setTipPercent(parseInt(tipChip.dataset.tip, 10)); return; }
         if (e.target.closest('#bill-confirm-btn')) { confirmBill(); return; }
+
+        // Split-bill sheet
+        if (e.target.closest('#open-split-btn')) { openSplit(); return; }
+        if (e.target.closest('[data-close-split]')) { closeSplit(); return; }
+        const splitModeTab = e.target.closest('[data-split-mode]');
+        if (splitModeTab) { setSplitMode(splitModeTab.dataset.splitMode); return; }
+        const egalChip = e.target.closest('[data-egal-count]');
+        if (egalChip) { setEgalCount(parseInt(egalChip.dataset.egalCount, 10)); return; }
+        const artChip = e.target.closest('[data-article-count]');
+        if (artChip) { setArticleCount(parseInt(artChip.dataset.articleCount, 10)); return; }
+        const personTab = e.target.closest('[data-split-person]');
+        if (personTab) { setSplitPerson(parseInt(personTab.dataset.splitPerson, 10)); return; }
+        const poolItem = e.target.closest('[data-split-item]');
+        if (poolItem) { toggleSplitItem(parseInt(poolItem.dataset.splitItem, 10)); return; }
+        if (e.target.closest('#split-confirm-btn')) { confirmSplit(); return; }
         // Tabs
         const tab = e.target.closest('.menu-tab');
         if (tab) {
