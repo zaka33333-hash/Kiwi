@@ -141,6 +141,13 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Late-night Jun 9:** `2f6bfad` **mobile capsule bar** — the dashboard's phone bottom nav
+is now the serveur app's floating Liquid Glass capsule (same glass recipe + rubber-band
+sliding lens, ported to `mobile-nav.js` `movePill()` / `mobile.css`), icon-first with
+sr-only i18n labels, live Commandes badge mirroring the sidebar count; phone polish:
+LIVE-chip nowrap, date-pill edge fades, 2 dark-mode `#fff` fixes, RTL bidi-isolate on
+hero-breakdown values. Verified 375×812 light/dark × FR/AR.
+
 **Push-to-10 polish session (evening Jun 9):** `0aa162e`+`59a8b68` **P0 hotfix — partner's
 Safari-fallback commit ate the role-gate's `</script>`, which swallowed the i18n.js include
 (blank/FR-only dashboard on main for ~30 min; both of us fixed it in parallel, merged
