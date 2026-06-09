@@ -2679,6 +2679,17 @@
     will-change: filter, transform;
     transform: translateZ(0);
   }
+  /* Safari fallback — feDisplacementMap rasterises on CPU in WebKit so it
+     drops the whole surface to ~10 fps during the melt. We swap the SVG
+     filter for a cheap GPU-accelerated CSS blur. Every other Glass Melt
+     effect (frost, gloss sheen, glow frame, lockup reveal, ✦ refraction)
+     still plays — only the per-pixel liquefaction is dropped. */
+  body.no-melt-filter.fusion-glass-melt .main,
+  body.no-melt-filter.fusion-glass-melt .sidebar,
+  body.no-melt-filter.fusion-glass-melt .topbar {
+    filter: blur(2px) saturate(1.18) brightness(1.06);
+    transition: filter 240ms ease-in;
+  }
 
   /* A wide diagonal gloss sheen sweeps across the screen as the surface
      becomes "wet" — gives the surface a momentary liquid highlight pass. */
@@ -4731,7 +4742,18 @@
   document.body.classList.add('role-' + role);
   window.__kiwiRole = role;
 })();
-</script>
+/* Fusion animation perf gate — Safari rasterises feDisplacementMap on CPU
+ * and the melt drops to ~10 fps. Detect WebKit-not-Chrome and skip the SVG
+ * filter via body.no-melt-filter (the CSS rule falls back to a cheap blur
+ * which the GPU handles smoothly). All other Glass Melt layers still play. */
+(function () {
+  const ua = navigator.userAgent || '';
+  const isSafari = /^((?!chrome|android|crios|fxios|edg|opr).)*safari/i.test(ua);
+  if (isSafari) {
+    document.body.classList.add('no-melt-filter');
+    window.__kiwiNoMeltFilter = true;
+  }
+})();
 
 <!-- PIN lock screen (full-viewport, shown until 4-digit unlock) -->
 <div class="kiwi-lock" data-kiwi-lock>
