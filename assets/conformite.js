@@ -83,6 +83,8 @@
       eqCol3: 'Dernier entretien',
       eqCol4: 'Prochain',
       eqCol5: 'Statut',
+      eqHistDate: 'Date', eqHistWhat: 'Intervention', eqHistTech: 'Technicien', eqHistCost: 'Coût',
+      eqVendor: 'Fournisseur', eqCadence: 'cadence',
       eqStatOk: 'à jour',
       eqStatDue: 'bientôt',
       eqStatLate: 'en retard',
@@ -154,6 +156,8 @@
       eqHeader: 'Equipment register',
       eqSub: 'Maintenance tracked · next service forecast',
       eqCol1: 'Equipment', eqCol2: 'Type', eqCol3: 'Last serviced', eqCol4: 'Next due', eqCol5: 'Status',
+      eqHistDate: 'Date', eqHistWhat: 'Intervention', eqHistTech: 'Technician', eqHistCost: 'Cost',
+      eqVendor: 'Vendor', eqCadence: 'cadence',
       eqStatOk: 'on track', eqStatDue: 'soon', eqStatLate: 'overdue',
       eqAddIntervention: '+ New intervention',
       eqAddToast: 'Intervention logged · schedule updated',
@@ -219,6 +223,8 @@
       eqHeader: 'سجل التجهيزات',
       eqSub: 'صيانة مُتابَعة · موعد الصيانة القادم',
       eqCol1: 'التجهيز', eqCol2: 'النوع', eqCol3: 'آخر صيانة', eqCol4: 'القادم', eqCol5: 'الحالة',
+      eqHistDate: 'التاريخ', eqHistWhat: 'التدخل', eqHistTech: 'الفني', eqHistCost: 'التكلفة',
+      eqVendor: 'المورّد', eqCadence: 'الوتيرة',
       eqStatOk: 'محدّث', eqStatDue: 'قريبًا', eqStatLate: 'متأخر',
       eqAddIntervention: '+ تدخل جديد',
       eqAddToast: 'تم تسجيل التدخل · تحديث الجدول',
@@ -686,13 +692,13 @@
           <div>
             <div class="cf-eq-detail-eyebrow">${esc(item.type)}</div>
             <h3 class="cf-eq-detail-title">${esc(item.name)}</h3>
-            <div class="cf-eq-detail-meta">Fournisseur ${esc(item.vendor)} · cadence ${esc(item.cadence)}</div>
+            <div class="cf-eq-detail-meta">${esc(t('eqVendor'))} ${esc(item.vendor)} · ${esc(t('eqCadence'))} ${esc(item.cadence)}</div>
           </div>
           <button class="cf-eq-detail-close" data-cf-eq-close aria-label="${esc(t('eqClose'))}">×</button>
         </div>
         <div class="cf-eq-detail-body">
           <div class="cf-eq-hist-head">
-            <span>Date</span><span>Intervention</span><span>Technicien</span><span>Coût</span>
+            <span>${esc(t('eqHistDate'))}</span><span>${esc(t('eqHistWhat'))}</span><span>${esc(t('eqHistTech'))}</span><span>${esc(t('eqHistCost'))}</span>
           </div>
           ${hist}
         </div>

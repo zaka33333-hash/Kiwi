@@ -206,6 +206,13 @@
       deleteItemBody: (name) => `Vous êtes sur le point de supprimer « ${name} » du catalogue. Cette action s'applique à la session démo et sera réinitialisée au refresh.`,
       deleteItemBtn: "Supprimer l'article",
       deleteItemToast: (name) => `${name} supprimé du catalogue`,
+      ordNewToast: 'Nouvelle commande · démarrez par un fournisseur',
+      ordDetailToast: (id) => `Détails commande #${id}`,
+      ordDetailDesc: 'Articles · prix · livraison · suivi temps réel.',
+      ordEditToast: (id) => `Modifier commande #${id}`,
+      ordCancelToast: (id) => `Commande #${id} annulée`,
+      ordPauseToast: (id) => `Commande récurrente #${id} suspendue`,
+      poNewToast: 'Nouvelle commande · sélectionnez les articles',
       mItDelete: "Supprimer l'article",
       addCatOpt: '+ Nouvelle catégorie…',
       addCatTitle: 'Nouvelle catégorie',
@@ -383,6 +390,13 @@
       deleteItemBody: (name) => `You are about to remove "${name}" from the catalogue. This change is local to the demo session and resets on refresh.`,
       deleteItemBtn: 'Delete item',
       deleteItemToast: (name) => `${name} removed from catalogue`,
+      ordNewToast: 'New order · start with a supplier',
+      ordDetailToast: (id) => `Order #${id} details`,
+      ordDetailDesc: 'Items · prices · delivery · real-time tracking.',
+      ordEditToast: (id) => `Edit order #${id}`,
+      ordCancelToast: (id) => `Order #${id} cancelled`,
+      ordPauseToast: (id) => `Recurring order #${id} paused`,
+      poNewToast: 'New order · select the items',
       mItDelete: 'Delete item',
       addCatOpt: '+ New category…',
       addCatTitle: 'New category',
@@ -548,6 +562,13 @@
       deleteItemBody: (name) => `أنت على وشك حذف «${name}» من الكتالوج. هذا التغيير محلي للجلسة التجريبية ويُعاد عند التحديث.`,
       deleteItemBtn: 'حذف المنتج',
       deleteItemToast: (name) => `${name} تم حذفه من الكتالوج`,
+      ordNewToast: 'طلب جديد · ابدأ باختيار مورّد',
+      ordDetailToast: (id) => `تفاصيل الطلب #${id}`,
+      ordDetailDesc: 'الأصناف · الأسعار · التسليم · تتبّع آني.',
+      ordEditToast: (id) => `تعديل الطلب #${id}`,
+      ordCancelToast: (id) => `تم إلغاء الطلب #${id}`,
+      ordPauseToast: (id) => `تم تعليق الطلب المتكرر #${id}`,
+      poNewToast: 'طلب جديد · اختر الأصناف',
       mItDelete: 'حذف المنتج',
       addCatOpt: '+ فئة جديدة…',
       addCatTitle: 'فئة جديدة',
@@ -2024,7 +2045,7 @@
       });
       document.querySelector('[data-stock-new-po]')?.addEventListener('click', () => {
         closeTopModal();
-        window.Kiwi.toast('Nouvelle commande · sélectionnez les articles', { type: 'info' });
+        window.Kiwi.toast(t('poNewToast'), { type: 'info' });
       });
     });
   }
@@ -2627,17 +2648,17 @@
     H['stock-supplier-detail'] = (el) => openSupplierProfile(el.dataset.supplierId);
     H['stock-call-supplier'] = (el) => window.Kiwi.toast(`Appel à ${el.dataset.name} · ${el.dataset.phone}`, { type: 'info' });
     H['stock-wa-supplier'] = (el) => window.Kiwi.toast(`Message WhatsApp envoyé à ${el.dataset.name}`, { type: 'success' });
-    H['stock-new-po'] = (el) => window.Kiwi.toast('Nouvelle commande · sélectionnez les articles', { type: 'info' });
+    H['stock-new-po'] = (el) => window.Kiwi.toast(t('poNewToast'), { type: 'info' });
     H['stock-add-supplier'] = () => openAddSupplier();
     H['stock-edit-supplier'] = (el) => openEditSupplier(el.dataset.supplierId);
     H['stock-delete-supplier'] = (el) => confirmDeleteSupplier(el.dataset.supplierId);
 
     // Orders
-    H['stock-new-order'] = () => window.Kiwi.toast('Nouvelle commande · démarrez par un fournisseur', { type: 'info' });
-    H['stock-ord-detail'] = (el) => window.Kiwi.toast(`Détails commande #${el.dataset.orderId}`, { type: 'info', desc: 'Articles · prix · livraison · suivi temps réel.' });
-    H['stock-ord-edit'] = (el) => window.Kiwi.toast(`Modifier commande #${el.dataset.orderId}`, { type: 'info' });
-    H['stock-ord-cancel'] = (el) => window.Kiwi.toast(`Commande #${el.dataset.orderId} annulée`, { type: 'warn' });
-    H['stock-ord-pause'] = (el) => window.Kiwi.toast(`Commande récurrente #${el.dataset.orderId} suspendue`, { type: 'info' });
+    H['stock-new-order'] = () => window.Kiwi.toast(t('ordNewToast'), { type: 'info' });
+    H['stock-ord-detail'] = (el) => window.Kiwi.toast(t('ordDetailToast', el.dataset.orderId), { type: 'info', desc: t('ordDetailDesc') });
+    H['stock-ord-edit'] = (el) => window.Kiwi.toast(t('ordEditToast', el.dataset.orderId), { type: 'info' });
+    H['stock-ord-cancel'] = (el) => window.Kiwi.toast(t('ordCancelToast', el.dataset.orderId), { type: 'warn' });
+    H['stock-ord-pause'] = (el) => window.Kiwi.toast(t('ordPauseToast', el.dataset.orderId), { type: 'info' });
     H['stock-ord-track'] = (el) => window.Kiwi.toast(`Suivi commande #${el.dataset.orderId} · livraison dans 6h`, { type: 'info' });
     H['stock-ord-contact'] = (el) => window.Kiwi.toast(`Contact fournisseur · commande #${el.dataset.orderId}`, { type: 'info' });
     H['stock-confirm-order'] = (el) => {
