@@ -8771,6 +8771,15 @@ handlers['bout-cat-publish'] = () => {
           e.stopPropagation();
           openPackageModal(PACKAGES[+pkgEdit.dataset.arg]);
         }
+        const cureEdit = e.target.closest('[data-action="svc-cure-edit"]');
+        if (cureEdit) {
+          e.stopPropagation();
+          openPackageModal(CURES[+cureEdit.dataset.arg]);
+        }
+        if (e.target.closest('[data-action="svc-new"]')) {
+          e.stopPropagation();
+          openServiceModal(null);
+        }
       });
     }, 60);
 

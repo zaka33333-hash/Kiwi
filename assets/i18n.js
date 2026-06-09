@@ -16,6 +16,8 @@
     en: {
       /* A11y */
       'a11y.skip': 'Skip to content',
+      /* Roles */
+      'dash.role.manager': 'Manager view',
       /* Nav */
       'nav.products': 'Products',
       'nav.pricing': 'Pricing',
@@ -613,6 +615,8 @@
     ar: {
       /* A11y */
       'a11y.skip': 'تخطي إلى المحتوى',
+      /* Roles */
+      'dash.role.manager': 'عرض المدير',
       /* Nav */
       'nav.products': 'المنتجات',
       'nav.pricing': 'الأسعار',
