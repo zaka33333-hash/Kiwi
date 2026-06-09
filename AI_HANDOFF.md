@@ -141,6 +141,16 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Past-midnight Jun 9→10:** `224919c` **LA LENTILLE LIQUIDE** — the capsule bar's sliding
+highlight is now THE brand selection motion (`assets/liquid-lens.js`: spring
+cubic-bezier(0.34,1.45,0.5,1)·310ms, 115ms stretch-then-settle). Auto-attached to the
+dashboard date-range pills, resv/KDS tab rows, the landing audience switch, plus a live
+demo + spec in brand.html 07·MOTION; CLAUDE.md §3 makes it a rule (new segmented controls
+register in the lens module — never invent another active style). The module only watches
+class/aria-selected mutations — existing handlers untouched. · `b4a7a0c` **night-crash
+fix**: renderRevChart's live padding went negative after ~23h sim time (RangeError killed
+the render+setLang chain for night viewers) — clip to 16 before padding.
+
 **Late-night Jun 9:** `2f6bfad` **mobile capsule bar** — the dashboard's phone bottom nav
 is now the serveur app's floating Liquid Glass capsule (same glass recipe + rubber-band
 sliding lens, ported to `mobile-nav.js` `movePill()` / `mobile.css`), icon-first with
