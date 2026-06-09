@@ -75,11 +75,26 @@
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   // The fullpage destination views (Menu, Stock, KDS, Tables, Conformité, …)
-  // render into the main .app host on a view swap — re-theme those too.
+  // mount inside .container — NOT as direct .app children — so this watches the
+  // whole app subtree. To keep it cheap it re-themes ONLY the subtrees that were
+  // actually added (deduped, debounced), never a full-app rescan per mutation.
   const app = document.querySelector('.app');
   if (app) {
-    let t; new MutationObserver(() => { clearTimeout(t); t = setTimeout(() => run(app), 120); })
-      .observe(app, { childList: true });
+    let t; const pending = new Set();
+    new MutationObserver((muts) => {
+      if (document.documentElement.getAttribute('data-theme') !== 'dark') return;
+      muts.forEach((m) => m.addedNodes.forEach((n) => { if (n.nodeType === 1) pending.add(n); }));
+      if (!pending.size) return;
+      clearTimeout(t);
+      t = setTimeout(() => {
+        const roots = Array.from(pending); pending.clear();
+        roots.forEach((n) => {
+          if (!document.contains(n)) return;
+          if (roots.some((r) => r !== n && r.contains(n))) return; // covered by an ancestor root
+          run(n);
+        });
+      }, 120);
+    }).observe(app, { childList: true, subtree: true });
   }
 
   window.KiwiDarkFix = () => run(document.body);

@@ -377,7 +377,7 @@ ar: {
   const CSS = `
   /* Toasts */
   .kiwi-toasts { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; pointer-events: none; max-width: 360px; }
-  .kiwi-toast { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 14px 16px; min-width: 280px; display: flex; gap: 12px; align-items: flex-start; box-shadow: 0 20px 40px -20px rgba(10,15,13,0.25), 0 2px 4px rgba(10,15,13,0.04); pointer-events: all; opacity: 0; transform: translateY(-10px); transition: opacity 220ms, transform 220ms cubic-bezier(0.32,0.72,0,1); font-family: var(--sans); color: var(--ink); }
+  .kiwi-toast { background: var(--surface); border: 1px solid var(--n-200); border-radius: 14px; padding: 14px 16px; min-width: 280px; display: flex; gap: 12px; align-items: flex-start; box-shadow: 0 20px 40px -20px rgba(10,15,13,0.25), 0 2px 4px rgba(10,15,13,0.04); pointer-events: all; opacity: 0; transform: translateY(-10px); transition: opacity 220ms, transform 220ms cubic-bezier(0.32,0.72,0,1); font-family: var(--sans); color: var(--ink); }
   .kiwi-toast.in { opacity: 1; transform: translateY(0); }
   .kiwi-toast .ti { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .kiwi-toast.success .ti { background: #E3F7EC; color: var(--atlas-700); }
@@ -401,8 +401,8 @@ ar: {
   .kiwi-modal-head p { margin: 5px 0 0; font-size: 14px; color: var(--n-500); line-height: 1.45; }
   .kiwi-modal-head .tag { display: inline-block; margin-bottom: 10px; padding: 4px 10px; background: var(--mint-soft); color: var(--riad); border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; }
   .kiwi-modal-body { padding: 0 28px 24px; overscroll-behavior: contain; }
-  .kiwi-modal-foot { padding: 16px 28px; border-top: 1px solid var(--n-200); display: flex; justify-content: flex-end; gap: 10px; background: rgba(255,255,255,0.5); border-radius: 0 0 22px 22px; }
-  .kiwi-modal-close { position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; z-index: 2; }
+  .kiwi-modal-foot { padding: 16px 28px; border-top: 1px solid var(--n-200); display: flex; justify-content: flex-end; gap: 10px; background: color-mix(in srgb, var(--surface) 50%, transparent); border-radius: 0 0 22px 22px; }
+  .kiwi-modal-close { position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: var(--surface); color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; z-index: 2; }
   .kiwi-modal-close:hover { color: var(--ink); border-color: var(--n-400); }
 
   /* Drawer */
@@ -438,7 +438,7 @@ ar: {
   html.kiwi-locked { overflow: hidden; }
   html.kiwi-locked body { animation-play-state: paused; }
   .kiwi-drawer-foot { padding: 16px 24px; border-top: 1px solid var(--n-200); }
-  .kiwi-drawer-close { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; }
+  .kiwi-drawer-close { width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--n-200); background: var(--surface); color: var(--n-500); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; }
   .kiwi-drawer-close:hover { color: var(--ink); border-color: var(--n-400); }
 
   /* ── Fullpage drawer · used for Tables/Menu/KDS/Stock ───────────────────
@@ -496,11 +496,11 @@ ar: {
   .kp-sect { padding: 10px 20px 6px; font-size: 10.5px; font-weight: 500; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--mono); }
   .kp-item { padding: 10px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 13.5px; color: var(--ink); transition: background 100ms; }
   .kp-item:hover, .kp-item.active { background: var(--mint-soft); }
-  .kp-item .kpi-ic { width: 28px; height: 28px; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; color: var(--atlas); border: 1px solid var(--n-200); flex-shrink: 0; }
+  .kp-item .kpi-ic { width: 28px; height: 28px; border-radius: 8px; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--atlas); border: 1px solid var(--n-200); flex-shrink: 0; }
   .kp-item .kpi-t { flex: 1; font-weight: 500; letter-spacing: -0.005em; }
   .kp-item .kpi-s { color: var(--n-500); font-size: 12.5px; font-weight: 400; }
   .kp-item .kpi-k { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); background: #fff; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--n-200); }
-  .kp-foot { padding: 10px 20px; border-top: 1px solid var(--n-200); display: flex; justify-content: space-between; align-items: center; background: #fff; font-size: 11px; color: var(--n-500); }
+  .kp-foot { padding: 10px 20px; border-top: 1px solid var(--n-200); display: flex; justify-content: space-between; align-items: center; background: var(--surface); font-size: 11px; color: var(--n-500); }
   .kp-foot span { display: inline-flex; align-items: center; gap: 6px; }
   .kp-foot kbd { font-family: var(--mono); background: var(--n-100); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--n-200); font-size: 10px; }
 
@@ -517,14 +517,14 @@ ar: {
 
   /* Form input */
   .kf-label { display: block; font-size: 12px; font-weight: 500; color: var(--n-600); margin-bottom: 6px; letter-spacing: 0.02em; }
-  .kf-input { width: 100%; background: #fff; border: 1px solid var(--n-200); border-radius: 10px; padding: 11px 14px; font-size: 14px; color: var(--ink); font-family: var(--sans); outline: 0; transition: border-color 150ms, box-shadow 150ms; }
+  .kf-input { width: 100%; background: var(--surface); border: 1px solid var(--n-200); border-radius: 10px; padding: 11px 14px; font-size: 14px; color: var(--ink); font-family: var(--sans); outline: 0; transition: border-color 150ms, box-shadow 150ms; }
   .kf-input:focus { border-color: var(--atlas); box-shadow: 0 0 0 3px rgba(11,110,79,0.12); }
   .kf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .kf-group { margin-bottom: 14px; }
   .kf-help { font-size: 11.5px; color: var(--n-500); margin-top: 5px; line-height: 1.4; }
 
   /* Dropdown menu */
-  .kiwi-menu { position: fixed; background: #fff; border: 1px solid var(--n-200); border-radius: 12px; box-shadow: 0 20px 40px -16px rgba(10,15,13,0.24); padding: 6px; min-width: 220px; z-index: 9990; font-family: var(--sans); opacity: 0; transform: translateY(-6px); transition: opacity 160ms, transform 160ms; }
+  .kiwi-menu { position: fixed; background: var(--surface); border: 1px solid var(--n-200); border-radius: 12px; box-shadow: 0 20px 40px -16px rgba(10,15,13,0.24); padding: 6px; min-width: 220px; z-index: 9990; font-family: var(--sans); opacity: 0; transform: translateY(-6px); transition: opacity 160ms, transform 160ms; }
   .kiwi-menu.in { opacity: 1; transform: translateY(0); }
   .kiwi-menu-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 13.5px; color: var(--ink); border-radius: 8px; cursor: pointer; transition: background 100ms; }
   .kiwi-menu-item:hover { background: var(--paper-soft); }
@@ -548,7 +548,7 @@ ar: {
   .wiz-step.done { background: var(--atlas); }
   .wiz-step.active { background: var(--atlas); }
   .wiz-choice { border: 1px solid var(--n-200); border-radius: 14px; padding: 18px 18px; cursor: pointer; transition: all 160ms; display: flex; gap: 14px; align-items: flex-start; }
-  .wiz-choice:hover { border-color: var(--atlas); background: #fff; }
+  .wiz-choice:hover { border-color: var(--atlas); background: var(--surface); }
   .wiz-choice.selected { border-color: var(--atlas); background: var(--mint-soft); }
   .wiz-choice .wc-ic { width: 40px; height: 40px; border-radius: 10px; background: var(--paper-soft); color: var(--atlas); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .wiz-choice .wc-t { font-weight: 600; font-size: 14.5px; letter-spacing: -0.01em; }
@@ -583,7 +583,7 @@ ar: {
   .ord-hero .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--atlas); }
 
   .ord-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--n-200); border-radius: 12px; overflow: hidden; margin-bottom: 22px; }
-  .ord-stat { padding: 12px 14px; border-right: 1px solid var(--n-200); background: #fff; }
+  .ord-stat { padding: 12px 14px; border-right: 1px solid var(--n-200); background: var(--surface); }
   .ord-stat:last-child { border-right: 0; }
   .ord-stat .lbl { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
   .ord-stat .val { font-size: 14.5px; font-weight: 600; margin-top: 4px; letter-spacing: -0.01em; color: var(--ink); }
@@ -592,7 +592,7 @@ ar: {
   .ord-section-lbl { font-size: 10.5px; letter-spacing: 0.10em; color: var(--n-500); font-family: var(--mono); text-transform: uppercase; margin-bottom: 10px; }
 
   .ord-items { display: flex; flex-direction: column; gap: 1px; background: var(--n-200); border-radius: 12px; overflow: hidden; margin-bottom: 22px; }
-  .ord-item { background: #fff; display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; }
+  .ord-item { background: var(--surface); display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; }
   .ord-item .qty { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--atlas); background: var(--mint-soft, rgba(125,242,176,0.25)); border-radius: 6px; padding: 3px 6px; text-align: center; min-width: 26px; }
   .ord-item .nm { font-size: 13.5px; font-weight: 500; color: var(--ink); }
   .ord-item .unit { font-size: 11.5px; color: var(--n-500); font-family: var(--mono); margin-top: 2px; }
@@ -603,7 +603,7 @@ ar: {
   .ord-totals .v { font-family: var(--mono); font-feature-settings: "tnum" 1; text-align: end; font-weight: 500; }
   .ord-totals .total { padding-top: 10px; border-top: 1px solid var(--n-200); font-weight: 600; font-size: 14.5px; color: var(--ink); }
 
-  .ord-pay { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--n-200); border-radius: 12px; margin-bottom: 22px; background: #fff; }
+  .ord-pay { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--n-200); border-radius: 12px; margin-bottom: 22px; background: var(--surface); }
   .ord-pay .ci { width: 44px; height: 28px; border-radius: 5px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .ord-pay .ci svg { display: block; max-width: 100%; max-height: 100%; }
   .ord-pay .ci img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -625,7 +625,7 @@ ar: {
   .kb { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-family: var(--sans); font-weight: 500; font-size: 14px; letter-spacing: -0.005em; cursor: pointer; transition: all 150ms; border: 1px solid transparent; }
   .kb.primary { background: var(--ink); color: var(--paper); }
   .kb.primary:hover { background: var(--atlas); }
-  .kb.ghost { background: #fff; color: var(--ink); border-color: var(--n-200); }
+  .kb.ghost { background: var(--surface); color: var(--ink); border-color: var(--n-200); }
   .kb.ghost:hover { border-color: var(--ink); }
   .kb.atlas { background: var(--atlas); color: var(--paper); }
   .kb.atlas:hover { background: var(--atlas-700); }
@@ -651,7 +651,14 @@ ar: {
 
   function ensureToasts() {
     let c = document.querySelector('.kiwi-toasts');
-    if (!c) { c = document.createElement('div'); c.className = 'kiwi-toasts'; document.body.appendChild(c); }
+    if (!c) {
+      c = document.createElement('div');
+      c.className = 'kiwi-toasts';
+      /* Live region — screen readers announce toasts instead of missing them. */
+      c.setAttribute('role', 'status');
+      c.setAttribute('aria-live', 'polite');
+      document.body.appendChild(c);
+    }
     return c;
   }
 
@@ -817,8 +824,8 @@ ar: {
       <div class="kiwi-drawer"${fullpage ? '' : ` style="width:${width}px;"`} role="dialog" aria-modal="true" aria-labelledby="${headId}">
         <div class="kiwi-drawer-head">
           <div>
-            <h3 id="${headId}">${title}</h3>
-            ${subtitle ? `<p>${subtitle}</p>` : ''}
+            <h3 id="${headId}">${escape(title)}</h3>
+            ${subtitle ? `<p>${escape(subtitle)}</p>` : ''}
           </div>
           <button class="kiwi-drawer-close" aria-label="${s.close}">${I.close}</button>
         </div>
@@ -868,8 +875,16 @@ ar: {
     const r = anchor.getBoundingClientRect();
     const m = document.createElement('div');
     m.className = 'kiwi-menu';
+    m.setAttribute('role', 'menu');
+    m.setAttribute('aria-orientation', 'vertical');
     m.innerHTML = items.map(it => it.head ? `<div class="kiwi-menu-head">${escape(it.head)}</div>` : it.sep ? `<div class="kiwi-menu-sep"></div>` : `<div class="kiwi-menu-item ${it.danger?'danger':''} ${it.active?'active':''}" data-idx="${items.indexOf(it)}">${it.icon || ''}<span>${escape(it.label)}</span></div>`).join('');
     document.body.appendChild(m);
+    /* ARIA menu semantics + keyboard focusability (items are divs). */
+    m.querySelectorAll('.kiwi-menu-item').forEach((el) => {
+      el.setAttribute('role', 'menuitem');
+      el.setAttribute('tabindex', '-1');
+    });
+    m.querySelectorAll('.kiwi-menu-sep').forEach((el) => el.setAttribute('role', 'separator'));
     /* The menu is position:fixed (see CSS) so it\'s placed in viewport
      * coordinates straight from getBoundingClientRect — no scroll math.
      * This keeps it anchored correctly even though the sidebar is sticky. */
@@ -886,9 +901,28 @@ ar: {
     if (mLeft < 8) mLeft = 8;
     m.style.left = `${mLeft}px`;
     requestAnimationFrame(() => m.classList.add('in'));
-    const close = () => { m.classList.remove('in'); setTimeout(() => m.remove(), 180); document.removeEventListener('click', outside, true); };
+    const close = () => {
+      m.classList.remove('in'); setTimeout(() => m.remove(), 180);
+      document.removeEventListener('click', outside, true);
+      /* Return keyboard focus to the trigger — unless an item's onClick already
+       * moved it into a freshly-opened overlay (its focus trap then wins). */
+      try { if (anchor && document.contains(anchor) && anchor.focus) anchor.focus(); } catch (_) {}
+    };
     const outside = (e) => { if (!m.contains(e.target) && e.target !== anchor) close(); };
     setTimeout(() => document.addEventListener('click', outside, true), 10);
+    const menuItems = () => Array.prototype.slice.call(m.querySelectorAll('.kiwi-menu-item'));
+    const focusAt = (i) => { const f = menuItems(); if (f.length) f[((i % f.length) + f.length) % f.length].focus(); };
+    m.addEventListener('keydown', (e) => {
+      const f = menuItems(); const cur = f.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') { e.preventDefault(); focusAt(cur + 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); focusAt(cur - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); focusAt(0); }
+      else if (e.key === 'End') { e.preventDefault(); focusAt(f.length - 1); }
+      else if (e.key === 'Escape') { e.preventDefault(); close(); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.activeElement && document.activeElement.click && document.activeElement.click(); }
+      else if (e.key === 'Tab') { close(); }
+    });
+    requestAnimationFrame(() => focusAt(0));
     m.querySelectorAll('.kiwi-menu-item').forEach(el => {
       el.onclick = () => {
         const it = items[+el.dataset.idx];
@@ -3291,6 +3325,10 @@ ar: {
     const navEl = document.querySelector(`.sidebar nav a[data-nav="${navKey}"]`);
     if (navEl) navEl.classList.add('active');
     window.scrollTo({ top: 0 });
+    /* Move screen-reader/keyboard focus to the new page's heading — without
+     * this, focus stays on the sidebar link and the page change is silent. */
+    h1.setAttribute('tabindex', '-1');
+    try { h1.focus({ preventScroll: true }); } catch (_) { h1.focus(); }
     return { el: host };
   }
 

@@ -14,6 +14,8 @@
   /* ─── TRANSLATIONS ─── */
   const T = {
     en: {
+      /* A11y */
+      'a11y.skip': 'Skip to content',
       /* Nav */
       'nav.products': 'Products',
       'nav.pricing': 'Pricing',
@@ -609,6 +611,8 @@
     },
 
     ar: {
+      /* A11y */
+      'a11y.skip': 'تخطي إلى المحتوى',
       /* Nav */
       'nav.products': 'المنتجات',
       'nav.pricing': 'الأسعار',
