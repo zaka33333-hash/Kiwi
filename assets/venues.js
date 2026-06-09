@@ -265,6 +265,7 @@
     menu: '<path d="M4 6h16M4 12h16M4 18h10"/>',
     kds: '<path d="M5 12h14M12 5v14"/>',
     stock: '<path d="M3 6h18M6 10h12M9 14h6"/>',
+    finance: '<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
     // boutique
     inventory: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a4 4 0 018 0v2"/>',
     categories: '<path d="M3 6h7l2 2h9v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6z"/>',
@@ -282,10 +283,11 @@
       header: 'Restauration',
       i18nHeader: 'sidebar.section.restaurant',
       items: [
-        { nav: 'tables', label: 'Tables & additions',   i18n: 'sidebar.restaurant.tables', tag: 'LIVE', icon: ICONS.tables },
-        { nav: 'menu',   label: 'Menu & modificateurs', i18n: 'sidebar.restaurant.menu',                icon: ICONS.menu },
-        { nav: 'kds',    label: 'Écran cuisine (KDS)',  i18n: 'sidebar.restaurant.kds',                 icon: ICONS.kds },
-        { nav: 'stock',  label: 'Stock ingrédients',    i18n: 'sidebar.restaurant.stock',               icon: ICONS.stock },
+        { nav: 'tables',  label: 'Plan de salle',        i18n: 'sidebar.restaurant.tables',  tag: 'LIVE', icon: ICONS.tables },
+        { nav: 'menu',    label: 'Menu & modificateurs', i18n: 'sidebar.restaurant.menu',                 icon: ICONS.menu },
+        { nav: 'kds',     label: 'Écran cuisine (KDS)',  i18n: 'sidebar.restaurant.kds',                  icon: ICONS.kds },
+        { nav: 'stock',   label: 'Stock & approvisionnement', i18n: 'sidebar.restaurant.stock',           icon: ICONS.stock },
+        { nav: 'finance', label: 'Marges & budget',      i18n: 'sidebar.restaurant.finance', tag: 'LIVE', icon: ICONS.finance },
       ],
     },
     boutique: {
@@ -322,6 +324,10 @@
       { key: 'success',    label: 'Taux succès',       i18n: 'dash.kpi.success' },
       { key: 'ratio',      label: 'Ratio card / cash', i18n: 'dash.kpi.ratio' },
       { key: 'regulars',   label: 'Clients réguliers', i18n: 'dash.kpi.regular' },
+      /* "Temps moyen à table" (key: tempsTable) is available in the
+       * Personnaliser picker — owner can swap it in instead of one of
+       * the six above. Stays off the default so the strip keeps its
+       * familiar layout. */
     ],
     boutique: [
       { key: 'tx',         label: 'Commandes',         i18n: 'dash.kpi.tx' },
@@ -338,6 +344,7 @@
       { key: 'success',    label: 'Taux remplissage',  i18n: 'dash.kpi.fillRate' },
       { key: 'ratio',      label: 'Ratio card / cash', i18n: 'dash.kpi.ratio' },
       { key: 'regulars',   label: 'Clients fidèles',   i18n: 'dash.kpi.loyalCustomers' },
+      /* "Temps moyen en cabine" available in Personnaliser. */
     ],
     // Fusion = portfolio-wide KPIs. Same six tiles render in the band, but
     // the values are aggregated sums (see dateRange.js · vData fusion path).
@@ -906,7 +913,7 @@
     // Terminals + compliance badges — a brand-new venue has neither yet.
     const cv = isCustom(currentVenue);
     const termEl = document.querySelector('a[data-nav="terminaux"] .count');
-    if (termEl) termEl.textContent = cv ? '0' : '3';
+    if (termEl) termEl.textContent = cv ? '0' : '4';
     const confEl = document.querySelector('a[data-nav="conformite"] .tag');
     if (confEl) confEl.textContent = cv ? '—' : 'AAA';
     const staffCountEl = document.querySelector('a[data-nav="equipe"] .count');
@@ -949,18 +956,57 @@
     exitFusion();
   }
 
-  /* ═══════════════ FUSION MODE — sci-fi transition + state swap ═══════════════ */
+  /* ═══════════════ FUSION MODE — glass melt transition + state swap ═══════════════ */
 
-  // Build the overlay's internal markup fresh on each activation so the CRT
-  // screen-open animation replays from t=0 (toggling .active reflows it).
-  function buildOverlayMarkup(overlay) {
+  // Build the overlay's internal markup fresh on each activation so every
+  // glass-melt animation (incl. the SMIL <animate> elements driving the SVG
+  // turbulence/displacement filter) replays from t=0.
+  function buildOverlayMarkup(overlay, opts = {}) {
+    const isExit = !!opts.exit;
+    // Entry vs exit: same filter shape, slightly tighter displacement on exit
+    // so the surface "snaps back into place" rather than fully liquefying.
+    const meltDuration = isExit ? 900 : 1100;
+    const turbValues   = isExit
+      ? '0.024 0.038; 0.034 0.054; 0.018 0.026; 0.012 0.020'
+      : '0.020 0.030; 0.038 0.058; 0.026 0.040; 0.014 0.022';
+    const scaleValues  = isExit
+      ? '0; 18; 32; 14; 4; 0'
+      : '0; 14; 40; 22; 6; 0';
+
     overlay.innerHTML = `
-      <div class="fo-crt-seed"></div>
-      <div class="fo-crt-line top"></div>
-      <div class="fo-crt-line bot"></div>
+      <svg class="fo-svg-filters" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="kiwi-melt-distort" x="-8%" y="-8%" width="116%" height="116%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.020 0.030" numOctaves="2" seed="4" result="turb">
+              <animate attributeName="baseFrequency"
+                       values="${turbValues}"
+                       keyTimes="0; 0.4; 0.75; 1"
+                       dur="${meltDuration}ms"
+                       fill="freeze"
+                       begin="0s" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="0">
+              <animate attributeName="scale"
+                       values="${scaleValues}"
+                       keyTimes="0; 0.10; 0.40; 0.65; 0.85; 1"
+                       dur="${meltDuration}ms"
+                       fill="freeze"
+                       begin="0s" />
+            </feDisplacementMap>
+          </filter>
+        </defs>
+      </svg>
+      <div class="fo-frost"></div>
+      <div class="fo-gloss"></div>
+      <div class="fo-glow-frame"></div>
       <div class="fo-label">
-        <span class="fo-mark">kiwi<i></i></span>
-        <span class="fo-ultra">✦</span>
+        <span class="fo-mark">kiwi</span>
+        <span class="fo-ultra">
+          <span class="fo-ultra-r">✦</span>
+          <span class="fo-ultra-b">✦</span>
+          <span class="fo-ultra-g">✦</span>
+          <span class="fo-ultra-core">✦</span>
+        </span>
       </div>
     `;
   }
@@ -983,24 +1029,43 @@
       return;
     }
 
-    // Reset + build fresh markup so the CRT + Kiwi lockup replay from t=0.
+    /* GLASS MELT ACTIVATION (matches the .fo-* CSS + SVG filter timings):
+     *   t=0.00  overlay fades in (280ms), violet-blue radial wash
+     *   t=0.00  SVG turbulence/displacement filter applied to .main + .sidebar
+     *            + .topbar via body.fusion-glass-melt — UI liquefies
+     *   t=0.00  glass frost layer fades in (backdrop-blur ramps to 10px)
+     *   t=0.06  diagonal gloss highlight sweeps across the surface
+     *   t=0.28  ripple wave expands outward from centre
+     *   t=0.44  displacement peaks (scale ~40), heaviest melt frame
+     *   t=0.90  body.fusion-mode + body.fusion-reconstruct ON — palette
+     *            swaps to Atlas Dark and cards "liquid-settle" under the
+     *            distortion (blur lift + saturation decay)
+     *   t=1.10  body.fusion-glass-melt OFF — displacement filter drops,
+     *            UI crisp again
+     *   t=1.10  glow-frame stabilises (inset edge glow fades in)
+     *   t=1.24  kiwi lockup fades in (blur 8px → 0)
+     *   t=1.60  ✦ star prismatic refraction begins (R/B fan apart, white
+     *            core flashes, mint settles)
+     *   t=2.10  body.fusion-reconstruct OFF (card stagger done)
+     *   t=3.30  overlay fades out, Ultra dashboard revealed
+     *   t=3.80  cleanup
+     */
+
+    // Build the overlay markup first — this places the SVG filter defs in
+    // the DOM so the CSS `filter: url(#kiwi-melt-distort)` below resolves.
     overlay.classList.remove('exiting');
-    buildOverlayMarkup(overlay);
-    // Force reflow before flipping .active so the fade triggers cleanly.
-    overlay.offsetHeight;
+    buildOverlayMarkup(overlay, { exit: false });
+    overlay.offsetHeight; // reflow → SMIL animations + CSS keyframes replay
+
+    // Activate the overlay AND apply the displacement filter in the same tick
+    // so the SVG <animate> begins at t=0 aligned with the rest of the scene.
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('fusion-glass-melt');
 
-    /* Smart-TV screen-open (matches the .fo-crt + .fo-label CSS timing):
-     *   t=0.00  dark wash fades in, CRT scanline ignites at centre
-     *   t=0.55  the screen "opens" — two bright lines split apart
-     *   t=0.85  the Kiwi lockup fades in, ✦ Ultra star pops in at t=1.18
-     *   t=1.45  palette + data swap UNDER the wash (Go Ultra engaged)
-     *   t=2.25  wash fades out, Go Ultra dashboard revealed
-     *   t=2.75  cleanup
-     */
+    // Engage Ultra under the glass distortion — palette swaps, cards reform.
     setTimeout(() => {
-      document.body.classList.add('fusion-mode');
+      document.body.classList.add('fusion-mode', 'fusion-reconstruct');
       // Engage the existing dark theme so every modal/drawer/menu (defined
       // in theme.css) re-skins automatically. body.fusion-mode then layers
       // the Atlas Dark brand tokens on top of the dark surface tokens.
@@ -1009,19 +1074,33 @@
       try { localStorage.setItem(STORAGE_KEY, 'fusion'); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn('fusion'); } catch (_) {} });
-    }, 1450);
+    }, 900);
 
-    // Hold the lockup briefly, then fade the overlay out and clear markup.
+    // Drop the displacement filter once the new state is locked in — UI
+    // crisp again, glow-frame takes over from here.
+    setTimeout(() => {
+      document.body.classList.remove('fusion-glass-melt');
+    }, 1100);
+
+    // Card stagger ends ~1040ms after the class is added (320ms delay + 720ms
+    // duration on the latest block); strip the class so it doesn't replay on
+    // future re-renders.
+    setTimeout(() => {
+      document.body.classList.remove('fusion-reconstruct');
+    }, 2100);
+
+    // Hold the lockup so the ✦ refracted shine (starts t=1.6s, 1.7s long)
+    // plays through, then fade the overlay out and clear markup.
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 2250);
+    }, 3300);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 2750);
+    }, 3800);
   }
 
   function exitFusion(opts = {}) {
@@ -1045,26 +1124,29 @@
 
     fusionAnimating = true;
 
-    // Smart-TV screen-close back to the single-venue view — the screen
-    // collapses CRT-style while the palette reverts underneath.
+    /* GLASS MELT EXIT — surface re-liquefies briefly, then re-solidifies as
+     * the palette reverts to the standard theme.
+     *   t=0.00  overlay fades in, glass-melt filter applied to UI
+     *   t=0.10  gloss sheen sweeps back, frost ramps up
+     *   t=0.30  ripple wave expands outward (one ring this time)
+     *   t=0.75  body.fusion-mode OFF — palette + data revert under distortion
+     *   t=0.95  body.fusion-glass-melt OFF — filter drops, UI crisp
+     *   t=1.40  overlay fades out
+     *   t=1.95  cleanup
+     */
     overlay.classList.remove('exiting');
-    overlay.innerHTML = `
-      <div class="fo-crt-line top-exit"></div>
-      <div class="fo-crt-line bot-exit"></div>
-      <div class="fo-crt-seed exit"></div>
-    `;
+    buildOverlayMarkup(overlay, { exit: true });
+    // On exit we don't need the lockup centred — hide it so the user reads
+    // "the surface melts away to reveal the underlying view" rather than
+    // "another logo flashes".
+    const exitLabel = overlay.querySelector('.fo-label');
+    if (exitLabel) exitLabel.style.display = 'none';
     overlay.offsetHeight; // reflow → animations replay
+
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('fusion-glass-melt');
 
-    /* Smart-TV screen-close (matches the .fo-crt exit CSS timing):
-     *   t=0.00  dark wash fades in over the Go Ultra dashboard
-     *   t=0.10  two CRT lines slide IN from the edges → meet at centre
-     *   t=0.80  the centre scanline ignites, then collapses to a point
-     *   t=1.05  palette + data revert UNDER the wash
-     *   t=1.55  wash fades out, single-venue dashboard revealed
-     *   t=2.10  cleanup
-     */
     setTimeout(() => {
       document.body.classList.remove('fusion-mode');
       document.documentElement.removeAttribute('data-theme');
@@ -1072,18 +1154,22 @@
       try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
       renderAll();
       subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
-    }, 1050);
+    }, 750);
+
+    setTimeout(() => {
+      document.body.classList.remove('fusion-glass-melt');
+    }, 950);
 
     setTimeout(() => {
       overlay.classList.add('exiting');
       overlay.classList.remove('active');
-    }, 1550);
+    }, 1400);
     setTimeout(() => {
       overlay.setAttribute('aria-hidden', 'true');
       overlay.innerHTML = '';
       overlay.classList.remove('exiting');
       fusionAnimating = false;
-    }, 2100);
+    }, 1950);
   }
 
   function registerHandlers() {
@@ -1826,8 +1912,8 @@
       try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
     }
     currentVenue = (REAL_VENUES.includes(stored) || customIds.has(stored)) ? stored : DEFAULT_VENUE;
-    // Defensive: strip any stale fusion-mode class + dark theme attribute.
-    document.body.classList.remove('fusion-mode');
+    // Defensive: strip any stale fusion classes + dark theme attribute.
+    document.body.classList.remove('fusion-mode', 'fusion-glass-melt', 'fusion-reconstruct');
     document.documentElement.removeAttribute('data-theme');
 
     registerHandlers();
@@ -1977,6 +2063,10 @@
     document.body.classList.add('page-equipe');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Équipe</b>';
+    /* Pin the sidebar selector on Équipe via the single source of truth so
+     * drawers opened from here close back into the right highlight. The
+     * direct DOM toggle stays as a belt-and-braces fallback. */
+    window.Kiwi?.setActivePage?.('equipe');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('.sidebar nav a[data-nav="equipe"]')?.classList.add('active');
     window.scrollTo({ top: 0 });
@@ -1988,6 +2078,7 @@
     document.body.classList.remove('page-equipe');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+    window.Kiwi?.setActivePage?.('accueil');
   }
 
   /* Wire the Équipe handlers onto Kiwi.handlers. venues.js loads after
@@ -2873,24 +2964,87 @@
   const MI_TAGS = ['signature','top','premium','vegan','veg'];
   const MI_TAG_LABEL = { signature:'Signature', top:'Top', premium:'Premium', vegan:'Vegan', veg:'Végé' };
   const MI_STATIONS_ALL = ['cuisine-chaude','cuisine-froide','comptoir','bar','bar-jus','creperie','patisserie','glacier','hammam','cabine-1','cabine-2','cabine-3'];
-  const MI_STATION_STATE = {
-    'cuisine-chaude': { dot: 'busy',    meta: '142 tickets aujourd\'hui' },
-    'cuisine-froide': { dot: 'on',      meta: 'Opérationnelle' },
-    'comptoir':       { dot: 'on',      meta: 'Opérationnelle' },
-    'bar':            { dot: 'on',      meta: 'Opérationnelle' },
-    'bar-jus':        { dot: 'on',      meta: 'Opérationnelle' },
-    'creperie':       { dot: 'pending', meta: '1 modificateur en attente' },
-    'patisserie':     { dot: 'on',      meta: 'Opérationnelle' },
-    'glacier':        { dot: 'off',     meta: 'Station fermée' },
+  /* Session-mutable. Owners can edit status + meta + prep time + sync
+   * flag via the Stations cuisine tab. `let` so a wholesale rename can
+   * swap entries without `const` complaints.
+   *
+   * avgPrepMin · average minutes to prep an item at this station.
+   *              The KDS scheduler uses this to time multi-station
+   *              tickets so plates finish together.
+   * sync       · when true, items here are delayed so they finish at the
+   *              same time as the slowest sync-enabled station on the
+   *              ticket. When false, items fire immediately (typical for
+   *              drinks the owner wants served first as apéritif). */
+  let MI_STATION_STATE = {
+    'cuisine-chaude': { dot: 'busy',    meta: '142 tickets aujourd\'hui',       avgPrepMin: 18, sync: true  },
+    'cuisine-froide': { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 6,  sync: true  },
+    'comptoir':       { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 4,  sync: true  },
+    'bar':            { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 5,  sync: false },
+    'bar-jus':        { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 3,  sync: false },
+    'creperie':       { dot: 'pending', meta: '1 modificateur en attente',      avgPrepMin: 8,  sync: true  },
+    'patisserie':     { dot: 'on',      meta: 'Opérationnelle',                 avgPrepMin: 12, sync: true  },
+    'glacier':        { dot: 'off',     meta: 'Station fermée',                 avgPrepMin: 4,  sync: false },
   };
-  const MI_MODIFIERS = [
-    { name: 'Sans glace', cat: 'boissons', price: 0, demand: 142 },
-    { name: 'Supplément frites', cat: 'sandwiches', price: 15, demand: 86 },
-    { name: 'Pain sans gluten', cat: 'sandwiches', price: 8, demand: 24 },
-    { name: "Lait d'amande", cat: 'boissons', price: 5, demand: 38 },
-    { name: 'Cuisson : saignant / à point / bien cuit', cat: 'tajines', price: 0, demand: null, note: '3 options' },
-    { name: 'Allergies : noix, gluten, lactose', cat: 'tous', price: 0, demand: null, note: 'notes' },
+  /* Option groups — each group has multiple options with optional price delta.
+   * Groups can be assigned to a whole sub-section (every item in that category
+   * inherits the group), to individual items (item-scoped overrides), or be
+   * global (every item gets it). Replaces the legacy flat MI_MODIFIERS table. */
+  const MI_MOD_GROUPS = [
+    {
+      id: 'g-cuisson',
+      name: 'Cuisson',
+      required: true,
+      minSel: 1, maxSel: 1,
+      options: [
+        { id: 'o-saignant',  name: 'Saignant',  price: 0 },
+        { id: 'o-apoint',    name: 'À point',   price: 0 },
+        { id: 'o-biencuit',  name: 'Bien cuit', price: 0 },
+      ],
+      scope: { subsections: ['tajines'], items: [] },
+    },
+    {
+      id: 'g-supp-frites',
+      name: 'Suppléments',
+      required: false,
+      minSel: 0, maxSel: 3,
+      options: [
+        { id: 'o-frites',  name: 'Frites supplémentaires', price: 15 },
+        { id: 'o-fromage', name: 'Fromage fondu',          price: 8 },
+        { id: 'o-bacon',   name: 'Bacon',                  price: 12 },
+        { id: 'o-oeuf',    name: 'Œuf au plat',            price: 6 },
+      ],
+      scope: { subsections: ['sandwiches'], items: [] },
+    },
+    {
+      id: 'g-lait',
+      name: 'Type de lait',
+      required: true,
+      minSel: 1, maxSel: 1,
+      options: [
+        { id: 'o-entier',  name: 'Lait entier',    price: 0 },
+        { id: 'o-demi',    name: 'Demi-écrémé',    price: 0 },
+        { id: 'o-amande',  name: "Lait d'amande",  price: 5 },
+        { id: 'o-avoine',  name: "Lait d'avoine",  price: 5 },
+        { id: 'o-soja',    name: 'Lait de soja',   price: 5 },
+      ],
+      scope: { subsections: ['boissons'], items: [] },
+    },
+    {
+      id: 'g-allergies',
+      name: 'Allergies & restrictions',
+      required: false,
+      minSel: 0, maxSel: 5,
+      options: [
+        { id: 'o-gluten',  name: 'Sans gluten',  price: 0 },
+        { id: 'o-noix',    name: 'Sans noix',    price: 0 },
+        { id: 'o-lactose', name: 'Sans lactose', price: 0 },
+        { id: 'o-piment',  name: 'Sans piment',  price: 0 },
+      ],
+      scope: { subsections: [], items: [] },
+      isGlobal: true,
+    },
   ];
+  let miModGroupIdCounter = 100;
   const MI_86_FREQ = [
     { name: 'Tajine agneau pruneaux', count: 8, reason: 'rupture viande ×5, rupture épices ×3' },
     { name: 'Pastilla seafood', count: 6, reason: 'rupture poisson' },
@@ -2925,11 +3079,19 @@
     chev:     '<path d="M9 18l6-6-6-6"/>',
     info:     '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
     sort:     '<path d="M3 6h12M3 12h9M3 18h6M17 8V20M17 20l4-4M17 20l-4-4"/>',
+    /* Stove-burner glyph — Stations tab + edit-station headers. */
+    station:  '<rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><circle cx="16" cy="13" r="2"/><path d="M3 10h18"/>',
+    printer:  '<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><rect x="6" y="15" width="12" height="6" rx="1"/>',
+    kds:      '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    /* Open-book glyph for the Recettes tab + recipe expand handles. */
+    book:     '<path d="M2 3h7a3 3 0 013 3v15M22 3h-7a3 3 0 00-3 3v15"/><path d="M2 3v15h7a3 3 0 013 3M22 3v15h-7a3 3 0 00-3 3"/>',
+    eye:      '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+    sparkle:  '<path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/><path d="M19 17l.7 2.3L22 20l-2.3.7L19 23l-.7-2.3L16 20l2.3-.7z"/>',
   };
   const miSvg = (k, sz = 14) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${MI_IC[k] || ''}</svg>`;
 
   /* ── State (in-memory; resets on reload) ──────────────────────────────── */
-  let miTab = 'menu';            // menu | perf | hours | alerts | compare
+  let miTab = 'menu';            // menu | stations | recettes | perf | hours | alerts | compare
   let miVenueFilter = 'cafeAtlas';
   let miSearch = '';
   let miCatFilter = 'all';
@@ -2937,6 +3099,12 @@
   let miPeriod = 'midi';
   let miModsCollapsed = false;
   let miIdCounter = 0;
+  /* Recettes tab state — filter pills + sort + per-row expand. All resets on
+   * reload. miRecExpanded holds menu item IDs currently expanded inline. */
+  let miRecFilter = 'all';       // all | complete | incomplete | high-variance
+  let miRecSort = 'variance';    // variance | popularity | margin | status
+  let miRecSearch = '';
+  let miRecExpanded = new Set();
   /* Session-mutable station lists per venue (add/remove stations) and any
    * subsections created during the session. Lazy-initialised, reset on reload. */
   let miStations = {};
@@ -2978,7 +3146,31 @@
     if (!miStations[venue]) miStations[venue] = [...new Set((MENU[venue] || []).map(i => i.station))];
     return miStations[venue];
   }
-  function miStationState(s) { return MI_STATION_STATE[s] || { dot: 'on', meta: 'Opérationnelle' }; }
+  /* The KDS uses a different (shorter) station vocabulary than the Menu
+   * page — this maps KDS IDs onto Menu IDs so a single configuration in
+   * "Stations cuisine" drives both. Demo legacy — production would
+   * unify the two vocabularies. */
+  const MI_STATION_ALIASES = {
+    cuisson:  'cuisine-chaude',
+    salade:   'cuisine-froide',
+    boissons: 'bar-jus',
+    pastry:   'patisserie',
+    crepes:   'creperie',
+    bbq:      'cuisine-chaude',
+  };
+  /* Resolve a station's state with sensible defaults for any missing field.
+   * Stations added via the modal start with avgPrepMin=10 + sync=true.
+   * Also resolves KDS-style aliases (cuisson → cuisine-chaude etc.). */
+  function miStationState(s) {
+    const key = MI_STATION_ALIASES[s] || s;
+    const base = MI_STATION_STATE[key] || {};
+    return {
+      dot: base.dot || 'on',
+      meta: base.meta || 'Opérationnelle',
+      avgPrepMin: typeof base.avgPrepMin === 'number' ? base.avgPrepMin : 10,
+      sync: typeof base.sync === 'boolean' ? base.sync : true,
+    };
+  }
   function miMedian(arr) {
     if (!arr.length) return 0;
     const s = [...arr].sort((a, b) => a - b), n = s.length;
@@ -3003,6 +3195,80 @@
     });
   }
 
+  /* ── Option-groups helpers ────────────────────────────────────────────── */
+  /* Find a group by id (used by handlers + group editor). */
+  function miGroupById(id) { return MI_MOD_GROUPS.find(g => g.id === id); }
+  /* All groups applying to a given item — global + matching subsection + explicit per-item. */
+  function miGroupsForItem(item) {
+    if (!item) return [];
+    return MI_MOD_GROUPS.filter(g =>
+      g.isGlobal === true ||
+      (g.scope.items || []).includes(item.id) ||
+      (g.scope.subsections || []).includes(item.category)
+    );
+  }
+  /* Reason a group applies to an item — for the inherit badge in the item modal. */
+  function miGroupAttachReason(group, item) {
+    if (!group || !item) return null;
+    if ((group.scope.items || []).includes(item.id)) return 'item';
+    if ((group.scope.subsections || []).includes(item.category)) return 'subsection';
+    if (group.isGlobal) return 'global';
+    return null;
+  }
+  /* Number of items across all venues that a group is attached to (by either
+   * subsection inheritance OR explicit per-item scope OR global). */
+  function miGroupItemReach(group) {
+    if (!group) return 0;
+    let total = 0;
+    for (const v of REAL_VENUES) {
+      for (const it of (MENU[v] || [])) {
+        if (group.isGlobal ||
+            (group.scope.items || []).includes(it.id) ||
+            (group.scope.subsections || []).includes(it.category)) total++;
+      }
+    }
+    return total;
+  }
+  /* Human-friendly "applied to" line for a group card footer. */
+  function miGroupScopeLabel(group) {
+    if (!group) return '';
+    if (group.isGlobal) return 'Global · tous les articles (' + miGroupItemReach(group) + ')';
+    const subs = (group.scope.subsections || []).map(miCatLabel);
+    const itemCount = (group.scope.items || []).length;
+    const parts = [];
+    if (subs.length) parts.push('Sous-section' + (subs.length > 1 ? 's' : '') + ' : ' + subs.join(', '));
+    if (itemCount) parts.push(itemCount + ' article' + (itemCount > 1 ? 's' : '') + ' individuel' + (itemCount > 1 ? 's' : ''));
+    return parts.length ? parts.join(' · ') : 'Aucune affectation — non visible en caisse';
+  }
+  /* Drop an item from every subsection-scope it inherited from, so the user
+   * can override at the per-item level. Returns nothing. */
+  function miOverrideGroupOnItem(group, item) {
+    if (!group || !item) return;
+    /* If the group reached this item via subsection inheritance, capture the
+     * inheritance shadow on the item itself so other items in the same
+     * subsection stay unchanged. We do this by removing the item's subsection
+     * from this group's subsections list AND re-attaching every other item
+     * in that subsection by id. */
+    const venue = item.venue || miMenuVenue();
+    const inherited = (group.scope.subsections || []).includes(item.category);
+    if (!inherited) return;
+    const siblings = (MENU[venue] || []).filter(i => i.category === item.category && i.id !== item.id);
+    /* Multi-venue safeguard — also expand siblings across other venues whose
+     * subsection name matches. Subsections are venue-scoped in practice, but
+     * the group's scope.subsections is a flat list, so be defensive. */
+    for (const v of REAL_VENUES) {
+      if (v === venue) continue;
+      for (const i of (MENU[v] || [])) {
+        if (i.category === item.category && i.id !== item.id) siblings.push(i);
+      }
+    }
+    group.scope.subsections = (group.scope.subsections || []).filter(s => s !== item.category);
+    group.scope.items = group.scope.items || [];
+    for (const sib of siblings) {
+      if (!group.scope.items.includes(sib.id)) group.scope.items.push(sib.id);
+    }
+  }
+
   /* ═══════════ NAVIGATION ═══════════ */
   function miShowPage() {
     miTab = 'menu';
@@ -3014,6 +3280,9 @@
     document.body.classList.add('page-menu');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Menu &amp; modificateurs</b>';
+    /* Pin sidebar selector on Menu via Kiwi.setActivePage — drawers/modals
+     * opened from here close back into this highlight, not Accueil. */
+    window.Kiwi?.setActivePage?.('menu');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('.sidebar nav a[data-nav="menu"]')?.classList.add('active');
     window.scrollTo({ top: 0 });
@@ -3024,6 +3293,7 @@
     document.body.classList.remove('page-menu');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+    window.Kiwi?.setActivePage?.('accueil');
   }
   function miWireHandlers() {
     const H = window.Kiwi && window.Kiwi.handlers;
@@ -3060,8 +3330,38 @@
       { label: 'Nom (A→Z)', onClick: () => {} },
     ]);
     H['mi-mods-toggle']  = () => { miModsCollapsed = !miModsCollapsed; const c = document.querySelector('[data-mi-mods]'); if (c) c.classList.toggle('collapsed', miModsCollapsed); };
-    H['mi-add-mod']      = () => miOpenModifierModal();
-    H['mi-station']      = (_el, id) => Kiwi.toast(`Configuration de la station ${id}`, { type: 'info', desc: 'Routage, imprimante, écran KDS.' });
+    H['mi-add-group']    = () => miOpenGroupModal(null);
+    H['mi-edit-group']   = (_el, id) => miOpenGroupModal(miGroupById(id));
+    H['mi-dup-group']    = (_el, id) => miDuplicateGroup(id);
+    H['mi-del-group']    = (_el, id) => miConfirmDeleteGroup(id);
+    /* Per-item toggle handler — driven from inside the item modal. The
+     * itemId is read from a data-* on the row to keep the markup uncoupled
+     * from the modal's lifecycle. */
+    H['mi-item-toggle-group'] = (el, gid) => {
+      const flipped = miToggleGroupOnItem(el.dataset.itemId, gid);
+      /* Re-render the section inline so the inherit badges and the row
+       * order reflect the new state. */
+      const it = miFindItem(el.dataset.itemId);
+      const host = document.querySelector('[data-mi-item-groups-wrap]');
+      if (it && host) host.innerHTML = miItemGroupsSectionHtml(it);
+      return flipped;
+    };
+    /* Inside the item modal — these read the current item id from data-arg. */
+    H['mi-item-add-group']  = (_el, itemId) => {
+      /* Close the current item modal first so the group editor doesn't stack
+       * on top — the group editor will re-open the item modal on save. */
+      const back = document.querySelector('.kiwi-backdrop:last-child');
+      if (back) back.querySelector('.kiwi-modal-close')?.click();
+      miOpenGroupModal(null, { attachToItemId: itemId });
+    };
+    H['mi-item-edit-group'] = (el, gid) => {
+      const itemId = el.dataset.itemId;
+      const back = document.querySelector('.kiwi-backdrop:last-child');
+      if (back) back.querySelector('.kiwi-modal-close')?.click();
+      miOpenGroupModal(miGroupById(gid), { attachToItemId: itemId });
+    };
+    H['mi-station']      = (_el, id) => miOpenEditStationModal(id);
+    H['mi-edit-station'] = (_el, id) => miOpenEditStationModal(id);
     H['mi-add-station']  = () => miOpenAddStationModal();
     H['mi-remove-station'] = (_el, id) => miRemoveStation(id);
     H['mi-reroute-item'] = (el, id) => miRerouteItem(id, el);
@@ -3074,6 +3374,18 @@
     H['mi-86-reactivate']= (_el, id) => miReactivate86(id);
     H['mi-86-history']   = (_el, name) => miOpen86History(name);
     H['mi-combo-toast']  = (_el, msg) => Kiwi.toast(msg || 'Action enregistrée', { type: 'success' });
+    /* ── Recettes tab handlers ── */
+    H['mi-rec-filter']   = (el) => { miRecFilter = el.dataset.filter || 'all'; miRenderTab1Body(); };
+    H['mi-rec-sort']     = (el) => { miRecSort = el.value || 'variance'; miRenderTab1Body(); };
+    H['mi-rec-search']   = (el) => { miRecSearch = (el.value || '').toLowerCase(); miRenderTab1Body(); };
+    /* Single entry point: Voir détails / Compléter / Modifier all route
+     * through miOpenRecipeDrawer. The first three aliases are kept for
+     * backward compatibility with any stale buttons still in the DOM. */
+    H['mi-rec-detail']   = (_el, id) => miOpenRecipeDrawer(id);
+    H['mi-recipe-expand']= (_el, id) => miOpenRecipeDrawer(id);
+    H['mi-rec-edit']     = (_el, id) => miOpenRecipeDrawer(id);
+    H['mi-rec-complete'] = (_el, id) => miOpenRecipeDrawer(id);
+    H['mi-rec-ai']       = () => Kiwi.toast('Assistant IA — bientôt', { type: 'info' });
   }
 
   /* ═══════════ RENDER ═══════════ */
@@ -3119,6 +3431,8 @@
     const active86 = mi86.length;
     const tabs = [
       ['menu', 'Menu & modificateurs', 'menu'],
+      ['stations', 'Stations cuisine', 'station'],
+      ['recettes', 'Recettes', 'book'],
       ['perf', 'Performance', 'trending'],
       ['hours', 'Heures de pointe', 'clock'],
       ['alerts', 'Alertes 86', 'alert'],
@@ -3136,11 +3450,13 @@
 
   function miTabHtml() {
     switch (miTab) {
-      case 'perf':    return miTab2Html();
-      case 'hours':   return miTab3Html();
-      case 'alerts':  return miTab4Html();
-      case 'compare': return miTab5Html();
-      default:        return miTab1Html();
+      case 'stations': return miStationsTabHtml();
+      case 'recettes': return miRenderRecettesTab(miMenuVenue());
+      case 'perf':     return miTab2Html();
+      case 'hours':    return miTab3Html();
+      case 'alerts':   return miTab4Html();
+      case 'compare':  return miTab5Html();
+      default:         return miTab1Html();
     }
   }
 
@@ -3224,28 +3540,46 @@
         : miListHtml(list))
       : `<div style="text-align:center;color:var(--n-500);padding:36px;font-size:13px;">${emptyMsg}</div>`;
 
-    /* Modifiers */
-    const modRows = MI_MODIFIERS.map(m => `
-      <tr>
-        <td><b style="font-weight:600;">${eqEsc(m.name)}</b></td>
-        <td><span class="mi-mod-cat">${m.cat}</span></td>
-        <td class="mq">${m.price > 0 ? '+ ' + m.price + ' MAD' : (m.note === 'notes' ? 'sans frais' : '0 MAD')}</td>
-        <td class="mq">${m.demand != null ? eqFrInt(m.demand) + ' demandes/mois' : (m.note || '—')}</td>
-      </tr>`).join('');
-
-    /* Stations — session-mutable list (add / remove) */
-    const stationIds = miGetStations(venue);
-    const connected = stationIds.filter(s => miStationState(s).dot !== 'off').length;
-    const stationCards = stationIds.map(s => {
-      const st = miStationState(s);
-      const routed = allItems.filter(i => i.station === s).length;
+    /* Modifier option groups — polished cards instead of a flat table.
+     * Each card shows mode/required pills, options with price deltas, and
+     * a scope readout so the owner can see where the group applies. */
+    const groupsHtml = MI_MOD_GROUPS.length ? MI_MOD_GROUPS.map(g => {
+      const reqPill = g.required
+        ? '<span class="mi-group-card-pill req">Obligatoire</span>'
+        : '<span class="mi-group-card-pill opt">Optionnel</span>';
+      const modePill = (g.maxSel || 1) <= 1
+        ? '<span class="mi-group-card-pill mode">Unique</span>'
+        : `<span class="mi-group-card-pill mode">Multi · max ${g.maxSel}</span>`;
+      const globalPill = g.isGlobal ? '<span class="mi-group-card-pill mode" style="background:var(--paper-muted);color:var(--n-600);">Global</span>' : '';
+      const optsHtml = (g.options || []).map(o => {
+        const price = (Number(o.price) || 0) > 0
+          ? `<span class="price">+${eqFrInt(Number(o.price))} MAD</span>`
+          : '';
+        return `<span class="mi-group-opt-pill">${eqEsc(o.name)}${price}</span>`;
+      }).join('');
       return `
-        <div class="mi-station" data-action="mi-station" data-arg="${s}">
-          <button type="button" class="mi-station-x" data-action="mi-remove-station" data-arg="${s}" aria-label="Retirer la station">${miSvg('plus', 11)}</button>
-          <div class="mi-station-top"><span class="mi-st-dot ${st.dot}"></span><span class="mi-station-name">${eqEsc(s)}</span></div>
-          <div class="mi-station-meta">${eqEsc(st.meta)} · ${routed} article${routed > 1 ? 's' : ''}</div>
+        <div class="mi-group-card">
+          <div class="mi-group-card-head">
+            <span class="mi-group-card-name">${eqEsc(g.name)}</span>
+            ${reqPill}${modePill}${globalPill}
+          </div>
+          <div class="mi-group-card-opts">${optsHtml || '<span style="font-size:11.5px;color:var(--n-500);">Aucune option</span>'}</div>
+          <div class="mi-group-card-scope">Appliqué à : ${eqEsc(miGroupScopeLabel(g))}</div>
+          <div class="mi-group-card-acts">
+            <button class="btn-slim" data-action="mi-edit-group" data-arg="${g.id}">${miSvg('edit', 12)}<span>Modifier</span></button>
+            <button class="btn-slim" data-action="mi-dup-group" data-arg="${g.id}">${miSvg('copy', 12)}<span>Dupliquer</span></button>
+            <button class="btn-slim danger" data-action="mi-del-group" data-arg="${g.id}">${miSvg('trash', 12)}<span>Supprimer</span></button>
+          </div>
         </div>`;
-    }).join('');
+    }).join('') : `<div style="grid-column:1/-1;text-align:center;color:var(--n-500);padding:24px;font-size:13px;">Aucun groupe d'options — créez-en un avec « Nouveau groupe d'options ».</div>`;
+    const groupsApplied = MI_MOD_GROUPS.filter(g => g.isGlobal || (g.scope.subsections || []).length || (g.scope.items || []).length).length;
+    const groupsGlobal = MI_MOD_GROUPS.filter(g => g.isGlobal).length;
+    const groupsStats = `<div class="mi-section-sub">${MI_MOD_GROUPS.length} groupe${MI_MOD_GROUPS.length > 1 ? 's' : ''} · ${groupsApplied} appliqué${groupsApplied > 1 ? 's' : ''} · ${groupsGlobal} global${groupsGlobal > 1 ? 'aux' : ''}</div>`;
+
+    /* Note: Routage cuisine section moved to its own "Stations cuisine"
+     * tab — miStationsTabHtml. Lives at a top-level pill so it can carry
+     * its own rich content (edit modal, KPIs, routing matrix) without
+     * crowding the menu editor. */
 
     return `
       <div class="mi-section">
@@ -3267,20 +3601,98 @@
           <div class="mi-collapse-head" data-action="mi-mods-toggle">
             <span class="chev">${miSvg('chev', 15)}</span><h3>Modificateurs &amp; options</h3>
           </div>
+          <button class="btn-slim primary" data-action="mi-add-group">${miSvg('plus', 13)}<span>Nouveau groupe d'options</span></button>
         </div>
+        ${groupsStats}
         <div class="mi-collapse-body">
-          <table class="mi-mods-table"><tbody>${modRows}</tbody></table>
-          <button class="btn-slim" style="margin-top:14px;" data-action="mi-add-mod">${miSvg('plus', 13)}<span>Nouveau modificateur</span></button>
+          <div class="mi-groups-grid">${groupsHtml}</div>
         </div>
-      </div>
+      </div>`;
+  }
 
-      <div class="mi-section">
-        <div class="mi-section-head">
-          <h3>Routage cuisine</h3>
-          <button class="btn-slim" data-action="mi-add-station">${miSvg('plus', 13)}<span>Ajouter une station</span></button>
+  /* ═══════════ TAB · STATIONS CUISINE ═══════════════════════════════════
+   * Full-page station routing editor. Reachable via the "Stations cuisine"
+   * pill on the Menu page. Owners can add / rename / edit status / remove
+   * stations. Click a station → edit modal; the X button on each card
+   * triggers the remove confirm. All edits are session-mutable.
+   * ═════════════════════════════════════════════════════════════════════ */
+  function miStationsTabHtml() {
+    const venue = miMenuVenue();
+    const items = MENU[venue] || [];
+    const stationIds = miGetStations(venue);
+    const connected = stationIds.filter(s => miStationState(s).dot !== 'off').length;
+    const totalRouted = items.length;
+    const unrouted = items.filter(i => !stationIds.includes(i.station)).length;
+
+    const kpis = `
+      <div class="mi-kpi-grid">
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Stations actives</div>
+          <div class="mi-kpi-v">${connected} / ${stationIds.length}</div>
+          <div class="mi-kpi-sub">${connected === stationIds.length ? 'toutes opérationnelles' : `${stationIds.length - connected} hors service`}</div>
         </div>
-        <div class="mi-section-sub">Routage actif : ${connected} stations connectées sur ${stationIds.length}</div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Articles routés</div>
+          <div class="mi-kpi-v">${totalRouted}</div>
+          <div class="mi-kpi-sub">sur l'ensemble du menu</div>
+        </div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Articles non routés</div>
+          <div class="mi-kpi-v ${unrouted > 0 ? 'mi-recipe-warn' : ''}">${unrouted}</div>
+          <div class="mi-kpi-sub">${unrouted === 0 ? '✓ routage complet' : 'à réassigner'}</div>
+        </div>
+      </div>`;
+
+    const stationCards = stationIds.map(s => {
+      const st = miStationState(s);
+      const routed = items.filter(i => i.station === s).length;
+      const sample = items.filter(i => i.station === s).slice(0, 3).map(i => eqEsc(i.name)).join(', ');
+      const syncChip = st.sync
+        ? `<span class="mi-station-chip mi-station-chip-sync">⏱ ${st.avgPrepMin} min · synchronisé</span>`
+        : `<span class="mi-station-chip mi-station-chip-fast">⏱ ${st.avgPrepMin} min · servi en premier</span>`;
+      return `
+        <div class="mi-station mi-station-card" data-action="mi-station" data-arg="${s}">
+          <button type="button" class="mi-station-x" data-action="mi-remove-station" data-arg="${s}" aria-label="Retirer la station">${miSvg('plus', 11)}</button>
+          <div class="mi-station-top"><span class="mi-st-dot ${st.dot}"></span><span class="mi-station-name">${eqEsc(s)}</span></div>
+          <div class="mi-station-meta">${eqEsc(st.meta)}</div>
+          ${syncChip}
+          <div class="mi-station-routed">${routed} article${routed > 1 ? 's' : ''} routé${routed > 1 ? 's' : ''}${sample ? ` · ${sample}${routed > 3 ? '…' : ''}` : ''}</div>
+          <div class="mi-station-edit">Cliquer pour éditer →</div>
+        </div>`;
+    }).join('');
+
+    /* Build a concrete demo example from the actual station data. */
+    const syncStations = stationIds.filter(s => miStationState(s).sync);
+    const fastStations = stationIds.filter(s => !miStationState(s).sync);
+    const slowest = syncStations
+      .map(s => ({ name: s, t: miStationState(s).avgPrepMin }))
+      .sort((a, b) => b.t - a.t)[0];
+
+    return `
+      <div class="mi-section">
+        <div class="mi-recettes-head">
+          <div>
+            <div class="mi-title">Stations cuisine</div>
+            <div class="mi-sub">Routage des plats vers les postes · ajoutez, renommez, ajustez les temps à la volée.</div>
+          </div>
+          <button class="btn-slim primary" data-action="mi-add-station">${miSvg('plus', 13)}<span>Ajouter une station</span></button>
+        </div>
+        ${kpis}
         <div class="mi-stations">${stationCards}</div>
+        <div class="mi-ai" data-stations-scripted>
+          <div class="mi-ai-eyebrow">Kiwi AI · Routage intelligent</div>
+          <div class="mi-ai-t">Plats synchronisés pour servir ensemble (ou pas)</div>
+          <div class="mi-ai-b">
+            Chaque station a un <b>temps de préparation moyen</b> et un drapeau <b>synchroniser / servir en premier</b>.
+            Quand un ticket arrive avec plusieurs plats, Kiwi calcule le démarrage de chaque poste pour que les plats <b>synchronisés</b> finissent ensemble — la table est servie en une seule fois, plus de plats froids qui attendent.
+            ${fastStations.length ? `Les stations <b>« servir en premier »</b> (${fastStations.map(s => `<i>${eqEsc(s)}</i>`).join(', ')}) démarrent toujours immédiatement — typiquement les boissons, qui arrivent avant le plat.` : ''}
+          </div>
+          <div class="mi-ai-a">
+            → Exemple : ticket avec un tajine (cuisine-chaude · ${miStationState('cuisine-chaude').avgPrepMin || 18} min) + une salade (cuisine-froide · ${miStationState('cuisine-froide').avgPrepMin || 6} min) + un thé (bar-jus · ${miStationState('bar-jus').avgPrepMin || 3} min).
+            ${slowest ? `Le KDS lance le tajine immédiatement, retarde la salade de ${Math.max(0, slowest.t - (miStationState('cuisine-froide').avgPrepMin || 6))} min` : ''}
+            ${miStationState('bar-jus').sync ? '' : ', mais envoie le thé tout de suite'} pour que tout arrive à temps.
+          </div>
+        </div>
       </div>`;
   }
   function miListHtml(list) {
@@ -3668,6 +4080,793 @@
       </div>`;
   }
 
+  /* ═══════════ TAB · RECETTES (Phase 1 — read-only inline display) ═════
+   *
+   *   Hybrid AI insights: top-line numbers come from KiwiRecipes (real
+   *   computation against MENU × RECIPES_SESSION × INVENTORY). The
+   *   surrounding narrative prose is scripted for the demo. Every scripted
+   *   block is tagged `data-recettes-scripted` so it's auditable.
+   *
+   *   Phase 1 surface: completion KPIs, item list with status + variance
+   *   pip, eye-toggle inline ingredient table. Compléter / Modifier /
+   *   Compléter avec IA buttons all toast "Disponible en phase 2".
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Severity class for variance % (matches engine bands). */
+  function miRecSevClass(pct) {
+    const mag = Math.abs(pct);
+    return mag > 15 ? 'crit' : mag > 5 ? 'warn' : 'ok';
+  }
+  /* FC ratio class (industry benchmark 28–32 %). */
+  function miRecFcClass(pct) {
+    return pct > 35 ? 'crit' : pct > 30 ? 'warn' : 'ok';
+  }
+  /* MAD formatter with sign — used inside variance pips and AI insights. */
+  function miRecMadSigned(n) {
+    const sign = n >= 0 ? '+' : '−';
+    return sign + eqFrInt(Math.abs(n)) + ' MAD';
+  }
+  /* Resolve a recipe row's *display* variance, food cost, and impact in
+   * a single pass — works for complete and incomplete recipes alike. */
+  function miRecRowMetrics(it, recipe) {
+    if (!recipe || recipe.status !== 'complete') {
+      return { hasRecipe: false, fcTh: null, fcAct: null, variancePct: null, impact: 0 };
+    }
+    const v = window.KiwiRecipes.varianceByRecipe(it.id);
+    if (!v) return { hasRecipe: true, fcTh: null, fcAct: null, variancePct: null, impact: 0 };
+    const variancePct = v.theoreticalFoodCostPct > 0
+      ? ((v.actualFoodCostPct - v.theoreticalFoodCostPct) / v.theoreticalFoodCostPct) * 100
+      : 0;
+    return {
+      hasRecipe: true,
+      fcTh: v.theoreticalFoodCostPct,
+      fcAct: v.actualFoodCostPct,
+      variancePct: +variancePct.toFixed(1),
+      impact: v.totalCostImpact,
+    };
+  }
+
+  /* Plain-language status + per-portion MAD line — the new owner-facing
+   * read of variance. Replaces "+45.6 pts" jargon with a clear status badge
+   * (Conforme / À surveiller / Coût trop élevé) and a money line in MAD per
+   * portion. Returns null when there's no recipe or no usage data yet. */
+  function miRecPlainStatus(it, m) {
+    if (!m || !m.hasRecipe || m.variancePct === null) return null;
+    const mag    = Math.abs(m.variancePct);
+    const units  = it.unitsThisMonth || 0;
+    const price  = it.price || 0;
+    const perPortion = units > 0 ? Math.abs(m.impact / units) : 0;
+    const actualCost = (m.fcAct / 100) * price;
+    const margin     = price - actualCost;
+    if (mag <= 5) {
+      return {
+        sev: 'ok',
+        label: 'Coût conforme',
+        money: `Vous gagnez ${eqFrInt(Math.max(0, Math.round(margin)))} MAD / portion`,
+        tail: null,
+      };
+    }
+    const isOver = m.variancePct > 0;
+    if (mag <= 15) {
+      return {
+        sev: 'warn',
+        label: isOver ? 'Marge sous tension' : 'Stock à vérifier',
+        money: isOver
+          ? `+${eqFrInt(Math.round(perPortion))} MAD coût / portion`
+          : `−${eqFrInt(Math.round(perPortion))} MAD vs recette`,
+        tail: null,
+      };
+    }
+    return {
+      sev: 'crit',
+      label: isOver ? 'Coût trop élevé' : 'Données suspectes',
+      money: isOver
+        ? `+${eqFrInt(Math.round(perPortion))} MAD coût / portion`
+        : `−${eqFrInt(Math.round(perPortion))} MAD vs recette`,
+      tail: isOver ? 'vérifier les portions cuisine' : 'vérifier le suivi du stock',
+    };
+  }
+
+  /* Filtered + sorted list driving the rows + the "5 plats" insight card. */
+  function miRecFilteredList(venueKey) {
+    const all = window.KiwiRecipes.listRecipes(venueKey);
+    let rows = all.map(({ menuItem, recipe }) => {
+      const m = miRecRowMetrics(menuItem, recipe);
+      return { it: menuItem, recipe, m };
+    });
+    if (miRecFilter === 'complete') rows = rows.filter(r => r.recipe && r.recipe.status === 'complete');
+    else if (miRecFilter === 'incomplete') rows = rows.filter(r => !r.recipe || r.recipe.status !== 'complete');
+    else if (miRecFilter === 'high-variance') rows = rows.filter(r => r.m.variancePct !== null && Math.abs(r.m.variancePct) > 5);
+    const q = miRecSearch.trim().toLowerCase();
+    if (q) rows = rows.filter(r => r.it.name.toLowerCase().includes(q));
+    if (miRecSort === 'variance') {
+      rows.sort((a, b) => Math.abs(b.m.impact || 0) - Math.abs(a.m.impact || 0));
+    } else if (miRecSort === 'popularity') {
+      rows.sort((a, b) => (b.it.unitsThisMonth || 0) - (a.it.unitsThisMonth || 0));
+    } else if (miRecSort === 'margin') {
+      rows.sort((a, b) => miMarginPct(b.it) - miMarginPct(a.it));
+    } else if (miRecSort === 'status') {
+      rows.sort((a, b) => {
+        const av = (a.recipe && a.recipe.status === 'complete') ? 1 : 0;
+        const bv = (b.recipe && b.recipe.status === 'complete') ? 1 : 0;
+        return av - bv; // incomplete first
+      });
+    }
+    return rows;
+  }
+
+  /* Inline expanded ingredient table for a single recipe. */
+  function miRecExpandHtml(it, recipe) {
+    if (!recipe || recipe.status !== 'complete' || !recipe.ingredients.length) {
+      return `
+        <div class="mi-recipe-expand mi-recipe-expand-empty">
+          <p>Cette recette n'est pas encore complétée. Ajoutez les ingrédients et leurs quantités pour activer l'analyse de variance.</p>
+          <button class="btn-slim primary" data-action="mi-rec-complete" data-arg="${it.id}">Compléter la recette</button>
+        </div>`;
+    }
+    const v = window.KiwiRecipes.varianceByRecipe(it.id);
+    const portionCost = window.KiwiRecipes.portionCost(recipe);
+    const fcTh = it.price > 0 ? (portionCost / it.price * 100).toFixed(1) : '—';
+    const rows = (v ? v.ingredients : []).map(ing => {
+      const qDisp = ing.perPortion < 0.01 ? ing.perPortion.toFixed(4) : ing.perPortion.toFixed(3);
+      const sev = miRecSevClass(ing.deltaPct);
+      const deltaTxt = (ing.deltaPct >= 0 ? '+' : '') + ing.deltaPct.toFixed(1) + ' %';
+      return `
+        <tr>
+          <td>${eqEsc(ing.name)}${ing.isPlaceholder ? ' <span class="mi-recipe-placeholder">placeholder</span>' : ''}</td>
+          <td class="mono">${qDisp} ${eqEsc(ing.unit)}</td>
+          <td class="mono">${eqFrInt(ing.costPerUnit)} MAD/${eqEsc(ing.unit)}</td>
+          <td class="mono">${(ing.perPortion * ing.costPerUnit).toFixed(2)} MAD</td>
+          <td class="mono">${ing.theoretical.toFixed(2)}</td>
+          <td class="mono">${ing.actual.toFixed(2)}</td>
+          <td class="mono mi-recipe-delta mi-recipe-delta-${sev}">${deltaTxt}</td>
+        </tr>`;
+    }).join('');
+    const updated = recipe.lastUpdated
+      ? `Mise à jour le ${recipe.lastUpdated}${recipe.updatedBy ? ' par ' + eqEsc(recipe.updatedBy) : ''}`
+      : 'Recette générée par défaut';
+    const notes = recipe.notes ? `<div class="mi-recipe-notes"><b>Notes</b> · ${eqEsc(recipe.notes)}</div>` : '';
+    return `
+      <div class="mi-recipe-expand">
+        <div class="mi-recipe-expand-meta">
+          <span><b>Rendement</b> · ${recipe.yield || 1} portion${(recipe.yield || 1) > 1 ? 's' : ''}</span>
+          <span><b>Coût matière par portion</b> · ${portionCost.toFixed(2)} MAD</span>
+          <span><b>FC théorique</b> · ${fcTh} %</span>
+          <span class="mi-recipe-updated">${updated}</span>
+        </div>
+        <div class="mi-recipe-table-wrap">
+          <table class="mi-recipe-table">
+            <thead>
+              <tr>
+                <th>Ingrédient</th>
+                <th>Quantité / portion</th>
+                <th>Coût unitaire</th>
+                <th>Coût / portion</th>
+                <th>Théorique (kg/L/u)</th>
+                <th>Réel (kg/L/u)</th>
+                <th>Variance</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        ${notes}
+        <div class="mi-recipe-expand-foot">
+          <button class="btn-slim" data-action="mi-rec-edit" data-arg="${it.id}">Modifier la recette</button>
+        </div>
+      </div>`;
+  }
+
+  /* Single row markup for the recipe list — simplified Phase 1.5 layout:
+   *
+   *   [Name + complete/incomplete pill]   [Status badge + MAD line]   [Voir détails →]
+   *
+   * Replaces the prior 5-column finance-team layout. Detail/edit/complete
+   * all funnel into miOpenRecipeDrawer via mi-rec-detail. */
+  function miRecRowHtml(row) {
+    const it = row.it;
+    const r  = row.recipe;
+    const m  = row.m;
+    const isComplete = r && r.status === 'complete';
+    const ingCount   = isComplete ? r.ingredients.length : 0;
+    const pillStatus = isComplete
+      ? `<span class="mi-recipe-status ok">✓ Complète · ${ingCount} ingrédient${ingCount > 1 ? 's' : ''}</span>`
+      : `<span class="mi-recipe-status warn">▲ Recette manquante</span>`;
+
+    /* Build the middle column: plain-status block for complete recipes,
+     * "À compléter" prompt for incomplete ones. */
+    let statusBlock = '';
+    if (isComplete) {
+      const ps = miRecPlainStatus(it, m);
+      if (ps) {
+        const tail = ps.tail
+          ? ` <span class="mi-recipe-money-tail">→ ${ps.tail}</span>`
+          : '';
+        statusBlock = `
+          <div class="mi-recipe-status-block">
+            <span class="mi-recipe-status-badge mi-recipe-status-badge-${ps.sev}">${ps.label}</span>
+            <div class="mi-recipe-money mi-recipe-money-${ps.sev}">${ps.money}${tail}</div>
+          </div>`;
+      } else {
+        statusBlock = `
+          <div class="mi-recipe-status-block">
+            <span class="mi-recipe-status-badge mi-recipe-status-badge-neutral">Pas encore de données</span>
+            <div class="mi-recipe-money mi-recipe-money-neutral">en attente des prochaines ventes</div>
+          </div>`;
+      }
+    } else {
+      statusBlock = `
+        <div class="mi-recipe-status-block">
+          <span class="mi-recipe-status-badge mi-recipe-status-badge-warn">À compléter</span>
+          <div class="mi-recipe-money mi-recipe-money-warn">activez le suivi des coûts pour ce plat</div>
+        </div>`;
+    }
+
+    /* Single action button. Complete → "Voir détails", incomplete → "Compléter". */
+    const cta = isComplete
+      ? `<button class="btn-slim mi-recipe-cta" data-action="mi-rec-detail" data-arg="${it.id}">Voir détails →</button>`
+      : `<button class="btn-slim primary mi-recipe-cta" data-action="mi-rec-detail" data-arg="${it.id}">Compléter →</button>`;
+
+    return `
+      <div class="mi-recipe-row${isComplete ? '' : ' is-incomplete'}" data-mi-recipe="${it.id}">
+        <div class="mi-recipe-row-main">
+          <div class="mi-recipe-id">
+            <div class="mi-recipe-name">${eqEsc(it.name)}</div>
+            <div class="mi-recipe-meta"><span class="mi-recipe-cat">${miCatLabel(it.category)}</span>${pillStatus}</div>
+          </div>
+          ${statusBlock}
+          <div class="mi-recipe-acts">${cta}</div>
+        </div>
+      </div>`;
+  }
+
+  /* ─── Plain-French variance explanation paragraph for the drawer. ─── */
+  function miRecVarianceExplain(it, m) {
+    if (!m || !m.hasRecipe || m.variancePct === null) return '';
+    const mag = Math.abs(m.variancePct);
+    if (mag <= 5) {
+      return `<div class="mi-rec-drawer-explain mi-rec-drawer-explain-ok">
+        Votre consommation réelle correspond bien à votre recette. Les portions
+        sont calibrées et le stock se déprécie comme prévu.
+      </div>`;
+    }
+    const sevClass = mag > 15 ? 'crit' : 'warn';
+    const isOver = m.variancePct > 0;
+    const intro = isOver
+      ? `Vous consommez <b>${mag.toFixed(0)}% de plus</b> que ce que la recette prévoit.`
+      : `Vous consommez <b>${mag.toFixed(0)}% de moins</b> que ce que la recette prévoit.`;
+    const causes = isOver
+      ? `Causes fréquentes&nbsp;: portions plus généreuses qu'indiqué, gaspillage en cuisine, ventes non encaissées, ou un ingrédient utilisé mais non listé dans la recette.`
+      : `Causes fréquentes&nbsp;: portions plus petites que prévu, recette qui surestime les quantités, ou un suivi de stock incomplet.`;
+    return `<div class="mi-rec-drawer-explain mi-rec-drawer-explain-${sevClass}">
+      ${intro} ${causes}
+    </div>`;
+  }
+
+  /* ─── Build the inventory + placeholder catalog for autocomplete + name→id
+   *      reverse lookup. Returns:
+   *        { catalog: [{name, unit, costPerUnit, invId, source}], byName: Map }
+   *      Used by the datalist <option>s and the on-input matching that
+   *      tries to recognize free-text names as known inventory items. ─── */
+  function miRecBuildCatalog() {
+    const out = { catalog: [], byName: new Map() };
+    const venue = miMenuVenue();
+    const inv = (venue && window.KiwiVenue?.getInventory)
+      ? (window.KiwiVenue.getInventory(venue) || [])
+      : [];
+    inv.forEach(item => {
+      const e = { name: item.name, unit: item.unit, costPerUnit: item.costPerUnit, invId: item.id, source: 'inventory' };
+      out.catalog.push(e);
+      out.byName.set(item.name.trim().toLowerCase(), e);
+    });
+    const ph = window.KiwiRecipes.PLACEHOLDER_COSTS || {};
+    Object.keys(ph).forEach(key => {
+      const p = ph[key];
+      const e = { name: p.name, unit: p.unit, costPerUnit: p.costPerUnit, invId: key, source: 'placeholder' };
+      out.catalog.push(e);
+      out.byName.set(p.name.trim().toLowerCase(), e);
+    });
+    return out;
+  }
+
+  /* ─── A single <datalist> mounted once per drawer to power the
+   *      autocomplete on every ingredient name input. ─── */
+  function miRecDatalistHtml(catalog) {
+    const opts = catalog.catalog.map(e => {
+      const label = `${e.name} — ${eqFrInt(e.costPerUnit)} MAD/${e.unit}`;
+      return `<option value="${eqEsc(e.name)}" label="${eqEsc(label)}"></option>`;
+    }).join('');
+    return `<datalist id="kw-rec-ing-list">${opts}</datalist>`;
+  }
+
+  /* ─── Resolve display name + unit for an ingredient. If it already
+   *      stores its own `name`, that wins (user typed something custom).
+   *      Otherwise fall back to inventory lookup via invId. ─── */
+  function miRecIngDisplay(ing) {
+    if (ing.name) return { name: ing.name, unit: ing.unit || '' };
+    const ref = window.KiwiRecipes.resolveIngredient(ing.invId);
+    if (ref) return { name: ref.name, unit: ing.unit || ref.unit || '' };
+    return { name: '', unit: ing.unit || '' };
+  }
+
+  /* ─── Editable ingredients list — name + qty + unit are all freely
+   *      editable text inputs. Name has an inventory autocomplete
+   *      via <datalist>. Match on inventory auto-attaches an invId so
+   *      variance calculations work; free-text ingredients persist as
+   *      plain names (no cost contribution to theoretical). ─── */
+  function miRecDrawerIngHtml(draft, it) {
+    const head = `
+      <div class="mi-rec-drawer-ing-head">
+        <span>Ingrédient</span><span>Quantité / portion</span><span>Unité</span><span></span>
+      </div>`;
+    if (!draft.ingredients || !draft.ingredients.length) {
+      return `
+        <div class="mi-rec-drawer-ings">
+          ${head}
+          <div class="mi-rec-drawer-empty">
+            Aucun ingrédient pour l'instant. Cliquez sur « + Ajouter un ingrédient » pour démarrer.
+          </div>
+          ${miRecDrawerAddBtnHtml()}
+        </div>`;
+    }
+    const rows = draft.ingredients.map((ing, idx) => {
+      const disp = miRecIngDisplay(ing);
+      const isPlaceholder = ing.invId && window.KiwiRecipes.PLACEHOLDER_COSTS?.[ing.invId];
+      const noCost = !ing.invId && (ing.name || '').trim();
+      return `
+        <div class="mi-rec-drawer-ing" data-mi-ing-row="${idx}">
+          <input type="text" class="mi-input mi-rec-ing-name" list="kw-rec-ing-list" data-mi-ing-field="name" value="${eqEsc(disp.name)}" placeholder="Nom de l'ingrédient" />
+          <input type="number" class="mi-input mi-rec-ing-qty" data-mi-ing-field="qty" value="${ing.qty || 0}" step="0.001" min="0" placeholder="0" />
+          <input type="text" class="mi-input mi-rec-ing-unit" data-mi-ing-field="unit" value="${eqEsc(disp.unit)}" placeholder="g, ml, u…" />
+          <button class="mi-rec-ing-del" data-mi-ing-del="${idx}" aria-label="Supprimer cet ingrédient">${miSvg('x', 13)}</button>
+          ${isPlaceholder ? '<div class="mi-rec-ing-foot">coût estimé</div>' : ''}
+          ${noCost ? '<div class="mi-rec-ing-foot mi-rec-ing-foot-warn">non suivi en stock — coût non pris en compte</div>' : ''}
+        </div>`;
+    }).join('');
+    return `
+      <div class="mi-rec-drawer-ings">
+        ${head}
+        ${rows}
+        ${miRecDrawerAddBtnHtml()}
+      </div>`;
+  }
+
+  /* ─── "+ Ajouter un ingrédient" button — appears below every list. ─── */
+  function miRecDrawerAddBtnHtml() {
+    return `
+      <div class="mi-rec-drawer-add">
+        <button type="button" class="btn-slim mi-rec-add-btn" data-mi-rec-add-ing>+ Ajouter un ingrédient</button>
+      </div>`;
+  }
+
+  /* ─── Cost breakdown card inside the drawer. ─── */
+  function miRecDrawerCostsHtml(it, draft, m) {
+    const price = it.price || 0;
+    const portionCostTh = (window.KiwiRecipes.portionCost(draft) || 0);
+    const haveActual    = m && m.fcAct !== null;
+    const actualCost    = haveActual ? (m.fcAct / 100) * price : portionCostTh;
+    const marginActual  = price - actualCost;
+    const fcShown       = price > 0 ? (actualCost / price * 100).toFixed(1) : '—';
+    return `
+      <div class="mi-rec-drawer-section">
+        <h4>Combien ce plat vous rapporte vraiment</h4>
+        <div class="mi-rec-drawer-costs">
+          <div class="mi-rec-drawer-cost-row">
+            <span class="mi-rec-drawer-cost-l">Prix de vente</span>
+            <span class="mi-rec-drawer-cost-v">${eqFrInt(price)} MAD</span>
+          </div>
+          <div class="mi-rec-drawer-cost-row">
+            <span class="mi-rec-drawer-cost-l">Coût recette (théorique)</span>
+            <span class="mi-rec-drawer-cost-v">${portionCostTh.toFixed(2)} MAD</span>
+          </div>
+          <div class="mi-rec-drawer-cost-row">
+            <span class="mi-rec-drawer-cost-l">Coût réel observé</span>
+            <span class="mi-rec-drawer-cost-v">${actualCost.toFixed(2)} MAD ${haveActual ? `<small>(${fcShown} % du prix)</small>` : ''}</span>
+          </div>
+          <div class="mi-rec-drawer-cost-row mi-rec-drawer-cost-total">
+            <span class="mi-rec-drawer-cost-l">Vous gagnez</span>
+            <span class="mi-rec-drawer-cost-v">${marginActual.toFixed(2)} MAD / portion</span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* ─── Status block at the top of the drawer. ─── */
+  function miRecDrawerStatusHtml(it, m, isComplete) {
+    if (!isComplete) {
+      return `
+        <div class="mi-rec-drawer-status mi-rec-drawer-status-warn">
+          <div class="mi-rec-drawer-status-l">Statut</div>
+          <div class="mi-rec-drawer-status-v">Recette à compléter</div>
+          <div class="mi-rec-drawer-status-m">Ajoutez les ingrédients ci-dessous pour activer le suivi des coûts sur ce plat.</div>
+        </div>`;
+    }
+    const ps = miRecPlainStatus(it, m);
+    if (!ps) {
+      return `
+        <div class="mi-rec-drawer-status">
+          <div class="mi-rec-drawer-status-l">Statut</div>
+          <div class="mi-rec-drawer-status-v">Pas encore de données de vente</div>
+          <div class="mi-rec-drawer-status-m">Le suivi des coûts s'activera dès les prochaines ventes de ce plat.</div>
+        </div>`;
+    }
+    return `
+      <div class="mi-rec-drawer-status mi-rec-drawer-status-${ps.sev}">
+        <div class="mi-rec-drawer-status-l">Statut</div>
+        <div class="mi-rec-drawer-status-v">${ps.label}</div>
+        <div class="mi-rec-drawer-status-m">${ps.money}${ps.tail ? ` · ${ps.tail}` : ''}</div>
+      </div>`;
+  }
+
+  /* ─── Build the full drawer body. ─── */
+  function miRecDrawerBodyHtml(it, draft, m, isComplete) {
+    const catalog = miRecBuildCatalog();
+    const yieldVal = Math.max(1, parseInt(draft.yield || 1, 10) || 1);
+    return `
+      <div class="mi-rec-drawer-body">
+        ${miRecDatalistHtml(catalog)}
+        ${miRecDrawerStatusHtml(it, m, isComplete)}
+        ${isComplete ? miRecVarianceExplain(it, m) : ''}
+        <div class="mi-rec-drawer-section">
+          <h4>Composition de la recette</h4>
+          <div class="mi-rec-drawer-yield">
+            <label>Cette recette donne
+              <input type="number" min="1" step="1" class="mi-input mi-rec-yield-input" data-mi-rec-yield value="${yieldVal}" />
+              portion${yieldVal > 1 ? 's' : ''}
+            </label>
+          </div>
+          <div class="mi-rec-drawer-ing-wrap">
+            ${miRecDrawerIngHtml(draft, it)}
+          </div>
+        </div>
+        ${miRecDrawerCostsHtml(it, draft, m)}
+        <div class="mi-rec-drawer-section">
+          <h4>Notes</h4>
+          <textarea class="mi-input mi-rec-drawer-notes" rows="2" placeholder="Préparation, allergènes, calibrage portion…">${eqEsc(draft.notes || '')}</textarea>
+        </div>
+      </div>`;
+  }
+
+  /* ─── Re-render only the ingredients sub-list (after add/delete/pick). ─── */
+  function miRecDrawerRerenderIngs(rootEl, it, draft) {
+    const wrap = rootEl.querySelector('.mi-rec-drawer-ing-wrap');
+    if (!wrap) return;
+    wrap.innerHTML = miRecDrawerIngHtml(draft, it);
+  }
+
+  /* ─── Re-render the cost breakdown (qty change moves the marker). ─── */
+  function miRecDrawerRerenderCosts(rootEl, it, draft, m) {
+    const wrap = rootEl.querySelector('.mi-rec-drawer-costs');
+    if (!wrap) return;
+    const newHtml = miRecDrawerCostsHtml(it, draft, m);
+    const tmp = document.createElement('div');
+    tmp.innerHTML = newHtml;
+    const fresh = tmp.querySelector('.mi-rec-drawer-costs');
+    if (fresh) wrap.innerHTML = fresh.innerHTML;
+  }
+
+  /* ─── Bind drawer interactions to the mutable draft object.
+   *
+   * Editing rules:
+   *  · qty   → set draft.ingredients[idx].qty, recompute costs
+   *  · name  → set draft.ingredients[idx].name; if name matches an
+   *            inventory item (case-insensitive), auto-attach invId
+   *            and seed unit (if unit not yet set). Recompute costs.
+   *  · unit  → set draft.ingredients[idx].unit
+   *  · yield → set draft.yield, recompute costs
+   *  · notes → set draft.notes
+   *
+   *  Add button (+ Ajouter) inserts a blank ingredient row.
+   *  Delete button removes the row.
+   * ─── */
+  function miBindRecipeDrawer(rootEl, it, draft, m) {
+    const catalog = miRecBuildCatalog();
+
+    /* Input → draft sync. */
+    rootEl.addEventListener('input', (e) => {
+      const t = e.target;
+      /* Yield field. */
+      if (t.dataset.miRecYield !== undefined) {
+        const y = Math.max(1, parseInt(t.value, 10) || 1);
+        draft.yield = y;
+        miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        return;
+      }
+      /* Notes field. */
+      if (t.classList.contains('mi-rec-drawer-notes')) {
+        draft.notes = t.value;
+        return;
+      }
+      /* Ingredient fields. */
+      const field = t.dataset.miIngField;
+      if (!field) return;
+      const row = t.closest('[data-mi-ing-row]');
+      if (!row) return;
+      const idx = parseInt(row.dataset.miIngRow, 10);
+      if (Number.isNaN(idx) || !draft.ingredients[idx]) return;
+      const ing = draft.ingredients[idx];
+      if (field === 'qty') {
+        ing.qty = parseFloat(t.value) || 0;
+        miRecDrawerRerenderCosts(rootEl, it, draft, m);
+      } else if (field === 'unit') {
+        ing.unit = t.value;
+      } else if (field === 'name') {
+        ing.name = t.value;
+        /* Try to auto-detect an inventory match. */
+        const match = catalog.byName.get(t.value.trim().toLowerCase());
+        if (match) {
+          ing.invId = match.invId;
+          if (!ing.unit) ing.unit = match.unit;
+          /* If user picked from datalist, sync the unit input visibly. */
+          const unitInput = row.querySelector('[data-mi-ing-field="unit"]');
+          if (unitInput && !unitInput.value) unitInput.value = match.unit;
+          miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        } else if (ing.invId) {
+          /* Name no longer matches — detach invId so cost stops counting. */
+          ing.invId = null;
+          miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        }
+      }
+    });
+
+    /* Click → add / delete. */
+    rootEl.addEventListener('click', (e) => {
+      const delBtn = e.target.closest('[data-mi-ing-del]');
+      if (delBtn) {
+        const idx = parseInt(delBtn.dataset.miIngDel, 10);
+        if (Number.isNaN(idx)) return;
+        draft.ingredients.splice(idx, 1);
+        miRecDrawerRerenderIngs(rootEl, it, draft);
+        miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        return;
+      }
+      if (e.target.closest('[data-mi-rec-add-ing]')) {
+        draft.ingredients = draft.ingredients || [];
+        draft.ingredients.push({ invId: null, name: '', qty: 0, unit: '' });
+        miRecDrawerRerenderIngs(rootEl, it, draft);
+        miRecDrawerRerenderCosts(rootEl, it, draft, m);
+        requestAnimationFrame(() => {
+          const names = rootEl.querySelectorAll('.mi-rec-ing-name');
+          const last = names[names.length - 1];
+          if (last) last.focus();
+        });
+      }
+    });
+  }
+
+  /* ─── Persist drafted recipe back to RECIPES_SESSION (in-memory only;
+   *      resets on page reload — demo behaviour). An ingredient is kept
+   *      if it has either an invId or a non-empty name, AND a positive
+   *      quantity. Recipe is "complete" if at least one ingredient with
+   *      an invId is present (so variance has something to compute). ─── */
+  function miSaveRecipeDraft(itemId, draft) {
+    const cleaned = (draft.ingredients || []).filter(i =>
+      i && ((i.invId || (i.name || '').trim()) && (i.qty || 0) > 0)
+    );
+    const hasInvLinked = cleaned.some(i => !!i.invId);
+    const next = {
+      yield: Math.max(1, parseInt(draft.yield || 1, 10) || 1),
+      ingredients: cleaned,
+      notes: draft.notes || '',
+      status: hasInvLinked ? 'complete' : 'incomplete',
+      lastUpdated: new Date().toISOString().slice(0, 10),
+      updatedBy: 'Vous',
+    };
+    window.KiwiRecipes.setRecipe(itemId, next);
+  }
+
+  /* ─── Public entry point — open the recipe detail / edit drawer. ─── */
+  function miOpenRecipeDrawer(itemId) {
+    const it = miFindItem(itemId);
+    if (!it) return;
+    const recipe = window.KiwiRecipes.getRecipe(itemId);
+    const isComplete = recipe && recipe.status === 'complete';
+    const m = miRecRowMetrics(it, recipe);
+
+    /* Mutable draft — saved only on Enregistrer. */
+    const draft = recipe
+      ? JSON.parse(JSON.stringify(recipe))
+      : { yield: 1, ingredients: [], notes: '', status: 'incomplete' };
+    draft.ingredients = draft.ingredients || [];
+
+    const body = miRecDrawerBodyHtml(it, draft, m, isComplete);
+    const foot = `
+      <div class="kiwi-actions" style="display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn-slim" data-mi-rec-cancel>Annuler</button>
+        <button class="btn-slim primary" data-mi-rec-save>Enregistrer</button>
+      </div>`;
+
+    const d = Kiwi.drawer({
+      title: it.name,
+      subtitle: `${miCatLabel(it.category)} · ${eqFrInt(it.price)} MAD prix de vente`,
+      width: 560,
+      body,
+      foot,
+    });
+
+    miBindRecipeDrawer(d.el, it, draft, m);
+
+    d.el.querySelector('[data-mi-rec-cancel]')?.addEventListener('click', () => d.close());
+    d.el.querySelector('[data-mi-rec-save]')?.addEventListener('click', () => {
+      miSaveRecipeDraft(itemId, draft);
+      Kiwi.toast('Recette enregistrée — calculs mis à jour', { type: 'success' });
+      d.close();
+      miRenderTab1Body();
+    });
+  }
+
+  /* AI insight: top contributors to total variance. */
+  function miRecInsightTopContributors(rows) {
+    const ranked = rows
+      .filter(r => r.m.hasRecipe && r.m.variancePct !== null && r.m.impact !== 0)
+      .sort((a, b) => Math.abs(b.m.impact) - Math.abs(a.m.impact));
+    const top5 = ranked.slice(0, 5);
+    if (!top5.length) {
+      return `
+        <div class="mi-ai" data-recettes-scripted="contributors">
+          <div class="mi-ai-eyebrow">Kiwi AI · Recettes</div>
+          <div class="mi-ai-t">Variance contenue · aucun plat n'écrase la moyenne</div>
+          <div class="mi-ai-b">Vos recettes complétées sont alignées sur leur coût matière théorique. Continuez à compléter les recettes manquantes pour affiner l'analyse.</div>
+        </div>`;
+    }
+    const totalImpactAll = ranked.reduce((s, r) => s + Math.abs(r.m.impact), 0);
+    const top5Impact     = top5.reduce((s, r) => s + Math.abs(r.m.impact), 0);
+    const concentration  = totalImpactAll > 0 ? Math.round((top5Impact / totalImpactAll) * 100) : 0;
+    const list = top5.map(r => {
+      const sign = r.m.impact >= 0 ? '+' : '−';
+      return `${eqEsc(r.it.name)} (${sign}${eqFrInt(Math.abs(r.m.impact))} MAD/mois)`;
+    }).join(', ');
+    const dishWord = top5.length > 1 ? 'plats' : 'plat';
+    return `
+      <div class="mi-ai" data-recettes-scripted="contributors">
+        <div class="mi-ai-eyebrow">Kiwi AI · Recettes</div>
+        <div class="mi-ai-t">${top5.length} ${dishWord} représente${top5.length > 1 ? 'nt' : ''} ${concentration} % de vos pertes ce mois</div>
+        <div class="mi-ai-b">${list} cumulent ${eqFrInt(Math.round(top5Impact))} MAD de coût non expliqué ce mois — argent perdu en cuisine ou en portion.</div>
+        <div class="mi-ai-a">→ Calibrer les portions de ces ${top5.length} ${dishWord} avec le chef (30 min par plat, sur 2 semaines) peut récupérer 60–75 % de cet écart.</div>
+      </div>`;
+  }
+
+  /* AI insight: best-margin recipes (boissons typically). */
+  function miRecInsightBestMargins(rows) {
+    const drinkCats = new Set(['boissons','boisson','bar','drinks']);
+    const drinkRows = rows.filter(r => drinkCats.has((r.it.category || '').toLowerCase()) && r.m.hasRecipe);
+    if (drinkRows.length < 3) {
+      return `
+        <div class="mi-ai" data-recettes-scripted="margins">
+          <div class="mi-ai-eyebrow">Kiwi AI · Marges</div>
+          <div class="mi-ai-t">Activez plus de recettes pour identifier vos plats les plus rentables</div>
+          <div class="mi-ai-b">Avec moins de 3 recettes boissons complétées, l'analyse de marge brute par catégorie reste partielle. Complétez vos recettes pour débloquer cette vue.</div>
+        </div>`;
+    }
+    drinkRows.sort((a, b) => miMarginPct(b.it) - miMarginPct(a.it));
+    const top3 = drinkRows.slice(0, 3);
+    const list = top3.map(r => `${eqEsc(r.it.name)} (${Math.round(miMarginPct(r.it))} % de marge théorique)`).join(', ');
+    return `
+      <div class="mi-ai" data-recettes-scripted="margins">
+        <div class="mi-ai-eyebrow">Kiwi AI · Marges</div>
+        <div class="mi-ai-t">Vos recettes les plus rentables sont les boissons</div>
+        <div class="mi-ai-b">${list} sont vos articles les plus rentables. Leur variance est minimale — votre processus de préparation est bien calibré.</div>
+        <div class="mi-ai-a">→ Mettre en avant les cafés gourmands (café + dessert combo) sur le menu midi pourrait augmenter ce mix rentable de 15-20 %.</div>
+      </div>`;
+  }
+
+  /* Main render entry — wired in miTabHtml for case 'recettes'. */
+  function miRenderRecettesTab(venueKey) {
+    const stats = window.KiwiRecipes.recipeStats(venueKey);
+    const allRows = miRecFilteredList(venueKey);
+
+    const head = `
+      <div class="mi-recettes-head">
+        <div>
+          <div class="mi-title">Recettes &amp; coûts par plat</div>
+          <div class="mi-sub">Définissez la composition de chaque plat pour suivre la marge réelle et repérer les pertes.</div>
+        </div>
+        <div class="mi-recettes-progress">
+          <div class="mi-recettes-progress-l">${stats.complete} / ${stats.total} recettes complétées</div>
+          <div class="mi-recettes-progress-bar"><i style="width:${stats.completionPct}%"></i></div>
+        </div>
+      </div>`;
+
+    /* Count dishes flagged "Coût trop élevé / Données suspectes" (>15% gap). */
+    const atRisk = allRows.filter(r =>
+      r.m.hasRecipe && r.m.variancePct !== null && Math.abs(r.m.variancePct) > 15
+    ).length;
+    const atRiskSev = atRisk > 5 ? 'crit' : atRisk > 2 ? 'warn' : 'ok';
+    const atRiskSub = atRisk === 0
+      ? 'aucun plat ne sort des clous · bravo'
+      : atRisk === 1
+        ? '1 plat à vérifier en priorité'
+        : `${atRisk} plats à vérifier en priorité`;
+
+    const kpis = `
+      <div class="mi-kpi-grid mi-recettes-kpis">
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Recettes complètes</div>
+          <div class="mi-kpi-v">${stats.complete}</div>
+          <div class="mi-kpi-sub">${stats.complete} plat${stats.complete > 1 ? 's' : ''} avec composition définie</div>
+          <div class="mi-kpi-bar"><i style="width:${stats.completionPct}%"></i></div>
+        </div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Recettes à compléter</div>
+          <div class="mi-kpi-v mi-recipe-${stats.incomplete > 10 ? 'crit' : stats.incomplete > 5 ? 'warn' : 'ok'}">${stats.incomplete}</div>
+          <div class="mi-kpi-sub">plats sans suivi de coût pour l'instant</div>
+        </div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Coût ingrédients moyen</div>
+          <div class="mi-kpi-v ${miRecFcClass(stats.avgFoodCostPct)}">${stats.avgFoodCostPct.toFixed(1)} %</div>
+          <div class="mi-kpi-sub">part du prix de vente sur recettes complètes</div>
+        </div>
+        <div class="mi-kpi-card">
+          <div class="mi-kpi-l">Plats à risque</div>
+          <div class="mi-kpi-v mi-recipe-${atRiskSev}">${atRisk}</div>
+          <div class="mi-kpi-sub">${atRiskSub}</div>
+        </div>
+      </div>`;
+
+    const filterPills = [
+      ['all', 'Tous'],
+      ['complete', 'Complétées'],
+      ['incomplete', 'À compléter'],
+      ['high-variance', 'Variance élevée'],
+    ].map(([k, l]) => `<button class="mi-pill${miRecFilter === k ? ' on' : ''}" data-action="mi-rec-filter" data-filter="${k}">${l}</button>`).join('');
+
+    const sortOpts = [
+      ['variance', 'Variance'],
+      ['popularity', 'Popularité'],
+      ['margin', 'Marge'],
+      ['status', 'Statut'],
+    ].map(([k, l]) => `<option value="${k}"${miRecSort === k ? ' selected' : ''}>${l}</option>`).join('');
+
+    const controls = `
+      <div class="mi-recettes-controls">
+        <div class="mi-recettes-search">
+          ${miSvg('search', 14)}
+          <input type="search" class="mi-search-input" placeholder="Rechercher un article…" value="${eqEsc(miRecSearch)}" oninput="window.KiwiVenue?.miRecSearchHook?.(this)" />
+        </div>
+        <div class="mi-pill-row">${filterPills}</div>
+        <label class="mi-recettes-sort">
+          <span>Trier par</span>
+          <select class="mi-input" onchange="window.KiwiVenue?.miRecSortHook?.(this)">${sortOpts}</select>
+        </label>
+      </div>`;
+
+    const list = allRows.length
+      ? `<div class="mi-recettes-list">${allRows.map(miRecRowHtml).join('')}</div>`
+      : `<div class="mi-recettes-empty">Aucun article pour cette recherche / ce filtre.</div>`;
+
+    const insights = `
+      <div class="mi-recettes-insights">
+        ${miRecInsightTopContributors(allRows)}
+        ${miRecInsightBestMargins(allRows)}
+      </div>`;
+
+    return `
+      <div class="mi-section mi-recettes-tab">
+        ${head}
+        ${kpis}
+        ${controls}
+        ${list}
+        ${insights}
+      </div>`;
+  }
+
+  /* Inputs and selects don't ride the global click-delegation bus, so we
+   * wire them via inline oninput/onchange hooks that call back into the
+   * module. Keeps the search field focused and the caret intact across
+   * the re-render that follows every keystroke. */
+  function miRecSearchHook(el) {
+    miRecSearch = (el.value || '').toLowerCase();
+    miRenderTab1Body();
+    setTimeout(() => {
+      const next = document.querySelector('.mi-recettes-search input');
+      if (next) { next.focus(); next.setSelectionRange(next.value.length, next.value.length); }
+    }, 0);
+  }
+  function miRecSortHook(el) {
+    miRecSort = el.value || 'variance';
+    miRenderTab1Body();
+  }
+
   /* ═══════════ ITEM ACTIONS ═══════════ */
   function miDuplicateItem(id) {
     const it = miFindItem(id);
@@ -3760,7 +4959,7 @@
       const idx = list.indexOf(st);
       if (idx > -1) list.splice(idx, 1);
       Kiwi.toast(`Station « ${st} » retirée`, { type: 'success', desc: routed.length ? `${routed.length} article(s) → ${fallback}` : '' });
-      if (miTab === 'menu') miRenderTab1Body();
+      if (miTab === 'menu' || miTab === 'stations') miRenderTab1Body();
     };
   }
   function miOpenAddStationModal() {
@@ -3782,10 +4981,101 @@
       list.push(name);
       m.close();
       Kiwi.toast(`Station « ${name} » ajoutée`, { type: 'success' });
-      if (miTab === 'menu') miRenderTab1Body();
+      if (miTab === 'menu' || miTab === 'stations') miRenderTab1Body();
     };
     m.el.querySelector('[data-msf="name"]').addEventListener('input', e => e.target.classList.remove('eq-invalid'));
   }
+
+  /* Edit station modal — opens when a station card is clicked. Lets owners
+   * rename the station (which cascades to all routed items + the venue's
+   * station list), change its status (on / busy / pending / off), and edit
+   * the descriptive meta text. Includes a "Supprimer" button that calls
+   * the same confirm flow as the X. */
+  function miOpenEditStationModal(stationId) {
+    const venue = miMenuVenue();
+    const items = MENU[venue] || [];
+    const routedItems = items.filter(i => i.station === stationId);
+    const state = miStationState(stationId);
+
+    /* Sample list of routed dishes, capped + with a 'voir tous' link if more. */
+    const sampleHtml = routedItems.length
+      ? `<div class="kf-help" style="margin-top:6px;">Articles routés (${routedItems.length}) : ${routedItems.slice(0, 6).map(i => `<b style="color:var(--ink);font-weight:500;">${eqEsc(i.name)}</b>`).join(', ')}${routedItems.length > 6 ? `, +${routedItems.length - 6} autres` : ''}.</div>`
+      : `<div class="kf-help" style="margin-top:6px;">Aucun article ne pointe encore vers cette station.</div>`;
+
+    const m = Kiwi.modal({
+      tag: 'STATION', title: `Éditer · « ${stationId} »`, width: 520,
+      body: `
+        <div class="kf-group">
+          <label class="kf-label">Nom de la station</label>
+          <input class="kf-input" data-mesf="name" value="${eqEsc(stationId)}" placeholder="cuisine-chaude" />
+          <div class="kf-help">Lettres minuscules, tirets autorisés. La modification renomme aussi tous les articles routés.</div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Statut opérationnel</label>
+          <div class="mi-est-status">
+            <label class="mi-est-status-opt"><input type="radio" name="mes-status" data-mesf="status" value="on" ${state.dot === 'on' ? 'checked' : ''}/><span class="mi-st-dot on"></span> Opérationnelle</label>
+            <label class="mi-est-status-opt"><input type="radio" name="mes-status" data-mesf="status" value="busy" ${state.dot === 'busy' ? 'checked' : ''}/><span class="mi-st-dot busy"></span> En charge (busy)</label>
+            <label class="mi-est-status-opt"><input type="radio" name="mes-status" data-mesf="status" value="pending" ${state.dot === 'pending' ? 'checked' : ''}/><span class="mi-st-dot pending"></span> En attente</label>
+            <label class="mi-est-status-opt"><input type="radio" name="mes-status" data-mesf="status" value="off" ${state.dot === 'off' ? 'checked' : ''}/><span class="mi-st-dot off"></span> Hors service</label>
+          </div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Description (visible sur le KDS)</label>
+          <input class="kf-input" data-mesf="meta" value="${eqEsc(state.meta)}" placeholder="Ex. Opérationnelle · 8 tickets en attente" />
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Temps de préparation moyen</label>
+          <div class="mi-est-prep">
+            <input class="kf-input mi-est-prep-input" data-mesf="prep" type="number" min="1" max="60" value="${state.avgPrepMin}" />
+            <span class="mi-est-prep-unit">minutes par plat</span>
+          </div>
+          <div class="kf-help">Sert au moteur de routage du KDS : il décale le démarrage des plats rapides pour que tous les plats d'un même ticket arrivent ensemble en salle.</div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Synchronisation avec les autres stations</label>
+          <div class="mi-est-sync">
+            <label class="mi-est-sync-opt"><input type="radio" name="mes-sync" data-mesf="sync" value="on"  ${state.sync ? 'checked' : ''}/><div><b>Synchroniser</b><span>Cette station attend les autres — les plats d'un même ticket arrivent ensemble.</span></div></label>
+            <label class="mi-est-sync-opt"><input type="radio" name="mes-sync" data-mesf="sync" value="off" ${state.sync ? '' : 'checked'}/><div><b>Servir en premier</b><span>Cette station prépare dès réception — idéal pour boissons / amuse-bouche.</span></div></label>
+          </div>
+        </div>
+        ${sampleHtml}`,
+      foot: `<button class="kb ghost" data-mi-cancel>Annuler</button><button class="kb danger" data-mi-del>Supprimer la station</button><button class="eq-cta-gradient" data-mi-save>Enregistrer</button>`,
+    });
+    const back = m.el;
+    back.querySelector('[data-mi-cancel]').onclick = m.close;
+    back.querySelector('[data-mi-del]').onclick = () => { m.close(); setTimeout(() => miRemoveStation(stationId), 220); };
+    back.querySelector('[data-mi-save]').onclick = () => {
+      const nameInput = back.querySelector('[data-mesf="name"]');
+      const newName = nameInput.value.trim().toLowerCase().replace(/\s+/g, '-');
+      const newStatus = back.querySelector('[data-mesf="status"]:checked')?.value || state.dot;
+      const newMeta = back.querySelector('[data-mesf="meta"]').value.trim() || state.meta;
+      const newPrep = Math.max(1, Math.min(60, parseInt(back.querySelector('[data-mesf="prep"]').value, 10) || state.avgPrepMin));
+      const newSync = back.querySelector('[data-mesf="sync"]:checked')?.value === 'on';
+      const list = miGetStations(venue);
+      if (!newName) { nameInput.classList.add('eq-invalid'); return; }
+      if (newName !== stationId && list.includes(newName)) {
+        nameInput.classList.add('eq-invalid');
+        Kiwi.toast('Une station avec ce nom existe déjà', { type: 'warn' });
+        return;
+      }
+      const nextEntry = { dot: newStatus, meta: newMeta, avgPrepMin: newPrep, sync: newSync };
+      /* Rename cascade if name changed. */
+      if (newName !== stationId) {
+        const idx = list.indexOf(stationId);
+        if (idx > -1) list[idx] = newName;
+        routedItems.forEach(i => { i.station = newName; });
+        MI_STATION_STATE[newName] = nextEntry;
+        delete MI_STATION_STATE[stationId];
+      } else {
+        MI_STATION_STATE[stationId] = nextEntry;
+      }
+      m.close();
+      Kiwi.toast(`Station « ${newName} » enregistrée`, { type: 'success' });
+      if (miTab === 'stations' || miTab === 'menu') miRenderTab1Body();
+    };
+    back.querySelector('[data-mesf="name"]').addEventListener('input', e => e.target.classList.remove('eq-invalid'));
+  }
+
   function miOpenAddSubModal() {
     const venue = miMenuVenue();
     const stations = miGetStations(venue);
@@ -3819,6 +5109,68 @@
   }
 
   /* ═══════════ MODALS ═══════════ */
+  /* Build the "Options & modificateurs" section that lives inside the item
+   * modal. Re-renderable in place via [data-mi-item-groups-wrap]. Lists
+   * applicable groups (subsection-inherited + per-item + global) at the top
+   * with checkboxes pre-checked; followed by available global/subsection
+   * groups not yet attached. Also has the "+ Ajouter un groupe" CTA. */
+  function miItemGroupsSectionHtml(item) {
+    if (!item) return '';
+    const attached = miGroupsForItem(item);
+    /* Non-attached groups — surface them so the user can attach with one
+     * checkbox click. */
+    const detached = MI_MOD_GROUPS.filter(g => !attached.includes(g));
+    /* Card row for a single group. */
+    const rowHtml = (g, isAttached) => {
+      const reason = isAttached ? miGroupAttachReason(g, item) : null;
+      const inheritBadge = reason === 'subsection'
+        ? `<div class="inherit">Hérité de la sous-section ${eqEsc(miCatLabel(item.category))}</div>`
+        : reason === 'global'
+          ? `<div class="inherit">Groupe global</div>`
+          : '';
+      const meta = (g.required ? 'Obligatoire' : 'Optionnel') + ' · '
+        + ((g.maxSel || 1) <= 1 ? 'Unique' : 'Multi · max ' + g.maxSel)
+        + ' · ' + ((g.options || []).length) + ' option' + ((g.options || []).length > 1 ? 's' : '');
+      const optsLine = (g.options || []).map(o => {
+        const price = (Number(o.price) || 0) > 0 ? ` (+${eqFrInt(Number(o.price))} MAD)` : '';
+        return eqEsc(o.name) + price;
+      }).join(' · ');
+      const lockedNote = (reason === 'global') ? ' disabled title="Groupe global — décrocher via le bouton Modifier"' : '';
+      return `
+        <div class="mi-item-group-row">
+          <input type="checkbox"${isAttached ? ' checked' : ''}${lockedNote}
+                 data-action="mi-item-toggle-group" data-arg="${g.id}" data-item-id="${item.id}"
+                 aria-label="${eqEsc(g.name)}"/>
+          <div class="info">
+            <div class="n">${eqEsc(g.name)}</div>
+            <div class="meta">${meta}</div>
+            <div class="opts-line">${optsLine || '<em style="color:var(--n-400);">Aucune option</em>'}</div>
+            ${inheritBadge}
+          </div>
+          <div class="actions">
+            <button class="mi-ic-btn" data-action="mi-item-edit-group" data-arg="${g.id}" data-item-id="${item.id}" aria-label="Modifier le groupe" title="Modifier">${miSvg('edit', 12)}</button>
+          </div>
+        </div>`;
+    };
+    const attachedRows = attached.map(g => rowHtml(g, true)).join('') ||
+      `<div style="font-size:12px;color:var(--n-500);padding:6px 0;">Aucun groupe attaché. Cochez un groupe ci-dessous ou créez-en un nouveau.</div>`;
+    const detachedRows = detached.map(g => rowHtml(g, false)).join('');
+    return `
+      <div class="mi-item-groups">
+        <div class="mi-item-groups-head">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink);">Options &amp; modificateurs</div>
+            <div style="font-size:11.5px;color:var(--n-500);margin-top:3px;">${attached.length} groupe${attached.length > 1 ? 's' : ''} attaché${attached.length > 1 ? 's' : ''} · ${MI_MOD_GROUPS.length} disponible${MI_MOD_GROUPS.length > 1 ? 's' : ''}</div>
+          </div>
+          <button class="btn-slim primary" data-action="mi-item-add-group" data-arg="${item.id}">${miSvg('plus', 12)}<span>Ajouter un groupe</span></button>
+        </div>
+        ${attachedRows}
+        ${detached.length ? `
+          <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--n-500);font-family:var(--mono);margin:14px 0 4px;">Groupes disponibles</div>
+          ${detachedRows}
+        ` : ''}
+      </div>`;
+  }
   function miOpenItemModal(item) {
     const editing = !!item;
     const venue = editing ? (item.venue || miMenuVenue()) : miMenuVenue();
@@ -3832,10 +5184,23 @@
     if (editing && item.station && !stList.includes(item.station)) stList.unshift(item.station);
     const stOpts = stList.map(s => `<option value="${s}"${preStation === s ? ' selected' : ''}>${s}</option>`).join('');
     const chip = (t, on) => `<span class="mi-chip${on ? ' on' : ''}" data-mi-chip="${t}">${MI_TAG_LABEL[t] || t}</span>`;
+    /* Group picker — only meaningful for existing items (a brand-new item
+     * has no id yet, so it can't be attached). For new items we show a
+     * helper line explaining where this lives once the item is created. */
+    const groupsSectionHtml = editing
+      ? miItemGroupsSectionHtml(item)
+      : `<div class="mi-item-groups">
+           <div class="mi-item-groups-head">
+             <div>
+               <div style="font-size:13px;font-weight:600;color:var(--ink);">Options &amp; modificateurs</div>
+               <div style="font-size:11.5px;color:var(--n-500);margin-top:3px;">Disponible après création — vous pourrez ensuite associer ou créer des groupes d'options.</div>
+             </div>
+           </div>
+         </div>`;
     const m = Kiwi.modal({
       tag: editing ? 'MODIFIER' : 'NOUVEL ARTICLE',
       title: editing ? 'Modifier · ' + item.name : 'Nouvel article',
-      width: 640,
+      width: 660,
       body: `
         <div class="kf-group"><label class="kf-label">Nom de l'article</label><input class="kf-input" data-mif="name" value="${editing ? eqEsc(item.name) : ''}" placeholder="Ex. Tajine kefta"/></div>
         <div class="kf-row">
@@ -3855,6 +5220,7 @@
         </div>
         <div class="kf-group"><label class="kf-label">Tags</label><div class="mi-chips" data-mi-tags>${MI_TAGS.map(t => chip(t, editing && (item.tags || []).includes(t))).join('')}</div></div>
         <div class="kf-group"><label class="kf-label">Description (optionnel)</label><textarea class="kf-input" data-mif="desc" rows="2" placeholder="Description courte affichée sur le menu…"></textarea></div>
+        <div class="kf-group" data-mi-item-groups-wrap>${groupsSectionHtml}</div>
         <div class="kf-row">
           <div class="kf-group"><label class="kf-label">Photo</label><div class="mi-photo-drop" data-mi-photo>${miSvg('upload', 16)} &nbsp;Glisser une image ou cliquer</div></div>
           <div class="kf-group"><label class="kf-label">Disponibilité</label>
@@ -3934,33 +5300,347 @@
     const back = document.querySelector('.kiwi-backdrop:last-child');
     if (back) back.querySelector('[data-mi-cancel]').onclick = () => back.querySelector('.kiwi-modal-close').click();
   }
-  function miOpenModifierModal() {
+  /* ── Group editor + group management ──────────────────────────────────── */
+  /* Build a single editable option row (drag-handle · name input · price · trash). */
+  function miGroupOptRow(opt) {
+    const o = opt || { id: '', name: '', price: 0 };
+    return `
+      <div class="mi-grp-opt-row" data-mi-opt-row data-opt-id="${eqEsc(o.id || '')}">
+        <span class="mi-grp-opt-drag" aria-label="Réordonner" title="Glisser pour réordonner">⋮⋮</span>
+        <input class="kf-input" data-mi-opt-name placeholder="Nom de l'option" value="${eqEsc(o.name || '')}"/>
+        <div class="eq-m-suffix">
+          <input class="kf-input" type="number" min="0" step="1" data-mi-opt-price value="${Number(o.price) || 0}" style="padding-right:48px;"/>
+          <span class="sfx">MAD</span>
+        </div>
+        <button type="button" class="mi-ic-btn danger" data-mi-opt-del aria-label="Retirer l'option">${miSvg('trash', 12)}</button>
+      </div>`;
+  }
+  /* Rich group editor. `opts.attachToItemId` (optional) pre-scopes a new group
+   * to the given item and re-opens its parent item modal on save. */
+  function miOpenGroupModal(group, opts) {
+    opts = opts || {};
+    const editing = !!group;
+    /* Snapshot if editing — used for cancel. We mutate live; no rollback path
+     * is needed because of the snapshot pattern.  */
+    const initial = editing ? JSON.parse(JSON.stringify(group)) : null;
+    /* Determine initial scope — explicit per-item, subsection, or global. */
+    let initialScope = 'item';
+    let initialSubsection = MI_CAT_ORDER[0] || '';
+    if (editing) {
+      if (group.isGlobal) initialScope = 'global';
+      else if ((group.scope.subsections || []).length) {
+        initialScope = 'subsection';
+        initialSubsection = group.scope.subsections[0];
+      } else initialScope = 'item';
+    } else if (!opts.attachToItemId) {
+      /* Brand-new group from the Menu tab — default to subsection scope. */
+      initialScope = 'subsection';
+      if (miCatFilter !== 'all' && miCatFilter) initialSubsection = miCatFilter;
+    }
+    /* Build the subsection select from base + custom categories across venues
+     * (in practice subsections are venue-scoped, but the data model is flat
+     * so we de-dup by id and label by miCatLabel). */
+    const allSubIds = [...new Set([...MI_CAT_ORDER, ...miCustomCats.map(c => c.id)])];
+    const subOpts = allSubIds.map(c => `<option value="${c}"${initialSubsection === c ? ' selected' : ''}>${miCatLabel(c)}</option>`).join('');
+    /* Mode + required defaults. */
+    const initialMaxSel = editing ? Math.max(1, Number(group.maxSel) || 1) : 1;
+    const initialRequired = editing ? !!group.required : false;
+    const initialMinSel = editing ? Math.max(0, Number(group.minSel) || 0) : 0;
+    const initialOpts = editing ? group.options.slice() : [
+      { id: '', name: '', price: 0 },
+      { id: '', name: '', price: 0 },
+    ];
+    const optsRowsHtml = initialOpts.map(miGroupOptRow).join('');
+
+    const attachItem = opts.attachToItemId ? miFindItem(opts.attachToItemId) : null;
+    const scopeHelp = attachItem
+      ? `<div class="kf-help">Par défaut, ce nouveau groupe sera attaché à <b style="color:var(--ink);">${eqEsc(attachItem.name)}</b>. Modifiez la portée ci-dessous pour l'élargir.</div>`
+      : '';
+
     const m = Kiwi.modal({
-      tag: 'MODIFICATEUR',
-      title: 'Nouveau modificateur',
-      width: 480,
+      tag: editing ? 'GROUPE D\'OPTIONS' : 'NOUVEAU GROUPE',
+      title: editing ? 'Modifier · ' + group.name : 'Nouveau groupe d\'options',
+      width: 620,
       body: `
-        <div class="kf-group"><label class="kf-label">Nom du modificateur</label><input class="kf-input" data-mmf="name" placeholder="Ex. Supplément avocat"/></div>
+        <div class="kf-group">
+          <label class="kf-label">Nom du groupe</label>
+          <input class="kf-input" data-mgf="name" placeholder="Ex. Cuisson · Suppléments · Type de lait" value="${editing ? eqEsc(group.name) : ''}"/>
+        </div>
         <div class="kf-row">
-          <div class="kf-group"><label class="kf-label">Catégorie liée</label>
-            <select class="kf-input" data-mmf="cat"><option value="tous">Toutes</option>${MI_CAT_ORDER.map(c => `<option value="${c}">${miCatLabel(c)}</option>`).join('')}</select>
+          <div class="kf-group">
+            <label class="kf-label">Choix requis</label>
+            <div class="mi-toggle" data-mg-required>
+              <button type="button" data-req="0"${!initialRequired ? ' class="on"' : ''}>Optionnel</button>
+              <button type="button" data-req="1"${initialRequired ? ' class="on"' : ''}>Obligatoire</button>
+            </div>
           </div>
-          <div class="kf-group"><label class="kf-label">Prix</label>
-            <div class="eq-m-suffix"><input class="kf-input" type="number" data-mmf="price" value="0" style="padding-right:48px;"/><span class="sfx">MAD</span></div>
+          <div class="kf-group">
+            <label class="kf-label">Mode de sélection</label>
+            <div class="mi-toggle" data-mg-mode>
+              <button type="button" data-mode="single"${initialMaxSel <= 1 ? ' class="on"' : ''}>Unique</button>
+              <button type="button" data-mode="multi"${initialMaxSel > 1 ? ' class="on"' : ''}>Multiple</button>
+            </div>
           </div>
-        </div>`,
-      foot: '<button class="kb ghost" data-mi-cancel>Annuler</button><button class="eq-cta-gradient" data-mi-save>Ajouter</button>',
+        </div>
+        <div class="kf-row" data-mg-multi-row${initialMaxSel <= 1 ? ' style="display:none;"' : ''}>
+          <div class="kf-group">
+            <label class="kf-label">Min. sélection</label>
+            <input class="kf-input" type="number" min="0" step="1" data-mgf="minSel" value="${initialMinSel}"/>
+            <div class="kf-help">Laisser à 0 pour rendre toutes les options facultatives.</div>
+          </div>
+          <div class="kf-group">
+            <label class="kf-label">Max. sélection</label>
+            <input class="kf-input" type="number" min="1" step="1" data-mgf="maxSel" value="${Math.max(2, initialMaxSel)}"/>
+          </div>
+        </div>
+        <div class="kf-group">
+          <label class="kf-label">Portée</label>
+          <div class="mi-toggle mi-toggle-scope" data-mg-scope>
+            <button type="button" data-scope="item"${initialScope === 'item' ? ' class="on"' : ''}>Cet article uniquement</button>
+            <button type="button" data-scope="subsection"${initialScope === 'subsection' ? ' class="on"' : ''}>Une sous-section</button>
+            <button type="button" data-scope="global"${initialScope === 'global' ? ' class="on"' : ''}>Tous les articles</button>
+          </div>
+          <div class="kf-help" data-mg-scope-help>${
+            attachItem
+              ? 'Attaché à : ' + eqEsc(attachItem.name)
+              : (editing
+                  ? 'Modifier la portée mettra à jour tous les articles concernés.'
+                  : 'Choisissez où ce groupe doit apparaître.')
+          }</div>
+        </div>
+        <div class="kf-group" data-mg-sub-row${initialScope === 'subsection' ? '' : ' style="display:none;"'}>
+          <label class="kf-label">Sous-section ciblée</label>
+          <select class="kf-input" data-mgf="subsection">${subOpts}</select>
+        </div>
+        ${scopeHelp}
+        <div class="kf-group" style="margin-top:6px;">
+          <label class="kf-label">Options proposées</label>
+          <div data-mg-opts>${optsRowsHtml}</div>
+          <button type="button" class="btn-slim" style="margin-top:8px;" data-mg-add-opt>${miSvg('plus', 12)}<span>Ajouter une option</span></button>
+        </div>
+      `,
+      foot: editing
+        ? `<button class="kb ghost" data-mi-cancel>Annuler</button>
+           <button class="kb danger" data-mg-del style="margin-right:auto;">Supprimer le groupe</button>
+           <button class="eq-cta-gradient" data-mi-save>Enregistrer</button>`
+        : '<button class="kb ghost" data-mi-cancel>Annuler</button><button class="eq-cta-gradient" data-mi-save>Créer le groupe</button>',
     });
-    m.el.querySelector('[data-mi-cancel]').onclick = m.close;
-    m.el.querySelector('[data-mi-save]').onclick = () => {
-      const name = m.el.querySelector('[data-mmf="name"]').value.trim();
-      if (!name) { m.el.querySelector('[data-mmf="name"]').classList.add('eq-invalid'); return; }
-      const price = Number(m.el.querySelector('[data-mmf="price"]').value) || 0;
-      MI_MODIFIERS.push({ name, cat: m.el.querySelector('[data-mmf="cat"]').value, price, demand: 0 });
-      m.close();
-      Kiwi.toast('Modificateur ajouté', { type: 'success', desc: name });
-      if (miTab === 'menu') miRenderTab1Body();
+
+    const el = s => m.el.querySelector(s);
+    const els = s => m.el.querySelectorAll(s);
+
+    /* Required toggle. */
+    els('[data-mg-required] button').forEach(b => b.onclick = () => {
+      els('[data-mg-required] button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+    });
+    /* Mode toggle — show/hide min/max row + flip multi default. */
+    els('[data-mg-mode] button').forEach(b => b.onclick = () => {
+      els('[data-mg-mode] button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      const multi = b.dataset.mode === 'multi';
+      el('[data-mg-multi-row]').style.display = multi ? '' : 'none';
+      if (multi) {
+        const max = el('[data-mgf="maxSel"]');
+        if (!max.value || Number(max.value) < 2) max.value = 3;
+      }
+    });
+    /* Scope radio toggle — show/hide subsection select. */
+    els('[data-mg-scope] button').forEach(b => b.onclick = () => {
+      els('[data-mg-scope] button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      const isSub = b.dataset.scope === 'subsection';
+      el('[data-mg-sub-row]').style.display = isSub ? '' : 'none';
+      const helper = el('[data-mg-scope-help]');
+      if (helper) {
+        helper.innerHTML = b.dataset.scope === 'global'
+          ? 'Le groupe sera appliqué à <b style="color:var(--ink);">tous les articles</b> du menu.'
+          : b.dataset.scope === 'subsection'
+            ? 'Le groupe sera hérité par <b style="color:var(--ink);">tous les articles</b> de la sous-section choisie.'
+            : (attachItem
+              ? 'Attaché à : <b style="color:var(--ink);">' + eqEsc(attachItem.name) + '</b>'
+              : 'Le groupe sera attaché à un ou plusieurs articles individuels.');
+      }
+    });
+    /* Option row interactions — delegated. */
+    el('[data-mg-opts]').addEventListener('click', e => {
+      const del = e.target.closest('[data-mi-opt-del]');
+      if (del) {
+        const row = del.closest('[data-mi-opt-row]');
+        if (m.el.querySelectorAll('[data-mi-opt-row]').length <= 1) {
+          Kiwi.toast('Au moins une option requise', { type: 'warn' });
+          return;
+        }
+        row.remove();
+      }
+    });
+    el('[data-mg-add-opt]').onclick = () => {
+      const wrap = el('[data-mg-opts]');
+      wrap.insertAdjacentHTML('beforeend', miGroupOptRow(null));
+      const last = wrap.querySelector('[data-mi-opt-row]:last-child input[data-mi-opt-name]');
+      if (last) last.focus();
     };
+
+    /* Cancel — closes without saving (live state was not mutated; we save
+     * into the group object only on Save). */
+    el('[data-mi-cancel]').onclick = m.close;
+
+    /* Delete (editing only) — confirm + remove from the array + close. */
+    if (editing) {
+      el('[data-mg-del]').onclick = () => {
+        m.close();
+        miConfirmDeleteGroup(group.id);
+      };
+    }
+
+    /* Save — validate, mutate group (or push new), close, re-render. */
+    el('[data-mi-save]').onclick = () => {
+      const name = el('[data-mgf="name"]').value.trim();
+      let ok = true;
+      if (!name) { el('[data-mgf="name"]').classList.add('eq-invalid'); ok = false; }
+      const rows = [...m.el.querySelectorAll('[data-mi-opt-row]')];
+      const newOpts = [];
+      rows.forEach(r => {
+        const nm = r.querySelector('[data-mi-opt-name]').value.trim();
+        const pr = Number(r.querySelector('[data-mi-opt-price]').value) || 0;
+        const oldId = r.dataset.optId;
+        if (!nm) { r.querySelector('[data-mi-opt-name]').classList.add('eq-invalid'); ok = false; return; }
+        if (pr < 0) { r.querySelector('[data-mi-opt-price]').classList.add('eq-invalid'); ok = false; return; }
+        newOpts.push({
+          id: oldId || ('o-' + (++miModGroupIdCounter) + '-' + newOpts.length),
+          name: nm,
+          price: pr,
+        });
+      });
+      if (!newOpts.length) { Kiwi.toast('Aucune option', { type: 'warn', desc: 'Ajoutez au moins une option.' }); return; }
+      if (!ok) { Kiwi.toast('Champs invalides', { type: 'warn', desc: 'Vérifiez les noms et les prix.' }); return; }
+
+      const required = el('[data-mg-required] button.on')?.dataset.req === '1';
+      const mode = el('[data-mg-mode] button.on')?.dataset.mode || 'single';
+      const scope = el('[data-mg-scope] button.on')?.dataset.scope || 'item';
+      let maxSel = mode === 'single' ? 1 : Math.max(2, Number(el('[data-mgf="maxSel"]').value) || newOpts.length);
+      let minSel = required ? Math.max(1, Number(el('[data-mgf="minSel"]')?.value) || 1) : Math.max(0, Number(el('[data-mgf="minSel"]')?.value) || 0);
+      if (mode === 'single') minSel = required ? 1 : 0;
+      if (minSel > maxSel) minSel = maxSel;
+
+      let scopeObj = { subsections: [], items: [] };
+      let isGlobal = false;
+      if (scope === 'global') { isGlobal = true; }
+      else if (scope === 'subsection') {
+        const sub = el('[data-mgf="subsection"]').value;
+        if (sub) scopeObj.subsections = [sub];
+      } else {
+        /* item scope — keep existing per-item if editing, optionally add the
+         * pre-attach item from opts.attachToItemId. */
+        if (editing && group.scope && (group.scope.items || []).length) {
+          scopeObj.items = group.scope.items.slice();
+        }
+        if (opts.attachToItemId && !scopeObj.items.includes(opts.attachToItemId)) {
+          scopeObj.items.push(opts.attachToItemId);
+        }
+      }
+
+      if (editing) {
+        group.name = name;
+        group.required = required;
+        group.minSel = minSel;
+        group.maxSel = maxSel;
+        group.options = newOpts;
+        group.scope = scopeObj;
+        group.isGlobal = isGlobal;
+        m.close();
+        Kiwi.toast('Groupe mis à jour', { type: 'success', desc: name });
+      } else {
+        const id = 'g-' + (++miModGroupIdCounter);
+        MI_MOD_GROUPS.push({
+          id, name, required, minSel, maxSel,
+          options: newOpts, scope: scopeObj, isGlobal,
+        });
+        m.close();
+        Kiwi.toast('Groupe créé', { type: 'success', desc: name });
+      }
+
+      /* Re-render whichever surface the user is looking at. */
+      if (document.body.classList.contains('page-menu') && miTab === 'menu') miRenderTab1Body();
+      /* If we came from an item modal (attachToItemId set), re-open it so the
+       * user sees the new/updated state without losing context. */
+      if (opts.attachToItemId) {
+        const it = miFindItem(opts.attachToItemId);
+        if (it) miOpenItemModal(it);
+      }
+    };
+
+    /* Clear invalid as the user types. */
+    m.el.querySelectorAll('[data-mgf],[data-mi-opt-name],[data-mi-opt-price]')
+      .forEach(f => f.addEventListener('input', () => f.classList.remove('eq-invalid')));
+  }
+  /* Duplicate a group — appears next to it in the grid. */
+  function miDuplicateGroup(id) {
+    const g = miGroupById(id);
+    if (!g) return;
+    const copy = JSON.parse(JSON.stringify(g));
+    copy.id = 'g-' + (++miModGroupIdCounter);
+    copy.name = g.name + ' (copie)';
+    /* Don't carry over the item-level attachments on the duplicate — the user
+     * will most likely want a clean slate to retarget. */
+    copy.scope = { subsections: g.scope.subsections.slice(), items: [] };
+    const idx = MI_MOD_GROUPS.indexOf(g);
+    MI_MOD_GROUPS.splice(idx + 1, 0, copy);
+    Kiwi.toast('Groupe dupliqué', { type: 'success', desc: copy.name });
+    if (miTab === 'menu') miRenderTab1Body();
+  }
+  /* Delete-with-confirm — pattern matches miDeleteItem. */
+  function miConfirmDeleteGroup(id) {
+    const g = miGroupById(id);
+    if (!g) return;
+    const reach = miGroupItemReach(g);
+    Kiwi.modal({
+      title: `Supprimer « ${g.name} » ?`,
+      width: 460,
+      body: `<p style="font-size:13px;color:var(--n-600);line-height:1.55;margin:0;">${reach
+        ? `Ce groupe est actuellement appliqué à <b style="color:var(--ink);">${reach} article${reach > 1 ? 's' : ''}</b>. Sa suppression retirera les options de tous ces articles.`
+        : 'Aucun article n\'utilise ce groupe.'} Cette action est réversible jusqu'au prochain rechargement.</p>`,
+      foot: '<button class="kb ghost" data-mi-cancel>Annuler</button><button class="kb danger" data-mi-confirm>Supprimer</button>',
+    });
+    const back = document.querySelector('.kiwi-backdrop:last-child');
+    if (!back) return;
+    back.querySelector('[data-mi-cancel]').onclick = () => back.querySelector('.kiwi-modal-close').click();
+    back.querySelector('[data-mi-confirm]').onclick = () => {
+      back.querySelector('.kiwi-modal-close').click();
+      const idx = MI_MOD_GROUPS.indexOf(g);
+      if (idx > -1) MI_MOD_GROUPS.splice(idx, 1);
+      Kiwi.toast('Groupe supprimé', { type: 'success', desc: g.name });
+      if (document.body.classList.contains('page-menu') && miTab === 'menu') miRenderTab1Body();
+    };
+  }
+  /* Item-modal toggle handler — flip a group's attachment to a specific item.
+   * Driven from the checkboxes inside the item modal's "Options & modificateurs"
+   * section. The visual checkbox state is the source of truth for the toggle. */
+  function miToggleGroupOnItem(itemId, groupId) {
+    const it = miFindItem(itemId);
+    const g = miGroupById(groupId);
+    if (!it || !g) return;
+    const reason = miGroupAttachReason(g, it);
+    /* Already checked? Then we're un-checking. */
+    if (reason) {
+      if (reason === 'item') {
+        g.scope.items = (g.scope.items || []).filter(x => x !== it.id);
+      } else if (reason === 'subsection') {
+        /* User is overriding subsection inheritance — drop this item from
+         * the subsection scope by promoting siblings to per-item scope. */
+        miOverrideGroupOnItem(g, it);
+      } else if (reason === 'global') {
+        Kiwi.toast('Groupe global', { type: 'info', desc: 'Modifiez la portée du groupe pour le détacher.' });
+        return false;
+      }
+      Kiwi.toast('Groupe retiré', { type: 'info', desc: `${g.name} · ${it.name}` });
+      return false;
+    }
+    /* Not yet attached — add to per-item scope. */
+    g.scope.items = g.scope.items || [];
+    if (!g.scope.items.includes(it.id)) g.scope.items.push(it.id);
+    Kiwi.toast('Groupe ajouté', { type: 'success', desc: `${g.name} · ${it.name}` });
+    return true;
   }
   function miOpenMark86Modal() {
     const venue = miMenuVenue();
@@ -4104,6 +5784,9 @@
     document.body.classList.add('page-payroll');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Paie &amp; Planning</b>';
+    /* Pin sidebar selector on Paie via Kiwi.setActivePage — drawers/modals
+     * opened from here close back into this highlight, not Accueil. */
+    window.Kiwi?.setActivePage?.('payroll');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
     document.querySelector('.sidebar nav a[data-nav="payroll"]')?.classList.add('active');
     window.scrollTo({ top: 0 });
@@ -4115,6 +5798,7 @@
     document.body.classList.remove('page-payroll');
     const bc = document.querySelector('.breadcrumb');
     if (bc) bc.innerHTML = 'Accueil <span class="sep">/</span> <b>Tableau de bord</b>';
+    window.Kiwi?.setActivePage?.('accueil');
   }
 
   /* ═══════════ RENDER ═══════════ */
@@ -4423,9 +6107,699 @@
     })),
   };
 
+
+  /* ═══════════════ INVENTORY · per-venue ingredient catalogue ═══════════════
+   * Drives the Stock & approvisionnement page (assets/stock.js).
+   * status: 'ok' (>= reorderLevel), 'low' (< reorderLevel, > 0), 'out' (= 0).
+   * usageThisWeek and theoreticalUsage drive variance reporting (actual vs
+   * what POS-recorded sales × recipes would imply). costPerUnit in MAD. */
+  const INVENTORY = {
+    cafeAtlas: [
+      // ── Viandes & volailles ──
+      { id: 'inv01', name: 'Viande hachée bœuf', category: 'viandes', unit: 'kg', currentStock: 12.4, parLevel: 18, reorderLevel: 8, costPerUnit: 95, supplier: 'Boucherie Errazi · Maarif', lastDelivery: '2026-05-13', deliveryFrequency: 'mardi-vendredi', usageThisWeek: 28.6, theoreticalUsage: 29.2, status: 'low' },
+      { id: 'inv02', name: 'Poulet entier', category: 'viandes', unit: 'kg', currentStock: 24.8, parLevel: 30, reorderLevel: 12, costPerUnit: 52, supplier: 'Volailles Atlas · Bouskoura', lastDelivery: '2026-05-14', deliveryFrequency: 'lundi-jeudi', usageThisWeek: 18.4, theoreticalUsage: 18.0, status: 'ok' },
+      { id: 'inv03', name: 'Agneau épaule', category: 'viandes', unit: 'kg', currentStock: 0, parLevel: 14, reorderLevel: 5, costPerUnit: 168, supplier: 'Boucherie Errazi · Maarif', lastDelivery: '2026-05-12', deliveryFrequency: 'mardi-vendredi', usageThisWeek: 9.2, theoreticalUsage: 11.4, status: 'out' },
+      { id: 'inv04', name: 'Merguez', category: 'viandes', unit: 'kg', currentStock: 6.8, parLevel: 8, reorderLevel: 3, costPerUnit: 78, supplier: 'Boucherie Errazi · Maarif', lastDelivery: '2026-05-13', deliveryFrequency: 'mardi-vendredi', usageThisWeek: 4.2, theoreticalUsage: 4.6, status: 'ok' },
+      { id: 'inv05', name: 'Thon en conserve', category: 'viandes', unit: 'boîte', currentStock: 48, parLevel: 60, reorderLevel: 24, costPerUnit: 14, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 36, theoreticalUsage: 38, status: 'ok' },
+      // ── Poissons & fruits de mer ──
+      { id: 'inv06', name: 'Poisson frais (sole)', category: 'poissons', unit: 'kg', currentStock: 0, parLevel: 6, reorderLevel: 2, costPerUnit: 142, supplier: 'Marché Central · Port Casablanca', lastDelivery: '2026-05-13', deliveryFrequency: 'tous-les-jours', usageThisWeek: 4.8, theoreticalUsage: 5.2, status: 'out' },
+      { id: 'inv07', name: 'Crevettes', category: 'poissons', unit: 'kg', currentStock: 3.2, parLevel: 4, reorderLevel: 1.5, costPerUnit: 168, supplier: 'Marché Central · Port Casablanca', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 2.8, theoreticalUsage: 3.0, status: 'ok' },
+      // ── Légumes & herbes ──
+      { id: 'inv08', name: 'Tomates fraîches', category: 'legumes', unit: 'kg', currentStock: 18.6, parLevel: 25, reorderLevel: 10, costPerUnit: 8, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 32.4, theoreticalUsage: 31.0, status: 'low' },
+      { id: 'inv09', name: 'Oignons', category: 'legumes', unit: 'kg', currentStock: 42, parLevel: 40, reorderLevel: 15, costPerUnit: 5, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-mercredi-vendredi', usageThisWeek: 26.8, theoreticalUsage: 27.2, status: 'ok' },
+      { id: 'inv10', name: 'Pommes de terre', category: 'legumes', unit: 'kg', currentStock: 28, parLevel: 35, reorderLevel: 12, costPerUnit: 6, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-mercredi-vendredi', usageThisWeek: 38.4, theoreticalUsage: 37.0, status: 'ok' },
+      { id: 'inv11', name: 'Courgettes', category: 'legumes', unit: 'kg', currentStock: 4.2, parLevel: 12, reorderLevel: 5, costPerUnit: 9, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'tous-les-jours', usageThisWeek: 14.8, theoreticalUsage: 13.6, status: 'low' },
+      { id: 'inv12', name: 'Carottes', category: 'legumes', unit: 'kg', currentStock: 16.4, parLevel: 18, reorderLevel: 7, costPerUnit: 5, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 11.2, theoreticalUsage: 11.6, status: 'ok' },
+      { id: 'inv13', name: 'Coriandre fraîche', category: 'legumes', unit: 'botte', currentStock: 28, parLevel: 40, reorderLevel: 15, costPerUnit: 4, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 64, theoreticalUsage: 62, status: 'ok' },
+      { id: 'inv14', name: 'Persil', category: 'legumes', unit: 'botte', currentStock: 32, parLevel: 35, reorderLevel: 12, costPerUnit: 4, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 56, theoreticalUsage: 54, status: 'ok' },
+      { id: 'inv15', name: 'Menthe fraîche', category: 'legumes', unit: 'botte', currentStock: 18, parLevel: 60, reorderLevel: 20, costPerUnit: 3, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'tous-les-jours', usageThisWeek: 142, theoreticalUsage: 138, status: 'low' },
+      { id: 'inv16', name: 'Citrons', category: 'legumes', unit: 'kg', currentStock: 14, parLevel: 18, reorderLevel: 6, costPerUnit: 12, supplier: 'Marché de gros · Inezgane', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-mercredi-vendredi', usageThisWeek: 12.6, theoreticalUsage: 12.8, status: 'ok' },
+      { id: 'inv17', name: 'Avocats', category: 'legumes', unit: 'kg', currentStock: 9.4, parLevel: 14, reorderLevel: 5, costPerUnit: 32, supplier: 'Fruits Premium · Casablanca', lastDelivery: '2026-05-14', deliveryFrequency: 'mardi-vendredi', usageThisWeek: 18.2, theoreticalUsage: 17.6, status: 'low' },
+      // ── Épicerie sèche ──
+      { id: 'inv18', name: 'Semoule fine', category: 'epicerie', unit: 'kg', currentStock: 32, parLevel: 40, reorderLevel: 15, costPerUnit: 12, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 18, theoreticalUsage: 18.4, status: 'ok' },
+      { id: 'inv19', name: 'Riz long', category: 'epicerie', unit: 'kg', currentStock: 26, parLevel: 30, reorderLevel: 10, costPerUnit: 14, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 14, theoreticalUsage: 14.2, status: 'ok' },
+      { id: 'inv20', name: "Huile d'olive extra vierge", category: 'epicerie', unit: 'L', currentStock: 18, parLevel: 24, reorderLevel: 8, costPerUnit: 78, supplier: 'Huileries Sefrioui · Meknès', lastDelivery: '2026-05-07', deliveryFrequency: 'bi-mensuel', usageThisWeek: 11.6, theoreticalUsage: 12.0, status: 'ok' },
+      { id: 'inv21', name: 'Huile de tournesol', category: 'epicerie', unit: 'L', currentStock: 32, parLevel: 30, reorderLevel: 12, costPerUnit: 28, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 18.4, theoreticalUsage: 18.0, status: 'ok' },
+      { id: 'inv22', name: 'Couscous fin', category: 'epicerie', unit: 'kg', currentStock: 14, parLevel: 20, reorderLevel: 8, costPerUnit: 18, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 12.2, theoreticalUsage: 12.4, status: 'low' },
+      { id: 'inv23', name: 'Farine blé tendre', category: 'epicerie', unit: 'kg', currentStock: 48, parLevel: 50, reorderLevel: 20, costPerUnit: 8, supplier: 'Minoterie Lazaar · Casablanca', lastDelivery: '2026-05-09', deliveryFrequency: 'hebdomadaire', usageThisWeek: 32, theoreticalUsage: 31.6, status: 'ok' },
+      { id: 'inv24', name: 'Sucre blanc', category: 'epicerie', unit: 'kg', currentStock: 26, parLevel: 30, reorderLevel: 10, costPerUnit: 9, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 14.8, theoreticalUsage: 14.4, status: 'ok' },
+      // ── Épices ──
+      { id: 'inv25', name: 'Cumin moulu', category: 'epices', unit: 'kg', currentStock: 1.8, parLevel: 2, reorderLevel: 0.8, costPerUnit: 142, supplier: 'Épices Bab Marrakech', lastDelivery: '2026-05-01', deliveryFrequency: 'mensuel', usageThisWeek: 0.42, theoreticalUsage: 0.40, status: 'ok' },
+      { id: 'inv26', name: 'Paprika doux', category: 'epices', unit: 'kg', currentStock: 0.6, parLevel: 1.5, reorderLevel: 0.5, costPerUnit: 96, supplier: 'Épices Bab Marrakech', lastDelivery: '2026-05-01', deliveryFrequency: 'mensuel', usageThisWeek: 0.38, theoreticalUsage: 0.36, status: 'low' },
+      { id: 'inv27', name: 'Ras el hanout', category: 'epices', unit: 'kg', currentStock: 1.2, parLevel: 1.5, reorderLevel: 0.5, costPerUnit: 218, supplier: 'Épices Bab Marrakech', lastDelivery: '2026-05-01', deliveryFrequency: 'mensuel', usageThisWeek: 0.32, theoreticalUsage: 0.30, status: 'ok' },
+      { id: 'inv28', name: 'Safran', category: 'epices', unit: 'g', currentStock: 24, parLevel: 30, reorderLevel: 10, costPerUnit: 18, supplier: 'Coopérative Taliouine', lastDelivery: '2026-04-22', deliveryFrequency: 'mensuel', usageThisWeek: 4.2, theoreticalUsage: 4.0, status: 'ok' },
+      // ── Produits laitiers ──
+      { id: 'inv29', name: 'Lait entier', category: 'laitiers', unit: 'L', currentStock: 28, parLevel: 40, reorderLevel: 15, costPerUnit: 8, supplier: 'Centrale Danone · Casablanca', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 142, theoreticalUsage: 138, status: 'low' },
+      { id: 'inv30', name: 'Yaourt nature', category: 'laitiers', unit: 'pot', currentStock: 38, parLevel: 50, reorderLevel: 20, costPerUnit: 3, supplier: 'Centrale Danone · Casablanca', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 86, theoreticalUsage: 84, status: 'ok' },
+      { id: 'inv31', name: 'Fromage frais', category: 'laitiers', unit: 'kg', currentStock: 4.8, parLevel: 6, reorderLevel: 2, costPerUnit: 62, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-jeudi', usageThisWeek: 5.4, theoreticalUsage: 5.2, status: 'ok' },
+      { id: 'inv32', name: 'Beurre', category: 'laitiers', unit: 'kg', currentStock: 9.2, parLevel: 10, reorderLevel: 4, costPerUnit: 78, supplier: 'Centrale Danone · Casablanca', lastDelivery: '2026-05-12', deliveryFrequency: 'lundi-jeudi', usageThisWeek: 7.4, theoreticalUsage: 7.6, status: 'ok' },
+      { id: 'inv33', name: 'Œufs', category: 'laitiers', unit: 'unité', currentStock: 142, parLevel: 240, reorderLevel: 80, costPerUnit: 1.4, supplier: 'Avicole Atlas · Bouskoura', lastDelivery: '2026-05-13', deliveryFrequency: 'lundi-jeudi', usageThisWeek: 386, theoreticalUsage: 392, status: 'low' },
+      // ── Boissons ──
+      { id: 'inv34', name: 'Coca-Cola 33cl', category: 'boissons', unit: 'bouteille', currentStock: 144, parLevel: 240, reorderLevel: 96, costPerUnit: 6, supplier: 'NABC · Casablanca', lastDelivery: '2026-05-12', deliveryFrequency: 'hebdomadaire', usageThisWeek: 486, theoreticalUsage: 478, status: 'low' },
+      { id: 'inv35', name: 'Eau minérale 50cl', category: 'boissons', unit: 'bouteille', currentStock: 286, parLevel: 360, reorderLevel: 120, costPerUnit: 3, supplier: 'Sidi Ali · Distributeur', lastDelivery: '2026-05-13', deliveryFrequency: 'bi-hebdomadaire', usageThisWeek: 824, theoreticalUsage: 818, status: 'ok' },
+      { id: 'inv36', name: 'Thé vert en vrac', category: 'boissons', unit: 'kg', currentStock: 4.2, parLevel: 5, reorderLevel: 2, costPerUnit: 168, supplier: 'Thé Asma · Tanger', lastDelivery: '2026-04-28', deliveryFrequency: 'mensuel', usageThisWeek: 0.84, theoreticalUsage: 0.86, status: 'ok' },
+      // ── Produits finis / semi ──
+      { id: 'inv37', name: 'Pâte à pastilla', category: 'epicerie', unit: 'paquet', currentStock: 24, parLevel: 30, reorderLevel: 10, costPerUnit: 18, supplier: 'Bakery El Ouafy · Maarif', lastDelivery: '2026-05-14', deliveryFrequency: 'lundi-mercredi-vendredi', usageThisWeek: 38, theoreticalUsage: 36, status: 'ok' },
+      { id: 'inv38', name: 'Pain rond traditionnel', category: 'epicerie', unit: 'unité', currentStock: 38, parLevel: 80, reorderLevel: 30, costPerUnit: 2, supplier: 'Bakery El Ouafy · Maarif', lastDelivery: '2026-05-14', deliveryFrequency: 'tous-les-jours', usageThisWeek: 286, theoreticalUsage: 282, status: 'low' },
+      // ── Consommables ──
+      { id: 'inv39', name: 'Serviettes papier', category: 'consommables', unit: 'paquet', currentStock: 14, parLevel: 18, reorderLevel: 6, costPerUnit: 32, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 8, theoreticalUsage: 8, status: 'ok' },
+      { id: 'inv40', name: 'Sacs poubelle 100L', category: 'consommables', unit: 'paquet', currentStock: 6, parLevel: 8, reorderLevel: 3, costPerUnit: 48, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'jeudi', usageThisWeek: 3, theoreticalUsage: 3, status: 'ok' },
+    ],
+    maisonMansour: [
+      { id: 'inv-mm01', name: 'Caftans (stock)', category: 'produits', unit: 'unité', currentStock: 48, parLevel: 60, reorderLevel: 20, costPerUnit: 1200, supplier: 'Atelier Marrakech · Médina', lastDelivery: '2026-04-22', deliveryFrequency: 'mensuel', usageThisWeek: 8, theoreticalUsage: 8, status: 'ok' },
+      { id: 'inv-mm02', name: 'Babouches cuir', category: 'produits', unit: 'paire', currentStock: 24, parLevel: 40, reorderLevel: 15, costPerUnit: 280, supplier: 'Tannerie Fès · Médina', lastDelivery: '2026-05-02', deliveryFrequency: 'bi-mensuel', usageThisWeek: 6, theoreticalUsage: 7, status: 'low' },
+      { id: 'inv-mm03', name: 'Tapis berbères', category: 'produits', unit: 'unité', currentStock: 18, parLevel: 25, reorderLevel: 8, costPerUnit: 2400, supplier: 'Coopérative Anti-Atlas', lastDelivery: '2026-04-15', deliveryFrequency: 'mensuel', usageThisWeek: 2, theoreticalUsage: 2, status: 'ok' },
+      { id: 'inv-mm04', name: 'Sachets cadeau', category: 'consommables', unit: 'unité', currentStock: 142, parLevel: 200, reorderLevel: 80, costPerUnit: 8, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'mensuel', usageThisWeek: 38, theoreticalUsage: 36, status: 'low' },
+    ],
+    spaBahia: [
+      { id: 'inv-sp01', name: "Huile d'argan", category: 'produits-soin', unit: 'L', currentStock: 6.4, parLevel: 8, reorderLevel: 3, costPerUnit: 320, supplier: 'Coopérative Tiznit', lastDelivery: '2026-05-08', deliveryFrequency: 'bi-mensuel', usageThisWeek: 1.8, theoreticalUsage: 2.0, status: 'ok' },
+      { id: 'inv-sp02', name: 'Savon noir traditionnel', category: 'produits-soin', unit: 'kg', currentStock: 12, parLevel: 15, reorderLevel: 5, costPerUnit: 95, supplier: 'Cosmétiques Médina · Fès', lastDelivery: '2026-05-08', deliveryFrequency: 'bi-mensuel', usageThisWeek: 3.4, theoreticalUsage: 3.2, status: 'ok' },
+      { id: 'inv-sp03', name: 'Gants de gommage', category: 'consommables', unit: 'unité', currentStock: 18, parLevel: 40, reorderLevel: 15, costPerUnit: 12, supplier: 'Cosmétiques Médina · Fès', lastDelivery: '2026-05-08', deliveryFrequency: 'bi-mensuel', usageThisWeek: 24, theoreticalUsage: 22, status: 'low' },
+      { id: 'inv-sp04', name: 'Serviettes éponge', category: 'consommables', unit: 'unité', currentStock: 84, parLevel: 100, reorderLevel: 40, costPerUnit: 38, supplier: 'Linge pro · Casablanca', lastDelivery: '2026-05-05', deliveryFrequency: 'bi-mensuel', usageThisWeek: 12, theoreticalUsage: 12, status: 'ok' },
+      { id: 'inv-sp05', name: 'Bougies aromatiques', category: 'consommables', unit: 'unité', currentStock: 28, parLevel: 40, reorderLevel: 15, costPerUnit: 24, supplier: 'Métro Casablanca · Aïn Sebaâ', lastDelivery: '2026-05-10', deliveryFrequency: 'mensuel', usageThisWeek: 8, theoreticalUsage: 8, status: 'ok' },
+      { id: 'inv-sp06', name: 'Henné poudre', category: 'produits-soin', unit: 'kg', currentStock: 0, parLevel: 2, reorderLevel: 0.5, costPerUnit: 140, supplier: 'Coopérative Tiznit', lastDelivery: '2026-04-28', deliveryFrequency: 'bi-mensuel', usageThisWeek: 0.4, theoreticalUsage: 0.42, status: 'out' },
+    ],
+  };
+
+  /* ═══════════════ SUPPLIERS · deduplicated catalogue ═══════════════
+   * Maps the supplier strings referenced in INVENTORY to richer profile data
+   * (contact, schedule, monthly spend, last 30d price change). Used in the
+   * Suppliers tab of the Stock page and in the Supplier Profile modal. */
+  const SUPPLIERS = [
+    { id: 'sup01', name: 'Boucherie Errazi', location: 'Maarif', category: 'viandes', contact: '+212 6 22 14 28 36', deliverySchedule: 'mardi · vendredi', avgInvoice: 3840, paymentTerms: 'Net 15', rating: 4.8, monthlySpend: 28400, priceChangeLast30d: 4.2 },
+    { id: 'sup02', name: 'Volailles Atlas', location: 'Bouskoura', category: 'viandes', contact: '+212 6 14 82 47 19', deliverySchedule: 'lundi · jeudi', avgInvoice: 1280, paymentTerms: 'Net 30', rating: 4.6, monthlySpend: 10240, priceChangeLast30d: 0 },
+    { id: 'sup03', name: 'Marché Central · Port', location: 'Casablanca', category: 'poissons', contact: '+212 6 38 19 47 02', deliverySchedule: 'tous les jours · 06h', avgInvoice: 820, paymentTerms: 'Comptant', rating: 4.4, monthlySpend: 16400, priceChangeLast30d: 8.4 },
+    { id: 'sup04', name: 'Marché de gros · Inezgane', location: 'Casablanca', category: 'legumes', contact: '+212 6 47 82 91 14', deliverySchedule: 'tous les jours · 05h30', avgInvoice: 1840, paymentTerms: 'Comptant', rating: 4.5, monthlySpend: 36800, priceChangeLast30d: -2.1 },
+    { id: 'sup05', name: 'Fruits Premium', location: 'Casablanca', category: 'legumes', contact: '+212 6 19 27 84 51', deliverySchedule: 'mardi · vendredi', avgInvoice: 1240, paymentTerms: 'Net 15', rating: 4.7, monthlySpend: 4960, priceChangeLast30d: 6.8 },
+    { id: 'sup06', name: 'Métro Casablanca', location: 'Aïn Sebaâ', category: 'epicerie', contact: '+212 5 22 67 84 00', deliverySchedule: 'jeudi · 14h', avgInvoice: 4620, paymentTerms: 'Net 30', rating: 4.9, monthlySpend: 18480, priceChangeLast30d: 1.4 },
+    { id: 'sup07', name: 'Huileries Sefrioui', location: 'Meknès', category: 'epicerie', contact: '+212 5 35 52 18 47', deliverySchedule: 'bi-mensuel', avgInvoice: 1680, paymentTerms: 'Net 30', rating: 4.8, monthlySpend: 3360, priceChangeLast30d: 0 },
+    { id: 'sup08', name: 'Minoterie Lazaar', location: 'Casablanca', category: 'epicerie', contact: '+212 5 22 30 14 28', deliverySchedule: 'hebdomadaire', avgInvoice: 480, paymentTerms: 'Net 15', rating: 4.6, monthlySpend: 1920, priceChangeLast30d: 0 },
+    { id: 'sup09', name: 'Épices Bab Marrakech', location: 'Marrakech', category: 'epices', contact: '+212 6 24 81 47 92', deliverySchedule: 'mensuel', avgInvoice: 1840, paymentTerms: 'Net 30', rating: 4.9, monthlySpend: 1840, priceChangeLast30d: 0 },
+    { id: 'sup10', name: 'Coopérative Taliouine', location: 'Taliouine', category: 'epices', contact: '+212 5 28 53 49 18', deliverySchedule: 'mensuel', avgInvoice: 432, paymentTerms: 'Comptant', rating: 5.0, monthlySpend: 432, priceChangeLast30d: 12.4 },
+    { id: 'sup11', name: 'Centrale Danone', location: 'Casablanca', category: 'laitiers', contact: '+212 5 22 87 14 00', deliverySchedule: 'tous les jours · 07h', avgInvoice: 1240, paymentTerms: 'Net 30', rating: 4.7, monthlySpend: 24800, priceChangeLast30d: 2.8 },
+    { id: 'sup12', name: 'Avicole Atlas', location: 'Bouskoura', category: 'laitiers', contact: '+212 6 28 47 19 84', deliverySchedule: 'lundi · jeudi', avgInvoice: 480, paymentTerms: 'Net 15', rating: 4.5, monthlySpend: 3840, priceChangeLast30d: 5.4 },
+    { id: 'sup13', name: 'NABC', location: 'Casablanca', category: 'boissons', contact: '+212 5 22 14 80 47', deliverySchedule: 'hebdomadaire', avgInvoice: 2160, paymentTerms: 'Net 30', rating: 4.6, monthlySpend: 8640, priceChangeLast30d: 0 },
+    { id: 'sup14', name: 'Sidi Ali · Distributeur', location: 'Oulmès', category: 'boissons', contact: '+212 5 37 84 19 28', deliverySchedule: 'bi-hebdomadaire', avgInvoice: 1080, paymentTerms: 'Net 30', rating: 4.7, monthlySpend: 8640, priceChangeLast30d: 0 },
+    { id: 'sup15', name: 'Thé Asma', location: 'Tanger', category: 'boissons', contact: '+212 6 39 47 28 14', deliverySchedule: 'mensuel', avgInvoice: 680, paymentTerms: 'Comptant', rating: 4.8, monthlySpend: 680, priceChangeLast30d: 0 },
+    { id: 'sup16', name: 'Bakery El Ouafy', location: 'Maarif', category: 'epicerie', contact: '+212 6 18 27 84 91', deliverySchedule: 'lundi · mercredi · vendredi', avgInvoice: 320, paymentTerms: 'Comptant', rating: 4.9, monthlySpend: 3840, priceChangeLast30d: 0 },
+  ];
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *  PLACEHOLDER_COSTS — ingredients referenced in recipes that don't yet
+   *  exist in INVENTORY. Cost / unit used by the variance engine when an
+   *  ingredient ID doesn't resolve to an inv## entry. Owner can promote
+   *  any placeholder to a real inventory entry from Stock in Phase 2.
+   * ═══════════════════════════════════════════════════════════════════════ */
+  const PLACEHOLDER_COSTS = {
+    'placeholder-coffee':  { name: 'Café en grains', unit: 'kg', costPerUnit: 180 },
+    'placeholder-nutella': { name: 'Nutella',        unit: 'kg', costPerUnit: 190 },
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *  RECIPES — recipe cards bound to MENU items by ID.
+   *
+   *  Demo contract: pre-populated entries below load fresh on every page
+   *  reload. Edits during a session live in RECIPES_SESSION (declared
+   *  below). All variance calculations derive from RECIPES_SESSION at
+   *  runtime — never from RECIPES directly.
+   *
+   *  Schema:
+   *    { yield: <portions>,
+   *      ingredients: [{ invId, qty, unit }],
+   *      status: 'complete' | 'incomplete',
+   *      notes: string,
+   *      lastUpdated: 'YYYY-MM-DD' | null,
+   *      updatedBy: '<Staff name>' | null }
+   *
+   *  Pre-populated recipes (13 total):
+   *    cafeAtlas (10): ca-t01 ca-t02 ca-t03 ca-c01 ca-p01 ca-s01
+   *                    ca-b01 ca-b02 ca-b04 ca-d01
+   *    spaBahia  (3) : sp-s01 sp-s02 sp-s04
+   *    maisonMansour (3): mm-b01 mm-b02 mm-b03
+   *  Remaining items pre-populate as stubs with status 'incomplete'.
+   * ═══════════════════════════════════════════════════════════════════════ */
+  const RECIPES = {
+    /* ─── CAFÉ ATLAS · 10 pre-populated, 28 stubbed ─── */
+    'ca-t01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv01', qty: 0.180, unit: 'kg' },   // viande hachée bœuf
+        { invId: 'inv08', qty: 0.150, unit: 'kg' },   // tomates fraîches
+        { invId: 'inv09', qty: 0.080, unit: 'kg' },   // oignons
+        { invId: 'inv33', qty: 1,     unit: 'unité' },// œuf
+        { invId: 'inv20', qty: 0.030, unit: 'L' },    // huile d'olive
+        { invId: 'inv13', qty: 0.5,   unit: 'botte' },// coriandre
+        { invId: 'inv14', qty: 0.5,   unit: 'botte' },// persil
+        { invId: 'inv25', qty: 0.003, unit: 'kg' },   // cumin
+        { invId: 'inv26', qty: 0.003, unit: 'kg' },   // paprika
+      ],
+      status: 'complete', notes: 'Servir bien chaud avec pain rond.',
+      lastUpdated: '2026-05-12', updatedBy: 'Mohammed Karimi',
+    },
+    'ca-t02': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv02', qty: 0.250, unit: 'kg' },   // poulet entier
+        { invId: 'inv16', qty: 0.080, unit: 'kg' },   // citrons (confits)
+        { invId: 'inv09', qty: 0.080, unit: 'kg' },   // oignons
+        { invId: 'inv20', qty: 0.030, unit: 'L' },    // huile d'olive
+        { invId: 'inv13', qty: 0.5,   unit: 'botte' },// coriandre
+        { invId: 'inv14', qty: 0.5,   unit: 'botte' },// persil
+        { invId: 'inv27', qty: 0.004, unit: 'kg' },   // ras el hanout
+        { invId: 'inv28', qty: 0.020, unit: 'g' },    // safran (pincée)
+      ],
+      status: 'complete', notes: 'Marinade poulet 30min avant cuisson.',
+      lastUpdated: '2026-05-12', updatedBy: 'Mohammed Karimi',
+    },
+    'ca-t03': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv03', qty: 0.220, unit: 'kg' },   // agneau épaule
+        { invId: 'inv09', qty: 0.080, unit: 'kg' },   // oignons
+        { invId: 'inv20', qty: 0.030, unit: 'L' },    // huile d'olive
+        { invId: 'inv24', qty: 0.020, unit: 'kg' },   // sucre (pruneaux)
+        { invId: 'inv27', qty: 0.005, unit: 'kg' },   // ras el hanout
+        { invId: 'inv28', qty: 0.030, unit: 'g' },    // safran
+        { invId: 'inv32', qty: 0.020, unit: 'kg' },   // beurre
+      ],
+      status: 'complete', notes: 'Cuisson lente 2h. Pruneaux ajoutés en fin.',
+      lastUpdated: '2026-05-10', updatedBy: 'Mohammed Karimi',
+    },
+    'ca-c01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv22', qty: 0.180, unit: 'kg' },   // couscous fin
+        { invId: 'inv02', qty: 0.150, unit: 'kg' },   // poulet
+        { invId: 'inv03', qty: 0.100, unit: 'kg' },   // agneau
+        { invId: 'inv04', qty: 0.080, unit: 'kg' },   // merguez
+        { invId: 'inv11', qty: 0.080, unit: 'kg' },   // courgettes
+        { invId: 'inv12', qty: 0.080, unit: 'kg' },   // carottes
+        { invId: 'inv10', qty: 0.060, unit: 'kg' },   // pommes de terre
+        { invId: 'inv09', qty: 0.060, unit: 'kg' },   // oignons
+        { invId: 'inv20', qty: 0.030, unit: 'L' },    // huile d'olive
+        { invId: 'inv25', qty: 0.003, unit: 'kg' },   // cumin
+        { invId: 'inv27', qty: 0.004, unit: 'kg' },   // ras el hanout
+      ],
+      status: 'complete', notes: 'Vapeur 45min minimum.',
+      lastUpdated: '2026-05-08', updatedBy: 'Fatima Zahra Idrissi',
+    },
+    'ca-p01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv37', qty: 2,     unit: 'paquet' }, // pâte à pastilla (feuilles)
+        { invId: 'inv02', qty: 0.200, unit: 'kg' },   // poulet
+        { invId: 'inv33', qty: 2,     unit: 'unité' },// œufs
+        { invId: 'inv09', qty: 0.080, unit: 'kg' },   // oignons
+        { invId: 'inv24', qty: 0.020, unit: 'kg' },   // sucre glace
+        { invId: 'inv32', qty: 0.030, unit: 'kg' },   // beurre
+        { invId: 'inv28', qty: 0.020, unit: 'g' },    // safran
+      ],
+      status: 'complete', notes: 'Saupoudrer sucre glace + cannelle au service.',
+      lastUpdated: '2026-05-09', updatedBy: 'Fatima Zahra Idrissi',
+    },
+    'ca-s01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv38', qty: 1,     unit: 'unité' },// pain rond
+        { invId: 'inv01', qty: 0.120, unit: 'kg' },   // viande hachée
+        { invId: 'inv08', qty: 0.060, unit: 'kg' },   // tomates
+        { invId: 'inv09', qty: 0.040, unit: 'kg' },   // oignons
+        { invId: 'inv25', qty: 0.002, unit: 'kg' },   // cumin
+        { invId: 'inv26', qty: 0.002, unit: 'kg' },   // paprika
+      ],
+      status: 'complete', notes: 'Servir avec frites ou salade.',
+      lastUpdated: '2026-05-13', updatedBy: 'Youssef Bennani',
+    },
+    'ca-b01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv36', qty: 0.005, unit: 'kg' },   // thé vert vrac
+        { invId: 'inv15', qty: 0.25,  unit: 'botte' },// menthe fraîche
+        { invId: 'inv24', qty: 0.015, unit: 'kg' },   // sucre
+      ],
+      status: 'complete', notes: 'Thé infusé 3-5min. Trois services par théière.',
+      lastUpdated: '2026-05-14', updatedBy: 'Hamid Jelloul',
+    },
+    'ca-b02': {
+      yield: 1,
+      ingredients: [
+        { invId: 'placeholder-coffee', qty: 0.012, unit: 'kg' }, // café en grains
+      ],
+      status: 'complete', notes: 'Espresso double 30ml.',
+      lastUpdated: '2026-05-14', updatedBy: 'Hamid Jelloul',
+    },
+    'ca-b04': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv17', qty: 0.150, unit: 'kg' },   // avocats
+        { invId: 'inv29', qty: 0.200, unit: 'L' },    // lait
+        { invId: 'inv24', qty: 0.025, unit: 'kg' },   // sucre
+      ],
+      status: 'complete', notes: 'Mixer avocat mûr + lait + sucre. Servir frais.',
+      lastUpdated: '2026-05-11', updatedBy: 'Youssef Bennani',
+    },
+    'ca-d01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv23', qty: 0.060, unit: 'kg' },   // farine
+        { invId: 'inv29', qty: 0.150, unit: 'L' },    // lait
+        { invId: 'inv33', qty: 1,     unit: 'unité' },// œuf
+        { invId: 'inv32', qty: 0.010, unit: 'kg' },   // beurre
+        { invId: 'placeholder-nutella', qty: 0.040, unit: 'kg' }, // nutella
+      ],
+      status: 'complete', notes: 'Crêpe française fine, garniture chaude.',
+      lastUpdated: '2026-05-13', updatedBy: 'Rachid Alami',
+    },
+    /* ── Stubs (28 cafeAtlas items) ── */
+    'ca-e01': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e04': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-e06': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-t04': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-t05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-c02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-c03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-p02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-p03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s04': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s06': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s07': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-s08': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b06': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b07': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-b08': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-d02': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-d03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-d04': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'ca-d05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+
+    /* ─── SPA BAHIA · 3 pre-populated (consumables), 3 stubs ─── */
+    'sp-s01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv-sp02', qty: 0.050, unit: 'kg' },   // savon noir
+        { invId: 'inv-sp03', qty: 0.5,   unit: 'unité' },// gant gommage (réutilisable, demi-vie)
+        { invId: 'inv-sp04', qty: 2,     unit: 'unité' },// serviettes éponge
+      ],
+      status: 'complete', notes: 'Gommage savon noir + rinçage + serviettes propres.',
+      lastUpdated: '2026-05-10', updatedBy: 'Karima Idrissi',
+    },
+    'sp-s02': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv-sp01', qty: 0.030, unit: 'L' },    // huile d'argan
+        { invId: 'inv-sp04', qty: 1,     unit: 'unité' },// serviette éponge
+        { invId: 'inv-sp05', qty: 1,     unit: 'unité' },// bougie aromatique
+      ],
+      status: 'complete', notes: 'Modelage corps entier · huile tiède.',
+      lastUpdated: '2026-05-10', updatedBy: 'Nour El Hassan',
+    },
+    'sp-s04': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv-sp01', qty: 0.050, unit: 'L' },    // huile d'argan
+        { invId: 'inv-sp02', qty: 0.025, unit: 'kg' },   // savon noir
+        { invId: 'inv-sp04', qty: 2,     unit: 'unité' },// serviettes éponge
+        { invId: 'inv-sp05', qty: 1,     unit: 'unité' },// bougie aromatique
+      ],
+      status: 'complete', notes: 'Rituel argan 90min · hammam + gommage + modelage.',
+      lastUpdated: '2026-05-09', updatedBy: 'Karima Idrissi',
+    },
+    'sp-s03': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'sp-s05': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+    'sp-s06': { yield: 1, ingredients: [], status: 'incomplete', notes: '', lastUpdated: null, updatedBy: null },
+
+    /* ─── MAISON MANSOUR · 3 pre-populated (boissons d'accueil) ─── */
+    'mm-b01': {
+      yield: 1,
+      ingredients: [
+        { invId: 'inv36', qty: 0.005, unit: 'kg' },   // thé vert vrac (partagé inv catalog)
+        { invId: 'inv15', qty: 0.20,  unit: 'botte' },// menthe
+        { invId: 'inv24', qty: 0.012, unit: 'kg' },   // sucre
+      ],
+      status: 'complete', notes: 'Boisson d\'accueil clients · service en argenterie.',
+      lastUpdated: '2026-05-12', updatedBy: 'Aicha Benali',
+    },
+    'mm-b02': {
+      yield: 1,
+      ingredients: [
+        { invId: 'placeholder-coffee', qty: 0.010, unit: 'kg' },
+      ],
+      status: 'complete', notes: 'Espresso simple offert clients VIP.',
+      lastUpdated: '2026-05-12', updatedBy: 'Aicha Benali',
+    },
+    'mm-b03': {
+      yield: 1,
+      ingredients: [
+        // Eau minérale 33cl — produit fini, achat direct
+      ],
+      status: 'complete', notes: 'Bouteille 33cl offerte essayage cabine.',
+      lastUpdated: '2026-05-12', updatedBy: 'Aicha Benali',
+    },
+  };
+
+  /* RECIPES_SESSION — mutable working copy. Variance + UI read from here.
+   * Re-derived from RECIPES on every page reload (correct demo behavior). */
+  let RECIPES_SESSION = JSON.parse(JSON.stringify(RECIPES));
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *  STAFF_DISH_RESPONSIBILITY — which staff member is accountable for which
+   *  menu items. Powers variancePerStaffMember() for the Phase 2 staff coach.
+   *  Verified against MENU.cafeAtlas / spaBahia / maisonMansour at write
+   *  time — every ID listed below exists in the corresponding MENU array.
+   * ═══════════════════════════════════════════════════════════════════════ */
+  const STAFF_DISH_RESPONSIBILITY = {
+    'ca01': ['ca-t01','ca-t02','ca-t03','ca-c01','ca-p01','ca-p02','ca-p03'],
+    'ca02': ['ca-t01','ca-t02','ca-s01','ca-s02','ca-s03'],
+    'ca03': ['ca-c01','ca-c02','ca-c03','ca-p01','ca-p02','ca-p03'],
+    'ca04': ['ca-e01','ca-e04','ca-e05'],
+    'ca05': ['ca-d01','ca-d02','ca-d03'],
+    'ca06': ['ca-e02','ca-e03','ca-e06'],
+    'sp01': ['sp-s01','sp-s04'],
+    'sp02': ['sp-s02','sp-s03'],
+    'mm01': ['mm-b01','mm-b02','mm-b03'],
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
+   *  KiwiRecipes — variance + cost engine.
+   *
+   *  Pure functions: no DOM, no side effects. Every read goes through
+   *  RECIPES_SESSION + MENU + INVENTORY + STAFF at runtime, so updates to
+   *  the session state propagate without re-renders being needed in the
+   *  data layer.
+   *
+   *  Severity bands:
+   *    |Δ%| ≤ 5   → 'normal'
+   *    |Δ%| ≤ 15  → 'warning'
+   *    |Δ%| > 15  → 'critical'
+   *
+   *  Monthly window: we treat INVENTORY usageThisWeek × 4.33 as the
+   *  monthly actual usage (EQ_MONTH_WEEKS is reused implicitly: 4.33).
+   *  Theoretical comes from RECIPES_SESSION × MENU.unitsThisMonth.
+   * ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Find which venue an inventory ID belongs to. */
+  function recFindInventoryItem(invId) {
+    for (const v of REAL_VENUES) {
+      const arr = INVENTORY[v] || [];
+      const hit = arr.find(i => i.id === invId);
+      if (hit) return { item: hit, venue: v };
+    }
+    return null;
+  }
+  /* Resolve cost / unit / name for any ingredient reference (inv## or
+   * placeholder-*). Returns null if the reference is unknown. */
+  function recResolveIngredient(invId) {
+    if (PLACEHOLDER_COSTS[invId]) return { id: invId, name: PLACEHOLDER_COSTS[invId].name, unit: PLACEHOLDER_COSTS[invId].unit, costPerUnit: PLACEHOLDER_COSTS[invId].costPerUnit, isPlaceholder: true };
+    const found = recFindInventoryItem(invId);
+    if (!found) return null;
+    const { item } = found;
+    return { id: invId, name: item.name, unit: item.unit, costPerUnit: item.costPerUnit, isPlaceholder: false };
+  }
+  /* Cost of one portion (yield-adjusted) for a single recipe. */
+  function recPortionCost(recipe) {
+    if (!recipe || !recipe.ingredients || !recipe.ingredients.length) return 0;
+    const y = Math.max(1, recipe.yield || 1);
+    let total = 0;
+    for (const ing of recipe.ingredients) {
+      const ref = recResolveIngredient(ing.invId);
+      if (!ref) continue;
+      total += (ing.qty || 0) * ref.costPerUnit;
+    }
+    return total / y;
+  }
+  /* Find the MENU item for an id across all real venues. */
+  function recFindMenuItem(itemId) {
+    for (const v of REAL_VENUES) {
+      const it = (MENU[v] || []).find(x => x.id === itemId);
+      if (it) return { item: it, venue: v };
+    }
+    return null;
+  }
+
+  /* ─── Public-facing engine ─────────────────────────────────────────── */
+
+  function recGetRecipe(itemId) {
+    return RECIPES_SESSION[itemId] || null;
+  }
+  function recSetRecipe(itemId, recipe) {
+    if (!itemId || !recipe) return;
+    RECIPES_SESSION[itemId] = recipe;
+  }
+  function recListRecipes(venueKey) {
+    const items = MENU[venueKey] || [];
+    return items.map(it => ({ menuItem: it, recipe: RECIPES_SESSION[it.id] || null }));
+  }
+
+  function recRecipeStats(venueKey) {
+    const items = MENU[venueKey] || [];
+    let complete = 0;
+    let totalFcSum = 0; let totalFcCount = 0;
+    let totalVarSum = 0; let totalVarCount = 0;
+    for (const it of items) {
+      const r = RECIPES_SESSION[it.id];
+      if (!r) continue;
+      if (r.status === 'complete') {
+        complete++;
+        const cost = recPortionCost(r);
+        if (it.price > 0) { totalFcSum += (cost / it.price) * 100; totalFcCount++; }
+        const v = recVarianceByRecipe(it.id);
+        if (v && Number.isFinite(v.totalCostImpact) && it.unitsThisMonth > 0 && cost > 0) {
+          // Express variance as % of monthly recipe cost
+          const monthlyRecipeCost = cost * it.unitsThisMonth;
+          if (monthlyRecipeCost > 0) {
+            totalVarSum += (v.totalCostImpact / monthlyRecipeCost) * 100;
+            totalVarCount++;
+          }
+        }
+      }
+    }
+    const total = items.length;
+    const incomplete = total - complete;
+    return {
+      total,
+      complete,
+      incomplete,
+      completionPct: total > 0 ? Math.round((complete / total) * 100) : 0,
+      avgFoodCostPct: totalFcCount > 0 ? +(totalFcSum / totalFcCount).toFixed(1) : 0,
+      avgVariancePct: totalVarCount > 0 ? +(totalVarSum / totalVarCount).toFixed(1) : 0,
+    };
+  }
+
+  function recTheoreticalConsumption(invItemId, venueKey) {
+    const items = MENU[venueKey] || [];
+    let qty = 0;
+    for (const it of items) {
+      const r = RECIPES_SESSION[it.id];
+      if (!r || r.status !== 'complete') continue;
+      const y = Math.max(1, r.yield || 1);
+      const ing = (r.ingredients || []).find(x => x.invId === invItemId);
+      if (!ing) continue;
+      qty += (ing.qty / y) * (it.unitsThisMonth || 0);
+    }
+    const ref = recResolveIngredient(invItemId);
+    const unit = ref ? ref.unit : '';
+    const costMAD = ref ? qty * ref.costPerUnit : 0;
+    return { qty: +qty.toFixed(3), costMAD: +costMAD.toFixed(2), unit };
+  }
+
+  function recActualConsumption(invItemId, venueKey) {
+    const arr = INVENTORY[venueKey] || [];
+    const item = arr.find(i => i.id === invItemId);
+    if (!item) {
+      const ph = PLACEHOLDER_COSTS[invItemId];
+      // Placeholders have no measured actual — fall back to theoretical scaled
+      // by a small noise factor so the variance pip isn't misleadingly zero.
+      const th = recTheoreticalConsumption(invItemId, venueKey);
+      return { qty: +(th.qty * 1.04).toFixed(3), costMAD: +(th.costMAD * 1.04).toFixed(2), unit: ph ? ph.unit : '' };
+    }
+    // INVENTORY exposes usageThisWeek + theoreticalUsage — scale weekly to
+    // monthly via EQ_MONTH_WEEKS (4.33). Actual = usageThisWeek × 4.33.
+    const monthly = (item.usageThisWeek || 0) * EQ_MONTH_WEEKS;
+    return { qty: +monthly.toFixed(3), costMAD: +(monthly * item.costPerUnit).toFixed(2), unit: item.unit };
+  }
+
+  function recComputeVariance(invItemId, venueKey) {
+    const theoretical = recTheoreticalConsumption(invItemId, venueKey);
+    const actual      = recActualConsumption(invItemId, venueKey);
+    const deltaAbs    = actual.qty - theoretical.qty;
+    const deltaPct    = theoretical.qty > 0 ? (deltaAbs / theoretical.qty) * 100 : 0;
+    const ref         = recResolveIngredient(invItemId);
+    const costImpact  = ref ? deltaAbs * ref.costPerUnit : 0;
+    const mag         = Math.abs(deltaPct);
+    const severity    = mag > 15 ? 'critical' : (mag > 5 ? 'warning' : 'normal');
+    return {
+      theoretical,
+      actual,
+      deltaAbsolute: +deltaAbs.toFixed(3),
+      deltaPct: +deltaPct.toFixed(1),
+      costImpact: +costImpact.toFixed(2),
+      severity,
+    };
+  }
+
+  function recVarianceByRecipe(menuItemId) {
+    const found = recFindMenuItem(menuItemId);
+    if (!found) return null;
+    const { item, venue } = found;
+    const recipe = RECIPES_SESSION[menuItemId];
+    if (!recipe || recipe.status !== 'complete' || !recipe.ingredients.length) return null;
+
+    const y = Math.max(1, recipe.yield || 1);
+    const units = item.unitsThisMonth || 0;
+
+    const ingredients = [];
+    let totalTheoreticalCost = 0;
+    let totalActualCost = 0;
+    let totalCostImpact = 0;
+
+    for (const ing of recipe.ingredients) {
+      const ref = recResolveIngredient(ing.invId);
+      if (!ref) continue;
+      const perPortion = ing.qty / y;
+      const monthlyTheoretical = perPortion * units;
+      const theoreticalCost = monthlyTheoretical * ref.costPerUnit;
+      // For inventory items we have actuals; for placeholders we infer +4%
+      let monthlyActual = monthlyTheoretical * 1.04;
+      const inv = recFindInventoryItem(ing.invId);
+      if (inv) {
+        // Pro-rata: how much of this ingredient's monthly actual usage is
+        // attributable to this specific dish (by theoretical share)?
+        const totalTheoreticalForInv = recTheoreticalConsumption(ing.invId, venue).qty;
+        const actualForInv = recActualConsumption(ing.invId, venue).qty;
+        if (totalTheoreticalForInv > 0) {
+          monthlyActual = (monthlyTheoretical / totalTheoreticalForInv) * actualForInv;
+        }
+      }
+      const actualCost = monthlyActual * ref.costPerUnit;
+      const deltaPct = monthlyTheoretical > 0 ? ((monthlyActual - monthlyTheoretical) / monthlyTheoretical) * 100 : 0;
+      const impact = actualCost - theoreticalCost;
+
+      ingredients.push({
+        invId: ing.invId,
+        name: ref.name,
+        unit: ref.unit,
+        perPortion: +perPortion.toFixed(4),
+        theoretical: +monthlyTheoretical.toFixed(3),
+        actual: +monthlyActual.toFixed(3),
+        theoreticalCost: +theoreticalCost.toFixed(2),
+        actualCost: +actualCost.toFixed(2),
+        costPerUnit: ref.costPerUnit,
+        deltaPct: +deltaPct.toFixed(1),
+        costImpact: +impact.toFixed(2),
+        isPlaceholder: ref.isPlaceholder === true,
+      });
+      totalTheoreticalCost += theoreticalCost;
+      totalActualCost      += actualCost;
+      totalCostImpact      += impact;
+    }
+    const monthlyRevenue = (item.price || 0) * units;
+    const theoreticalFoodCostPct = monthlyRevenue > 0 ? (totalTheoreticalCost / monthlyRevenue) * 100 : 0;
+    const actualFoodCostPct      = monthlyRevenue > 0 ? (totalActualCost / monthlyRevenue) * 100 : 0;
+    const portionCost            = recPortionCost(recipe);
+
+    return {
+      menuItemId,
+      menuItemName: item.name,
+      venue,
+      yield: y,
+      portionCost: +portionCost.toFixed(2),
+      ingredients,
+      totalTheoreticalCost: +totalTheoreticalCost.toFixed(2),
+      totalActualCost: +totalActualCost.toFixed(2),
+      totalCostImpact: +totalCostImpact.toFixed(2),
+      theoreticalFoodCostPct: +theoreticalFoodCostPct.toFixed(1),
+      actualFoodCostPct: +actualFoodCostPct.toFixed(1),
+    };
+  }
+
+  function recVarianceByCategory(categoryKey, venueKey) {
+    const items = (MENU[venueKey] || []).filter(it => it.category === categoryKey);
+    let totalImpact = 0; let varianceSum = 0; let varianceCount = 0;
+    for (const it of items) {
+      const v = recVarianceByRecipe(it.id);
+      if (!v) continue;
+      totalImpact += v.totalCostImpact;
+      if (v.theoreticalFoodCostPct > 0) {
+        const pct = ((v.actualFoodCostPct - v.theoreticalFoodCostPct) / v.theoreticalFoodCostPct) * 100;
+        varianceSum += pct; varianceCount++;
+      }
+    }
+    return {
+      category: categoryKey,
+      venue: venueKey,
+      totalCostImpact: +totalImpact.toFixed(2),
+      avgVariancePct: varianceCount > 0 ? +(varianceSum / varianceCount).toFixed(1) : 0,
+    };
+  }
+
+  function recVariancePerStaffMember(staffId) {
+    const ids = STAFF_DISH_RESPONSIBILITY[staffId] || [];
+    let staffEntry = null;
+    for (const v of REAL_VENUES) {
+      const hit = (STAFF[v] || []).find(s => s.id === staffId);
+      if (hit) { staffEntry = hit; break; }
+    }
+    const dishes = [];
+    let varSum = 0; let varCount = 0; let totalImpact = 0;
+    for (const dishId of ids) {
+      const v = recVarianceByRecipe(dishId);
+      if (!v) {
+        // Surface incomplete dishes so the UI can prompt the staffer.
+        const found = recFindMenuItem(dishId);
+        if (found) dishes.push({ menuItemId: dishId, name: found.item.name, variancePct: null, costImpact: 0, status: 'incomplete' });
+        continue;
+      }
+      const pct = v.theoreticalFoodCostPct > 0
+        ? ((v.actualFoodCostPct - v.theoreticalFoodCostPct) / v.theoreticalFoodCostPct) * 100
+        : 0;
+      dishes.push({ menuItemId: dishId, name: v.menuItemName, variancePct: +pct.toFixed(1), costImpact: v.totalCostImpact, status: 'complete' });
+      varSum += pct; varCount++; totalImpact += v.totalCostImpact;
+    }
+    return {
+      staffId,
+      staffName: staffEntry ? staffEntry.name : null,
+      avgVariancePct: varCount > 0 ? +(varSum / varCount).toFixed(1) : 0,
+      totalCostImpact: +totalImpact.toFixed(2),
+      dishes,
+    };
+  }
+
+  /* Expose the engine on window. Stable function names; the Phase 2 editor
+   * and the Stock variance panel both consume this surface. */
+  window.KiwiRecipes = {
+    getRecipe:               recGetRecipe,
+    setRecipe:               recSetRecipe,
+    listRecipes:             recListRecipes,
+    recipeStats:             recRecipeStats,
+    theoreticalConsumption:  recTheoreticalConsumption,
+    actualConsumption:       recActualConsumption,
+    computeVariance:         recComputeVariance,
+    varianceByRecipe:        recVarianceByRecipe,
+    varianceByCategory:      recVarianceByCategory,
+    variancePerStaffMember:  recVariancePerStaffMember,
+    /* Constants / helpers — exposed for the Recettes tab + Stock page. */
+    resolveIngredient:       recResolveIngredient,
+    portionCost:             recPortionCost,
+    PLACEHOLDER_COSTS,
+  };
+
   /* ═══════════════ PUBLIC API ═══════════════ */
 
   window.KiwiVenue = {
+    /* Recettes tab live-search + sort hooks — invoked by inline oninput /
+     * onchange on the search input and sort <select>. They re-render the
+     * panel and restore the search field's focus + caret after the
+     * innerHTML reset that follows. */
+    miRecSearchHook,
+    miRecSortHook,
     getVenue,
     setVenue,
     getPlan: () => currentPlan,
@@ -4434,6 +6808,14 @@
     getCurrentVenueData,
     getVenueType,
     getKpiSpec: type => KPI_BY_TYPE[type] || KPI_BY_TYPE.restaurant,
+    /* Stock & approvisionnement page data — see assets/stock.js */
+    getInventory: id => INVENTORY[id || currentVenue] || [],
+    getSuppliers: () => SUPPLIERS,
+    /* Kitchen station state — used by the KDS to compute fire schedules
+     * so multi-station tickets finish together (avgPrepMin + sync flag,
+     * configured from Menu › Stations cuisine). */
+    getStationState: (s) => miStationState(s),
+    getStations: (id) => miGetStations(id || currentVenue),
     getHeroAiRec: id => {
       const v = id || currentVenue;
       if (isCustom(v)) {

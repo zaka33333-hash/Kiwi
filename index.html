@@ -31,7 +31,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Reem+Kufi:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Inter+Tight:wght@600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Reem+Kufi:wght@400;500&display=swap" rel="stylesheet" />
 
 <link rel="stylesheet" href="assets/landing/tokens.css" />
 <link rel="stylesheet" href="assets/landing/base.css" />
@@ -576,6 +576,10 @@ h1, h2, h3, h4, .s-head h2, .final h2, .editorial {
   position: relative;
   perspective: 1600px;
   perspective-origin: 60% 30%;
+  /* Bleeds past the right column toward the viewport edge — clipped by
+     .hero's overflow:hidden — so the frame reads large without squeezing
+     the headline column. */
+  margin-right: -90px;
 }
 .dash-mock-frame {
   background: #FFFFFF;
@@ -585,27 +589,27 @@ h1, h2, h3, h4, .s-head h2, .final h2, .editorial {
     0 30px 80px -30px rgba(10, 15, 13, 0.35),
     0 80px 200px -60px rgba(11, 110, 79, 0.18);
   overflow: hidden;
-  transform: rotateX(var(--scroll-x, 14deg)) rotateY(var(--scroll-y, -6deg)) scale(var(--scroll-s, 0.96));
-  animation: dashTilt linear both;
-  animation-timeline: scroll(root);
-  animation-range: 0 50vh;
+  /* Resting: floating, tilted up + nudged left. Straightens on hover. */
+  transform: rotateX(14deg) rotateY(-6deg) scale(1);
+  transition: transform 0.7s var(--ease-glide);
   will-change: transform;
 }
-@keyframes dashTilt {
-  0%   { --scroll-x: 14deg; --scroll-y: -6deg; --scroll-s: 0.96; }
-  100% { --scroll-x: 0deg;  --scroll-y: 0deg;  --scroll-s: 1.00; }
+.dash-mock-shot {
+  display: block;
+  width: 100%;
+  height: auto;
 }
-@property --scroll-x { syntax: '<angle>'; initial-value: 14deg; inherits: false; }
-@property --scroll-y { syntax: '<angle>'; initial-value: -6deg; inherits: false; }
-@property --scroll-s { syntax: '<number>'; initial-value: 0.96; inherits: false; }
-@supports not (animation-timeline: scroll()) {
-  .dash-mock-frame { animation: none; will-change: auto; }
+.dash-mock:hover .dash-mock-frame {
+  transform: rotateX(0deg) rotateY(0deg) scale(1);
 }
 @media (max-width: 1100px) {
-  .dash-mock-frame { animation: none; transform: none; }
+  .dash-mock { margin-right: 0; }
+  .dash-mock-frame,
+  .dash-mock:hover .dash-mock-frame { transform: none; transition: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .dash-mock-frame { animation: none; transform: none; }
+  .dash-mock-frame,
+  .dash-mock:hover .dash-mock-frame { transform: none; transition: none; }
 }
 
 .dash-mock-top {
@@ -4698,21 +4702,17 @@ footer {
 <!-- NAV (components.css .nav .nav-inner) -->
 <nav class="nav" aria-label="Navigation principale">
   <div class="nav-inner">
-    <a href="#hero" class="nav-logo">
-      <span class="logo-mark">k</span>
-      <span>kiwi</span>
-    </a>
+    <a href="#hero" class="nav-logo">kiwi<i class="logo-dot" aria-hidden="true"></i></a>
     <div class="nav-links">
-      <a class="nav-link" href="#features" data-i18n="lz.nav.product">Produit</a>
-      <a class="nav-link" href="#transparency" data-i18n="lz.nav.pricing">Tarifs</a>
-      <a class="nav-link" href="#why-now" data-i18n="lz.nav.why">Pourquoi maintenant</a>
-      <a class="nav-link" href="dashboard.html" data-i18n="lz.nav.demo">Démo</a>
+      <a class="nav-link" href="#features">Produit</a>
+      <a class="nav-link" href="#transparency">Tarifs</a>
+      <a class="nav-link" href="#why-now">Pourquoi maintenant</a>
+      <a class="nav-link" href="dashboard.html">Démo</a>
     </div>
     <div class="nav-actions">
-      <div class="lang" aria-label="Langue"><span>FR</span><span>EN</span><span>AR</span></div>
-      <a class="btn btn-ghost btn-sm" href="dashboard.html" data-i18n="lz.nav.dash">Voir le tableau de bord</a>
+      <a class="btn btn-ghost btn-sm" href="dashboard.html">Voir le tableau de bord</a>
       <span class="btn-rgb-wrap">
-        <a class="btn btn-primary btn-sm" href="#contact" data-i18n="lz.nav.cta">Demander une démo</a>
+        <a class="btn btn-primary btn-sm" href="#contact">Demander une démo</a>
       </span>
     </div>
   </div>
@@ -4725,54 +4725,54 @@ footer {
     <div class="hero-grid">
 
       <div>
-        <span class="pill pill-paper pill-dot" data-i18n="lz.hero.pill">Logiciel de gestion · cafés, restaurants & commerces</span>
+        <span class="pill pill-paper pill-dot">Logiciel de gestion · cafés, restaurants & commerces</span>
 
-        <h1 style="margin-top: var(--s-6);" data-i18n="lz.hero.h1">
+        <h1 style="margin-top: var(--s-6);">
           Le système d'exploitation du <em class="ed">commerçant</em> marocain.
         </h1>
 
-        <p class="hero-lede" data-i18n="lz.hero.lede">
+        <p class="hero-lede">
           Caisse, salle, cuisine, stock, équipe et pilotage — réunis dans un seul logiciel, en français, darija et arabe. 399 MAD/mois, matériel prêté, sans engagement. Conçu à Tanger.
         </p>
 
         <div class="hero-ctas">
           <span class="btn-rgb-wrap">
-            <a class="btn btn-primary btn-lg" href="#contact" data-i18n="lz.hero.cta1">Démarrer un pilote</a>
+            <a class="btn btn-primary btn-lg" href="#contact">Obtenir mon Kiwi</a>
           </span>
-          <a class="btn btn-ghost btn-lg" href="dashboard.html" target="_blank" rel="noopener" data-i18n="lz.hero.cta2">Voir la démo en 90 s</a>
+          <a class="btn btn-ghost btn-lg" href="dashboard.html" target="_blank" rel="noopener">Voir la démo en 90 s</a>
         </div>
 
         <!-- Numeric proof — concrete, falsifiable, no hedges.
              Single floating card, atmospheric mint mesh, live eyebrow. -->
         <div class="hero-kpis-card" aria-label="Chiffres clés Kiwi">
-          <span class="hero-kpis-eye" data-i18n="lz.hero.kpiEye">Kiwi en bref</span>
+          <span class="hero-kpis-eye">Kiwi en bref</span>
           <div class="hero-kpis">
             <div class="hero-kpi">
               <div class="hero-kpi-num"><em>399</em><span class="unit">MAD</span></div>
-              <div class="hero-kpi-label" data-i18n="lz.hero.kpi1"><b>Par mois, tout inclus.</b><br>Aucune commission sur vos ventes.</div>
+              <div class="hero-kpi-label"><b>Par mois, tout inclus.</b><br>Aucune commission sur vos ventes.</div>
             </div>
             <div class="hero-kpi">
               <div class="hero-kpi-num">
                 <img class="hero-kpi-bolt" src="assets/landing/icons/lightning.png" alt="" width="22" height="22" loading="lazy" decoding="async"/>
                 7<span class="unit">min</span>
               </div>
-              <div class="hero-kpi-label" data-i18n="lz.hero.kpi2"><b>Pour démarrer.</b><br>Opérationnel dès le lendemain.</div>
+              <div class="hero-kpi-label"><b>Pour démarrer.</b><br>Opérationnel dès le lendemain.</div>
             </div>
             <div class="hero-kpi">
               <div class="hero-kpi-num">0<span class="unit">MAD</span></div>
-              <div class="hero-kpi-label" data-i18n="lz.hero.kpi3"><b>De matériel à acheter.</b><br>Tablette et écran cuisine prêtés.</div>
+              <div class="hero-kpi-label"><b>De matériel à acheter.</b><br>Tablette et écran cuisine prêtés.</div>
             </div>
             <div class="hero-kpi">
               <div class="hero-kpi-num">3<span class="unit">langues</span></div>
-              <div class="hero-kpi-label" data-i18n="lz.hero.kpi4"><b>Français, darija, arabe.</b><br>Toute l'équipe suit, sans formation.</div>
+              <div class="hero-kpi-label"><b>Français, darija, arabe.</b><br>Toute l'équipe suit, sans formation.</div>
             </div>
           </div>
         </div>
 
         <div class="trust-row">
-          <span data-i18n="lz.hero.trust1">Hébergé au Maroc</span>
-          <span data-i18n="lz.hero.trust2">CNDP · Loi 09-08</span>
-          <span data-i18n="lz.hero.trust3">DGSSI · Chiffrement local</span>
+          <span>Hébergé au Maroc</span>
+          <span>CNDP · Loi 09-08</span>
+          <span>DGSSI · Chiffrement local</span>
         </div>
       </div>
 
@@ -4806,79 +4806,8 @@ footer {
             <span class="dot"></span>
             <span class="dash-mock-url">kiwi.app/dashboard</span>
           </div>
-
-          <div class="dash-mock-body">
-            <div class="dash-mock-greeting">Bonjour Karim · Café Atlas, Maarif (Casa)</div>
-            <div class="dash-mock-amount">
-              <span>18&nbsp;420</span>
-              <span class="unit">MAD aujourd'hui</span>
-            </div>
-            <div class="dash-mock-delta">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-              +12,4&nbsp;% vs hier · 16&nbsp;385 MAD
-            </div>
-
-            <div class="dash-mock-stats">
-              <div class="dash-mock-stat">
-                <div class="label">Commandes</div>
-                <div class="value">184</div>
-              </div>
-              <div class="dash-mock-stat">
-                <div class="label">Panier moyen</div>
-                <div class="value">100,11</div>
-              </div>
-              <div class="dash-mock-stat">
-                <div class="label">Couverts</div>
-                <div class="value">214</div>
-              </div>
-            </div>
-
-            <div class="dash-mock-chart" aria-hidden="true">
-              <svg viewBox="0 0 300 64" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#0B6E4F" stop-opacity=".5"/>
-                    <stop offset="100%" stop-color="#0B6E4F" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <path d="M0,48 L25,42 L50,46 L75,32 L100,38 L125,28 L150,22 L175,30 L200,18 L225,24 L250,12 L275,16 L300,8 L300,64 L0,64 Z" fill="url(#lg)"/>
-                <path d="M0,48 L25,42 L50,46 L75,32 L100,38 L125,28 L150,22 L175,30 L200,18 L225,24 L250,12 L275,16 L300,8" fill="none" stroke="#0B6E4F" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-            </div>
-
-            <div class="dash-mock-tx">
-              <div class="dash-mock-tx-row">
-                <div class="dash-mock-tx-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-                </div>
-                <div class="dash-mock-tx-label">
-                  <div class="dash-mock-tx-name">Table 4 · 2 couverts</div>
-                  <div class="dash-mock-tx-meta">Carte · il y a 4 min</div>
-                </div>
-                <div class="dash-mock-tx-amt">+ 428,50</div>
-              </div>
-              <div class="dash-mock-tx-row">
-                <div class="dash-mock-tx-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                </div>
-                <div class="dash-mock-tx-label">
-                  <div class="dash-mock-tx-name">Table 7 · 6 couverts</div>
-                  <div class="dash-mock-tx-meta">Espèces · il y a 11 min</div>
-                </div>
-                <div class="dash-mock-tx-amt">+ 1 240,00</div>
-              </div>
-              <div class="dash-mock-tx-row">
-                <div class="dash-mock-tx-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
-                </div>
-                <div class="dash-mock-tx-label">
-                  <div class="dash-mock-tx-name">Comptoir · emporter</div>
-                  <div class="dash-mock-tx-meta">Carte · il y a 18 min</div>
-                </div>
-                <div class="dash-mock-tx-amt">+ 197,00</div>
-              </div>
-            </div>
-          </div>
+          <img class="dash-mock-shot" src="assets/landing/dashboard-hero.png"
+               alt="" width="1440" height="900" loading="eager" decoding="async">
         </div>
 
       </div>
@@ -4914,25 +4843,25 @@ footer {
 <section class="slab-paper editorial-section">
   <div class="wrap">
     <div class="ed-content">
-      <div class="s-num" data-i18n="lz.ed.num"><b>02</b> · L'opportunité</div>
+      <div class="s-num"><b>02</b> · L'opportunité</div>
       <p class="editorial reveal" id="editorialQuote" style="margin-top: var(--s-6);">
-        <span class="em-num draw" id="editorialNum">73&nbsp;305</span><span data-i18n="lz.ed.q1"> restaurants au Maroc. </span><span class="em-num" data-i18n="lz.ed.q2">La plupart</span><span data-i18n="lz.ed.q3"> tournent encore sur un carnet, une calculatrice et la mémoire du gérant.</span>
+        <span class="em-num draw" id="editorialNum">73&nbsp;305</span> restaurants au Maroc. <span class="em-num">La plupart</span> tournent encore sur un carnet, une calculatrice et la mémoire du gérant.
       </p>
-      <div class="attribution" data-i18n="lz.ed.attr">Source · Haut-Commissariat au Plan · recensement économique 2023</div>
+      <div class="attribution">Source · Haut-Commissariat au Plan · recensement économique 2023</div>
     </div>
 
     <!-- Live market counter — visible counter ticks every 120ms,
          a11y region announces a rounded total once per minute -->
     <div class="loss-counter reveal">
-      <div class="loss-eyebrow" aria-hidden="true" data-i18n="lz.ed.lossEye">En direct · le commerce marocain</div>
+      <div class="loss-eyebrow" aria-hidden="true">En direct · le commerce marocain</div>
       <div class="loss-number num" aria-hidden="true">
         <span id="lossNumber">0</span><span class="loss-cur">MAD</span>
       </div>
-      <div class="loss-unit" aria-hidden="true" data-i18n="lz.ed.lossUnit">de ventes encaissées aujourd'hui par les cafés et commerces du Maroc</div>
+      <div class="loss-unit" aria-hidden="true">de ventes encaissées aujourd'hui par les cafés et commerces du Maroc</div>
       <p class="loss-sub" aria-hidden="true">
-        <span data-i18n="lz.ed.ls1">Le secteur F&amp;B + retail marocain encaisse </span><span class="loss-rate" id="lossRate">~28 MAD/s</span><span data-i18n="lz.ed.ls2"> — la quasi-totalité sans logiciel pour le piloter. Calcul basé sur 63&nbsp;Md MAD/an de volume sectoriel. C'est l'angle mort que Kiwi éclaire.</span>
+        Le secteur F&amp;B + retail marocain encaisse <span class="loss-rate" id="lossRate">~28 MAD/s</span> — la quasi-totalité sans logiciel pour le piloter. Calcul basé sur 63&nbsp;Md MAD/an de volume sectoriel. C'est l'angle mort que Kiwi éclaire.
       </p>
-      <p class="sr-only" id="lossA11y" aria-live="polite" aria-atomic="true" data-i18n="lz.ed.lossA11y">
+      <p class="sr-only" id="lossA11y" aria-live="polite" aria-atomic="true">
         Le secteur F&amp;B et retail marocain encaisse environ 28 MAD par seconde, presque entièrement sans logiciel de gestion.
       </p>
     </div>
@@ -4943,10 +4872,10 @@ footer {
 <section class="slab-paper-soft" id="why-now">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-num" data-i18n="lz.why.num"><b>03</b> · Pourquoi maintenant</div>
-      <div class="s-eyebrow" style="margin-top: var(--s-3);" data-i18n="lz.why.eye">Le bon moment, pas une intuition</div>
-      <h2 style="margin-top: var(--s-4);" data-i18n="lz.why.h2">Le marché marocain a changé en deux ans plus qu'en vingt.</h2>
-      <p class="lede" style="margin-top: var(--s-5);" data-i18n="lz.why.lede">Six forces convergent. Toutes publiques, toutes vérifiables. Ensemble, elles dessinent une fenêtre de construction qui ne se rouvrira pas.</p>
+      <div class="s-num"><b>03</b> · Pourquoi maintenant</div>
+      <div class="s-eyebrow" style="margin-top: var(--s-3);">Le bon moment, pas une intuition</div>
+      <h2 style="margin-top: var(--s-4);">Le marché marocain a changé en deux ans plus qu'en vingt.</h2>
+      <p class="lede" style="margin-top: var(--s-5);">Six forces convergent. Toutes publiques, toutes vérifiables. Ensemble, elles dessinent une fenêtre de construction qui ne se rouvrira pas.</p>
     </div>
 
     <!-- Vertical timeline: dates on left rail, mint progress line draws
@@ -4965,23 +4894,23 @@ footer {
 
       <!-- 1. CONSEIL DE LA CONCURRENCE — fin du monopole -->
       <article class="why-event">
-        <div class="why-event-date" data-i18n="lz.why.d1">31 oct. 2024</div>
+        <div class="why-event-date">31 oct. 2024</div>
         <div class="why-event-body">
           <h4>
             <span class="marker" aria-hidden="true"><img src="assets/landing/icons/kasbah.png" alt="" width="22" height="22" loading="lazy" decoding="async"/></span>
             <a href="https://conseil-concurrence.ma/wp-content/uploads/2024/09/Communique-CMI.pdf"
                target="_blank" rel="noopener"
                aria-label="Décision 152/D/2024 · fin du monopole CMI · ouvre le communiqué officiel">
-              <span data-i18n="lz.why.e1h">Décision 152/D/2024 · fin du monopole</span>
+              Décision 152/D/2024 · fin du monopole
               <svg class="why-event-extlink" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
             </a>
           </h4>
-          <div class="why-event-outcome" data-i18n="lz.why.e1o">
+          <div class="why-event-outcome">
             <span class="num">97 %</span> de part de marché captée par le CMI. <span class="num">1 %</span> seulement des transactions au Maroc se faisaient par carte.
           </div>
           <button class="why-event-toggle" aria-expanded="false" aria-controls="why-detail-1" type="button">
-            <span class="lbl-shut" data-i18n="lz.det">Détails</span>
-            <span class="lbl-open" data-i18n="lz.reduce">Réduire</span>
+            <span class="lbl-shut">Détails</span>
+            <span class="lbl-open">Réduire</span>
             <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg>
           </button>
           <div class="why-event-detail" id="why-detail-1" data-open="false">
@@ -4993,12 +4922,12 @@ footer {
             <text class="spark-lbl-on-bar" x="14"  y="36">97 %</text>
             <text class="spark-lbl"        x="280" y="54" text-anchor="end">3 %</text>
           </svg>
-            <p data-i18n="lz.why.e1b">Le Conseil de la Concurrence rend obligatoires les engagements structurels du CMI. Premier mouvement réglementaire de cette ampleur sur le marché depuis 2001.</p>
-          <p class="why-event-quote" data-i18n="lz.why.e1q">« Le CMI évolue d'un acteur commercial et technique vers un processeur monétique au profit des nouveaux acteurs. »</p>
+            <p>Le Conseil de la Concurrence rend obligatoires les engagements structurels du CMI. Premier mouvement réglementaire de cette ampleur sur le marché depuis 2001.</p>
+          <p class="why-event-quote">« Le CMI évolue d'un acteur commercial et technique vers un processeur monétique au profit des nouveaux acteurs. »</p>
           <a class="why-event-source"
              href="https://conseil-concurrence.ma/wp-content/uploads/2024/09/Communique-CMI.pdf"
              target="_blank" rel="noopener">
-            <span class="lbl-prefix" data-i18n="lz.source">Source ·</span> Conseil de la Concurrence
+            <span class="lbl-prefix">Source ·</span> Conseil de la Concurrence
             <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
           </a>
           </div>
@@ -5007,23 +4936,23 @@ footer {
 
       <!-- 2. BANK AL-MAGHRIB — plafond d'interchange (date corrigée: 1er oct. 2024) -->
       <article class="why-event">
-        <div class="why-event-date" data-i18n="lz.why.d2">1<sup>er</sup> oct. 2024</div>
+        <div class="why-event-date">1<sup>er</sup> oct. 2024</div>
         <div class="why-event-body">
           <h4>
             <span class="marker" aria-hidden="true"><img src="assets/landing/icons/khatam.png" alt="" width="22" height="22" loading="lazy" decoding="async"/></span>
             <a href="https://www.bkam.ma/Communiques/Communique/2024/Bank-al-maghrib-plafonne-les-frais-d-interchange-monetique-domestique-a-0-65"
                target="_blank" rel="noopener"
                aria-label="Plafond d'interchange à 0,65 % · ouvre le communiqué Bank Al-Maghrib">
-              <span data-i18n="lz.why.e2h">Plafond d'interchange · <span class="num">0,65 %</span></span>
+              Plafond d'interchange · <span class="num">0,65 %</span>
               <svg class="why-event-extlink" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
             </a>
           </h4>
-          <div class="why-event-outcome" data-i18n="lz.why.e2o">
+          <div class="why-event-outcome">
             <span class="num">−46 %</span> de coût d'acceptation pour les commerçants (<span class="num">1,20 %</span> → <span class="num">0,65 %</span>).
           </div>
           <button class="why-event-toggle" aria-expanded="false" aria-controls="why-detail-2" type="button">
-            <span class="lbl-shut" data-i18n="lz.det">Détails</span>
-            <span class="lbl-open" data-i18n="lz.reduce">Réduire</span>
+            <span class="lbl-shut">Détails</span>
+            <span class="lbl-open">Réduire</span>
             <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg>
           </button>
           <div class="why-event-detail" id="why-detail-2" data-open="false">
@@ -5033,12 +4962,12 @@ footer {
             <text class="spark-lbl-mint"   x="0"   y="38">Après · 0,65 %</text>
             <rect class="spark-bar"     x="0"   y="42" width="151" height="10" rx="2"/>
           </svg>
-            <p data-i18n="lz.why.e2b">Bank Al-Maghrib · Décision réglementaire <span class="mono">n° 244/W/2024</span>. Le ticket moyen marocain devient mathématiquement viable pour de nouveaux acteurs à coût bas.</p>
-          <p class="why-event-quote" data-i18n="lz.why.e2q">« Les commissions sur paiement par carte ne peuvent être refacturées par les commerçants aux consommateurs. »</p>
+            <p>Bank Al-Maghrib · Décision réglementaire <span class="mono">n° 244/W/2024</span>. Le ticket moyen marocain devient mathématiquement viable pour de nouveaux acteurs à coût bas.</p>
+          <p class="why-event-quote">« Les commissions sur paiement par carte ne peuvent être refacturées par les commerçants aux consommateurs. »</p>
           <a class="why-event-source"
              href="https://www.bkam.ma/Communiques/Communique/2024/Bank-al-maghrib-plafonne-les-frais-d-interchange-monetique-domestique-a-0-65"
              target="_blank" rel="noopener">
-            <span class="lbl-prefix" data-i18n="lz.source">Source ·</span> Bank Al-Maghrib
+            <span class="lbl-prefix">Source ·</span> Bank Al-Maghrib
             <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
           </a>
           </div>
@@ -5047,23 +4976,23 @@ footer {
 
       <!-- 3. EDPs autorisés -->
       <article class="why-event">
-        <div class="why-event-date" data-i18n="lz.why.d3">1<sup>er</sup> mai 2025</div>
+        <div class="why-event-date">1<sup>er</sup> mai 2025</div>
         <div class="why-event-body">
           <h4>
             <span class="marker" aria-hidden="true"><img src="assets/landing/icons/medina-gate.png" alt="" width="22" height="22" loading="lazy" decoding="async"/></span>
             <a href="https://www.maroc.ma/fr/actualites/paiement-electronique-les-etablissements-de-paiement-et-les-filiales-des-banques-autorises-operer-des"
                target="_blank" rel="noopener"
                aria-label="Acquisition ouverte aux EDP · ouvre l'annonce officielle">
-              <span data-i18n="lz.why.e3h">Acquisition ouverte aux EDP</span>
+              Acquisition ouverte aux EDP
               <svg class="why-event-extlink" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
             </a>
           </h4>
-          <div class="why-event-outcome" data-i18n="lz.why.e3o">
+          <div class="why-event-outcome">
             <span class="num">11</span> opérateurs agréés au <span class="num">13 juil. 2025</span>. D'autres demandes en instruction.
           </div>
           <button class="why-event-toggle" aria-expanded="false" aria-controls="why-detail-3" type="button">
-            <span class="lbl-shut" data-i18n="lz.det">Détails</span>
-            <span class="lbl-open" data-i18n="lz.reduce">Réduire</span>
+            <span class="lbl-shut">Détails</span>
+            <span class="lbl-open">Réduire</span>
             <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg>
           </button>
           <div class="why-event-detail" id="why-detail-3" data-open="false">
@@ -5083,12 +5012,12 @@ footer {
             <circle class="spark-pt-mint" cx="266" cy="36" r="5.5"/>
             <text class="spark-lbl" x="280" y="54" text-anchor="end">+ d'autres en instruction</text>
           </svg>
-            <p data-i18n="lz.why.e3b">Première vague : <b>M2T</b> (BCP), <b>CDM Pay</b>, <b>Lana Cash</b> (CIH), <b>Attijari Payment</b>, <b>Al Filahi Cash</b> (CAM). Premier marché d'acquisition réellement concurrentiel depuis la création du CMI en 2001.</p>
-          <p class="why-event-quote" data-i18n="lz.why.e3q">« L'agrément n'est pas automatique : chaque entrant doit prouver sa solidité institutionnelle et la robustesse de son système de sécurité. »</p>
+            <p>Première vague : <b>M2T</b> (BCP), <b>CDM Pay</b>, <b>Lana Cash</b> (CIH), <b>Attijari Payment</b>, <b>Al Filahi Cash</b> (CAM). Premier marché d'acquisition réellement concurrentiel depuis la création du CMI en 2001.</p>
+          <p class="why-event-quote">« L'agrément n'est pas automatique : chaque entrant doit prouver sa solidité institutionnelle et la robustesse de son système de sécurité. »</p>
           <a class="why-event-source"
              href="https://medias24.com/2025/07/13/acquisition-monetique-11-acteurs-demandes-bank-al-maghrib/"
              target="_blank" rel="noopener">
-            <span class="lbl-prefix" data-i18n="lz.source">Source ·</span> Bank Al-Maghrib · Médias24
+            <span class="lbl-prefix">Source ·</span> Bank Al-Maghrib · Médias24
             <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
           </a>
           </div>
@@ -5097,23 +5026,23 @@ footer {
 
       <!-- 4. Tourisme record -->
       <article class="why-event">
-        <div class="why-event-date" data-i18n="lz.why.d4">Début 2026<br><span style="font-size:10px;opacity:.7">bilan 2025</span></div>
+        <div class="why-event-date">Début 2026<br><span style="font-size:10px;opacity:.7">bilan 2025</span></div>
         <div class="why-event-body">
           <h4>
             <span class="marker" aria-hidden="true"><img src="assets/landing/icons/arched-window.png" alt="" width="22" height="22" loading="lazy" decoding="async"/></span>
             <a href="https://mtaess.gov.ma/fr/tourisme-le-maroc-atteint-un-seuil-historique-de-pres-de-20-millions-de-touristes-en-2025/"
                target="_blank" rel="noopener"
                aria-label="19,8 M de touristes en 2025 · ouvre le communiqué du Ministère du Tourisme">
-              <span class="num">19,8&nbsp;M</span><span data-i18n="lz.why.e4h"> de touristes · seuil historique</span>
+              <span class="num">19,8&nbsp;M</span> de touristes · seuil historique
               <svg class="why-event-extlink" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
             </a>
           </h4>
-          <div class="why-event-outcome" data-i18n="lz.why.e4o">
+          <div class="why-event-outcome">
             <span class="num">+14 %</span> YoY · recettes <span class="num">124&nbsp;Md&nbsp;MAD</span> (<span class="num">+19 %</span>) · objectif 2030 : <span class="num">30&nbsp;M</span>.
           </div>
           <button class="why-event-toggle" aria-expanded="false" aria-controls="why-detail-4" type="button">
-            <span class="lbl-shut" data-i18n="lz.det">Détails</span>
-            <span class="lbl-open" data-i18n="lz.reduce">Réduire</span>
+            <span class="lbl-shut">Détails</span>
+            <span class="lbl-open">Réduire</span>
             <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg>
           </button>
           <div class="why-event-detail" id="why-detail-4" data-open="false">
@@ -5129,12 +5058,12 @@ footer {
             <circle class="spark-pt"      cx="210" cy="26" r="3"/>
             <circle class="spark-pt-mint" cx="274" cy="22" r="4.5"/>
           </svg>
-            <p data-i18n="lz.why.e4b">Pression structurelle d'acceptation carte sur F&amp;B et hôtellerie. <b>43,4 millions de nuitées EHTC</b> en 2025, +9 %. Le commerce marocain ne peut plus rester cash-only.</p>
-          <p class="why-event-quote" data-i18n="lz.why.e4q">« Performance historique. »</p>
+            <p>Pression structurelle d'acceptation carte sur F&amp;B et hôtellerie. <b>43,4 millions de nuitées EHTC</b> en 2025, +9 %. Le commerce marocain ne peut plus rester cash-only.</p>
+          <p class="why-event-quote">« Performance historique. »</p>
           <a class="why-event-source"
              href="https://mtaess.gov.ma/fr/tourisme-le-maroc-atteint-un-seuil-historique-de-pres-de-20-millions-de-touristes-en-2025/"
              target="_blank" rel="noopener">
-            <span class="lbl-prefix" data-i18n="lz.source">Source ·</span> Ministère du Tourisme
+            <span class="lbl-prefix">Source ·</span> Ministère du Tourisme
             <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
           </a>
           </div>
@@ -5143,26 +5072,26 @@ footer {
 
       <!-- 5. DEADLINE · convergence moment -->
       <article class="why-event is-active">
-        <div class="why-event-date" data-i18n="lz.why.d5">31 janv. 2026</div>
+        <div class="why-event-date">31 janv. 2026</div>
         <div class="why-event-body">
-          <span class="why-event-now" data-i18n="lz.why.now">Maintenant</span>
+          <span class="why-event-now">Maintenant</span>
           <h4>
             <span class="marker" aria-hidden="true"><img src="assets/landing/icons/map-pin-star.png" alt="" width="22" height="22" loading="lazy" decoding="async"/></span>
             <a href="https://medias24.com/2025/11/02/le-conseil-de-la-concurrence-accorde-une-extension-des-delais-au-cmi-pour-la-cession-de-ses-contrats"
                target="_blank" rel="noopener"
                aria-label="Date butoir · cession des contrats commerçants du CMI">
-              <span data-i18n="lz.why.e5h">Date butoir · cession des contrats</span>
+              Date butoir · cession des contrats
               <svg class="why-event-extlink" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
             </a>
           </h4>
-          <div class="why-event-outcome" data-i18n="lz.why.e5o">
+          <div class="why-event-outcome">
             Le portefeuille commerçants du CMI bascule en bloc vers <span class="num">5</span> cessionnaires. <span class="num">30 avr. 2026</span> pour l'administration publique.
           </div>
           <!-- Signature moment: convergence diagram. Five cessionnaire dots
                flow into a single mint pulse-circle (the deadline). -->
           <button class="why-event-toggle" aria-expanded="false" aria-controls="why-detail-5" type="button">
-            <span class="lbl-shut" data-i18n="lz.det">Détails</span>
-            <span class="lbl-open" data-i18n="lz.reduce">Réduire</span>
+            <span class="lbl-shut">Détails</span>
+            <span class="lbl-open">Réduire</span>
             <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg>
           </button>
           <div class="why-event-detail" id="why-detail-5" data-open="false">
@@ -5191,12 +5120,12 @@ footer {
             <text class="cv-lbl" x="86" y="87" text-anchor="end">Al Filahi</text>
             <text class="cv-lbl cv-lbl-target" x="280" y="80" text-anchor="middle">31 janv. 2026</text>
           </svg>
-            <p data-i18n="lz.why.e5b">Tous les commerces du pays sont en train de changer de prestataire. Pas par marketing : par <b>échéance réglementaire</b>. C'est la fenêtre.</p>
-          <p class="why-event-quote" data-i18n="lz.why.e5q">« L'objectif est d'accompagner l'émergence de plusieurs acteurs pour encourager davantage d'innovation et plus de choix pour les commerçants. »</p>
+            <p>Tous les commerces du pays sont en train de changer de prestataire. Pas par marketing : par <b>échéance réglementaire</b>. C'est la fenêtre.</p>
+          <p class="why-event-quote">« L'objectif est d'accompagner l'émergence de plusieurs acteurs pour encourager davantage d'innovation et plus de choix pour les commerçants. »</p>
           <a class="why-event-source"
              href="https://medias24.com/2025/11/02/le-conseil-de-la-concurrence-accorde-une-extension-des-delais-au-cmi-pour-la-cession-de-ses-contrats"
              target="_blank" rel="noopener">
-            <span class="lbl-prefix" data-i18n="lz.source">Source ·</span> Conseil de la Concurrence · Médias24
+            <span class="lbl-prefix">Source ·</span> Conseil de la Concurrence · Médias24
             <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
           </a>
           </div>
@@ -5212,24 +5141,24 @@ footer {
             <a href="https://www.lavieeco.com/affaires/mondial-2030-sogecapital-gestion-estime-le-cout-global-pour-le-maroc-a-52-milliards-de-dirhams/"
                target="_blank" rel="noopener"
                aria-label="Coupe du Monde 2030 · investissement national">
-              <span data-i18n="lz.why.e6h">Coupe du Monde · MAR · ESP · POR</span>
+              Coupe du Monde · MAR · ESP · POR
               <svg class="why-event-extlink" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
             </a>
           </h4>
-          <div class="why-event-outcome" data-i18n="lz.why.e6o">
+          <div class="why-event-outcome">
             <span class="num">52&nbsp;Md&nbsp;MAD</span> d'investissement total estimé · <span class="num">+150</span> hôtels · eurobond <span class="num">2&nbsp;Md&nbsp;€</span> émis le 26 mars 2025.
           </div>
           <button class="why-event-toggle" aria-expanded="false" aria-controls="why-detail-6" type="button">
-            <span class="lbl-shut" data-i18n="lz.det">Détails</span>
-            <span class="lbl-open" data-i18n="lz.reduce">Réduire</span>
+            <span class="lbl-shut">Détails</span>
+            <span class="lbl-open">Réduire</span>
             <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l3 3 3-3"/></svg>
           </button>
           <div class="why-event-detail" id="why-detail-6" data-open="false">
-            <p data-i18n="lz.why.e6b"><b>Quatre ans pour devenir le rail par défaut</b> du commerce marocain avant que le monde n'arrive. La 5G, l'hôtellerie et l'acceptation carte basculent ensemble.</p>
+            <p><b>Quatre ans pour devenir le rail par défaut</b> du commerce marocain avant que le monde n'arrive. La 5G, l'hôtellerie et l'acceptation carte basculent ensemble.</p>
           <a class="why-event-source"
              href="https://www.twobirds.com/fr/insights/2025/global/maroc-preparatifs-de-la-coupe-du-monde-2030"
              target="_blank" rel="noopener">
-            <span class="lbl-prefix" data-i18n="lz.source">Source ·</span> Sogécapital · Bird &amp; Bird
+            <span class="lbl-prefix">Source ·</span> Sogécapital · Bird &amp; Bird
             <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3"/><path d="M5 3H9V7"/></svg>
           </a>
           </div>
@@ -5244,9 +5173,9 @@ footer {
 <section class="slab-paper" id="features">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-num" data-i18n="lz.feat.num"><b>04</b> · Le produit</div>
-      <div class="s-eyebrow" style="margin-top: var(--s-3);" data-i18n="lz.feat.eye">Six fonctionnalités · une seule app</div>
-      <h2 style="margin-top: var(--s-4);" data-i18n="lz.feat.h2">Tout ce qu'un commerçant marocain n'a jamais reçu d'un seul outil.</h2>
+      <div class="s-num"><b>04</b> · Le produit</div>
+      <div class="s-eyebrow" style="margin-top: var(--s-3);">Six fonctionnalités · une seule app</div>
+      <h2 style="margin-top: var(--s-4);">Tout ce qu'un commerçant marocain n'a jamais reçu d'un seul outil.</h2>
     </div>
 
     <!-- Editorial bento using grid-template-areas:
@@ -5272,8 +5201,8 @@ footer {
             <path class="nfc-wave nfc-wave-3" d="M 76 26 Q 92 48 76 70"/>
           </svg>
         </div>
-        <h4 data-i18n="lz.feat.f1t">Caisse rapide</h4>
-        <p data-i18n="lz.feat.f1d">Chaque vente est saisie en quelques gestes, quel que soit le moyen de paiement : espèces, carte ou mobile. Le service avance, la caisse reste juste.</p>
+        <h4>Caisse rapide</h4>
+        <p>Chaque vente est saisie en quelques gestes, quel que soit le moyen de paiement : espèces, carte ou mobile. Le service avance, la caisse reste juste.</p>
       </article>
 
       <!-- 2. Kiwi IQ — BREAKOUT (row 1, spans 2 columns) -->
@@ -5295,8 +5224,8 @@ footer {
             </div>
           </div>
         </div>
-        <h4 data-i18n="lz.feat.f2t">Kiwi IQ · parle darija</h4>
-        <p data-i18n="lz.feat.f2d">« ch7al kano les ventes dyal lbare7 ? » → réponse claire, anomalies, conseils et actions utiles. Kiwi IQ lit les ventes et parle au gérant en darija.</p>
+        <h4>Kiwi IQ · parle darija</h4>
+        <p>« ch7al kano les ventes dyal lbare7 ? » → réponse claire, anomalies, conseils et actions utiles. Kiwi IQ lit les ventes et parle au gérant en darija.</p>
       </article>
 
       <!-- 3. QR pay-at-table -->
@@ -5309,8 +5238,8 @@ footer {
             <svg class="stage-qr-svg" viewBox="0 0 37 37" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="5" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="13" y="2" width="1" height="1"/><rect x="14" y="2" width="1" height="1"/><rect x="15" y="2" width="1" height="1"/><rect x="17" y="2" width="1" height="1"/><rect x="20" y="2" width="1" height="1"/><rect x="25" y="2" width="1" height="1"/><rect x="28" y="2" width="1" height="1"/><rect x="29" y="2" width="1" height="1"/><rect x="30" y="2" width="1" height="1"/><rect x="31" y="2" width="1" height="1"/><rect x="32" y="2" width="1" height="1"/><rect x="33" y="2" width="1" height="1"/><rect x="34" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="13" y="3" width="1" height="1"/><rect x="14" y="3" width="1" height="1"/><rect x="15" y="3" width="1" height="1"/><rect x="16" y="3" width="1" height="1"/><rect x="20" y="3" width="1" height="1"/><rect x="21" y="3" width="1" height="1"/><rect x="28" y="3" width="1" height="1"/><rect x="34" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="12" y="4" width="1" height="1"/><rect x="14" y="4" width="1" height="1"/><rect x="16" y="4" width="1" height="1"/><rect x="17" y="4" width="1" height="1"/><rect x="18" y="4" width="1" height="1"/><rect x="19" y="4" width="1" height="1"/><rect x="20" y="4" width="1" height="1"/><rect x="21" y="4" width="1" height="1"/><rect x="23" y="4" width="1" height="1"/><rect x="25" y="4" width="1" height="1"/><rect x="28" y="4" width="1" height="1"/><rect x="30" y="4" width="1" height="1"/><rect x="31" y="4" width="1" height="1"/><rect x="32" y="4" width="1" height="1"/><rect x="34" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="13" y="5" width="1" height="1"/><rect x="14" y="5" width="1" height="1"/><rect x="18" y="5" width="1" height="1"/><rect x="19" y="5" width="1" height="1"/><rect x="23" y="5" width="1" height="1"/><rect x="24" y="5" width="1" height="1"/><rect x="28" y="5" width="1" height="1"/><rect x="30" y="5" width="1" height="1"/><rect x="31" y="5" width="1" height="1"/><rect x="32" y="5" width="1" height="1"/><rect x="34" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="11" y="6" width="1" height="1"/><rect x="18" y="6" width="1" height="1"/><rect x="19" y="6" width="1" height="1"/><rect x="21" y="6" width="1" height="1"/><rect x="23" y="6" width="1" height="1"/><rect x="24" y="6" width="1" height="1"/><rect x="28" y="6" width="1" height="1"/><rect x="30" y="6" width="1" height="1"/><rect x="31" y="6" width="1" height="1"/><rect x="32" y="6" width="1" height="1"/><rect x="34" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="11" y="7" width="1" height="1"/><rect x="12" y="7" width="1" height="1"/><rect x="14" y="7" width="1" height="1"/><rect x="17" y="7" width="1" height="1"/><rect x="19" y="7" width="1" height="1"/><rect x="22" y="7" width="1" height="1"/><rect x="23" y="7" width="1" height="1"/><rect x="24" y="7" width="1" height="1"/><rect x="25" y="7" width="1" height="1"/><rect x="26" y="7" width="1" height="1"/><rect x="28" y="7" width="1" height="1"/><rect x="34" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="4" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="7" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="10" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="18" y="8" width="1" height="1"/><rect x="20" y="8" width="1" height="1"/><rect x="22" y="8" width="1" height="1"/><rect x="24" y="8" width="1" height="1"/><rect x="26" y="8" width="1" height="1"/><rect x="28" y="8" width="1" height="1"/><rect x="29" y="8" width="1" height="1"/><rect x="30" y="8" width="1" height="1"/><rect x="31" y="8" width="1" height="1"/><rect x="32" y="8" width="1" height="1"/><rect x="33" y="8" width="1" height="1"/><rect x="34" y="8" width="1" height="1"/><rect x="10" y="9" width="1" height="1"/><rect x="13" y="9" width="1" height="1"/><rect x="16" y="9" width="1" height="1"/><rect x="19" y="9" width="1" height="1"/><rect x="20" y="9" width="1" height="1"/><rect x="21" y="9" width="1" height="1"/><rect x="22" y="9" width="1" height="1"/><rect x="23" y="9" width="1" height="1"/><rect x="26" y="9" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/><rect x="8" y="10" width="1" height="1"/><rect x="9" y="10" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="14" y="10" width="1" height="1"/><rect x="17" y="10" width="1" height="1"/><rect x="19" y="10" width="1" height="1"/><rect x="22" y="10" width="1" height="1"/><rect x="23" y="10" width="1" height="1"/><rect x="24" y="10" width="1" height="1"/><rect x="25" y="10" width="1" height="1"/><rect x="27" y="10" width="1" height="1"/><rect x="28" y="10" width="1" height="1"/><rect x="29" y="10" width="1" height="1"/><rect x="30" y="10" width="1" height="1"/><rect x="31" y="10" width="1" height="1"/><rect x="34" y="10" width="1" height="1"/><rect x="3" y="11" width="1" height="1"/><rect x="7" y="11" width="1" height="1"/><rect x="9" y="11" width="1" height="1"/><rect x="12" y="11" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="17" y="11" width="1" height="1"/><rect x="18" y="11" width="1" height="1"/><rect x="19" y="11" width="1" height="1"/><rect x="20" y="11" width="1" height="1"/><rect x="23" y="11" width="1" height="1"/><rect x="24" y="11" width="1" height="1"/><rect x="25" y="11" width="1" height="1"/><rect x="27" y="11" width="1" height="1"/><rect x="31" y="11" width="1" height="1"/><rect x="32" y="11" width="1" height="1"/><rect x="34" y="11" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/><rect x="6" y="12" width="1" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="8" y="12" width="1" height="1"/><rect x="9" y="12" width="1" height="1"/><rect x="10" y="12" width="1" height="1"/><rect x="15" y="12" width="1" height="1"/><rect x="16" y="12" width="1" height="1"/><rect x="17" y="12" width="1" height="1"/><rect x="20" y="12" width="1" height="1"/><rect x="25" y="12" width="1" height="1"/><rect x="27" y="12" width="1" height="1"/><rect x="31" y="12" width="1" height="1"/><rect x="33" y="12" width="1" height="1"/><rect x="4" y="13" width="1" height="1"/><rect x="6" y="13" width="1" height="1"/><rect x="9" y="13" width="1" height="1"/><rect x="12" y="13" width="1" height="1"/><rect x="14" y="13" width="1" height="1"/><rect x="15" y="13" width="1" height="1"/><rect x="18" y="13" width="1" height="1"/><rect x="21" y="13" width="1" height="1"/><rect x="22" y="13" width="1" height="1"/><rect x="24" y="13" width="1" height="1"/><rect x="26" y="13" width="1" height="1"/><rect x="27" y="13" width="1" height="1"/><rect x="28" y="13" width="1" height="1"/><rect x="2" y="14" width="1" height="1"/><rect x="4" y="14" width="1" height="1"/><rect x="5" y="14" width="1" height="1"/><rect x="8" y="14" width="1" height="1"/><rect x="10" y="14" width="1" height="1"/><rect x="12" y="14" width="1" height="1"/><rect x="14" y="14" width="1" height="1"/><rect x="15" y="14" width="1" height="1"/><rect x="18" y="14" width="1" height="1"/><rect x="24" y="14" width="1" height="1"/><rect x="25" y="14" width="1" height="1"/><rect x="26" y="14" width="1" height="1"/><rect x="28" y="14" width="1" height="1"/><rect x="29" y="14" width="1" height="1"/><rect x="31" y="14" width="1" height="1"/><rect x="34" y="14" width="1" height="1"/><rect x="2" y="15" width="1" height="1"/><rect x="4" y="15" width="1" height="1"/><rect x="5" y="15" width="1" height="1"/><rect x="6" y="15" width="1" height="1"/><rect x="7" y="15" width="1" height="1"/><rect x="9" y="15" width="1" height="1"/><rect x="12" y="15" width="1" height="1"/><rect x="13" y="15" width="1" height="1"/><rect x="16" y="15" width="1" height="1"/><rect x="19" y="15" width="1" height="1"/><rect x="20" y="15" width="1" height="1"/><rect x="21" y="15" width="1" height="1"/><rect x="22" y="15" width="1" height="1"/><rect x="26" y="15" width="1" height="1"/><rect x="27" y="15" width="1" height="1"/><rect x="29" y="15" width="1" height="1"/><rect x="32" y="15" width="1" height="1"/><rect x="4" y="16" width="1" height="1"/><rect x="6" y="16" width="1" height="1"/><rect x="7" y="16" width="1" height="1"/><rect x="8" y="16" width="1" height="1"/><rect x="12" y="16" width="1" height="1"/><rect x="13" y="16" width="1" height="1"/><rect x="14" y="16" width="1" height="1"/><rect x="16" y="16" width="1" height="1"/><rect x="17" y="16" width="1" height="1"/><rect x="19" y="16" width="1" height="1"/><rect x="20" y="16" width="1" height="1"/><rect x="22" y="16" width="1" height="1"/><rect x="23" y="16" width="1" height="1"/><rect x="25" y="16" width="1" height="1"/><rect x="26" y="16" width="1" height="1"/><rect x="27" y="16" width="1" height="1"/><rect x="28" y="16" width="1" height="1"/><rect x="30" y="16" width="1" height="1"/><rect x="33" y="16" width="1" height="1"/><rect x="2" y="17" width="1" height="1"/><rect x="3" y="17" width="1" height="1"/><rect x="4" y="17" width="1" height="1"/><rect x="5" y="17" width="1" height="1"/><rect x="6" y="17" width="1" height="1"/><rect x="9" y="17" width="1" height="1"/><rect x="12" y="17" width="1" height="1"/><rect x="13" y="17" width="1" height="1"/><rect x="15" y="17" width="1" height="1"/><rect x="16" y="17" width="1" height="1"/><rect x="17" y="17" width="1" height="1"/><rect x="18" y="17" width="1" height="1"/><rect x="19" y="17" width="1" height="1"/><rect x="20" y="17" width="1" height="1"/><rect x="23" y="17" width="1" height="1"/><rect x="25" y="17" width="1" height="1"/><rect x="27" y="17" width="1" height="1"/><rect x="28" y="17" width="1" height="1"/><rect x="29" y="17" width="1" height="1"/><rect x="2" y="18" width="1" height="1"/><rect x="3" y="18" width="1" height="1"/><rect x="5" y="18" width="1" height="1"/><rect x="6" y="18" width="1" height="1"/><rect x="7" y="18" width="1" height="1"/><rect x="8" y="18" width="1" height="1"/><rect x="10" y="18" width="1" height="1"/><rect x="11" y="18" width="1" height="1"/><rect x="14" y="18" width="1" height="1"/><rect x="19" y="18" width="1" height="1"/><rect x="20" y="18" width="1" height="1"/><rect x="21" y="18" width="1" height="1"/><rect x="22" y="18" width="1" height="1"/><rect x="23" y="18" width="1" height="1"/><rect x="24" y="18" width="1" height="1"/><rect x="26" y="18" width="1" height="1"/><rect x="28" y="18" width="1" height="1"/><rect x="30" y="18" width="1" height="1"/><rect x="31" y="18" width="1" height="1"/><rect x="33" y="18" width="1" height="1"/><rect x="2" y="19" width="1" height="1"/><rect x="3" y="19" width="1" height="1"/><rect x="6" y="19" width="1" height="1"/><rect x="7" y="19" width="1" height="1"/><rect x="9" y="19" width="1" height="1"/><rect x="10" y="19" width="1" height="1"/><rect x="11" y="19" width="1" height="1"/><rect x="12" y="19" width="1" height="1"/><rect x="17" y="19" width="1" height="1"/><rect x="18" y="19" width="1" height="1"/><rect x="20" y="19" width="1" height="1"/><rect x="22" y="19" width="1" height="1"/><rect x="24" y="19" width="1" height="1"/><rect x="25" y="19" width="1" height="1"/><rect x="26" y="19" width="1" height="1"/><rect x="31" y="19" width="1" height="1"/><rect x="32" y="19" width="1" height="1"/><rect x="33" y="19" width="1" height="1"/><rect x="2" y="20" width="1" height="1"/><rect x="4" y="20" width="1" height="1"/><rect x="5" y="20" width="1" height="1"/><rect x="6" y="20" width="1" height="1"/><rect x="8" y="20" width="1" height="1"/><rect x="9" y="20" width="1" height="1"/><rect x="12" y="20" width="1" height="1"/><rect x="14" y="20" width="1" height="1"/><rect x="15" y="20" width="1" height="1"/><rect x="17" y="20" width="1" height="1"/><rect x="18" y="20" width="1" height="1"/><rect x="19" y="20" width="1" height="1"/><rect x="22" y="20" width="1" height="1"/><rect x="23" y="20" width="1" height="1"/><rect x="24" y="20" width="1" height="1"/><rect x="25" y="20" width="1" height="1"/><rect x="26" y="20" width="1" height="1"/><rect x="27" y="20" width="1" height="1"/><rect x="29" y="20" width="1" height="1"/><rect x="31" y="20" width="1" height="1"/><rect x="33" y="20" width="1" height="1"/><rect x="3" y="21" width="1" height="1"/><rect x="4" y="21" width="1" height="1"/><rect x="6" y="21" width="1" height="1"/><rect x="9" y="21" width="1" height="1"/><rect x="12" y="21" width="1" height="1"/><rect x="14" y="21" width="1" height="1"/><rect x="15" y="21" width="1" height="1"/><rect x="17" y="21" width="1" height="1"/><rect x="19" y="21" width="1" height="1"/><rect x="20" y="21" width="1" height="1"/><rect x="22" y="21" width="1" height="1"/><rect x="23" y="21" width="1" height="1"/><rect x="26" y="21" width="1" height="1"/><rect x="27" y="21" width="1" height="1"/><rect x="28" y="21" width="1" height="1"/><rect x="29" y="21" width="1" height="1"/><rect x="33" y="21" width="1" height="1"/><rect x="2" y="22" width="1" height="1"/><rect x="4" y="22" width="1" height="1"/><rect x="7" y="22" width="1" height="1"/><rect x="8" y="22" width="1" height="1"/><rect x="9" y="22" width="1" height="1"/><rect x="11" y="22" width="1" height="1"/><rect x="13" y="22" width="1" height="1"/><rect x="15" y="22" width="1" height="1"/><rect x="16" y="22" width="1" height="1"/><rect x="20" y="22" width="1" height="1"/><rect x="21" y="22" width="1" height="1"/><rect x="22" y="22" width="1" height="1"/><rect x="28" y="22" width="1" height="1"/><rect x="29" y="22" width="1" height="1"/><rect x="30" y="22" width="1" height="1"/><rect x="31" y="22" width="1" height="1"/><rect x="2" y="23" width="1" height="1"/><rect x="5" y="23" width="1" height="1"/><rect x="7" y="23" width="1" height="1"/><rect x="14" y="23" width="1" height="1"/><rect x="18" y="23" width="1" height="1"/><rect x="19" y="23" width="1" height="1"/><rect x="21" y="23" width="1" height="1"/><rect x="24" y="23" width="1" height="1"/><rect x="28" y="23" width="1" height="1"/><rect x="31" y="23" width="1" height="1"/><rect x="32" y="23" width="1" height="1"/><rect x="33" y="23" width="1" height="1"/><rect x="6" y="24" width="1" height="1"/><rect x="7" y="24" width="1" height="1"/><rect x="8" y="24" width="1" height="1"/><rect x="9" y="24" width="1" height="1"/><rect x="13" y="24" width="1" height="1"/><rect x="14" y="24" width="1" height="1"/><rect x="16" y="24" width="1" height="1"/><rect x="18" y="24" width="1" height="1"/><rect x="20" y="24" width="1" height="1"/><rect x="21" y="24" width="1" height="1"/><rect x="23" y="24" width="1" height="1"/><rect x="25" y="24" width="1" height="1"/><rect x="26" y="24" width="1" height="1"/><rect x="27" y="24" width="1" height="1"/><rect x="32" y="24" width="1" height="1"/><rect x="33" y="24" width="1" height="1"/><rect x="5" y="25" width="1" height="1"/><rect x="6" y="25" width="1" height="1"/><rect x="7" y="25" width="1" height="1"/><rect x="9" y="25" width="1" height="1"/><rect x="10" y="25" width="1" height="1"/><rect x="12" y="25" width="1" height="1"/><rect x="15" y="25" width="1" height="1"/><rect x="19" y="25" width="1" height="1"/><rect x="20" y="25" width="1" height="1"/><rect x="21" y="25" width="1" height="1"/><rect x="22" y="25" width="1" height="1"/><rect x="23" y="25" width="1" height="1"/><rect x="24" y="25" width="1" height="1"/><rect x="27" y="25" width="1" height="1"/><rect x="28" y="25" width="1" height="1"/><rect x="30" y="25" width="1" height="1"/><rect x="31" y="25" width="1" height="1"/><rect x="33" y="25" width="1" height="1"/><rect x="34" y="25" width="1" height="1"/><rect x="2" y="26" width="1" height="1"/><rect x="3" y="26" width="1" height="1"/><rect x="4" y="26" width="1" height="1"/><rect x="6" y="26" width="1" height="1"/><rect x="8" y="26" width="1" height="1"/><rect x="9" y="26" width="1" height="1"/><rect x="12" y="26" width="1" height="1"/><rect x="13" y="26" width="1" height="1"/><rect x="15" y="26" width="1" height="1"/><rect x="16" y="26" width="1" height="1"/><rect x="17" y="26" width="1" height="1"/><rect x="18" y="26" width="1" height="1"/><rect x="19" y="26" width="1" height="1"/><rect x="22" y="26" width="1" height="1"/><rect x="23" y="26" width="1" height="1"/><rect x="24" y="26" width="1" height="1"/><rect x="26" y="26" width="1" height="1"/><rect x="27" y="26" width="1" height="1"/><rect x="28" y="26" width="1" height="1"/><rect x="29" y="26" width="1" height="1"/><rect x="30" y="26" width="1" height="1"/><rect x="31" y="26" width="1" height="1"/><rect x="33" y="26" width="1" height="1"/><rect x="10" y="27" width="1" height="1"/><rect x="12" y="27" width="1" height="1"/><rect x="13" y="27" width="1" height="1"/><rect x="15" y="27" width="1" height="1"/><rect x="16" y="27" width="1" height="1"/><rect x="17" y="27" width="1" height="1"/><rect x="18" y="27" width="1" height="1"/><rect x="19" y="27" width="1" height="1"/><rect x="23" y="27" width="1" height="1"/><rect x="24" y="27" width="1" height="1"/><rect x="25" y="27" width="1" height="1"/><rect x="26" y="27" width="1" height="1"/><rect x="30" y="27" width="1" height="1"/><rect x="32" y="27" width="1" height="1"/><rect x="2" y="28" width="1" height="1"/><rect x="3" y="28" width="1" height="1"/><rect x="4" y="28" width="1" height="1"/><rect x="5" y="28" width="1" height="1"/><rect x="6" y="28" width="1" height="1"/><rect x="7" y="28" width="1" height="1"/><rect x="8" y="28" width="1" height="1"/><rect x="10" y="28" width="1" height="1"/><rect x="11" y="28" width="1" height="1"/><rect x="12" y="28" width="1" height="1"/><rect x="16" y="28" width="1" height="1"/><rect x="17" y="28" width="1" height="1"/><rect x="20" y="28" width="1" height="1"/><rect x="26" y="28" width="1" height="1"/><rect x="28" y="28" width="1" height="1"/><rect x="30" y="28" width="1" height="1"/><rect x="31" y="28" width="1" height="1"/><rect x="2" y="29" width="1" height="1"/><rect x="8" y="29" width="1" height="1"/><rect x="13" y="29" width="1" height="1"/><rect x="16" y="29" width="1" height="1"/><rect x="17" y="29" width="1" height="1"/><rect x="18" y="29" width="1" height="1"/><rect x="21" y="29" width="1" height="1"/><rect x="24" y="29" width="1" height="1"/><rect x="26" y="29" width="1" height="1"/><rect x="30" y="29" width="1" height="1"/><rect x="34" y="29" width="1" height="1"/><rect x="2" y="30" width="1" height="1"/><rect x="4" y="30" width="1" height="1"/><rect x="5" y="30" width="1" height="1"/><rect x="6" y="30" width="1" height="1"/><rect x="8" y="30" width="1" height="1"/><rect x="10" y="30" width="1" height="1"/><rect x="13" y="30" width="1" height="1"/><rect x="14" y="30" width="1" height="1"/><rect x="15" y="30" width="1" height="1"/><rect x="16" y="30" width="1" height="1"/><rect x="18" y="30" width="1" height="1"/><rect x="21" y="30" width="1" height="1"/><rect x="24" y="30" width="1" height="1"/><rect x="26" y="30" width="1" height="1"/><rect x="27" y="30" width="1" height="1"/><rect x="28" y="30" width="1" height="1"/><rect x="29" y="30" width="1" height="1"/><rect x="30" y="30" width="1" height="1"/><rect x="31" y="30" width="1" height="1"/><rect x="34" y="30" width="1" height="1"/><rect x="2" y="31" width="1" height="1"/><rect x="4" y="31" width="1" height="1"/><rect x="5" y="31" width="1" height="1"/><rect x="6" y="31" width="1" height="1"/><rect x="8" y="31" width="1" height="1"/><rect x="11" y="31" width="1" height="1"/><rect x="12" y="31" width="1" height="1"/><rect x="14" y="31" width="1" height="1"/><rect x="15" y="31" width="1" height="1"/><rect x="20" y="31" width="1" height="1"/><rect x="21" y="31" width="1" height="1"/><rect x="22" y="31" width="1" height="1"/><rect x="25" y="31" width="1" height="1"/><rect x="28" y="31" width="1" height="1"/><rect x="29" y="31" width="1" height="1"/><rect x="30" y="31" width="1" height="1"/><rect x="31" y="31" width="1" height="1"/><rect x="32" y="31" width="1" height="1"/><rect x="33" y="31" width="1" height="1"/><rect x="2" y="32" width="1" height="1"/><rect x="4" y="32" width="1" height="1"/><rect x="5" y="32" width="1" height="1"/><rect x="6" y="32" width="1" height="1"/><rect x="8" y="32" width="1" height="1"/><rect x="11" y="32" width="1" height="1"/><rect x="14" y="32" width="1" height="1"/><rect x="16" y="32" width="1" height="1"/><rect x="17" y="32" width="1" height="1"/><rect x="20" y="32" width="1" height="1"/><rect x="22" y="32" width="1" height="1"/><rect x="23" y="32" width="1" height="1"/><rect x="27" y="32" width="1" height="1"/><rect x="28" y="32" width="1" height="1"/><rect x="29" y="32" width="1" height="1"/><rect x="30" y="32" width="1" height="1"/><rect x="31" y="32" width="1" height="1"/><rect x="2" y="33" width="1" height="1"/><rect x="8" y="33" width="1" height="1"/><rect x="13" y="33" width="1" height="1"/><rect x="14" y="33" width="1" height="1"/><rect x="15" y="33" width="1" height="1"/><rect x="17" y="33" width="1" height="1"/><rect x="18" y="33" width="1" height="1"/><rect x="19" y="33" width="1" height="1"/><rect x="20" y="33" width="1" height="1"/><rect x="23" y="33" width="1" height="1"/><rect x="25" y="33" width="1" height="1"/><rect x="26" y="33" width="1" height="1"/><rect x="28" y="33" width="1" height="1"/><rect x="2" y="34" width="1" height="1"/><rect x="3" y="34" width="1" height="1"/><rect x="4" y="34" width="1" height="1"/><rect x="5" y="34" width="1" height="1"/><rect x="6" y="34" width="1" height="1"/><rect x="7" y="34" width="1" height="1"/><rect x="8" y="34" width="1" height="1"/><rect x="10" y="34" width="1" height="1"/><rect x="12" y="34" width="1" height="1"/><rect x="19" y="34" width="1" height="1"/><rect x="21" y="34" width="1" height="1"/><rect x="22" y="34" width="1" height="1"/><rect x="23" y="34" width="1" height="1"/><rect x="24" y="34" width="1" height="1"/><rect x="25" y="34" width="1" height="1"/><rect x="26" y="34" width="1" height="1"/><rect x="27" y="34" width="1" height="1"/><rect x="28" y="34" width="1" height="1"/><rect x="31" y="34" width="1" height="1"/><rect x="34" y="34" width="1" height="1"/></svg>
           </a>
         </div>
-        <h4 data-i18n="lz.feat.f3t">Plan de salle &amp; tables</h4>
-        <p data-i18n="lz.feat.f3d">Tables ouvertes, fusionnées ou déplacées en un geste. Le serveur voit qui attend, qui mange et qui demande l'addition.</p>
+        <h4>Plan de salle &amp; tables</h4>
+        <p>Tables ouvertes, fusionnées ou déplacées en un geste. Le serveur voit qui attend, qui mange et qui demande l'addition.</p>
       </article>
 
       <!-- 4. Multi-devise -->
@@ -5326,8 +5255,8 @@ footer {
             <span class="stage-fx-chip">GBP</span>
           </div>
         </div>
-        <h4 data-i18n="lz.feat.f4t">Écran cuisine / KDS</h4>
-        <p data-i18n="lz.feat.f4d">Chaque commande part en cuisine instantanément, avec statut, priorité et modifications. Moins d'allers-retours, moins d'oublis.</p>
+        <h4>Écran cuisine / KDS</h4>
+        <p>Chaque commande part en cuisine instantanément, avec statut, priorité et modifications. Moins d'allers-retours, moins d'oublis.</p>
       </article>
 
       <!-- 5. Financement participatif -->
@@ -5335,8 +5264,8 @@ footer {
         <div class="feat-stage stage-finance" aria-hidden="true">
           <img class="stage-halal-badge" src="assets/landing/icons/halal.png" alt="" width="92" height="92" loading="lazy" decoding="async"/>
         </div>
-        <h4 data-i18n="lz.feat.f5t">Stock &amp; fournisseurs</h4>
-        <p data-i18n="lz.feat.f5d">Stocks, réceptions, ruptures et fournisseurs au même endroit. Le gérant sait quoi recommander avant que le produit manque.</p>
+        <h4>Stock &amp; fournisseurs</h4>
+        <p>Stocks, réceptions, ruptures et fournisseurs au même endroit. Le gérant sait quoi recommander avant que le produit manque.</p>
       </article>
 
       <!-- 6. Mode Ramadan — FULL-WIDTH BANNER (row 3, spans 3 columns) -->
@@ -5359,8 +5288,8 @@ footer {
           <img class="stage-ramadan-teapot" src="assets/landing/icons/teapot.png" alt="" width="36" height="36" loading="lazy" decoding="async"/>
         </div>
         <div class="feat-banner-body">
-          <h4 data-i18n="lz.feat.f6t">Équipe &amp; paie</h4>
-          <p data-i18n="lz.feat.f6d">Pointage, planning et paie dans le même outil. Pendant Ramadan, les horaires Ftour / Souhour et les équipes de service s'ajustent sans refaire toute l'organisation.</p>
+          <h4>Équipe &amp; paie</h4>
+          <p>Pointage, planning et paie dans le même outil. Pendant Ramadan, les horaires Ftour / Souhour et les équipes de service s'ajustent sans refaire toute l'organisation.</p>
         </div>
       </article>
 
@@ -5372,21 +5301,21 @@ footer {
 <section class="slab-ink">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-num" data-i18n="lz.svc.num"><b>05</b> · Service</div>
-      <div class="s-eyebrow" style="margin-top: var(--s-3);" data-i18n="lz.svc.eye">Du salon à la cuisine</div>
-      <h2 style="margin-top: var(--s-4);" data-i18n="lz.svc.h2">Le service du soir, sans une seconde perdue.</h2>
-      <p class="lede" style="margin-top: var(--s-5);" data-i18n="lz.svc.lede">La commande est prise en salle, envoyée en cuisine, préparée, encaissée puis enregistrée au tableau de bord. Un seul fil, du premier couvert au dernier ticket.</p>
+      <div class="s-num"><b>05</b> · Service</div>
+      <div class="s-eyebrow" style="margin-top: var(--s-3);">Du salon à la cuisine</div>
+      <h2 style="margin-top: var(--s-4);">Le service du soir, sans une seconde perdue.</h2>
+      <p class="lede" style="margin-top: var(--s-5);">La commande est prise en salle, envoyée en cuisine, préparée, encaissée puis enregistrée au tableau de bord. Un seul fil, du premier couvert au dernier ticket.</p>
     </div>
 
     <div class="card card-ink t1-viz reveal" id="t1Viz">
       <div class="t1-flow">
         <div class="t1-from">
-          <div class="t1-stamp" data-i18n="lz.svc.from">Salle · 20 h 12</div>
+          <div class="t1-stamp">Salle · 20 h 12</div>
           <div class="t1-amount num"><span id="t1AmountFrom">18&nbsp;420</span><span class="t1-unit">MAD</span></div>
-          <div class="t1-note" data-i18n="lz.svc.fromNote">Commande prise · table 12</div>
+          <div class="t1-note">Commande prise · table 12</div>
         </div>
         <div class="t1-arrow" aria-hidden="true">
-          <span class="t1-arrow-label" data-i18n="lz.svc.arrow">Service en continu</span>
+          <span class="t1-arrow-label">Service en continu</span>
           <div class="t1-arrow-line">
             <span class="t1-dot start"></span>
             <span class="t1-particle"></span>
@@ -5394,17 +5323,17 @@ footer {
           </div>
         </div>
         <div class="t1-to">
-          <div class="t1-stamp" data-i18n="lz.svc.to">Tableau de bord · 20 h 38</div>
+          <div class="t1-stamp">Tableau de bord · 20 h 38</div>
           <div class="t1-amount mint num"><span id="t1AmountTo">18&nbsp;420</span><span class="t1-unit">MAD</span></div>
-          <div class="t1-note" data-i18n="lz.svc.toNote">Vente enregistrée · service clôturé</div>
+          <div class="t1-note">Vente enregistrée · service clôturé</div>
         </div>
       </div>
 
       <div class="t1-row">
-        <div class="t1-cell"><div class="l" data-i18n="lz.svc.c1l">Salle</div><div class="v">84 couverts</div><div class="s" data-i18n="lz.svc.c1s">Tables suivies en direct</div></div>
-        <div class="t1-cell"><div class="l" data-i18n="lz.svc.c2l">Commandes</div><div class="v">184</div><div class="s" data-i18n="lz.svc.c2s">Envoyées en cuisine</div></div>
-        <div class="t1-cell"><div class="l" data-i18n="lz.svc.c3l">Préparation</div><div class="v mint">11 min</div><div class="s" data-i18n="lz.svc.c3s">Temps moyen du soir</div></div>
-        <div class="t1-cell"><div class="l" data-i18n="lz.svc.c4l">Ventes</div><div class="v">18 420 MAD</div><div class="s" data-i18n="lz.svc.c4s">Enregistrées au tableau de bord</div></div>
+        <div class="t1-cell"><div class="l">Salle</div><div class="v">84 couverts</div><div class="s">Tables suivies en direct</div></div>
+        <div class="t1-cell"><div class="l">Commandes</div><div class="v">184</div><div class="s">Envoyées en cuisine</div></div>
+        <div class="t1-cell"><div class="l">Préparation</div><div class="v mint">11 min</div><div class="s">Temps moyen du soir</div></div>
+        <div class="t1-cell"><div class="l">Ventes</div><div class="v">18 420 MAD</div><div class="s">Enregistrées au tableau de bord</div></div>
       </div>
     </div>
   </div>
@@ -5414,10 +5343,10 @@ footer {
 <section class="slab-paper" id="transparency">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-num" data-i18n="lz.tr.num"><b>06</b> · Tarification</div>
-      <div class="s-eyebrow" style="margin-top: var(--s-3);" data-i18n="lz.tr.eye">Radicalement transparent</div>
-      <h2 style="margin-top: var(--s-4);" data-i18n="lz.tr.h2">Comment Kiwi gagne de l'argent.</h2>
-      <p class="lede" style="margin-top: var(--s-5);" data-i18n="lz.tr.lede">Un abonnement. Pas une commission. Kiwi facture son logiciel, ne prend jamais une part de tes ventes et ne touche jamais à ton chiffre d'affaires.</p>
+      <div class="s-num"><b>06</b> · Tarification</div>
+      <div class="s-eyebrow" style="margin-top: var(--s-3);">Radicalement transparent</div>
+      <h2 style="margin-top: var(--s-4);">Comment Kiwi gagne de l'argent.</h2>
+      <p class="lede" style="margin-top: var(--s-5);">Un abonnement. Pas une commission. Kiwi facture son logiciel, ne prend jamais une part de tes ventes et ne touche jamais à ton chiffre d'affaires.</p>
     </div>
 
     <!-- Three editorial statements stacked. Each one has a number, a thesis,
@@ -5431,11 +5360,11 @@ footer {
           399<span class="unit">MAD/mois</span>
         </div>
         <div class="trans-statement-body">
-          <h3 data-i18n="lz.tr.s1t">Kiwi Basic. Le nécessaire.</h3>
-          <p data-i18n="lz.tr.s1d">Caisse, salle, cuisine, stock, équipe et tableau de bord pour un établissement. Le prix est fixe, même si ton chiffre d'affaires double.</p>
+          <h3>Kiwi Basic. Le nécessaire.</h3>
+          <p>Caisse, salle, cuisine, stock, équipe et tableau de bord pour un établissement. Le prix est fixe, même si ton chiffre d'affaires double.</p>
           <div class="trans-strikes">
-            <span class="trans-strike" data-i18n="lz.tr.k1">Aucune commission sur les ventes</span>
-            <span class="trans-strike" data-i18n="lz.tr.k2">Aucun frais par transaction</span>
+            <span class="trans-strike">Aucune commission sur les ventes</span>
+            <span class="trans-strike">Aucun frais par transaction</span>
           </div>
         </div>
       </article>
@@ -5445,11 +5374,11 @@ footer {
           699<span class="unit">MAD/mois</span>
         </div>
         <div class="trans-statement-body">
-          <h3 data-i18n="lz.tr.s2t">Kiwi Pro. Pour aller plus loin.</h3>
-          <p data-i18n="lz.tr.s2d">Multi-établissements, droits avancés, API et exports, avec <b>Kiwi IQ en darija et français</b>. La tablette caisse et l'écran cuisine restent prêtés gratuitement pendant l'abonnement.</p>
+          <h3>Kiwi Pro. Pour aller plus loin.</h3>
+          <p>Multi-établissements, droits avancés, API et exports, avec <b>Kiwi IQ en darija et français</b>. La tablette caisse et l'écran cuisine restent prêtés gratuitement pendant l'abonnement.</p>
           <div class="trans-strikes">
-            <span class="trans-strike" data-i18n="lz.tr.k3">Aucun frais d'installation</span>
-            <span class="trans-strike" data-i18n="lz.tr.k4">Aucun matériel à acheter</span>
+            <span class="trans-strike">Aucun frais d'installation</span>
+            <span class="trans-strike">Aucun matériel à acheter</span>
           </div>
         </div>
       </article>
@@ -5459,14 +5388,14 @@ footer {
           0<span class="unit">MAD</span>
         </div>
         <div class="trans-statement-body">
-          <h3 data-i18n="lz.tr.s3t">Ce que vous ne payez pas.</h3>
-          <p data-i18n="lz.tr.s3d">Le mot le plus court de notre tarification. Kiwi est un logiciel, pas un intermédiaire sur ton chiffre d'affaires. <b>Pas de petite ligne, pas de surprise en fin de mois.</b></p>
+          <h3>Ce que vous ne payez pas.</h3>
+          <p>Le mot le plus court de notre tarification. Kiwi est un logiciel, pas un intermédiaire sur ton chiffre d'affaires. <b>Pas de petite ligne, pas de surprise en fin de mois.</b></p>
           <div class="trans-strikes">
-            <span class="trans-strike" data-i18n="lz.tr.k1">Aucune commission sur les ventes</span>
-            <span class="trans-strike" data-i18n="lz.tr.k2">Aucun frais par transaction</span>
-            <span class="trans-strike" data-i18n="lz.tr.k3">Aucun frais d'installation</span>
-            <span class="trans-strike" data-i18n="lz.tr.k4">Aucun matériel à acheter</span>
-            <span class="trans-strike" data-i18n="lz.tr.k5">Aucun engagement</span>
+            <span class="trans-strike">Aucune commission sur les ventes</span>
+            <span class="trans-strike">Aucun frais par transaction</span>
+            <span class="trans-strike">Aucun frais d'installation</span>
+            <span class="trans-strike">Aucun matériel à acheter</span>
+            <span class="trans-strike">Aucun engagement</span>
           </div>
         </div>
       </article>
@@ -5474,7 +5403,7 @@ footer {
     </div>
 
     <!-- Editorial closing line -->
-    <p class="trans-closer reveal" data-i18n="lz.tr.closer">
+    <p class="trans-closer reveal">
       Si Kiwi gagne, c'est parce que <span class="trans-em">ton établissement tourne mieux</span>. Ton chiffre d'affaires reste le tien.
     </p>
   </div>
@@ -5483,7 +5412,7 @@ footer {
 <!-- ════════════ 08 · PILOTS ════════════ -->
 <section class="slab-paper-soft" id="pilots">
   <div class="wrap">
-    <p class="s-eyebrow reveal" data-i18n="lz.pilots.eye">07 · Pilotes</p>
+    <p class="s-eyebrow reveal">07 · Pilotes</p>
   </div>
   <div class="pilot-marquee reveal" aria-label="Partenaires Kiwi">
     <div class="pilot-track">
@@ -5583,19 +5512,19 @@ footer {
 <section class="slab-paper" id="comparison">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-num" data-i18n="lz.cmp.num"><b>08</b> · Le coût caché</div>
-      <div class="s-eyebrow" style="margin-top: var(--s-3);" data-i18n="lz.cmp.eye">Vendredi 23 h 47, à Casablanca</div>
-      <h2 style="margin-top: var(--s-4);" data-i18n="lz.cmp.h2">Faire tourner un vendredi soir.</h2>
-      <p class="lede" style="margin-top: var(--s-5);" data-i18n="lz.cmp.lede">Café Atlas vient de fermer. La caisse dit 18 420 MAD. Voici la différence entre gérer au carnet, WhatsApp et Excel, ou piloter le service sur Kiwi.</p>
+      <div class="s-num"><b>08</b> · Le coût caché</div>
+      <div class="s-eyebrow" style="margin-top: var(--s-3);">Vendredi 23 h 47, à Casablanca</div>
+      <h2 style="margin-top: var(--s-4);">Faire tourner un vendredi soir.</h2>
+      <p class="lede" style="margin-top: var(--s-5);">Café Atlas vient de fermer. La caisse dit 18 420 MAD. Voici la différence entre gérer au carnet, WhatsApp et Excel, ou piloter le service sur Kiwi.</p>
     </div>
 
     <!-- Opening scene — cinematic ink card -->
     <div class="story-scene reveal" id="storyScene">
       <img class="scene-avatar" src="assets/landing/icons/merchant.png" alt="" width="40" height="40" loading="lazy" decoding="async"/>
-      <div class="scene-time" data-i18n="lz.cmp.sceneTime">Vendredi · 23 h 47 · clôture caisse</div>
+      <div class="scene-time">Vendredi · 23 h 47 · clôture caisse</div>
       <div class="scene-where">Café Atlas · Maarif, Casablanca · <b>Karim</b></div>
-      <div class="scene-amount num"><span id="sceneAmount">18 420</span><span class="unit" data-i18n="lz.cmp.sceneUnit">MAD encaissé ce soir</span></div>
-      <div class="scene-meta" data-i18n="lz.cmp.sceneMeta">184 commandes · 84 couverts · 11 min de préparation moyenne · 3 ruptures à éviter demain</div>
+      <div class="scene-amount num"><span id="sceneAmount">18 420</span><span class="unit">MAD encaissé ce soir</span></div>
+      <div class="scene-meta">184 commandes · 84 couverts · 11 min de préparation moyenne · 3 ruptures à éviter demain</div>
     </div>
 
     <!-- Two parallel narrative columns -->
@@ -5604,106 +5533,106 @@ footer {
       <!-- LEFT: CMI -->
       <article class="story-col cmi">
         <div class="story-col-head">
-          <span class="story-tag" data-i18n="lz.cmp.aTag">Au carnet + WhatsApp + Excel</span>
-          <span class="story-sub" data-i18n="lz.cmp.aSub">Trois outils, aucune vue claire</span>
+          <span class="story-tag">Au carnet + WhatsApp + Excel</span>
+          <span class="story-sub">Trois outils, aucune vue claire</span>
         </div>
 
         <div class="story-step">
           <div class="step-num">01</div>
           <div class="step-body">
-            <div class="step-title" data-i18n="lz.cmp.stOrders">Commandes</div>
-            <div class="step-num-val bad num" data-i18n="lz.cmp.a1v">7 erreurs</div>
-            <div class="step-meta" data-i18n="lz.cmp.a1m">Modifications perdues entre la salle et la cuisine</div>
+            <div class="step-title">Commandes</div>
+            <div class="step-num-val bad num">7 erreurs</div>
+            <div class="step-meta">Modifications perdues entre la salle et la cuisine</div>
           </div>
         </div>
 
         <div class="story-step">
           <div class="step-num">02</div>
           <div class="step-body">
-            <div class="step-title" data-i18n="lz.cmp.stStock">Stock</div>
-            <div class="step-num-val bad num" data-i18n="lz.cmp.a2v">3 ruptures</div>
-            <div class="step-meta" data-i18n="lz.cmp.a2m">Menthe, lait et briouates découverts trop tard</div>
+            <div class="step-title">Stock</div>
+            <div class="step-num-val bad num">3 ruptures</div>
+            <div class="step-meta">Menthe, lait et briouates découverts trop tard</div>
           </div>
         </div>
 
         <div class="story-step">
           <div class="step-num">03</div>
           <div class="step-body">
-            <div class="step-title" data-i18n="lz.cmp.stPilot">Pilotage</div>
-            <div class="step-num-val late" data-i18n="lz.cmp.a3v">Le lendemain</div>
-            <div class="step-meta" data-i18n="lz.cmp.a3m">Le gérant recolle les chiffres à la main</div>
+            <div class="step-title">Pilotage</div>
+            <div class="step-num-val late">Le lendemain</div>
+            <div class="step-meta">Le gérant recolle les chiffres à la main</div>
           </div>
         </div>
 
         <div class="story-total">
-          <div class="story-total-label" data-i18n="lz.cmp.totLbl">Résultat du soir</div>
-          <div class="story-total-val bad num" data-i18n="lz.cmp.aTot">Flou</div>
-          <div class="story-total-sub" data-i18n="lz.cmp.aTotSub">Erreurs, ruptures, décisions prises trop tard</div>
+          <div class="story-total-label">Résultat du soir</div>
+          <div class="story-total-val bad num">Flou</div>
+          <div class="story-total-sub">Erreurs, ruptures, décisions prises trop tard</div>
         </div>
       </article>
 
       <!-- RIGHT: Kiwi -->
       <article class="story-col kiwi">
         <div class="story-col-head">
-          <span class="story-tag" data-i18n="lz.cmp.bTag">Avec Kiwi</span>
-          <span class="story-sub" data-i18n="lz.cmp.bSub">Une seule source de vérité</span>
+          <span class="story-tag">Avec Kiwi</span>
+          <span class="story-sub">Une seule source de vérité</span>
         </div>
 
         <div class="story-step">
           <div class="step-num">01</div>
           <div class="step-body">
-            <div class="step-title" data-i18n="lz.cmp.stOrders">Commandes</div>
-            <div class="step-num-val good num" data-i18n="lz.cmp.b1v">184 suivies</div>
-            <div class="step-meta" data-i18n="lz.cmp.b1m">Salle et cuisine voient la même information</div>
+            <div class="step-title">Commandes</div>
+            <div class="step-num-val good num">184 suivies</div>
+            <div class="step-meta">Salle et cuisine voient la même information</div>
           </div>
         </div>
 
         <div class="story-step">
           <div class="step-num">02</div>
           <div class="step-body">
-            <div class="step-title" data-i18n="lz.cmp.stStock">Stock</div>
-            <div class="step-num-val good num" data-i18n="lz.cmp.b2v">Alertes prêtes</div>
-            <div class="step-meta" data-i18n="lz.cmp.b2m">Les réassorts sont visibles avant la rupture</div>
+            <div class="step-title">Stock</div>
+            <div class="step-num-val good num">Alertes prêtes</div>
+            <div class="step-meta">Les réassorts sont visibles avant la rupture</div>
           </div>
         </div>
 
         <div class="story-step">
           <div class="step-num">03</div>
           <div class="step-body">
-            <div class="step-title" data-i18n="lz.cmp.stPilot">Pilotage</div>
-            <div class="step-num-val fast" data-i18n="lz.cmp.b3v">Temps réel</div>
-            <div class="step-meta" data-i18n="lz.cmp.b3m">Ventes, équipes et produits lisibles pendant le service</div>
+            <div class="step-title">Pilotage</div>
+            <div class="step-num-val fast">Temps réel</div>
+            <div class="step-meta">Ventes, équipes et produits lisibles pendant le service</div>
           </div>
         </div>
 
         <div class="story-total">
-          <div class="story-total-label" data-i18n="lz.cmp.totLbl">Résultat du soir</div>
-          <div class="story-total-val good num" data-i18n="lz.cmp.bTot">Clair</div>
-          <div class="story-total-sub" data-i18n="lz.cmp.bTotSub">Le gérant sait quoi corriger avant demain</div>
+          <div class="story-total-label">Résultat du soir</div>
+          <div class="story-total-val good num">Clair</div>
+          <div class="story-total-sub">Le gérant sait quoi corriger avant demain</div>
         </div>
       </article>
     </div>
 
     <!-- Verdict bar -->
     <div class="story-verdict reveal" id="storyVerdict">
-      <div class="verdict-label" data-i18n="lz.cmp.vLabel">Sur 250 services chargés par an</div>
+      <div class="verdict-label">Sur 250 services chargés par an</div>
       <div class="verdict-numbers">
         <div class="verdict-cmi">
-          <div class="verdict-cmi-label" data-i18n="lz.cmp.vCarnet">Carnet</div>
+          <div class="verdict-cmi-label">Carnet</div>
           <div class="verdict-cmi-val num">~ <span id="verdictCmi">52 000</span></div>
-          <div class="verdict-cmi-sub" data-i18n="lz.cmp.vCarnetSub">points de friction cumulés</div>
+          <div class="verdict-cmi-sub">points de friction cumulés</div>
         </div>
         <div class="verdict-arrow" aria-hidden="true">→</div>
         <div class="verdict-kiwi">
           <div class="verdict-kiwi-label">Kiwi</div>
           <div class="verdict-kiwi-val num">~ <span id="verdictKiwi">5 000</span></div>
-          <div class="verdict-kiwi-sub" data-i18n="lz.cmp.vKiwiSub">actions à traiter clairement</div>
+          <div class="verdict-kiwi-sub">actions à traiter clairement</div>
         </div>
       </div>
       <div class="verdict-savings">
-        <div class="verdict-savings-label" data-i18n="lz.cmp.vDiff">Différence annuelle</div>
+        <div class="verdict-savings-label">Différence annuelle</div>
         <div class="verdict-savings-val num">~ <span id="verdictSavings">47 000</span></div>
-        <div class="verdict-savings-sub" data-i18n="lz.cmp.vDiffSub">décisions prises avec de la clarté</div>
+        <div class="verdict-savings-sub">décisions prises avec de la clarté</div>
       </div>
     </div>
   </div>
@@ -5713,27 +5642,27 @@ footer {
 <section class="slab-paper-soft" id="faq">
   <div class="wrap">
     <div class="s-head reveal">
-      <div class="s-num" data-i18n="lz.faq.num"><b>09</b> · Questions fréquentes</div>
-      <div class="s-eyebrow" style="margin-top: var(--s-3);" data-i18n="lz.faq.eye">Les neuf questions qu'on nous pose tous les jours</div>
-      <h2 style="margin-top: var(--s-4);" data-i18n="lz.faq.h2">Tout ce qu'un commerçant veut savoir avant de signer.</h2>
+      <div class="s-num"><b>09</b> · Questions fréquentes</div>
+      <div class="s-eyebrow" style="margin-top: var(--s-3);">Les neuf questions qu'on nous pose tous les jours</div>
+      <h2 style="margin-top: var(--s-4);">Tout ce qu'un commerçant veut savoir avant de signer.</h2>
     </div>
 
     <!-- Category filter chips — toggle which questions are visible -->
     <div class="faq-cats reveal" role="tablist" aria-label="Filtrer par catégorie">
       <button class="faq-cat" data-filter="*" aria-pressed="true" type="button">
-        <span data-i18n="lz.faq.catAll">Tout</span> <span class="faq-cat-count">9</span>
+        Tout <span class="faq-cat-count">9</span>
       </button>
       <button class="faq-cat" data-filter="tarifs" aria-pressed="false" type="button">
-        <span data-i18n="lz.faq.catPrice">Tarifs</span> <span class="faq-cat-count">2</span>
+        Tarifs <span class="faq-cat-count">2</span>
       </button>
       <button class="faq-cat" data-filter="demarrage" aria-pressed="false" type="button">
-        <span data-i18n="lz.faq.catStart">Démarrage</span> <span class="faq-cat-count">2</span>
+        Démarrage <span class="faq-cat-count">2</span>
       </button>
       <button class="faq-cat" data-filter="securite" aria-pressed="false" type="button">
-        <span data-i18n="lz.faq.catSec">Sécurité</span> <span class="faq-cat-count">1</span>
+        Sécurité <span class="faq-cat-count">1</span>
       </button>
       <button class="faq-cat" data-filter="engagement" aria-pressed="false" type="button">
-        <span data-i18n="lz.faq.catCommit">Engagement</span> <span class="faq-cat-count">4</span>
+        Engagement <span class="faq-cat-count">4</span>
       </button>
     </div>
 
@@ -5746,7 +5675,7 @@ footer {
         <button class="faq-nav-item" data-q="1" data-cat="engagement" data-active="true"
                 role="tab" aria-controls="faq-card-1" type="button">
           <span class="faq-nav-num">01</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q1">Qu'est-ce que Kiwi exactement ?</span>
+          <span class="faq-nav-text">Qu'est-ce que Kiwi exactement ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5756,7 +5685,7 @@ footer {
         <button class="faq-nav-item" data-q="2" data-cat="tarifs" data-active="false"
                 role="tab" aria-controls="faq-card-2" type="button">
           <span class="faq-nav-num">02</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q2">Kiwi prélève-t-il une commission sur mes ventes ?</span>
+          <span class="faq-nav-text">Kiwi prélève-t-il une commission sur mes ventes ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5766,7 +5695,7 @@ footer {
         <button class="faq-nav-item" data-q="3" data-cat="demarrage" data-active="false"
                 role="tab" aria-controls="faq-card-3" type="button">
           <span class="faq-nav-num">03</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q3">Combien coûte Kiwi ?</span>
+          <span class="faq-nav-text">Combien coûte Kiwi ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5776,7 +5705,7 @@ footer {
         <button class="faq-nav-item" data-q="4" data-cat="demarrage" data-active="false"
                 role="tab" aria-controls="faq-card-4" type="button">
           <span class="faq-nav-num">04</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q4">Kiwi gère-t-il les paiements par carte ?</span>
+          <span class="faq-nav-text">Kiwi gère-t-il les paiements par carte ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5786,7 +5715,7 @@ footer {
         <button class="faq-nav-item" data-q="5" data-cat="tarifs" data-active="false"
                 role="tab" aria-controls="faq-card-5" type="button">
           <span class="faq-nav-num">05</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q5">Combien de temps pour démarrer avec Kiwi ?</span>
+          <span class="faq-nav-text">Combien de temps pour démarrer avec Kiwi ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5796,7 +5725,7 @@ footer {
         <button class="faq-nav-item" data-q="6" data-cat="securite" data-active="false"
                 role="tab" aria-controls="faq-card-6" type="button">
           <span class="faq-nav-num">06</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q6">Kiwi fonctionne-t-il sans connexion internet ?</span>
+          <span class="faq-nav-text">Kiwi fonctionne-t-il sans connexion internet ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5806,7 +5735,7 @@ footer {
         <button class="faq-nav-item" data-q="7" data-cat="engagement" data-active="false"
                 role="tab" aria-controls="faq-card-7" type="button">
           <span class="faq-nav-num">07</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q7">Mes données restent-elles au Maroc ?</span>
+          <span class="faq-nav-text">Mes données restent-elles au Maroc ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5816,7 +5745,7 @@ footer {
         <button class="faq-nav-item" data-q="8" data-cat="engagement" data-active="false"
                 role="tab" aria-controls="faq-card-8" type="button">
           <span class="faq-nav-num">08</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q8">Comment résilier Kiwi ?</span>
+          <span class="faq-nav-text">Comment résilier Kiwi ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5826,7 +5755,7 @@ footer {
         <button class="faq-nav-item" data-q="9" data-cat="engagement" data-active="false"
                 role="tab" aria-controls="faq-card-9" type="button">
           <span class="faq-nav-num">09</span>
-          <span class="faq-nav-text" data-i18n="lz.faq.q9">Pourquoi faire confiance à Kiwi ?</span>
+          <span class="faq-nav-text">Pourquoi faire confiance à Kiwi ?</span>
           <svg class="faq-nav-chev" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3l5 5-5 5"/>
           </svg>
@@ -5837,61 +5766,61 @@ footer {
       <div class="faq-stage">
       <article class="faq-card" id="faq-card-1" data-a="1" data-active="true" role="tabpanel">
         <div class="faq-card-meta">Question 01 · 09</div>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q1">Qu'est-ce que Kiwi exactement ?</h3>
+        <h3 class="faq-card-q">Qu'est-ce que Kiwi exactement ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a1">Kiwi est le logiciel qui fait tourner votre commerce. Une seule application remplace la caisse, le carnet de commandes, le plan de salle, l'écran cuisine, le suivi de stock, la fiche de paie et le tableau de bord. Kiwi enregistre chaque vente — espèces, carte, mobile — et donne au gérant une vue claire et en temps réel de son établissement, en français, darija et arabe.</p></div>
+        <div class="faq-card-a"><p>Kiwi est le logiciel qui fait tourner votre commerce. Une seule application remplace la caisse, le carnet de commandes, le plan de salle, l'écran cuisine, le suivi de stock, la fiche de paie et le tableau de bord. Kiwi enregistre chaque vente — espèces, carte, mobile — et donne au gérant une vue claire et en temps réel de son établissement, en français, darija et arabe.</p></div>
       </article>
       <article class="faq-card" id="faq-card-2" data-a="2" data-active="false" role="tabpanel">
         <div class="faq-card-meta">Question 02 · 09</div>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q2">Kiwi prélève-t-il une commission sur mes ventes ?</h3>
+        <h3 class="faq-card-q">Kiwi prélève-t-il une commission sur mes ventes ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a2">Non. Kiwi est un abonnement logiciel, pas un pourcentage de votre chiffre d'affaires. Vous payez 399 MAD par mois — point. Que vous fassiez 10 000 ou 500 000 MAD de ventes, le prix ne bouge pas. Votre argent ne transite jamais par Kiwi : il va là où il va déjà aujourd'hui.</p></div>
+        <div class="faq-card-a"><p>Non. Kiwi est un abonnement logiciel, pas un pourcentage de votre chiffre d'affaires. Vous payez 399 MAD par mois — point. Que vous fassiez 10 000 ou 500 000 MAD de ventes, le prix ne bouge pas. Votre argent ne transite jamais par Kiwi : il va là où il va déjà aujourd'hui.</p></div>
       </article>
       <article class="faq-card" id="faq-card-3" data-a="3" data-active="false" role="tabpanel">
         <div class="faq-card-meta">Question 03 · 09</div>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q3">Combien coûte Kiwi ?</h3>
+        <h3 class="faq-card-q">Combien coûte Kiwi ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a3">Kiwi Basic : 399 MAD/mois — caisse, salle, cuisine, stock, équipe et tableau de bord pour un établissement. Kiwi Pro : 699 MAD/mois — multi-établissements, droits avancés, API et exports. Le matériel (tablette caisse, écran cuisine) est prêté gratuitement pendant toute la durée de l'abonnement. Sans engagement, sans frais d'installation.</p></div>
+        <div class="faq-card-a"><p>Kiwi Basic : 399 MAD/mois — caisse, salle, cuisine, stock, équipe et tableau de bord pour un établissement. Kiwi Pro : 699 MAD/mois — multi-établissements, droits avancés, API et exports. Le matériel (tablette caisse, écran cuisine) est prêté gratuitement pendant toute la durée de l'abonnement. Sans engagement, sans frais d'installation.</p></div>
       </article>
       <article class="faq-card" id="faq-card-4" data-a="4" data-active="false" role="tabpanel">
         <div class="faq-card-meta">Question 04 · 09</div>
         <img class="faq-card-icon" src="assets/landing/icons/terminal-hand.png" alt="" width="56" height="56" loading="lazy" decoding="async"/>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q4">Kiwi gère-t-il les paiements par carte ?</h3>
+        <h3 class="faq-card-q">Kiwi gère-t-il les paiements par carte ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a4">Kiwi enregistre chaque vente quel que soit le moyen de paiement — espèces, carte, paiement mobile — et fonctionne aux côtés de votre terminal de paiement actuel. Kiwi est le logiciel qui pilote le commerce ; il ne traite pas et ne reverse pas l'argent lui-même. Vous gardez votre encaissement existant ; Kiwi vous donne enfin l'outil qui l'organise.</p></div>
+        <div class="faq-card-a"><p>Kiwi enregistre chaque vente quel que soit le moyen de paiement — espèces, carte, paiement mobile — et fonctionne aux côtés de votre terminal de paiement actuel. Kiwi est le logiciel qui pilote le commerce ; il ne traite pas et ne reverse pas l'argent lui-même. Vous gardez votre encaissement existant ; Kiwi vous donne enfin l'outil qui l'organise.</p></div>
       </article>
       <article class="faq-card" id="faq-card-5" data-a="5" data-active="false" role="tabpanel">
         <div class="faq-card-meta">Question 05 · 09</div>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q5">Combien de temps pour démarrer avec Kiwi ?</h3>
+        <h3 class="faq-card-q">Combien de temps pour démarrer avec Kiwi ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a5">Sept minutes pour créer le compte depuis votre téléphone, et l'établissement est opérationnel le lendemain. L'équipe Kiwi importe votre menu, configure votre plan de salle et forme votre personnel sur place. Pour une enseigne multi-sites, comptez 48 h ouvrées pour la configuration des shifts, droits et établissements.</p></div>
+        <div class="faq-card-a"><p>Sept minutes pour créer le compte depuis votre téléphone, et l'établissement est opérationnel le lendemain. L'équipe Kiwi importe votre menu, configure votre plan de salle et forme votre personnel sur place. Pour une enseigne multi-sites, comptez 48 h ouvrées pour la configuration des shifts, droits et établissements.</p></div>
       </article>
       <article class="faq-card" id="faq-card-6" data-a="6" data-active="false" role="tabpanel">
         <div class="faq-card-meta">Question 06 · 09</div>
         <img class="faq-card-icon" src="assets/landing/icons/vault.png" alt="" width="56" height="56" loading="lazy" decoding="async"/>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q6">Kiwi fonctionne-t-il sans connexion internet ?</h3>
+        <h3 class="faq-card-q">Kiwi fonctionne-t-il sans connexion internet ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a6">Oui. La caisse et l'écran cuisine continuent de fonctionner hors-ligne : les commandes sont prises, encaissées et envoyées en cuisine normalement. Dès que la connexion revient, tout se synchronise automatiquement vers le tableau de bord. Un service du soir n'est jamais bloqué par une coupure de réseau.</p></div>
+        <div class="faq-card-a"><p>Oui. La caisse et l'écran cuisine continuent de fonctionner hors-ligne : les commandes sont prises, encaissées et envoyées en cuisine normalement. Dès que la connexion revient, tout se synchronise automatiquement vers le tableau de bord. Un service du soir n'est jamais bloqué par une coupure de réseau.</p></div>
       </article>
       <article class="faq-card" id="faq-card-7" data-a="7" data-active="false" role="tabpanel">
         <div class="faq-card-meta">Question 07 · 09</div>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q7">Mes données restent-elles au Maroc ?</h3>
+        <h3 class="faq-card-q">Mes données restent-elles au Maroc ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a7">Oui. Hébergement intégral au Maroc, conforme à la loi 09-08 (CNDP). Cryptographie locale validée DGSSI. Vos données de ventes, de clients et d'équipe ne quittent pas le territoire marocain. Audit ISO 27001 prévu Q4 2026, avec rapport public sur <a href="status.html">status.kiwi.ma</a>.</p></div>
+        <div class="faq-card-a"><p>Oui. Hébergement intégral au Maroc, conforme à la loi 09-08 (CNDP). Cryptographie locale validée DGSSI. Vos données de ventes, de clients et d'équipe ne quittent pas le territoire marocain. Audit ISO 27001 prévu Q4 2026, avec rapport public sur <a href="status.html">status.kiwi.ma</a>.</p></div>
       </article>
       <article class="faq-card" id="faq-card-8" data-a="8" data-active="false" role="tabpanel">
         <div class="faq-card-meta">Question 08 · 09</div>
         <img class="faq-card-icon" src="assets/landing/icons/handshake.png" alt="" width="56" height="56" loading="lazy" decoding="async"/>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q8">Comment résilier Kiwi ?</h3>
+        <h3 class="faq-card-q">Comment résilier Kiwi ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a8">Aucun engagement de durée. Vous résiliez à tout moment depuis l'application, sans frais ni délai. Export complet de vos données — ventes, fiches produits, historique, équipe — au format CSV et PDF en un clic. Le matériel prêté est récupéré sans frais.</p></div>
+        <div class="faq-card-a"><p>Aucun engagement de durée. Vous résiliez à tout moment depuis l'application, sans frais ni délai. Export complet de vos données — ventes, fiches produits, historique, équipe — au format CSV et PDF en un clic. Le matériel prêté est récupéré sans frais.</p></div>
       </article>
       <article class="faq-card" id="faq-card-9" data-a="9" data-active="false" role="tabpanel">
         <div class="faq-card-meta">Question 09 · 09</div>
         <img class="faq-card-icon" src="assets/landing/icons/handshake.png" alt="" width="56" height="56" loading="lazy" decoding="async"/>
-        <h3 class="faq-card-q" data-i18n="lz.faq.q9">Pourquoi faire confiance à Kiwi ?</h3>
+        <h3 class="faq-card-q">Pourquoi faire confiance à Kiwi ?</h3>
         <hr class="faq-card-rule">
-        <div class="faq-card-a"><p data-i18n="lz.faq.a9">Vous ne devez pas. Démarrez par un pilote sur un seul établissement, pour le mois en cours, sans frais ni engagement. Si à la fin du mois Kiwi ne vous a pas fait gagner du temps et de la clarté, vous arrêtez et gardez l'export complet de vos données. Quatre établissements au Maroc nous ont fait confiance dans cette logique.</p></div>
+        <div class="faq-card-a"><p>Vous ne devez pas. Démarrez par un pilote sur un seul établissement, pour le mois en cours, sans frais ni engagement. Si à la fin du mois Kiwi ne vous a pas fait gagner du temps et de la clarté, vous arrêtez et gardez l'export complet de vos données. Quatre établissements au Maroc nous ont fait confiance dans cette logique.</p></div>
       </article>
       </div>
     </div>
@@ -5902,12 +5831,12 @@ footer {
         <img src="assets/landing/icons/phone-212.png" alt="" width="28" height="28" loading="lazy" decoding="async"/>
       </span>
       <div class="faq-cta-body">
-        <div class="faq-cta-eye" data-i18n="lz.faq.ctaEye">Réponse en 7 minutes max</div>
-        <div class="faq-cta-h3" data-i18n="lz.faq.ctaH">Encore une question&nbsp;?</div>
-        <p class="faq-cta-p" data-i18n="lz.faq.ctaP">WhatsApp Business, du lundi au samedi, 9 h – 21 h. En français, en darija, ou en anglais.</p>
+        <div class="faq-cta-eye">Réponse en 7 minutes max</div>
+        <div class="faq-cta-h3">Encore une question&nbsp;?</div>
+        <p class="faq-cta-p">WhatsApp Business, du lundi au samedi, 9 h – 21 h. En français, en darija, ou en anglais.</p>
       </div>
       <a class="faq-cta-action" href="https://wa.me/491795241112" target="_blank" rel="noopener">
-        <span data-i18n="lz.faq.ctaBtn">Contacter le support →</span>
+        Contacter le support →
       </a>
 
     </div>
@@ -5917,18 +5846,18 @@ footer {
 <!-- ════════════ 11 · FINAL CTA ════════════ -->
 <section class="slab-ink final" id="contact">
   <div class="wrap">
-    <h2 class="reveal" data-i18n="lz.final.h2">Le moment de <em class="ed">piloter</em><br>votre commerce autrement.</h2>
-    <p class="lede reveal" data-i18n="lz.final.lede">5 minutes pour candidater. Le premier mois est offert pour les pilotes signés avant le 30 juin 2026.</p>
+    <h2 class="reveal">Le moment de <em class="ed">piloter</em><br>votre commerce autrement.</h2>
+    <p class="lede reveal">5 minutes pour candidater. Le premier mois est offert pour les pilotes signés avant le 30 juin 2026.</p>
 
     <!-- Audience selector — merchants (default) vs investors -->
     <div class="audience-tabs reveal" role="tablist" aria-label="Sélectionner votre profil">
       <button type="button" class="audience-tab" id="tab-merchant"
               role="tab" aria-selected="true" aria-controls="form-merchant">
-        <span data-i18n="lz.final.tabMerchant">Je suis commerçant</span>
+        Je suis commerçant
       </button>
       <button type="button" class="audience-tab" id="tab-investor"
               role="tab" aria-selected="false" aria-controls="form-investor">
-        <span data-i18n="lz.final.tabInvestor">Je suis investisseur</span>
+        Je suis investisseur
       </button>
     </div>
 
@@ -5941,31 +5870,31 @@ footer {
       <input type="hidden" name="_subject" value="Nouveau pilote commerçant — Kiwi" />
       <div class="lead-form-grid">
         <div class="lead-field">
-          <label for="m-name" data-i18n="lz.final.fName">Nom &amp; prénom</label>
+          <label for="m-name">Nom &amp; prénom</label>
           <div class="lead-input-wrap">
             <input id="m-name" name="name" type="text" required autocomplete="name" placeholder="Karim Benani" />
             <img class="lead-input-icon" src="assets/landing/icons/person.png" alt="" width="18" height="18" loading="lazy" decoding="async"/>
           </div>
         </div>
         <div class="lead-field">
-          <label for="m-business" data-i18n="lz.final.fBiz">Nom de l'établissement</label>
+          <label for="m-business">Nom de l'établissement</label>
           <div class="lead-input-wrap">
             <input id="m-business" name="business" type="text" required placeholder="Café Atlas" />
             <img class="lead-input-icon" src="assets/landing/icons/storefront.png" alt="" width="18" height="18" loading="lazy" decoding="async"/>
           </div>
         </div>
         <div class="lead-field">
-          <label for="m-phone" data-i18n="lz.final.fPhone">Téléphone (WhatsApp)</label>
+          <label for="m-phone">Téléphone (WhatsApp)</label>
           <input id="m-phone" name="phone" type="tel" required autocomplete="tel" placeholder="+49 179 524 1112" />
         </div>
         <div class="lead-field">
-          <label for="m-city" data-i18n="lz.final.fCity">Ville</label>
+          <label for="m-city">Ville</label>
           <input id="m-city" name="city" type="text" required placeholder="Casablanca" />
         </div>
         <div class="lead-field">
-          <label for="m-volume" data-i18n="lz.final.fVol">Volume mensuel encaissé</label>
+          <label for="m-volume">Volume mensuel encaissé</label>
           <select id="m-volume" name="volume" required>
-            <option value="" data-i18n="lz.final.optSelect">Sélectionner</option>
+            <option value="">Sélectionner</option>
             <option>&lt; 30 000 MAD</option>
             <option>30 000 — 100 000 MAD</option>
             <option>100 000 — 500 000 MAD</option>
@@ -5973,9 +5902,9 @@ footer {
           </select>
         </div>
         <div class="lead-field">
-          <label for="m-type" data-i18n="lz.final.fType">Type d'activité</label>
+          <label for="m-type">Type d'activité</label>
           <select id="m-type" name="type" required>
-            <option value="" data-i18n="lz.final.optSelect">Sélectionner</option>
+            <option value="">Sélectionner</option>
             <option>Café / Restaurant</option>
             <option>Boulangerie / Pâtisserie</option>
             <option>Retail / Boutique</option>
@@ -5985,11 +5914,11 @@ footer {
         </div>
       </div>
       <div class="lead-form-actions">
-        <p class="lead-fineprint" data-i18n="lz.final.fine">
+        <p class="lead-fineprint">
           En soumettant, vous acceptez d'être recontacté par <b>Kiwi Payments</b> sous 48 h ouvrées. Vos données sont traitées conformément à la <a href="privacy.html">loi 09-08</a>.
         </p>
         <span class="btn-rgb-wrap">
-          <button type="submit" class="btn btn-primary btn-lg" data-i18n="lz.final.submit">Démarrer un pilote</button>
+          <button type="submit" class="btn btn-primary btn-lg">Démarrer un pilote</button>
         </span>
       </div>
     </form>
@@ -6046,18 +5975,18 @@ footer {
   <div class="wrap">
     <div class="foot-strip">
       <img class="foot-strip-vault" src="assets/landing/icons/vault.png" alt="" width="20" height="20" loading="lazy" decoding="async"/>
-      <span data-i18n="lz.foot.s1">Hébergé au Maroc</span>
-      <span data-i18n="lz.foot.s2">CNDP · Loi 09-08</span>
-      <span data-i18n="lz.foot.s3">DGSSI · Cryptographie locale</span>
-      <span data-i18n="lz.foot.s4">OMPIC · Marque déposée</span>
-      <span data-i18n="lz.foot.s5">AMMC · Sandbox réglementaire</span>
-      <span data-i18n="lz.foot.s6">ISO 27001 · roadmap publique</span>
+      <span>Hébergé au Maroc</span>
+      <span>CNDP · Loi 09-08</span>
+      <span>DGSSI · Cryptographie locale</span>
+      <span>OMPIC · Marque déposée</span>
+      <span>AMMC · Sandbox réglementaire</span>
+      <span>ISO 27001 · roadmap publique</span>
     </div>
 
     <!-- Status badge — live operational signal -->
     <a class="foot-status" href="status.html" aria-label="Statut des services Kiwi">
       <img class="foot-status-pulse" src="assets/landing/icons/heartbeat.png" alt="" width="22" height="22" loading="lazy" decoding="async"/>
-      <span class="foot-status-label" data-i18n="lz.foot.status">Tous les services opérationnels</span>
+      <span class="foot-status-label">Tous les services opérationnels</span>
       <span class="foot-status-meta mono">status.kiwi.ma</span>
     </a>
 
@@ -6067,34 +5996,34 @@ footer {
           <span class="logo-mark">k</span>
           <span>kiwi</span>
         </a>
-        <p class="foot-tag" data-i18n="lz.foot.tag">Le système d'exploitation du commerçant marocain. Caisse, salle, cuisine, stock, équipe et pilotage. Un seul outil. Conçu à Tanger.</p>
+        <p class="foot-tag">Le système d'exploitation du commerçant marocain. Caisse, salle, cuisine, stock, équipe et pilotage. Un seul outil. Conçu à Tanger.</p>
       </div>
       <div class="foot-col">
-        <h5 data-i18n="lz.foot.colProduct">Produit</h5>
+        <h5>Produit</h5>
         <ul>
-          <li><a href="#features" data-i18n="lz.foot.lFeatures">Fonctionnalités</a></li>
-          <li><a href="#transparency" data-i18n="lz.foot.lPricing">Tarifs</a></li>
-          <li><a href="dashboard.html" data-i18n="lz.foot.lDash">Tableau de bord</a></li>
-          <li><a href="#faq" data-i18n="lz.foot.lFaq">FAQ</a></li>
+          <li><a href="#features">Fonctionnalités</a></li>
+          <li><a href="#transparency">Tarifs</a></li>
+          <li><a href="dashboard.html">Tableau de bord</a></li>
+          <li><a href="#faq">FAQ</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h5 data-i18n="lz.foot.colCompany">Société</h5>
+        <h5>Société</h5>
         <ul>
-          <li><a href="#why-now" data-i18n="lz.foot.lWhy">Pourquoi maintenant</a></li>
-          <li><a href="#contact" data-i18n="lz.foot.lContactM">Contact commerçants</a></li>
-          <li><a href="mailto:invest@kiwi.ma" data-i18n="lz.foot.lContactI">Contact investisseurs</a></li>
-          <li><a href="brand.html" data-i18n="lz.foot.lBrand">Brand &amp; design</a></li>
-          <li><a href="status.html" data-i18n="lz.foot.lStatus">Statut</a></li>
+          <li><a href="#why-now">Pourquoi maintenant</a></li>
+          <li><a href="#contact">Contact commerçants</a></li>
+          <li><a href="mailto:invest@kiwi.ma">Contact investisseurs</a></li>
+          <li><a href="brand.html">Brand &amp; design</a></li>
+          <li><a href="status.html">Statut</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h5 data-i18n="lz.foot.colLegal">Légal</h5>
+        <h5>Légal</h5>
         <ul>
-          <li><a href="privacy.html" data-i18n="lz.foot.lPrivacy">Confidentialité</a></li>
-          <li><a href="terms.html" data-i18n="lz.foot.lTerms">Conditions générales</a></li>
+          <li><a href="privacy.html">Confidentialité</a></li>
+          <li><a href="terms.html">Conditions générales</a></li>
           <li><a href="cookies.html">Cookies</a></li>
-          <li><a href="mentions-legales.html" data-i18n="lz.foot.lLegal">Mentions légales</a></li>
+          <li><a href="mentions-legales.html">Mentions légales</a></li>
         </ul>
       </div>
     </div>
@@ -6108,48 +6037,15 @@ footer {
     </div>
 
     <div class="foot-bot">
-      <span data-i18n="lz.foot.copyright">© 2026 Kiwi Payments SA · Tous droits réservés</span>
+      <span>© 2026 Kiwi Payments SA · Tous droits réservés</span>
       <span class="foot-tanger">
         <img class="foot-tanger-mark" src="assets/landing/icons/morocco-shape.png" alt="" width="14" height="14" loading="lazy" decoding="async"/>
-        <span data-i18n="lz.foot.tanger">Conçu &amp; assemblé à Tanger</span>
+        Conçu &amp; assemblé à Tanger
       </span>
     </div>
   </div>
 </footer>
 
-<style>
-/* i18n language switcher + RTL */
-.lang{display:inline-flex;align-items:center;gap:1px;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em}
-.lang span{padding:4px 6px;cursor:pointer;color:var(--n-500);border-radius:6px;transition:color .15s ease,background .15s ease}
-.lang span:hover{color:var(--ink)}
-.lang span.on{color:var(--atlas);font-weight:600;background:rgba(11,110,79,.08)}
-html[dir=rtl] .lang{direction:ltr}
-/* ─── RTL · Arabic ───────────────────────────────────────────────
-   dir="rtl" (set by i18n.js) already flips text flow and every
-   flex/grid main-axis. These override the handful of physical
-   (left/right) properties the landing CSS uses, so the layout
-   mirrors cleanly instead of half-flipping. */
-html[dir=rtl] body{text-align:right}
-html[dir=rtl] .cmp thead th,
-html[dir=rtl] .faq-nav-item,
-html[dir=rtl] .lead-form,
-html[dir=rtl] .t1-to{text-align:right}
-/* lead-form input — field icon moves to the right edge */
-html[dir=rtl] .lead-input-wrap input{padding-left:14px !important;padding-right:44px !important}
-html[dir=rtl] .lead-input-icon{left:auto;right:14px}
-/* FAQ nav — active-item accent rail on the right */
-html[dir=rtl] .faq-nav-item::before{left:auto;right:0}
-/* why-now timeline — mirror rail, progress fill, dot and gutters */
-html[dir=rtl] .why-event{padding-left:0;padding-right:32px}
-html[dir=rtl] .why-event-date{padding-right:0;padding-left:var(--s-5);text-align:left}
-html[dir=rtl] .why-event-quote{padding-left:0;padding-right:14px}
-html[dir=rtl] .why-timeline::before{left:auto;right:calc(var(--rail-x) - var(--rail-w) / 2)}
-html[dir=rtl] .why-timeline::after{left:auto;right:calc(var(--rail-x) - var(--rail-progress-w) / 2)}
-html[dir=rtl] .why-event-date::after{left:auto;right:calc(var(--rail-x) - var(--dot) / 2)}
-/* directional → arrows in CTAs flip to point with the text */
-html[dir=rtl] .btn svg{transform:scaleX(-1)}
-</style>
-<script defer src="assets/i18n.js"></script>
 <script src="assets/landing/motion.min.js" defer></script>
 <script>
 (() => {

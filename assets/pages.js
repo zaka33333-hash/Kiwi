@@ -2171,19 +2171,39 @@
   handlers['distribute-tips'] = () => toast(tr({fr:'Pourboires distribués · 1 867 MAD', en:'Tips distributed · 1 867 MAD', ar:'تم توزيع البقشيش · 1 867 MAD'}), { type: 'success', desc: tr({fr:'Notification WhatsApp envoyée aux 4 employés. Crédit visible demain matin.', en:'WhatsApp notification sent to 4 employees. Credit visible tomorrow morning.', ar:'تم إرسال إشعار WhatsApp إلى 4 موظفين. الرصيد متاح صباح الغد.'}) });
   handlers['export-payroll'] = () => toast(tr({fr:'Export de paie · avril 2026', en:'Payroll export · April 2026', ar:'تصدير الرواتب · أبريل 2026'}), { type: 'info', desc: tr({fr:'PDF + CSV générés et envoyés à votre comptable.', en:'PDF + CSV generated and sent to your accountant.', ar:'تم إنشاء PDF + CSV وإرسالهما إلى محاسبك.'}) });
 
-  /* ═══════════════════ LIVE badge hover quick switch ═══════════════════ */
-  // On nav click: mark active + run handler. Intercept existing sidebar clicks.
+  /* ═══════════════════ Sidebar nav router ═══════════════════
+   * Single source of truth for the highlight is Kiwi.activePage. On nav
+   * click we pre-set activePage for known full-page destinations so the
+   * highlight switches immediately — even before the handler renders.
+   * Drawer-style destinations (Transactions, Conformité, …) are not in
+   * the list, so clicking them leaves activePage untouched: the highlight
+   * stays on whatever page is behind the drawer, and the drawer's
+   * close() runs syncSidebar() to restore the highlight on dismissal.
+   *
+   * Anything not listed here can still self-register by calling
+   * Kiwi.setActivePage('<key>') from inside its handler — Stock, Menu,
+   * Équipe and Payroll do that in their showPage() / showDashboard()
+   * pair, which keeps the highlight correct on tab-switch and on Accueil
+   * return even if the user reaches the page through other means. */
+  const FULL_PAGE_NAVS = new Set([
+    'accueil',
+    'tables',   // Plan de Salle
+    'menu',     // Menu & modificateurs
+    'kds',      // Écran cuisine
+    'stock',    // Stock & approvisionnement
+    'equipe',   // Équipe
+    'payroll',  // Paie & planning
+  ]);
   document.addEventListener('click', (e) => {
     const a = e.target.closest('.sidebar nav a[data-nav]');
     if (!a) return;
     e.preventDefault();
-    const key = 'nav-' + a.dataset.nav;
-    if (handlers[key]) {
-      // Highlight
-      a.parentElement.querySelectorAll('a').forEach(x => x.classList.remove('active'));
-      a.classList.add('active');
-      handlers[key]();
+    const navKey = a.dataset.nav;
+    if (FULL_PAGE_NAVS.has(navKey)) {
+      window.Kiwi?.setActivePage?.(navKey);
     }
+    const key = 'nav-' + navKey;
+    if (handlers[key]) handlers[key]();
   }, true);
 
 })();

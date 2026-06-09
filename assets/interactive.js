@@ -838,17 +838,19 @@ ar: {
       document.removeEventListener('keydown', esc);
       releaseFocus();
       unlockPageScroll();
-      /* Once the last drawer is gone the view is back on the main
-         dashboard, so the sidebar highlight returns to "Accueil". The
-         delay (> the 280ms removal) lets a drawer-to-drawer switch append
-         its replacement first — so switching never flickers home. */
+      /* Once the last drawer is gone, re-sync the sidebar highlight from
+         Kiwi.activePage — the single source of truth for "which full-page
+         view is currently behind the drawer". If the user opened a drawer
+         from Accueil, activePage is 'accueil' and the highlight goes home.
+         If they were already on a full-page feature (Plan de Salle, Menu,
+         Stock, Équipe, Payroll…), the highlight stays on that feature.
+         The delay (> the 280ms removal) lets a drawer-to-drawer switch
+         append its replacement first — so switching never flickers. */
       setTimeout(() => {
         if (document.querySelector('.kiwi-drawer-backdrop')) return;
-        const nav = document.querySelector('.sidebar nav');
-        if (!nav) return;
-        nav.querySelectorAll('a').forEach((x) => x.classList.remove('active'));
-        const home = nav.querySelector('a[data-nav="accueil"]');
-        if (home) home.classList.add('active');
+        if (window.Kiwi && typeof window.Kiwi.syncSidebar === 'function') {
+          window.Kiwi.syncSidebar();
+        }
       }, 320);
     };
     const esc = (e) => { if (e.key === 'Escape') close(); };
@@ -1401,7 +1403,6 @@ ar: {
     'settings': () => {
       const I18 = window.KiwiI18n;
       const lang = (I18 && I18.getLang && I18.getLang()) || 'fr';
-      const theme = (I18 && I18.getTheme && I18.getTheme()) || 'light';
       const LANGNAME = { fr: 'Français', en: 'English', ar: 'العربية' };
       const setOn = (k) => { try { return localStorage.getItem('kiwiSet:' + k) !== '0'; } catch (_) { return true; } };
       const sec = (t) => `<div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-weight:500; font-family:var(--mono); margin-bottom:10px;">${t}</div>`;
@@ -1428,7 +1429,6 @@ ar: {
           ${sec('PRÉFÉRENCES')}
           <div style="display:flex; flex-direction:column; gap:2px;">
             ${settingsRow('🌍', 'Langue', LANGNAME[lang] || 'Français', { action: 'settings-lang' })}
-            ${settingsRow('🌓', 'Mode sombre', theme === 'dark' ? 'Activé' : 'Désactivé', { action: 'settings-theme' })}
             ${settingsRow('🔔', 'Notifications WhatsApp', 'Résumé quotidien 19h', { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
             ${settingsRow('💰', 'Devise d\'affichage', 'MAD · Dirham marocain', { action: 'settings-soon' })}
           </div>
@@ -1485,14 +1485,6 @@ ar: {
         { label: 'English',  active: cur === 'en', onClick: () => pick('en') },
         { label: 'العربية',  active: cur === 'ar', onClick: () => pick('ar') },
       ]);
-    },
-
-    'settings-theme': (el) => {
-      const I18 = window.KiwiI18n;
-      const next = ((I18 && I18.getTheme && I18.getTheme()) === 'dark') ? 'light' : 'dark';
-      if (I18 && I18.setTheme) I18.setTheme(next);
-      const v = el && el.querySelector('.kset-val');
-      if (v) v.textContent = next === 'dark' ? 'Activé' : 'Désactivé';
     },
 
     'settings-toggle': (el, arg) => {
@@ -3011,12 +3003,14 @@ ar: {
       return;
     }
 
-    // 10. Sidebar nav → highlight (no toast)
+    // 10. Sidebar nav fallback: pages.js owns the [data-nav] click router
+    //     (and full-page handlers own the active highlight via
+    //     Kiwi.setActivePage). This branch only catches stray sidebar
+    //     anchors that pages.js didn't claim — for them we just block the
+    //     "#" jump so the page doesn't scroll to top.
     const sidebarLink = e.target.closest('.sidebar nav a');
     if (sidebarLink && !sidebarLink.dataset.action && sidebarLink.getAttribute('href') === '#') {
       e.preventDefault();
-      sidebarLink.parentElement.querySelectorAll('a').forEach(a => a.classList.remove('active'));
-      sidebarLink.classList.add('active');
       return;
     }
 
@@ -3078,9 +3072,38 @@ ar: {
 
   /* ─── Global handle for escape on drawers/modals is done per-instance ─── */
 
+  /* ─── Sidebar selector state machine ────────────────────────────────────
+   * Single source of truth: `activePage` is the data-nav key of the
+   * full-page view currently rendered in main (`accueil`, `tables`,
+   * `menu`, `stock`, `equipe`, `payroll`, …). Drawers/modals NEVER touch
+   * it — they're overlays, not navigation.
+   *
+   * Full-page handlers call setActivePage('<key>') on enter and
+   * setActivePage('accueil') on exit (showDashboard). The drawer close()
+   * logic re-syncs the sidebar from this state so closing a drawer over a
+   * full-page leaves the selector pinned on that page, not flipped home.
+   * ───────────────────────────────────────────────────────────────────── */
+  let activePage = 'accueil';
+  const syncSidebar = () => {
+    const nav = document.querySelector('.sidebar nav');
+    if (!nav) return;
+    nav.querySelectorAll('a[data-nav]').forEach((a) => a.classList.remove('active'));
+    const target = nav.querySelector(`a[data-nav="${activePage}"]`)
+                || nav.querySelector('a[data-nav="accueil"]');
+    if (target) target.classList.add('active');
+  };
+  const setActivePage = (key) => {
+    activePage = key || 'accueil';
+    syncSidebar();
+  };
+
   /* ─── Expose a tiny API for inline usage if needed ─── */
   const fullpage = (opts) => drawer({ ...opts, fullpage: true });
-  window.Kiwi = { toast, modal, drawer, fullpage, menu, commandPalette, confetti, handlers };
+  window.Kiwi = {
+    toast, modal, drawer, fullpage, menu, commandPalette, confetti, handlers,
+    setActivePage, syncSidebar,
+    get activePage() { return activePage; },
+  };
 
 })();
 

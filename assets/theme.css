@@ -1,6 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════════════
  * Kiwi · dark theme
- * Applied via <html data-theme="dark"> — toggles color tokens only.
+ * Applied via <html data-theme="dark">. The user-facing dark-mode toggle in
+ * Settings was removed (incomplete implementation, deferred). These rules are
+ * still load-bearing — Go Ultra / fusion-mode in venues.js flips the attribute
+ * programmatically to re-skin modals, drawers and toasts under its brand.
  * ─────────────────────────────────────────────────────────────────────────── */
 
 html[data-theme="dark"] {
@@ -273,15 +276,6 @@ html[data-theme="dark"] .compete td { background: var(--paper-soft); border-bott
 html[data-theme="dark"] .team-card { background: var(--paper-soft); border-color: var(--n-200); }
 
 /* Phone mockup frames already have deep colors — keep */
-
-/* ═══════════════════ THEME TOGGLE BUTTON ═══════════════════ */
-.theme-tg { width: 36px; height: 36px; border-radius: 10px; background: transparent; border: 1px solid var(--n-200); display: inline-flex; align-items: center; justify-content: center; color: var(--n-600); cursor: pointer; transition: all 160ms; position: relative; flex-shrink: 0; }
-.theme-tg:hover { border-color: var(--n-400); color: var(--ink); }
-.theme-tg .sun, .theme-tg .moon { position: absolute; transition: transform 260ms cubic-bezier(0.32,0.72,0,1), opacity 200ms; }
-.theme-tg .sun { opacity: 1; transform: rotate(0); }
-.theme-tg .moon { opacity: 0; transform: rotate(-90deg); }
-html[data-theme="dark"] .theme-tg .sun { opacity: 0; transform: rotate(90deg); }
-html[data-theme="dark"] .theme-tg .moon { opacity: 1; transform: rotate(0); }
 
 /* ═══════════════════ RTL ADJUSTMENTS (Arabic) ═══════════════════ */
 html[dir="rtl"] { font-family: 'IBM Plex Sans Arabic', var(--sans); }
