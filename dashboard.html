@@ -4716,6 +4716,8 @@
 <link rel="stylesheet" href="assets/mobile.css" />
 <!-- Design 2026 · Liquid Glass preview — inert unless body.design-2026 (1111-gated, reversible) -->
 <link rel="stylesheet" href="assets/design-2026.css" />
+<!-- iOS-27 tier · WWDC-2026 Liquid Glass refinements — inert unless body.design-ios27 (PIN 1111 only, reversible) -->
+<link rel="stylesheet" href="assets/design-ios27.css" />
 </head>
 <body class="growth-locked">
 <a class="skip-link" href="#kw-main" data-i18n="a11y.skip">Aller au contenu</a>
@@ -5578,6 +5580,7 @@
 <script src="assets/conformite.js" defer fetchpriority="low"></script>
 <script src="assets/account.js" defer fetchpriority="low"></script>
 <script src="assets/design-2026.js" defer fetchpriority="low"></script>
+<script src="assets/design-ios27.js" defer fetchpriority="low"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
  *  ROLE GUARD — wraps nav-payroll so a manager can't reach the payroll
@@ -5665,6 +5668,11 @@
        * only — any other entry (skip, other PIN) keeps it hidden. */
       if (val === '1111') {
         document.body.classList.remove('growth-locked');
+        /* 1111 also unlocks the experimental iOS-27 Liquid Glass tier
+         * (WWDC-2026 refinements: refractive sidebar, colored icons,
+         * transparency control). Reversible: KiwiDesignIOS27.disable(). */
+        if (window.KiwiDesignIOS27) window.KiwiDesignIOS27.enable();
+        else { try { localStorage.setItem('kiwiDesignIOS27', '1'); } catch (e) {} }
       }
       /* Role gate:
        *   0000 / 0505 → reserved (onboard / marketing tease)
@@ -5680,8 +5688,8 @@
       try { localStorage.setItem('kiwiRole', role); } catch (_) {}
       document.body.classList.remove('role-owner', 'role-manager');
       document.body.classList.add('role-' + role);
-      /* Every passcode enables the Design 2026 "Liquid Glass" skin (the floating
-       * pill still toggles it off — fully reversible, state persists). */
+      /* Every passcode enables the stable Design 2026 "Liquid Glass" skin
+       * (no on-screen toggle — KiwiDesign2026.disable() reverts; persists). */
       if (window.KiwiDesign2026) window.KiwiDesign2026.enable();
       else { try { localStorage.setItem('kiwiDesign2026', '1'); } catch (e) {} }
       /* Slight delay so the user sees the 4th cell fill before the celebration. */

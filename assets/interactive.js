@@ -1466,6 +1466,7 @@ ar: {
             ${settingsRow('🌍', tr({ fr: 'Langue', en: 'Language', ar: 'اللغة' }), LANGNAME[lang] || 'Français', { action: 'settings-lang' })}
             ${settingsRow('🔔', tr({ fr: 'Notifications WhatsApp', en: 'WhatsApp notifications', ar: 'إشعارات واتساب' }), tr({ fr: 'Résumé quotidien 19h', en: 'Daily summary 7pm', ar: 'ملخص يومي 19:00' }), { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
             ${settingsRow('💰', tr({ fr: 'Devise d\'affichage', en: 'Display currency', ar: 'عملة العرض' }), escape(getSet('currency', 'MAD · Dirham marocain')), { action: 'settings-currency' })}
+            ${(window.KiwiDesignIOS27 && window.KiwiDesignIOS27.isOn()) ? settingsRow('🧊', 'Liquid Glass', ({ clear: tr({ fr: 'Clair', en: 'Clear', ar: 'شفاف' }), standard: tr({ fr: 'Standard', en: 'Standard', ar: 'قياسي' }), frosted: tr({ fr: 'Givré', en: 'Frosted', ar: 'مصنفر' }), opaque: tr({ fr: 'Opaque', en: 'Opaque', ar: 'معتم' }) })[window.KiwiDesignIOS27.getGlass()] || 'Standard', { action: 'glass-level' }) : ''}
           </div>
         </div>
         <div style="margin-bottom:20px;">
@@ -1504,6 +1505,29 @@ ar: {
         </div>
       `,
     });
+    },
+
+    /* iOS-27 tier · Apple's transparency control, Kiwi edition. Four presets,
+     * persisted; the drawer is itself glass so the change reads instantly. */
+    'glass-level': (el) => {
+      const D = window.KiwiDesignIOS27;
+      if (!D) return;
+      const cur = D.getGlass();
+      const L = {
+        clear: tr({ fr: 'Clair', en: 'Clear', ar: 'شفاف' }),
+        standard: tr({ fr: 'Standard', en: 'Standard', ar: 'قياسي' }),
+        frosted: tr({ fr: 'Givré', en: 'Frosted', ar: 'مصنفر' }),
+        opaque: tr({ fr: 'Opaque', en: 'Opaque', ar: 'معتم' }),
+      };
+      menu(el, ['clear', 'standard', 'frosted', 'opaque'].map((k) => ({
+        label: L[k], active: cur === k,
+        onClick: () => {
+          D.setGlass(k);
+          const val = el.querySelector('.kset-val');
+          if (val) val.textContent = L[k];
+          toast('Liquid Glass · ' + L[k], { type: 'success', force: true });
+        },
+      })));
     },
 
     'settings-lang': (el) => {
