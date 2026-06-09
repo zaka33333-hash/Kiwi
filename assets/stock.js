@@ -1293,10 +1293,10 @@
         <td><span class="st-cell-status ${st}"><span class="sd"></span>${esc(stLabel)}</span></td>
         <td class="r">
           <div class="st-actions">
-            <button class="st-icon-btn" type="button" data-action="stock-item-detail" data-item-id="${esc(it.id)}" title="${esc(t('btnDetail'))}">${svg('eye', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-reorder" data-item-id="${esc(it.id)}" title="${esc(t('btnReorder'))}">${svg('plus', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-edit-item" data-item-id="${esc(it.id)}" title="${esc(t('mItEdit'))}">${svg('edit', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-delete-item" data-item-id="${esc(it.id)}" title="${esc(t('titleDelete'))}" style="color:#9a1f1f;">${svg('x', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-item-detail" data-item-id="${esc(it.id)}" title="${esc(t('btnDetail'))}" aria-label="${esc(t('btnDetail'))}">${svg('eye', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-reorder" data-item-id="${esc(it.id)}" title="${esc(t('btnReorder'))}" aria-label="${esc(t('btnReorder'))}">${svg('plus', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-edit-item" data-item-id="${esc(it.id)}" title="${esc(t('mItEdit'))}" aria-label="${esc(t('mItEdit'))}">${svg('edit', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-delete-item" data-item-id="${esc(it.id)}" title="${esc(t('titleDelete'))}" aria-label="${esc(t('titleDelete'))}" style="color:#9a1f1f;">${svg('x', 14)}</button>
           </div>
         </td>
       </tr>
@@ -1399,12 +1399,12 @@
         <td><span class="st-sup-rate"><span class="st">${'★'.repeat(stars)}</span>${esc(s.rating.toFixed(1))}</span></td>
         <td class="r">
           <div class="st-actions">
-            <button class="st-icon-btn" type="button" data-action="stock-call-supplier" data-name="${esc(s.name)}" data-phone="${esc(s.contact)}" title="${esc(t('mSupCall'))}">${svg('phone', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-wa-supplier" data-name="${esc(s.name)}" title="${esc(t('mSupWa'))}">${svg('messageCircle', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-supplier-detail" data-supplier-id="${esc(s.id)}" title="${esc(t('btnDetail'))}">${svg('eye', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-edit-supplier" data-supplier-id="${esc(s.id)}" title="${esc(t('titleEdit'))}">${svg('edit', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-new-po" data-supplier-id="${esc(s.id)}" title="${esc(t('mSupOrd'))}">${svg('plus', 14)}</button>
-            <button class="st-icon-btn" type="button" data-action="stock-delete-supplier" data-supplier-id="${esc(s.id)}" title="${esc(t('titleDelete'))}" style="color:#9a1f1f;">${svg('x', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-call-supplier" data-name="${esc(s.name)}" data-phone="${esc(s.contact)}" title="${esc(t('mSupCall'))}" aria-label="${esc(t('mSupCall'))}">${svg('phone', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-wa-supplier" data-name="${esc(s.name)}" title="${esc(t('mSupWa'))}" aria-label="${esc(t('mSupWa'))}">${svg('messageCircle', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-supplier-detail" data-supplier-id="${esc(s.id)}" title="${esc(t('btnDetail'))}" aria-label="${esc(t('btnDetail'))}">${svg('eye', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-edit-supplier" data-supplier-id="${esc(s.id)}" title="${esc(t('titleEdit'))}" aria-label="${esc(t('titleEdit'))}">${svg('edit', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-new-po" data-supplier-id="${esc(s.id)}" title="${esc(t('mSupOrd'))}" aria-label="${esc(t('mSupOrd'))}">${svg('plus', 14)}</button>
+            <button class="st-icon-btn" type="button" data-action="stock-delete-supplier" data-supplier-id="${esc(s.id)}" title="${esc(t('titleDelete'))}" aria-label="${esc(t('titleDelete'))}" style="color:#9a1f1f;">${svg('x', 14)}</button>
           </div>
         </td>
       </tr>

@@ -521,6 +521,8 @@
     }
     .video-add {
       width: 26px; height: 26px;
+      border: 0; padding: 0; cursor: pointer; -webkit-appearance: none; appearance: none;
+      font-family: inherit;
       border-radius: 999px;
       background: var(--forest);
       color: #fff;
@@ -532,6 +534,7 @@
       box-shadow: 0 2px 6px rgba(31,93,60,0.25);
       transition: transform 180ms ease;
     }
+    .video-add:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
     .video-add:active { transform: scale(0.92); }
     /* NEW badge (only on items with tag:'new') */
     .video-tag-new {
@@ -3753,7 +3756,7 @@
             <div class="video-name">${i.name}</div>
             <div class="video-foot">
               <span class="video-price">${m.price} ${cur()}</span>
-              <span class="video-add" aria-label="${t('btn_add')} ${i.name}">+</span>
+              <button type="button" class="video-add" aria-label="${t('btn_add')} ${escapeHtml(i.name)}">+</button>
             </div>
           </div>
         </article>
