@@ -97,6 +97,22 @@ section('i18n key parity (data-i18n → i18n.js EN/AR)');
   else ok(`${used.size} data-i18n keys covered in EN + AR`);
 }
 
+/* ── 3b · balanced <script> tags ──────────────────────────────────────────
+ * An unclosed <script> makes the parser eat the following markup up to the
+ * next </script> — including other script tags (this killed i18n.js loading
+ * once: the role-gate block lost its closer and swallowed the i18n include). */
+section('Balanced <script> tags');
+{
+  let bad = 0;
+  for (const f of HTML_FILES) {
+    const src = read(f);
+    const open = (src.match(/<script\b/gi) || []).length;
+    const close = (src.match(/<\/script>/gi) || []).length;
+    if (open !== close) { bad++; fail(`${path.relative(ROOT, f)} — ${open} <script> vs ${close} </script>`); }
+  }
+  if (!bad) ok(`${HTML_FILES.length} HTML files have balanced script tags`);
+}
+
 /* ── 4 · forbidden patterns ─────────────────────────────────────────────── */
 section('Forbidden patterns');
 {
