@@ -3,6 +3,8 @@
 This file is read on first contact by any Claude session opened against this repo.
 It captures rules and conventions that aren't obvious from the code alone.
 For full project context (history, architecture, brand system, roadmap), read **`HANDOFF.md`**.
+**New session resuming work? Read `AI_HANDOFF.md` first** — it's the current-state brief
+(what's true right now, recent work, gotchas, the two dev tracks, the Design 2026 skin).
 
 ---
 
