@@ -2216,8 +2216,12 @@
             partial.push(prev + (fullCum[i] - prev) * liveSimWithin);
           }
         }
-        // Pad with nulls to keep array length 16 so x-axis labels stay positioned
-        const padded = partial.concat(new Array(16 - partial.length).fill(null));
+        // Pad with nulls to keep array length 16 so x-axis labels stay positioned.
+        // Clip first: late in the service (sim hour ≥ 15) partial can exceed 16,
+        // and a negative Array length throws — which killed the whole render
+        // chain (incl. setLang subscribers) for any night-time viewer.
+        const clipped = partial.slice(0, 16);
+        const padded = clipped.concat(new Array(16 - clipped.length).fill(null));
 
         data = {
           ...data,
