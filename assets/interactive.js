@@ -2016,53 +2016,102 @@ ar: {
       });
     },
 
-    'upgrade-pro': () => modal({
-      tag: 'KIWI ULTRA',
-      title: 'Passez à Ultra et amplifiez Kiwi à l\'échelle entreprise.',
-      desc: 'Au-delà de l\'opérationnel : API enterprise illimitée, multi-pays, account manager dédié 24/7 et conseil stratégique trimestriel.',
-      width: 640,
-      body: `
-        <div class="upgrade-grid">
-          <div class="upgrade-pro-card">
-            <div class="upgrade-pro-current">PLAN ACTUEL</div>
-            <div class="upgrade-pro-eyebrow">KIWI PRO</div>
-            <div class="upgrade-pro-price">399 MAD<span class="upgrade-pro-price-unit">/mois</span></div>
-            <div class="upgrade-pro-tag">Matériel offert · tout inclus</div>
-            <ul class="upgrade-pro-features">
-              <li>✓ Caisse complète · multi-vertical</li>
-              <li>✓ Règlement T+1 garanti</li>
-              <li>✓ Support WhatsApp</li>
-              <li>✓ Jusqu\'à 8 membres d\'équipe</li>
-              <li>✓ Multi-site (3 venues)</li>
-            </ul>
+    'upgrade-pro': () => {
+      /* Four-tier model. The recommended tier is contextual to the account: a
+       * multi-établissement account needs Ultra (Basic/Pro are mono-site); the
+       * exact palier is confirmed in a short discovery chat (so it's not fixed). */
+      const reco = 'ultra';
+      const current = 'pro';
+      const PLANS = [
+        { id: 'basic', name: 'KIWI BASIC', price: '199 MAD', unit: '/mois', tagline: `Logiciel seul · sur votre matériel`, cta: 'Choisir Basic', feats: [
+          `Logiciel Kiwi complet · tous les modules`,
+          `Appareils illimités · 1 établissement`,
+          `S'intègre à votre caisse / TPE existant`,
+          `Formation sur site + guides inclus`,
+          `Support WhatsApp 7j/7` ] },
+        { id: 'pro', name: 'KIWI PRO', price: '399 MAD', unit: '/mois', tagline: `Tout Basic + 1 caisse Kiwi offerte`, cta: 'Plan actuel', feats: [
+          `Tout Kiwi Basic inclus`,
+          `1 caisse Kiwi offerte · prêtée à vie`,
+          `Règlement T+1 garanti`,
+          `Jusqu'à 8 membres d'équipe`,
+          `Maintenance & remplacement matériel` ] },
+        { id: 'ultra', name: 'KIWI ULTRA', price: '1 499 MAD', unit: '/mois', tagline: `Sur-mesure · multi-pays · 24/7`, cta: 'Passer à Ultra →', feats: [
+          `Tout Kiwi Pro inclus`,
+          `Établissements illimités · équipe illimitée`,
+          `API enterprise illimitée · SLA 99,99 %`,
+          `Multi-pays · corridor diaspora France ↔ Maroc`,
+          `Account manager dédié 24/7`,
+          `Conseil stratégique trimestriel`,
+          `Onboarding white-glove sur place` ] },
+        { id: 'ultimate', name: 'KIWI ULTIMATE', price: 'Sur devis', unit: '', tagline: `Sur-mesure total · on en parle`, cta: 'Demander un devis →', feats: [
+          `Tout Kiwi Ultra inclus`,
+          `Fonctionnalités développées pour vous`,
+          `Nombre de caisses & d'appareils négocié`,
+          `SLA & intégrations dédiés`,
+          `Tarif défini ensemble` ] },
+      ];
+      const card = (p) => `
+        <div class="kup-card${p.id === current ? ' is-current' : ''}${p.id === reco ? ' is-reco' : ''}">
+          ${p.id === current ? `<div class="kup-badge">PLAN ACTUEL</div>` : (p.id === reco ? `<div class="kup-badge">RECOMMANDÉ POUR VOUS</div>` : '')}
+          <div class="kup-name">${p.name}</div>
+          <div class="kup-price">${p.price}${p.unit ? `<span>${p.unit}</span>` : ''}</div>
+          <div class="kup-tagline">${p.tagline}</div>
+          <ul class="kup-feats">${p.feats.map((f) => `<li>${f}</li>`).join('')}</ul>
+          <button class="kup-cta"${p.id === current ? ' disabled' : ` data-action="upgrade-plan" data-arg="${p.id}"`}>${p.cta}</button>
+        </div>`;
+      return modal({
+        tag: 'ABONNEMENTS KIWI',
+        title: 'Quatre paliers. Le vôtre évolue avec votre activité.',
+        desc: `Du logiciel seul — intégré à votre caisse, avec formation — à l'entreprise sur-mesure. Le matériel et l'accompagnement s'ajoutent palier par palier.`,
+        width: 1040,
+        body: `
+          <style>
+            .kup-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:stretch; }
+            @media (max-width:880px){ .kup-grid{ grid-template-columns:repeat(2,1fr); } }
+            .kup-card { display:flex; flex-direction:column; border:1px solid var(--n-200); border-radius:14px; padding:18px 14px 14px; background:var(--surface); position:relative; }
+            .kup-card.is-current { background:var(--paper-soft); }
+            .kup-card.is-reco { background:linear-gradient(165deg,#0c4a35,#08311f); border-color:transparent; color:#fff; box-shadow:0 14px 34px -18px rgba(11,110,79,0.55); }
+            .kup-badge { position:absolute; top:-9px; inset-inline-start:14px; font-size:8.5px; font-weight:700; letter-spacing:0.06em; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+            .kup-card.is-current .kup-badge { background:var(--ink); color:var(--paper); }
+            .kup-card.is-reco .kup-badge { background:var(--mint); color:#06371f; }
+            .kup-name { font-family:var(--mono); font-size:11px; letter-spacing:0.08em; color:var(--n-500); margin-bottom:9px; }
+            .kup-card.is-reco .kup-name { color:rgba(255,255,255,0.65); }
+            .kup-price { font-size:23px; font-weight:600; letter-spacing:-0.02em; line-height:1.1; }
+            .kup-price span { font-size:12px; font-weight:400; color:var(--n-500); margin-inline-start:2px; }
+            .kup-card.is-reco .kup-price span { color:rgba(255,255,255,0.7); }
+            .kup-tagline { font-size:11.5px; color:var(--n-500); margin:5px 0 13px; min-height:30px; line-height:1.35; }
+            .kup-card.is-reco .kup-tagline { color:rgba(255,255,255,0.82); }
+            .kup-feats { list-style:none; padding:0; margin:0 0 15px; display:flex; flex-direction:column; gap:7px; flex:1; }
+            .kup-feats li { font-size:12px; line-height:1.35; padding-inline-start:18px; position:relative; }
+            .kup-feats li::before { content:'✓'; position:absolute; inset-inline-start:0; color:var(--atlas); font-weight:700; }
+            .kup-card.is-reco .kup-feats li::before { color:var(--mint); }
+            .kup-cta { width:100%; padding:9px 10px; border-radius:9px; font-size:12.5px; font-weight:600; font-family:var(--sans); cursor:pointer; border:1px solid var(--n-300); background:transparent; color:var(--ink); transition:all 130ms; }
+            .kup-cta:hover:not([disabled]) { border-color:var(--atlas); color:var(--atlas); }
+            .kup-card.is-reco .kup-cta { background:#fff; color:#08311f; border-color:#fff; }
+            .kup-card.is-reco .kup-cta:hover { background:var(--mint); border-color:var(--mint); color:#06371f; }
+            .kup-cta[disabled] { opacity:0.5; cursor:default; }
+            .kup-tip { display:flex; gap:11px; align-items:flex-start; margin-top:16px; padding:13px 15px; background:var(--mint-soft); border-radius:12px; font-size:12.5px; line-height:1.5; color:var(--ink); }
+          </style>
+          <div class="kup-grid">${PLANS.map(card).join('')}</div>
+          <div class="kup-tip">
+            <div>💡</div>
+            <div style="flex:1;"><b>Votre recommandation :</b> ce compte gère 3 établissements (Café Atlas · Maison Mansour · Spa Bahia) — au-delà du mono-site de Basic et Pro. <b>Ultra</b> ouvre les établissements illimités, le multi-pays et l'account manager dédié. Le palier exact se précise lors d'un court échange sur vos besoins.</div>
           </div>
-          <div class="ultra-card">
-            <div class="ultra-badge">RECOMMANDÉ</div>
-            <div class="ultra-eyebrow">KIWI ULTRA</div>
-            <div class="ultra-price">1 499 MAD<span class="ultra-price-unit">/mois</span></div>
-            <div class="ultra-tag">Sur-mesure · multi-pays · 24/7</div>
-            <ul class="ultra-features">
-              <li>Tout Kiwi Pro inclus</li>
-              <li>API enterprise illimitée · SLA 99,99 %</li>
-              <li>Multi-pays · corridor diaspora France ↔ Maroc</li>
-              <li>Équipe illimitée · venues illimitées</li>
-              <li>Account manager dédié 24/7</li>
-              <li>Conseil stratégique trimestriel</li>
-              <li>Onboarding white-glove sur place</li>
-              <li>Reporting C-suite personnalisé</li>
-            </ul>
-          </div>
-        </div>
-        <div class="upgrade-tip">
-          <div>💡</div>
-          <div style="flex:1;"><b>Pourquoi Ultra :</b> votre compte multi-venues (Café Atlas · Maison Mansour · Spa Bahia) tire déjà parti du multi-site. Ultra ajoute le multi-pays, l\'API enterprise et l\'account manager dédié — le palier qu\'utilisent les groupes hôteliers et chaînes premium au Maroc.</div>
-        </div>
-      `,
-      foot: `
-        <button class="kb ghost" data-dismiss>Plus tard</button>
-        <button class="kb ultra" data-upgrade>Passer à Ultra maintenant →</button>
-      `
-    }),
+        `,
+        foot: `<button class="kb ghost" data-dismiss>Plus tard</button>`,
+      });
+    },
+
+    'upgrade-plan': (el, plan) => {
+      const MSG = {
+        basic: { fr: 'Kiwi Basic sélectionné · notre équipe vous contacte pour l\'intégration à votre caisse et la formation.', en: 'Kiwi Basic selected · our team will reach out to integrate it into your till and train you.', ar: 'تم اختيار Kiwi Basic · سيتواصل فريقنا لدمجه في صندوقك وتقديم التدريب.' },
+        ultra: { fr: 'Demande Ultra envoyée · votre account manager vous appelle sous 24 h.', en: 'Ultra request sent · your account manager will call within 24h.', ar: 'تم إرسال طلب Ultra · سيتصل بك مدير حسابك خلال 24 ساعة.' },
+        ultimate: { fr: 'Demande de devis Ultimate envoyée · on définit ensemble le périmètre et le tarif.', en: 'Ultimate quote request sent · we\'ll define scope and price together.', ar: 'تم إرسال طلب عرض Ultimate · سنحدّد النطاق والسعر معًا.' },
+      };
+      const m = MSG[plan] || MSG.ultra;
+      document.querySelectorAll('.kiwi-backdrop').forEach((b) => { const c = b.querySelector('.kiwi-modal-close'); if (c) c.click(); });
+      toast(tr(m), { type: 'success', force: true });
+    },
 
     'add-integration': () => drawer({
       title: 'Ajouter une intégration',
