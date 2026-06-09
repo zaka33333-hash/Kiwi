@@ -445,7 +445,7 @@
        =========================================================== */
     .topbar {
       flex: 0 0 auto;
-      height: calc(var(--topbar-h) + max(env(safe-area-inset-top), 50px));
+      height: calc(var(--topbar-h) + max(env(safe-area-inset-top), 14px));
       box-sizing: border-box;
       background: #fff;
       border-bottom: 1px solid var(--line-soft);
@@ -453,7 +453,7 @@
       /* Drop the bar below the iOS status bar / notch. max(env, 50px) keeps a
          reliable clearance even when Safari reports a 0 inset (the avatar was
          tucking under the status bar). */
-      padding: max(env(safe-area-inset-top), 50px) 18px 0;
+      padding: max(env(safe-area-inset-top), 14px) 18px 0;
       gap: 12px;
     }
     .tb-avatar {
@@ -497,7 +497,7 @@
     .bottom-tabs {
       flex: 0 0 auto;
       display: flex; justify-content: center;
-      padding: 6px 14px calc(8px + env(safe-area-inset-bottom));
+      padding: 6px 14px calc(24px + env(safe-area-inset-bottom));
       background: transparent;
       position: relative;
       z-index: 30;
@@ -708,14 +708,14 @@
        =========================================================== */
     .td-header {
       flex: 0 0 auto;
-      height: calc(var(--topbar-h) + max(env(safe-area-inset-top), 50px));
+      height: calc(var(--topbar-h) + max(env(safe-area-inset-top), 14px));
       box-sizing: border-box;
       background: #fff;
       border-bottom: 1px solid var(--line-soft);
       display: flex; align-items: center;
       /* Clear the iOS status bar / notch so the back arrow is tappable.
          max(env, 50px) guarantees clearance even if Safari reports a 0 inset. */
-      padding: max(env(safe-area-inset-top), 50px) 12px 0;
+      padding: max(env(safe-area-inset-top), 14px) 12px 0;
       gap: 8px;
     }
     .td-back {
@@ -2516,7 +2516,7 @@
     /* Welcome banner — auto-dismissing celebration */
     .welcome-banner {
       position: absolute;
-      top: calc(var(--topbar-h) + max(env(safe-area-inset-top), 50px) + 14px);
+      top: calc(var(--topbar-h) + max(env(safe-area-inset-top), 14px) + 14px);
       left: 16px; right: 16px;
       background: var(--gradient);
       color: #fff;
