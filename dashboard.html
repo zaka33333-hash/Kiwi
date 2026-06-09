@@ -79,7 +79,7 @@
   @media (max-width: 1100px) { .app { grid-template-columns: 1fr; } }
 
   /* ─────────────── SIDEBAR ─────────────── */
-  .sidebar { background: var(--ink); color: #b5b9b6; padding: 18px 14px; position: sticky; top: 37px; height: calc(100vh - 37px); overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar { background: var(--ink); color: #b5b9b6; padding: 18px 14px; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
   .sidebar::-webkit-scrollbar { width: 4px; }
   .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
   .sidebar .brand { display: flex; align-items: baseline; gap: 4px; color: var(--paper); font-weight: 700; font-size: 24px; letter-spacing: -0.05em; margin: 4px 10px 18px; }
@@ -297,7 +297,7 @@
     border: 1px solid rgba(255,255,255,0.55);
     border-radius: 999px;
     position: sticky;
-    top: 53px;
+    top: 16px;
     z-index: 20;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.7),
@@ -4785,14 +4785,6 @@
 </div>
 
 <!-- Demo banner -->
-<div class="demo-bar">
-  <div class="left">
-    <span class="live-dot"></span>
-    <span data-demo-line>Démo live · compte <b style="color:var(--paper);" data-demo-account>Café Atlas</b> · données de démonstration mises à jour en temps réel</span>
-  </div>
-  <div><a href="index.html" data-i18n="dash.demo.back">← Retour au site</a></div>
-</div>
-
 <div class="app">
 
   <!-- ══════════════ SIDEBAR ══════════════ -->

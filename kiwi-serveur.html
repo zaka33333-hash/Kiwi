@@ -445,7 +445,7 @@
        =========================================================== */
     .topbar {
       flex: 0 0 auto;
-      height: calc(var(--topbar-h) + max(env(safe-area-inset-top), 50px));
+      height: calc(var(--topbar-h) + max(env(safe-area-inset-top), 14px));
       box-sizing: border-box;
       background: #fff;
       border-bottom: 1px solid var(--line-soft);
@@ -453,7 +453,7 @@
       /* Drop the bar below the iOS status bar / notch. max(env, 50px) keeps a
          reliable clearance even when Safari reports a 0 inset (the avatar was
          tucking under the status bar). */
-      padding: max(env(safe-area-inset-top), 50px) 18px 0;
+      padding: max(env(safe-area-inset-top), 14px) 18px 0;
       gap: 12px;
     }
     .tb-avatar {
@@ -485,6 +485,8 @@
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
+      /* clear the floating glass bar so the last items aren't stuck under it */
+      padding-bottom: calc(96px + env(safe-area-inset-bottom));
     }
     .content::-webkit-scrollbar { width: 4px; }
     .content::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
@@ -494,15 +496,17 @@
 
     /* ---------- Bottom tab bar ---------- */
     /* Floating capsule tab bar (Instagram-style) with a sliding highlight pill */
+    /* Floats over the scroll area — content passes UNDER the glass (no solid block). */
     .bottom-tabs {
-      flex: 0 0 auto;
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
       display: flex; justify-content: center;
-      padding: 6px 14px calc(8px + env(safe-area-inset-bottom));
+      padding: 6px 14px calc(24px + env(safe-area-inset-bottom));
       background: transparent;
-      position: relative;
-      z-index: 30;
+      z-index: 40;
       pointer-events: none;
     }
+    /* Liquid glass: translucent forest tint, heavy blur, bright specular rim. */
     .bt-capsule {
       pointer-events: auto;
       position: relative;
@@ -510,21 +514,27 @@
       gap: 2px;
       padding: 7px 9px;
       border-radius: 999px;
-      background: rgba(10,28,20,0.92);
-      -webkit-backdrop-filter: blur(20px) saturate(1.3);
-      backdrop-filter: blur(20px) saturate(1.3);
-      box-shadow: 0 12px 34px -10px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.07);
+      background: rgba(11,30,21,0.56);
+      -webkit-backdrop-filter: blur(28px) saturate(1.8);
+      backdrop-filter: blur(28px) saturate(1.8);
+      box-shadow:
+        0 20px 48px -16px rgba(0,0,0,0.55),
+        0 4px 12px -4px rgba(0,0,0,0.3),
+        inset 0 1px 0.5px rgba(255,255,255,0.45),
+        inset 0 -2px 3px -1px rgba(0,0,0,0.25),
+        inset 0 0 0 1px rgba(255,255,255,0.1);
     }
-    /* the highlight that slides + rubber-band stretches between tabs */
+    /* the bright glass "lens" that slides + rubber-band stretches between tabs */
     .bt-pill {
       position: absolute;
       top: 7px; left: 0;
       height: calc(100% - 14px);
       width: 0;
       border-radius: 999px;
-      background: rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.24);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 0 0 1px rgba(255,255,255,0.06), 0 2px 6px -2px rgba(0,0,0,0.25);
       transform: translateX(0);
-      transition: transform 430ms cubic-bezier(0.34,1.45,0.5,1), width 430ms cubic-bezier(0.34,1.45,0.5,1);
+      transition: transform 310ms cubic-bezier(0.34,1.45,0.5,1), width 310ms cubic-bezier(0.34,1.45,0.5,1);
       z-index: 0; opacity: 0;
     }
     .bt-btn {
@@ -532,14 +542,14 @@
       flex: 0 0 auto;
       width: 58px; height: 46px;
       display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.6);
-      transition: color 220ms ease;
+      color: rgba(255,255,255,0.72);
+      transition: color 175ms ease;
       -webkit-tap-highlight-color: transparent;
     }
     .bt-btn svg {
       width: 23px; height: 23px;
       stroke-width: 1.9;
-      transition: transform 260ms cubic-bezier(0.34,1.45,0.5,1);
+      transition: transform 200ms cubic-bezier(0.34,1.45,0.5,1);
     }
     .bt-btn[aria-pressed="true"] { color: #fff; }
     .bt-btn[aria-pressed="true"] svg { transform: translateY(-1px) scale(1.06); }
@@ -708,14 +718,14 @@
        =========================================================== */
     .td-header {
       flex: 0 0 auto;
-      height: calc(var(--topbar-h) + max(env(safe-area-inset-top), 50px));
+      height: calc(var(--topbar-h) + max(env(safe-area-inset-top), 14px));
       box-sizing: border-box;
       background: #fff;
       border-bottom: 1px solid var(--line-soft);
       display: flex; align-items: center;
       /* Clear the iOS status bar / notch so the back arrow is tappable.
          max(env, 50px) guarantees clearance even if Safari reports a 0 inset. */
-      padding: max(env(safe-area-inset-top), 50px) 12px 0;
+      padding: max(env(safe-area-inset-top), 14px) 12px 0;
       gap: 8px;
     }
     .td-back {
@@ -1087,7 +1097,7 @@
     .menu-cart-bar {
       position: absolute;
       left: 16px; right: 16px;
-      bottom: calc(var(--bottom-h) + 16px);
+      bottom: calc(96px + env(safe-area-inset-bottom));
       background: var(--gradient);
       color: #fff;
       border-radius: 16px;
@@ -2333,7 +2343,7 @@
     /* ---------- Toast ---------- */
     #toast-stack {
       position: absolute;
-      bottom: calc(var(--bottom-h) + 24px);
+      bottom: calc(100px + env(safe-area-inset-bottom));
       left: 50%;
       transform: translateX(-50%);
       display: flex; flex-direction: column; gap: 8px;
@@ -2516,7 +2526,7 @@
     /* Welcome banner — auto-dismissing celebration */
     .welcome-banner {
       position: absolute;
-      top: calc(var(--topbar-h) + max(env(safe-area-inset-top), 50px) + 14px);
+      top: calc(var(--topbar-h) + max(env(safe-area-inset-top), 14px) + 14px);
       left: 16px; right: 16px;
       background: var(--gradient);
       color: #fff;
@@ -3902,7 +3912,7 @@
       const spanLeft = Math.min(btPillLeft, left);
       const spanW = Math.max(btPillLeft + btPillW, left + w) - spanLeft;
       set(spanLeft, spanW);
-      setTimeout(() => set(left, w), 165);
+      setTimeout(() => set(left, w), 115);
       btPillLeft = left; btPillW = w;
     }
     window.addEventListener('resize', () => moveBtPill(true));
