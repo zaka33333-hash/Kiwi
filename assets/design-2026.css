@@ -156,30 +156,7 @@ html[data-theme="dark"] body.design-2026 {
 html[data-theme="dark"] body.design-2026::before { opacity: 0.7; }
 html[data-theme="dark"] body.design-2026::after { opacity: 0.3; }
 
-/* ── 10 · The floating preview toggle (rendered by design-2026.js) ── */
-.kiwi-design-toggle {
-  position: fixed; left: 18px; bottom: 18px; z-index: 9000;
-  display: inline-flex; align-items: center; gap: 9px;
-  padding: 9px 14px 9px 12px; border-radius: 999px; cursor: pointer;
-  font-family: var(--sans); font-size: 12.5px; font-weight: 600; color: var(--ink);
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5); backdrop-filter: blur(20px) saturate(1.5);
-  border: 1px solid color-mix(in srgb, var(--n-300) 50%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 30px -14px rgba(11, 110, 79, 0.4);
-  transition: transform 0.25s var(--g-ease, ease), box-shadow 0.25s;
-}
-.kiwi-design-toggle:hover { transform: translateY(-2px); }
-.kiwi-design-toggle .dot {
-  width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
-  background: conic-gradient(from 180deg, var(--mint), var(--atlas), var(--mint));
-  box-shadow: 0 0 10px color-mix(in srgb, var(--mint) 80%, transparent);
-}
-.kiwi-design-toggle .x { opacity: 0.5; font-size: 14px; margin-inline-start: 2px; }
-.kiwi-design-toggle:hover .x { opacity: 1; }
-body:not(.design-2026) .kiwi-design-toggle { color: var(--n-600); }
-body:not(.design-2026) .kiwi-design-toggle .dot { background: var(--n-400); box-shadow: none; }
-
-/* ── 11 · Respect reduced-motion ── */
+/* ── 10 · Respect reduced-motion ── */
 @media (prefers-reduced-motion: reduce) {
   body.design-2026::before { animation: none; }
   body.design-2026 .dash-genpage { animation: none; }
