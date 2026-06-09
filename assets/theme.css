@@ -8,6 +8,11 @@ html[data-theme="dark"] {
   --paper: #0B1210;
   --paper-soft: #131916;
   --paper-muted: #1A201D;
+  --surface: #151B18;        /* card/panel fill — bright white in light, soft dark panel here */
+  --warn-soft: #2C2410;      /* amber alert fill — dark amber so light text on it stays legible */
+  --warn-ink: #E8B765;       /* amber alert text — pale amber, readable on dark */
+  --danger: #EF6E5C;         /* brick red dims on dark — brighten so negative amounts read */
+  --info: #5B92E0;           /* deep blue dims on dark — brighten for legibility */
   --ink: #F2F0EA;
   --ink-soft: #DDE1DE;
 
@@ -77,6 +82,31 @@ html[data-theme="dark"] .icon-btn:hover { border-color: var(--n-400); color: var
 html[data-theme="dark"] .btn-slim { background: var(--paper-soft); border-color: var(--n-200); color: var(--ink); }
 html[data-theme="dark"] .btn-slim:hover { border-color: var(--n-400); }
 html[data-theme="dark"] .btn-slim.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* .kb.ghost (interactive.js) hardcodes a #fff fill + var(--ink) text — in dark that's
+ * light-on-white. Only fusion-mode was patched; cover standard dark mode here too. */
+html[data-theme="dark"] .kb.ghost { background: var(--surface); color: var(--ink); border-color: var(--n-200); }
+html[data-theme="dark"] .kb.ghost:hover { background: var(--paper-muted); border-color: var(--n-400); }
+
+/* Active layout-preset pill uses color:var(--paper) (light text on --riad green),
+ * which inverts to dark-on-green in dark mode — keep its label light. */
+html[data-theme="dark"] .layout-presets .lp.active { color: var(--ink); }
+
+/* Dark-accent AI banners (.menu-ai / .stock-hint / .resv-engine / .s-ai-box).
+ * Each is built on a linear-gradient(var(--ink), var(--ink-soft)) with mint + paper
+ * text, designed as a near-black accent panel. In dark mode --ink inverts to light,
+ * flipping the banner to a pale box and hiding its light text. Pin the gradient to
+ * fixed dark values so the original mint/paper text reads exactly as intended. */
+html[data-theme="dark"] .menu-ai,
+html[data-theme="dark"] .stock-hint,
+html[data-theme="dark"] .resv-engine,
+html[data-theme="dark"] .s-ai-box {
+  background: linear-gradient(135deg, #0A0F0D, #1A201D);
+  color: #F2F0EA;
+}
+html[data-theme="dark"] .stock-hint b,
+html[data-theme="dark"] .menu-ai .b .n,
+html[data-theme="dark"] .resv-engine h4 { color: #F2F0EA; }
 
 /* Search bar in topbar */
 html[data-theme="dark"] .search-big { background: var(--paper-soft); border-color: var(--n-200); color: var(--n-500); }

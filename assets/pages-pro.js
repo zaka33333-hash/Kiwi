@@ -397,7 +397,7 @@ handlers['nav-transactions'] = () => {
       <div style="display:flex; gap:4px; padding:4px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:11px; margin-bottom:14px;">
         ${tabs.map(([k, l]) => {
           const on = activeTab === k;
-          return `<button class="tx-tab ${on ? 'on' : ''}" data-tx-tab="${k}" style="flex:1; padding:9px 12px; border:0; background:${on?'#fff':'transparent'}; color:${on?'var(--ink)':'var(--n-500)'}; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; box-shadow:${on?'0 1px 2px rgba(0,0,0,0.05)':'none'};">${l}</button>`;
+          return `<button class="tx-tab ${on ? 'on' : ''}" data-tx-tab="${k}" style="flex:1; padding:9px 12px; border:0; background:${on?'var(--surface)':'transparent'}; color:${on?'var(--ink)':'var(--n-500)'}; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; box-shadow:${on?'0 1px 2px rgba(0,0,0,0.05)':'none'};">${l}</button>`;
         }).join('')}
       </div>
 
@@ -430,7 +430,7 @@ handlers['nav-transactions'] = () => {
       </div>
 
       <div data-tx-pane="rec" style="display:${activeTab === 'rec' ? '' : 'none'};">
-        <div class="p-card" style="background:#fff;">
+        <div class="p-card" style="background:var(--surface);">
           <div class="head"><h4>${T.settlementOf} 28 avril</h4><span class="chip ok">${T.reconciled}</span></div>
           <table class="p-table" style="margin-top:6px;">
             <tbody>
@@ -449,14 +449,14 @@ handlers['nav-transactions'] = () => {
 
       <div data-tx-pane="fra" style="display:${activeTab === 'fra' ? '' : 'none'};">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
-          <span class="chip" style="background:#FFF4DD; color:#8A6210;">2 ${T.openAlerts}</span>
+          <span class="chip" style="background:var(--warn-soft); color:var(--warn-ink);">2 ${T.openAlerts}</span>
           <span style="font-size:11.5px; color:var(--n-500);">${T.model}: Kiwi Sentinel · 30 j ${T.slidingWindow}</span>
         </div>
         ${[
           { t: 'Visa •• 0043 — 3ᵉ remboursement cette semaine', d: 'Pattern récurrent · 240 MAD à chaque fois · adresse IP changeante', risk: 'Élevé' },
           { t: 'Kiwi Wallet QR — pic anormal 13:42', d: '7 commandes du même device en 4 minutes · panier moyen 38 MAD', risk: 'Moyen' },
         ].map(a => `
-          <div class="p-card" style="background:#fff;">
+          <div class="p-card" style="background:var(--surface);">
             <div class="head">
               <div>
                 <h4 style="font-size:14.5px;">${a.t}</h4>
@@ -709,9 +709,9 @@ handlers['nav-terminaux'] = () => {
       </div>
 
       ${terms.map(t => `
-        <div class="p-card" style="margin-bottom:10px; ${t.state === 'off' ? 'background:#FFF4DD;' : ''}">
+        <div class="p-card" style="margin-bottom:10px; ${t.state === 'off' ? 'background:var(--warn-soft);' : ''}">
           <div style="display:grid; grid-template-columns:104px 1fr auto; gap:14px; align-items:center; margin-bottom:12px;">
-            <div style="width:104px; height:80px; border-radius:11px; background:#fff; border:1px solid var(--n-200); display:flex; align-items:center; justify-content:center; padding:6px; ${t.state === 'off' ? 'opacity:0.55;' : ''}">
+            <div style="width:104px; height:80px; border-radius:11px; background:var(--surface); border:1px solid var(--n-200); display:flex; align-items:center; justify-content:center; padding:6px; ${t.state === 'off' ? 'opacity:0.55;' : ''}">
               <img src="${t.img}" alt="${t.name}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
             </div>
             <div>
@@ -886,11 +886,11 @@ handlers['terminal-catalog'] = () => {
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
         ${CATALOG.map(p => `
-          <div class="p-card" style="margin:0; padding:0; overflow:hidden; background:#fff; ${p.featured ? 'grid-column:1 / -1; display:grid; grid-template-columns:1.1fr 1fr;' : ''} border:1px solid ${p.featured ? 'rgba(11,110,79,0.22)' : 'var(--n-200)'}; ${p.featured ? 'box-shadow:0 1px 0 rgba(11,110,79,0.06), 0 14px 32px -18px rgba(11,110,79,0.22);' : ''}">
+          <div class="p-card" style="margin:0; padding:0; overflow:hidden; background:var(--surface); ${p.featured ? 'grid-column:1 / -1; display:grid; grid-template-columns:1.1fr 1fr;' : ''} border:1px solid ${p.featured ? 'rgba(11,110,79,0.22)' : 'var(--n-200)'}; ${p.featured ? 'box-shadow:0 1px 0 rgba(11,110,79,0.06), 0 14px 32px -18px rgba(11,110,79,0.22);' : ''}">
             <div style="position:relative; ${p.featured ? 'aspect-ratio:auto; min-height:260px;' : 'aspect-ratio:5/3;'} background:var(--paper-soft); display:flex; align-items:center; justify-content:center; padding:${p.featured ? '20' : '14'}px; ${p.featured ? 'border-right:1px solid var(--n-200);' : 'border-bottom:1px solid var(--n-200);'}">
               <img src="${p.img}" alt="${p.name}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
               ${p.featured ? `<span class="chip" style="position:absolute; top:12px; left:12px; background:var(--ink); color:var(--mint); font-size:10px; padding:4px 10px; letter-spacing:0.08em;">${T.flagship}</span>` : ''}
-              <span style="position:absolute; top:${p.featured ? '12' : '10'}px; right:${p.featured ? '12' : '10'}px; background:#fff; border:1px solid var(--n-200); border-radius:999px; padding:4px 10px; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink);">${p.price}</span>
+              <span style="position:absolute; top:${p.featured ? '12' : '10'}px; right:${p.featured ? '12' : '10'}px; background:var(--surface); border:1px solid var(--n-200); border-radius:999px; padding:4px 10px; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink);">${p.price}</span>
             </div>
             <div style="padding:${p.featured ? '20px 22px' : '14px 16px 16px'}; display:flex; flex-direction:column;">
               <h4 style="margin:0 0 4px; font-size:${p.featured ? '20' : '15.5'}px; letter-spacing:-0.015em;">${p.name}</h4>
@@ -1110,7 +1110,7 @@ handlers['nav-reglements'] = () => {
         <div class="sub">22 versements · économie vs CMI : +5 240 MAD ce mois</div>
       </div>
 
-      <div class="p-card" style="background:#fff; padding:16px;">
+      <div class="p-card" style="background:var(--surface); padding:16px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
           <div>
             <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase;">Cash-flow · 30 jours</div>
@@ -1151,7 +1151,7 @@ handlers['nav-reglements'] = () => {
         </div>
       </div>
 
-      <div class="p-card" style="background:#fff; padding:16px; margin-bottom:10px;">
+      <div class="p-card" style="background:var(--surface); padding:16px; margin-bottom:10px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <div style="font-size:13px; font-weight:600;">Comptes bancaires liés</div>
           <button class="kb ghost" data-action="add-iban" style="padding:5px 10px; font-size:11.5px;">+ IBAN</button>
@@ -1172,7 +1172,7 @@ handlers['nav-reglements'] = () => {
         `).join('')}
       </div>
 
-      <div class="p-card" style="background:#fff; padding:16px; margin-bottom:10px;">
+      <div class="p-card" style="background:var(--surface); padding:16px; margin-bottom:10px;">
         <div style="font-size:13px; font-weight:600; margin-bottom:10px;">Détail du règlement de demain (28 avril → 29 avril)</div>
         <table class="p-table">
           <tbody>
@@ -1186,7 +1186,7 @@ handlers['nav-reglements'] = () => {
       </div>
 
       <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:14px 0 8px;">Historique récent</div>
-      <div style="background:#fff; border:1px solid var(--n-200); border-radius:12px; padding:6px 14px;">
+      <div style="background:var(--surface); border:1px solid var(--n-200); border-radius:12px; padding:6px 14px;">
         ${settles.map(([d, a, s, st]) => `
           <div style="display:grid; grid-template-columns:110px 1fr 180px 90px; gap:14px; padding:11px 0; border-top:1px solid var(--n-200); align-items:center; font-size:13px;">
             <b>${d}</b>
@@ -1616,7 +1616,7 @@ handlers['nav-equipe'] = () => {
           ${isLive ? `
             <div style="position: absolute; left: ${dotPct}%; top: 50%; transform: translate(-50%, -50%);
               width: 16px; height: 16px; border-radius: 50%;
-              background: #fff; border: 3px solid ${roleC};
+              background: var(--surface); border: 3px solid ${roleC};
               box-shadow: 0 0 0 5px rgba(11,110,79,0.10), 0 2px 6px rgba(10,15,13,0.14);
               z-index: 2;">
               <span style="position: absolute; inset: -3px; border-radius: 50%; background: ${roleC}; opacity: 0.28;
@@ -1750,7 +1750,7 @@ handlers['nav-equipe'] = () => {
       </div>
 
       <!-- Members list -->
-      <div style="padding:16px 18px; background:#fff; border:1px solid var(--n-200); border-radius:14px; margin-bottom:14px;">
+      <div style="padding:16px 18px; background:var(--surface); border:1px solid var(--n-200); border-radius:14px; margin-bottom:14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
           <div>
             <h4 style="margin:0; font-size:14.5px; letter-spacing:-0.01em;">Membres · ${v.name}</h4>
@@ -1779,12 +1779,12 @@ handlers['nav-equipe'] = () => {
             50%      { opacity: 0.55; }
           }
           .kw-eq-row { transition: border-color 180ms, box-shadow 180ms, transform 180ms; }
-          .kw-eq-row.active { background: #fff; }
+          .kw-eq-row.active { background: var(--surface); }
           .kw-eq-row.active:hover { box-shadow: 0 1px 0 rgba(10,15,13,0.04), 0 12px 24px -14px rgba(10,15,13,0.16); transform: translateY(-1px); }
           .kw-eq-row.inactive { background: var(--paper-soft); }
-          .kw-eq-iconbtn { width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--n-200); background: #fff; color: var(--n-500); cursor: pointer; transition: all 120ms; }
+          .kw-eq-iconbtn { width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--n-200); background: var(--surface); color: var(--n-500); cursor: pointer; transition: all 120ms; }
           .kw-eq-iconbtn:hover { color: var(--ink); border-color: var(--n-300); }
-          .kw-eq-detailbtn { padding: 5px 11px; font-size: 11.5px; border-radius: 7px; border: 1px solid var(--n-200); background: #fff; color: var(--ink); cursor: pointer; transition: all 120ms; }
+          .kw-eq-detailbtn { padding: 5px 11px; font-size: 11.5px; border-radius: 7px; border: 1px solid var(--n-200); background: var(--surface); color: var(--ink); cursor: pointer; transition: all 120ms; }
           .kw-eq-detailbtn:hover { background: var(--paper-soft); }
         </style>
         ${sorted.map(m => {
@@ -1898,7 +1898,7 @@ handlers['nav-equipe'] = () => {
             const active = r.perms.filter(Boolean).length;
             const roleC = ROLE_COLOR[r.kind] || 'var(--atlas)';
             return `
-              <div style="background:#fff; border:1px solid var(--n-200); border-radius:12px; padding:14px 16px;">
+              <div style="background:var(--surface); border:1px solid var(--n-200); border-radius:12px; padding:14px 16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                   <div style="display:flex; align-items:center; gap:9px;">
                     <i style="width:9px; height:9px; border-radius:50%; background:${roleC};"></i>
@@ -1924,7 +1924,7 @@ handlers['nav-equipe'] = () => {
       </div>
 
       <!-- Journal PIN -->
-      <div style="background:#fff; border:1px solid var(--n-200); border-radius:14px; padding:16px 18px;">
+      <div style="background:var(--surface); border:1px solid var(--n-200); border-radius:14px; padding:16px 18px;">
         <div style="margin-bottom:10px;">
           <h4 style="margin:0; font-size:14.5px; letter-spacing:-0.01em;">Journal PIN &amp; actions sensibles</h4>
           <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">Annulations · remboursements · ouvertures de caisse · échecs de saisie</div>
@@ -1959,7 +1959,7 @@ handlers['nav-equipe'] = () => {
             font-family: var(--sans);
             font-size: 14px;
             outline: none;
-            background: #fff;
+            background: var(--surface);
             color: var(--ink);
             transition: border-color 140ms, box-shadow 140ms;
             box-sizing: border-box;
@@ -2266,7 +2266,7 @@ handlers['nav-payroll'] = () => {
             <div><h4>Aperçu bulletin · Fatima Khalki</h4><div class="sub">Avril 2026 · 162 h · serveuse senior · pré-rempli DGI</div></div>
             <button class="kb ghost" data-action="payslip-pdf" style="padding:6px 10px; font-size:11px;">PDF</button>
           </div>
-          <div style="background:#fff; border:1px solid var(--n-200); border-radius:12px; padding:14px;">
+          <div style="background:var(--surface); border:1px solid var(--n-200); border-radius:12px; padding:14px;">
             ${[
               ['Salaire brut', '5 800,00', 'var(--ink)'],
               ['CNSS salarié (4,48 %)', '−259,84', 'var(--n-600)'],
@@ -3196,7 +3196,7 @@ handlers['nav-menu'] = () => {
             ['Saignant',       'tajines · 5', 'gratuit'],
             ['Pétillante',     'limonade · 1', '+ 1 MAD'],
           ].map(([n, scope, fee]) => `
-            <div style="background:#fff; border:1px solid var(--n-200); border-radius:9px; padding:9px 11px;">
+            <div style="background:var(--surface); border:1px solid var(--n-200); border-radius:9px; padding:9px 11px;">
               <div style="font-weight:500; letter-spacing:-0.005em;">${n}</div>
               <div style="font-size:11px; color:var(--n-500); font-family:var(--mono); margin-top:3px; display:flex; justify-content:space-between;"><span>${scope}</span><span>${fee}</span></div>
             </div>
@@ -5331,7 +5331,7 @@ handlers['bout-cat-publish'] = () => {
                 </label>
               </div>
             `).join('')}
-            <div style="margin-top: 12px; padding: 10px 12px; background: rgba(217,154,43,0.08); border: 1px solid rgba(217,154,43,0.22); border-radius: 10px; font-size: 11.5px; color: #8A6210; line-height: 1.5;">
+            <div style="margin-top: 12px; padding: 10px 12px; background: rgba(217,154,43,0.08); border: 1px solid rgba(217,154,43,0.22); border-radius: 10px; font-size: 11.5px; color: var(--warn-ink); line-height: 1.5;">
               <b>Astuce.</b> Bloquer un client n'empêche pas l'achat — uniquement les retours. Notification email envoyée automatiquement.
             </div>
           </div>
@@ -6420,11 +6420,11 @@ handlers['bout-cat-publish'] = () => {
     .pr-card .rl { font-size: 12px; color: var(--n-500); margin-top: 3px; line-height: 1.4; }
     .pr-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.06em; font-weight: 600; }
     .pr-badge.sr { background: var(--mint-soft); color: var(--riad); }
-    .pr-badge.cf { background: rgba(217,154,43,0.16); color: #8A6210; }
+    .pr-badge.cf { background: rgba(217,154,43,0.16); color: var(--warn-ink); }
     .pr-badge.jr { background: rgba(11,110,79,0.1); color: var(--atlas); }
     .pr-bio { font-size: 12.5px; color: var(--n-600); line-height: 1.5; margin: 4px 0 12px; }
     .pr-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
-    .pr-chip { font-size: 11px; padding: 3px 9px; border-radius: 999px; background: #fff; border: 1px solid var(--n-200); color: var(--n-700); font-weight: 500; }
+    .pr-chip { font-size: 11px; padding: 3px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--n-200); color: var(--n-700); font-weight: 500; }
     html[data-theme="dark"] .pr-chip { background: var(--paper); }
     .pr-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px 0; border-top: 1px solid var(--n-200); border-bottom: 1px solid var(--n-200); margin-bottom: 12px; }
     .pr-kpis .k { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
@@ -6444,7 +6444,7 @@ handlers['bout-cat-publish'] = () => {
     .pr-cert .m { font-size: 11px; color: var(--n-500); margin-top: 2px; font-family: var(--mono); letter-spacing: 0.04em; }
     .pr-cert-stat { font-size: 10.5px; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.04em; }
     .pr-cert-stat.ok { background: #E3F7EC; color: var(--atlas-700, #054C36); }
-    .pr-cert-stat.warn { background: #FFF4DD; color: #8A6210; }
+    .pr-cert-stat.warn { background: var(--warn-soft); color: var(--warn-ink); }
     .pr-cert-stat.exp { background: #FDE8E4; color: #9B2F22; }
     .pr-calc-out { background: linear-gradient(135deg, var(--atlas), var(--riad)); color: var(--paper); border-radius: 14px; padding: 18px; margin-top: 14px; }
     .pr-calc-out .l { font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.1em; color: var(--mint); text-transform: uppercase; }
@@ -6871,7 +6871,7 @@ handlers['bout-cat-publish'] = () => {
     html[data-theme="dark"] .sc-pills { background: var(--paper-muted); }
     .sc-pill { flex: 0 0 auto; padding: 8px 14px; border-radius: 9px; font-size: 12.5px; font-weight: 500; color: var(--n-500); cursor: pointer; transition: background 150ms, color 150ms; display: inline-flex; align-items: center; gap: 7px; border: 0; background: none; font-family: var(--sans); }
     .sc-pill:hover { color: var(--ink); }
-    .sc-pill.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .sc-pill.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     html[data-theme="dark"] .sc-pill.on { background: var(--ink-soft); color: var(--paper); }
     .sc-pill .ct { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); background: var(--n-100); padding: 1px 7px; border-radius: 999px; letter-spacing: 0.04em; }
     .sc-pill.on .ct { background: var(--mint-soft); color: var(--atlas); }
@@ -6884,17 +6884,17 @@ handlers['bout-cat-publish'] = () => {
     .sc-flag.de { background: linear-gradient(180deg, #000 33%, #DD0000 33% 66%, #FFCE00 66%); }
 
     .sc-tier { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
-    .sc-tier.bronze { background: rgba(217,154,43,0.16); color: #8A6210; }
+    .sc-tier.bronze { background: rgba(217,154,43,0.16); color: var(--warn-ink); }
     .sc-tier.argent { background: var(--n-100); color: var(--n-600); }
     .sc-tier.or { background: var(--mint-soft); color: var(--atlas); }
     .sc-tier.platine { background: var(--riad); color: var(--mint); }
     html[data-theme="dark"] .sc-tier.argent { background: rgba(255,255,255,0.06); color: var(--paper); }
 
-    .sc-bday { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; background: rgba(217,154,43,0.18); color: #8A6210; font-size: 10.5px; font-weight: 500; font-family: var(--mono); letter-spacing: 0.04em; margin-left: 6px; }
+    .sc-bday { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; background: rgba(217,154,43,0.18); color: var(--warn-ink); font-size: 10.5px; font-weight: 500; font-family: var(--mono); letter-spacing: 0.04em; margin-left: 6px; }
     html[data-theme="dark"] .sc-bday { background: rgba(217,154,43,0.22); color: #E5B764; }
 
     .sc-bday-panel { background: linear-gradient(135deg, rgba(217,154,43,0.14), rgba(217,154,43,0.04)); border: 1px solid rgba(217,154,43,0.32); border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-    .sc-bday-panel .ic { width: 40px; height: 40px; border-radius: 10px; background: rgba(217,154,43,0.22); color: #8A6210; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sc-bday-panel .ic { width: 40px; height: 40px; border-radius: 10px; background: rgba(217,154,43,0.22); color: var(--warn-ink); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .sc-bday-panel .body { flex: 1; min-width: 220px; }
     .sc-bday-panel .body .t { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
     .sc-bday-panel .body .d { font-size: 12px; color: var(--n-600); margin-top: 3px; line-height: 1.45; }
@@ -6934,7 +6934,7 @@ handlers['bout-cat-publish'] = () => {
     .sc-gift .ac { display: flex; gap: 8px; margin-top: 12px; position: relative; z-index: 1; }
 
     .sc-amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
-    .sc-amount { padding: 12px 8px; background: #fff; border: 1px solid var(--n-200); border-radius: 10px; text-align: center; cursor: pointer; transition: all 150ms; font-family: var(--mono); font-size: 13px; font-weight: 500; }
+    .sc-amount { padding: 12px 8px; background: var(--surface); border: 1px solid var(--n-200); border-radius: 10px; text-align: center; cursor: pointer; transition: all 150ms; font-family: var(--mono); font-size: 13px; font-weight: 500; }
     html[data-theme="dark"] .sc-amount { background: var(--paper-soft); }
     .sc-amount:hover { border-color: var(--atlas); }
     .sc-amount.on { background: var(--atlas); color: var(--paper); border-color: var(--atlas); }
@@ -7498,7 +7498,7 @@ handlers['bout-cat-publish'] = () => {
   const stationKindLabel = (k) => (k === 'bar' ? 'BAR' : 'CUISINE');
   const stationSummaryHtml = () => STATIONS.map((s) => {
     const stats = stationStats(s.id);
-    return `<div style="display:grid; grid-template-columns:14px 1fr auto; gap:10px; align-items:center; background:#fff; border:1px solid var(--n-200); border-radius:10px; padding:10px 12px;"><span style="width:10px; height:10px; border-radius:50%; background:${s.raw};"></span><div><div style="font-weight:500;">${s.name}</div><div style="font-size:10.5px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em; text-transform:uppercase;">${stationKindLabel(s.kind)}${s.custom ? ' · custom' : ''}</div></div><span class="mono" style="font-size:11px; color:var(--n-500);">${stats.items} items · ${stats.sold} vendus</span></div>`;
+    return `<div style="display:grid; grid-template-columns:14px 1fr auto; gap:10px; align-items:center; background:var(--surface); border:1px solid var(--n-200); border-radius:10px; padding:10px 12px;"><span style="width:10px; height:10px; border-radius:50%; background:${s.raw};"></span><div><div style="font-weight:500;">${s.name}</div><div style="font-size:10.5px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em; text-transform:uppercase;">${stationKindLabel(s.kind)}${s.custom ? ' · custom' : ''}</div></div><span class="mono" style="font-size:11px; color:var(--n-500);">${stats.items} items · ${stats.sold} vendus</span></div>`;
   }).join('');
 
   /* ───────────── helper: dismiss buttons ───────────── */
@@ -8095,7 +8095,7 @@ handlers['bout-cat-publish'] = () => {
       width: 620,
       body: `
         <button class="kb atlas" style="width:100%; justify-content:center; margin-bottom:14px;" data-st-create>+ Créer une station personnalisée</button>
-        <div id="st-mgr-list" style="background:#fff; border:1px solid var(--n-200); border-radius:12px; padding:4px 16px;">${renderList()}</div>
+        <div id="st-mgr-list" style="background:var(--surface); border:1px solid var(--n-200); border-radius:12px; padding:4px 16px;">${renderList()}</div>
         <div style="margin-top:12px; padding:12px 14px; background:var(--paper-soft); border-radius:10px; font-size:12.5px; color:var(--n-600); line-height:1.5;">
           <b>Astuce :</b> ajoutez une station "Pizza four" ou "Bar à jus" si votre établissement a une zone dédiée. Le KDS basculera automatiquement vers la nouvelle station.
         </div>

@@ -93,6 +93,7 @@
 
   .crm-foot { display:flex; justify-content:flex-end; margin-top:22px; }
   html[data-theme="dark"] .crm-seg, html[data-theme="dark"] .crm-tbl, html[data-theme="dark"] .crm-comp { background:#131916; border-color:#26302b; }
+  html[data-theme="dark"] .crm-tag.reg { color:var(--mint); }
   html[data-theme="dark"] .crm-tbl th, html[data-theme="dark"] .crm-kpi { background:#0f1714; } html[data-theme="dark"] .crm-tbl td { border-color:#26302b; }
   html[data-theme="dark"] .crm-tbl tr:hover td, html[data-theme="dark"] .crm-chip { background:#0f1714; }
   html[data-theme="dark"] .crm-chip { border-color:#26302b; } html[data-theme="dark"] .crm-sel { background:#0f1714; border-color:#26302b; color:var(--paper); }

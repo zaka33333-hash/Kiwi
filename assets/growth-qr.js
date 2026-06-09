@@ -81,6 +81,7 @@
   .qro-foot { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
 
   html[data-theme="dark"] .qro-tile { background:#131916; border-color:#26302b; }
+  html[data-theme="dark"] .qro-st.ordering { color:var(--mint); }
   html[data-theme="dark"] .qro-screen { background:#0f1714; } html[data-theme="dark"] .qro-ph-item { border-color:#26302b; }
   @media (max-width:820px){ .qro-grid{grid-template-columns:1fr;} .qro-phone{margin:12px auto 0;} }
   `;

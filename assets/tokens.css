@@ -18,6 +18,7 @@
   --paper: #F7F5F0;
   --paper-soft: #EFECE3;
   --paper-muted: #E8E6E0;
+  --surface: #FFFFFF;        /* card/panel fill — stays bright in light, darkens in dark (see theme.css) */
   --ink: #0A0F0D;
   --ink-soft: #1A201D;
 
@@ -37,6 +38,8 @@
   --warning: #D99A2B;
   --danger: #C94A3A;
   --info: #3A6FB8;
+  --warn-soft: #FFF4DD;      /* amber alert fill — cream in light, dark amber in dark (theme.css) */
+  --warn-ink: #8A6210;       /* amber alert text — deep amber in light, pale amber in dark */
 
   /* Radii / spacing */
   --r-sm: 6px;

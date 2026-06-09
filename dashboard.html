@@ -2980,6 +2980,9 @@
   .mi-tag.premium   { background: var(--riad); color: var(--paper); }
   .mi-tag.vegan     { background: var(--success); color: var(--paper); }
   .mi-tag.veg       { background: var(--paper-muted); color: var(--n-600); }
+  /* Dark mode: --riad/--paper text on these chips stays dark and goes invisible — relight it. */
+  html[data-theme="dark"] .mi-tag.signature { color: var(--mint); }
+  html[data-theme="dark"] .mi-tag.premium   { color: #EAF3EE; }
   .mi-card-name { font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); margin-top: 10px; }
   .mi-card-emoji { display: inline-block; margin-inline-end: 7px; font-size: 17px; line-height: 1; vertical-align: -1px; }
   .mi-list .mi-card-emoji { font-size: 15px; margin-inline-end: 6px; }
@@ -4079,6 +4082,7 @@
 <script src="assets/growth-qr.js" defer></script>
 <script src="assets/growth-crm.js" defer></script>
 <script src="assets/growth-giftcards.js" defer></script>
+<script src="assets/dark-fixes.js" defer></script>
 <script src="assets/polish.js" defer></script>
 <script src="assets/dashboard-extra.js" defer></script>
 <script src="assets/simple.js" defer></script>

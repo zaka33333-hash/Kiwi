@@ -113,6 +113,9 @@
   .ord-foot { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
 
   html[data-theme="dark"] .ord-ch, html[data-theme="dark"] .ord-feed { background:#131916; border-color:#26302b; }
+  /* mint-soft chips carry hardcoded dark-green text — brighten to mint on dark so they stay legible */
+  html[data-theme="dark"] .ord-pill, html[data-theme="dark"] .ord-o-ch.kiwi, html[data-theme="dark"] .ord-o-st.ready, html[data-theme="dark"] .ord-bar-val.good, html[data-theme="dark"] .ord-connect { color:var(--mint); }
+  html[data-theme="dark"] .ord-connect { background:rgba(125,242,176,.12); }
   html[data-theme="dark"] .ord-ch:hover { border-color:#34403a; }
   html[data-theme="dark"] .ord-o:hover { background:#0f1714; }
   html[data-theme="dark"] .ord-keep { background:rgba(125,242,176,.07); border-color:rgba(125,242,176,.16); }

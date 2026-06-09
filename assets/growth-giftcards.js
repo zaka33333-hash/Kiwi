@@ -83,6 +83,7 @@
   .gft-redeem { margin-top:16px; display:flex; gap:9px; } .gft-redeem .gft-in { margin:0; flex:1; }
   .gft-foot { display:flex; justify-content:flex-end; margin-top:22px; }
   html[data-theme="dark"] .gft-amt, html[data-theme="dark"] .gft-in, html[data-theme="dark"] .gft-stat, html[data-theme="dark"] .gft-tbl { background:#131916; border-color:#26302b; color:var(--paper); }
+  html[data-theme="dark"] .gft-stt.active { color:var(--mint); }
   html[data-theme="dark"] .gft-tbl th { background:#0f1714; } html[data-theme="dark"] .gft-tbl td { border-color:#26302b; } html[data-theme="dark"] .gft-tbl tr:hover td { background:#0f1714; }
   @media (max-width:820px){ .gft-grid{grid-template-columns:1fr;} .gft-stats{grid-template-columns:1fr 1fr;} }
   `;
