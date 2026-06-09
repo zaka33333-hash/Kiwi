@@ -80,6 +80,16 @@
       priceSub: 'Décisions data-driven plutôt qu\'à l\'intuition',
       priceAiEyebrow: 'Kiwi AI · prix',
       priceFoot: 'Ces suggestions reposent sur l\'évolution réelle de vos coûts matière + votre mix de ventes des 30 derniers jours.',
+      priceAbody: (v, m) => `Le coût matière a glissé de <b>+${v} %</b> sur 30 jours, votre marge est tombée à <b>${m} %</b>.`,
+      priceAaction: (d, nm, imp) => `+${d} MAD restaure votre marge à <b>${nm} %</b>. Impact CA estimé : <b>+${imp} MAD/mois</b>.`,
+      priceBbody: (m) => `Marge à <b>${m} %</b> (la plus haute de votre menu), demande très stable. Boisson la plus vendue de la catégorie.`,
+      priceBaction: (d, p, u, imp) => `+${d} MAD = <b>+${p} %</b> sur ${u} unités/mois. Impact CA : <b>+${imp} MAD/mois</b>, risque demande nul.`,
+      priceCpromo: ' (promo test)',
+      priceCbody: (u, m) => `Plat sous-vendu (<b>${u} unités/mois</b>) malgré une bonne marge à <b>${m} %</b>. Le prix actuel décourage l'essai.`,
+      priceCaction: (np, old, nw) => `Tester <b>${np} MAD</b> pendant 2 semaines. Si le volume monte de +40 %, le CA mensuel sur ce plat passe de <b>${old}</b> à <b>${nw} MAD</b>.`,
+      priceFbTitle: 'Complétez vos recettes pour activer les suggestions de prix',
+      priceFbBody: `Une fois que Kiwi connaît la composition exacte de chaque plat, l'algorithme peut détecter dérives de coût matière, marges anormales, et volumes décevants.`,
+      priceFbAction: 'Direction : Menu › Recettes → ouvrir un plat → ajouter ses ingrédients.',
       // Footer note
       noteUpdatePolicy: 'Toutes les valeurs sont calculées à partir des ventes du jour, du stock et de votre effectif. Aucune écriture comptable n\'est produite.',
       // TVA
@@ -156,6 +166,16 @@
       priceSub: 'Data-driven price moves, not gut feelings',
       priceAiEyebrow: 'Kiwi AI · pricing',
       priceFoot: 'Suggestions are based on actual food-cost drift + your sales mix over the last 30 days.',
+      priceAbody: (v, m) => `Food cost slipped <b>+${v} %</b> over 30 days — your margin fell to <b>${m} %</b>.`,
+      priceAaction: (d, nm, imp) => `+${d} MAD restores your margin to <b>${nm} %</b>. Est. revenue impact: <b>+${imp} MAD/mo</b>.`,
+      priceBbody: (m) => `Margin at <b>${m} %</b> (the highest on your menu), very stable demand. Best-selling drink in its category.`,
+      priceBaction: (d, p, u, imp) => `+${d} MAD = <b>+${p} %</b> on ${u} units/mo. Revenue impact: <b>+${imp} MAD/mo</b>, zero demand risk.`,
+      priceCpromo: ' (promo test)',
+      priceCbody: (u, m) => `Under-sold dish (<b>${u} units/mo</b>) despite a healthy <b>${m} %</b> margin. The current price discourages trial.`,
+      priceCaction: (np, old, nw) => `Test <b>${np} MAD</b> for 2 weeks. If volume rises +40 %, this dish's monthly revenue goes from <b>${old}</b> to <b>${nw} MAD</b>.`,
+      priceFbTitle: 'Complete your recipes to unlock price suggestions',
+      priceFbBody: `Once Kiwi knows the exact composition of each dish, the algorithm can flag food-cost drift, abnormal margins, and disappointing volumes.`,
+      priceFbAction: 'Go to: Menu › Recipes → open a dish → add its ingredients.',
       noteUpdatePolicy: 'All values are computed from today\'s sales, stock and headcount. No accounting entries are produced.',
       tvaTitle: 'VAT · monthly reconciliation',
       tvaSub: 'Auto-generated for your accountant · 1-click export',
@@ -230,6 +250,16 @@
       priceSub: 'قرارات مبنية على البيانات لا على الحدس',
       priceAiEyebrow: 'كيوي AI · الأسعار',
       priceFoot: 'هذه الاقتراحات مبنية على تطور تكاليف المكونات + مزيج المبيعات خلال 30 يومًا.',
+      priceAbody: (v, m) => `ارتفعت تكلفة المكوّنات بـ <b>+${v} %</b> خلال 30 يومًا، وتراجع هامشك إلى <b>${m} %</b>.`,
+      priceAaction: (d, nm, imp) => `<b>+${d} درهم</b> يُعيد هامشك إلى <b>${nm} %</b>. الأثر المُقدَّر على رقم المعاملات: <b>+${imp} درهم/شهر</b>.`,
+      priceBbody: (m) => `هامش <b>${m} %</b> (الأعلى في قائمتك) والطلب مستقرّ جدًا. المشروب الأكثر مبيعًا في فئته.`,
+      priceBaction: (d, p, u, imp) => `<b>+${d} درهم</b> = <b>+${p} %</b> على ${u} وحدة/شهر. الأثر على رقم المعاملات: <b>+${imp} درهم/شهر</b>، دون أي خطر على الطلب.`,
+      priceCpromo: ' (تجربة ترويجية)',
+      priceCbody: (u, m) => `طبق ضعيف المبيعات (<b>${u} وحدة/شهر</b>) رغم هامش جيّد بلغ <b>${m} %</b>. السعر الحالي يُثبّط تجربته.`,
+      priceCaction: (np, old, nw) => `جرّب <b>${np} درهم</b> لمدة أسبوعين. إذا ارتفع الحجم بـ +40 %، ينتقل رقم معاملات هذا الطبق من <b>${old}</b> إلى <b>${nw} درهم</b>.`,
+      priceFbTitle: 'أكمل وصفاتك لتفعيل اقتراحات التسعير',
+      priceFbBody: `بمجرد أن يعرف كيوي التركيبة الدقيقة لكل طبق، تستطيع الخوارزمية رصد انحرافات تكلفة المكوّنات والهوامش غير الطبيعية والكميات المخيّبة.`,
+      priceFbAction: 'الوجهة: القائمة › الوصفات → افتح طبقًا → أضِف مكوّناته.',
       noteUpdatePolicy: 'جميع القيم محسوبة من مبيعات اليوم والمخزون وعدد الموظفين. لا يتم إنتاج أي قيود محاسبية.',
       tvaTitle: 'الضريبة على القيمة المضافة · التسوية الشهرية',
       tvaSub: 'تُولَّد تلقائيًا لمحاسبك · تصدير بنقرة واحدة',
@@ -270,6 +300,18 @@
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmtMad = (n) => `${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} MAD`;
   const fmtInt = (n) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  /* Localize a French "Month YYYY" / "DD Month YYYY" label (TVA period, deadline,
+   * history) to the active language. Moroccan Arabic months, matching team.js/stock.js. */
+  const MONTHS_FR_L = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const MONTHS_L = {
+    en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    ar: ['يناير','فبراير','مارس','أبريل','ماي','يونيو','يوليوز','غشت','شتنبر','أكتوبر','نونبر','دجنبر'],
+  };
+  const locPeriod = (label) => {
+    const tbl = MONTHS_L[lang()]; if (!tbl) return label;
+    return String(label).replace(/(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/i,
+      (mo) => tbl[MONTHS_FR_L.indexOf(mo.toLowerCase())] || mo);
+  };
   const fmtPct = (n, d = 1) => `${(n).toFixed(d)} %`;
 
   /* ─────────────── Per-venue demo data (in MAD) ─────────────── */
@@ -574,8 +616,8 @@
         tone: 'up',
         symbol: '↗',
         title: `${overrun.it.name} · ${fmtInt(overrun.it.price)} → ${fmtInt(newPrice)} MAD`,
-        body: `Le coût matière a glissé de <b>+${overrun.variancePts.toFixed(0)} %</b> sur 30 jours, votre marge est tombée à <b>${overrun.marginPct.toFixed(0)} %</b>.`,
-        action: `+${newPrice - overrun.it.price} MAD restaure votre marge à <b>${(overrun.marginPct + margenRecovery).toFixed(0)} %</b>. Impact CA estimé : <b>+${fmtInt((newPrice - overrun.it.price) * (overrun.it.unitsThisMonth || 200))} MAD/mois</b>.`,
+        body: t('priceAbody', overrun.variancePts.toFixed(0), overrun.marginPct.toFixed(0)),
+        action: t('priceAaction', newPrice - overrun.it.price, (overrun.marginPct + margenRecovery).toFixed(0), fmtInt((newPrice - overrun.it.price) * (overrun.it.unitsThisMonth || 200))),
       });
     }
 
@@ -590,8 +632,8 @@
         tone: 'up',
         symbol: '⇧',
         title: `${highMargin.it.name} · ${fmtInt(highMargin.it.price)} → ${fmtInt(newP)} MAD`,
-        body: `Marge à <b>${highMargin.marginPct.toFixed(0)} %</b> (la plus haute de votre menu), demande très stable. Boisson la plus vendue de la catégorie.`,
-        action: `+${newP - highMargin.it.price} MAD = <b>+${Math.round((newP - highMargin.it.price) / highMargin.it.price * 100)} %</b> sur ${fmtInt(highMargin.it.unitsThisMonth || 800)} unités/mois. Impact CA : <b>+${fmtInt((newP - highMargin.it.price) * (highMargin.it.unitsThisMonth || 800))} MAD/mois</b>, risque demande nul.`,
+        body: t('priceBbody', highMargin.marginPct.toFixed(0)),
+        action: t('priceBaction', newP - highMargin.it.price, Math.round((newP - highMargin.it.price) / highMargin.it.price * 100), fmtInt(highMargin.it.unitsThisMonth || 800), fmtInt((newP - highMargin.it.price) * (highMargin.it.unitsThisMonth || 800))),
       });
     }
 
@@ -604,9 +646,9 @@
       cards.push({
         tone: 'down',
         symbol: '↘',
-        title: `${underperf.it.name} · ${fmtInt(underperf.it.price)} → ${fmtInt(newP)} MAD (promo test)`,
-        body: `Plat sous-vendu (<b>${underperf.it.unitsThisMonth || 0} unités/mois</b>) malgré une bonne marge à <b>${underperf.marginPct.toFixed(0)} %</b>. Le prix actuel décourage l'essai.`,
-        action: `Tester <b>${fmtInt(newP)} MAD</b> pendant 2 semaines. Si le volume monte de +40 %, le CA mensuel sur ce plat passe de <b>${fmtInt(underperf.it.price * (underperf.it.unitsThisMonth || 50))}</b> à <b>${fmtInt(newP * (underperf.it.unitsThisMonth || 50) * 1.4)} MAD</b>.`,
+        title: `${underperf.it.name} · ${fmtInt(underperf.it.price)} → ${fmtInt(newP)} MAD${t('priceCpromo')}`,
+        body: t('priceCbody', underperf.it.unitsThisMonth || 0, underperf.marginPct.toFixed(0)),
+        action: t('priceCaction', fmtInt(newP), fmtInt(underperf.it.price * (underperf.it.unitsThisMonth || 50)), fmtInt(newP * (underperf.it.unitsThisMonth || 50) * 1.4)),
       });
     }
 
@@ -614,9 +656,9 @@
     if (!cards.length) {
       cards.push({
         tone: 'neutral', symbol: '○',
-        title: 'Complétez vos recettes pour activer les suggestions de prix',
-        body: 'Une fois que Kiwi connaît la composition exacte de chaque plat, l\'algorithme peut détecter dérives de coût matière, marges anormales, et volumes décevants.',
-        action: 'Direction : Menu › Recettes → ouvrir un plat → ajouter ses ingrédients.',
+        title: t('priceFbTitle'),
+        body: t('priceFbBody'),
+        action: t('priceFbAction'),
       });
     }
 
@@ -736,7 +778,7 @@
 
     const historyHtml = data.history.map((h) => `
       <div class="fin-tva-hrow">
-        <span>${esc(h.period)}</span>
+        <span>${esc(locPeriod(h.period))}</span>
         <span class="fin-tva-hpayable">${fmtMad(h.payable)}</span>
         <span class="fin-tva-hstatus fin-tva-hstatus-${h.status === 'declared' ? 'ok' : 'warn'}">
           ${h.status === 'declared' ? '✓ ' + esc(t('tvaStatusDeclared')) : '○ ' + esc(t('tvaStatusPending'))}
@@ -752,7 +794,7 @@
         <div class="fin-tva-period">
           <span class="fin-tva-period-l">${esc(t('tvaPeriod'))}</span>
           <select class="fin-tva-period-select" disabled>
-            <option>${esc(TVA_PERIOD_LABEL)}</option>
+            <option>${esc(locPeriod(TVA_PERIOD_LABEL))}</option>
           </select>
         </div>
 
@@ -786,7 +828,7 @@
           <div>
             <div class="fin-tva-payable-l">${esc(t('tvaPayable'))}</div>
             <div class="fin-tva-payable-v">${fmtMad(payable)}</div>
-            <div class="fin-tva-payable-due">${t('tvaDueDate', TVA_DUE_DATE_LABEL)} <span class="fin-tva-payable-in">· ${esc(t('tvaDueIn', TVA_DUE_IN_DAYS))}</span></div>
+            <div class="fin-tva-payable-due">${t('tvaDueDate', locPeriod(TVA_DUE_DATE_LABEL))} <span class="fin-tva-payable-in">· ${esc(t('tvaDueIn', TVA_DUE_IN_DAYS))}</span></div>
           </div>
           <div class="fin-tva-actions">
             <button class="fin-tva-btn" data-action="fin-tva-pdf">${esc(t('tvaExportPdf'))}</button>
