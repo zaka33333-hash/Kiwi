@@ -534,7 +534,7 @@
       background: rgba(255,255,255,0.24);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 0 0 1px rgba(255,255,255,0.06), 0 2px 6px -2px rgba(0,0,0,0.25);
       transform: translateX(0);
-      transition: transform 430ms cubic-bezier(0.34,1.45,0.5,1), width 430ms cubic-bezier(0.34,1.45,0.5,1);
+      transition: transform 310ms cubic-bezier(0.34,1.45,0.5,1), width 310ms cubic-bezier(0.34,1.45,0.5,1);
       z-index: 0; opacity: 0;
     }
     .bt-btn {
@@ -543,13 +543,13 @@
       width: 58px; height: 46px;
       display: flex; align-items: center; justify-content: center;
       color: rgba(255,255,255,0.72);
-      transition: color 220ms ease;
+      transition: color 175ms ease;
       -webkit-tap-highlight-color: transparent;
     }
     .bt-btn svg {
       width: 23px; height: 23px;
       stroke-width: 1.9;
-      transition: transform 260ms cubic-bezier(0.34,1.45,0.5,1);
+      transition: transform 200ms cubic-bezier(0.34,1.45,0.5,1);
     }
     .bt-btn[aria-pressed="true"] { color: #fff; }
     .bt-btn[aria-pressed="true"] svg { transform: translateY(-1px) scale(1.06); }
@@ -3912,7 +3912,7 @@
       const spanLeft = Math.min(btPillLeft, left);
       const spanW = Math.max(btPillLeft + btPillW, left + w) - spanLeft;
       set(spanLeft, spanW);
-      setTimeout(() => set(left, w), 165);
+      setTimeout(() => set(left, w), 115);
       btPillLeft = left; btPillW = w;
     }
     window.addEventListener('resize', () => moveBtPill(true));
