@@ -124,11 +124,11 @@
       const cmiMDR = v * 0.02;
       const cmiRental = 300;
       const cmiTotal = cmiMDR + cmiRental;
-      // Kiwi Basic: 399 MAD/mois flat, hardware included, no commission layer
-      const baseSaaS = 399;
+      // Kiwi Basic: 199 MAD/mois, software only on the merchant's own hardware
+      const baseSaaS = 199;
       const baseTotal = baseSaaS;
-      // Kiwi Pro: 699 MAD/mois flat, multi-terminal, hardware included
-      const proSaaS = 699;
+      // Kiwi Pro: 399 MAD/mois, includes a free Kiwi cashier
+      const proSaaS = 399;
       const proTotal = proSaaS;
 
       const chosenTotal = tier === 'base' ? baseTotal : proTotal;
@@ -148,14 +148,14 @@
           <div class="rv">${Math.round(cmiTotal).toLocaleString('fr-FR').replace(/,/g,' ')} MAD</div>
         </div>
         <div class="calc-row">
-          <div class="rk"><b>Avec Kiwi ${tier === 'base' ? 'Basic' : 'Pro'}</b>${tier === 'base' ? '399' : '699'} MAD/mois · matériel offert · tout inclus</div>
+          <div class="rk"><b>Avec Kiwi ${tier === 'base' ? 'Basic' : 'Pro'}</b>${tier === 'base' ? '199 MAD/mois · logiciel sur votre matériel' : '399 MAD/mois · caisse offerte · tout inclus'}</div>
           <div class="rv">${Math.round(chosenTotal).toLocaleString('fr-FR').replace(/,/g,' ')} MAD</div>
         </div>
         <div class="calc-row total ${savingsMonth > 0 ? 'savings-burst' : ''}">
           <div class="rk"><b>Économie annuelle</b>avec Kiwi ${tier === 'base' ? 'Basic' : 'Pro'}</div>
           <div class="rv">${Math.round(savingsYear).toLocaleString('fr-FR').replace(/,/g,' ')} MAD</div>
         </div>
-        <div class="calc-footnote">Base comparaison : 2 % MDR CMI + 300 MAD/mois de loyer terminal. Kiwi Basic 399 MAD/mois et Pro 699 MAD/mois sont des forfaits tout compris (matériel, caisse restaurant, règlement T+1, support WhatsApp). Aucun engagement.</div>
+        <div class="calc-footnote">Base comparaison : 2 % MDR CMI + 300 MAD/mois de loyer terminal. Kiwi Basic 199 MAD/mois et Pro 399 MAD/mois sont des forfaits tout compris (matériel, caisse restaurant, règlement T+1, support WhatsApp). Aucun engagement.</div>
       `;
       // Update persona card
       root.querySelector('.calc-persona').innerHTML = `<b>${persona}.</b> Faites glisser le curseur pour voir l'économie selon votre volume réel.`;

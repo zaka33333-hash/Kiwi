@@ -1179,9 +1179,9 @@ ar: {
     'manage-billing': () => toast(
       tr({ fr: 'Gestion de l\'abonnement', en: 'Manage subscription', ar: 'إدارة الاشتراك' }),
       { type: 'info', desc: tr({
-        fr: 'Kiwi Pro · 699 MAD/mois · prélèvement le 1er du mois. Sans engagement.',
-        en: 'Kiwi Pro · 699 MAD/month · charged on the 1st. No commitment.',
-        ar: 'كيوي برو · 699 درهم/شهر · الخصم يوم 1. بدون التزام.' }) }),
+        fr: 'Kiwi Pro · 399 MAD/mois · prélèvement le 1er du mois. Sans engagement.',
+        en: 'Kiwi Pro · 399 MAD/month · charged on the 1st. No commitment.',
+        ar: 'كيوي برو · 399 درهم/شهر · الخصم يوم 1. بدون التزام.' }) }),
 
     'signup': () => {
       let step = 0;

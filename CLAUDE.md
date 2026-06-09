@@ -92,9 +92,19 @@ in section titles or CTAs. Don't rebuild the design system.
 
 ## 5. Phase 1 focus
 
-The pitch deck and dashboard story revolve around **Kiwi POS SaaS** —
-Kiwi Basic 399 MAD/month and Kiwi Pro 699 MAD/month, hardware loaned free,
-T+1 settlement. Kiwi Pay / Banking / Investing are Phase 2-3 optionality.
+The pitch deck and dashboard story revolve around **Kiwi POS SaaS** — a
+four-tier model:
+- **Kiwi Basic · 199 MAD/month** — software only, on the merchant's own
+  hardware, unlimited devices, one établissement, integrated into the existing
+  till, on-site training + guides included.
+- **Kiwi Pro · 399 MAD/month** — everything in Basic + one free Kiwi cashier,
+  T+1 settlement, hardware maintenance.
+- **Kiwi Ultra · 1 499 MAD/month** — unlimited établissements, multi-pays, API
+  enterprise, dedicated 24/7 account manager.
+- **Kiwi Ultimate · sur devis** — bespoke scope, device/cashier count and price
+  agreed with the client.
+
+Kiwi Pay / Banking / Investing are Phase 2-3 optionality.
 
 Don't add Pay/Banking/Investing surfaces unless explicitly asked.
 Don't surface internal financials, asks, or projections in any external-facing

@@ -9,13 +9,14 @@
 
 ## 0. What Kiwi is
 
-A Moroccan fintech super-app, POS-first. Phase 1 = **pure SaaS subscription for restaurants, cafés and retail**: Kiwi Basic at **399 MAD/month** and Kiwi Pro at **699 MAD/month**, with the hardware (PAX A920, KDS tablet, Kiwi Tap SoftPOS on the merchant's Android) **loaned for free** for the duration of the subscription. T+1 settlement, zero rental, zero commitment, WhatsApp-native support. Phase 2 = **Kiwi Pay** (own Payment Institution license, SoftPOS on server phones, low merchant margins) + Kiwi Banking. Phase 3 = Kiwi Investing (fractional AMMC, halal filter).
+A Moroccan fintech super-app, POS-first. Phase 1 = **pure SaaS subscription for restaurants, cafés and retail**, four tiers: **Kiwi Basic 199 MAD/month** (software only, on the merchant's own hardware, integrated into the existing till, training + guides included), **Kiwi Pro 399 MAD/month** (everything in Basic + one free Kiwi cashier, T+1 settlement, hardware maintenance), **Kiwi Ultra 1 499 MAD/month** (unlimited établissements, multi-pays, API enterprise, dedicated 24/7 account manager) and **Kiwi Ultimate · sur devis** (bespoke). Hardware (PAX A920, KDS tablet, Kiwi Tap SoftPOS) is **loaned for free** from Pro upward. Zero commitment, WhatsApp-native support. Phase 2 = **Kiwi Pay** (own Payment Institution license, SoftPOS on server phones, low merchant margins) + Kiwi Banking. Phase 3 = Kiwi Investing (fractional AMMC, halal filter).
 
 Brand positioning: *"Le système d'exploitation du commerçant marocain."* Aesthetic = Mercury / Ramp / Stripe tier, but with Moroccan-specific cultural intelligence (Darija-Arabizi in the voice, Zakat/Sadaqa as native features, Friday/Ramadan rhythms, diaspora France↔Morocco corridor as a defensible wedge).
 
 **Revenue phases represented in the prototype:**
-1. Phase 1 — Kiwi Basic SaaS · 399 MAD/month (caisse resto, plan de salle, KDS, staff PIN, règlement T+1)
-2. Phase 1 — Kiwi Pro SaaS · 699 MAD/month (multi-terminal, routing par sous-catégorie, stock, API, staff illimité)
+1. Phase 1 — Kiwi Basic SaaS · 199 MAD/month (software only on the merchant's own hardware, 1 établissement, integrated into existing till, training + guides)
+2. Phase 1 — Kiwi Pro SaaS · 399 MAD/month (Basic + 1 free Kiwi cashier, règlement T+1, hardware maintenance)
+   · Kiwi Ultra · 1 499 MAD/month (unlimited établissements, multi-pays, API, dedicated AM) · Kiwi Ultimate · sur devis (bespoke)
 3. Phase 2 — Kiwi Pay (acquiring under own PE license, servers accept on their own Android, low MDR to merchants)
 4. Phase 2 — Kiwi Banking · Kiwi Compte IBAN + debit card + Murabaha lending
 5. Phase 3 — Kiwi Investing · fractional AMMC funds, halal filter, CSE + ETFs
@@ -389,8 +390,9 @@ emphasize are:
   work.
 - **"Staff are first-class."** PIN logins, équipe panel, leaderboards,
   pauses/messages, split-bill persistence. Not bolted on — designed in.
-- **Phase 1 pricing unchanged.** Kiwi Basic 399 MAD/mo, Kiwi Pro 699 MAD/mo,
-  hardware loaned free, T+1 settlement. Don't add public numbers / asks /
+- **Phase 1 pricing — four tiers.** Kiwi Basic 199 MAD/mo (software only, own
+  hardware), Kiwi Pro 399 MAD/mo (+ free cashier, T+1), Kiwi Ultra 1 499 MAD/mo,
+  Kiwi Ultimate sur devis. Hardware loaned free from Pro up. Don't add public numbers / asks /
   projections to external materials (see `CLAUDE.md` and the no-public-
   numbers memo).
 
