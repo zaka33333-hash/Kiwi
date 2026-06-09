@@ -1976,7 +1976,7 @@
 
     const m = window.Kiwi.modal({
       title: s.name,
-      desc: `${s.location} · ${catLabel(s.category)} · ★ ${s.rating.toFixed(1)}`,
+      desc: `${esc(s.location)} · ${catLabel(s.category)} · ★ ${s.rating.toFixed(1)}`,
       width: 720,
       body: `
         <div class="st-md-stats">

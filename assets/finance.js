@@ -667,7 +667,7 @@
         <div class="fin-price-symbol">${c.symbol}</div>
         <div class="fin-price-body">
           <div class="fin-price-eyebrow">${esc(t('priceAiEyebrow'))}</div>
-          <div class="fin-price-t">${c.title}</div>
+          <div class="fin-price-t">${esc(c.title)}</div>
           <div class="fin-price-b">${c.body}</div>
           <div class="fin-price-a">→ ${c.action}</div>
         </div>

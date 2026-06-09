@@ -723,8 +723,8 @@ ar: {
         <button class="kiwi-modal-close" aria-label="${s.close}">${I.close}</button>
         <div class="kiwi-modal-head">
           <div>
-            ${tag ? `<div class="tag">${tag}</div>` : ''}
-            <h3 id="${headId}">${title}</h3>
+            ${tag ? `<div class="tag">${escape(tag)}</div>` : ''}
+            <h3 id="${headId}">${escape(title)}</h3>
             ${desc ? `<p>${desc}</p>` : ''}
           </div>
         </div>
