@@ -85,8 +85,12 @@ To drive the demo in the preview: enter a PIN (e.g. `1111`) into the lock input,
 - **Gotchas learned the hard way:** the sidebar must use **fixed dark hex** (not `var(--ink)`,
   which inverts in dark and turned the sidebar white). **Do not force `.kiwi-lock` to
   `position:relative`** — it's a fixed full-screen overlay; doing so collapsed it and left the
-  page half-blank (fixed in `08db17c`). The user wants this aesthetic pushed further on demand
-  (esp. light mode) — keep it tasteful, keep it reversible.
+  page half-blank (fixed in `08db17c`).
+- **The light-mode intensity push landed (`94e8b64`):** richer 4-blob ambient mesh, deeper
+  card glass, specular sheen on the home hero, frosted date-range pill + AI input, glass
+  feed-row hovers, brand-tinted thin scrollbars, frosted PIN cells on the lock screen
+  (visual props only — positioning untouched), frosted dark demo-bar (the real class is
+  `.demo-bar`, not `.demo-banner`). Still open to more on demand — tasteful, reversible.
 
 ## 6. The account hub — `account.js` (`Mon profil`)
 
@@ -124,7 +128,25 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
-`08db17c` remove Design-2026 pill (+fix the lock-screen collapse it exposed) · `a001f51`
+**Push-to-10 polish session (evening Jun 9):** `0aa162e`+`59a8b68` **P0 hotfix — partner's
+Safari-fallback commit ate the role-gate's `</script>`, which swallowed the i18n.js include
+(blank/FR-only dashboard on main for ~30 min; both of us fixed it in parallel, merged
+clean)** · `78dc7af` i18n: live-feed payment strings translated at render time, sidebar
+upsell FR/EN/AR + langchange re-render, `sidebar.restaurant.finance` key, RTL bidi-isolate
+on hero money figures · `56e3ef6` **tools/check.js smoke suite** (syntax, data-action↔handler
+coverage, i18n EN/AR parity, balanced `<script>` tags, forbidden patterns) + tools/push-both.sh;
+its first run found two dead spa-services buttons (svc-new, svc-cure-edit — wired) and the
+missing role-badge key · `4f5467f` Settings drawer fully FR/EN/AR + **stored-XSS fix**
+(custom-venue name/hours/methods were interpolated unescaped) · `94e8b64` Liquid Glass
+light-mode push · `831fe88` pages-pro.css 36 white surfaces → `var(--surface)` ·
+`4ac23da` **reservations page rebuilt honest**: real dates (Intl per lang), derived counts,
+full FR/EN/AR incl. booking notes · `da144fa` a11y batch: menu keyboard nav (roles/arrows/
+Escape/focus return), toast live region, appPage focus-to-h1, skip-to-content link, drawer
+title escaping, 13 injected-CSS white surfaces → tokens, dark-fixes observer scoped to
+added subtrees (it was watching `.app` children while appPage mounts into `.container` —
+near-dead before).
+
+**Earlier session:** `08db17c` remove Design-2026 pill (+fix the lock-screen collapse it exposed) · `a001f51`
 enable Design 2026 on every passcode · `a13df9f` **Liquid Glass 2026 skin** · `d48135f`
 **expand Mon profil → account+business hub** · `83045b7` real Profil/Facturation/Aide pages ·
 `fc08d02` unify destinations to full-page format · `e58c4f6` a11y (icon-button aria-labels) ·
@@ -137,29 +159,38 @@ helper**, stock scroll-lock-leak fix.
 
 ## 9. Honest quality state & what's left
 
-**As a demo: ~9/10. As a production foundation: ~6.5** (locked vanilla stack, monolith files
-— `pages-pro.js`/`dashboard.html` are huge, no backend; that gap is by design until a backend
-lands). Open items:
-- **i18n tail:** the big HACCP/equipment leak is **done** (`6ecffe7`); spot-check newer
-  dynamic strings when you touch a module.
-- **Savings calculator (`ux.js`):** I reframed it off the inaccurate "vs CMI" premise
-  (`1b3246e`) because Kiwi doesn't process payments in Phase 1 and Basic keeps the existing
-  till — keep it honest; **the user actively dislikes overpromising** (they had me remove the
-  dashboard's old "Économie vs CMI" claim).
-- **Perf:** four `.mov` files (~6 MB) live in `menu_try_video/`; `dark-fixes.js` does full-DOM
-  `getComputedStyle` scans. Both are known, both acceptable for now.
-- **Paramètres-as-page:** offered, not done — could move the Settings drawer to a full page.
-- Possible next: push the Design 2026 intensity (esp. light mode); a tidy Settings toggle for it.
+**As a demo: ~9.5/10. As a production foundation: ~7** after the push-to-10 session
+(locked vanilla stack and monolith files remain by design until a backend lands — that's
+the ceiling, not negligence). Scorecard (Jun 9 night): design 10, feature breadth 9.5,
+honesty 10, docs 10, i18n 9.5, dark mode 9.5, a11y 9, security 8.5, git hygiene 9.5
+(tools/push-both.sh), architecture 7 (first safety net exists now), perf 7.5, production
+readiness 3.5 (no backend — deliberate). Open items, all small:
+- **EN home-page accent scan returns zero leaks.** Standalone partner pages (cafe-atlas,
+  kiwi-caisse, kiwi-serveur) have their own inline dicts — out of i18n.js scope by design.
+- **`background:var(--ink)` debt:** ~55 instances inventoried by tools/check.js as a
+  warning (runtime-patched today by theme.css overrides + dark-fixes). Don't add more.
+- **Savings calculator (`ux.js`):** stays honest, reframed off the "vs CMI" premise —
+  **the user actively dislikes overpromising**.
+- **Perf:** ~3.5 MB `.mov` in `menu_try_video/` (lazy, metadata-only preload) — fine.
+  dark-fixes now rescans only added subtrees, never the full app.
+- **Paramètres-as-page:** still offered, still not done (drawer is now fully trilingual).
 
 ## 10. How to verify (the loop that works)
 
+**Run `node tools/check.js` before every push** — syntax, data-action↔handler coverage,
+i18n EN/AR parity, balanced `<script>` tags, forbidden patterns. Exit 0 or don't ship.
 Use the **preview tools** (`preview_start` → `kiwi-static` on **:4173**, then
-`localhost:4173/dashboard.html`). Enter a PIN to pass the lock. **Always verify across
-{light, dark} × {FR, EN, AR-RTL}.** `node --check <file>.js` for syntax. **Screenshots are
-ground truth** — the contrast scanners I wrote give false positives on gradient backgrounds
-and on the leftover greeting overlay, so trust the picture, not the scan. Agents: the
-`gemini`/flash-lite path flaked mid-session; **`codex:codex-rescue` delivered reliably** for
-the static audit.
+`localhost:4173/dashboard.html`). Enter a PIN to pass the lock (or click the skip button).
+**Always verify across {light, dark} × {FR, EN, AR-RTL}.** **Screenshots are ground truth**
+— the contrast scanners give false positives on gradients, trust the picture. Note: the
+preview tab is hidden, so `requestAnimationFrame` doesn't fire between evals — take a
+screenshot to pump frames before asserting on rAF-gated UI (toasts).
+**The partner pushes to main while you work.** Twice in one evening: a feature commit and
+a parallel hotfix. If `git push origin HEAD:main` is rejected: `git fetch origin`, inspect
+`git log HEAD..origin/main`, merge (never force), re-run `tools/check.js`, push both. Their
+Safari-fallback commit shipped with a missing `</script>` that silently killed i18n — the
+balanced-tags check exists because of it; run it on THEIR commits after every merge.
+`tools/push-both.sh` does the two-branch push with the right failure message.
 
 ## 11. User preferences (also in the memory system)
 
