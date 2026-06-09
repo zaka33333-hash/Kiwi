@@ -2124,17 +2124,17 @@
       window.Kiwi.toast(`${e.currentTarget.dataset.itemName} marqué 86 sur 6 terminaux`, { type: 'info' });
     });
     scope?.querySelector('[data-stock-reorder]')?.addEventListener('click', (e) => {
-      scope.remove();
+      closeTopModal();
       openQuickOrder(e.currentTarget.dataset.itemId);
     });
     scope?.querySelector('[data-stock-detail-edit]')?.addEventListener('click', (e) => {
       const id = e.currentTarget.dataset.itemId;
-      scope.remove();
+      closeTopModal();
       openEditItem(id);
     });
     scope?.querySelector('[data-stock-detail-delete]')?.addEventListener('click', (e) => {
       const id = e.currentTarget.dataset.itemId;
-      scope.remove();
+      closeTopModal();
       confirmDeleteItem(id);
     });
   }
@@ -2324,7 +2324,7 @@
             // Reflect current stock in stStockOverrides so statusOf/daysOfStock pick it up.
             stStockOverrides[existing.id] = currentStock;
           }
-          scope.remove();
+          closeTopModal();
           window.Kiwi.toast(t('editItemToast', name), { type: 'success' });
           if (stPageActive) render();
           return;
@@ -2346,7 +2346,7 @@
           status,
         };
         stUserItems.push(item);
-        scope.remove();
+        closeTopModal();
         window.Kiwi.toast(t('addItemToast', name), { type: 'success' });
         if (stPageActive) render();
       });
@@ -2372,7 +2372,7 @@
       } else {
         stDeletedItems.add(it.id);
       }
-      scope.remove();
+      closeTopModal();
       window.Kiwi.toast(t('deleteItemToast', it.name), { type: 'info' });
       if (stPageActive) render();
     });
@@ -2466,7 +2466,7 @@
         } else {
           stSupOverrides[existing.id] = { ...(stSupOverrides[existing.id] || {}), name, category, contact, location, paymentTerms, deliverySchedule, rating, monthlySpend };
         }
-        scope.remove();
+        closeTopModal();
         window.Kiwi.toast(t('editSupToast', name), { type: 'success' });
         if (stPageActive) render();
         return;
@@ -2483,7 +2483,7 @@
         priceChangeLast30d: 0,
       };
       stUserSuppliers.push(sup);
-      scope.remove();
+      closeTopModal();
       window.Kiwi.toast(t('addSupToast', name), { type: 'success' });
       if (stPageActive) render();
     });
@@ -2506,7 +2506,7 @@
       } else {
         stDeletedSups.add(s.id);
       }
-      scope.remove();
+      closeTopModal();
       window.Kiwi.toast(t('deleteSupToast', s.name), { type: 'info' });
       if (stPageActive) render();
     });
