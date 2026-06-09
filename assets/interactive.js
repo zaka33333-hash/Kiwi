@@ -1446,8 +1446,8 @@ ar: {
       const getSet = (k, def) => { try { return localStorage.getItem('kiwiSet:' + k) || def; } catch (_) { return def; } };
       const fmtN = (n) => (+n || 0).toLocaleString('fr-FR').replace(/[ , ]/g, ' ');
       return drawer({
-      title: 'Paramètres',
-      subtitle: 'Compte · boutique · conformité',
+      title: tr({ fr: 'Paramètres', en: 'Settings', ar: 'الإعدادات' }),
+      subtitle: tr({ fr: 'Compte · boutique · conformité', en: 'Account · store · compliance', ar: 'الحساب · المتجر · الامتثال' }),
       width: 460,
       body: `
         <style>
@@ -1461,45 +1461,45 @@ ar: {
           .kset-toggle.on .kset-knob { inset-inline-start:16px; }
         </style>
         <div style="margin-bottom:20px;">
-          ${sec('PRÉFÉRENCES')}
+          ${sec(tr({ fr: 'PRÉFÉRENCES', en: 'PREFERENCES', ar: 'التفضيلات' }))}
           <div style="display:flex; flex-direction:column; gap:2px;">
-            ${settingsRow('🌍', 'Langue', LANGNAME[lang] || 'Français', { action: 'settings-lang' })}
-            ${settingsRow('🔔', 'Notifications WhatsApp', 'Résumé quotidien 19h', { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
-            ${settingsRow('💰', 'Devise d\'affichage', escape(getSet('currency', 'MAD · Dirham marocain')), { action: 'settings-currency' })}
+            ${settingsRow('🌍', tr({ fr: 'Langue', en: 'Language', ar: 'اللغة' }), LANGNAME[lang] || 'Français', { action: 'settings-lang' })}
+            ${settingsRow('🔔', tr({ fr: 'Notifications WhatsApp', en: 'WhatsApp notifications', ar: 'إشعارات واتساب' }), tr({ fr: 'Résumé quotidien 19h', en: 'Daily summary 7pm', ar: 'ملخص يومي 19:00' }), { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
+            ${settingsRow('💰', tr({ fr: 'Devise d\'affichage', en: 'Display currency', ar: 'عملة العرض' }), escape(getSet('currency', 'MAD · Dirham marocain')), { action: 'settings-currency' })}
           </div>
         </div>
         <div style="margin-bottom:20px;">
-          ${sec('BOUTIQUE')}
+          ${sec(tr({ fr: 'BOUTIQUE', en: 'STORE', ar: 'المتجر' }))}
           <div style="display:flex; flex-direction:column; gap:2px;">
             ${cv ? `
-            ${settingsRow('🏪', vd.fullDisplay || vd.name || 'Ma boutique', vd.typeLabel || 'Activité', { action: 'settings-edit-venue' })}
-            ${settingsRow('⏰', 'Heures d\'ouverture', vd.hours || 'À définir', { action: 'settings-edit-venue' })}
-            ${settingsRow('🎯', 'Objectif journalier', vd.goal ? fmtN(vd.goal) + ' MAD' : 'À définir', { action: 'settings-edit-venue' })}
-            ${settingsRow('💳', 'Méthodes acceptées', vd.methods || 'Toutes acceptées', { action: 'settings-edit-venue' })}
+            ${settingsRow('🏪', escape(vd.fullDisplay || vd.name || tr({ fr: 'Ma boutique', en: 'My store', ar: 'متجري' })), escape(vd.typeLabel || tr({ fr: 'Activité', en: 'Business', ar: 'النشاط' })), { action: 'settings-edit-venue' })}
+            ${settingsRow('⏰', tr({ fr: 'Heures d\'ouverture', en: 'Opening hours', ar: 'ساعات العمل' }), escape(vd.hours || tr({ fr: 'À définir', en: 'To set', ar: 'غير محدد' })), { action: 'settings-edit-venue' })}
+            ${settingsRow('🎯', tr({ fr: 'Objectif journalier', en: 'Daily goal', ar: 'الهدف اليومي' }), vd.goal ? fmtN(vd.goal) + ' MAD' : tr({ fr: 'À définir', en: 'To set', ar: 'غير محدد' }), { action: 'settings-edit-venue' })}
+            ${settingsRow('💳', tr({ fr: 'Méthodes acceptées', en: 'Accepted methods', ar: 'وسائل الدفع المقبولة' }), escape(vd.methods || tr({ fr: 'Toutes acceptées', en: 'All accepted', ar: 'الكل مقبول' })), { action: 'settings-edit-venue' })}
             ` : `
-            ${settingsRow('🏪', escape(getSet('venueName', 'Café Atlas · Maarif')), escape(getSet('venueLoc', 'Emplacement principal')), { action: 'settings-edit-store', arg: 'venue' })}
-            ${settingsRow('⏰', 'Heures d\'ouverture', escape(getSet('hours', '07:00 - 23:00 · tous les jours')), { action: 'settings-edit-store', arg: 'hours' })}
-            ${settingsRow('💳', 'Méthodes acceptées', escape(getSet('methods', 'Visa · MC · Kiwi Tap · QR')), { action: 'settings-methods' })}
-            ${settingsRow('🎯', 'Objectif journalier', escape(getSet('goal', '28 000')) + ' MAD', { action: 'settings-edit-store', arg: 'goal' })}
+            ${settingsRow('🏪', escape(getSet('venueName', 'Café Atlas · Maarif')), escape(getSet('venueLoc', tr({ fr: 'Emplacement principal', en: 'Main location', ar: 'الموقع الرئيسي' }))), { action: 'settings-edit-store', arg: 'venue' })}
+            ${settingsRow('⏰', tr({ fr: 'Heures d\'ouverture', en: 'Opening hours', ar: 'ساعات العمل' }), escape(getSet('hours', tr({ fr: '07:00 - 23:00 · tous les jours', en: '07:00 - 23:00 · every day', ar: '07:00 - 23:00 · كل يوم' }))), { action: 'settings-edit-store', arg: 'hours' })}
+            ${settingsRow('💳', tr({ fr: 'Méthodes acceptées', en: 'Accepted methods', ar: 'وسائل الدفع المقبولة' }), escape(getSet('methods', 'Visa · MC · Kiwi Tap · QR')), { action: 'settings-methods' })}
+            ${settingsRow('🎯', tr({ fr: 'Objectif journalier', en: 'Daily goal', ar: 'الهدف اليومي' }), escape(getSet('goal', '28 000')) + ' MAD', { action: 'settings-edit-store', arg: 'goal' })}
             `}
           </div>
         </div>
         <div style="margin-bottom:20px;">
-          ${sec('CONFORMITÉ & SÉCURITÉ')}
+          ${sec(tr({ fr: 'CONFORMITÉ & SÉCURITÉ', en: 'COMPLIANCE & SECURITY', ar: 'الامتثال والأمان' }))}
           <div style="display:flex; flex-direction:column; gap:2px;">
-            ${settingsRow('🛡️', 'Authentification 2FA', 'SMS activé', { toggle: true, on: setOn('2fa'), action: 'settings-toggle', arg: '2fa' })}
-            ${settingsRow('🔐', 'PCI-DSS', 'Certification valide 2026', { toggle: true, on: setOn('pcidss'), action: 'settings-toggle', arg: 'pcidss' })}
-            ${settingsRow('📋', 'KYC', 'Vérifié le 12 mars 2026', { toggle: true, on: setOn('kyc'), action: 'settings-toggle', arg: 'kyc' })}
-            ${settingsRow('🏛️', 'Bank Al-Maghrib', 'Sponsoring actif', { toggle: true, on: setOn('bankam'), action: 'settings-toggle', arg: 'bankam' })}
+            ${settingsRow('🛡️', tr({ fr: 'Authentification 2FA', en: 'Two-factor auth', ar: 'المصادقة الثنائية' }), tr({ fr: 'SMS activé', en: 'SMS on', ar: 'الرسائل مفعلة' }), { toggle: true, on: setOn('2fa'), action: 'settings-toggle', arg: '2fa' })}
+            ${settingsRow('🔐', 'PCI-DSS', tr({ fr: 'Certification valide 2026', en: 'Certification valid 2026', ar: 'شهادة سارية 2026' }), { toggle: true, on: setOn('pcidss'), action: 'settings-toggle', arg: 'pcidss' })}
+            ${settingsRow('📋', 'KYC', tr({ fr: 'Vérifié le 12 mars 2026', en: 'Verified 12 March 2026', ar: 'تم التحقق 12 مارس 2026' }), { toggle: true, on: setOn('kyc'), action: 'settings-toggle', arg: 'kyc' })}
+            ${settingsRow('🏛️', 'Bank Al-Maghrib', tr({ fr: 'Sponsoring actif', en: 'Active sponsorship', ar: 'رعاية نشطة' }), { toggle: true, on: setOn('bankam'), action: 'settings-toggle', arg: 'bankam' })}
           </div>
         </div>
         <div>
-          ${sec('INTÉGRATIONS')}
+          ${sec(tr({ fr: 'INTÉGRATIONS', en: 'INTEGRATIONS', ar: 'التكاملات' }))}
           <div style="display:flex; flex-direction:column; gap:2px;">
-            ${settingsRow('🟠', 'Glovo', 'Connecté · 1 420 MAD aujourd\'hui', { toggle: true, on: setOn('glovo'), action: 'settings-toggle', arg: 'glovo' })}
-            ${settingsRow('🔴', 'Jumia Food', 'Connecté · 24 commandes', { toggle: true, on: setOn('jumia'), action: 'settings-toggle', arg: 'jumia' })}
-            ${settingsRow('📊', 'Comptabilité', 'Export quotidien OCP', { toggle: true, on: setOn('compta'), action: 'settings-toggle', arg: 'compta' })}
-            ${settingsRow('🏦', 'Bank of Africa', 'IBAN vérifié ••3291', { toggle: true, on: setOn('bmce'), action: 'settings-toggle', arg: 'bmce' })}
+            ${settingsRow('🟠', 'Glovo', tr({ fr: 'Connecté · 1 420 MAD aujourd\'hui', en: 'Connected · 1,420 MAD today', ar: 'متصل · 1 420 درهم اليوم' }), { toggle: true, on: setOn('glovo'), action: 'settings-toggle', arg: 'glovo' })}
+            ${settingsRow('🔴', 'Jumia Food', tr({ fr: 'Connecté · 24 commandes', en: 'Connected · 24 orders', ar: 'متصل · 24 طلبًا' }), { toggle: true, on: setOn('jumia'), action: 'settings-toggle', arg: 'jumia' })}
+            ${settingsRow('📊', tr({ fr: 'Comptabilité', en: 'Accounting', ar: 'المحاسبة' }), tr({ fr: 'Export quotidien OCP', en: 'Daily OCP export', ar: 'تصدير يومي OCP' }), { toggle: true, on: setOn('compta'), action: 'settings-toggle', arg: 'compta' })}
+            ${settingsRow('🏦', 'Bank of Africa', tr({ fr: 'IBAN vérifié ••3291', en: 'IBAN verified ••3291', ar: 'IBAN موثق ••3291' }), { toggle: true, on: setOn('bmce'), action: 'settings-toggle', arg: 'bmce' })}
           </div>
         </div>
       `,
