@@ -34,7 +34,7 @@
    * trapped in .app's scaled coordinate space. mobile-nav.js therefore moves
    * the .sidebar element out to <body> on phones, so the rules below anchor
    * it to the viewport. */
-  .container { padding: 16px 16px 104px; }   /* 104px clears the bottom tab bar */
+  .container { padding: 16px 16px 124px; }   /* clears the floating capsule bar */
 
   /* Hide the demo bar — the phone owner doesn't drive the demo clock */
   .demo-bar { display: none !important; }
@@ -87,7 +87,7 @@
     display: flex; align-items: center; justify-content: center;
     width: 42px; height: 42px; flex-shrink: 0;
     border: 1px solid var(--n-200); border-radius: 11px;
-    background: #fff; color: var(--ink); cursor: pointer;
+    background: var(--surface); color: var(--ink); cursor: pointer;
     transition: background 140ms;
   }
   .kw-hamburger:active { background: var(--paper-soft); }
@@ -106,44 +106,105 @@
   .kw-topbar-brand:active { transform: translate(-50%, -50%) scale(0.94); }
   .kw-topbar-brand i { width: 5px; height: 5px; background: var(--mint); border-radius: 50%; }
 
-  /* ─────────────── BOTTOM TAB BAR ─────────────── */
+  /* ─────────────── BOTTOM TAB BAR — floating Liquid Glass capsule ───────────────
+   * Ported from the serveur app (kiwi-serveur.html `.bt-capsule`) so the whole
+   * Kiwi phone experience shares one navigation language: a floating smoked-
+   * glass pill that content scrolls UNDER, with a bright glass lens that
+   * slides + rubber-bands between tabs (movePill() in mobile-nav.js).
+   * Fixed forest tint on purpose — dark glass in both themes, like the
+   * serveur bar and the iOS-27 sidebar (tokens would invert it). */
   .kw-tabbar {
-    display: flex; align-items: stretch;
+    display: flex; justify-content: center;
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200;
-    background: rgba(247, 245, 240, 0.94);
-    backdrop-filter: blur(22px) saturate(180%);
-    -webkit-backdrop-filter: blur(22px) saturate(180%);
-    border-top: 1px solid var(--n-200);
-    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding: 6px 14px calc(18px + env(safe-area-inset-bottom, 0px));
+    background: transparent;
+    pointer-events: none;
+  }
+  .kw-capsule {
+    pointer-events: auto;
+    position: relative;
+    display: flex; align-items: center; gap: 2px;
+    padding: 7px 9px;
+    border-radius: 999px;
+    background: rgba(11, 30, 21, 0.56);
+    -webkit-backdrop-filter: blur(28px) saturate(1.8);
+    backdrop-filter: blur(28px) saturate(1.8);
+    box-shadow:
+      0 20px 48px -16px rgba(0, 0, 0, 0.55),
+      0 4px 12px -4px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0.5px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 3px -1px rgba(0, 0, 0, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    .kw-capsule { background: rgba(11, 30, 21, 0.93); }
+  }
+  /* the bright glass "lens" that slides + rubber-bands between tabs */
+  .kw-tab-pill {
+    position: absolute; top: 7px; left: 0;
+    height: calc(100% - 14px); width: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.24);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+                0 2px 6px -2px rgba(0, 0, 0, 0.25);
+    transform: translateX(0);
+    transition: transform 310ms cubic-bezier(0.34, 1.45, 0.5, 1),
+                width 310ms cubic-bezier(0.34, 1.45, 0.5, 1);
+    z-index: 0; opacity: 0;
   }
   .kw-tab {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: flex-start; gap: 3px;
-    min-height: 52px;
-    padding: 9px 2px 7px; background: none; border: 0; cursor: pointer;
-    font: inherit; color: var(--n-500);
+    position: relative; z-index: 1;
+    flex: 0 0 auto;
+    width: 56px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: 0; cursor: pointer;
+    font: inherit;
+    color: rgba(255, 255, 255, 0.72);
+    transition: color 175ms ease;
     -webkit-tap-highlight-color: transparent;
   }
-  .kw-tab svg { width: 22px; height: 22px; }
-  .kw-tab .kw-tab-l {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.01em; line-height: 1;
+  .kw-tab svg {
+    width: 23px; height: 23px; stroke-width: 1.9;
+    transition: transform 200ms cubic-bezier(0.34, 1.45, 0.5, 1);
   }
-  .kw-tab.on { color: var(--atlas); }
-  .kw-tab:active { transform: scale(0.94); }
-  /* Centre AI tab — raised accent button */
+  /* Icon-first like the serveur capsule — labels stay for screen readers. */
+  .kw-tab .kw-tab-l {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .kw-tab.on { color: #fff; }
+  .kw-tab.on svg { transform: translateY(-1px) scale(1.06); }
+  .kw-tab:active svg { transform: scale(0.86); }
+  /* Centre AI tab — merchant mark in a mint-lit lens, inline with the pill */
   .kw-tab-ai .kw-tab-ico {
-    width: 46px; height: 46px; margin-top: -16px; border-radius: 50%;
+    width: 38px; height: 38px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     background: linear-gradient(150deg, var(--atlas), var(--riad));
-    box-shadow: 0 8px 20px -6px rgba(11, 110, 79, 0.65);
-    border: 3px solid var(--paper);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+                0 6px 16px -6px rgba(11, 110, 79, 0.7);
+    transition: transform 200ms cubic-bezier(0.34, 1.45, 0.5, 1);
   }
+  .kw-tab-ai.on .kw-tab-ico { transform: translateY(-1px) scale(1.06); }
+  .kw-tab-ai:active .kw-tab-ico { transform: scale(0.9); }
   .kw-tab-ai .kw-tab-ico img {
-    width: 20px; height: 20px;
+    width: 19px; height: 19px;
     filter: brightness(0) saturate(100%) invert(85%) sepia(31%) saturate(469%)
       hue-rotate(70deg) brightness(102%) contrast(91%);
   }
-  .kw-tab-ai .kw-tab-l { margin-top: 1px; }
+  /* Live count chip (Commandes) — brand mint, calm not alarming */
+  .kw-tab-badge {
+    position: absolute; top: 4px; inset-inline-end: 7px;
+    min-width: 15px; height: 15px; padding: 0 4px;
+    border-radius: 999px;
+    background: var(--mint); color: #06371f;
+    font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+    box-shadow: 0 0 0 2px rgba(10, 28, 20, 0.9);
+    z-index: 2;
+  }
+  .kw-tab-badge[hidden] { display: none; }
 
   /* ─────────────── HOME · PAGE HEAD + DATE RANGE ─────────────── */
   .page-head { margin-bottom: 24px; }
@@ -157,9 +218,16 @@
     width: 100%;
     flex-wrap: nowrap; overflow-x: auto;
     scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    /* Edge fades hint that the row scrolls (direction-safe: both ends). */
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 24px), transparent 100%);
+    padding-inline-start: 2px;
   }
   .dr-pills::-webkit-scrollbar { display: none; }
   .dr-pill { white-space: nowrap; flex-shrink: 0; }
+
+  /* Hero LIVE chip — one line, never a stacked 3-row capsule */
+  .hero-today .live-badge { white-space: nowrap; flex-shrink: 0; }
 
   /* ─────────────── HOME · HERO ─────────────── */
   .hero-today { padding: 52px 22px 30px; border-radius: 22px; }
@@ -207,7 +275,7 @@
     white-space: nowrap;
   }
   .p-table th:first-child, .p-table td:first-child {
-    position: sticky; left: 0; background: #fff; z-index: 1;
+    position: sticky; left: 0; background: var(--surface); z-index: 1;
   }
 
   /* … but the transactions table becomes a native list feed —

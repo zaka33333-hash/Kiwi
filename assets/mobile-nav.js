@@ -143,28 +143,34 @@
       setActive('accueil');
     }
 
-    /* ── Bottom tab bar ── */
+    /* ── Bottom tab bar — floating Liquid Glass capsule (serveur-app port).
+     * Icon-first buttons inside a smoked-glass pill; a bright lens slides and
+     * rubber-bands to the active tab. Labels stay in the DOM (sr-only) so the
+     * buttons keep their accessible names and i18n. ── */
     const tabbar = document.createElement('nav');
     tabbar.className = 'kw-tabbar';
     tabbar.setAttribute('aria-label', 'Navigation');
     tabbar.insertAdjacentHTML('beforeend', `
-      <button class="kw-tab on" data-kw-tab="accueil" type="button">
-        ${I.home}<span class="kw-tab-l" data-i18n="dash.sidebar.home">Accueil</span>
-      </button>
-      <button class="kw-tab" data-kw-tab="commandes" type="button">
-        ${I.orders}<span class="kw-tab-l" data-i18n="dash.sidebar.orders">Commandes</span>
-      </button>
-      <button class="kw-tab kw-tab-ai" data-kw-tab="ai" type="button" aria-label="Kiwi AI">
-        <span class="kw-tab-ico"><img src="${MERCHANT}" alt="" width="20" height="20" decoding="async"/></span>
-        <span class="kw-tab-l">Kiwi AI</span>
-      </button>
-      <button class="kw-tab" data-kw-tab="equipe" type="button">
-        ${I.team}<span class="kw-tab-l" data-i18n="dash.sidebar.team">Équipe</span>
-      </button>
-      <button class="kw-tab" data-kw-tab="menu" type="button"
-              aria-controls="kw-sidebar" aria-expanded="false">
-        ${I.menu}<span class="kw-tab-l" data-i18n="dash.mobilenav.menu">Menu</span>
-      </button>
+      <div class="kw-capsule">
+        <span class="kw-tab-pill" aria-hidden="true"></span>
+        <button class="kw-tab on" data-kw-tab="accueil" type="button">
+          ${I.home}<span class="kw-tab-l" data-i18n="dash.sidebar.home">Accueil</span>
+        </button>
+        <button class="kw-tab" data-kw-tab="commandes" type="button">
+          ${I.orders}<span class="kw-tab-badge" data-kw-badge hidden></span><span class="kw-tab-l" data-i18n="dash.sidebar.orders">Commandes</span>
+        </button>
+        <button class="kw-tab kw-tab-ai" data-kw-tab="ai" type="button" aria-label="Kiwi AI">
+          <span class="kw-tab-ico"><img src="${MERCHANT}" alt="" width="20" height="20" decoding="async"/></span>
+          <span class="kw-tab-l">Kiwi AI</span>
+        </button>
+        <button class="kw-tab" data-kw-tab="equipe" type="button">
+          ${I.team}<span class="kw-tab-l" data-i18n="dash.sidebar.team">Équipe</span>
+        </button>
+        <button class="kw-tab" data-kw-tab="menu" type="button"
+                aria-controls="kw-sidebar" aria-expanded="false">
+          ${I.menu}<span class="kw-tab-l" data-i18n="dash.mobilenav.menu">Menu</span>
+        </button>
+      </div>
     `);
     document.body.appendChild(tabbar);
     /* The tab bar is injected after i18n's initial capture, so re-apply the
@@ -174,8 +180,59 @@
 
     const tabs = [...tabbar.querySelectorAll('.kw-tab')];
     const menuTab = tabbar.querySelector('[data-kw-tab="menu"]');
+
+    /* ── Sliding highlight lens — the serveur app's rubber-band move:
+     * phase 1 stretches the pill to span old + new, phase 2 settles on the
+     * target. Instant (no animation) on first paint / resize / RTL flip. ── */
+    const capsule = tabbar.querySelector('.kw-capsule');
+    const pill = tabbar.querySelector('.kw-tab-pill');
+    let pillL = null, pillW = null;
+    function movePill(instant) {
+      const active = capsule.querySelector('.kw-tab.on');
+      if (!active || capsule.offsetWidth === 0) return;  // hidden (desktop) / not laid out
+      const capR = capsule.getBoundingClientRect();
+      const r = active.getBoundingClientRect();
+      const left = Math.round(r.left - capR.left);
+      const w = Math.round(r.width);
+      const set = (l, width) => {
+        pill.style.transform = 'translateX(' + l + 'px)';
+        pill.style.width = width + 'px';
+      };
+      pill.style.opacity = '1';
+      if (instant || pillL === null) {
+        pill.style.transition = 'none'; set(left, w);
+        void pill.offsetWidth; pill.style.transition = '';
+      } else if (left !== pillL || w !== pillW) {
+        const spanL = Math.min(pillL, left);
+        const spanW = Math.max(pillL + pillW, left + w) - spanL;
+        set(spanL, spanW);
+        setTimeout(() => set(left, w), 115);
+      }
+      pillL = left; pillW = w;
+    }
+    window.addEventListener('resize', () => movePill(true));
+    phoneMq.addEventListener('change', () => requestAnimationFrame(() => movePill(true)));
+    /* RTL/LTR switches flip the geometry — reposition without animating. */
+    window.addEventListener('kiwi:langchange', () => requestAnimationFrame(() => movePill(true)));
+    requestAnimationFrame(() => movePill(true));
+
     function setActive(key) {
       tabs.forEach((t) => t.classList.toggle('on', t.dataset.kwTab === key));
+      movePill();
+    }
+
+    /* ── Live Commandes badge — mirrors the sidebar's orders count ── */
+    const badge = tabbar.querySelector('[data-kw-badge]');
+    function syncBadge() {
+      if (!badge) return;
+      const c = document.querySelector('.sidebar a[data-nav="transactions"] .count');
+      const v = c && c.textContent.trim();
+      if (v) { badge.textContent = v; badge.hidden = false; }
+      else badge.hidden = true;
+    }
+    syncBadge();
+    if (window.KiwiVenue && typeof window.KiwiVenue.subscribe === 'function') {
+      window.KiwiVenue.subscribe(() => setTimeout(syncBadge, 80));
     }
     /* Keep the menu tab's aria in sync whenever the menu state changes. */
     function syncMenuAria() {
@@ -270,6 +327,7 @@
         const anyOverlay = document.querySelector('.kiwi-drawer-backdrop, .kiwi-backdrop');
         if (!anyOverlay && !tabs[0].classList.contains('on')) setActive('accueil');
         tagTxTables();
+        syncBadge();
         document.querySelectorAll('.kiwi-drawer-backdrop').forEach(wireSheetSwipe);
       });
     });

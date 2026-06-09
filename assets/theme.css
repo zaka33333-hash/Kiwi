@@ -289,8 +289,10 @@ html[dir="rtl"] .feat-row.flip .feat-img { order: 2; }
 html[dir="rtl"] svg text { direction: ltr; }
 html[dir="rtl"] .mono { direction: ltr; unicode-bidi: embed; }
 /* Big money figures contain spaces as thousands separators — in RTL the bidi
- * algorithm splits them ("11 961,03" renders as "961,03 … 11"). Isolate. */
+ * algorithm splits them ("11 961,03" renders as "961,03 … 11"). Isolate.
+ * Same for the hero-breakdown values ("9 577 MAD" was reading "MAD 577 9"). */
 html[dir="rtl"] .hero-amount, html[dir="rtl"] .fs-hero-amount { direction: ltr; unicode-bidi: isolate; }
+html[dir="rtl"] .hero-breakdown .v { direction: ltr; unicode-bidi: isolate; }
 html[dir="rtl"] .breadcrumb { flex-direction: row-reverse; }
 /* Flip directional arrow SVGs in CTAs */
 html[dir="rtl"] .btn svg, html[dir="rtl"] .kb svg, html[dir="rtl"] .simple-btn svg, html[dir="rtl"] .link-atlas svg { transform: scaleX(-1); }
