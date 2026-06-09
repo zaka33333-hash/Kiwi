@@ -73,7 +73,30 @@
       .acc-topic b { font-weight:600; font-size:13.5px; } .acc-topic span { color:var(--n-500); font-size:12px; }
       .acc-status { display:flex; align-items:center; gap:9px; margin-top:18px; padding:13px 16px; border-radius:12px; background:var(--mint-soft); font-size:13px; color:var(--ink); }
       .acc-status .dot { width:8px; height:8px; border-radius:50%; background:var(--success); flex-shrink:0; }
-      .acc-sec-title { font-size:14px; font-weight:600; margin:22px 0 12px; }`;
+      .acc-sec-title { font-size:14px; font-weight:600; margin:22px 0 12px; }
+      .acc-section-head { display:flex; align-items:center; justify-content:space-between; margin:26px 0 14px; }
+      .acc-section-head h3 { font-size:15px; font-weight:600; margin:0; letter-spacing:-0.01em; }
+      .acc-section-head .ct { font-size:12px; color:var(--n-500); font-family:var(--mono); }
+      .acc-biz { border:1px solid var(--n-200); border-radius:16px; background:var(--surface); padding:18px 20px; margin-bottom:14px; transition:border-color 140ms, box-shadow 140ms; }
+      .acc-biz:hover { border-color:var(--n-300); box-shadow:0 8px 26px -18px rgba(11,110,79,0.30); }
+      .acc-biz-head { display:flex; align-items:flex-start; gap:13px; }
+      .acc-biz-logo { width:44px; height:44px; border-radius:13px; background:var(--mint-soft); color:var(--atlas); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; flex-shrink:0; }
+      .acc-biz-name { font-size:15.5px; font-weight:600; letter-spacing:-0.01em; }
+      .acc-biz-meta { font-size:12px; color:var(--n-500); margin-top:2px; }
+      .acc-biz-badge { font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:999px; background:var(--atlas); color:#fff; letter-spacing:0.06em; }
+      .acc-stat-row { display:flex; gap:10px; margin:15px 0; flex-wrap:wrap; }
+      .acc-stat { flex:1; min-width:120px; background:var(--paper-soft); border-radius:12px; padding:11px 14px; }
+      .acc-stat .v { font-size:18px; font-weight:600; font-family:var(--mono); letter-spacing:-0.02em; color:var(--ink); }
+      .acc-stat .l { font-size:10px; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
+      .acc-legal { display:grid; grid-template-columns:repeat(3,1fr); gap:12px 18px; border-top:1px solid var(--n-100); padding-top:14px; }
+      @media (max-width:820px){ .acc-legal { grid-template-columns:repeat(2,1fr); } }
+      .acc-legal .k { font-size:9.5px; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.05em; }
+      .acc-legal .v { font-size:13px; font-weight:500; margin-top:2px; font-variant-numeric:tabular-nums; }
+      .acc-add-biz { width:100%; border:1.5px dashed var(--n-300); border-radius:14px; padding:14px; background:transparent; color:var(--atlas); font-weight:600; font-size:13.5px; font-family:var(--sans); cursor:pointer; transition:border-color 140ms, background 140ms; }
+      .acc-add-biz:hover { border-color:var(--atlas); background:var(--mint-soft); }
+      .acc-plan-btns { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+      .acc-danger { color:var(--danger); cursor:pointer; font-weight:600; font-size:12.5px; background:transparent; border:1px solid color-mix(in srgb,var(--danger) 38%,transparent); border-radius:9px; padding:9px 16px; font-family:var(--sans); transition:background 140ms; }
+      .acc-danger:hover { background:color-mix(in srgb,var(--danger) 10%,transparent); }`;
     const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
   })();
 
@@ -81,73 +104,250 @@
   const ownerName = () => getSet('ownerName', OWNER.name);
   const ownerEmail = () => getSet('ownerEmail', OWNER.email);
   const ownerPhone = () => getSet('ownerPhone', OWNER.phone);
+  const ownerLang = () => pick({ fr: 'Français', en: 'English', ar: 'العربية' });
+  const fmtMAD = (n) => Number(n).toLocaleString('fr-FR').replace(/[  ,]/g, ' ');
+
+  /* ── Subscription ladder (mirrors the 4-tier model) ── */
+  const PLAN_LADDER = ['basic', 'pro', 'ultra', 'ultimate'];
+  const PLAN_INFO = {
+    basic: { name: 'Kiwi Basic', price: '199 MAD' },
+    pro: { name: 'Kiwi Pro', price: '399 MAD' },
+    ultra: { name: 'Kiwi Ultra', price: '1 499 MAD' },
+    ultimate: { name: 'Kiwi Ultimate', price: '—' },
+  };
+  const curPlan = () => getSet('plan', 'pro');
+
+  /* ── Businesses (multi-établissement). Defaults + per-field localStorage
+   *    overrides (kiwiSet:biz:<id>:<field>) + user-added extras (kiwiBizExtra). ── */
+  const BIZ_FIELDS = [
+    { k: 'name', label: { fr: "Nom de l'établissement", en: 'Business name', ar: 'اسم المؤسسة' } },
+    { k: 'type', label: { fr: "Type d'activité", en: 'Activity type', ar: 'نوع النشاط' } },
+    { k: 'address', label: { fr: 'Adresse', en: 'Address', ar: 'العنوان' } },
+    { k: 'city', label: { fr: 'Ville', en: 'City', ar: 'المدينة' } },
+    { k: 'phone', label: { fr: 'Téléphone', en: 'Phone', ar: 'الهاتف' } },
+    { k: 'hours', label: { fr: 'Horaires', en: 'Opening hours', ar: 'ساعات العمل' } },
+    { k: 'ice', label: { fr: 'ICE', en: 'ICE', ar: 'ICE' } },
+    { k: 'fiscal', label: { fr: 'Identifiant Fiscal (IF)', en: 'Tax ID (IF)', ar: 'الرقم الضريبي' } },
+    { k: 'rc', label: { fr: 'Registre de Commerce (RC)', en: 'Trade Register (RC)', ar: 'السجل التجاري' } },
+    { k: 'patente', label: { fr: 'Patente', en: 'Patente', ar: 'الباتنتا' } },
+    { k: 'cnss', label: { fr: 'CNSS', en: 'CNSS', ar: 'CNSS' } },
+  ];
+  const BIZ_DEFAULTS = [
+    { id: 'cafeAtlas', name: 'Café Atlas · Maarif', type: 'Café · Restaurant', city: 'Casablanca', address: '12 Rue Allal Ben Abdellah, Maarif', primary: true, ice: '002593840000047', fiscal: '40512893', rc: 'Casablanca 458921', patente: '31204567', cnss: '8842157', phone: '+212 5 22 39 11 84', hours: '07:00 – 23:00', revenue: 825000, orders: 3240, team: 15 },
+    { id: 'maisonMansour', name: 'Maison Mansour', type: 'Restaurant · Traiteur', city: 'Casablanca', address: "45 Boulevard d'Anfa", primary: false, ice: '002593840000128', fiscal: '40698215', rc: 'Casablanca 472310', patente: '31288901', cnss: '8847720', phone: '+212 5 22 48 60 03', hours: '12:00 – 00:00', revenue: 358000, orders: 1180, team: 9 },
+    { id: 'spaBahia', name: 'Spa Bahia', type: 'Spa · Hammam', city: 'Marrakech', address: '8 Rue de la Liberté, Guéliz', primary: false, ice: '002593840000206', fiscal: '50231764', rc: 'Marrakech 119045', patente: '47120338', cnss: '5521090', phone: '+212 5 24 43 77 21', hours: '10:00 – 21:00', revenue: 269000, orders: 640, team: 6 },
+  ];
+  const extraBiz = () => { try { return JSON.parse(localStorage.getItem('kiwiBizExtra') || '[]'); } catch (_) { return []; } };
+  const setExtraBiz = (a) => { try { localStorage.setItem('kiwiBizExtra', JSON.stringify(a)); } catch (_) {} };
+  const bizField = (b, f) => getSet('biz:' + b.id + ':' + f, b[f] != null ? b[f] : '');
+  const allBiz = () => [...BIZ_DEFAULTS, ...extraBiz()].map((b) => { const o = { ...b }; BIZ_FIELDS.forEach((f) => { o[f.k] = bizField(b, f.k); }); return o; });
+  const initialsOf = (s) => (String(s).replace(/\s*·.*$/, '').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('') || 'K').toUpperCase();
 
   /* ════════════════════════════ MON PROFIL ════════════════════════════ */
   function openProfile() {
     const T = {
       title: pick({ fr: 'Mon profil', en: 'My profile', ar: 'ملفي الشخصي' }),
-      sub: pick({ fr: 'Compte propriétaire · Café Atlas', en: 'Owner account · Café Atlas', ar: 'حساب المالك · مقهى أطلس' }),
+      sub: pick({ fr: 'Compte, établissements & abonnement', en: 'Account, businesses & subscription', ar: 'الحساب، المؤسسات والاشتراك' }),
       role: pick({ fr: 'Propriétaire · admin · membre depuis mars 2025', en: 'Owner · admin · member since March 2025', ar: 'مالك · مشرف · عضو منذ مارس 2025' }),
       edit: pick({ fr: 'Modifier', en: 'Edit', ar: 'تعديل' }),
-      contact: pick({ fr: 'Coordonnées', en: 'Contact', ar: 'بيانات الاتصال' }),
+      personal: pick({ fr: 'Informations personnelles', en: 'Personal information', ar: 'المعلومات الشخصية' }),
+      name: pick({ fr: 'Nom complet', en: 'Full name', ar: 'الاسم الكامل' }),
       email: pick({ fr: 'Email', en: 'Email', ar: 'البريد الإلكتروني' }),
       phone: pick({ fr: 'Téléphone', en: 'Phone', ar: 'الهاتف' }),
       language: pick({ fr: 'Langue', en: 'Language', ar: 'اللغة' }),
-      langVal: pick({ fr: 'Français', en: 'English', ar: 'العربية' }),
       security: pick({ fr: 'Sécurité', en: 'Security', ar: 'الأمان' }),
       twofa: pick({ fr: 'Authentification 2FA', en: 'Two-factor auth', ar: 'المصادقة الثنائية' }),
-      smsOn: pick({ fr: 'SMS activé', en: 'SMS enabled', ar: 'الرسائل مُفعّلة' }),
-      lastLogin: pick({ fr: 'Dernière connexion', en: 'Last sign-in', ar: 'آخر تسجيل دخول' }),
+      smsOn: pick({ fr: 'SMS activé', en: 'SMS on', ar: 'الرسائل مُفعّلة' }),
+      lastLogin: pick({ fr: 'Dernière connexion', en: 'Last sign-in', ar: 'آخر دخول' }),
       today: pick({ fr: "Aujourd'hui · 08:12", en: 'Today · 08:12', ar: 'اليوم · 08:12' }),
       password: pick({ fr: 'Mot de passe', en: 'Password', ar: 'كلمة المرور' }),
       change: pick({ fr: 'Modifier', en: 'Change', ar: 'تغيير' }),
-      roleAccess: pick({ fr: 'Rôle & accès', en: 'Role & access', ar: 'الدور والصلاحيات' }),
-      roleDesc: pick({ fr: 'Propriétaire — accès complet à toutes les fonctionnalités du compte.', en: 'Owner — full access to every feature on the account.', ar: 'مالك — وصول كامل إلى جميع ميزات الحساب.' }),
-      venues: pick({ fr: 'Établissements', en: 'Venues', ar: 'المؤسسات' }),
-      principal: pick({ fr: 'Principal', en: 'Primary', ar: 'الرئيسي' }),
-      pwToast: pick({ fr: 'Un lien de changement de mot de passe a été envoyé par SMS.', en: 'A password-change link was sent by SMS.', ar: 'تم إرسال رابط تغيير كلمة المرور عبر الرسائل القصيرة.' }),
+      myBiz: pick({ fr: 'Mes établissements', en: 'My businesses', ar: 'مؤسساتي' }),
+      addBiz: pick({ fr: '+ Ajouter un établissement', en: '+ Add a business', ar: '+ إضافة مؤسسة' }),
+      primary: pick({ fr: 'PRINCIPAL', en: 'PRIMARY', ar: 'الرئيسية' }),
+      caMonth: pick({ fr: 'CA ce mois', en: 'Revenue · mo', ar: 'المداخيل · الشهر' }),
+      ordersL: pick({ fr: 'Commandes', en: 'Orders', ar: 'الطلبات' }),
+      teamL: pick({ fr: 'Équipe', en: 'Team', ar: 'الفريق' }),
+      subscription: pick({ fr: 'Abonnement', en: 'Subscription', ar: 'الاشتراك' }),
+      curPlanLabel: pick({ fr: 'FORMULE ACTUELLE', en: 'CURRENT PLAN', ar: 'الباقة الحالية' }),
+      upgrade: pick({ fr: 'Mettre à niveau', en: 'Upgrade', ar: 'ترقية' }),
+      downgrade: pick({ fr: 'Rétrograder', en: 'Downgrade', ar: 'تخفيض' }),
+      billing: pick({ fr: 'Voir la facturation', en: 'View billing', ar: 'عرض الفواتير' }),
+      cancel: pick({ fr: 'Résilier', en: 'Cancel plan', ar: 'إلغاء الاشتراك' }),
+      planMeta: pick({ fr: 'Facturé mensuellement · sans engagement', en: 'Billed monthly · no commitment', ar: 'فوترة شهرية · دون التزام' }),
+      perMo: pick({ fr: '/mois', en: '/mo', ar: '/شهر' }),
+      pwToast: pick({ fr: 'Lien de changement de mot de passe envoyé par SMS.', en: 'Password-change link sent by SMS.', ar: 'تم إرسال رابط تغيير كلمة المرور عبر SMS.' }),
     };
-    const perms = pick({
-      fr: ['Caisse', 'Finances', 'Équipe', 'Stock', 'Conformité', 'Paramètres', 'Facturation'],
-      en: ['Register', 'Finances', 'Team', 'Stock', 'Compliance', 'Settings', 'Billing'],
-      ar: ['الصندوق', 'المالية', 'الفريق', 'المخزون', 'المطابقة', 'الإعدادات', 'الفواتير'],
-    });
-    const row = (k, v) => `<div class="acc-row"><span>${esc(k)}</span><b>${v}</b></div>`;
+    const plan = PLAN_INFO[curPlan()] || PLAN_INFO.pro;
+    const planPrice = curPlan() === 'ultimate' ? pick({ fr: 'Sur devis', en: 'Custom', ar: 'حسب الطلب' }) : plan.price;
+    const isBasic = curPlan() === 'basic';
+    const row = (k, v, raw) => `<div class="acc-row"><span>${esc(k)}</span>${raw || `<b>${v}</b>`}</div>`;
+    const bizCard = (b) => {
+      const lg = (k, v) => `<div><div class="k">${esc(k)}</div><div class="v">${esc(v || '—')}</div></div>`;
+      return `
+        <div class="acc-biz">
+          <div class="acc-biz-head">
+            <div class="acc-biz-logo">${esc(initialsOf(b.name))}</div>
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="acc-biz-name">${esc(b.name)}</span>
+                ${b.primary ? `<span class="acc-biz-badge">${esc(T.primary)}</span>` : ''}
+              </div>
+              <div class="acc-biz-meta">${esc(b.type)} · ${esc(b.city)}${b.address ? ' · ' + esc(b.address) : ''}</div>
+            </div>
+            <button class="acc-cta ghost" data-action="account-edit-business" data-arg="${esc(b.id)}">${esc(T.edit)}</button>
+          </div>
+          ${b.revenue != null ? `<div class="acc-stat-row">
+            <div class="acc-stat"><div class="v">${fmtMAD(b.revenue)} <span style="font-size:11px;opacity:.6;">MAD</span></div><div class="l">${esc(T.caMonth)}</div></div>
+            <div class="acc-stat"><div class="v">${fmtMAD(b.orders)}</div><div class="l">${esc(T.ordersL)}</div></div>
+            <div class="acc-stat"><div class="v">${esc(String(b.team))}</div><div class="l">${esc(T.teamL)}</div></div>
+          </div>` : ''}
+          <div class="acc-legal">
+            ${lg('ICE', b.ice)}${lg('IF', b.fiscal)}${lg('RC', b.rc)}
+            ${lg('Patente', b.patente)}${lg('CNSS', b.cnss)}${lg(T.phone, b.phone)}
+          </div>
+        </div>`;
+    };
+    const biz = allBiz();
     Kiwi.appPage('account-profile', {
       title: T.title, subtitle: T.sub,
       body: `
         <div class="acc-hero">
           <div class="acc-avatar">${esc(OWNER.initials)}</div>
-          <div><div class="acc-hero-name">${esc(ownerName())}</div><div class="acc-hero-role">${esc(T.role)}</div></div>
+          <div style="flex:1; min-width:0;"><div class="acc-hero-name">${esc(ownerName())}</div><div class="acc-hero-role">${esc(T.role)}</div></div>
           <button class="acc-cta light" data-action="account-edit-profile">${esc(T.edit)}</button>
         </div>
         <div class="acc-grid">
           <div class="acc-card">
-            <div class="acc-eyebrow">${esc(T.contact)}</div>
+            <div class="acc-eyebrow" style="display:flex; justify-content:space-between; align-items:center;">${esc(T.personal)}<a data-action="account-edit-profile" style="color:var(--atlas); cursor:pointer; letter-spacing:0;">${esc(T.edit)}</a></div>
+            ${row(T.name, esc(ownerName()))}
             ${row(T.email, esc(ownerEmail()))}
             ${row(T.phone, esc(ownerPhone()))}
-            ${row(T.language, esc(T.langVal))}
+            ${row(T.language, esc(ownerLang()))}
           </div>
           <div class="acc-card">
             <div class="acc-eyebrow">${esc(T.security)}</div>
-            <div class="acc-row"><span>${esc(T.twofa)}</span><b class="ok">${esc(T.smsOn)}</b></div>
+            ${row(T.twofa, '', `<b class="ok">${esc(T.smsOn)}</b>`)}
             ${row(T.lastLogin, esc(T.today))}
-            <div class="acc-row"><span>${esc(T.password)}</span><a data-action="account-change-pw">${esc(T.change)}</a></div>
+            ${row(T.password, '', `<a data-action="account-change-pw">${esc(T.change)}</a>`)}
           </div>
-          <div class="acc-card span2">
-            <div class="acc-eyebrow">${esc(T.roleAccess)}</div>
-            <p style="font-size:13.5px; color:var(--n-600); margin:0;">${esc(T.roleDesc)}</p>
-            <div class="acc-chips">${perms.map((p) => `<span class="acc-chip">${esc(p)}</span>`).join('')}</div>
+        </div>
+        <div class="acc-section-head"><h3>${esc(T.myBiz)}</h3><span class="ct">${biz.length}</span></div>
+        ${biz.map(bizCard).join('')}
+        <button class="acc-add-biz" data-action="account-add-business">${esc(T.addBiz)}</button>
+        <div class="acc-section-head"><h3>${esc(T.subscription)}</h3></div>
+        <div class="acc-plan">
+          <div>
+            <div class="acc-plan-name">${esc(T.curPlanLabel)}</div>
+            <div class="acc-plan-price">${esc(plan.name)} · ${esc(planPrice)}${curPlan() !== 'ultimate' ? `<small>${esc(T.perMo)}</small>` : ''}</div>
+            <div class="acc-plan-meta">${esc(T.planMeta)}</div>
           </div>
-          <div class="acc-card span2">
-            <div class="acc-eyebrow">${esc(T.venues)}</div>
-            <div class="acc-venue"><b>Café Atlas · Maarif</b><span>${esc(T.principal)} · Casablanca</span></div>
-            <div class="acc-venue"><b>Maison Mansour</b><span>Casablanca</span></div>
-            <div class="acc-venue"><b>Spa Bahia</b><span>Marrakech</span></div>
+          <div class="acc-plan-acts">
+            <button class="acc-cta light" data-action="upgrade-pro">${esc(T.upgrade)}</button>
+            <button class="acc-cta ghost" style="color:#fff; border-color:rgba(255,255,255,0.4);" data-action="account-billing">${esc(T.billing)}</button>
           </div>
+        </div>
+        <div class="acc-plan-btns">
+          ${!isBasic ? `<button class="acc-cta ghost" data-action="account-plan-downgrade">${esc(T.downgrade)}</button>` : ''}
+          <button class="acc-danger" data-action="account-plan-cancel">${esc(T.cancel)}</button>
         </div>`,
     });
     handlers['account-change-pw'] = () => Kiwi.toast(T.pwToast, { type: 'success', force: true });
+    handlers['account-edit-business'] = (el, arg) => editBusinessModal(arg || (el && el.dataset.arg));
+    handlers['account-add-business'] = () => addBusinessModal();
+    handlers['account-plan-downgrade'] = () => planChangeModal('down');
+    handlers['account-plan-cancel'] = () => planCancelModal();
+    if (!handlers['account-help-mail']) handlers['account-help-mail'] = () => Kiwi.toast('support@kiwi.ma', { type: 'info', force: true });
+    if (!handlers['account-help-phone']) handlers['account-help-phone'] = () => Kiwi.toast('+212 5 39 00 12 00', { type: 'info', force: true });
+  }
+
+  /* ── Business editor (rich form, persists per-field / extras) ── */
+  function fieldInput(label, key, val, span) {
+    const f = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--surface);outline:none;box-sizing:border-box;';
+    const l = 'display:block;font-size:11.5px;font-weight:500;color:var(--n-600);margin:13px 0 6px;';
+    return `<div style="${span ? 'grid-column:1/-1;' : ''}"><label style="${l}">${esc(label)}</label><input class="acc-f" data-f="${esc(key)}" maxlength="90" style="${f}" value="${esc(val == null ? '' : val)}"/></div>`;
+  }
+  function bizForm() {
+    return '<style>.acc-f:focus{border-color:var(--atlas)!important;}</style><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px;max-height:58vh;overflow:auto;padding-right:4px;">';
+  }
+  function readForm(scope) { const v = {}; scope.querySelectorAll('.acc-f').forEach((i) => { v[i.dataset.f] = (i.value || '').trim(); }); return v; }
+  function editBusinessModal(id) {
+    const b = allBiz().find((x) => x.id === id);
+    if (!b) return;
+    const isExtra = !BIZ_DEFAULTS.some((d) => d.id === id);
+    const m = Kiwi.modal({
+      tag: pick({ fr: 'ÉTABLISSEMENT', en: 'BUSINESS', ar: 'مؤسسة' }), title: b.name, width: 560,
+      body: bizForm() + BIZ_FIELDS.map((f) => fieldInput(pick(f.label), f.k, b[f.k], ['name', 'type', 'address'].includes(f.k))).join('') + '</div>',
+      foot: `<button class="kb atlas" data-save type="button" style="width:100%;justify-content:center;padding:12px;font-size:15px;">${esc(pick({ fr: 'Enregistrer', en: 'Save', ar: 'حفظ' }))}</button>`,
+    });
+    m.el.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-save]')) return;
+      const v = readForm(m.el);
+      if (isExtra) { setExtraBiz(extraBiz().map((x) => (x.id === id ? { ...x, ...v } : x))); }
+      else { BIZ_FIELDS.forEach((f) => { try { localStorage.setItem('kiwiSet:biz:' + id + ':' + f.k, v[f.k]); } catch (_) {} }); }
+      m.close(); setTimeout(openProfile, 80);
+      Kiwi.toast(pick({ fr: 'Établissement mis à jour', en: 'Business updated', ar: 'تم تحديث المؤسسة' }), { type: 'success', force: true });
+    });
+  }
+  function addBusinessModal() {
+    const m = Kiwi.modal({
+      tag: pick({ fr: 'NOUVEL ÉTABLISSEMENT', en: 'NEW BUSINESS', ar: 'مؤسسة جديدة' }), title: pick({ fr: 'Ajouter un établissement', en: 'Add a business', ar: 'إضافة مؤسسة' }), width: 560,
+      body: bizForm() + BIZ_FIELDS.map((f) => fieldInput(pick(f.label), f.k, '', ['name', 'type', 'address'].includes(f.k))).join('') + '</div>',
+      foot: `<button class="kb atlas" data-save type="button" style="width:100%;justify-content:center;padding:12px;font-size:15px;">${esc(pick({ fr: "Créer l'établissement", en: 'Create business', ar: 'إنشاء المؤسسة' }))}</button>`,
+    });
+    setTimeout(() => { const a = m.el.querySelector('.acc-f'); if (a) a.focus(); }, 320);
+    m.el.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-save]')) return;
+      const v = readForm(m.el);
+      if (!v.name) { Kiwi.toast(pick({ fr: 'Le nom est requis.', en: 'Name is required.', ar: 'الاسم مطلوب.' }), { type: 'info', force: true }); return; }
+      const extras = extraBiz(); extras.push({ id: 'biz-' + Date.now(), primary: false, ...v }); setExtraBiz(extras);
+      m.close(); setTimeout(openProfile, 80);
+      Kiwi.toast(pick({ fr: 'Établissement ajouté', en: 'Business added', ar: 'تمت إضافة المؤسسة' }), { type: 'success', force: true });
+    });
+  }
+
+  /* ── Subscription change / cancel ── */
+  function planChangeModal() {
+    const idx = PLAN_LADDER.indexOf(curPlan());
+    const target = PLAN_LADDER[Math.max(0, idx - 1)];
+    const ti = PLAN_INFO[target];
+    const m = Kiwi.modal({
+      tag: pick({ fr: 'CHANGEMENT DE FORMULE', en: 'PLAN CHANGE', ar: 'تغيير الباقة' }),
+      title: pick({ fr: `Passer à ${ti.name} ?`, en: `Switch to ${ti.name}?`, ar: `الانتقال إلى ${ti.name}؟` }), width: 460,
+      body: `<p style="font-size:14px; color:var(--n-600); line-height:1.6; margin:0;">${esc(pick({
+        fr: `Vous passerez à ${ti.name} (${ti.price}/mois). Le changement prend effet à votre prochaine échéance — vous gardez vos fonctionnalités actuelles jusque-là.`,
+        en: `You'll move to ${ti.name} (${ti.price}/mo). The change applies at your next billing date — you keep your current features until then.`,
+        ar: `ستنتقل إلى ${ti.name} (${ti.price}/شهر). يسري التغيير في تاريخ الفوترة القادم — تحتفظ بميزاتك حتى ذلك الحين.` }))}</p>`,
+      foot: `<button class="kb ghost" data-cancel type="button" style="flex:1;justify-content:center;">${esc(pick({ fr: 'Annuler', en: 'Cancel', ar: 'إلغاء' }))}</button><button class="kb atlas" data-confirm type="button" style="flex:1;justify-content:center;">${esc(pick({ fr: 'Confirmer', en: 'Confirm', ar: 'تأكيد' }))}</button>`,
+    });
+    m.el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-cancel]')) { m.close(); return; }
+      if (!e.target.closest('[data-confirm]')) return;
+      try { localStorage.setItem('kiwiSet:plan', target); } catch (_) {}
+      m.close(); setTimeout(openProfile, 80);
+      Kiwi.toast(pick({ fr: `Demande enregistrée — ${ti.name} au prochain cycle.`, en: `Saved — ${ti.name} from next cycle.`, ar: `تم الحفظ — ${ti.name} من الدورة القادمة.` }), { type: 'success', force: true });
+    });
+  }
+  function planCancelModal() {
+    const m = Kiwi.modal({
+      tag: pick({ fr: 'RÉSILIATION', en: 'CANCELLATION', ar: 'إلغاء' }),
+      title: pick({ fr: 'Résilier votre abonnement', en: 'Cancel your subscription', ar: 'إلغاء اشتراكك' }), width: 470,
+      body: `<p style="font-size:14px; color:var(--n-600); line-height:1.6; margin:0 0 16px;">${esc(pick({
+        fr: "La résiliation se fait avec votre account manager Kiwi — pour exporter vos données, planifier la transition et éviter toute interruption de service. Contactez-nous :",
+        en: 'Cancellation goes through your Kiwi account manager — to export your data, plan the transition and avoid any service interruption. Reach us:',
+        ar: 'يتم الإلغاء عبر مدير حسابك في كيوي — لتصدير بياناتك وتخطيط الانتقال وتجنّب أي انقطاع. تواصل معنا:' }))}</p>
+        <div class="acc-contact" style="margin-bottom:0;">
+          <div class="acc-contact-card" data-action="help-whatsapp"><div class="t">WhatsApp</div><div class="d">${esc(pick({ fr: 'Réponse < 5 min', en: 'Reply < 5 min', ar: 'رد < 5 د' }))}</div></div>
+          <div class="acc-contact-card" data-action="account-help-mail"><div class="t">Email</div><div class="d">support@kiwi.ma</div></div>
+          <div class="acc-contact-card" data-action="account-help-phone"><div class="t">${esc(pick({ fr: 'Téléphone', en: 'Phone', ar: 'الهاتف' }))}</div><div class="d">+212 5 39 00 12 00</div></div>
+        </div>`,
+      foot: `<button class="kb atlas" data-callback type="button" style="width:100%;justify-content:center;padding:12px;">${esc(pick({ fr: 'Demander un rappel pour résilier', en: 'Request a call-back to cancel', ar: 'طلب اتصال للإلغاء' }))}</button>`,
+    });
+    m.el.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-callback]')) return;
+      m.close();
+      Kiwi.toast(pick({ fr: 'Demande envoyée — votre account manager vous rappelle sous 24 h.', en: 'Request sent — your account manager will call you within 24h.', ar: 'تم إرسال الطلب — سيتصل بك مدير حسابك خلال 24 ساعة.' }), { type: 'success', force: true });
+    });
   }
 
   /* ════════════════════════════ FACTURATION ════════════════════════════ */
