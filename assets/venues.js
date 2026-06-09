@@ -657,24 +657,30 @@
    * Single-venue view keeps the original "Passer à Ultra" upsell — kept
    * for demo / pitch surfaces. Fusion view (where the merchant has
    * already paid for Ultra) surfaces plan status instead of selling. */
+  const UPSELL_STR = {
+    fr: { active: 'Actif · renouvellement 14.06.2026', manage: 'Gérer mon abonnement →', mo: '/mois', pitch: 'Multi-pays, API enterprise, account manager dédié. Upgrade depuis Pro 399 sans engagement.', cta: 'Passer à Ultra →' },
+    en: { active: 'Active · renews 14.06.2026', manage: 'Manage my subscription →', mo: '/mo', pitch: 'Multi-country, enterprise API, dedicated account manager. Upgrade from Pro 399, no commitment.', cta: 'Upgrade to Ultra →' },
+    ar: { active: 'نشط · يتجدد 14.06.2026', manage: 'إدارة اشتراكي ←', mo: '/شهر', pitch: 'متعدد البلدان، API للمؤسسات، مدير حساب مخصص. ترقية من Pro 399 دون التزام.', cta: 'الترقية إلى Ultra ←' },
+  };
   function renderUpsell() {
     const wrap = document.querySelector('[data-upsell]');
     if (!wrap) return;
+    const U = UPSELL_STR[fusionLang()] || UPSELL_STR.fr;
     const showStatus = currentVenue === 'fusion' && currentPlan === 'ultra';
     if (showStatus) {
       wrap.classList.add('upsell-status');
       wrap.innerHTML = `
         <div class="t">✦ KIWI ULTRA</div>
-        <div class="us-line">Actif · renouvellement 14.06.2026</div>
-        <a href="#" class="us-manage" data-action="manage-billing">Gérer mon abonnement →</a>
+        <div class="us-line">${U.active}</div>
+        <a href="#" class="us-manage" data-action="manage-billing">${U.manage}</a>
       `;
     } else {
       wrap.classList.remove('upsell-status');
       wrap.innerHTML = `
         <div class="t">KIWI ULTRA</div>
-        <h4>1 499 MAD/mois</h4>
-        <p>Multi-pays, API enterprise, account manager dédié. Upgrade depuis Pro 399 sans engagement.</p>
-        <button data-action="upgrade-pro">Passer à Ultra →</button>
+        <h4>1 499 MAD${U.mo}</h4>
+        <p>${U.pitch}</p>
+        <button data-action="upgrade-pro">${U.cta}</button>
       `;
     }
   }
@@ -1903,6 +1909,8 @@
 
   function init() {
     if (!/dashboard\.html/.test(location.pathname)) return;
+    /* Sidebar upsell + dropdown CTA render their own copy — re-translate live. */
+    window.addEventListener('kiwi:langchange', () => { renderUpsell(); renderDropdown(); });
     let stored = null;
     try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
     // Fusion mode is intentionally NOT persisted across reloads — the merchant

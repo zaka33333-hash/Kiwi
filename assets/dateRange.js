@@ -2993,6 +2993,30 @@
     const effective = effRange();
     const isLive = effective === 'aujourdhui';
 
+    /* Cached tx rows carry FR payment strings baked at generation time —
+     * translate the known method strings at render time so a language switch
+     * applies to feeds that were already generated. */
+    const PAY_TR = {
+      'Espèces': { en: 'Cash', ar: 'نقدًا' },
+      'Cash · table': { en: 'Cash · at the table', ar: 'نقدًا · على الطاولة' },
+      'Client abonné': { en: 'Subscribed client', ar: 'عميل مشترك' },
+      'NFC · contactless': { en: 'NFC · contactless', ar: 'NFC · بدون تلامس' },
+    };
+    const PAY_PREFIX = [
+      ['Carte marocaine', { en: 'Moroccan card', ar: 'بطاقة مغربية' }],
+      ['Carte française', { en: 'French card', ar: 'بطاقة فرنسية' }],
+      ['Carte espagnole', { en: 'Spanish card', ar: 'بطاقة إسبانية' }],
+    ];
+    const trPay = (s) => {
+      if (!s || lang === 'fr') return s;
+      const hit = PAY_TR[s];
+      if (hit) return hit[lang] || s;
+      for (const [pre, tr2] of PAY_PREFIX) {
+        if (s.indexOf(pre) === 0) return (tr2[lang] || pre) + s.slice(pre.length);
+      }
+      return s;
+    };
+
     const venue = window.KiwiVenue?.getVenue?.() || 'cafeAtlas';
     // A user-created venue's feed is built from the merchant's own recorded
     // sales — empty state until the first one is rung up.
@@ -3048,8 +3072,8 @@
             <div class="method">
               <div class="ci ${r.method}">${chipInner}</div>
               <div class="desc">
-                <div class="primary">${r.primary}</div>
-                <div class="sub"><span class="flag ${r.flag}"></span>${r.sub}</div>
+                <div class="primary">${trPay(r.primary)}</div>
+                <div class="sub"><span class="flag ${r.flag}"></span>${trPay(r.sub)}</div>
               </div>
             </div>
             <div class="ctx">${tableChip}<span class="who">${who}</span></div>
