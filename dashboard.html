@@ -4703,6 +4703,8 @@
   html[data-theme="dark"] .pay-cell.off { background: var(--paper-muted); }
 </style>
 <link rel="stylesheet" href="assets/mobile.css" />
+<!-- Design 2026 · Liquid Glass preview — inert unless body.design-2026 (1111-gated, reversible) -->
+<link rel="stylesheet" href="assets/design-2026.css" />
 </head>
 <body class="growth-locked">
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -5551,6 +5553,7 @@
 <script src="assets/finance.js" defer fetchpriority="low"></script>
 <script src="assets/conformite.js" defer fetchpriority="low"></script>
 <script src="assets/account.js" defer fetchpriority="low"></script>
+<script src="assets/design-2026.js" defer fetchpriority="low"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
  *  ROLE GUARD — wraps nav-payroll so a manager can't reach the payroll
@@ -5636,7 +5639,13 @@
       /* PIN 1111 reveals the gated Croissance growth suite (Commande en ligne,
        * Commander à table, Clients & Marketing, Cartes cadeaux) for this session
        * only — any other entry (skip, other PIN) keeps it hidden. */
-      if (val === '1111') document.body.classList.remove('growth-locked');
+      if (val === '1111') {
+        document.body.classList.remove('growth-locked');
+        /* 1111 also unlocks the Design 2026 "Liquid Glass" preview skin; a
+         * floating pill then lets the owner toggle it on/off (fully reversible). */
+        if (window.KiwiDesign2026) window.KiwiDesign2026.enable();
+        else { try { localStorage.setItem('kiwiDesign2026', '1'); } catch (e) {} }
+      }
       /* Role gate:
        *   0000 / 0505 → reserved (onboard / marketing tease)
        *   0909        → manager view (restricted sidebar — no Marges,
