@@ -615,6 +615,26 @@
         <div class="d">Pour les micro-interactions qui doivent donner un sentiment de réactivité.</div>
       </div>
     </div>
+
+    <!-- Signature · la lentille liquide -->
+    <style>
+      .brand-lens-demo { display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: #fff; border: 1px solid var(--n-200); }
+      .brand-lens-demo .bld-pill { padding: 9px 18px; border-radius: 999px; border: 0; background: transparent; font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--n-500); cursor: pointer; transition: color 150ms; -webkit-tap-highlight-color: transparent; }
+      .brand-lens-demo .bld-pill.on { color: var(--paper); }
+    </style>
+    <div class="motion-card" style="margin-top: 14px;">
+      <div class="t">SIGNATURE · LA LENTILLE LIQUIDE</div>
+      <div class="n" style="font-family: var(--mono); font-size: 15px; font-weight: 500;">cubic-bezier(0.34, 1.45, 0.5, 1) · 310 ms</div>
+      <div class="d" style="margin-bottom: 16px;">Une seule lumière se déplace. Quand on choisit une option, la lentille s'étire pour relier
+        l'ancien choix au nouveau, puis se pose — un ressort, jamais un clignotement. C'est la sélection Kiwi,
+        partout : barre du téléphone, plages de dates, onglets du tableau de bord, site public.
+        Ne réinventez pas un état actif — posez la lentille dessous (<span style="font-family: var(--mono); font-size: 12px;">assets/liquid-lens.js</span>).</div>
+      <div class="brand-lens-demo" data-lens-demo role="group" aria-label="Démonstration · lentille liquide">
+        <button type="button" class="bld-pill on" data-lens-item>Aujourd'hui</button>
+        <button type="button" class="bld-pill" data-lens-item>7 jours</button>
+        <button type="button" class="bld-pill" data-lens-item>30 jours</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1011,5 +1031,15 @@
 <script src="assets/interactive.js" defer></script>
 <script src="assets/features.js" defer></script>
 <script src="assets/polish.js" defer></script>
+<script src="assets/liquid-lens.js" defer></script>
+<script>
+  /* Brand-page lens demo — toggle .on; the lens follows on its own. */
+  document.addEventListener('click', (e) => {
+    const p = e.target.closest('[data-lens-demo] [data-lens-item]');
+    if (!p) return;
+    p.parentElement.querySelectorAll('[data-lens-item]').forEach((b) => b.classList.remove('on'));
+    p.classList.add('on');
+  });
+</script>
 </body>
 </html>

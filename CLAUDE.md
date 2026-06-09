@@ -74,6 +74,14 @@ Colors (defined in `assets/tokens.css`):
 Don't introduce new accent colors. Don't use bold display weights. Don't use emojis
 in section titles or CTAs. Don't rebuild the design system.
 
+Signature motion — **la lentille liquide**: one highlight pill that stretches to span
+the old and new option, then settles with a spring
+(`cubic-bezier(0.34, 1.45, 0.5, 1)` · 310 ms). Implemented once in
+`assets/liquid-lens.js` and auto-attached to segmented controls (date-range pills,
+tab rows, the landing audience switch, the phone capsule bar). For any NEW
+tab/pill group, register it there (or use `data-lens-demo`/`data-lens-item`) —
+never invent a different selection style.
+
 ---
 
 ## 4. Architecture pointers
