@@ -89,8 +89,21 @@ To drive the demo in the preview: enter a PIN (e.g. `1111`) into the lock input,
 - **The light-mode intensity push landed (`94e8b64`):** richer 4-blob ambient mesh, deeper
   card glass, specular sheen on the home hero, frosted date-range pill + AI input, glass
   feed-row hovers, brand-tinted thin scrollbars, frosted PIN cells on the lock screen
-  (visual props only — positioning untouched), frosted dark demo-bar (the real class is
-  `.demo-bar`, not `.demo-banner`). Still open to more on demand — tasteful, reversible.
+  (visual props only — positioning untouched). (The demo bar was later removed by the
+  partner in `e05e298`; the old `.demo-bar` glass rule is inert.)
+- **iOS-27 TIER (`eaa421a`) — EXPERIMENTAL, gated behind PIN 1111 ONLY.** Translates
+  Apple's real WWDC-2026 announcements (Jun 8: transparency slider, full-edge refractive
+  sidebars with colored icons, glass layered into icons — source: macrumors.com/2026/06/08/
+  apple-announces-liquid-glass-improvements/) into the Kiwi palette:
+  `assets/design-ios27.css` + `assets/design-ios27.js`, every rule scoped
+  `body.design-2026.design-ios27` (layers ON the stable skin, never replaces it).
+  Smoked-glass full-edge sidebar (mesh refracts beneath; stays dark in both themes so no
+  text re-theming), mint-colored nav icons + tinted count pills, layered-glass KPI icon
+  chips, display-P3 mint, and the headline: a **Liquid Glass transparency control in
+  Paramètres** (Clair/Standard/Givré/Opaque, persisted `kiwiGlassLevel`, FR/EN/AR) — clear
+  mode clamps modals/drawers to a legibility floor (the iOS-26 lesson). Only the 1111 PIN
+  calls `KiwiDesignIOS27.enable()`; revert = `KiwiDesignIOS27.disable()` (verified clean
+  round-trip) or remove the design-ios27 `<link>`/`<script>`.
 
 ## 6. The account hub — `account.js` (`Mon profil`)
 
