@@ -101,7 +101,7 @@
       'price.new.big': '399 <span style="font-size:0.4em; opacity:0.6;">MAD/month</span>',
       'price.new.sub': 'All-in — cancel anytime',
       'price.badge': 'Recommended',
-      'price.bottom': 'For a café at <b>200,000 MAD/month</b> of card volume — you save <b style="color:var(--atlas);">~47,000 MAD per year</b> vs CMI. <b>Kiwi Pro</b> at 399 MAD/month unlocks multi-terminal, stock and API.',
+      'price.bottom': 'At <b>200,000 MAD/month</b> of sales, a 2%-commission solution would skim <b style="color:var(--atlas);">~48,000 MAD/year</b> off your revenue. Kiwi takes <b>0%</b> — a flat 199–399 MAD/month, whatever your volume. Your card processing stays with your own bank.',
 
       /* Testimonials */
       'testi.eyebrow': 'Our merchants',
@@ -696,7 +696,7 @@
       'price.new.big': '399 <span style="font-size:0.4em; opacity:0.6;">درهم/شهر</span>',
       'price.new.sub': 'كل شيء مشمول — قابل للإلغاء في أي لحظة',
       'price.badge': 'موصى به',
-      'price.bottom': 'لمقهى بـ<b>200 000 درهم/شهر</b> من حجم البطاقات — توفّرون <b style="color:var(--atlas);">~47 000 درهم سنويًا</b> مقارنة بـ CMI. <b>كيوي Pro</b> بـ399 درهم/شهر يفتح الطرفيات المتعدّدة، إدارة المخزون، والـAPI.',
+      'price.bottom': 'عند <b>200 000 درهم/شهر</b> من المبيعات، تقتطع حلول العمولة بنسبة 2 % نحو <b style="color:var(--atlas);">~48 000 درهم سنويًا</b> من إيراداتك. كيوي يأخذ <b>0 %</b> — اشتراك ثابت 199–399 درهم/شهر مهما كان حجمك. ويبقى تحصيل البطاقة لدى بنكك الحالي.',
 
       /* Testimonials */
       'testi.eyebrow': 'تجّارنا',

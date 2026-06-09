@@ -120,19 +120,17 @@
 
       // Avg ticket ≈ 130 MAD, so tx count ≈ v/130
       const txCount = Math.round(v / 130);
-      // CMI: 2.0% MDR + ~300 MAD rental (blended realistic)
-      const cmiMDR = v * 0.02;
-      const cmiRental = 300;
-      const cmiTotal = cmiMDR + cmiRental;
+      // A percentage-based / all-in-one solution takes a cut of every sale; Kiwi
+      // never does — it's a flat software subscription. This illustrates that gap.
+      // It does NOT replace the merchant's card processing (see footnote).
+      const commissionMonth = v * 0.02;
       // Kiwi Basic: 199 MAD/mois, software only on the merchant's own hardware
       const baseSaaS = 199;
-      const baseTotal = baseSaaS;
       // Kiwi Pro: 399 MAD/mois, includes a free Kiwi cashier
       const proSaaS = 399;
-      const proTotal = proSaaS;
 
-      const chosenTotal = tier === 'base' ? baseTotal : proTotal;
-      const savingsMonth = Math.max(0, cmiTotal - chosenTotal);
+      const chosenTotal = tier === 'base' ? baseSaaS : proSaaS;
+      const savingsMonth = Math.max(0, commissionMonth - chosenTotal);
       const savingsYear = savingsMonth * 12;
 
       amt.innerHTML = `${v.toLocaleString('fr-FR').replace(/,/g,' ')}<span class="u">MAD / mois</span>`;
@@ -144,18 +142,18 @@
           <button data-tier="pro" class="${tier === 'pro' ? 'on' : ''}">Kiwi Pro</button>
         </div>
         <div class="calc-row">
-          <div class="rk"><b>Avec CMI (aujourd'hui)</b>2 % MDR + 300 MAD location terminal</div>
-          <div class="rv">${Math.round(cmiTotal).toLocaleString('fr-FR').replace(/,/g,' ')} MAD</div>
+          <div class="rk"><b>Une solution à commission</b>2 % de vos ventes, chaque mois</div>
+          <div class="rv">${Math.round(commissionMonth).toLocaleString('fr-FR').replace(/,/g,' ')} MAD</div>
         </div>
         <div class="calc-row">
-          <div class="rk"><b>Avec Kiwi ${tier === 'base' ? 'Basic' : 'Pro'}</b>${tier === 'base' ? '199 MAD/mois · logiciel sur votre matériel' : '399 MAD/mois · caisse offerte · tout inclus'}</div>
+          <div class="rk"><b>Avec Kiwi ${tier === 'base' ? 'Basic' : 'Pro'}</b>${tier === 'base' ? '199 MAD/mois · 0 % de commission' : '399 MAD/mois · caisse offerte · 0 % de commission'}</div>
           <div class="rv">${Math.round(chosenTotal).toLocaleString('fr-FR').replace(/,/g,' ')} MAD</div>
         </div>
         <div class="calc-row total ${savingsMonth > 0 ? 'savings-burst' : ''}">
-          <div class="rk"><b>Économie annuelle</b>avec Kiwi ${tier === 'base' ? 'Basic' : 'Pro'}</div>
+          <div class="rk"><b>Économie annuelle</b>avec le forfait fixe Kiwi</div>
           <div class="rv">${Math.round(savingsYear).toLocaleString('fr-FR').replace(/,/g,' ')} MAD</div>
         </div>
-        <div class="calc-footnote">Base comparaison : 2 % MDR CMI + 300 MAD/mois de loyer terminal. Kiwi Basic 199 MAD/mois et Pro 399 MAD/mois sont des forfaits tout compris (matériel, caisse restaurant, règlement T+1, support WhatsApp). Aucun engagement.</div>
+        <div class="calc-footnote">Kiwi est un logiciel à prix fixe — jamais un pourcentage de vos ventes. Comparaison avec une solution tout-en-un facturant ~2 % par transaction. Votre encaissement par carte reste géré par votre banque ou acquéreur actuel : Kiwi ne le remplace pas et n'y prélève rien.</div>
       `;
       // Update persona card
       root.querySelector('.calc-persona').innerHTML = `<b>${persona}.</b> Faites glisser le curseur pour voir l'économie selon votre volume réel.`;
