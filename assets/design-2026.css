@@ -3,8 +3,9 @@
  *
  * A fully ADDITIVE, REVERSIBLE visual layer. Everything here is scoped to
  * `body.design-2026`; with the class absent, the file is inert and the classic
- * design renders untouched. Activated by the 1111 passcode (see design-2026.js),
- * toggled off from the floating pill — or just remove this <link>.
+ * design renders untouched. Activated by any passcode (see design-2026.js);
+ * no on-screen toggle — revert via KiwiDesign2026.disable() in the console,
+ * or just remove this <link>.
  *
  * Direction: Apple-era Liquid Glass executed in the Kiwi green palette —
  * translucent frosted surfaces, ambient light, specular edge-highlights,
@@ -14,24 +15,25 @@
 
 body.design-2026 {
   --g-ease: cubic-bezier(0.22, 0.84, 0.30, 1);
-  --g-blur: 18px;
-  --g-fill: color-mix(in srgb, var(--surface) 72%, transparent);
+  --g-blur: 20px;
+  --g-fill: color-mix(in srgb, var(--surface) 70%, transparent);
   --g-fill-strong: color-mix(in srgb, var(--surface) 86%, transparent);
-  --g-edge: color-mix(in srgb, var(--n-300) 46%, transparent);
-  --g-hi: inset 0 1px 0 rgba(255, 255, 255, 0.55);
-  --g-shadow: 0 2px 10px -6px rgba(11, 110, 79, 0.16), 0 16px 40px -22px rgba(11, 110, 79, 0.24);
-  --g-shadow-lift: 0 3px 14px -6px rgba(11, 110, 79, 0.22), 0 26px 56px -24px rgba(11, 110, 79, 0.34);
+  --g-edge: color-mix(in srgb, var(--n-300) 48%, transparent);
+  --g-hi: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  --g-shadow: 0 2px 10px -6px rgba(11, 110, 79, 0.18), 0 18px 44px -22px rgba(11, 110, 79, 0.26);
+  --g-shadow-lift: 0 3px 14px -6px rgba(11, 110, 79, 0.24), 0 28px 60px -24px rgba(11, 110, 79, 0.36);
 }
 
 /* ── 1 · Ambient atmosphere — soft gradient mesh + faint grain behind all ── */
 body.design-2026 { background: var(--paper); }
 body.design-2026::before {
-  content: ''; position: fixed; inset: -12%; z-index: 0; pointer-events: none;
+  content: ''; position: fixed; inset: -14%; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(36% 42% at 7% -6%, color-mix(in srgb, var(--mint) 32%, transparent), transparent 72%),
-    radial-gradient(32% 40% at 103% 4%, color-mix(in srgb, var(--atlas) 20%, transparent), transparent 70%),
-    radial-gradient(42% 46% at 94% 106%, color-mix(in srgb, var(--mint) 18%, transparent), transparent 72%);
-  filter: blur(10px); opacity: 0.92;
+    radial-gradient(38% 44% at 7% -6%, color-mix(in srgb, var(--mint) 38%, transparent), transparent 72%),
+    radial-gradient(34% 42% at 103% 4%, color-mix(in srgb, var(--atlas) 24%, transparent), transparent 70%),
+    radial-gradient(44% 48% at 94% 106%, color-mix(in srgb, var(--mint) 22%, transparent), transparent 72%),
+    radial-gradient(30% 36% at -4% 86%, color-mix(in srgb, var(--atlas) 14%, transparent), transparent 74%);
+  filter: blur(12px); opacity: 0.95;
   animation: g-drift 26s ease-in-out infinite alternate;
 }
 body.design-2026::after {
@@ -42,7 +44,7 @@ body.design-2026::after {
 @keyframes g-drift { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-1.5%, 1.5%, 0) scale(1.06); } }
 /* keep the main content above the ambient layers — NOT .kiwi-lock (it's a fixed
  * full-screen overlay with its own z-index; forcing position:relative collapsed it). */
-body.design-2026 .app, body.design-2026 .demo-banner { position: relative; z-index: 1; }
+body.design-2026 .app, body.design-2026 .demo-bar { position: relative; z-index: 1; }
 
 /* ── 2 · Floating frosted topbar (the search/breadcrumb pill) ── */
 body.design-2026 .topbar {
@@ -145,6 +147,74 @@ body.design-2026 :is(.acc-hero, .acc-plan)::after {
 body.design-2026 .dash-genpage { animation: g-rise 0.5s var(--g-ease) both; }
 @keyframes g-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
+/* ── 8b · Home hero — specular sheen over the deep-green card ── */
+body.design-2026 .hero-today {
+  position: relative; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 24px 56px -28px rgba(2, 38, 28, 0.6) !important;
+}
+body.design-2026 .hero-today::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(110% 70% at 0% 0%, rgba(255, 255, 255, 0.12), transparent 44%),
+    radial-gradient(80% 70% at 100% 115%, color-mix(in srgb, var(--mint) 20%, transparent), transparent 56%);
+  mix-blend-mode: screen;
+}
+
+/* ── 8c · Date-range pill + AI input — frosted controls ── */
+body.design-2026 :is(.dash-range, .range) {
+  background: var(--g-fill-strong) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid var(--g-edge) !important;
+  border-radius: 999px !important;
+  box-shadow: var(--g-hi), 0 8px 22px -14px rgba(11, 110, 79, 0.3) !important;
+}
+body.design-2026 .hai-input {
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-radius: 14px !important;
+}
+
+/* ── 8d · Live feed rows — quiet glass hover ── */
+body.design-2026 .feed-row { transition: background 0.22s var(--g-ease), transform 0.22s var(--g-ease); border-radius: 12px; }
+body.design-2026 .feed-row:hover { background: color-mix(in srgb, var(--mint) 12%, transparent); transform: translateX(3px); }
+
+/* ── 8e · Scrollbars — thin, brand-tinted, unobtrusive ── */
+body.design-2026 { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--atlas) 35%, transparent) transparent; }
+body.design-2026 ::-webkit-scrollbar { width: 10px; height: 10px; }
+body.design-2026 ::-webkit-scrollbar-track { background: transparent; }
+body.design-2026 ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--atlas) 30%, transparent);
+  border-radius: 999px; border: 3px solid transparent; background-clip: content-box;
+}
+body.design-2026 ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--atlas) 48%, transparent); border: 3px solid transparent; background-clip: content-box; }
+
+/* ── 8f · Lock screen — frosted PIN cells over a richer mesh.
+ * Visual properties ONLY — .kiwi-lock stays position:fixed (changing its
+ * positioning collapsed the page once already; see 08db17c). ── */
+body.design-2026 .kiwi-lock {
+  background:
+    radial-gradient(50% 42% at 12% 8%, color-mix(in srgb, var(--mint) 24%, transparent), transparent 70%),
+    radial-gradient(44% 40% at 88% 16%, rgba(11, 110, 79, 0.36), transparent 70%),
+    radial-gradient(56% 50% at 78% 94%, color-mix(in srgb, var(--mint) 14%, transparent), transparent 72%),
+    linear-gradient(135deg, #0A1612, #0A0F0D);
+}
+body.design-2026 .kiwi-pin-cell {
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4);
+  border-radius: 16px;
+  border: 1px solid rgba(125, 242, 176, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+body.design-2026 .kiwi-lock-skip { border-radius: 12px; transition: transform 0.22s var(--g-ease), background 0.2s ease; }
+body.design-2026 .kiwi-lock-skip:active { transform: scale(0.97); }
+
+/* ── 8g · Demo bar — frosted DARK glass (its text is white in both themes,
+ * so the fill stays a fixed dark hex; tokens would invert it). ── */
+body.design-2026 .demo-bar {
+  background: color-mix(in srgb, #0A0F0D 80%, transparent) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
+  border-bottom: 1px solid rgba(125, 242, 176, 0.14);
+}
+
 /* ── 9 · Dark mode — darker glass, brighter ambient, subtler highlight ── */
 html[data-theme="dark"] body.design-2026 {
   --g-fill: color-mix(in srgb, var(--surface) 66%, transparent);
@@ -156,10 +226,13 @@ html[data-theme="dark"] body.design-2026 {
 }
 html[data-theme="dark"] body.design-2026::before { opacity: 0.7; }
 html[data-theme="dark"] body.design-2026::after { opacity: 0.3; }
+html[data-theme="dark"] body.design-2026 .hero-today::after { opacity: 0.75; }
+html[data-theme="dark"] body.design-2026 .feed-row:hover { background: color-mix(in srgb, var(--atlas) 18%, transparent); }
 
 /* ── 10 · Respect reduced-motion ── */
 @media (prefers-reduced-motion: reduce) {
   body.design-2026::before { animation: none; }
   body.design-2026 .dash-genpage { animation: none; }
   body.design-2026 :is(.acc-biz, .acc-contact-card, .acc-topic, .integ-card, .kpi-m, .p-card):hover { transform: none; }
+  body.design-2026 .feed-row:hover { transform: none; }
 }
