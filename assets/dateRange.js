@@ -1715,6 +1715,18 @@
       data = { ...data, goal: +vd.goal || 0, current: window.KiwiSales.totals(getCurrentVenue()).revenue };
     }
 
+    // Settings → "Objectif journalier" override for the default demo venue: the
+    // merchant's daily target wins on the day ranges (week/month keep theirs).
+    if (!(window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom())) {
+      try {
+        const ov = localStorage.getItem('kiwiSet:goal');
+        if (ov && (currentRange === 'aujourdhui' || currentRange === 'hier')) {
+          const n = +String(ov).replace(/[^\d]/g, '');
+          if (n > 0) data = { ...data, goal: n };
+        }
+      } catch (_) {}
+    }
+
     const labelTxt = GOAL_LABEL[lang]?.[currentRange] || GOAL_LABEL.fr[currentRange];
     const labelEl = document.querySelector('[data-goal-label]');
     if (labelEl) labelEl.textContent = `${labelTxt} · ${frInt(data.goal)} MAD`;

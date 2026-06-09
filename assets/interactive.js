@@ -1409,6 +1409,7 @@ ar: {
       const KV = window.KiwiVenue;
       const cv = !!(KV && KV.isCustom && KV.isCustom());
       const vd = (KV && KV.getCurrentVenueData && KV.getCurrentVenueData()) || {};
+      const getSet = (k, def) => { try { return localStorage.getItem('kiwiSet:' + k) || def; } catch (_) { return def; } };
       const fmtN = (n) => (+n || 0).toLocaleString('fr-FR').replace(/[ , ]/g, ' ');
       return drawer({
       title: 'Paramètres',
@@ -1430,7 +1431,7 @@ ar: {
           <div style="display:flex; flex-direction:column; gap:2px;">
             ${settingsRow('🌍', 'Langue', LANGNAME[lang] || 'Français', { action: 'settings-lang' })}
             ${settingsRow('🔔', 'Notifications WhatsApp', 'Résumé quotidien 19h', { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
-            ${settingsRow('💰', 'Devise d\'affichage', 'MAD · Dirham marocain', { action: 'settings-soon' })}
+            ${settingsRow('💰', 'Devise d\'affichage', escape(getSet('currency', 'MAD · Dirham marocain')), { action: 'settings-currency' })}
           </div>
         </div>
         <div style="margin-bottom:20px;">
@@ -1442,10 +1443,10 @@ ar: {
             ${settingsRow('🎯', 'Objectif journalier', vd.goal ? fmtN(vd.goal) + ' MAD' : 'À définir', { action: 'settings-edit-venue' })}
             ${settingsRow('💳', 'Méthodes acceptées', vd.methods || 'Toutes acceptées', { action: 'settings-edit-venue' })}
             ` : `
-            ${settingsRow('🏪', 'Café Atlas · Maarif', 'Emplacement principal', { action: 'settings-soon' })}
-            ${settingsRow('⏰', 'Heures d\'ouverture', '07:00 - 23:00 · tous les jours', { action: 'settings-soon' })}
-            ${settingsRow('💳', 'Méthodes acceptées', 'Visa · MC · Kiwi Tap · QR', { action: 'settings-soon' })}
-            ${settingsRow('🎯', 'Objectif journalier', '28 000 MAD', { action: 'settings-soon' })}
+            ${settingsRow('🏪', escape(getSet('venueName', 'Café Atlas · Maarif')), escape(getSet('venueLoc', 'Emplacement principal')), { action: 'settings-edit-store', arg: 'venue' })}
+            ${settingsRow('⏰', 'Heures d\'ouverture', escape(getSet('hours', '07:00 - 23:00 · tous les jours')), { action: 'settings-edit-store', arg: 'hours' })}
+            ${settingsRow('💳', 'Méthodes acceptées', escape(getSet('methods', 'Visa · MC · Kiwi Tap · QR')), { action: 'settings-methods' })}
+            ${settingsRow('🎯', 'Objectif journalier', escape(getSet('goal', '28 000')) + ' MAD', { action: 'settings-edit-store', arg: 'goal' })}
             `}
           </div>
         </div>
@@ -1496,6 +1497,86 @@ ar: {
     },
 
     'settings-soon': () => {},
+
+    /* The default Café Atlas demo venue is customizable via kiwiSet:* localStorage
+     * overrides (no custom-venue account needed). Each editor persists, then
+     * re-opens Settings so the new value shows immediately. */
+    'settings-edit-store': (el, which) => {
+      const get = (k, def) => { try { return localStorage.getItem('kiwiSet:' + k) || def; } catch (_) { return def; } };
+      const set = (k, v) => { try { localStorage.setItem('kiwiSet:' + k, v); } catch (_) {} };
+      const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--surface);outline:none;box-sizing:border-box;';
+      const lbl = 'display:block;font-size:12px;font-weight:500;color:var(--n-600);margin:16px 0 6px;';
+      const CFG = {
+        venue: { tag: 'MA BOUTIQUE', title: tr({ fr: 'Nom & emplacement', en: 'Name & location', ar: 'الاسم والموقع' }), fields: [
+          { k: 'venueName', label: tr({ fr: 'Nom de la boutique', en: 'Shop name', ar: 'اسم المتجر' }), def: 'Café Atlas · Maarif', max: 40 },
+          { k: 'venueLoc',  label: tr({ fr: 'Emplacement', en: 'Location', ar: 'الموقع' }), def: 'Emplacement principal', max: 40 } ] },
+        hours: { tag: tr({ fr: 'HORAIRES', en: 'HOURS', ar: 'التوقيت' }), title: tr({ fr: 'Heures d\'ouverture', en: 'Opening hours', ar: 'ساعات العمل' }), fields: [
+          { k: 'hours', label: tr({ fr: 'Heures d\'ouverture', en: 'Opening hours', ar: 'ساعات العمل' }), def: '07:00 - 23:00 · tous les jours', max: 44 } ] },
+        goal: { tag: tr({ fr: 'OBJECTIF', en: 'GOAL', ar: 'الهدف' }), title: tr({ fr: 'Objectif journalier', en: 'Daily goal', ar: 'الهدف اليومي' }), hint: tr({ fr: 'Met à jour la barre d\'objectif du tableau de bord.', en: 'Updates the dashboard goal bar.', ar: 'يُحدّث شريط الهدف في لوحة التحكم.' }), fields: [
+          { k: 'goal', label: tr({ fr: 'Chiffre d\'affaires visé par jour · MAD', en: 'Target revenue per day · MAD', ar: 'رقم المعاملات المستهدف يوميًا · درهم' }), def: '28 000', type: 'number' } ] },
+      };
+      const cfg = CFG[which]; if (!cfg) return;
+      const body = '<style>.ks-field:focus{border-color:var(--atlas)!important;}</style>' + cfg.fields.map((f, i) =>
+        `<label style="${lbl}${i === 0 ? 'margin-top:2px;' : ''}">${f.label}</label>` +
+        `<input class="ks-field" data-f="${f.k}" ${f.type === 'number' ? 'type="number" inputmode="numeric" min="0"' : `maxlength="${f.max}"`} style="${fld}"/>`
+      ).join('') + (cfg.hint ? `<div style="font-size:12px;color:var(--n-500);margin-top:14px;line-height:1.5;">${cfg.hint}</div>` : '');
+      const m = modal({ tag: cfg.tag, title: cfg.title, width: 460, body,
+        foot: `<button class="kb atlas" data-save type="button" style="width:100%;justify-content:center;padding:12px;font-size:15px;">${tr({ fr: 'Enregistrer', en: 'Save', ar: 'حفظ' })}</button>` });
+      cfg.fields.forEach((f) => {
+        const cur = get(f.k, f.def);
+        m.el.querySelector(`[data-f="${f.k}"]`).value = f.type === 'number' ? String(cur).replace(/[^\d]/g, '') : cur;
+      });
+      setTimeout(() => m.el.querySelector('.ks-field') && m.el.querySelector('.ks-field').focus(), 320);
+      m.el.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-save]')) return;
+        cfg.fields.forEach((f) => {
+          let v = (m.el.querySelector(`[data-f="${f.k}"]`).value || '').trim();
+          if (!v) return;
+          if (f.type === 'number') v = (+v.replace(/[^\d]/g, '') || 0).toLocaleString('fr-FR').replace(/[^\d ]/g, ' ');
+          set(f.k, v);
+        });
+        m.close();
+        if (which === 'goal' && window.KiwiDateRange) { try { window.KiwiDateRange.setDateRange(window.KiwiDateRange.getDateRange()); } catch (_) {} }
+        setTimeout(() => handlers.settings(), 90);
+        toast(tr({ fr: 'Réglage enregistré', en: 'Setting saved', ar: 'تم حفظ الإعداد' }), { type: 'success', force: true });
+      });
+    },
+
+    /* Multi-select payment methods. */
+    'settings-methods': () => {
+      const cur = (() => { try { return localStorage.getItem('kiwiSet:methods') || 'Visa · MC · Kiwi Tap · QR'; } catch (_) { return 'Visa · MC · Kiwi Tap · QR'; } })();
+      const OPTS = ['Visa', 'Mastercard', 'Kiwi Tap', 'QR', 'Espèces', 'CMI'];
+      const on = (o) => cur.includes(o) || (o === 'Mastercard' && /\bMC\b/.test(cur)) || (o === 'Espèces' && /cash|espèces/i.test(cur));
+      const rowS = 'display:flex;align-items:center;gap:11px;padding:12px 4px;border-bottom:1px solid var(--n-200);cursor:pointer;font-size:14px;color:var(--ink);';
+      const m = modal({ tag: tr({ fr: 'PAIEMENTS', en: 'PAYMENTS', ar: 'المدفوعات' }), title: tr({ fr: 'Méthodes acceptées', en: 'Accepted methods', ar: 'طرق الدفع المقبولة' }), width: 420,
+        body: OPTS.map((o) => `<label style="${rowS}"><input type="checkbox" data-mth="${escape(o)}" ${on(o) ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--atlas);flex-shrink:0;"/>${escape(o)}</label>`).join(''),
+        foot: `<button class="kb atlas" data-save type="button" style="width:100%;justify-content:center;padding:12px;font-size:15px;">${tr({ fr: 'Enregistrer', en: 'Save', ar: 'حفظ' })}</button>` });
+      m.el.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-save]')) return;
+        const sel = [...m.el.querySelectorAll('[data-mth]:checked')].map((c) => c.getAttribute('data-mth'));
+        try { localStorage.setItem('kiwiSet:methods', sel.length ? sel.join(' · ') : tr({ fr: 'Aucune', en: 'None', ar: 'لا شيء' })); } catch (_) {}
+        m.close();
+        setTimeout(() => handlers.settings(), 90);
+        toast(tr({ fr: 'Méthodes mises à jour', en: 'Methods updated', ar: 'تم تحديث طرق الدفع' }), { type: 'success', force: true });
+      });
+    },
+
+    /* Display-currency preference picker. */
+    'settings-currency': (el) => {
+      const cur = (() => { try { return localStorage.getItem('kiwiSet:currency') || 'MAD · Dirham marocain'; } catch (_) { return 'MAD · Dirham marocain'; } })();
+      const pick = (v) => {
+        try { localStorage.setItem('kiwiSet:currency', v); } catch (_) {}
+        document.querySelectorAll('.kiwi-drawer-backdrop').forEach((b) => b.__kiwiClose && b.__kiwiClose());
+        setTimeout(() => handlers.settings(), 110);
+        toast(tr({ fr: 'Devise mise à jour', en: 'Currency updated', ar: 'تم تحديث العملة' }), { type: 'success', force: true });
+      };
+      menu(el, [
+        { label: 'MAD · Dirham marocain', active: cur.startsWith('MAD'), onClick: () => pick('MAD · Dirham marocain') },
+        { label: 'EUR · Euro',            active: cur.startsWith('EUR'), onClick: () => pick('EUR · Euro') },
+        { label: 'USD · Dollar US',       active: cur.startsWith('USD'), onClick: () => pick('USD · Dollar US') },
+        { label: 'GBP · Livre sterling',  active: cur.startsWith('GBP'), onClick: () => pick('GBP · Livre sterling') },
+      ]);
+    },
 
     /* Edit a user-created venue's identity from Settings → Boutique. */
     'settings-edit-venue': () => {
