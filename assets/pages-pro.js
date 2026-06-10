@@ -6683,10 +6683,9 @@ handlers['nav-inventory'] = () => {
   const lowStock = skus.filter(s => s.stock > 0 && s.stock <= 5).length;
   const activeSkus = skus.filter(s => s.stock > 0).length;
 
-  drawer({
+  window.Kiwi.appPage('inventory', {
     title: 'Inventaire produits',
     subtitle: `Maison Mansour · Gueliz · ${skus.length} SKUs suivis · stock vivant`,
-    width: 1040,
     body: `
       <div class="kx-kpi-strip">
         <div class="kx-kpi"><div class="l">SKUs ACTIFS</div><div class="v">${activeSkus}<span class="u">/ ${skus.length}</span></div><div class="d">${ruptures} en rupture</div></div>
@@ -6754,15 +6753,14 @@ handlers['nav-inventory'] = () => {
       </div>
     `,
     foot: `
-      <button class="kb ghost" data-dismiss style="margin-right:auto;">Fermer</button>
       <button class="kb ghost" data-action="bout-export-inv">${_ICN.upload}Exporter inventaire</button>
       <button class="kb atlas" data-action="bout-reorder">Bon de commande groupé</button>
     `,
-  }).el.querySelector('.kiwi-drawer').classList.add('page-xl');
+  });
 
-  /* ─── filter-pill delegation, mounted after drawer is in DOM ─── */
+  /* ─── filter-pill delegation, mounted after the page is in DOM ─── */
   setTimeout(() => {
-    const root = document.querySelector('.kiwi-drawer');
+    const root = document.querySelector('.dash-genpage');
     if (!root) return;
     const pills = root.querySelectorAll('.kx-pill');
     pills.forEach(p => {
@@ -7016,10 +7014,9 @@ handlers['nav-categories'] = () => {
   const totalItems = tree.reduce((s, t) => s + t.count, 0);
   const totalVal = tree.reduce((s, t) => s + t.val, 0);
 
-  drawer({
+  window.Kiwi.appPage('categories', {
     title: 'Catégories',
     subtitle: `${totalRoots} racines · ${totalSubs} sous-catégories · ${totalItems} produits référencés`,
-    width: 920,
     body: `
       <div class="kx-kpi-strip cols-3">
         <div class="kx-kpi"><div class="l">CATÉGORIES TOTALES</div><div class="v">${totalRoots + totalSubs}</div><div class="d">${totalRoots} racines · ${totalSubs} enfants</div></div>
@@ -7088,15 +7085,14 @@ handlers['nav-categories'] = () => {
       </div>
     `,
     foot: `
-      <button class="kb ghost" data-dismiss style="margin-right: auto;">Fermer</button>
       <button class="kb ghost" data-action="bout-cat-export">Exporter arborescence</button>
       <button class="kb atlas" data-action="bout-cat-publish">Publier les changements</button>
     `,
-  }).el.querySelector('.kiwi-drawer').classList.add('page-xl');
+  });
 
   /* ─── interactions: swatches toggle, iOS toggle, reorder buttons ─── */
   setTimeout(() => {
-    const root = document.querySelector('.kiwi-drawer');
+    const root = document.querySelector('.dash-genpage');
     if (!root) return;
 
     /* swatch picker — toggle 'on' inside its group */
@@ -7415,10 +7411,9 @@ handlers['bout-cat-publish'] = () => {
     const totalRedem = active.reduce((a, c) => a + c.redem, 0);
     const totalUplift = 47820;
 
-    drawer({
+    window.Kiwi.appPage('promos', {
       title: 'Promotions & offres',
       subtitle: 'Maison Mansour · Gueliz · 4 campagnes en direct · 1 planifiée',
-      width: 1040,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, var(--riad), var(--atlas));">
           <div class="l">UPLIFT REVENUE · CAMPAGNES ACTIVES</div>
@@ -7734,10 +7729,9 @@ handlers['bout-cat-publish'] = () => {
       { name: 'Sofia A. (FR)',  reason: '3 retours en 30 j · pattern post-Instagram', amt: '2 940 MAD', risk: 'Modéré' },
     ];
 
-    drawer({
+    window.Kiwi.appPage('returns', {
       title: 'Retours & échanges',
       subtitle: 'Maison Mansour · Gueliz · 5 demandes en attente · 2 clients flaggés',
-      width: 980,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, var(--atlas), var(--riad));">
           <div class="l">FENÊTRE DE RETOUR · 14 JOURS</div>
@@ -8250,10 +8244,9 @@ handlers['bout-cat-publish'] = () => {
       { c: CLIENTS[2], svc: 'Soin anti-âge',      pref: 'Ven soir',    auto: true,  ctx: 'Avant gala — urgent' },
     ];
 
-    const r = drawer({
+    const r = window.Kiwi.appPage('appointments', {
       title: 'Calendrier rendez-vous',
       subtitle: 'Spa Bahia · Hivernage · 3 praticiennes',
-      width: 1080,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, var(--atlas), var(--riad));">
           <div class="l">SEMAINE DU 27 AVRIL · MERCREDI EN COURS</div>
@@ -8351,11 +8344,9 @@ handlers['bout-cat-publish'] = () => {
         </div>
       `,
       foot: `
-        <button class="kb ghost" data-dismiss>Fermer</button>
         <button class="kb atlas" data-action="appt-new">${ICN.plus}Nouveau rendez-vous</button>
       `,
     });
-    r.el.querySelector('.kiwi-drawer').classList.add('page-xl');
 
     /* ─ Slot click → nested drawer with full booking details ─ */
     setTimeout(() => {
@@ -8662,10 +8653,9 @@ handlers['bout-cat-publish'] = () => {
       `;
     };
 
-    const r = drawer({
+    const r = window.Kiwi.appPage('services', {
       title: 'Services & forfaits',
       subtitle: 'Spa Bahia · catalogue complet · 17 prestations',
-      width: 980,
       body: `
         <div class="p-hero" style="background: linear-gradient(135deg, var(--atlas), var(--riad));">
           <div class="l">CATALOGUE COMPLET</div>
@@ -8745,11 +8735,9 @@ handlers['bout-cat-publish'] = () => {
         </div>
       `,
       foot: `
-        <button class="kb ghost" data-dismiss>Fermer</button>
         <button class="kb atlas" data-action="svc-new">${ICN.plus}Ajouter un service</button>
       `,
     });
-    r.el.querySelector('.kiwi-drawer').classList.add('page-xl');
 
     /* ─ Tab switcher ─ */
     setTimeout(() => {
@@ -9062,10 +9050,9 @@ handlers['bout-cat-publish'] = () => {
     const totalCerts = PRACS.reduce((s, p) => s + p.certs.length, 0);
     const expiring = PRACS.reduce((s, p) => s + p.certs.filter(c => c.s !== 'ok').length, 0);
 
-    drawer({
+    window.Kiwi.appPage('practitioners', {
       title: 'Praticien·ne·s · Spa Bahia',
       subtitle: '3 actives · Hivernage, Marrakech · planning T+1',
-      width: 920,
       body: `
         <div class="p-hero">
           <div class="l">PERFORMANCE ÉQUIPE · AVRIL</div>
@@ -9090,8 +9077,8 @@ handlers['bout-cat-publish'] = () => {
       `,
     });
 
-    // Wire card-level actions inside this drawer
-    const root = document.querySelector('.kiwi-drawer-backdrop:last-of-type');
+    // Wire card-level actions inside this page
+    const root = document.querySelector('.dash-genpage');
     if (!root) return;
     root.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
@@ -9808,10 +9795,9 @@ handlers['bout-cat-publish'] = () => {
       vip: CLIENTS.filter(isVIP).length,
       bday: bdayList.length,
     };
-    const d = drawer({
+    const d = window.Kiwi.appPage('clients', {
       title: 'Fiches clients',
       subtitle: `${CLIENTS.length} clients · ${fmtMAD(totalLTV)} MAD à vie · Spa Bahia Hivernage`,
-      width: 1040,
       body: `
         <div class="p-hero">
           <div class="l">CRM SPA BAHIA</div>
@@ -9852,7 +9838,6 @@ handlers['bout-cat-publish'] = () => {
         </table>
       `,
     });
-    d.el.querySelector('.kiwi-drawer').classList.add('page-xl');
     setTimeout(() => {
       d.el.querySelectorAll('[data-spa-row]').forEach((r) => {
         r.addEventListener('click', () => openProfile(+r.dataset.spaId));

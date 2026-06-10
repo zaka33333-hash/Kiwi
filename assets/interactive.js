@@ -3373,9 +3373,12 @@ ar: {
       || (document.querySelector('.dash-standard') && document.querySelector('.dash-standard').parentElement)
       || document.querySelector('.app');
     if (!container) return null;
-    let host = container.querySelector('.dash-genpage');
-    if (!host) { host = document.createElement('div'); host.className = 'dash-genpage'; container.appendChild(host); }
-    while (host.firstChild) host.removeChild(host.firstChild);
+    /* Fresh host per render — destinations attach click listeners to the
+     * host element, so reusing one node would stack duplicate listeners
+     * across page visits. Replacing it lets them die with the old node. */
+    const stale = container.querySelector('.dash-genpage');
+    if (stale) stale.remove();
+    const host = document.createElement('div'); host.className = 'dash-genpage'; container.appendChild(host);
     // Head — plain text via textContent (native-escaped, no injection).
     const head = document.createElement('div'); head.className = 'genpage-head';
     const h1 = document.createElement('h1'); h1.textContent = o.title || ''; head.appendChild(h1);
@@ -3405,7 +3408,9 @@ ar: {
      * this, focus stays on the sidebar link and the page change is silent. */
     h1.setAttribute('tabindex', '-1');
     try { h1.focus({ preventScroll: true }); } catch (_) { h1.focus(); }
-    return { el: host };
+    /* close() mirrors the drawer API so handlers converted from drawer() to
+     * appPage() keep their dismiss wiring — "closing" a page returns home. */
+    return { el: host, close: () => { if (handlers['nav-accueil']) handlers['nav-accueil'](); } };
   }
 
   window.Kiwi = {
