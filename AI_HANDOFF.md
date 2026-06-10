@@ -141,6 +141,15 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 evening (4):** `86d695d` **« Pour vous » opportunity cards** — Shopify-style
+suggestion band under the KPI strip, Kiwi-native (`assets/oppo-cards.js`, self-contained:
+injects its own CSS). 5-card pool × 3 slots, each card = one real feature (payment-link,
+loyalty, agent-mode, capital, zakat) + a brand-token SVG illustration + one text CTA wired
+to the feature's existing handler + a dismiss ✕ persisted in `kiwiOppoDismissed`; band
+self-removes when the pool is dry. Staggered entrance, hover lift + art parallax,
+reduced-motion + RTL safe, trilingual w/ langchange re-render. To add a card: append to
+POOL + ART in oppo-cards.js (no other wiring).
+
 **Jun 10 evening (3):** `bd45e69` **custom venues stop leaking demo data** — a fresh venue
 opening « Catégories » landed on Maison Mansour's caftans (200 demo products, 249 320 MAD).
 No page module had isCustom guards. New starter-page layer (end of pages-pro.js): 19
