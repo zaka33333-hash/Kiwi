@@ -141,6 +141,18 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 evening (3):** `bd45e69` **custom venues stop leaking demo data** — a fresh venue
+opening « Catégories » landed on Maison Mansour's caftans (200 demo products, 249 320 MAD).
+No page module had isCustom guards. New starter-page layer (end of pages-pro.js): 19
+destinations render an honest « Encore rien ici — et c'est normal » starter for custom
+venues — trade-titled via subtype profile (pharmacie → Familles & ordonnances), venue-named
+subtitle, three what-will-appear bullets, `.gp-starter` CSS. CRITICAL gotcha discovered:
+team.js / stock.js / conformite.js / finance.js re-install their nav handlers at
+`load + setTimeout(0)` to win override wars — any naive load-time wrap gets clobbered.
+The starter wrap is idempotent (`__kiwiStarter` flag), re-asserted at load+150ms AND on
+every venue switch. Pass-through branch clears `page-genpage` (direct handler invocations
+bypass the sidebar router's cleanup and would mask body-class pages like Équipe).
+
 **Jun 10 evening (2):** `9b757a8` **every sidebar destination is a full page** — the last 8
 drawer-based destinations (boutique: inventory/catégories/promos/retours · spa: calendrier
 RDV/services/praticiennes/fiches clients) converted to `Kiwi.appPage()` full views, same as
