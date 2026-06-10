@@ -141,6 +141,16 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 late afternoon:** `32b6b59` **Exclusif Ultra band** — the fusion/portfolio view
+(the Ultra experience) gains Section 5b living the 1 499 pillars: actionable cross-site
+AI rec (+3 800 MAD/sem staff transfer, real roster names), account manager card (Yasmine
+Kabbaj, median 11 min), enterprise API panel (key/webhooks/SFTP/SLA), ROI header line
+(≈0,1 % du CA portefeuille — matches the 1,47 M sidebar figure). Trilingual FS_ULTRA_STR
+in venues.js; CTAs = honest toasts; upgrade modal Ultra tier now lists portfolio view +
+ROI. NOTE: dashboard2.html (partner's hotel fork) has its own copies — not synced. ·
+`6eeb0ac` **main column + side rail** (.dash-cols two independent stacks; cards pack at
+exactly 14px; <1100px dissolves via display:contents + priority order).
+
 **Jun 10 afternoon:** `993e60c` **the 10/10 polish sweep** — a 6-agent Workflow audit (71
 graded findings, full output preserved in the commit message) → ~50 fixes in 23 files:
 every flat-slab row hover → eased brand tint w/ rounded end cells; press states across the
