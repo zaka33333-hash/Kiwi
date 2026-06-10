@@ -3041,3 +3041,16 @@ html[data-theme="dark"] .kw-item .thumb { background: var(--paper-muted); }
 .sc-wa-preview { background: var(--paper-soft); border-radius: 14px; padding: 16px; }
 .sc-wa-bubble { background: var(--surface); border-radius: 12px 12px 12px 4px; padding: 11px 13px; font-size: 12.5px; line-height: 1.5; max-width: 340px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
 .sc-wa-time { font-size: 10px; color: var(--n-400); text-align: right; margin-top: 5px; font-family: var(--mono); }
+
+/* ── Starter state · custom venues ──
+ * A fresh venue has no history: destination pages open as an honest
+ * "this builds itself" starter instead of leaking demo-venue data. */
+.gp-starter { max-width: 560px; margin: 28px auto 0; text-align: center; }
+.gp-starter-ic { width: 52px; height: 52px; border-radius: 16px; margin: 0 auto 16px; background: color-mix(in srgb, var(--mint) 25%, var(--surface)); color: var(--atlas); display: flex; align-items: center; justify-content: center; }
+.gp-starter h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 8px; color: var(--ink); }
+.gp-starter > p { font-size: 13.5px; color: var(--n-600); line-height: 1.55; margin: 0 0 18px; }
+.gp-starter-list { text-align: start; background: var(--surface); border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent); border-radius: 14px; padding: 6px 18px; margin-bottom: 16px; }
+.gp-starter-row { display: flex; gap: 10px; align-items: center; padding: 11px 0; font-size: 13px; color: var(--n-700); }
+.gp-starter-row + .gp-starter-row { border-top: 1px solid color-mix(in srgb, var(--ink) 6%, transparent); }
+.gp-starter-row svg { color: var(--atlas); flex: none; }
+.gp-starter-foot { font-size: 12px; color: var(--n-500); line-height: 1.5; max-width: 420px; margin: 0 auto; }

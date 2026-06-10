@@ -11471,3 +11471,129 @@ handlers['bout-cat-publish'] = () => {
     toast('Récap service midi imprimé', { type: 'success', desc: '47 plats servis · prép. moy. 8 min 14 s · 3 retours cuisine.' });
   };
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Kiwi · STARTER PAGES for custom venues
+ * A merchant-created venue has no demo history. Before this layer, every
+ * sidebar destination leaked ANOTHER venue's demo data (a fresh pharmacy
+ * opened "Catégories" onto Maison Mansour's caftans). Here we wrap every
+ * destination handler — whatever file registered it — at window.load (after
+ * pages.js / pages-pro.js / finance.js / conformite.js have all finished
+ * overriding each other): when the active venue is custom, the destination
+ * renders an honest "this page builds itself from your real sales" starter,
+ * titled in the trade's own vocabulary (subtype profile labels).
+ * ═════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  const CHECK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+  const SPARK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.7L19.6 10l-5.7 1.9L12 17.6l-1.9-5.7L4.4 10l5.7-1.9z"/></svg>';
+
+  /* What each destination will become — phrased to fit any trade. */
+  const STARTERS = {
+    transactions:  { t: 'Ventes',             d: 'L\'historique complet de vos encaissements, en temps réel.',
+                     b: ['Chaque vente apparaît ici à la seconde où elle est encaissée', 'Filtres par moyen de paiement, remboursements inclus', 'Rapprochement bancaire et exports comptables'] },
+    terminaux:     { t: 'Terminaux',          d: 'Vos appareils d\'encaissement, leur état et leurs affectations.',
+                     b: ['Statut, batterie et version de chaque appareil', 'Kiwi fonctionne aussi sur votre matériel existant', 'Affectation par employé et par zone'] },
+    conformite:    { t: 'Conformité',         d: 'Vos registres et obligations, tenus à jour automatiquement.',
+                     b: ['Registres générés à partir de votre activité réelle', 'Alertes avant chaque échéance', 'Dossier prêt en cas de contrôle'] },
+    equipe:        { t: 'Équipe',             d: 'Vos employés, leurs rôles et leurs codes PIN.',
+                     b: ['Un code PIN par personne sur la caisse', 'Rôles et permissions par poste', 'Performance individuelle dès les premières ventes'] },
+    payroll:       { t: 'Paie & planning',    d: 'Plannings, pointage et préparation de la paie.',
+                     b: ['Plannings hebdomadaires par personne', 'Pointage directement sur la caisse', 'Heures cumulées prêtes pour la paie'] },
+    reservations:  { t: 'Réservations & RDV', d: 'Votre agenda client, connecté à la caisse.',
+                     b: ['Réservations et rendez-vous au même endroit', 'Rappels automatiques WhatsApp', 'No-shows suivis et acomptes possibles'] },
+    finance:       { t: 'Marges & budget',    d: 'Vos marges réelles, calculées depuis vos ventes.',
+                     b: ['Marge brute par produit et par famille', 'Budget mensuel et alertes de dérive', 'Tendances dès vos premières semaines'] },
+    tables:        { t: 'Plan de salle',      d: 'Votre salle, vue de la caisse.',
+                     b: ['Dessinez vos zones et vos tables', 'État en direct pendant le service', 'Encaissement directement depuis la table'] },
+    menu:          { t: 'Menu',               d: 'Votre carte, vos prix et vos options.',
+                     b: ['Produits, variantes et options', 'Prix modifiables en deux gestes', 'Disponibilité par créneau ou par jour'] },
+    kds:           { t: 'Écran cuisine',      d: 'Les commandes envoyées en préparation, en direct.',
+                     b: ['Chaque commande part en cuisine à l\'encaissement', 'Files par poste de préparation', 'Temps de préparation mesurés'] },
+    stock:         { t: 'Stock',              d: 'Vos quantités, suivies à chaque vente.',
+                     b: ['Le stock décompte automatiquement à la vente', 'Seuils d\'alerte avant rupture', 'Kiwi AI estime les quantités à recommander'] },
+    inventory:     { t: 'Inventaire',         d: 'Vos références, leurs prix et leurs quantités.',
+                     b: ['Ajoutez vos références une à une ou par import', 'Stock décompté automatiquement à la vente', 'Alertes avant rupture'] },
+    categories:    { t: 'Catégories',         d: 'Vos familles d\'articles, telles que vous organisez votre activité.',
+                     b: ['Créez vos propres familles et sous-familles', 'Elles structurent la caisse et les rapports', 'Réorganisables à tout moment'] },
+    promos:        { t: 'Promotions',         d: 'Vos offres et leurs résultats, mesurés sur de vraies ventes.',
+                     b: ['Créez des offres simples ou conditionnelles', 'Impact mesuré sur le chiffre réel', 'Activation et fin programmables'] },
+    returns:       { t: 'Retours',            d: 'Vos retours et échanges, tracés proprement.',
+                     b: ['Chaque retour relié à sa vente d\'origine', 'Remboursement, avoir ou échange', 'Politique de retour configurable'] },
+    appointments:  { t: 'Agenda',             d: 'Votre planning, rempli par vos vraies réservations.',
+                     b: ['Vue semaine par membre de l\'équipe', 'Rappels automatiques aux clients', 'Liste d\'attente avec promotion automatique'] },
+    services:      { t: 'Prestations',        d: 'Votre catalogue de prestations et de formules.',
+                     b: ['Créez vos prestations, durées et prix', 'Formules et abonnements possibles', 'Les plus demandées remontent automatiquement'] },
+    practitioners: { t: 'Équipe',             d: 'Les personnes qui réalisent vos prestations.',
+                     b: ['Profils, spécialités et plannings', 'Performance par personne dès les premières ventes', 'Commissions configurables'] },
+    clients:       { t: 'Fiches clients',     d: 'Votre fichier client, construit vente après vente.',
+                     b: ['Une fiche créée automatiquement par client', 'Historique, préférences et notes', 'Campagnes anniversaires et fidélité'] },
+  };
+
+  function starterTitle(nav, meta) {
+    const KV = window.KiwiVenue;
+    /* The trade's own label for this destination (subtype profile) wins. */
+    const vd = KV?.getCurrentVenueData?.() || {};
+    const prof = vd.subtype && KV?.getSubtypeProfile?.(vd.subtype);
+    const item = prof && prof.items && prof.items.find(i => i.nav === nav);
+    if (item && item.label) {
+      const lang = window.KiwiI18n?.getLang?.() || 'fr';
+      return item.label[lang] ?? item.label.fr;
+    }
+    if (nav === 'transactions') {
+      const v = KV?.getVocab?.('navOrders');
+      if (v) return v;
+    }
+    return meta.t;
+  }
+
+  function renderStarter(nav, meta) {
+    const KV = window.KiwiVenue;
+    const vd = KV?.getCurrentVenueData?.() || {};
+    window.Kiwi.appPage(nav, {
+      title: starterTitle(nav, meta),
+      subtitle: `${vd.name || 'Votre établissement'} · compte en démarrage`,
+      body: `
+        <div class="gp-starter">
+          <div class="gp-starter-ic">${SPARK}</div>
+          <h3>Encore rien ici — et c'est normal.</h3>
+          <p>${meta.d}</p>
+          <div class="gp-starter-list">
+            ${meta.b.map(x => `<div class="gp-starter-row">${CHECK}<span>${x}</span></div>`).join('')}
+          </div>
+          <p class="gp-starter-foot">Cette page se construit automatiquement avec vos données réelles, dès vos premières ventes sur la caisse.</p>
+        </div>
+      `,
+    });
+  }
+
+  /* Wrap AFTER every module has registered/overridden its nav handlers.
+   * Several modules (team.js, stock.js, conformite.js, finance.js…) re-install
+   * their handlers at load+setTimeout(0) to win override wars, so a single
+   * load-time wrap gets clobbered. The wrap is idempotent (already-wrapped
+   * functions are skipped) and re-asserted after their timers and on every
+   * venue switch — by the time a destination can be clicked, the guard is on. */
+  function installStarters() {
+    const H = window.Kiwi && window.Kiwi.handlers;
+    if (!H) return;
+    Object.entries(STARTERS).forEach(([nav, meta]) => {
+      const key = 'nav-' + nav;
+      const orig = H[key];
+      if (orig && orig.__kiwiStarter) return;
+      const wrapped = function () {
+        if (window.KiwiVenue?.isCustom?.()) return renderStarter(nav, meta);
+        /* Direct invocations (mobile nav, palette, agent) bypass the sidebar
+         * router's genpage cleanup — clear a leftover starter page so it
+         * can't mask the destination's own body-class view. */
+        document.body.classList.remove('page-genpage');
+        return orig ? orig.apply(this, arguments) : undefined;
+      };
+      wrapped.__kiwiStarter = true;
+      H[key] = wrapped;
+    });
+  }
+  window.addEventListener('load', () => {
+    setTimeout(installStarters, 150);
+    if (window.KiwiVenue?.subscribe) window.KiwiVenue.subscribe(() => installStarters());
+  });
+})();
