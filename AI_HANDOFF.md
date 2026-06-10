@@ -141,6 +141,15 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 evening (6):** `c98e317` **every card is alive** — staggered card entrance
+(.dash-col .block nth-child delays), hover lift (+shadow; rule is `html body .block` to
+outrank theme.css's `html .block` color-only transition — merge color transitions in or
+theme switching judders), Top produits mini-bars + bench bars draw in from 0 via
+`growBars()` (dateRange.js: double-rAF + 450ms timer fallback for hidden tabs), rows
+cascade via `--i` stagger, bench rank counts up (animateNumber). Health ring / mix donut /
+rev chart were already animated. The 3s live tick only re-renders hero/KPI/chart/feed, so
+nothing replays on its own; reduced-motion disables all of it.
+
 **Jun 10 evening (5):** `74e56e8` **the 0000 session stops leaking the demo** — from a
 merchant-created venue, the switcher still offered the 3 demo venues + « Go Ultra »
 (fusion = demo aggregation), and « Marges → » opened Café Atlas's product margins. Now:
