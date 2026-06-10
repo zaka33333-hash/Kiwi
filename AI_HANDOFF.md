@@ -141,6 +141,16 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 evening (5):** `74e56e8` **the 0000 session stops leaking the demo** — from a
+merchant-created venue, the switcher still offered the 3 demo venues + « Go Ultra »
+(fusion = demo aggregation), and « Marges → » opened Café Atlas's product margins. Now:
+`renderDropdown` lists only the merchant's own venues in the 0000 session
+(`window.__kiwiOnboard`, set at PIN entry) with an « Ajouter un établissement » CTA
+(action `onboard`); dropdown rows escape merchant-typed name/location; `view-margins`
+(dashboard-extra.js) gets a trilingual starter drawer for custom venues. Demo sessions
+unchanged. NOTE: other [data-action] drawers reachable from custom venues may still show
+demo data — guard them with the same isCustom pattern as they surface.
+
 **Jun 10 evening (4):** `86d695d` **« Pour vous » opportunity cards** — Shopify-style
 suggestion band under the KPI strip, Kiwi-native (`assets/oppo-cards.js`, self-contained:
 injects its own CSS). 5-card pool × 3 slots, each card = one real feature (payment-link,
