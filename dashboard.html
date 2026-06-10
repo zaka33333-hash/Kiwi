@@ -550,6 +550,33 @@
 
   /* ─────────────── BLOCK STYLE ─────────────── */
   .block { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 22px 24px; }
+  /* ── Cards alive: entrance choreography + hover lift + growing visuals ──
+   * Every home card breathes: it fades up on load (staggered down each
+   * column), lifts gently under the cursor, and its bars/rows draw in on
+   * every data change (range, venue, language). The live 3s tick only
+   * re-renders hero/KPI/chart/feed, so these never replay on their own. */
+  /* html body — outranks theme.css's `html .block` color-transition rule;
+   * the color transitions are merged in so theme switching stays smooth. */
+  html body .block { transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease,
+    transform 220ms cubic-bezier(0.32, 0.72, 0, 1), box-shadow 220ms ease; }
+  .block:hover { transform: translateY(-1px); box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--ink) 26%, transparent); }
+  @keyframes card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .dash-col .block, .row .block { animation: card-in 480ms cubic-bezier(0.32, 0.72, 0, 1) backwards; }
+  .dash-col .block:nth-child(1) { animation-delay: 60ms; }
+  .dash-col .block:nth-child(2) { animation-delay: 140ms; }
+  .dash-col .block:nth-child(3) { animation-delay: 220ms; }
+  .dash-col .block:nth-child(4) { animation-delay: 300ms; }
+  @keyframes row-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .prod-row, .staff-row, .bench-row {
+    animation: row-in 380ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 45ms + 60ms);
+  }
+  .mini-bar > div, .bench-bar .you { transition: width 720ms cubic-bezier(0.16, 1, 0.3, 1); }
+  @media (prefers-reduced-motion: reduce) {
+    .block, .dash-col .block, .row .block, .prod-row, .staff-row, .bench-row { animation: none; transition: none; }
+    .block:hover { transform: none; box-shadow: none; }
+    .mini-bar > div, .bench-bar .you { transition: none; }
+  }
   .block-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
   .block-head .t { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
   .block-head .t .pulse-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s infinite; }

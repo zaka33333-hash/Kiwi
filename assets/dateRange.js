@@ -3235,6 +3235,24 @@
       `color:var(--n-500);line-height:1.5;max-width:320px;margin-inline:auto;">${msg}</div>`;
   }
 
+  /* Grow [data-grow] elements from width 0 to their target — bars draw in
+   * on every data change. The double-rAF lets the 0-width frame paint first
+   * so the CSS width transition has something to animate from. */
+  function growBars(scope) {
+    if (!scope) return;
+    const els = scope.querySelectorAll('[data-grow]');
+    if (!els.length) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach((el) => { el.style.width = el.dataset.grow; });
+      return;
+    }
+    const apply = () => els.forEach((el) => { el.style.width = el.dataset.grow; });
+    requestAnimationFrame(() => requestAnimationFrame(apply));
+    /* rAF is frozen in hidden tabs — the timer guarantees the bars land at
+     * their real widths even if the render happened in the background. */
+    setTimeout(apply, 450);
+  }
+
   /* Merge the current venue's trade vocabulary over a default empty-state
    * dict — a gym's cards talk passages/adhérents, a boutique's talk ventes.
    * KiwiVenue.getVocab returns null for demo venues and plain restaurants,
@@ -3396,7 +3414,7 @@
     if (subEl) subEl.textContent = benchLabels.sub || BENCH_SUB[lang]?.[currentRange] || BENCH_SUB.fr[currentRange];
 
     const rankEl = document.querySelector('[data-bench-rank]');
-    if (rankEl) rankEl.textContent = `#${data.rank}`;
+    if (rankEl) animateNumber(rankEl, parseIntFromEl(rankEl), data.rank, { duration: 650, format: v => `#${Math.round(v)}` });
 
     // Match the rank-sub wording to the vertical
     const venueType = window.KiwiVenue?.getVenueType?.() || 'restaurant';
@@ -3407,16 +3425,17 @@
 
     const comp = document.querySelector('[data-bench-comp]');
     if (comp) {
-      comp.innerHTML = data.rows.map(r => `
-        <div class="bench-row">
+      comp.innerHTML = data.rows.map((r, i) => `
+        <div class="bench-row" style="--i:${i};">
           <div class="lbl">${trStr(r.lbl, BENCH_LBL)}</div>
           <div class="bench-bar">
-            <div class="you" style="width: ${r.you}%;"></div>
+            <div class="you" style="width: 0%;" data-grow="${r.you}%"></div>
             <div class="peer" style="left: ${r.peer}%;"></div>
           </div>
           <div class="v"${r.warn ? ' style="color: var(--warning);"' : ''}>${r.v}</div>
         </div>
       `).join('');
+      growBars(comp);
     }
   }
 
@@ -3437,16 +3456,17 @@
       list.innerHTML = emptyListBody(pe.msg);
     } else if (list && data) {
       list.innerHTML = data.map((p, i) => `
-        <div class="prod-row">
+        <div class="prod-row" style="--i:${i};">
           <div class="rank${i === 0 ? ' top' : ''}">${p.rank}</div>
           <div class="info">
             <div class="n">${p.name}</div>
             <div class="r">${p.sub}</div>
           </div>
-          <div class="mini-bar"><div style="width: ${p.bar}%;"></div></div>
+          <div class="mini-bar"><div style="width: 0%;" data-grow="${p.bar}%"></div></div>
           <div class="sales">${p.sales}</div>
         </div>
       `).join('');
+      growBars(list);
     }
     const sub = document.querySelector('[data-products-sub]');
     if (sub) sub.textContent = isCustom
@@ -3468,8 +3488,8 @@
     if (list && isCustom) {
       list.innerHTML = emptyListBody(se.msg);
     } else if (list && data) {
-      list.innerHTML = data.map(s => `
-        <div class="staff-row">
+      list.innerHTML = data.map((s, i) => `
+        <div class="staff-row" style="--i:${i};">
           <div class="av ${s.cls}"${s.cls === 'offline' ? ' style="background: var(--n-400);"' : ''}>${s.av}</div>
           <div class="info">
             <div class="n">${s.name}</div>
