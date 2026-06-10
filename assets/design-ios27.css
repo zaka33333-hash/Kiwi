@@ -21,6 +21,13 @@ body.design-2026.design-ios27 { --mint-vivid: var(--mint); --side-smoke: 62%; }
 @supports (color: color(display-p3 1 1 1)) {
   body.design-2026.design-ios27 { --mint-vivid: color(display-p3 0.49 0.95 0.69); }
 }
+/* Desktop: deeper smoke — on a big light-mode canvas the paper + mesh behind
+ * the pane washed it out and faded the nav labels. (Dark theme keeps its own
+ * value via its higher-specificity rule; the §4 transparency presets are
+ * declared later, so the user control still overrides this.) */
+@media (min-width: 861px) {
+  body.design-2026.design-ios27 { --side-smoke: 80%; }
+}
 
 /* ── 2 · Sidebar — full-edge smoked glass, the ambient mesh refracts beneath ──
  * Stays DARK in both themes (all sidebar text is light-on-dark by design),
