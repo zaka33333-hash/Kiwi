@@ -1207,9 +1207,9 @@
   };
 
   const DROPDOWN_CTA = {
-    fr: { exitT: 'Revenir à la vue simple', exitS: 'Repasser sur un seul emplacement', enterT: 'Go Ultra', enterS: 'Vue consolidée · données multi-sites' },
-    en: { exitT: 'Back to single view', exitS: 'Return to a single location', enterT: 'Go Ultra', enterS: 'Consolidated view · multi-site data' },
-    ar: { exitT: 'العودة إلى العرض البسيط', exitS: 'الرجوع إلى موقع واحد', enterT: 'Go Ultra', enterS: 'عرض موحّد · بيانات متعدّدة المواقع' },
+    fr: { exitT: 'Revenir à la vue simple', exitS: 'Repasser sur un seul emplacement', enterT: 'Go Ultra', enterS: 'Vue consolidée · données multi-sites', addT: 'Ajouter un établissement', addS: 'Une autre activité, un autre lieu' },
+    en: { exitT: 'Back to single view', exitS: 'Return to a single location', enterT: 'Go Ultra', enterS: 'Consolidated view · multi-site data', addT: 'Add a venue', addS: 'Another business, another location' },
+    ar: { exitT: 'العودة إلى العرض البسيط', exitS: 'الرجوع إلى موقع واحد', enterT: 'Go Ultra', enterS: 'عرض موحّد · بيانات متعدّدة المواقع', addT: 'إضافة منشأة', addS: 'نشاط آخر، موقع آخر' },
   };
 
   function renderDropdown() {
@@ -1217,23 +1217,43 @@
     if (!wrap) return;
     const dd = DROPDOWN_CTA[fusionLang()] || DROPDOWN_CTA.fr;
     const inFusion = currentVenue === 'fusion';
-    const venueRows = REAL_VENUES.map(id => {
+    /* The 0000 session is a brand-new merchant's account — their switcher
+     * lists only THEIR venues. Café Atlas & co are demo-session material. */
+    const onboard = !!window.__kiwiOnboard;
+    const listIds = onboard
+      ? Object.keys(VENUES).filter(id => VENUES[id] && VENUES[id].custom)
+      : REAL_VENUES;
+    /* Custom venue names/locations are merchant-typed — escape them. */
+    const escD = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const venueRows = listIds.map(id => {
       const v = VENUES[id];
       const isActive = !inFusion && id === currentVenue;
       return `
-        <button type="button" class="venue-row${isActive ? ' active' : ''}" data-action="venue-pick" data-venue="${id}">
+        <button type="button" class="venue-row${isActive ? ' active' : ''}" data-action="venue-pick" data-venue="${escD(id)}">
           <div class="venue-row-icon">${TYPE_ICONS[v.type] || TYPE_ICONS.restaurant}</div>
           <div class="venue-row-body">
-            <div class="venue-row-name">${v.name} · ${v.location}</div>
-            <div class="venue-row-type">${v.typeLabel}</div>
+            <div class="venue-row-name">${escD(v.name)} · ${escD(v.location)}</div>
+            <div class="venue-row-type">${escD(v.typeLabel)}</div>
           </div>
-          <div class="venue-row-status" aria-label="${v.status}"><i></i></div>
+          <div class="venue-row-status" aria-label="${escD(v.status || 'en service')}"><i></i></div>
         </button>
       `;
     }).join('');
 
     // CTA appended at the bottom of the dropdown — toggles fusion mode.
-    const cta = inFusion ? `
+    // Fresh-merchant session: the fusion view aggregates DEMO venues, so the
+    // CTA becomes "add a venue" (opens the onboarding wizard) instead.
+    const cta = onboard ? `
+        <button type="button" class="venue-action fusion-cta" data-action="onboard">
+          <div class="va-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="va-body">
+            <div class="va-title">${dd.addT}</div>
+            <div class="va-sub">${dd.addS}</div>
+          </div>
+        </button>
+      ` : inFusion ? `
         <button type="button" class="venue-action return-cta" data-action="venue-exit-fusion">
           <div class="va-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>

@@ -276,6 +276,26 @@
     const lang = trLang();
     const str = MARGINS_STR[lang] || MARGINS_STR.fr;
 
+    /* A merchant-created venue has no sales yet — show what this drawer
+     * WILL compute instead of leaking Café Atlas's product margins. */
+    if (window.KiwiVenue?.isCustom?.()) {
+      const T = ({
+        fr: { s: 'Compte en démarrage', h: 'Vos marges se calculent toutes seules', d: 'Dès vos premières ventes, Kiwi croise prix et coûts pour afficher la marge réelle de chaque produit — et signaler ceux dont le prix ou le coût est à revoir.' },
+        en: { s: 'Account starting up', h: 'Your margins compute themselves', d: 'From your first sales, Kiwi crosses prices and costs to show each product\'s real margin — and flags the ones whose price or cost needs a second look.' },
+        ar: { s: 'حساب في بدايته', h: 'هوامشك تُحسب تلقائيًا', d: 'منذ أول مبيعاتك، يقاطع Kiwi الأسعار والتكاليف ليعرض الهامش الحقيقي لكل منتج — وينبّهك إلى ما يستحق مراجعة سعره أو تكلفته.' },
+      })[lang] || { s: 'Compte en démarrage', h: 'Vos marges se calculent toutes seules', d: '' };
+      drawer({
+        title: str.title,
+        subtitle: T.s,
+        width: 520,
+        body: `<div style="padding:26px 8px 14px;text-align:center;">` +
+          `<div style="font-size:14.5px;font-weight:600;color:var(--ink);">${T.h}</div>` +
+          `<div style="font-size:12.5px;color:var(--n-500);margin-top:7px;line-height:1.55;max-width:360px;margin-inline:auto;">${T.d}</div>` +
+          `</div>`,
+      });
+      return;
+    }
+
     const rows = PRODUCTS.map((p) => {
       const marginMad = p.price - p.cost;
       const marginPct = Math.round((marginMad / p.price) * 100);
