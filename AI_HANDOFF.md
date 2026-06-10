@@ -141,6 +141,23 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 end of afternoon:** `e5adccb` **each trade gets its own features** — the 15
+onboarding activity types stop inheriting restaurant/boutique/spa wholesale.
+`SUBTYPE_PROFILES` in venues.js: 12 full trilingual profiles (café, fast-food,
+boulangerie, pizzeria, traiteur, food truck, épicerie, pharmacie, librairie, fleuriste,
+coiffure, salle de sport), each with its own sidebar nav labels (mapped onto the base
+vertical's nav targets, so pages still work), its own KPI band spec (keys from the valid
+data-key set; labels in the trade's vocabulary — "Patients réguliers", "Retours labo",
+"Passages", "Rétention"), and 3 **optional** step-2 onboarding questions. The wizard is
+now two steps: type+name → trade questions with « Passer pour l'instant » skip; answers
+persist as `profileInfo` on the custom venue (skip ⇒ null). KPI band wiring: profile
+labels win over the generic KPI_CATALOG and tiles skip `data-i18n` (i18n.js would
+overwrite them); the band re-renders on `kiwi:langchange` so AR/EN re-pick. Gotcha fixed
+on the way: `vData()` zero-cloned **cafeAtlas** for every custom venue, so
+vertical-specific tiles (tauxRetour, retention…) silently dropped — it now clones the
+base type's demo sibling (maisonMansour / spaBahia). Verified live both paths:
+Pharmacie (full answers, FR+AR) and Salle de sport (skip path).
+
 **Jun 10 late afternoon:** `32b6b59` **Exclusif Ultra band** — the fusion/portfolio view
 (the Ultra experience) gains Section 5b living the 1 499 pillars: actionable cross-site
 AI rec (+3 800 MAD/sem staff transfer, real roster names), account manager card (Yasmine
