@@ -510,7 +510,15 @@
         { k: 'guard',         type: 'text',   ph: 'Ex. 1 semaine / 8', label: { fr: 'Rotation de garde', en: 'On-call rotation', ar: 'مناوبة الحراسة' } },
         { k: 'prescriptions', type: 'number', ph: 'Ex. 60',            label: { fr: 'Ordonnances / jour', en: 'Prescriptions / day', ar: 'وصفات/يوم' } },
         { k: 'labs',          type: 'number', ph: 'Ex. 12',            label: { fr: 'Laboratoires partenaires', en: 'Partner labs', ar: 'المختبرات الشريكة' } },
-      ] },
+      ],
+      vocab: {
+        feedEmpty: { fr: { badge: 'PHARMACIE OUVERTE' }, en: { badge: 'PHARMACY OPEN' }, ar: { badge: 'الصيدلية مفتوحة' } },
+        feedAwait: { fr: 'Pharmacie ouverte · en attente de la 1ʳᵉ vente', en: 'Pharmacy open · awaiting first sale', ar: 'الصيدلية مفتوحة · في انتظار أول عملية بيع' },
+        stockEmpty: { fr: { msg: 'Dès que vous suivez vos références et péremptions, Kiwi AI estime les quantités à recommander.' },
+                      en: { msg: 'Once you track your references and expiry dates, Kiwi AI estimates the quantities to reorder.' },
+                      ar: { msg: 'بمجرد تتبّع مراجعك وتواريخ الصلاحية، يقدّر Kiwi AI الكميات الواجب طلبها.' } },
+        askPlaceholder: { fr: 'Posez votre question sur votre pharmacie...', en: 'Ask a question about your pharmacy...', ar: 'اطرح سؤالاً حول صيدليتك...' },
+      } },
     librairie: { base: 'boutique',
       header: { fr: 'Librairie', en: 'Bookshop', ar: 'المكتبة' },
       items: [
@@ -573,7 +581,14 @@
         { k: 'chairs',   type: 'number', ph: 'Ex. 6',                 label: { fr: 'Fauteuils', en: 'Chairs', ar: 'الكراسي' } },
         { k: 'duration', type: 'number', ph: 'Ex. 45',                label: { fr: 'Durée moyenne RDV (min)', en: 'Avg appointment (min)', ar: 'متوسط الموعد (د)' } },
         { k: 'specialty', type: 'text',  ph: 'Ex. Balayage, soins',   label: { fr: 'Spécialités', en: 'Specialties', ar: 'التخصصات' } },
-      ] },
+      ],
+      vocab: {
+        feedEmpty: { fr: { badge: 'SALON OUVERT', title: 'Premier rendez-vous à venir' },
+                     en: { badge: 'SALON OPEN', title: 'First appointment coming up' },
+                     ar: { badge: 'الصالون مفتوح', title: 'أول موعد قادم' } },
+        feedAwait: { fr: 'Salon ouvert · en attente du 1ᵉʳ rendez-vous', en: 'Salon open · awaiting first appointment', ar: 'الصالون مفتوح · في انتظار أول موعد' },
+        askPlaceholder: { fr: 'Posez votre question sur votre salon...', en: 'Ask a question about your salon...', ar: 'اطرح سؤالاً حول صالونك...' },
+      } },
     sport: { base: 'spa',
       header: { fr: 'Salle de sport', en: 'Gym', ar: 'النادي الرياضي' },
       items: [
@@ -594,7 +609,73 @@
         { k: 'members', type: 'number', ph: 'Ex. 250',                label: { fr: '≈ Adhérents actifs', en: '≈ Active members', ar: '≈ الأعضاء النشطون' } },
         { k: 'surface', type: 'number', ph: 'Ex. 400',                label: { fr: 'Surface (m²)', en: 'Floor area (m²)', ar: 'المساحة (م²)' } },
         { k: 'classes', type: 'text',   ph: 'Ex. 12 cours / semaine', label: { fr: 'Cours collectifs', en: 'Group classes', ar: 'الحصص الجماعية' } },
-      ] },
+      ],
+      vocab: {
+        feedEmpty: { fr: { badge: 'SALLE OUVERTE', title: 'Premier passage à venir', sub: 'Le flux s\'active dès le premier passage ou la première vente à l\'accueil.' },
+                     en: { badge: 'GYM OPEN', title: 'First check-in coming up', sub: 'The feed starts with the first check-in or front-desk sale.' },
+                     ar: { badge: 'النادي مفتوح', title: 'أول دخول قادم', sub: 'يبدأ التدفّق مع أول دخول أو أول عملية بيع في الاستقبال.' } },
+        feedAwait: { fr: 'Salle ouverte · en attente du 1ᵉʳ passage', en: 'Gym open · awaiting first check-in', ar: 'النادي مفتوح · في انتظار أول دخول' },
+        stockEmpty: { fr: { msg: 'Dès que vous suivez vos consommables (boissons, serviettes…), Kiwi AI estime les quantités à recommander.' },
+                      en: { msg: 'Once you track your consumables (drinks, towels…), Kiwi AI estimates the quantities to reorder.' },
+                      ar: { msg: 'بمجرد تتبّع مستلزماتك (مشروبات، مناشف…)، يقدّر Kiwi AI الكميات الواجب طلبها.' } },
+        productsEmpty: { fr: { title: 'Top abonnements', manage: 'Gérer les offres →', sub: 'Aucune adhésion enregistrée', msg: 'Vos formules les plus vendues s\'afficheront ici dès la première adhésion.' },
+                         en: { title: 'Top memberships', manage: 'Manage plans →', sub: 'No sign-ups recorded', msg: 'Your best-selling plans will appear here after the first sign-up.' },
+                         ar: { title: 'أفضل الاشتراكات', manage: 'إدارة العروض ←', sub: 'لا اشتراكات مسجّلة', msg: 'ستظهر أكثر صيغك مبيعًا هنا بعد أول اشتراك.' } },
+        staffEmpty: { fr: { title: 'Performance coachs', sub: 'Aucun coach', msg: 'Ajoutez vos coachs pour suivre les performances par personne.' },
+                      en: { title: 'Coach performance', sub: 'No coaches yet', msg: 'Add your coaches to track performance per person.' },
+                      ar: { title: 'أداء المدربين', sub: 'لا مدربون بعد', msg: 'أضِف مدربيك لتتبّع الأداء لكل شخص.' } },
+        eveningEmpty: { fr: { lbl: 'CE SOIR · COURS', head: 'Aucun cours planifié', msg: 'Vos cours du soir s\'afficheront ici dès qu\'un adhérent s\'inscrit.' },
+                        en: { lbl: 'TONIGHT · CLASSES', head: 'No classes scheduled', msg: 'Your evening classes will appear here as soon as a member signs up.' },
+                        ar: { lbl: 'الليلة · الحصص', head: 'لا حصص مجدولة', msg: 'ستظهر حصص المساء هنا بمجرد تسجيل أحد الأعضاء.' } },
+        navOrders: { fr: 'Passages', en: 'Check-ins', ar: 'الدخول' },
+        askPlaceholder: { fr: 'Posez votre question sur votre salle...', en: 'Ask a question about your gym...', ar: 'اطرح سؤالاً حول ناديك...' },
+      } },
+  };
+
+  /* ── Trade vocabulary for the home cards ──────────────────────────
+   * The dashboard's empty states were written for restaurants ("première
+   * commande", "ingrédients", "Gérer menu"). A custom venue speaks its
+   * trade's language instead: the base vertical's vocab first (boutique /
+   * spa — restaurant keeps the default strings), refined per subtype via
+   * SUBTYPE_PROFILES[*].vocab where the trade needs its own words (salle
+   * de sport above). Resolved by getVocab(section) for the current venue
+   * and language; dateRange.js merges the result over its default dicts,
+   * so a missing field falls back cleanly. */
+  const BASE_VOCAB = {
+    boutique: {
+      feedEmpty: { fr: { badge: 'BOUTIQUE OUVERTE', title: 'Première vente à venir', sub: 'Le flux s\'active dès la première vente saisie sur la caisse.' },
+                   en: { badge: 'SHOP OPEN', title: 'First sale coming up', sub: 'The feed starts as soon as the first sale is rung up.' },
+                   ar: { badge: 'المتجر مفتوح', title: 'أول عملية بيع قادمة', sub: 'يبدأ التدفّق فور تسجيل أول عملية بيع على الصندوق.' } },
+      feedAwait: { fr: 'Boutique ouverte · en attente de la 1ʳᵉ vente', en: 'Shop open · awaiting first sale', ar: 'المتجر مفتوح · في انتظار أول عملية بيع' },
+      stockEmpty: { fr: { msg: 'Dès que vous suivez vos articles, Kiwi AI estime les quantités à recommander.' },
+                    en: { msg: 'Once you track your items, Kiwi AI estimates the quantities to reorder.' },
+                    ar: { msg: 'بمجرد تتبّع منتجاتك، يقدّر Kiwi AI الكميات الواجب طلبها.' } },
+      productsEmpty: { fr: { title: 'Top articles', manage: 'Gérer le catalogue →', msg: 'Vos meilleures ventes s\'afficheront ici dès la première vente.' },
+                       en: { title: 'Top items', manage: 'Manage catalog →', msg: 'Your best sellers will appear here after the first sale.' },
+                       ar: { title: 'أفضل المنتجات', manage: 'إدارة الكتالوج ←', msg: 'ستظهر أفضل مبيعاتك هنا بعد أول عملية بيع.' } },
+      eveningEmpty: { fr: { lbl: 'CE SOIR', head: 'Aucune activité planifiée', msg: 'Les temps forts de votre soirée s\'afficheront ici.' },
+                      en: { lbl: 'TONIGHT', head: 'Nothing scheduled', msg: 'Your evening highlights will appear here.' },
+                      ar: { lbl: 'الليلة', head: 'لا نشاط مجدول', msg: 'ستظهر أبرز أحداث مسائك هنا.' } },
+      navOrders: { fr: 'Ventes', en: 'Sales', ar: 'المبيعات' },
+      askPlaceholder: { fr: 'Posez votre question sur votre boutique...', en: 'Ask a question about your shop...', ar: 'اطرح سؤالاً حول متجرك...' },
+    },
+    spa: {
+      feedEmpty: { fr: { badge: 'INSTITUT OUVERT', title: 'Premier encaissement à venir', sub: 'Le flux s\'active dès le premier rendez-vous encaissé.' },
+                   en: { badge: 'OPEN', title: 'First checkout coming up', sub: 'The feed starts with the first appointment checked out.' },
+                   ar: { badge: 'مفتوح', title: 'أول تحصيل قادم', sub: 'يبدأ التدفّق مع أول موعد يتم تحصيله.' } },
+      feedAwait: { fr: 'Ouvert · en attente du 1ᵉʳ encaissement', en: 'Open · awaiting first checkout', ar: 'مفتوح · في انتظار أول تحصيل' },
+      stockEmpty: { fr: { msg: 'Dès que vous suivez vos consommables, Kiwi AI estime les quantités à recommander.' },
+                    en: { msg: 'Once you track your consumables, Kiwi AI estimates the quantities to reorder.' },
+                    ar: { msg: 'بمجرد تتبّع مستلزماتك، يقدّر Kiwi AI الكميات الواجب طلبها.' } },
+      productsEmpty: { fr: { title: 'Top prestations', manage: 'Gérer les prestations →', msg: 'Vos meilleures prestations s\'afficheront ici dès le premier encaissement.' },
+                       en: { title: 'Top services', manage: 'Manage services →', msg: 'Your best-selling services will appear here after the first checkout.' },
+                       ar: { title: 'أفضل الخدمات', manage: 'إدارة الخدمات ←', msg: 'ستظهر أفضل خدماتك هنا بعد أول تحصيل.' } },
+      eveningEmpty: { fr: { lbl: 'CE SOIR · RENDEZ-VOUS', head: 'Aucun rendez-vous', msg: 'Vos rendez-vous du soir s\'afficheront ici dès qu\'un client réserve.' },
+                      en: { lbl: 'TONIGHT · APPOINTMENTS', head: 'No appointments', msg: 'Your evening appointments will appear here as soon as a client books.' },
+                      ar: { lbl: 'الليلة · المواعيد', head: 'لا مواعيد', msg: 'ستظهر مواعيد المساء هنا بمجرد حجز أحد العملاء.' } },
+      navOrders: { fr: 'Encaissements', en: 'Checkouts', ar: 'التحصيلات' },
+      askPlaceholder: { fr: 'Posez votre question sur votre institut...', en: 'Ask a question about your spa...', ar: 'اطرح سؤالاً حول معهدك...' },
+    },
   };
 
   /* ═══════════════ VERTICAL → KPI BAND SPEC ═══════════════
@@ -1083,7 +1164,37 @@
     `;
   }
 
+  /* Trade vocabulary for the current venue's home cards — subtype vocab
+   * wins, base-vertical vocab fills the gaps, null means "use defaults".
+   * Returns the section resolved for the current language: an object for
+   * card dicts ({title, head, msg…}), a string for one-liners. */
+  function getVocab(section) {
+    const v = VENUES[currentVenue];
+    if (!v || !v.custom) return null;
+    const prof = v.subtype && SUBTYPE_PROFILES[v.subtype];
+    const fromProf = prof && prof.vocab && prof.vocab[section];
+    const fromBase = BASE_VOCAB[v.type] && BASE_VOCAB[v.type][section];
+    if (!fromProf && !fromBase) return null;
+    const lang = subLang();
+    const pickSec = sec => (sec == null ? null : (sec[lang] ?? sec.fr ?? null));
+    const b = pickSec(fromBase), p = pickSec(fromProf);
+    if (typeof p === 'string' || typeof b === 'string') return p || b;
+    return { ...(b || {}), ...(p || {}) };
+  }
+
+  /* The sidebar's "Commandes" nav entry follows the trade too — a gym logs
+   * passages, a boutique ventes. Defaults mirror i18n.js dash.sidebar.orders
+   * (this runs after i18n's langchange listener, so it has the last word). */
+  const NAV_ORDERS_STR = { fr: 'Commandes', en: 'Orders', ar: 'الطلبات' };
+  function relabelOrdersNav() {
+    const span = document.querySelector('[data-nav="transactions"] span[data-i18n="dash.sidebar.orders"]');
+    if (!span) return;
+    const trade = getVocab('navOrders');
+    span.textContent = trade || NAV_ORDERS_STR[subLang()] || NAV_ORDERS_STR.fr;
+  }
+
   function renderVerticalSection(opts = {}) {
+    relabelOrdersNav();
     const wrap = document.querySelector('[data-vertical-section]');
     if (!wrap) return;
     // In fusion mode: replace the per-vertical menu with the aggregated
@@ -7254,6 +7365,7 @@
       return KPI_BY_TYPE[type] || KPI_BY_TYPE.restaurant;
     },
     getSubtypeProfile: sid => SUBTYPE_PROFILES[sid] || null,
+    getVocab,
     /* Stock & approvisionnement page data — see assets/stock.js */
     getInventory: id => INVENTORY[id || currentVenue] || [],
     getSuppliers: () => SUPPLIERS,
