@@ -156,11 +156,16 @@
     const requested = range === 'personnalise' ? effRange() : range;
     const hasRequested = !!(table?.[v]?.[requested] ?? table?.cafeAtlas?.[requested]);
     const eff = knownRanges.includes(range) || hasRequested ? requested : 'trenteJours';
-    // A user-created venue has no demo data — hand back a zeroed clone of the
-    // cafeAtlas shape so the dashboard renders empty rather than borrowing
-    // Café Atlas's numbers via the fallback below.
+    // A user-created venue has no demo data — hand back a zeroed clone of its
+    // base type's demo sibling so the dashboard renders empty rather than
+    // borrowing live numbers via the fallback below. The shape must match the
+    // vertical (a boutique-based venue needs tauxRetour, a spa needs tips…),
+    // otherwise vertical-specific KPI tiles silently drop.
     if (window.KiwiVenue?.isCustom?.(v)) {
-      const shape = table?.cafeAtlas?.[eff] ?? table?.cafeAtlas?.trenteJours;
+      const baseIds = { restaurant: 'cafeAtlas', boutique: 'maisonMansour', spa: 'spaBahia' };
+      const baseId = baseIds[window.KiwiVenue?.getVenueType?.() || 'restaurant'] || 'cafeAtlas';
+      const shape = table?.[baseId]?.[eff] ?? table?.[baseId]?.trenteJours
+                 ?? table?.cafeAtlas?.[eff] ?? table?.cafeAtlas?.trenteJours;
       return shape == null ? shape : zeroClone(shape);
     }
     if (v === 'fusion') {
@@ -1968,7 +1973,7 @@
         tx:     { ...(data.tx || {}),     value: t.count,              delta: 0 },
         panier: { ...(data.panier || {}), value: Math.round(t.basket), delta: 0 },
         // Blank the string-valued KPIs zeroClone can't zero (text / unit).
-        ratio:    data.ratio    ? { ...data.ratio,    text: '—', delta: 0 } : data.ratio,
+        ratio:    data.ratio    ? { ...data.ratio,    text: '—', unit: '', delta: 0 } : data.ratio,
         regulars: data.regulars ? { ...data.regulars, value: 0, unit: '', delta: 0 } : data.regulars,
       };
     }
@@ -1986,10 +1991,19 @@
       if (t) derived[k] = t;
     });
     data = { ...data, ...derived };
+    // A custom venue with a subtype profile speaks its trade's vocabulary:
+    // getKpiSpec returns {key,label} pairs (no i18n field) already resolved
+    // for the current language. Those labels win over the generic catalog,
+    // and the tile skips data-i18n so i18n.js doesn't overwrite them — the
+    // langchange refire re-renders the band with freshly-picked labels.
+    const profLabels = {};
+    (window.KiwiVenue?.getKpiSpec?.(venueType) || []).forEach((s) => {
+      if (s.label && !s.i18n) profLabels[s.key] = s.label;
+    });
     const spec = layout.map((k) => ({
       key: k,
-      i18n: (KPI_CATALOG[k] || {}).i18n,
-      label: kpiLabel(k, venueType, lang),
+      i18n: profLabels[k] ? '' : (KPI_CATALOG[k] || {}).i18n,
+      label: profLabels[k] || kpiLabel(k, venueType, lang),
     }));
 
     // Read previous values (for count-up animation continuity within same venue)

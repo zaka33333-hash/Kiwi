@@ -312,6 +312,291 @@
     },
   };
 
+  /* ═══════════════ SUBTYPE PROFILES ═══════════════
+   * Every onboarding activity is its OWN trade — not a relabeled restaurant.
+   * Each profile speaks the trade's language: sidebar section (nav keys stay
+   * on the base family's real modules; labels are the métier's), a KPI band
+   * picked for that business, and 2-3 OPTIONAL onboarding questions (step 2,
+   * skippable). The three primaries (restaurant/boutique/spa) keep their
+   * native sections/KPIs and only define questions. */
+  const subLang = () => (window.KiwiI18n?.getLang?.() || 'fr');
+  const pickL = (o) => (o == null ? '' : (o[subLang()] ?? o.fr ?? ''));
+  const SUBTYPE_PROFILES = {
+    restaurant: { base: 'restaurant', questions: [
+      { k: 'covers',  type: 'number', ph: 'Ex. 60',            label: { fr: 'Nombre de couverts', en: 'Number of covers', ar: 'عدد المقاعد' } },
+      { k: 'services', type: 'text',  ph: 'Ex. Midi + soir',   label: { fr: 'Services assurés', en: 'Services you run', ar: 'فترات الخدمة' } },
+      { k: 'terrace', type: 'number', ph: 'Ex. 20',            label: { fr: 'Places en terrasse', en: 'Terrace seats', ar: 'مقاعد التراس' } },
+    ] },
+    boutique: { base: 'boutique', questions: [
+      { k: 'skus',    type: 'number', ph: 'Ex. 800',           label: { fr: '≈ Nombre de références', en: '≈ Number of SKUs', ar: '≈ عدد المنتجات' } },
+      { k: 'surface', type: 'number', ph: 'Ex. 45',            label: { fr: 'Surface (m²)', en: 'Floor area (m²)', ar: 'المساحة (م²)' } },
+      { k: 'hours',   type: 'text',   ph: 'Ex. 9h–20h',        label: { fr: 'Horaires', en: 'Opening hours', ar: 'ساعات العمل' } },
+    ] },
+    spa: { base: 'spa', questions: [
+      { k: 'cabins',  type: 'number', ph: 'Ex. 4',             label: { fr: 'Cabines de soin', en: 'Treatment rooms', ar: 'غرف العناية' } },
+      { k: 'staff',   type: 'number', ph: 'Ex. 6',             label: { fr: 'Praticien·ne·s', en: 'Practitioners', ar: 'الممارسون' } },
+      { k: 'signature', type: 'text', ph: 'Ex. Hammam + argan', label: { fr: 'Soins signature', en: 'Signature treatments', ar: 'علاجات مميزة' } },
+    ] },
+    cafe: { base: 'restaurant',
+      header: { fr: 'Café', en: 'Café', ar: 'المقهى' },
+      items: [
+        { nav: 'tables',  tag: 'LIVE', label: { fr: 'Salle & terrasse', en: 'Room & terrace', ar: 'القاعة والتراس' } },
+        { nav: 'menu',    label: { fr: 'Carte & boissons', en: 'Menu & drinks', ar: 'القائمة والمشروبات' } },
+        { nav: 'kds',     label: { fr: 'Écran barista', en: 'Barista screen', ar: 'شاشة الباريستا' } },
+        { nav: 'stock',   label: { fr: 'Stock café & frais', en: 'Coffee & fresh stock', ar: 'مخزون القهوة والطازج' } },
+        { nav: 'finance', tag: 'LIVE', label: { fr: 'Marges & budget', en: 'Margins & budget', ar: 'الهوامش والميزانية' } },
+      ],
+      kpis: [
+        { key: 'tx',       label: { fr: 'Commandes', en: 'Orders', ar: 'الطلبات' } },
+        { key: 'panier',   label: { fr: 'Ticket moyen', en: 'Avg ticket', ar: 'متوسط التذكرة' } },
+        { key: 'marge',    label: { fr: 'Marge brute', en: 'Gross margin', ar: 'الهامش الإجمالي' } },
+        { key: 'regulars', label: { fr: 'Habitués', en: 'Regulars', ar: 'الزبائن الدائمون' } },
+        { key: 'tips',     label: { fr: 'Pourboires', en: 'Tips', ar: 'الإكراميات' } },
+        { key: 'success',  label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'seats',    type: 'number', ph: 'Ex. 24', label: { fr: 'Places assises', en: 'Seats', ar: 'المقاعد' } },
+        { k: 'terrace',  type: 'number', ph: 'Ex. 12', label: { fr: 'Places en terrasse', en: 'Terrace seats', ar: 'مقاعد التراس' } },
+        { k: 'machines', type: 'number', ph: 'Ex. 2',  label: { fr: 'Machines espresso', en: 'Espresso machines', ar: 'آلات الإسبريسو' } },
+      ] },
+    fastfood: { base: 'restaurant',
+      header: { fr: 'Fast-food', en: 'Fast food', ar: 'الوجبات السريعة' },
+      items: [
+        { nav: 'tables',  tag: 'LIVE', label: { fr: 'Comptoir & bornes', en: 'Counter & kiosks', ar: 'الكاونتر والأكشاك' } },
+        { nav: 'menu',    label: { fr: 'Menu & combos', en: 'Menu & combos', ar: 'القائمة والكومبو' } },
+        { nav: 'kds',     label: { fr: 'Écran cuisine (KDS)', en: 'Kitchen display (KDS)', ar: 'شاشة المطبخ' } },
+        { nav: 'stock',   label: { fr: 'Stock & surgelés', en: 'Stock & frozen', ar: 'المخزون والمجمدات' } },
+        { nav: 'finance', tag: 'LIVE', label: { fr: 'Marges & budget', en: 'Margins & budget', ar: 'الهوامش والميزانية' } },
+      ],
+      kpis: [
+        { key: 'tx',       label: { fr: 'Commandes', en: 'Orders', ar: 'الطلبات' } },
+        { key: 'txPerDay', label: { fr: 'Commandes / jour', en: 'Orders / day', ar: 'طلبات/يوم' } },
+        { key: 'panier',   label: { fr: 'Ticket moyen', en: 'Avg ticket', ar: 'متوسط التذكرة' } },
+        { key: 'marge',    label: { fr: 'Marge brute', en: 'Gross margin', ar: 'الهامش الإجمالي' } },
+        { key: 'ratio',    label: { fr: 'Ratio card / cash', en: 'Card / cash ratio', ar: 'بطاقة/نقد' } },
+        { key: 'success',  label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'kiosks',   type: 'number', ph: 'Ex. 2',                label: { fr: 'Bornes de commande', en: 'Order kiosks', ar: 'أكشاك الطلب' } },
+        { k: 'delivery', type: 'text',   ph: 'Ex. Glovo + Jumia',    label: { fr: 'Plateformes de livraison', en: 'Delivery platforms', ar: 'منصات التوصيل' } },
+        { k: 'peak',     type: 'text',   ph: 'Ex. 12h–14h, 19h–21h', label: { fr: 'Heures de pointe', en: 'Peak hours', ar: 'ساعات الذروة' } },
+      ] },
+    bakery: { base: 'restaurant',
+      header: { fr: 'Boulangerie', en: 'Bakery', ar: 'المخبزة' },
+      items: [
+        { nav: 'tables',  tag: 'LIVE', label: { fr: 'Comptoir & précommandes', en: 'Counter & pre-orders', ar: 'الكاونتر والطلبات المسبقة' } },
+        { nav: 'menu',    label: { fr: 'Catalogue & fournées', en: 'Catalogue & batches', ar: 'الكتالوج والدفعات' } },
+        { nav: 'kds',     label: { fr: 'Écran fournil', en: 'Bakehouse screen', ar: 'شاشة المخبز' } },
+        { nav: 'stock',   label: { fr: 'Farines & matières', en: 'Flour & ingredients', ar: 'الدقيق والمواد' } },
+        { nav: 'finance', tag: 'LIVE', label: { fr: 'Marges & budget', en: 'Margins & budget', ar: 'الهوامش والميزانية' } },
+      ],
+      kpis: [
+        { key: 'tx',       label: { fr: 'Ventes', en: 'Sales', ar: 'المبيعات' } },
+        { key: 'txPerDay', label: { fr: 'Ventes / jour', en: 'Sales / day', ar: 'مبيعات/يوم' } },
+        { key: 'panier',   label: { fr: 'Ticket moyen', en: 'Avg ticket', ar: 'متوسط التذكرة' } },
+        { key: 'marge',    label: { fr: 'Marge brute', en: 'Gross margin', ar: 'الهامش الإجمالي' } },
+        { key: 'regulars', label: { fr: 'Habitués', en: 'Regulars', ar: 'الزبائن الدائمون' } },
+        { key: 'success',  label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'batches', type: 'number', ph: 'Ex. 3',                  label: { fr: 'Fournées / jour', en: 'Batches / day', ar: 'دفعات/يوم' } },
+        { k: 'ovens',   type: 'number', ph: 'Ex. 2',                  label: { fr: 'Fours', en: 'Ovens', ar: 'الأفران' } },
+        { k: 'unsold',  type: 'text',   ph: 'Ex. -50 % à 19h, dons',  label: { fr: 'Gestion des invendus', en: 'Unsold management', ar: 'إدارة غير المباع' } },
+      ] },
+    pizzeria: { base: 'restaurant',
+      header: { fr: 'Pizzeria', en: 'Pizzeria', ar: 'البيتزيريا' },
+      items: [
+        { nav: 'tables',  tag: 'LIVE', label: { fr: 'Salle & livraison', en: 'Room & delivery', ar: 'القاعة والتوصيل' } },
+        { nav: 'menu',    label: { fr: 'Carte & tailles', en: 'Menu & sizes', ar: 'القائمة والأحجام' } },
+        { nav: 'kds',     label: { fr: 'Écran four', en: 'Oven screen', ar: 'شاشة الفرن' } },
+        { nav: 'stock',   label: { fr: 'Pâte & ingrédients', en: 'Dough & toppings', ar: 'العجين والمكونات' } },
+        { nav: 'finance', tag: 'LIVE', label: { fr: 'Marges & budget', en: 'Margins & budget', ar: 'الهوامش والميزانية' } },
+      ],
+      kpis: [
+        { key: 'tx',       label: { fr: 'Commandes', en: 'Orders', ar: 'الطلبات' } },
+        { key: 'panier',   label: { fr: 'Ticket moyen', en: 'Avg ticket', ar: 'متوسط التذكرة' } },
+        { key: 'marge',    label: { fr: 'Marge brute', en: 'Gross margin', ar: 'الهامش الإجمالي' } },
+        { key: 'ratio',    label: { fr: 'Ratio card / cash', en: 'Card / cash ratio', ar: 'بطاقة/نقد' } },
+        { key: 'regulars', label: { fr: 'Habitués', en: 'Regulars', ar: 'الزبائن الدائمون' } },
+        { key: 'success',  label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'oven',     type: 'text',   ph: 'Ex. Bois',           label: { fr: 'Type de four', en: 'Oven type', ar: 'نوع الفرن' } },
+        { k: 'tables',   type: 'number', ph: 'Ex. 14',             label: { fr: 'Nombre de tables', en: 'Number of tables', ar: 'عدد الطاولات' } },
+        { k: 'delivery', type: 'text',   ph: 'Ex. Glovo + maison', label: { fr: 'Livraison', en: 'Delivery', ar: 'التوصيل' } },
+      ] },
+    traiteur: { base: 'restaurant',
+      header: { fr: 'Traiteur', en: 'Catering', ar: 'خدمة الطعام' },
+      items: [
+        { nav: 'tables',  tag: 'LIVE', label: { fr: 'Événements & planning', en: 'Events & schedule', ar: 'الفعاليات والتخطيط' } },
+        { nav: 'menu',    label: { fr: 'Menus & formules', en: 'Menus & packages', ar: 'القوائم والعروض' } },
+        { nav: 'kds',     label: { fr: 'Production cuisine', en: 'Kitchen production', ar: 'إنتاج المطبخ' } },
+        { nav: 'stock',   label: { fr: 'Stock & commandes', en: 'Stock & purchasing', ar: 'المخزون والمشتريات' } },
+        { nav: 'finance', tag: 'LIVE', label: { fr: 'Marges & budget', en: 'Margins & budget', ar: 'الهوامش والميزانية' } },
+      ],
+      kpis: [
+        { key: 'tx',         label: { fr: 'Commandes', en: 'Orders', ar: 'الطلبات' } },
+        { key: 'panier',     label: { fr: 'Commande moyenne', en: 'Avg order', ar: 'متوسط الطلب' } },
+        { key: 'marge',      label: { fr: 'Marge brute', en: 'Gross margin', ar: 'الهامش الإجمالي' } },
+        { key: 'newClients', label: { fr: 'Nouveaux clients', en: 'New clients', ar: 'عملاء جدد' } },
+        { key: 'retention',  label: { fr: 'Clients fidèles', en: 'Returning clients', ar: 'عملاء عائدون' } },
+        { key: 'success',    label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'capacity', type: 'number', ph: 'Ex. 300',     label: { fr: 'Capacité couverts / événement', en: 'Covers capacity / event', ar: 'سعة المقاعد/فعالية' } },
+        { k: 'zone',     type: 'text',   ph: 'Ex. Casa–Rabat', label: { fr: 'Zone de livraison', en: 'Delivery zone', ar: 'منطقة التوصيل' } },
+        { k: 'leadTime', type: 'text',   ph: 'Ex. 48h',      label: { fr: 'Délai minimum de commande', en: 'Minimum lead time', ar: 'أقل مهلة للطلب' } },
+      ] },
+    foodtruck: { base: 'restaurant',
+      header: { fr: 'Food truck', en: 'Food truck', ar: 'شاحنة الطعام' },
+      items: [
+        { nav: 'tables',  tag: 'LIVE', label: { fr: 'Emplacements & tournées', en: 'Spots & rounds', ar: 'المواقع والجولات' } },
+        { nav: 'menu',    label: { fr: 'Carte du jour', en: 'Daily menu', ar: 'قائمة اليوم' } },
+        { nav: 'kds',     label: { fr: 'Écran cuisine', en: 'Kitchen screen', ar: 'شاشة المطبخ' } },
+        { nav: 'stock',   label: { fr: 'Stock embarqué', en: 'Onboard stock', ar: 'المخزون المحمول' } },
+        { nav: 'finance', tag: 'LIVE', label: { fr: 'Marges & budget', en: 'Margins & budget', ar: 'الهوامش والميزانية' } },
+      ],
+      kpis: [
+        { key: 'tx',       label: { fr: 'Commandes', en: 'Orders', ar: 'الطلبات' } },
+        { key: 'txPerDay', label: { fr: 'Commandes / jour', en: 'Orders / day', ar: 'طلبات/يوم' } },
+        { key: 'panier',   label: { fr: 'Ticket moyen', en: 'Avg ticket', ar: 'متوسط التذكرة' } },
+        { key: 'marge',    label: { fr: 'Marge brute', en: 'Gross margin', ar: 'الهامش الإجمالي' } },
+        { key: 'ratio',    label: { fr: 'Ratio card / cash', en: 'Card / cash ratio', ar: 'بطاقة/نقد' } },
+        { key: 'success',  label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'spots',    type: 'text',   ph: 'Ex. Marina, Technopark', label: { fr: 'Emplacements habituels', en: 'Usual spots', ar: 'المواقع المعتادة' } },
+        { k: 'days',     type: 'text',   ph: 'Ex. Mar–Sam',            label: { fr: 'Jours de tournée', en: 'Service days', ar: 'أيام العمل' } },
+        { k: 'capacity', type: 'number', ph: 'Ex. 40',                 label: { fr: 'Capacité / heure', en: 'Capacity / hour', ar: 'السعة/ساعة' } },
+      ] },
+    epicerie: { base: 'boutique',
+      header: { fr: 'Épicerie', en: 'Grocery', ar: 'البقالة' },
+      items: [
+        { nav: 'inventory',  tag: 'LIVE', label: { fr: 'Inventaire & rayons', en: 'Inventory & aisles', ar: 'المخزون والأرفف' } },
+        { nav: 'categories', label: { fr: 'Rayons & familles', en: 'Aisles & families', ar: 'الأرفف والعائلات' } },
+        { nav: 'promos',     label: { fr: 'Promotions & paniers', en: 'Promos & bundles', ar: 'العروض والسلال' } },
+        { nav: 'returns',    label: { fr: 'Retours & casse', en: 'Returns & breakage', ar: 'المرتجعات والتالف' } },
+      ],
+      kpis: [
+        { key: 'tx',         label: { fr: 'Ventes', en: 'Sales', ar: 'المبيعات' } },
+        { key: 'panier',     label: { fr: 'Panier moyen', en: 'Avg basket', ar: 'متوسط السلة' } },
+        { key: 'tauxRetour', label: { fr: 'Casse & retours', en: 'Breakage & returns', ar: 'التالف والمرتجع' } },
+        { key: 'regulars',   label: { fr: 'Habitués', en: 'Regulars', ar: 'الزبائن الدائمون' } },
+        { key: 'ratio',      label: { fr: 'Ratio card / cash', en: 'Card / cash ratio', ar: 'بطاقة/نقد' } },
+        { key: 'success',    label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'skus',      type: 'number', ph: 'Ex. 1200',          label: { fr: '≈ Références en rayon', en: '≈ SKUs on shelf', ar: '≈ المنتجات بالأرفف' } },
+        { k: 'suppliers', type: 'number', ph: 'Ex. 8',             label: { fr: 'Fournisseurs réguliers', en: 'Regular suppliers', ar: 'الموردون الدائمون' } },
+        { k: 'delivery',  type: 'text',   ph: 'Ex. Oui, < 2 km',   label: { fr: 'Livraison quartier', en: 'Local delivery', ar: 'توصيل الحي' } },
+      ] },
+    pharmacie: { base: 'boutique',
+      header: { fr: 'Pharmacie', en: 'Pharmacy', ar: 'الصيدلية' },
+      items: [
+        { nav: 'inventory',  tag: 'LIVE', label: { fr: 'Stock & péremptions', en: 'Stock & expiries', ar: 'المخزون والصلاحيات' } },
+        { nav: 'categories', label: { fr: 'Familles & ordonnances', en: 'Families & prescriptions', ar: 'العائلات والوصفات' } },
+        { nav: 'promos',     label: { fr: 'Parapharmacie & offres', en: 'Parapharmacy & offers', ar: 'الباراصيدلية والعروض' } },
+        { nav: 'returns',    label: { fr: 'Retours laboratoires', en: 'Lab returns', ar: 'مرتجعات المختبرات' } },
+      ],
+      kpis: [
+        { key: 'tx',         label: { fr: 'Ventes', en: 'Sales', ar: 'المبيعات' } },
+        { key: 'panier',     label: { fr: 'Panier moyen', en: 'Avg basket', ar: 'متوسط السلة' } },
+        { key: 'regulars',   label: { fr: 'Patients réguliers', en: 'Regular patients', ar: 'المرضى الدائمون' } },
+        { key: 'tauxRetour', label: { fr: 'Retours labo', en: 'Lab returns', ar: 'مرتجعات المختبر' } },
+        { key: 'ratio',      label: { fr: 'Ratio card / cash', en: 'Card / cash ratio', ar: 'بطاقة/نقد' } },
+        { key: 'success',    label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'guard',         type: 'text',   ph: 'Ex. 1 semaine / 8', label: { fr: 'Rotation de garde', en: 'On-call rotation', ar: 'مناوبة الحراسة' } },
+        { k: 'prescriptions', type: 'number', ph: 'Ex. 60',            label: { fr: 'Ordonnances / jour', en: 'Prescriptions / day', ar: 'وصفات/يوم' } },
+        { k: 'labs',          type: 'number', ph: 'Ex. 12',            label: { fr: 'Laboratoires partenaires', en: 'Partner labs', ar: 'المختبرات الشريكة' } },
+      ] },
+    librairie: { base: 'boutique',
+      header: { fr: 'Librairie', en: 'Bookshop', ar: 'المكتبة' },
+      items: [
+        { nav: 'inventory',  tag: 'LIVE', label: { fr: 'Inventaire & rayonnages', en: 'Inventory & shelves', ar: 'المخزون والرفوف' } },
+        { nav: 'categories', label: { fr: 'Rayons & collections', en: 'Sections & collections', ar: 'الأقسام والمجموعات' } },
+        { nav: 'promos',     label: { fr: 'Rentrée & sélections', en: 'Back-to-school & picks', ar: 'الدخول المدرسي والمختارات' } },
+        { nav: 'returns',    label: { fr: 'Retours éditeurs', en: 'Publisher returns', ar: 'مرتجعات الناشرين' } },
+      ],
+      kpis: [
+        { key: 'tx',         label: { fr: 'Ventes', en: 'Sales', ar: 'المبيعات' } },
+        { key: 'panier',     label: { fr: 'Panier moyen', en: 'Avg basket', ar: 'متوسط السلة' } },
+        { key: 'tauxRetour', label: { fr: 'Retours éditeurs', en: 'Publisher returns', ar: 'مرتجعات الناشرين' } },
+        { key: 'regulars',   label: { fr: 'Lecteurs fidèles', en: 'Loyal readers', ar: 'القراء الأوفياء' } },
+        { key: 'newClients', label: { fr: 'Nouveaux clients', en: 'New customers', ar: 'عملاء جدد' } },
+        { key: 'success',    label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'skus',     type: 'number', ph: 'Ex. 4000',              label: { fr: '≈ Titres en stock', en: '≈ Titles in stock', ar: '≈ العناوين بالمخزون' } },
+        { k: 'school',   type: 'text',   ph: 'Ex. 40 % du CA en sept.', label: { fr: 'Période scolaire', en: 'School season', ar: 'الموسم المدرسي' } },
+        { k: 'ordering', type: 'text',   ph: 'Ex. Oui · 48h',          label: { fr: 'Commandes à la demande', en: 'Special orders', ar: 'طلبات خاصة' } },
+      ] },
+    fleuriste: { base: 'boutique',
+      header: { fr: 'Fleuriste', en: 'Florist', ar: 'محل الأزهار' },
+      items: [
+        { nav: 'inventory',  tag: 'LIVE', label: { fr: 'Stock frais & arrivages', en: 'Fresh stock & arrivals', ar: 'المخزون الطازج والوارد' } },
+        { nav: 'categories', label: { fr: 'Compositions & gammes', en: 'Arrangements & ranges', ar: 'التنسيقات والفئات' } },
+        { nav: 'promos',     label: { fr: 'Occasions & fêtes', en: 'Occasions & holidays', ar: 'المناسبات والأعياد' } },
+        { nav: 'returns',    label: { fr: 'Pertes & invendus', en: 'Waste & unsold', ar: 'الفاقد وغير المباع' } },
+      ],
+      kpis: [
+        { key: 'tx',         label: { fr: 'Ventes', en: 'Sales', ar: 'المبيعات' } },
+        { key: 'panier',     label: { fr: 'Panier moyen', en: 'Avg basket', ar: 'متوسط السلة' } },
+        { key: 'tauxRetour', label: { fr: 'Pertes fraîcheur', en: 'Freshness waste', ar: 'فاقد الطزاجة' } },
+        { key: 'newClients', label: { fr: 'Nouvelles occasions', en: 'New occasions', ar: 'مناسبات جديدة' } },
+        { key: 'regulars',   label: { fr: 'Clients fidèles', en: 'Loyal customers', ar: 'العملاء الأوفياء' } },
+        { key: 'success',    label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'arrivals', type: 'number', ph: 'Ex. 2',             label: { fr: 'Arrivages / semaine', en: 'Arrivals / week', ar: 'وارد/أسبوع' } },
+        { k: 'events',   type: 'text',   ph: 'Ex. 2–3 / mois',    label: { fr: 'Mariages & événements', en: 'Weddings & events', ar: 'الأعراس والمناسبات' } },
+        { k: 'subs',     type: 'text',   ph: 'Ex. 15 abonnés',    label: { fr: 'Abonnements bouquets', en: 'Bouquet subscriptions', ar: 'اشتراكات الباقات' } },
+      ] },
+    coiffure: { base: 'spa',
+      header: { fr: 'Salon', en: 'Salon', ar: 'الصالون' },
+      items: [
+        { nav: 'appointments',  tag: 'LIVE', label: { fr: 'Agenda & rendez-vous', en: 'Diary & appointments', ar: 'المفكرة والمواعيد' } },
+        { nav: 'services',      label: { fr: 'Prestations & forfaits', en: 'Services & packages', ar: 'الخدمات والباقات' } },
+        { nav: 'practitioners', label: { fr: 'Coiffeur·euse·s', en: 'Stylists', ar: 'المصففون' } },
+        { nav: 'clients',       label: { fr: 'Fiches clients', en: 'Client records', ar: 'ملفات العملاء' } },
+      ],
+      kpis: [
+        { key: 'tx',        label: { fr: 'Rendez-vous', en: 'Appointments', ar: 'المواعيد' } },
+        { key: 'panier',    label: { fr: 'Ticket moyen', en: 'Avg ticket', ar: 'متوسط التذكرة' } },
+        { key: 'retention', label: { fr: 'Taux de retour', en: 'Return rate', ar: 'نسبة العودة' } },
+        { key: 'regulars',  label: { fr: 'Clients fidèles', en: 'Loyal clients', ar: 'العملاء الأوفياء' } },
+        { key: 'tips',      label: { fr: 'Pourboires', en: 'Tips', ar: 'الإكراميات' } },
+        { key: 'success',   label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'chairs',   type: 'number', ph: 'Ex. 6',                 label: { fr: 'Fauteuils', en: 'Chairs', ar: 'الكراسي' } },
+        { k: 'duration', type: 'number', ph: 'Ex. 45',                label: { fr: 'Durée moyenne RDV (min)', en: 'Avg appointment (min)', ar: 'متوسط الموعد (د)' } },
+        { k: 'specialty', type: 'text',  ph: 'Ex. Balayage, soins',   label: { fr: 'Spécialités', en: 'Specialties', ar: 'التخصصات' } },
+      ] },
+    sport: { base: 'spa',
+      header: { fr: 'Salle de sport', en: 'Gym', ar: 'النادي الرياضي' },
+      items: [
+        { nav: 'appointments',  tag: 'LIVE', label: { fr: 'Planning & cours', en: 'Schedule & classes', ar: 'الجدول والحصص' } },
+        { nav: 'services',      label: { fr: 'Abonnements & cours', en: 'Memberships & classes', ar: 'الاشتراكات والحصص' } },
+        { nav: 'practitioners', label: { fr: 'Coachs', en: 'Coaches', ar: 'المدربون' } },
+        { nav: 'clients',       label: { fr: 'Adhérents', en: 'Members', ar: 'الأعضاء' } },
+      ],
+      kpis: [
+        { key: 'tx',         label: { fr: 'Passages', en: 'Check-ins', ar: 'الدخول' } },
+        { key: 'regulars',   label: { fr: 'Adhérents actifs', en: 'Active members', ar: 'أعضاء نشطون' } },
+        { key: 'retention',  label: { fr: 'Rétention', en: 'Retention', ar: 'الاحتفاظ' } },
+        { key: 'newClients', label: { fr: 'Nouveaux adhérents', en: 'New members', ar: 'أعضاء جدد' } },
+        { key: 'panier',     label: { fr: 'Panier moyen', en: 'Avg basket', ar: 'متوسط السلة' } },
+        { key: 'success',    label: { fr: 'Taux succès', en: 'Success rate', ar: 'نسبة النجاح' } },
+      ],
+      questions: [
+        { k: 'members', type: 'number', ph: 'Ex. 250',                label: { fr: '≈ Adhérents actifs', en: '≈ Active members', ar: '≈ الأعضاء النشطون' } },
+        { k: 'surface', type: 'number', ph: 'Ex. 400',                label: { fr: 'Surface (m²)', en: 'Floor area (m²)', ar: 'المساحة (م²)' } },
+        { k: 'classes', type: 'text',   ph: 'Ex. 12 cours / semaine', label: { fr: 'Cours collectifs', en: 'Group classes', ar: 'الحصص الجماعية' } },
+      ] },
+  };
+
   /* ═══════════════ VERTICAL → KPI BAND SPEC ═══════════════
    * Drives renderKpiBand() in dateRange.js. Each entry lists which 6 KPI keys
    * to surface for that vertical, plus the i18n label key. Keep at 6 tiles.
@@ -582,6 +867,10 @@
       id, name, location,
       fullDisplay: location ? `${name} · ${location}` : name,
       type, typeLabel: (cfg.typeLabel || TYPE_LABELS[type]),
+      /* The trade picked at onboarding — drives the subtype profile
+       * (own sidebar labels + own KPI band, not the base family's). */
+      subtype: cfg.subtype || '',
+      profileInfo: cfg.profile || null,
       siblings: '', status: 'En service', ice: '—',
       txCount: 0, staffCount: 0, custom: true,
       hours: cfg.hours || '', methods: cfg.methods || '', goal: +cfg.goal || 0,
@@ -811,21 +1100,37 @@
       return;
     }
     const v = VENUES[currentVenue];
-    const sect = VERTICAL_SECTIONS[v.type];
+    let sect = VERTICAL_SECTIONS[v.type];
+    /* Subtype profile override — a custom venue created as e.g. a pharmacy
+     * gets ITS trade's section labels (nav keys stay on the base family's
+     * real modules). No data-i18n keys here: labels resolve per-language at
+     * render time and the section re-renders on kiwi:langchange. */
+    const prof = v.custom && v.subtype && SUBTYPE_PROFILES[v.subtype];
+    if (prof && prof.items && sect) {
+      const baseItems = sect.items;
+      sect = {
+        header: pickL(prof.header),
+        i18nHeader: '',
+        items: prof.items.map((pi) => {
+          const b = baseItems.find((x) => x.nav === pi.nav) || {};
+          return { nav: pi.nav, label: pickL(pi.label), i18n: '', tag: pi.tag || '', icon: b.icon || '' };
+        }),
+      };
+    }
     if (!sect) return;
 
     const lang = window.KiwiI18n?.getLang?.() || 'fr';
     const T = window.KiwiI18n?.T?.[lang] || {};
-    const headerTxt = T[sect.i18nHeader] || sect.header;
+    const headerTxt = (sect.i18nHeader && T[sect.i18nHeader]) || sect.header;
 
     const html = `
-      <div class="sect" data-i18n="${sect.i18nHeader}">${headerTxt}</div>
+      <div class="sect"${sect.i18nHeader ? ` data-i18n="${sect.i18nHeader}"` : ''}>${headerTxt}</div>
       ${sect.items.map(it => {
-        const lbl = T[it.i18n] || it.label;
+        const lbl = (it.i18n && T[it.i18n]) || it.label;
         return `
-          <a href="#" data-nav="${it.nav}" data-i18n-attr="aria-label:${it.i18n}">
+          <a href="#" data-nav="${it.nav}"${it.i18n ? ` data-i18n-attr="aria-label:${it.i18n}"` : ` aria-label="${lbl}"`}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${it.icon}</svg>
-            <span data-i18n="${it.i18n}">${lbl}</span>
+            <span${it.i18n ? ` data-i18n="${it.i18n}"` : ''}>${lbl}</span>
             ${it.tag ? `<span class="tag">${it.tag}</span>` : ''}
           </a>
         `;
@@ -2029,8 +2334,12 @@
 
   function init() {
     if (!/dashboard\.html/.test(location.pathname)) return;
-    /* Sidebar upsell + dropdown CTA render their own copy — re-translate live. */
-    window.addEventListener('kiwi:langchange', () => { renderUpsell(); renderDropdown(); });
+    /* Sidebar upsell + dropdown CTA + subtype-profiled vertical section
+     * render their own copy — re-translate live. */
+    window.addEventListener('kiwi:langchange', () => {
+      renderUpsell(); renderDropdown();
+      renderVerticalSection({ skipFade: true });
+    });
     let stored = null;
     try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
     // Fusion mode is intentionally NOT persisted across reloads — the merchant
@@ -6935,7 +7244,16 @@
     getVenueData,
     getCurrentVenueData,
     getVenueType,
-    getKpiSpec: type => KPI_BY_TYPE[type] || KPI_BY_TYPE.restaurant,
+    getKpiSpec: type => {
+      /* Subtype profile first: a custom venue's KPI band speaks its trade's
+       * language (labels resolve per-language; dateRange re-renders the band
+       * on kiwi:langchange so they stay current). */
+      const v = VENUES[currentVenue];
+      const prof = v && v.custom && v.subtype && SUBTYPE_PROFILES[v.subtype];
+      if (prof && prof.kpis) return prof.kpis.map(k => ({ key: k.key, label: pickL(k.label) }));
+      return KPI_BY_TYPE[type] || KPI_BY_TYPE.restaurant;
+    },
+    getSubtypeProfile: sid => SUBTYPE_PROFILES[sid] || null,
     /* Stock & approvisionnement page data — see assets/stock.js */
     getInventory: id => INVENTORY[id || currentVenue] || [],
     getSuppliers: () => SUPPLIERS,

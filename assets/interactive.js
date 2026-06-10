@@ -1754,6 +1754,37 @@ ar: {
       const nameInput = m.el.querySelector('[data-ob-name]');
       setTimeout(() => nameInput && nameInput.focus(), 320);
       m.el.querySelectorAll('[data-ob-type]').forEach((x) => x.classList.toggle('sel', x.dataset.obType === picked));
+      /* Step-1 values, captured before the body swaps to step 2. */
+      let step1 = null;
+      const doCreate = (answers) => {
+        const { name, city, goal, def } = step1;
+        let id = null;
+        try {
+          id = window.KiwiVenue?.createVenue?.({
+            type: def.base, subtype: def.id, typeLabel: def.label,
+            name, location: city, goal, profile: answers,
+          });
+        } catch (_) {}
+        if (!id) { toast(tr({fr:'Création impossible', en:'Creation failed', ar:'تعذّر الإنشاء'}), { type: 'warn', force: true }); return; }
+        m.close();
+        try { window.KiwiVenue.setVenue(id); } catch (_) {}
+        // A brand-new venue should land on "Aujourd'hui", not a stale range.
+        const todayPill = document.querySelector('[data-action="date-range"][data-range="aujourdhui"]');
+        if (todayPill && !todayPill.classList.contains('on')) todayPill.click();
+        confetti();
+        toast(tr({fr:'Votre tableau de bord est prêt', en:'Your dashboard is ready', ar:'لوحة التحكم جاهزة'}), { type: 'success', force: true,
+          desc: `${name} — ${answers
+            ? tr({fr:'profil complété ✓ · enregistrez votre première vente.', en:'profile completed ✓ · record your first sale.', ar:'اكتمل الملف ✓ · سجّل أول عملية بيع.'})
+            : tr({fr:'enregistrez votre première vente pour le voir prendre vie.', en:'record your first sale to see it come alive.', ar:'سجّل أول عملية بيع لتراها تنبض بالحياة.'})}` });
+      };
+      const readAnswers = () => {
+        const out = {};
+        m.el.querySelectorAll('[data-ob-q]').forEach((i) => {
+          const v = (i.value || '').trim();
+          if (v) out[i.dataset.obQ] = v;
+        });
+        return Object.keys(out).length ? out : null;
+      };
       m.el.addEventListener('click', (e) => {
         // "Plus de types" — reveal the hidden cards.
         if (e.target.closest('[data-ob-more]')) {
@@ -1774,18 +1805,30 @@ ar: {
           const city = (m.el.querySelector('[data-ob-city]').value || '').trim();
           const goal = +(m.el.querySelector('[data-ob-goal]').value) || 0;
           const def = TYPES.find((x) => x.id === picked) || TYPES[0];
-          let id = null;
-          try { id = window.KiwiVenue?.createVenue?.({ type: def.base, typeLabel: def.label, name, location: city, goal }); } catch (_) {}
-          if (!id) { toast(tr({fr:'Création impossible', en:'Creation failed', ar:'تعذّر الإنشاء'}), { type: 'warn', force: true }); return; }
-          m.close();
-          try { window.KiwiVenue.setVenue(id); } catch (_) {}
-          // A brand-new venue should land on "Aujourd'hui", not a stale range.
-          const todayPill = document.querySelector('[data-action="date-range"][data-range="aujourdhui"]');
-          if (todayPill && !todayPill.classList.contains('on')) todayPill.click();
-          confetti();
-          toast(tr({fr:'Votre tableau de bord est prêt', en:'Your dashboard is ready', ar:'لوحة التحكم جاهزة'}), { type: 'success', force: true,
-            desc: `${name} — ${tr({fr:'enregistrez votre première vente pour le voir prendre vie.', en:'record your first sale to see it come alive.', ar:'سجّل أول عملية بيع لتراها تنبض بالحياة.'})}` });
+          step1 = { name, city, goal, def };
+          /* ── Step 2 · the trade's own questions — every field optional,
+           * the whole step skippable. Answers personalize the venue. ── */
+          const prof = window.KiwiVenue?.getSubtypeProfile?.(picked);
+          if (!prof || !prof.questions || !prof.questions.length) { doCreate(null); return; }
+          const optWord = tr({fr:'optionnel', en:'optional', ar:'اختياري'});
+          m.el.querySelector('.kiwi-modal-body').innerHTML = `
+            <style>.ob-field:focus{border-color:var(--atlas)!important;}</style>
+            <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;color:var(--atlas);margin:2px 0 10px;">${tr({fr:'ÉTAPE 2 / 2 · TOUT EST OPTIONNEL', en:'STEP 2 / 2 · ALL OPTIONAL', ar:'الخطوة 2/2 · كل شيء اختياري'})}</div>
+            <div style="font-size:17px;font-weight:600;letter-spacing:-0.01em;">${tr({fr:'Parlez-nous de votre activité', en:'Tell us about your business', ar:'حدثنا عن نشاطك'})} · ${def.label}</div>
+            <p style="font-size:13px;color:var(--n-500);margin:6px 0 2px;line-height:1.5;">${tr({fr:'30 secondes — Kiwi personnalise vos indicateurs et vos modules. Modifiable plus tard dans Paramètres.', en:'30 seconds — Kiwi tailors your indicators and modules. Editable later in Settings.', ar:'30 ثانية — يخصص كيوي مؤشراتك ووحداتك. قابل للتعديل لاحقًا في الإعدادات.'})}</p>
+            ${prof.questions.map((q) => `
+              <label style="${lbl}">${tr(q.label)} <span style="color:var(--n-400);font-weight:400;">· ${optWord}</span></label>
+              <input class="ob-field" data-ob-q="${q.k}" ${q.type === 'number' ? 'type="number" inputmode="numeric" min="0"' : 'maxlength="60"'} placeholder="${q.ph}" style="${fld}"/>
+            `).join('')}`;
+          const foot = m.el.querySelector('.kiwi-modal-foot');
+          if (foot) foot.innerHTML = `
+            <button class="kb ghost" data-ob-skip type="button" style="flex:1;justify-content:center;">${tr({fr:'Passer pour l\'instant', en:'Skip for now', ar:'تخطّ الآن'})}</button>
+            <button class="kb atlas" data-ob-finish type="button" style="flex:1.4;justify-content:center;">${tr({fr:'Terminer →', en:'Finish →', ar:'إنهاء ←'})}</button>`;
+          setTimeout(() => { const f = m.el.querySelector('[data-ob-q]'); if (f) f.focus(); }, 120);
+          return;
         }
+        if (e.target.closest('[data-ob-skip]')) { doCreate(null); return; }
+        if (e.target.closest('[data-ob-finish]')) { doCreate(readAnswers()); return; }
       });
     },
 
