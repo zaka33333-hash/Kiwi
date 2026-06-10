@@ -141,6 +141,18 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 evening (2):** `9b757a8` **every sidebar destination is a full page** — the last 8
+drawer-based destinations (boutique: inventory/catégories/promos/retours · spa: calendrier
+RDV/services/praticiennes/fiches clients) converted to `Kiwi.appPage()` full views, same as
+transactions/terminaux/réservations. Root cause of the "raw text" look the user screenshotted:
+the spa family's CSS (~80 classes: `.s-*` `.pr-*` `.sc-*`) had NEVER been written — now in
+pages-pro.css (+260 lines, tokens only): positioned week-calendar grid, KPI strips, heat row,
+waitlist, iOS toggle, package cards, practitioner cards, client CRM. appPage() now returns a
+drawer-compatible `close()` (goes home) and rebuilds a fresh `.dash-genpage` host per render
+(destinations attach listeners to the host — reuse stacked duplicates). Nested detail
+drawers/wizards stay drawers on top of pages. Gotcha for future conversions: root lookups
+must point at `.dash-genpage`, not `.kiwi-drawer`; drop `data-dismiss` foot buttons.
+
 **Jun 10 evening:** `2368b21` **all 15 trades get full home-card vocabulary** — the vocab
 layer extended from gym-only to every onboarding activity type. Each trade now has its own
 feed badge ("FOUR ALLUMÉ", "EN TOURNÉE", "FOURNIL OUVERT"…), products card (Top boissons /
