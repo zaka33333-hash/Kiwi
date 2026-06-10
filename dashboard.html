@@ -591,9 +591,12 @@
   /* Main column + side rail: two independent stacks — each card sits right
    * under its column sibling, regardless of the other column's height. */
   .dash-cols { display: grid; grid-template-columns: 1.85fr 1fr; gap: 14px; align-items: start; margin-bottom: 16px; }
+  .dash-cols--even { grid-template-columns: 1fr 1fr; }
   .dash-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
   @media (max-width: 1100px) {
-    /* Single column: dissolve the rails and interleave by priority. */
+    /* Single column: dissolve the rails and interleave by priority
+     * (orders are scoped per .dash-cols container, so the two instances
+     * — home and analyses — don't interfere). */
     .dash-cols { display: flex; flex-direction: column; gap: 16px; }
     .dash-col { display: contents; }
     .dash-cols .block:has([data-hh-row]) { order: 1; }
@@ -601,6 +604,10 @@
     .dash-cols .block:has([data-feed]) { order: 3; }
     .dash-cols .settle { order: 4; }
     .dash-cols [data-stock-card] { order: 5; }
+    .dash-cols [data-health-card] { order: 1; }
+    .dash-cols [data-bench-card] { order: 2; }
+    .dash-cols .block:has([data-products-list]) { order: 3; }
+    .dash-cols .block:has([data-staff-list]) { order: 4; }
   }
 
   /* ─────────── SECONDARY-ANALYSIS DISCLOSURE ───────────
@@ -5383,7 +5390,8 @@
       <div class="dash-more" id="dash-more" data-dash-more inert>
 
       <!-- ═══ HEALTH + BENCHMARK ═══ -->
-      <div class="row r-1-1">
+      <div class="dash-cols dash-cols--even">
+        <div class="dash-col">
         <!-- Health score -->
         <div class="block" data-health-card>
           <div class="block-head">
@@ -5434,6 +5442,23 @@
         </div>
 
         <!-- Benchmark -->
+        <!-- Top products -->
+        <div class="block">
+          <div class="block-head">
+            <div>
+              <div class="t" data-i18n="dash.products.title">Top produits</div>
+              <div class="s" data-products-sub>Aujourd'hui · tous les items</div>
+            </div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <a href="#" data-action="view-margins" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.margins">Marges →</a>
+              <a href="#" data-action="menu-edit" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.manageMenu">Gérer menu →</a>
+            </div>
+          </div>
+          <div class="prod-list" data-products-list></div>
+        </div>
+        </div><!-- /.dash-col A -->
+
+        <div class="dash-col">
         <div class="block" data-bench-card>
           <div class="block-head">
             <div>
@@ -5450,24 +5475,6 @@
             <span data-i18n="dash.bench.summary">Vous surperformez <b>4 cafés sur 5</b> sur Casablanca. Le seul levier faible : le <b>pourboire</b>.</span> <a href="#" data-action="tip-prompt" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.bench.autoPrompt">Activer prompt auto →</a>
           </div>
         </div>
-      </div>
-
-      <!-- ═══ PRODUCTS + STAFF ═══ -->
-      <div class="row r-1-1">
-        <!-- Top products -->
-        <div class="block">
-          <div class="block-head">
-            <div>
-              <div class="t" data-i18n="dash.products.title">Top produits</div>
-              <div class="s" data-products-sub>Aujourd'hui · tous les items</div>
-            </div>
-            <div style="display: flex; gap: 14px; align-items: center;">
-              <a href="#" data-action="view-margins" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.margins">Marges →</a>
-              <a href="#" data-action="menu-edit" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.manageMenu">Gérer menu →</a>
-            </div>
-          </div>
-          <div class="prod-list" data-products-list></div>
-        </div>
 
         <!-- Staff -->
         <div class="block">
@@ -5480,7 +5487,8 @@
           </div>
           <div data-staff-list></div>
         </div>
-      </div>
+        </div><!-- /.dash-col B -->
+      </div><!-- /.dash-cols even -->
 
       <!-- ═══ INTEGRATIONS ═══ -->
       <div class="block" data-integ-card>
