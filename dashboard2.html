@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="assets/ux.css" />
 <link rel="stylesheet" href="assets/pages-pro.css" />
 <link rel="stylesheet" href="assets/polish-dashboard.css" />
+<link rel="stylesheet" href="assets/hotel.css" />
 <style>
   /* ─────────────── SHELL ─────────────── */
   /* Ambient blobs — four soft radial gradients pinned to the viewport
@@ -5609,9 +5610,12 @@
 <script src="assets/dashboard-extra.js" defer></script>
 <script src="assets/simple.js" defer></script>
 <script src="assets/ux.js" defer></script>
-<script src="assets/venues.js" defer></script>
-<script src="assets/demoClock.js" defer></script>
-<script src="assets/dateRange.js" defer></script>
+<!-- DASHBOARD2: hotel-vertical forks — venues2/demoClock2/dateRange2 add
+     Riad Yasmina (type hotel) without touching the shared dashboard.html
+     assets. assets/hotel.js below carries the hotel pages + folio engine. -->
+<script src="assets/venues2.js" defer></script>
+<script src="assets/demoClock2.js" defer></script>
+<script src="assets/dateRange2.js" defer></script>
 <script src="assets/mobile-nav.js" defer></script>
 <script src="assets/liquid-lens.js" defer></script>
 <!-- Below: user-triggered surfaces — not needed for first paint. -->
@@ -5626,6 +5630,7 @@
 <script src="assets/account.js" defer fetchpriority="low"></script>
 <script src="assets/design-2026.js" defer fetchpriority="low"></script>
 <script src="assets/design-ios27.js" defer fetchpriority="low"></script>
+<script src="assets/hotel.js" defer fetchpriority="low"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════════
  *  ROLE GUARD — wraps nav-payroll so a manager can't reach the payroll
