@@ -2102,12 +2102,14 @@ ar: {
           `Maintenance & remplacement matériel` ] },
         { id: 'ultra', name: 'KIWI ULTRA', price: '1 499 MAD', unit: '/mois', tagline: `Sur-mesure · multi-pays · 24/7`, cta: 'Passer à Ultra →', feats: [
           `Tout Kiwi Pro inclus`,
+          `Vue Portefeuille consolidée + IA cross-sites actionnable`,
           `Établissements illimités · équipe illimitée`,
           `API enterprise illimitée · SLA 99,99 %`,
           `Multi-pays · corridor diaspora France ↔ Maroc`,
-          `Account manager dédié 24/7`,
+          `Account manager dédié 24/7 (réponse < 30 min)`,
           `Conseil stratégique trimestriel`,
-          `Onboarding white-glove sur place` ] },
+          `Onboarding white-glove sur place`,
+          `≈ 0,1 % du CA d'un portefeuille de 3 établissements` ] },
         { id: 'ultimate', name: 'KIWI ULTIMATE', price: 'Sur devis', unit: '', tagline: `Sur-mesure total · on en parle`, cta: 'Demander un devis →', feats: [
           `Tout Kiwi Ultra inclus`,
           `Fonctionnalités développées pour vous`,

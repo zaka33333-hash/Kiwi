@@ -1185,6 +1185,19 @@
         window.Kiwi.handlers['venue-pick']          = onVenuePick;
         window.Kiwi.handlers['venue-enter-fusion']  = onVenueEnterFusion;
         window.Kiwi.handlers['venue-exit-fusion']   = onVenueExitFusion;
+        /* Exclusif Ultra band CTAs — honest demo confirmations. */
+        window.Kiwi.handlers['fs-ultra-transfer'] = () => {
+          const U = FS_ULTRA_STR[fusionLang()] || FS_ULTRA_STR.fr;
+          window.Kiwi.toast(U.transferToast, { type: 'success', desc: U.transferToastD, force: true });
+        };
+        window.Kiwi.handlers['fs-ultra-call'] = () => {
+          const U = FS_ULTRA_STR[fusionLang()] || FS_ULTRA_STR.fr;
+          window.Kiwi.toast(U.callToast, { type: 'success', desc: U.callToastD, force: true });
+        };
+        window.Kiwi.handlers['fs-ultra-api'] = () => {
+          const U = FS_ULTRA_STR[fusionLang()] || FS_ULTRA_STR.fr;
+          window.Kiwi.toast(U.apiToast, { type: 'info', desc: U.apiToastD, force: true });
+        };
         // Override the legacy 'location-switch' handler so the old
         // Casa/Marrakech menu doesn't pop when the user clicks the venue tile.
         window.Kiwi.handlers['location-switch']     = onVenueToggle;
@@ -1345,6 +1358,74 @@
     fr: { aujourdhui: 'vs hier', hier: 'vs avant-hier', septJours: 'vs 7 jours précédents', trenteJours: 'vs 30 jours précédents' },
     en: { aujourdhui: 'vs yesterday', hier: 'vs day before', septJours: 'vs previous 7 days', trenteJours: 'vs previous 30 days' },
     ar: { aujourdhui: 'مقابل أمس', hier: 'مقابل أول أمس', septJours: 'مقابل 7 أيام السابقة', trenteJours: 'مقابل 30 يومًا السابقة' },
+  };
+  /* ── Exclusif Ultra band — the pillars the 1 499 buys, lived in-product.
+   * Projection math is honest demo data: the staff-transfer rec uses real
+   * roster names; the ROI line matches the sidebar's 1,47 M MAD/month. ── */
+  const FS_ULTRA_STR = {
+    fr: {
+      roi: '1 499 MAD/mois ≈ 0,1 % du CA du portefeuille (1,47 M MAD/mois)',
+      aiEyebrow: '✦ IA PORTEFEUILLE · ACTION SUGGÉRÉE',
+      aiTitle: 'Transfert d\'équipe · vendredi 19h–22h',
+      aiBody: 'Café Atlas refuse ~12 couverts chaque vendredi soir pendant que Spa Bahia tourne à 54 % de capacité. Hamid J. et Sofia B. (formés salle) sont disponibles côté spa sur ce créneau.',
+      aiProj: '≈ +3 800 MAD/semaine · +15 200 MAD/mois',
+      aiCta: 'Planifier le transfert →',
+      amEyebrow: 'ACCOUNT MANAGER DÉDIÉE',
+      amRole: 'Connaît vos 3 établissements · Casablanca',
+      amNote: 'Ligne directe 24/7 — réponse médiane 11 min sur les 30 derniers jours. Revue stratégique trimestrielle incluse.',
+      amCall: 'Planifier un appel',
+      apiEyebrow: 'API ENTERPRISE · TEMPS RÉEL',
+      apiKey: 'Clé de production', apiActive: 'actifs',
+      apiExport: 'Export comptable', apiDocs: 'Documentation API →',
+      transferToast: 'Transfert planifié — proposé à Hamid J. et Sofia B.',
+      transferToastD: 'En attente de leur confirmation WhatsApp. Yasmine est en copie.',
+      callToast: 'Appel demandé — Yasmine vous rappelle',
+      callToastD: 'Créneau confirmé par WhatsApp d\'ici 30 min.',
+      apiToast: 'docs.kiwi.ma/api',
+      apiToastD: 'Référence complète : endpoints, webhooks, exports SFTP.',
+    },
+    en: {
+      roi: '1,499 MAD/mo ≈ 0.1% of portfolio revenue (1.47M MAD/mo)',
+      aiEyebrow: '✦ PORTFOLIO AI · SUGGESTED ACTION',
+      aiTitle: 'Staff transfer · Friday 7–10pm',
+      aiBody: 'Café Atlas turns away ~12 covers every Friday night while Spa Bahia runs at 54% capacity. Hamid J. and Sofia B. (floor-trained) are free on the spa side in that window.',
+      aiProj: '≈ +3,800 MAD/week · +15,200 MAD/month',
+      aiCta: 'Schedule the transfer →',
+      amEyebrow: 'DEDICATED ACCOUNT MANAGER',
+      amRole: 'Knows your 3 venues · Casablanca',
+      amNote: 'Direct line 24/7 — median response 11 min over the last 30 days. Quarterly strategy review included.',
+      amCall: 'Schedule a call',
+      apiEyebrow: 'ENTERPRISE API · REAL-TIME',
+      apiKey: 'Production key', apiActive: 'active',
+      apiExport: 'Accounting export', apiDocs: 'API documentation →',
+      transferToast: 'Transfer scheduled — proposed to Hamid J. and Sofia B.',
+      transferToastD: 'Awaiting their WhatsApp confirmation. Yasmine is cc\'d.',
+      callToast: 'Call requested — Yasmine will call you back',
+      callToastD: 'Slot confirmed by WhatsApp within 30 min.',
+      apiToast: 'docs.kiwi.ma/api',
+      apiToastD: 'Full reference: endpoints, webhooks, SFTP exports.',
+    },
+    ar: {
+      roi: '1 499 درهم/شهر ≈ 0,1 % من مداخيل المحفظة (1,47 مليون درهم/شهر)',
+      aiEyebrow: '✦ ذكاء المحفظة · إجراء مقترح',
+      aiTitle: 'نقل فريق · الجمعة 19:00–22:00',
+      aiBody: 'مقهى أطلس يرفض ~12 مقعدًا كل جمعة مساءً بينما سبا باهية يعمل بـ 54 % من طاقته. حميد ج. وصوفيا ب. (مدرّبان على الصالة) متاحان في تلك الفترة.',
+      aiProj: '≈ +3 800 درهم/أسبوع · +15 200 درهم/شهر',
+      aiCta: 'جدولة النقل ←',
+      amEyebrow: 'مديرة حساب مخصصة',
+      amRole: 'تعرف مؤسساتك الثلاث · الدار البيضاء',
+      amNote: 'خط مباشر 24/7 — متوسط الرد 11 دقيقة خلال آخر 30 يومًا. مراجعة استراتيجية فصلية مشمولة.',
+      amCall: 'جدولة مكالمة',
+      apiEyebrow: 'API للمؤسسات · في الوقت الفعلي',
+      apiKey: 'مفتاح الإنتاج', apiActive: 'نشطة',
+      apiExport: 'تصدير محاسبي', apiDocs: 'وثائق الـ API ←',
+      transferToast: 'تمت جدولة النقل — اقتُرح على حميد ج. وصوفيا ب.',
+      transferToastD: 'في انتظار تأكيدهما عبر واتساب. ياسمين في النسخة.',
+      callToast: 'تم طلب المكالمة — ياسمين ستتصل بك',
+      callToastD: 'تأكيد الموعد عبر واتساب خلال 30 دقيقة.',
+      apiToast: 'docs.kiwi.ma/api',
+      apiToastD: 'مرجع كامل: النقاط، الويبهوكس، تصدير SFTP.',
+    },
   };
   const FUSION_HERO_LABELS = {
     fr: { aujourdhui: "ENCAISSÉ AUJOURD'HUI · PORTEFEUILLE", hier: 'ENCAISSÉ HIER · PORTEFEUILLE', septJours: 'ENCAISSÉ 7 JOURS · PORTEFEUILLE', trenteJours: 'ENCAISSÉ 30 JOURS · PORTEFEUILLE' },
@@ -1722,6 +1803,45 @@
           <div class="fs-intel-v fs-intel-v-text">${I.topCrossVenuePair}</div>
           <div class="fs-intel-l">184 clients en commun</div>
           <div class="fs-intel-n">Duo le plus rentable du portefeuille</div>
+        </div>`;
+    }
+
+    // ── Section 5b · Exclusif Ultra — the 1 499 pillars, lived ──
+    const ultraWrap = root.querySelector('[data-fs-ultra]');
+    if (ultraWrap) {
+      const U = FS_ULTRA_STR[fusionLang()] || FS_ULTRA_STR.fr;
+      const roiEl = root.querySelector('[data-fs-ultra-roi]');
+      if (roiEl) roiEl.textContent = U.roi;
+      ultraWrap.innerHTML = `
+        <div class="fs-ultra-card">
+          <div class="fs-ultra-eyebrow">${U.aiEyebrow}</div>
+          <div class="fs-ultra-t">${U.aiTitle}</div>
+          <div class="fs-ultra-d">${U.aiBody}</div>
+          <div class="fs-ultra-proj">${U.aiProj}</div>
+          <button type="button" class="fs-ultra-cta" data-action="fs-ultra-transfer">${U.aiCta}</button>
+        </div>
+        <div class="fs-ultra-card">
+          <div class="fs-ultra-eyebrow">${U.amEyebrow}</div>
+          <div class="fs-ultra-am">
+            <div class="fs-ultra-av">YK</div>
+            <div>
+              <div class="fs-ultra-am-n">Yasmine Kabbaj</div>
+              <div class="fs-ultra-am-r">${U.amRole}</div>
+            </div>
+          </div>
+          <div class="fs-ultra-d">${U.amNote}</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="fs-ultra-cta" data-action="help-whatsapp">WhatsApp</button>
+            <button type="button" class="fs-ultra-cta" data-action="fs-ultra-call">${U.amCall}</button>
+          </div>
+        </div>
+        <div class="fs-ultra-card">
+          <div class="fs-ultra-eyebrow">${U.apiEyebrow}</div>
+          <div class="fs-ultra-row"><span>${U.apiKey}</span><b>kiwi_live_••••7XK2</b></div>
+          <div class="fs-ultra-row"><span>Webhooks</span><b>3 ${U.apiActive}</b></div>
+          <div class="fs-ultra-row"><span>${U.apiExport}</span><b>02:00 · SFTP</b></div>
+          <div class="fs-ultra-row"><span>SLA · 30j</span><b class="fs-ultra-ok">99,99 % ✓</b></div>
+          <button type="button" class="fs-ultra-cta" data-action="fs-ultra-api">${U.apiDocs}</button>
         </div>`;
     }
 

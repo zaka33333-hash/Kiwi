@@ -18,6 +18,8 @@
       'a11y.skip': 'Skip to content',
       /* Roles */
       'dash.role.manager': 'Manager view',
+      /* Fusion · Ultra */
+      'dash.fusion.ultra.title': 'Ultra exclusive',
       /* Nav */
       'nav.products': 'Products',
       'nav.pricing': 'Pricing',
@@ -618,6 +620,8 @@
       'a11y.skip': 'تخطي إلى المحتوى',
       /* Roles */
       'dash.role.manager': 'عرض المدير',
+      /* Fusion · Ultra */
+      'dash.fusion.ultra.title': 'حصري Ultra',
       /* Nav */
       'nav.products': 'المنتجات',
       'nav.pricing': 'الأسعار',
