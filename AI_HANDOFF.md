@@ -141,6 +141,23 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 afternoon:** `993e60c` **the 10/10 polish sweep** — a 6-agent Workflow audit (71
+graded findings, full output preserved in the commit message) → ~50 fixes in 23 files:
+every flat-slab row hover → eased brand tint w/ rounded end cells; press states across the
+overlay kit/landing/wallet; dark-mode root causes (venue dropdown, heatmap ramp via
+color-mix, KDS invalid nested @keyframes strobe, .on-state specificity traps in growth
+modules, sparkline token, ~40 leftover #fff); the ux.css duplicate focus rule that
+RESHAPED buttons on keyboard focus; the dead Export button (cross-IIFE ReferenceError);
+RTL mirrors for the 2026 row leans; brand.html 'Deux paliers' → 'Quatre formules. Deux
+expressions.' Earlier same day: `cfbf1e6` lens-wash row hover (the user's canonical hated
+slab), `9761527` conscious cards (.row align-items:start — cards end at their data) + the
+analyses disclosure as a glass capsule w/ live count chip + animated unfold, `9309a98`
+darker iOS-27 sidebar on desktop light, `b4a7a0c` night-crash fix (chart RangeError after
+23h sim), `224919c` **la lentille liquide** brand motion + module. Deferred wave-2 (see
+spawn-task chip / audit output): traveling lens for command palette + accounting tabs,
+six-toggle standardization, .kit-empty empty-state rollout, premium.css deletion, .kb
+radius unification.
+
 **Past-midnight Jun 9→10:** `224919c` **LA LENTILLE LIQUIDE** — the capsule bar's sliding
 highlight is now THE brand selection motion (`assets/liquid-lens.js`: spring
 cubic-bezier(0.34,1.45,0.5,1)·310ms, 115ms stretch-then-settle). Auto-attached to the
