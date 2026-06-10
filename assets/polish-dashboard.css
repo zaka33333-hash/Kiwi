@@ -68,19 +68,52 @@
 .btn:active, .btn-slim:active, .kb:active,
 .instant:active, button[data-action]:active { transform: scale(0.972); }
 
-/* ─── List rows — clear hover affordance, since each row is clickable ─── */
-.feed-row, .tx-row, .staff-row, .prod, .prod-row, .bench-row, .timeline-day {
-  transition: background 130ms ease, transform 130ms var(--ease-out);
+/* ─── List rows — the hover is a soft lens wash, not an opaque slab:
+ * rounded, mint-tinted with a hairline ring, and the row leans toward the
+ * cursor. Same vocabulary as the liquid lens. The flush rows (inline
+ * padding 0 in their base styles) get breathing room via padding +
+ * negative margin, so the wash extends past the text without the content
+ * shifting; !important because the page's inline <style> loads after this
+ * refinement layer. .feed-row keeps its own padding geometry. ─── */
+.prod-row, .staff-row, .bench-row {
+  padding-inline: 10px !important;
+  margin-inline: -10px;
+}
+.feed-row, .tx-row, .staff-row, .prod, .prod-row, .bench-row {
+  border-radius: 12px;
+  transition: background 200ms ease, box-shadow 200ms ease,
+              transform 220ms var(--ease-out);
   cursor: pointer;
 }
 .feed-row:hover, .tx-row:hover, .staff-row:hover,
 .prod:hover, .prod-row:hover, .bench-row:hover {
-  background: var(--paper-soft);
+  background: color-mix(in srgb, var(--mint) 8%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--atlas) 12%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateX(3px);
+}
+/* .feed-row's inline transition list lacks transform, so a translate would
+ * snap there — the design-2026 layer (active on every passcode) supplies its
+ * own animated lean for feed rows instead. */
+.feed-row:hover { transform: none; }
+[dir="rtl"] :is(.tx-row, .staff-row, .prod, .prod-row, .bench-row):hover {
+  transform: translateX(-3px);
+}
+:is(.feed-row, .tx-row, .staff-row, .prod, .prod-row, .bench-row):active {
+  transform: scale(0.99);
+}
+html[data-theme="dark"] :is(.feed-row, .tx-row, .staff-row, .prod, .prod-row, .bench-row):hover {
+  background: color-mix(in srgb, var(--mint) 7%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mint) 14%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.feed-row, .tx-row, .staff-row, .prod, .prod-row, .bench-row):hover { transform: none; }
 }
 
-/* ─── Action links (the "→" links) — nudge on hover ─── */
-a[data-action] { transition: opacity 150ms var(--ease-out); }
-a[data-action]:hover { opacity: 0.7; }
+/* ─── Action links (the "→" links) — deepen, never dim ─── */
+a[data-action] { transition: color 150ms var(--ease-out); }
+a[data-action]:hover { color: var(--atlas-700, #08553D); }
 
 /* ─── Sidebar nav — smoother, with a hairline press ─── */
 .sidebar nav a { transition: background 160ms var(--ease-out), color 160ms var(--ease-out); }
