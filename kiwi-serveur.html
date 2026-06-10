@@ -1093,6 +1093,64 @@
     }
     .menu-item.pop { animation: pop-add 240ms ease-out; }
 
+    /* Items that carry option groups (cuisson, sauces…) get a corner flag */
+    .menu-item-optflag {
+      position: absolute; top: 9px; right: 9px;
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--forest);
+      background: var(--mint-tint);
+      border: 1px solid var(--mint-edge);
+      padding: 2px 6px 2px 5px; border-radius: 999px;
+      line-height: 1;
+    }
+    .menu-item-optflag svg { width: 9px; height: 9px; }
+    .menu-item.is-in-cart .menu-item-optflag { background: #fff; }
+
+    /* ===== Options bottom-sheet (mirrors dashboard Menu → groupes d'options) ===== */
+    .opt-group { margin-bottom: 18px; }
+    .opt-group-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 9px; gap: 10px;
+    }
+    .opt-group-name { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+    .opt-group-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      flex: 0 0 auto;
+    }
+    .opt-group-tag.req { color: var(--forest); }
+    .opt-group-tag.opt { color: var(--ink-4); }
+    .opt-group.missing .opt-group-name { color: var(--danger-mute); }
+    .opt-group.missing .opt-group-tag.req { color: var(--danger-mute); }
+    .opt-vals { display: flex; flex-wrap: wrap; gap: 8px; }
+    .opt-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 14px; border-radius: 999px;
+      background: var(--paper-mute); border: 1.5px solid transparent;
+      font-size: 13px; color: var(--ink-2); font-weight: 500;
+      transition: background 130ms, border-color 130ms, color 130ms, transform 80ms;
+    }
+    .opt-pill:active { transform: scale(0.96); }
+    .opt-pill .opt-pr { font-size: 11px; color: var(--ink-4); font-feature-settings: "tnum" 1; }
+    .opt-pill.on { background: var(--mint-tint); border-color: var(--forest); color: var(--forest); font-weight: 600; }
+    .opt-pill.on .opt-pr { color: var(--forest); }
+    .opt-foot {
+      position: sticky; bottom: -24px;
+      background: #fff; padding: 12px 0 0;
+      margin: 4px -2px 0; display: flex; gap: 8px;
+    }
+    .opt-foot .td-btn { flex: 1; }
+    .opt-foot .td-btn.primary { flex: 1.6; }
+
+    /* read-only options sub-line under an order item */
+    .td-item-optline {
+      flex: 1 0 100%;
+      font-size: 11.5px; color: var(--forest); font-weight: 500;
+      display: flex; align-items: flex-start; gap: 5px;
+      line-height: 1.35;
+    }
+    .td-item-optline svg { width: 12px; height: 12px; flex: 0 0 12px; margin-top: 1px; }
+
     /* Floating "view cart" bar — only when in Menu tab with active order */
     .menu-cart-bar {
       position: absolute;
@@ -3082,6 +3140,14 @@
         </div>
       </div>
 
+      <!-- ============ ITEM OPTIONS SHEET ============ -->
+      <div class="modal-veil" id="opt-modal" role="dialog" aria-modal="true">
+        <div class="modal">
+          <div class="modal-handle"></div>
+          <div id="opt-modal-body"></div>
+        </div>
+      </div>
+
       <!-- ============ PAYMENT CHOICE MODAL ============ -->
       <div class="modal-veil" id="pay-choice-modal" role="dialog" aria-modal="true">
         <div class="modal">
@@ -3415,6 +3481,68 @@
       boissons:   'Boissons',
       desserts:   'Desserts',
     };
+
+    /* ---------- Item options (mirrors dashboard Menu → groupes d'options) ----------
+       Same model as the caisse: a group is radio (un seul choix, obligatoire),
+       multi (plusieurs choix, certains payants) ou toggle (oui / non).
+       A dish that carries one or more groups forces the serveur through the
+       options sheet before the line can land in the order. */
+    const optionGroups = {
+      cuisson:        { name: 'Cuisson',             kind: 'radio',  vals: [{ n: 'Bleu' }, { n: 'Saignant' }, { n: 'À point' }, { n: 'Bien cuit' }] },
+      fromage:        { name: 'Suppléments fromage', kind: 'multi',  vals: [{ n: 'Cheddar', p: 8 }, { n: 'Comté', p: 12 }, { n: 'Bleu', p: 10 }, { n: 'Mozzarella', p: 8 }] },
+      sauces:         { name: 'Sauces',              kind: 'multi',  vals: [{ n: 'BBQ' }, { n: 'Mayo' }, { n: 'Andalouse' }, { n: 'Algérienne' }, { n: 'Samouraï' }, { n: 'Harissa' }] },
+      accompagnement: { name: 'Accompagnement',      kind: 'radio',  vals: [{ n: 'Frites maison' }, { n: 'Salade verte' }, { n: 'Riz safrané' }, { n: 'Légumes vapeur' }] },
+      pain:           { name: 'Pain à part',         kind: 'toggle', vals: [{ n: 'Oui' }] },
+      coriandre:      { name: 'Sans coriandre',      kind: 'toggle', vals: [{ n: 'Oui' }] },
+      piment:         { name: 'Sans piment',         kind: 'toggle', vals: [{ n: 'Oui' }] },
+    };
+    /* which dishes carry which groups (order = display order in the sheet) */
+    const itemOptions = {
+      'm-007': ['cuisson', 'coriandre', 'piment'],                  // Tajine kefta (viande hachée + œuf)
+      'm-009': ['coriandre', 'pain'],                               // Tajine agneau pruneaux
+      'm-003': ['coriandre', 'piment'],                             // Harira
+      'm-012': ['coriandre', 'pain'],                               // Couscous royal
+      'm-018': ['cuisson', 'sauces', 'fromage', 'accompagnement'],  // Sandwich kefta
+      'm-019': ['sauces', 'accompagnement'],                        // Sandwich poulet
+      'm-020': ['sauces', 'accompagnement'],                        // Sandwich thon
+      'm-021': ['cuisson', 'sauces', 'accompagnement'],             // Bocadillo merguez
+      'm-022': ['sauces', 'piment'],                                // Wrap végé
+    };
+    const itemHasOptions = id => Array.isArray(itemOptions[id]) && itemOptions[id].length > 0;
+    const isReqKind = k => k === 'radio';   // radio = obligatoire; multi / toggle = optionnel
+
+    /* Build the chosen-options array (and €) from a draft selection. */
+    function optsFromSel(itemId, sel) {
+      const opts = [];
+      (itemOptions[itemId] || []).forEach(g => {
+        const def = optionGroups[g], s = sel[g];
+        if (def.kind === 'radio' && s) {
+          const v = def.vals.find(v => v.n === s);
+          opts.push({ group: g, label: s, price: v && v.p ? v.p : 0 });
+        } else if (def.kind === 'toggle' && s === true) {
+          opts.push({ group: g, label: def.name, price: 0 });
+        } else if (def.kind === 'multi' && s && s.size) {
+          def.vals.forEach(v => { if (s.has(v.n)) opts.push({ group: g, label: v.n, price: v.p || 0 }); });
+        }
+      });
+      return opts;
+    }
+    const optsExtra = opts => opts.reduce((s, o) => s + (o.price || 0), 0);
+    /* Human summary shown under the order line — multis grouped under their name. */
+    function optsSummary(opts) {
+      if (!opts || !opts.length) return '';
+      const parts = [], multiBy = {};
+      opts.forEach(o => {
+        const def = optionGroups[o.group];
+        if (def && def.kind === 'multi') (multiBy[o.group] = multiBy[o.group] || []).push(o.label);
+        else parts.push(o.label);   // radio value or toggle group-name
+      });
+      Object.keys(multiBy).forEach(g => parts.push(`${optionGroups[g].name}: ${multiBy[g].join(', ')}`));
+      return parts.join(' · ');
+    }
+    const optsSig = opts => opts.map(o => o.group + ':' + o.label).sort().join('|');
+    /* small inline sliders glyph (no lucide dep, renders immediately) */
+    const SLIDERS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>';
 
     const menuItems = [
       { id: 'm-001', cat: 'entrees',    name: 'Salade marocaine',     price: 45  },
@@ -4188,6 +4316,8 @@
         const isEditable = (t.status === 'ka-yaklo' || t.status === 'bgha-ykhlass');
         const itemsHTML = order.map(l => {
           const noteTxt = (l.note || '').trim();
+          const optTxt = optsSummary(l.opts);
+          const optLine = optTxt ? `<span class="td-item-optline">${SLIDERS_SVG}${esc(optTxt)}</span>` : '';
           if (isEditable) {
             return `
               <div class="td-item" data-order-uid="${l.uid}">
@@ -4198,6 +4328,7 @@
                 </div>
                 <span class="td-item-name">${l.name}</span>
                 <span class="td-item-price">${fmtMAD(l.price * l.qty)}</span>
+                ${optLine}
                 <input class="td-item-note${noteTxt ? ' has-note' : ''}" data-note-uid="${l.uid}"
                   placeholder="Note cuisine — ex. bien chaud, sans oignon" aria-label="Note cuisine — ${esc(l.name)}" />
               </div>
@@ -4208,6 +4339,7 @@
                 <span style="font-weight:700;width:32px;text-align:center;font-feature-settings:'tnum' 1;">${l.qty}×</span>
                 <span class="td-item-name">${l.name}</span>
                 <span class="td-item-price">${fmtMAD(l.price * l.qty)}</span>
+                ${optLine}
                 ${noteTxt ? `<span class="td-item-noteline">Note cuisine · ${esc(noteTxt)}</span>` : ''}
               </div>
             `;
@@ -4312,13 +4444,16 @@
 
       // Body: split banner with progress + read-only order
       const order = ensureTableOrder(id);
-      const orderHTML = order.map(l => `
+      const orderHTML = order.map(l => {
+        const optTxt = optsSummary(l.opts);
+        return `
         <div class="td-item" style="opacity:0.55">
           <span style="font-weight:700;width:32px;text-align:center;font-feature-settings:'tnum' 1;">${l.qty}×</span>
           <span class="td-item-name">${l.name}</span>
           <span class="td-item-price">${fmtMAD(l.price * l.qty)}</span>
-        </div>
-      `).join('');
+          ${optTxt ? `<span class="td-item-optline">${SLIDERS_SVG}${esc(optTxt)}</span>` : ''}
+        </div>`;
+      }).join('');
 
       $('#td-body').innerHTML = `
         <div class="td-split-banner">
@@ -4568,6 +4703,7 @@
           : `<span class="menu-item-add">+</span>`;
         return `
           <div class="menu-item ${qty > 0 ? 'is-in-cart' : ''}" data-menu-id="${m.id}" role="button" tabindex="0">
+            ${itemHasOptions(m.id) ? `<span class="menu-item-optflag">${SLIDERS_SVG}Options</span>` : ''}
             <span class="menu-item-cat">${catLabels[m.cat]}</span>
             <span class="menu-item-name">${m.name}</span>
             <span class="menu-item-foot">
@@ -4612,9 +4748,103 @@
       renderCartBar();
     }
 
+    /* ---------- Options sheet — forced before a dish with groups joins the order ---------- */
+    let optDraft = null;   // { itemId, sel: { groupId: value | Set | bool } }
+
+    function openOptionsSheet(itemId) {
+      const item = menuItems.find(m => m.id === itemId);
+      if (!item || !itemHasOptions(itemId)) return;
+      optDraft = { itemId, sel: {} };
+      itemOptions[itemId].forEach(g => {
+        const kind = optionGroups[g].kind;
+        optDraft.sel[g] = kind === 'multi' ? new Set() : (kind === 'toggle' ? false : null);
+      });
+      renderOptionsSheet(false);
+      $('#opt-modal').classList.add('is-open');
+    }
+
+    function closeOptionsSheet() {
+      $('#opt-modal').classList.remove('is-open');
+      optDraft = null;
+    }
+
+    function renderOptionsSheet(showMissing) {
+      if (!optDraft) return;
+      const item = menuItems.find(m => m.id === optDraft.itemId);
+      const groupsHTML = itemOptions[optDraft.itemId].map(g => {
+        const def = optionGroups[g], sel = optDraft.sel[g], required = isReqKind(def.kind);
+        const unmet = showMissing && required && sel == null;
+        const pills = def.vals.map(v => {
+          const on = def.kind === 'multi' ? sel.has(v.n)
+                   : def.kind === 'toggle' ? sel === true
+                   : sel === v.n;
+          return `<button class="opt-pill ${on ? 'on' : ''}" data-opt-group="${g}" data-opt-val="${esc(v.n)}">${esc(v.n)}${v.p ? `<span class="opt-pr">+${v.p}</span>` : ''}</button>`;
+        }).join('');
+        return `
+          <div class="opt-group ${unmet ? 'missing' : ''}">
+            <div class="opt-group-head">
+              <span class="opt-group-name">${esc(def.name)}</span>
+              <span class="opt-group-tag ${required ? 'req' : 'opt'}">${required ? 'Obligatoire' : 'Optionnel'}</span>
+            </div>
+            <div class="opt-vals">${pills}</div>
+          </div>`;
+      }).join('');
+      const extra = optsExtra(optsFromSel(optDraft.itemId, optDraft.sel));
+      const total = item.price + extra;
+      $('#opt-modal-body').innerHTML = `
+        <h3 class="modal-title">${esc(item.name)}</h3>
+        <p class="modal-subtle">${item.price} MAD${extra ? ` · +${extra} MAD d'options` : ''} · personnalisez avant d'ajouter à la commande</p>
+        ${groupsHTML}
+        <div class="opt-foot">
+          <button class="td-btn ghost" id="opt-cancel">Annuler</button>
+          <button class="td-btn primary" id="opt-confirm">Ajouter · ${fmtMAD(total)}</button>
+        </div>`;
+    }
+
+    function confirmOptions() {
+      if (!optDraft || !menuContextId) return;
+      const missing = itemOptions[optDraft.itemId].some(g => isReqKind(optionGroups[g].kind) && optDraft.sel[g] == null);
+      if (missing) { renderOptionsSheet(true); toast('Choisissez les options obligatoires'); return; }
+      const item = menuItems.find(m => m.id === optDraft.itemId);
+      const opts = optsFromSel(optDraft.itemId, optDraft.sel);
+      addConfiguredLine(menuContextId, item, opts);
+      closeOptionsSheet();
+    }
+
+    /* Push a configured line (stacking identical configs that have no manual note). */
+    function addConfiguredLine(tableId, item, opts) {
+      if (!tableOrders[tableId]) tableOrders[tableId] = [];
+      const price = item.price + optsExtra(opts);
+      const sig = optsSig(opts);
+      const line = tableOrders[tableId].find(l => l.id === item.id && !(l.note || '').trim() && (l.optsSig || '') === sig);
+      if (line) line.qty++;
+      else tableOrders[tableId].push({ uid: newLineUid(), id: item.id, name: item.name, price, basePrice: item.price, qty: 1, note: '', opts, optsSig: sig });
+      markDirty(tableId);
+      const card = document.querySelector(`.menu-item[data-menu-id="${item.id}"]`);
+      if (card) { card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop'); }
+      renderMenu();
+      renderCartBar();
+      toast(`${item.name} ajouté${opts.length ? ' · ' + optsSummary(opts) : ''}`);
+    }
+
+    $('#opt-modal').addEventListener('click', (e) => {
+      if (e.target === $('#opt-modal') || e.target.closest('#opt-cancel')) { closeOptionsSheet(); return; }
+      if (e.target.closest('#opt-confirm')) { confirmOptions(); return; }
+      const pill = e.target.closest('.opt-pill');
+      if (!pill || !optDraft) return;
+      const g = pill.dataset.optGroup, val = pill.dataset.optVal, def = optionGroups[g];
+      if (def.kind === 'multi') { const s = optDraft.sel[g]; s.has(val) ? s.delete(val) : s.add(val); }
+      else if (def.kind === 'toggle') optDraft.sel[g] = !optDraft.sel[g];
+      else optDraft.sel[g] = (optDraft.sel[g] === val ? null : val);
+      renderOptionsSheet(false);
+    });
+
     /* Menu-card +/- — + adds a unit, - removes from the plain line (else the last). */
     function changeMenuQty(tableId, itemId, delta) {
-      if (delta > 0) { addToTableOrder(tableId, itemId); return; }
+      if (delta > 0) {
+        if (itemHasOptions(itemId)) { openOptionsSheet(itemId); return; }
+        addToTableOrder(tableId, itemId); return;
+      }
       const lines = (tableOrders[tableId] || []).filter(l => l.id === itemId);
       const line = lines.find(l => !(l.note || '').trim()) || lines[lines.length - 1];
       if (!line) return;
@@ -4636,7 +4866,9 @@
       const card = e.target.closest('.menu-item');
       if (card) {
         if (!menuContextId) { toast('Sélectionnez une table d\'abord'); return; }
-        addToTableOrder(menuContextId, card.dataset.menuId);
+        const id = card.dataset.menuId;
+        if (itemHasOptions(id)) openOptionsSheet(id);
+        else addToTableOrder(menuContextId, id);
         return;
       }
     });
