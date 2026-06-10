@@ -141,6 +141,18 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 early evening:** `9d805fa` **home cards speak the trade's language** — follow-up
+to the subtype profiles: the user opened their gym and the home cards still said
+« Première commande à venir », « ingrédients », « Gérer menu », « votre restaurant ».
+New vocab layer: `BASE_VOCAB` (boutique/spa) + `SUBTYPE_PROFILES[*].vocab`
+(sport/coiffure/pharmacie) in venues.js, resolved by `KiwiVenue.getVocab(section)`;
+dateRange.js `tradeStr()` merges it over the default empty-state dicts (feed badge,
+stock card, evening card, Top produits, Performance équipe, ask-bar placeholder, sidebar
+« Commandes » → Passages/Ventes/Encaissements). Products/staff card titles + the manage
+link moved from `data-i18n` to JS-owned text so the per-venue relabel can win — restores
+mirror the former i18n values exactly. Also fixed the « NaN % » Rétention tile (0-division
+in the retention derive on a fresh venue's zeroed data).
+
 **Jun 10 end of afternoon:** `e5adccb` **each trade gets its own features** — the 15
 onboarding activity types stop inheriting restaurant/boutique/spa wholesale.
 `SUBTYPE_PROFILES` in venues.js: 12 full trilingual profiles (café, fast-food,
