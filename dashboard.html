@@ -578,7 +578,10 @@
   .chip.neutral { background: var(--n-100); color: var(--n-600); }
 
   /* ─────────────── ROW LAYOUT ─────────────── */
-  .row { display: grid; gap: 14px; margin-bottom: 16px; }
+  /* align-items:start — cards are content-aware: each one ends exactly where
+   * its data ends instead of stretching to the tallest sibling, and grows
+   * naturally when new rows arrive (the live feed ticks orders in). */
+  .row { display: grid; gap: 14px; margin-bottom: 16px; align-items: start; }
   .row.r-2-1 { grid-template-columns: 2fr 1fr; }
   .row.r-1-1 { grid-template-columns: 1fr 1fr; }
   .row.r-3 { grid-template-columns: repeat(3, 1fr); }
@@ -589,27 +592,70 @@
    * The default dashboard leads with the day's decisions; deeper
    * analysis (health, benchmark, products, staff, integrations) sits
    * behind this toggle so the first screen stays focused. */
-  .dash-more-toggle {
-    width: 100%; margin: 6px 0 18px;
-    display: flex; align-items: center; justify-content: center; gap: 9px;
-    padding: 13px 18px; border-radius: 14px;
-    background: var(--paper); border: 1px solid var(--n-200);
-    font-family: var(--sans); font-size: 13.5px; font-weight: 500;
-    color: var(--n-500); cursor: pointer;
-    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+  /* The toggle is a floating glass capsule resting on a seam line — the
+   * dashboard visibly "folds open" along it. It knows what it guards: the
+   * count chip is filled from the number of analysis cards at boot. */
+  .dash-more-wrap { position: relative; display: flex; justify-content: center; margin: 10px 0 20px; }
+  .dash-more-wrap::before {
+    content: ""; position: absolute; inset-inline: 0; top: 50%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--n-200) 16%, var(--n-200) 84%, transparent);
   }
-  .dash-more-toggle:hover { background: #fff; border-color: var(--n-400); color: var(--ink); }
-  .dash-more-toggle:focus-visible { outline: 2px solid var(--atlas); outline-offset: 2px; }
-  .dash-more-toggle .dmt-chev { width: 17px; height: 17px; flex-shrink: 0; transition: transform 220ms cubic-bezier(0.32,0.72,0,1); }
-  .dash-more-toggle[aria-expanded="true"] .dmt-chev { transform: rotate(180deg); }
+  .dash-more-toggle {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 9px 18px 9px 10px; border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4);
+    border: 1px solid var(--n-200);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5),
+                0 1px 2px rgba(10,15,13,0.04),
+                0 8px 22px -14px rgba(11,110,79,0.35);
+    font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--ink);
+    cursor: pointer;
+    transition: transform 250ms cubic-bezier(0.34,1.45,0.5,1), box-shadow 250ms ease, border-color 200ms ease;
+  }
+  .dash-more-toggle:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--atlas) 35%, var(--n-200));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5),
+                0 0 0 1px color-mix(in srgb, var(--mint) 28%, transparent),
+                0 12px 28px -14px rgba(11,110,79,0.5);
+  }
+  .dash-more-toggle:active { transform: scale(0.97); }
+  .dash-more-toggle:focus-visible { outline: 2px solid var(--atlas); outline-offset: 3px; }
+  .dmt-ico {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(150deg, var(--atlas), var(--riad)); color: var(--mint);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 10px -5px rgba(11,110,79,0.6);
+  }
+  .dmt-ico svg { width: 14px; height: 14px; }
+  .dmt-count {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    padding: 3px 8px; border-radius: 999px;
+    background: var(--mint-soft); color: var(--atlas);
+  }
+  .dash-more-toggle .dmt-chev {
+    width: 15px; height: 15px; flex-shrink: 0; color: var(--n-500);
+    transition: transform 310ms cubic-bezier(0.34,1.45,0.5,1), color 200ms ease;
+  }
+  .dash-more-toggle[aria-expanded="true"] .dmt-chev { transform: rotate(180deg); color: var(--atlas); }
   .dash-more-toggle .dmt-hide { display: none; }
   .dash-more-toggle[aria-expanded="true"] .dmt-show { display: none; }
   .dash-more-toggle[aria-expanded="true"] .dmt-hide { display: inline; }
-  .dash-more--in { animation: dash-more-in 440ms cubic-bezier(0.32,0.72,0,1) both; }
-  @keyframes dash-more-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  /* The section unfolds for real — animated height via the grid-rows trick,
+   * not a hidden-attribute snap. */
+  .dash-more-clip {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows 520ms cubic-bezier(0.32,0.72,0,1);
+  }
+  .dash-more-clip.open { grid-template-rows: 1fr; }
+  .dash-more-clip > .dash-more { overflow: hidden; min-height: 0; }
+  .dash-more-clip.open > .dash-more { animation: dash-more-in 560ms cubic-bezier(0.32,0.72,0,1) both; }
+  @keyframes dash-more-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
-    .dash-more-toggle .dmt-chev { transition: none; }
-    .dash-more--in { animation: none; }
+    .dash-more-toggle, .dash-more-toggle .dmt-chev, .dash-more-clip { transition: none; }
+    .dash-more-clip.open > .dash-more { animation: none; }
   }
 
   /* Restock CTA hover — moved out of inline onmouseover/onmouseout JS */
@@ -5256,13 +5302,18 @@
       <!-- ═══ SECONDARY ANALYSIS — collapsed by default (Codex roast:
        *   keep the first screen on the day's decisions, deeper analysis
        *   one click away) ═══ -->
+      <div class="dash-more-wrap">
       <button class="dash-more-toggle" type="button" data-dash-more-toggle
               aria-expanded="false" aria-controls="dash-more">
+        <span class="dmt-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 6-8"/><path d="M14 6h4v4"/></svg></span>
         <span class="dmt-label dmt-show" data-i18n="dash.more.show">Plus d'analyses</span>
         <span class="dmt-label dmt-hide" data-i18n="dash.more.hide">Réduire les analyses</span>
+        <span class="dmt-count" data-dmt-count hidden aria-hidden="true"></span>
         <svg class="dmt-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       </button>
-      <div class="dash-more" id="dash-more" data-dash-more hidden>
+      </div><!-- /.dash-more-wrap -->
+      <div class="dash-more-clip" data-dash-more-clip>
+      <div class="dash-more" id="dash-more" data-dash-more inert>
 
       <!-- ═══ HEALTH + BENCHMARK ═══ -->
       <div class="row r-1-1">
@@ -5406,6 +5457,7 @@
       </div>
 
       </div><!-- /.dash-more -->
+      </div><!-- /.dash-more-clip -->
 
       </div><!-- /.dash-standard -->
 
@@ -5874,21 +5926,27 @@
 (function () {
   'use strict';
   const btn  = document.querySelector('[data-dash-more-toggle]');
+  const clip = document.querySelector('[data-dash-more-clip]');
   const more = document.querySelector('[data-dash-more]');
-  if (!btn || !more) return;
+  if (!btn || !clip || !more) return;
+  /* The button knows what it guards — fill the count chip from the number
+   * of analysis cards actually behind the fold. */
+  const chip = btn.querySelector('[data-dmt-count]');
+  const n = more.querySelectorAll('.block').length;
+  if (chip && n) { chip.textContent = n; chip.hidden = false; }
   btn.addEventListener('click', (e) => {
     /* stop the click reaching the global delegation fallback toast */
     e.stopPropagation();
-    if (more.hasAttribute('hidden')) {
-      more.removeAttribute('hidden');
-      more.classList.add('dash-more--in');
-      btn.setAttribute('aria-expanded', 'true');
-      /* let any layout-measured charts in the revealed blocks recompute */
-      window.dispatchEvent(new Event('resize'));
+    const open = !clip.classList.contains('open');
+    clip.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    if (open) {
+      more.removeAttribute('inert');
+      /* Layout-measured charts in the revealed blocks recompute AFTER the
+       * unfold settles — firing during it starves the transition (jank). */
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 560);
     } else {
-      more.setAttribute('hidden', '');
-      more.classList.remove('dash-more--in');
-      btn.setAttribute('aria-expanded', 'false');
+      more.setAttribute('inert', '');
     }
   });
 })();
