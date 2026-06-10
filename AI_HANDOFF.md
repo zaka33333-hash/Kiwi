@@ -141,6 +141,16 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 10 evening:** `2368b21` **all 15 trades get full home-card vocabulary** — the vocab
+layer extended from gym-only to every onboarding activity type. Each trade now has its own
+feed badge ("FOUR ALLUMÉ", "EN TOURNÉE", "FOURNIL OUVERT"…), products card (Top boissons /
+combos / fournées / pizzas / menus / titres / compositions…), manage link, staff card
+(Performance vendeurs / praticiens / coiffeurs / coachs), evening card (précommandes gâteaux,
+prochain événement, prochain emplacement, GARDE pharmacie, livraisons fleuriste), nav label
+and ask-bar placeholder — all FR/EN/AR in `SUBTYPE_PROFILES[*].vocab` + `BASE_VOCAB`
+(venues.js). Field-level merge: a subtype overrides only what differs from its base
+vertical. All 15 probed live; AR pass on boulangerie; Café Atlas restores stock copy.
+
 **Jun 10 early evening:** `9d805fa` **home cards speak the trade's language** — follow-up
 to the subtype profiles: the user opened their gym and the home cards still said
 « Première commande à venir », « ingrédients », « Gérer menu », « votre restaurant ».
