@@ -3710,6 +3710,7 @@ h1, h2, h3, h4, .s-head h2, .final h2, .editorial {
 /* Body rows */
 .cmp tbody td {
   padding: 18px 24px;
+  transition: background-color var(--d-quick, 0.2s) var(--ease-glide);
   border-bottom: 1px solid var(--paper-line);
   vertical-align: middle;
   font-size: 14.5px;
@@ -4340,7 +4341,12 @@ h1, h2, h3, h4, .s-head h2, .final h2, .editorial {
   text-align: left;
   display: none;
 }
-.lead-form[data-active="true"] { display: block; }
+/* The display flip restarts the keyframes, so switching audience tabs
+ * gets a choreographed entrance instead of a raw snap. */
+.lead-form[data-active="true"] { display: block; animation: leadFormIn 0.45s var(--ease-glide) both; }
+@keyframes leadFormIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lead-form[data-active="true"] { animation: none; } }
+.faq-cat:active, .faq-nav-item:active, .audience-tab:active { transform: scale(0.97); }
 .lead-form-grid {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 14px;

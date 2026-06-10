@@ -822,6 +822,7 @@
 
   const MISC_STR = {
     fr: {
+        exportToast: 'Export CSV téléchargé',
         exportToastD: 'kiwi-tableau-de-bord.csv',
         menuToastT: 'Éditeur de menu',
         menuToastD: 'Catégories, plats, prix et modificateurs',
@@ -831,6 +832,7 @@
         helpToastD: 'WhatsApp +212 5 20 80 80 80 · 7j/7'
     },
     en: {
+        exportToast: 'CSV export downloaded',
         exportToastD: 'kiwi-dashboard.csv',
         menuToastT: 'Menu Editor',
         menuToastD: 'Categories, dishes, prices, and modifiers',
@@ -840,6 +842,7 @@
         helpToastD: 'WhatsApp +212 5 20 80 80 80 · 7/7'
     },
     ar: {
+        exportToast: 'تم تنزيل تصدير CSV',
         exportToastD: 'kiwi-dashboard.csv', /* AR: file name should not be translated */
         menuToastT: 'محرر القائمة',
         menuToastD: 'الفئات، الأطباق، الأسعار، والمعدلات',
@@ -854,7 +857,8 @@
   /* Export — download a real CSV summary of the dashboard's current period. */
   handlers['export'] = () => {
     const lang = trLang();
-    const str = MARGINS_STR[lang] || MARGINS_STR.fr;
+    /* MARGINS_STR lives in the first IIFE — referencing it here threw a
+     * ReferenceError that silently killed the Export button. */
     const miscStr = MISC_STR[lang] || MISC_STR.fr;
 
     const txt = (sel) => ((document.querySelector(sel) || {}).textContent || '').replace(/\s+/g, ' ').trim();
@@ -877,7 +881,7 @@
     a.download = miscStr.exportToastD;
     a.click();
     URL.revokeObjectURL(a.href);
-    if (toast) toast(str.exportToast, { type: 'success', desc: miscStr.exportToastD });
+    if (toast) toast(miscStr.exportToast, { type: 'success', desc: miscStr.exportToastD });
   };
 
   /* Live-feed "Filtrer" + "Tout voir" → open the full Commandes drawer, which

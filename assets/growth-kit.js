@@ -18,7 +18,9 @@
   function qr(size, opts) {
     opts = opts || {};
     const n = 25, px = size || 128, m = px / n;
-    const dark = opts.color || 'var(--ink)';
+    /* Literal ink, not the token: the QR tile is deliberately theme-locked
+     * white, and var(--ink) inverts to near-white in dark mode (blank QR). */
+    const dark = opts.color || '#0A0F0D';
     const inFinder = (r, c, fr, fc) => r >= fr && r < fr + 7 && c >= fc && c < fc + 7;
     const finderOn = (r, c, fr, fc) => {
       const rr = r - fr, cc = c - fc;

@@ -553,7 +553,7 @@
     .ac-cal-r { text-align:end; white-space:nowrap; }
     .ac-cal-r .a { font-size:13px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
     .ac-cal-r .st { font-size:10px; font-weight:600; margin-top:3px; }
-    .ac-cal-r .st.todo { color:#b07c00; }
+    .ac-cal-r .st.todo { color:var(--warn-ink); }
     .ac-cal-r .st.soon { color:var(--n-500); }
 
     /* attention list */
@@ -562,7 +562,7 @@
       transition:border-color 140ms; }
     .ac-todo + .ac-todo { margin-top:9px; }
     .ac-todo:hover { border-color:var(--atlas); }
-    .ac-todo .dot { width:8px; height:8px; border-radius:50%; background:#d69e2e; flex-shrink:0; }
+    .ac-todo .dot { width:8px; height:8px; border-radius:50%; background:var(--warn-ink); flex-shrink:0; }
     .ac-todo .tx { flex:1; min-width:0; }
     .ac-todo .tx .l { font-size:13px; font-weight:500; color:var(--ink); }
     .ac-todo .tx .s { font-size:11.5px; color:var(--n-500); margin-top:1px; }
@@ -750,7 +750,7 @@
       <div class="ac-sub">${t('subTva')}</div>
 
       <div class="ac-card" style="margin-top:16px;">
-        <div class="ac-card-t"><span>${t('tvaCardT', { p: period })}</span><span style="color:#b07c00;">${t('echeanceX', { d: tl(tva.echeance) })}</span></div>
+        <div class="ac-card-t"><span>${t('tvaCardT', { p: period })}</span><span style="color:var(--warn-ink);">${t('echeanceX', { d: tl(tva.echeance) })}</span></div>
         <div class="ac-card-s">${tl(tva.regime)} · ${tl(tva.taux)}</div>
         <div class="ac-trio">
           <div class="t"><div class="l">${t('trioCollectee')}</div><div class="n">${fmt(tva.collectee)}</div></div>
@@ -794,7 +794,7 @@
       <div class="ac-sub">${t('subPaie', { n: p.headcount, mad: fmtMad(p.masseSalariale) })}</div>
 
       <div class="ac-card" style="margin-top:16px;">
-        <div class="ac-card-t"><span>${t('paieCardT')}</span><span style="color:#b07c00;">${t('aValider')}</span></div>
+        <div class="ac-card-t"><span>${t('paieCardT')}</span><span style="color:var(--warn-ink);">${t('aValider')}</span></div>
         <div class="ac-card-s">${t('paieCardS')}</div>
         <div class="ac-row"><span class="k">${t('rowTotalBrut')}</span><span class="v">${fmt(p.totalBrut)}</span></div>
         <div class="ac-row neg"><span class="k">${t('rowCnssSal')}</span><span class="v">− ${fmt(p.cnssSalarie)}</span></div>

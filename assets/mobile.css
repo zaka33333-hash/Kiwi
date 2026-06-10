@@ -290,7 +290,11 @@
     border-bottom: 1px solid var(--n-200);
     align-items: baseline;
   }
-  .p-table--tx tbody tr:active { background: var(--paper-soft); }
+  .p-table--tx tbody tr { border-radius: 12px; }
+  .p-table--tx tbody tr:active {
+    background: color-mix(in srgb, var(--mint) 8%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--atlas) 12%, transparent);
+  }
   .p-table--tx tbody td {
     padding: 0 !important; border: 0 !important;
     white-space: normal !important; position: static !important;
@@ -430,7 +434,10 @@
   .kpi-m:active, .kpi-c:active, .integ-card:active { transform: scale(0.975); }
   .feed-row:active, .tx-row:active, .prod:active, .prod-row:active,
   .staff-row:active, .bench-row:active,
-  .integ-card:active { background: var(--paper-soft); }
+  .integ-card:active {
+    background: color-mix(in srgb, var(--mint) 8%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--atlas) 12%, transparent);
+  }
   .btn-slim:active, .kb:active { transform: scale(0.97); }
 
   /* ── Confident section headings ── */

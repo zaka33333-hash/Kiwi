@@ -19,10 +19,10 @@
   /* Payment link */
   .pl-preview { background: var(--paper-soft); border-radius: 14px; padding: 20px; text-align: center; border: 1px solid var(--n-200); }
   .pl-qr { width: 120px; height: 120px; background: var(--ink); padding: 8px; border-radius: 10px; margin: 0 auto; background-image: repeating-linear-gradient(0deg, var(--ink) 0 6px, transparent 6px 12px), repeating-linear-gradient(90deg, var(--ink) 0 6px, transparent 6px 12px); }
-  .pl-link { font-family: var(--mono); font-size: 13px; background: #fff; border: 1px solid var(--n-200); border-radius: 10px; padding: 10px 14px; margin-top: 14px; display: flex; align-items: center; gap: 10px; }
+  .pl-link { font-family: var(--mono); font-size: 13px; background: var(--surface); border: 1px solid var(--n-200); border-radius: 10px; padding: 10px 14px; margin-top: 14px; display: flex; align-items: center; gap: 10px; }
   .pl-link .copy { margin-left: auto; color: var(--atlas); font-weight: 500; cursor: pointer; font-size: 12.5px; }
   .pl-share { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
-  .pl-share button { padding: 12px 10px; background: #fff; border: 1px solid var(--n-200); border-radius: 10px; font-size: 12.5px; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--ink); cursor: pointer; transition: border-color 150ms; }
+  .pl-share button { padding: 12px 10px; background: var(--surface); border: 1px solid var(--n-200); border-radius: 10px; font-size: 12.5px; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--ink); cursor: pointer; transition: border-color 150ms; }
   .pl-share button:hover { border-color: var(--atlas); }
   html[data-theme="dark"] .pl-link, html[data-theme="dark"] .pl-share button { background: var(--paper-soft); border-color: var(--n-200); }
 
@@ -102,7 +102,7 @@
   .loy-dots i.current { background: rgba(125,242,176,0.5); color: var(--paper); border: 2px solid var(--mint); }
 
   /* Agent mode actions */
-  .agent-action { border: 1px solid var(--n-200); border-radius: 12px; padding: 16px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; background: #fff; }
+  .agent-action { border: 1px solid var(--n-200); border-radius: 12px; padding: 16px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; background: var(--surface); }
   html[data-theme="dark"] .agent-action { background: var(--paper-soft); }
   .agent-action .ic { width: 36px; height: 36px; background: var(--mint-soft); color: var(--atlas); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .agent-action .b { flex: 1; }

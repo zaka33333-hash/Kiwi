@@ -18,6 +18,8 @@
   .nav-logo { display: inline-flex; align-items: baseline; gap: 4px; font-weight: 700; font-size: 26px; letter-spacing: -0.05em; color: var(--atlas); }
   .nav-logo .dot { width: 6px; height: 6px; background: var(--mint); border-radius: 50%; translate: 0 -2px; }
   .nav-links { display: flex; gap: 30px; font-size: 14px; color: var(--n-700); }
+  .nav-links a, .index-nav-inner a { transition: color 0.2s cubic-bezier(0.32, 0.72, 0, 1); }
+  .nav-links a:hover { color: var(--ink); }
 
   /* Hero */
   .brand-hero { padding: 110px 0 70px; }
@@ -42,7 +44,7 @@
   /* Logo showcase */
   .logo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   @media (max-width: 900px) { .logo-grid { grid-template-columns: 1fr; } }
-  .logo-cell { background: #fff; border: 1px solid var(--n-200); border-radius: 20px; padding: 50px; aspect-ratio: 1.4; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+  .logo-cell { background: var(--surface); border: 1px solid var(--n-200); border-radius: 20px; padding: 50px; aspect-ratio: 1.4; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
   .logo-cell.dark { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   .logo-cell.atlas { background: var(--atlas); color: var(--paper); border-color: var(--atlas); }
   .logo-cell.mint { background: var(--mint-soft); border-color: transparent; }
@@ -78,7 +80,7 @@
   /* Dos / donts */
   .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @media (max-width: 900px) { .rules { grid-template-columns: 1fr; } }
-  .rule { background: #fff; border-radius: 20px; padding: 34px; border: 1px solid var(--n-200); }
+  .rule { background: var(--surface); border-radius: 20px; padding: 34px; border: 1px solid var(--n-200); }
   .rule h3 { font-size: 22px; margin: 0 0 20px; font-weight: 600; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
   .rule.do h3 { color: var(--atlas); }
   .rule.dont h3 { color: var(--danger); }
@@ -90,7 +92,7 @@
   /* Voice */
   .voice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   @media (max-width: 900px) { .voice-grid { grid-template-columns: 1fr; } }
-  .voice-card { background: #fff; border: 1px solid var(--n-200); border-radius: 20px; padding: 30px; }
+  .voice-card { background: var(--surface); border: 1px solid var(--n-200); border-radius: 20px; padding: 30px; }
   .voice-card h4 { font-size: 16px; font-weight: 600; margin: 0 0 6px; }
   .voice-card h4 .plus { color: var(--atlas); }
   .voice-card h4 .minus { color: var(--n-400); text-decoration: line-through; }
@@ -100,7 +102,7 @@
   /* Icon grid */
   .icon-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; }
   @media (max-width: 900px) { .icon-grid { grid-template-columns: repeat(4, 1fr); } }
-  .icon-cell { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; color: var(--atlas); }
+  .icon-cell { background: var(--surface); border: 1px solid var(--n-200); border-radius: 14px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; color: var(--atlas); }
 
   /* Motion tokens */
   .motion-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
@@ -113,7 +115,7 @@
   /* Spacing / grid */
   .grid-block { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; padding: 30px 0; }
   @media (max-width: 900px) { .grid-block { grid-template-columns: 1fr; } }
-  .grid-demo { background: #fff; border: 1px solid var(--n-200); border-radius: 16px; padding: 20px; background-image: linear-gradient(var(--mint-soft) 1px, transparent 1px), linear-gradient(90deg, var(--mint-soft) 1px, transparent 1px); background-size: 8px 8px; aspect-ratio: 1.4; display: flex; align-items: center; justify-content: center; }
+  .grid-demo { background: var(--surface); border: 1px solid var(--n-200); border-radius: 16px; padding: 20px; background-image: linear-gradient(var(--mint-soft) 1px, transparent 1px), linear-gradient(90deg, var(--mint-soft) 1px, transparent 1px); background-size: 8px 8px; aspect-ratio: 1.4; display: flex; align-items: center; justify-content: center; }
   .grid-demo .block { background: var(--atlas); color: var(--paper); padding: 20px 26px; border-radius: 10px; font-weight: 500; font-size: 14px; }
 
   footer { background: var(--ink); color: #8a8f8d; padding: 40px 0; font-size: 13px; text-align: center; margin-top: 60px; }
@@ -214,7 +216,7 @@
     </div>
 
     <!-- Construction grid -->
-    <div style="margin-top: 60px; background: #fff; border: 1px solid var(--n-200); border-radius: 20px; padding: 40px 50px;">
+    <div style="margin-top: 60px; background: var(--surface); border: 1px solid var(--n-200); border-radius: 20px; padding: 40px 50px;">
       <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-wrap: wrap; gap: 16px;">
         <div>
           <div style="font-family: var(--mono); font-size: 12px; color: var(--n-500); letter-spacing: 0.1em;">CONSTRUCTION</div>
@@ -251,7 +253,7 @@
 </section>
 
 <!-- 02. COULEURS -->
-<section id="couleurs" style="background: #fff;">
+<section id="couleurs" style="background: var(--surface);">
   <div class="wrap">
     <div class="sec-head">
       <div class="num">02 · PALETTE</div>
@@ -395,7 +397,7 @@
       <p>Inter Tight porte l'ossature moderne et technique. Instrument Serif apporte la chaleur éditoriale. IBM Plex Sans Arabic signe notre respect pour l'arabe.</p>
     </div>
 
-    <div style="background: #fff; border-radius: 20px; padding: 40px 50px; border: 1px solid var(--n-200);">
+    <div style="background: var(--surface); border-radius: 20px; padding: 40px 50px; border: 1px solid var(--n-200);">
       <div class="type-row">
         <div>
           <div class="label">Display</div>
@@ -441,7 +443,7 @@
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px;">
-      <div style="background: #fff; border: 1px solid var(--n-200); border-radius: 16px; padding: 24px;">
+      <div style="background: var(--surface); border: 1px solid var(--n-200); border-radius: 16px; padding: 24px;">
         <div style="font-size: 12px; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;">ÉCHELLE</div>
         <div style="margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-family: var(--mono); font-size: 12.5px;">
           <div style="padding: 6px 0; border-bottom: 1px solid var(--n-200);">Display 1</div><div style="padding: 6px 0; border-bottom: 1px solid var(--n-200); color: var(--n-500);">96 / 96 / −0.04</div>
@@ -452,7 +454,7 @@
           <div style="padding: 6px 0;">Caption</div><div style="padding: 6px 0; color: var(--n-500);">12 / 18 / 0.04</div>
         </div>
       </div>
-      <div style="background: #fff; border: 1px solid var(--n-200); border-radius: 16px; padding: 24px;">
+      <div style="background: var(--surface); border: 1px solid var(--n-200); border-radius: 16px; padding: 24px;">
         <div style="font-size: 12px; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;">RÈGLES</div>
         <ul style="list-style: none; padding: 0; margin: 14px 0 0; font-size: 14px; color: var(--n-700); line-height: 1.6;">
           <li style="padding: 6px 0; border-bottom: 1px solid var(--n-100);">Jamais Bold pour les titres — Medium (500) uniquement</li>
@@ -467,7 +469,7 @@
 </section>
 
 <!-- 04. VOIX -->
-<section id="voix" style="background: #fff;">
+<section id="voix" style="background: var(--surface);">
   <div class="wrap">
     <div class="sec-head">
       <div class="num">04 · VOIX & TON</div>
@@ -541,7 +543,7 @@
 </section>
 
 <!-- 06. GRILLE -->
-<section id="grille" style="background: #fff;">
+<section id="grille" style="background: var(--surface);">
   <div class="wrap">
     <div class="sec-head">
       <div class="num">06 · GRILLE & SPACING</div>
@@ -618,7 +620,7 @@
 
     <!-- Signature · la lentille liquide -->
     <style>
-      .brand-lens-demo { display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: #fff; border: 1px solid var(--n-200); }
+      .brand-lens-demo { display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: var(--surface); border: 1px solid var(--n-200); }
       .brand-lens-demo .bld-pill { padding: 9px 18px; border-radius: 999px; border: 0; background: transparent; font-family: var(--sans); font-size: 13.5px; font-weight: 500; color: var(--n-500); cursor: pointer; transition: color 150ms; -webkit-tap-highlight-color: transparent; }
       .brand-lens-demo .bld-pill.on { color: var(--paper); }
     </style>
@@ -639,7 +641,7 @@
 </section>
 
 <!-- 08. RÈGLES -->
-<section id="regles" style="background: #fff;">
+<section id="regles" style="background: var(--surface);">
   <div class="wrap">
     <div class="sec-head">
       <div class="num">08 · RÈGLES ABSOLUES</div>
@@ -683,15 +685,15 @@
   <div class="wrap">
     <div class="sec-head">
       <div class="num">09 · PLANS & PALIERS</div>
-      <h2>Deux paliers. Une promesse.</h2>
-      <p>Kiwi Pro porte l'identité Kiwi sans modification — c'est le palier par défaut. Kiwi Ultra ajoute deux signaux et deux seulement : le mark <b>✦</b> en Mint Neon et le suffixe <b>« ultra »</b> en Instrument Serif italic.</p>
+      <h2>Quatre formules. Deux expressions.</h2>
+      <p>Kiwi Basic et Kiwi Pro portent l'identité Kiwi sans modification — l'expression par défaut. Kiwi Ultra (et Ultimate, son sur-mesure) ajoutent deux signaux et deux seulement : le mark <b>✦</b> en Mint Neon et le suffixe <b>« ultra »</b> en Instrument Serif italic.</p>
     </div>
 
     <!-- Two-up hero showcase -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
 
       <!-- KIWI PRO -->
-      <div style="background: #fff; border: 1px solid var(--n-200); border-radius: 24px; padding: 48px 44px 40px; display: flex; flex-direction: column; min-height: 480px; position: relative;">
+      <div style="background: var(--surface); border: 1px solid var(--n-200); border-radius: 24px; padding: 48px 44px 40px; display: flex; flex-direction: column; min-height: 480px; position: relative;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--n-500); font-weight: 500;">Palier standard</div>
           <span style="background: var(--mint-soft); color: var(--riad); padding: 4px 11px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;">PRO</span>
@@ -803,7 +805,7 @@
     </div>
 
     <!-- TYPOGRAPHIE SPEC -->
-    <div style="margin-top: 40px; background: #fff; border: 1px solid var(--n-200); border-radius: 20px; padding: 32px 40px;">
+    <div style="margin-top: 40px; background: var(--surface); border: 1px solid var(--n-200); border-radius: 20px; padding: 32px 40px;">
       <div style="font-family: var(--mono); font-size: 12px; color: var(--n-500); letter-spacing: 0.1em; margin-bottom: 14px;">CONSTRUCTION TYPOGRAPHIQUE</div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;">
         <div>
@@ -896,7 +898,7 @@
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <!-- BOUGAINVILLÉE PRO -->
-        <div style="background: #fff; border: 1px solid var(--n-200); border-radius: 24px; padding: 48px 44px 40px; display: flex; flex-direction: column; min-height: 480px;">
+        <div style="background: var(--surface); border: 1px solid var(--n-200); border-radius: 24px; padding: 48px 44px 40px; display: flex; flex-direction: column; min-height: 480px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--n-500); font-weight: 500;">Pro · bougainvillée</div>
             <span style="background: rgba(255,143,200,0.22); color: #5C1F4E; padding: 4px 11px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;">PRO</span>
@@ -960,7 +962,7 @@
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <!-- MAJORELLE PRO -->
-        <div style="background: #fff; border: 1px solid var(--n-200); border-radius: 24px; padding: 48px 44px 40px; display: flex; flex-direction: column; min-height: 480px;">
+        <div style="background: var(--surface); border: 1px solid var(--n-200); border-radius: 24px; padding: 48px 44px 40px; display: flex; flex-direction: column; min-height: 480px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--n-500); font-weight: 500;">Pro · majorelle</div>
             <span style="background: rgba(91,213,255,0.18); color: #1E2F7C; padding: 4px 11px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;">PRO</span>

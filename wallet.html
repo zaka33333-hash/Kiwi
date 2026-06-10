@@ -47,7 +47,9 @@
   .nav-mob { position: absolute; top: 64px; left: 0; right: 0; background: rgba(2,32,26,0.96); backdrop-filter: blur(22px); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 14px 28px 22px; display: none; flex-direction: column; gap: 6px; }
   .nav-mob a { color: #c6ead4; font-size: 16px; padding: 12px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); }
   .nav-mob a:last-child { border-bottom: 0; }
-  .nav-mob.open { display: flex; }
+  .nav-mob.open { display: flex; animation: navDrop 0.32s cubic-bezier(0.32, 0.72, 0, 1) both; }
+  @keyframes navDrop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .nav-mob.open { animation: none; } }
   @media (max-width: 840px) { .nav-burger { display: inline-flex; } }
 
   /* Interactive cursor hints */
@@ -56,6 +58,17 @@
   .iv-range span, .pf-range span, .ip-range span,
   .rv-tx-h .m, .xs-cta { cursor: pointer; user-select: none; transition: transform .15s, background .2s, border-color .2s; }
   .rv-chip:active, .rv-act:active, .rv-tab:active, .iv-action-row .b:active, .xs-cta:active { transform: scale(0.96); }
+  .pf-tab:active, .pf-row:active, .hold:active, .rv-tx:active, .iv-c-row:active,
+  .iv-vault-card:active, .road-card:active, .sec-card:active { transform: scale(0.98); }
+  .pf-row:hover, .rv-tx:hover, .iv-c-row:hover { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+  .road-card:hover, .sec-card:hover { transform: translateY(-2px); border-color: rgba(11, 110, 79, 0.25); }
+  .hero-form:focus-within { border-color: rgba(125, 242, 176, 0.55); box-shadow: 0 0 0 3px rgba(125, 242, 176, 0.18); transition: border-color 0.2s, box-shadow 0.2s; }
+  .send-box .amt:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(125, 242, 176, 0.45); border-radius: 8px; }
+  .ticker:hover .ticker-track, .xfer-flags:hover .xfer-flags-track { animation-play-state: paused; }
+  .ticker, .xfer-flags {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+  }
   .rv-act:hover i { background: rgba(125,242,176,0.18); }
   .iv-action-row .b:hover { filter: brightness(1.08); }
   .card-tile.is-selected { box-shadow: 0 0 0 2px var(--atlas), 0 30px 60px -20px rgba(11,110,79,0.25); }
@@ -290,7 +303,7 @@
   .corridor-grid h2 em { font-family: var(--serif); font-style: italic; color: var(--atlas); font-weight: 400; }
   .corridor-grid p { color: var(--n-500); font-size: 17px; line-height: 1.6; margin: 0 0 28px; max-width: 460px; }
 
-  .send-widget { background: #fff; border: 1px solid var(--n-200); border-radius: 24px; padding: 8px; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.15); }
+  .send-widget { background: var(--surface); border: 1px solid var(--n-200); border-radius: 24px; padding: 8px; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.15); }
   .send-card { padding: 28px; }
   .send-card .h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
   .send-card .h .t { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
@@ -302,7 +315,7 @@
   .send-box .l { font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; text-transform: uppercase; }
   .send-box .row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
   .send-box .amt { font-size: 36px; font-weight: 600; letter-spacing: -0.03em; font-feature-settings: "tnum" 1; color: var(--ink); border: 0; background: transparent; outline: 0; width: 70%; font-family: var(--sans); }
-  .send-box .cur { display: inline-flex; align-items: center; gap: 8px; background: #fff; padding: 7px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); }
+  .send-box .cur { display: inline-flex; align-items: center; gap: 8px; background: var(--surface); padding: 7px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); }
 
   .send-divider { display: flex; align-items: center; gap: 14px; padding: 12px 6px; }
   .send-divider .line { flex: 1; border-top: 1px dashed var(--n-300); }
@@ -316,7 +329,7 @@
   .send-cta { background: var(--ink); color: var(--paper); text-align: center; margin-top: 18px; padding: 16px; border-radius: 14px; font-weight: 500; font-size: 14.5px; }
 
   .corridor-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 32px; max-width: 460px; }
-  .stat-tile { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 18px 20px; }
+  .stat-tile { background: var(--surface); border: 1px solid var(--n-200); border-radius: 14px; padding: 18px 20px; }
   .stat-tile .v { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; font-feature-settings: "tnum" 1; color: var(--atlas); }
   .stat-tile .l { font-size: 12px; color: var(--n-500); margin-top: 2px; }
 
@@ -356,7 +369,7 @@
 
   /* ============ VS TRADITIONAL ============ */
   .vs-sec { background: var(--paper); }
-  .vs-table { background: #fff; border: 1px solid var(--n-200); border-radius: 24px; overflow: hidden; }
+  .vs-table { background: var(--surface); border: 1px solid var(--n-200); border-radius: 24px; overflow: hidden; }
   .vs-table-h { display: grid; grid-template-columns: 1.4fr 1fr 1fr; background: var(--paper-soft); padding: 22px 28px; font-size: 13px; font-weight: 500; color: var(--n-500); letter-spacing: 0.04em; }
   .vs-table-h .kiwi { color: var(--atlas); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
   .vs-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; padding: 20px 28px; align-items: center; border-top: 1px solid var(--n-200); font-size: 15px; }
@@ -387,7 +400,7 @@
   .road-sec { background: var(--paper); }
   .road { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   @media (max-width: 900px) { .road { grid-template-columns: 1fr 1fr; } }
-  .road-card { background: #fff; border: 1px solid var(--n-200); border-radius: 20px; padding: 28px; position: relative; }
+  .road-card { background: var(--surface); border: 1px solid var(--n-200); border-radius: 20px; padding: 28px; position: relative; }
   .road-card .ph { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--n-500); font-weight: 500; }
   .road-card.now { background: var(--atlas); color: var(--paper); border-color: transparent; }
   .road-card.now .ph { color: var(--mint); }
@@ -397,7 +410,7 @@
   .road-card.now li { color: #d0eed9; }
 
   /* ============ FAQ ============ */
-  .faq-sec { background: #fff; border-top: 1px solid var(--n-200); border-bottom: 1px solid var(--n-200); }
+  .faq-sec { background: var(--paper-soft); border-top: 1px solid var(--n-200); border-bottom: 1px solid var(--n-200); }
   .faq { max-width: 760px; margin: 0 auto; }
   .faq details { border-top: 1px solid var(--n-200); padding: 22px 0; }
   .faq details:last-child { border-bottom: 1px solid var(--n-200); }

@@ -326,8 +326,11 @@ html[data-theme="dark"] .kds-tk { background: var(--paper-soft); }
 .kds-tk:hover { transform: translateY(-1px); box-shadow: 0 4px 12px -4px rgba(10,15,13,0.12); }
 .kds-tk.warn { border-left-color: var(--warning); }
 .kds-tk.over { border-left-color: var(--danger); animation: kds-flash 1200ms ease-in-out infinite; }
-@keyframes kds-flash { 0%, 100% { background: var(--surface); } 50% { background: #FDE8E4; } }
-html[data-theme="dark"] @keyframes kds-flash { 0%, 100% { background: var(--paper-soft); } 50% { background: rgba(204,72,53,0.12); } }
+/* Var-driven so one keyframes serves both themes (a nested dark @keyframes
+ * is invalid CSS — it silently strobed the light pink in dark mode). */
+.kds-tk { --kds-base: var(--surface); --kds-flash: #FDE8E4; }
+html[data-theme="dark"] .kds-tk { --kds-base: var(--paper-soft); --kds-flash: rgba(204, 72, 53, 0.16); }
+@keyframes kds-flash { 0%, 100% { background: var(--kds-base); } 50% { background: var(--kds-flash); } }
 .kds-tk-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--n-200); margin-bottom: 9px; }
 .kds-tk-id b { font-size: 14px; font-weight: 600; letter-spacing: -0.005em; }
 .kds-tk-src { font-size: 10.5px; color: var(--n-500); margin-left: 5px; font-family: var(--mono); letter-spacing: 0.04em; }
@@ -1184,7 +1187,7 @@ html[data-theme="dark"] .s-appt-row { background: var(--paper-soft); }
   position: relative;
   transition: transform 120ms;
 }
-.s-heat .cell:hover { transform: scale(1.06); outline: 1px solid var(--atlas); outline-offset: 1px; }
+.s-heat .cell:hover { transform: scale(1.06); box-shadow: 0 0 0 1.5px var(--atlas), 0 4px 10px -6px rgba(10, 15, 13, 0.25); }
 .s-heat .cell.busy { background: var(--atlas); }
 .s-heat .cell.full { background: var(--riad); }
 .s-heat .cell.med  { background: rgba(11,110,79,0.45); }

@@ -245,7 +245,9 @@
 .btn .ripple, .kb .ripple, .simple-btn .ripple, .mini-tile .ripple {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255,255,255,0.35);
+  /* Ink-aware: dark wash on light buttons, light wash on dark — a fixed
+   * white was invisible on every light-filled control. */
+  background: color-mix(in srgb, currentColor 18%, transparent);
   transform: translate(-50%, -50%);
   pointer-events: none;
   animation: ripple 520ms ease-out forwards;
@@ -256,10 +258,12 @@
 }
 
 /* ─────── 7. FOCUS RINGS (considered) ─────── */
+/* No border-radius here: it would reshape the focused element (pills snapped
+ * to 6px corners on keyboard focus). The ring follows each element's own
+ * radius in modern browsers. */
 .btn:focus-visible, .kb:focus-visible, .simple-btn:focus-visible, .mini-tile:focus-visible, button:focus-visible, a:focus-visible {
   outline: 2px solid var(--atlas);
   outline-offset: 3px;
-  border-radius: 6px;
 }
 .simple-tab:focus-visible { outline-offset: -2px; }
 
@@ -288,12 +292,9 @@
   animation: live-pulse 2s infinite;
 }
 
-/* ─────── 9. Simple Mode: smooth tab crossfade ─────── */
-.simple-screen { animation: simple-fade-in 220ms ease-out; }
-@keyframes simple-fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* ─────── 9. Simple Mode crossfade — owned by simple.css (150ms pure fade,
+ * the senior-UX spec: no bounce, no slide). The duplicate here used to
+ * override it with a slide AND defeat its reduced-motion guard. ─────── */
 
 /* ─────── 10. Cursor micro-polish ─────── */
 a, button, .btn, .kb, .simple-btn, .mini-tile, [data-action], [role="button"], summary, .simple-tab, .mode-tg button {

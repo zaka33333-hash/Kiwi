@@ -77,7 +77,8 @@ button { font-family: inherit; cursor: pointer; border: 0; background: none; }
 .mono { font-family: var(--mono); font-feature-settings: "tnum" 1; }
 
 /* Buttons */
-.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 999px; font-weight: 500; font-size: 15px; letter-spacing: -0.01em; transition: transform 150ms, background 150ms, color 150ms; white-space: nowrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 999px; font-weight: 500; font-size: 15px; letter-spacing: -0.01em; transition: transform 150ms cubic-bezier(0.32, 0.72, 0, 1), background 150ms cubic-bezier(0.32, 0.72, 0, 1), color 150ms cubic-bezier(0.32, 0.72, 0, 1); white-space: nowrap; }
+.btn:active { transform: translateY(0) scale(0.97); }
 .btn-primary { background: var(--ink); color: var(--paper); }
 .btn-primary:hover { background: var(--atlas); transform: translateY(-1px); }
 .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--n-300); }
@@ -95,13 +96,13 @@ button { font-family: inherit; cursor: pointer; border: 0; background: none; }
 .stack-32 > * + * { margin-top: 32px; }
 
 /* Card */
-.card { background: #fff; border: 1px solid var(--n-200); border-radius: var(--r-lg); }
+.card { background: var(--surface); border: 1px solid var(--n-200); border-radius: var(--r-lg); }
 .card-dark { background: var(--ink); color: var(--paper); border-radius: var(--r-lg); }
 .card-atlas { background: var(--atlas); color: var(--paper); border-radius: var(--r-lg); }
 .card-riad { background: var(--riad); color: var(--paper); border-radius: var(--r-lg); }
 
 /* Pill / Chip */
-.pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); background: #fff; color: var(--ink); }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; border: 1px solid var(--n-200); background: var(--surface); color: var(--ink); }
 .pill-mint { background: var(--mint-soft); color: var(--riad); border-color: transparent; }
 .pill-dark { background: var(--ink-soft); color: var(--paper); border-color: transparent; }
 .pill-dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--success); display: inline-block; }

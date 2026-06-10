@@ -54,7 +54,9 @@
   /* Floating lang switcher */
   .lang-float { position: fixed; top: 22px; left: 24px; z-index: 120; }
   .lang { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); font-size: 12px; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid var(--n-200); }
-  .lang span { padding: 5px 11px; border-radius: 999px; color: var(--n-500); cursor: pointer; user-select: none; }
+  .lang span { padding: 5px 11px; border-radius: 999px; color: var(--n-500); cursor: pointer; user-select: none; transition: color 0.2s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.2s cubic-bezier(0.32, 0.72, 0, 1); }
+  .lang span:hover:not(.on) { color: var(--ink); }
+  .lang span:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(125, 242, 176, 0.55); }
   .lang .on { background: var(--atlas); color: var(--paper); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
 
   /* Stat showcase */
@@ -88,7 +90,7 @@
   /* Business model */
   .bm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
   @media (max-width: 980px) { .bm-grid { grid-template-columns: 1fr 1fr; } }
-  .bm-card { background: #fff; border: 1px solid var(--n-200); border-radius: 16px; padding: 24px; }
+  .bm-card { background: var(--surface); border: 1px solid var(--n-200); border-radius: 16px; padding: 24px; }
   .bm-card .phase { font-family: var(--mono); font-size: 11px; color: var(--atlas); letter-spacing: 0.1em; }
   .bm-card h4 { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; margin: 8px 0 10px; }
   .bm-card .pct { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; color: var(--atlas); margin: 6px 0 10px; font-feature-settings: "tnum" 1; }
@@ -108,7 +110,7 @@
   .compete { margin-top: 40px; border-radius: 20px; overflow: hidden; border: 1px solid var(--n-200); }
   .compete table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .compete th { text-align: left; font-family: var(--mono); font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; padding: 14px 18px; background: var(--paper-soft); text-transform: uppercase; font-weight: 500; border-bottom: 1px solid var(--n-200); }
-  .compete td { padding: 16px 18px; border-bottom: 1px solid var(--n-200); background: #fff; }
+  .compete td { padding: 16px 18px; border-bottom: 1px solid var(--n-200); background: var(--surface); }
   .compete tr:last-child td { border-bottom: 0; }
   .compete tr.us td { background: var(--atlas); color: var(--paper); }
   .compete tr.us td:first-child { font-weight: 600; }
@@ -161,7 +163,7 @@
   /* NEW — Pricing cards (slide 5) */
   .price-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 44px; }
   @media (max-width: 980px) { .price-grid { grid-template-columns: 1fr; } }
-  .price-card { background: #fff; border: 1px solid var(--n-200); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; min-height: 340px; }
+  .price-card { background: var(--surface); border: 1px solid var(--n-200); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; min-height: 340px; }
   .price-card.featured { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   .price-card.free { background: var(--paper-soft); border: 1px dashed var(--atlas); }
   .price-card .phase-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--atlas); }
@@ -191,7 +193,7 @@
   .route-arrow { text-align: center; color: var(--mint); font-family: var(--mono); font-size: 12px; margin: 16px 0; letter-spacing: 0.1em; }
 
   /* NEW — Staff management (slide 7) */
-  .staff-demo { background: #fff; border: 1px solid var(--n-200); border-radius: 20px; overflow: hidden; margin-top: 36px; }
+  .staff-demo { background: var(--surface); border: 1px solid var(--n-200); border-radius: 20px; overflow: hidden; margin-top: 36px; }
   .staff-demo-head { padding: 16px 22px; background: var(--paper-soft); border-bottom: 1px solid var(--n-200); display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; }
   .staff-row { display: grid; grid-template-columns: 44px 1fr 130px 110px 110px 90px; gap: 16px; align-items: center; padding: 14px 22px; border-bottom: 1px solid var(--n-200); font-size: 13.5px; }
   .staff-row:last-child { border-bottom: 0; }
@@ -800,7 +802,7 @@
     <p class="lede-xl" data-i18n="pd.s12.lede">Une fois la licence Payment Institution obtenue, Kiwi cesse d'être un simple SaaS et devient son propre processeur. Le résultat : les serveurs encaissent directement depuis leur téléphone personnel, sans aucun matériel supplémentaire, à des marges impossibles pour CMI.</p>
 
     <div class="future-grid">
-      <div class="future-card" style="background: #fff; border: 1px solid var(--n-200); color: var(--ink);">
+      <div class="future-card" style="background: var(--surface); border: 1px solid var(--n-200); color: var(--ink);">
         <div class="tag" style="color: var(--atlas);">PHASE 2 · 2027+</div>
         <h3>Kiwi Banking</h3>
         <p style="color: var(--n-600);">Compte professionnel marocain avec IBAN, carte commerçant Visa/Mastercard, crédit Murabaha pré-approuvé depuis le TPV Kiwi, card issuing pour les consommateurs finaux. L'offre bancaire que 2 millions de commerçants marocains attendent depuis 40 ans — directement dans leur app POS.</p>

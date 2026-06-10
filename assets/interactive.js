@@ -380,10 +380,10 @@ ar: {
   .kiwi-toast { background: var(--surface); border: 1px solid var(--n-200); border-radius: 14px; padding: 14px 16px; min-width: 280px; display: flex; gap: 12px; align-items: flex-start; box-shadow: 0 20px 40px -20px rgba(10,15,13,0.25), 0 2px 4px rgba(10,15,13,0.04); pointer-events: all; opacity: 0; transform: translateY(-10px); transition: opacity 220ms, transform 220ms cubic-bezier(0.32,0.72,0,1); font-family: var(--sans); color: var(--ink); }
   .kiwi-toast.in { opacity: 1; transform: translateY(0); }
   .kiwi-toast .ti { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .kiwi-toast.success .ti { background: #E3F7EC; color: var(--atlas-700); }
-  .kiwi-toast.info .ti { background: #E3F0F7; color: var(--info); }
-  .kiwi-toast.warn .ti { background: #FFF4DD; color: #8A6210; }
-  .kiwi-toast.danger .ti { background: #FDE8E4; color: #9B2F22; }
+  .kiwi-toast.success .ti { background: color-mix(in srgb, var(--atlas) 14%, var(--surface)); color: var(--atlas); }
+  .kiwi-toast.info .ti { background: color-mix(in srgb, var(--info) 14%, var(--surface)); color: var(--info); }
+  .kiwi-toast.warn .ti { background: color-mix(in srgb, var(--warn-ink) 16%, var(--surface)); color: var(--warn-ink); }
+  .kiwi-toast.danger .ti { background: color-mix(in srgb, var(--danger) 14%, var(--surface)); color: var(--danger); }
   .kiwi-toast .tb { flex: 1; min-width: 0; }
   .kiwi-toast .tm { font-size: 14px; font-weight: 500; line-height: 1.35; letter-spacing: -0.005em; }
   .kiwi-toast .ts { font-size: 12.5px; color: var(--n-500); margin-top: 3px; line-height: 1.4; }
@@ -494,12 +494,13 @@ ar: {
   .kp-head input::placeholder { color: var(--n-400); }
   .kp-list { padding: 8px 0; max-height: 420px; overflow-y: auto; }
   .kp-sect { padding: 10px 20px 6px; font-size: 10.5px; font-weight: 500; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--mono); }
-  .kp-item { padding: 10px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 13.5px; color: var(--ink); transition: background 100ms; }
+  .kp-item { margin: 1px 8px; padding: 10px 12px; border-radius: 10px; display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 13.5px; color: var(--ink); transition: background 160ms cubic-bezier(0.32,0.72,0,1); }
   .kp-item:hover, .kp-item.active { background: var(--mint-soft); }
+  .kp-item:active { transform: scale(0.99); }
   .kp-item .kpi-ic { width: 28px; height: 28px; border-radius: 8px; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--atlas); border: 1px solid var(--n-200); flex-shrink: 0; }
   .kp-item .kpi-t { flex: 1; font-weight: 500; letter-spacing: -0.005em; }
   .kp-item .kpi-s { color: var(--n-500); font-size: 12.5px; font-weight: 400; }
-  .kp-item .kpi-k { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); background: #fff; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--n-200); }
+  .kp-item .kpi-k { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); background: var(--n-100); padding: 2px 6px; border-radius: 5px; border: 1px solid var(--n-200); }
   .kp-foot { padding: 10px 20px; border-top: 1px solid var(--n-200); display: flex; justify-content: space-between; align-items: center; background: var(--surface); font-size: 11px; color: var(--n-500); }
   .kp-foot span { display: inline-flex; align-items: center; gap: 6px; }
   .kp-foot kbd { font-family: var(--mono); background: var(--n-100); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--n-200); font-size: 10px; }
@@ -524,7 +525,13 @@ ar: {
   .kf-help { font-size: 11.5px; color: var(--n-500); margin-top: 5px; line-height: 1.4; }
 
   /* Dropdown menu */
-  .kiwi-menu { position: fixed; background: var(--surface); border: 1px solid var(--n-200); border-radius: 12px; box-shadow: 0 20px 40px -16px rgba(10,15,13,0.24); padding: 6px; min-width: 220px; z-index: 9990; font-family: var(--sans); opacity: 0; transform: translateY(-6px); transition: opacity 160ms, transform 160ms; }
+  .kiwi-menu { position: fixed; background: var(--surface); border: 1px solid var(--n-200); border-radius: 12px; box-shadow: 0 20px 40px -16px rgba(10,15,13,0.24); padding: 6px; min-width: 220px; z-index: 9990; font-family: var(--sans); opacity: 0; transform: translateY(-6px) scale(0.98); transform-origin: top; transition: opacity 180ms cubic-bezier(0.32,0.72,0,1), transform 220ms cubic-bezier(0.32,0.72,0,1); }
+  .kiwi-menu-item:active { transform: scale(0.99); }
+  .kiwi-drawer-body, .kp-list, .kiwi-modal { scrollbar-width: thin; scrollbar-color: var(--n-200) transparent; }
+  .kiwi-drawer-body::-webkit-scrollbar, .kp-list::-webkit-scrollbar, .kiwi-modal::-webkit-scrollbar { width: 8px; }
+  .kiwi-drawer-body::-webkit-scrollbar-thumb, .kp-list::-webkit-scrollbar-thumb, .kiwi-modal::-webkit-scrollbar-thumb { background: var(--n-200); border-radius: 8px; }
+  .kb:active, .kiwi-modal-close:active, .kiwi-drawer-close:active { transform: scale(0.96); }
+  .notif:active, .wiz-choice:active, .kset-row:active { transform: scale(0.99); }
   .kiwi-menu.in { opacity: 1; transform: translateY(0); }
   .kiwi-menu-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 13.5px; color: var(--ink); border-radius: 8px; cursor: pointer; transition: background 100ms; }
   .kiwi-menu-item:hover { background: var(--paper-soft); }
@@ -1342,7 +1349,7 @@ ar: {
             <input class="kf-input" type="password" placeholder="••••••••" />
           </div>
           <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-top:8px;">
-            <label style="display:flex; gap:6px; color:var(--n-600);"><input type="checkbox" checked/> ${s.remember_me}</label>
+            <label style="display:flex; gap:6px; color:var(--n-600);"><input type="checkbox" checked style="accent-color:var(--atlas); width:15px; height:15px;"/> ${s.remember_me}</label>
             <a href="#" style="color:var(--atlas); font-weight:500;">${s.forgot_password}</a>
           </div>
           <button class="kb primary" style="width:100%; justify-content:center; margin-top:18px; padding:12px;" data-login-go>${s.login_button} →</button>
@@ -1389,7 +1396,7 @@ ar: {
       subtitle: s.subtitle,
       body: `
         <div class="notif unread">
-          <div class="n-ico" style="background:#E3F7EC; color:var(--atlas);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
+          <div class="n-ico" style="background:color-mix(in srgb, var(--atlas) 14%, var(--surface)); color:var(--atlas);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
           <div class="n-body">
             <div class="n-title">${s.settlement_ready_title}</div>
             <div class="n-desc">${s.settlement_ready_desc}</div>
@@ -1397,7 +1404,7 @@ ar: {
           </div>
         </div>
         <div class="notif unread">
-          <div class="n-ico" style="background:#FFF4DD; color:#8A6210;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+          <div class="n-ico" style="background:color-mix(in srgb, var(--warn-ink) 16%, var(--surface)); color:var(--warn-ink);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
           <div class="n-body">
             <div class="n-title">${s.terminal_offline_title}</div>
             <div class="n-desc">${s.terminal_offline_desc}</div>
@@ -1405,7 +1412,7 @@ ar: {
           </div>
         </div>
         <div class="notif unread">
-          <div class="n-ico" style="background:#E3F0F7; color:var(--info);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg></div>
+          <div class="n-ico" style="background:color-mix(in srgb, var(--info) 14%, var(--surface)); color:var(--info);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg></div>
           <div class="n-body">
             <div class="n-title">${s.ai_suggestion_title}</div>
             <div class="n-desc">${s.ai_suggestion_desc}</div>
@@ -1641,7 +1648,7 @@ ar: {
       const KV = window.KiwiVenue;
       if (!KV || !KV.isCustom || !KV.isCustom()) return;
       const vd = KV.getCurrentVenueData() || {};
-      const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;';
+      const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--surface);outline:none;box-sizing:border-box;';
       const lbl = 'display:block;font-size:12px;font-weight:500;color:var(--n-600);margin:16px 0 6px;';
       const m = modal({
         tag: 'MA BOUTIQUE',
@@ -1668,7 +1675,7 @@ ar: {
       m.el.addEventListener('click', (e) => {
         if (!e.target.closest('[data-ev-save]')) return;
         const name = (m.el.querySelector('[data-ev-name]').value || '').trim();
-        if (!name) { toast(tr({fr:'Le nom de l\'activité est requis', en:'Activity name is required', ar:'اسم النشاط مطلوب'}), { type: 'pend', force: true }); return; }
+        if (!name) { toast(tr({fr:'Le nom de l\'activité est requis', en:'Activity name is required', ar:'اسم النشاط مطلوب'}), { type: 'warn', force: true }); return; }
         KV.updateVenue(KV.getVenue(), {
           name,
           location: m.el.querySelector('[data-ev-city]').value,
@@ -1707,7 +1714,7 @@ ar: {
         { id: 'sport',      base: 'spa',                       label: tr({fr:'Salle de sport', en:'Gym', ar:'صالة رياضية'}),      icon: ic('<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>') },
       ];
       const moreCount = TYPES.filter((t) => !t.primary).length;
-      const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;outline:none;box-sizing:border-box;';
+      const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--surface);outline:none;box-sizing:border-box;';
       const lbl = 'display:block;font-size:12px;font-weight:500;color:var(--n-600);margin:16px 0 6px;';
       const m = modal({
         tag: 'BIENVENUE SUR KIWI',
@@ -1717,7 +1724,7 @@ ar: {
         body: `
           <style>
             .ob-type{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 8px;
-              border:1px solid var(--n-200);border-radius:12px;background:#fff;cursor:pointer;
+              border:1px solid var(--n-200);border-radius:12px;background:var(--surface);cursor:pointer;
               font-family:var(--sans);font-size:12px;font-weight:500;color:var(--n-600);text-align:center;
               transition:border-color 140ms,background 140ms,color 140ms;}
             .ob-type svg{width:22px;height:22px;}
@@ -1725,7 +1732,7 @@ ar: {
             .ob-type.sel{border-color:var(--atlas);background:rgba(11,110,79,0.05);color:var(--atlas);}
             .ob-type.ob-more{display:none;}
             .ob-morebtn{margin-top:8px;width:100%;padding:9px;border:1px dashed var(--n-300);
-              border-radius:10px;background:#fff;cursor:pointer;font-family:var(--sans);font-size:12.5px;
+              border-radius:10px;background:var(--surface);cursor:pointer;font-family:var(--sans);font-size:12.5px;
               font-weight:500;color:var(--n-600);transition:border-color 140ms,color 140ms;}
             .ob-morebtn:hover{border-color:var(--atlas);color:var(--atlas);}
             .ob-field:focus{border-color:var(--atlas)!important;}
@@ -1763,13 +1770,13 @@ ar: {
         }
         if (e.target.closest('[data-ob-create]')) {
           const name = (nameInput.value || '').trim();
-          if (!name) { toast(tr({fr:'Donnez un nom à votre activité', en:'Give your business a name', ar:'أدخل اسم نشاطك التجاري'}), { type: 'pend', force: true }); nameInput.focus(); return; }
+          if (!name) { toast(tr({fr:'Donnez un nom à votre activité', en:'Give your business a name', ar:'أدخل اسم نشاطك التجاري'}), { type: 'warn', force: true }); nameInput.focus(); return; }
           const city = (m.el.querySelector('[data-ob-city]').value || '').trim();
           const goal = +(m.el.querySelector('[data-ob-goal]').value) || 0;
           const def = TYPES.find((x) => x.id === picked) || TYPES[0];
           let id = null;
           try { id = window.KiwiVenue?.createVenue?.({ type: def.base, typeLabel: def.label, name, location: city, goal }); } catch (_) {}
-          if (!id) { toast(tr({fr:'Création impossible', en:'Creation failed', ar:'تعذّر الإنشاء'}), { type: 'pend', force: true }); return; }
+          if (!id) { toast(tr({fr:'Création impossible', en:'Creation failed', ar:'تعذّر الإنشاء'}), { type: 'warn', force: true }); return; }
           m.close();
           try { window.KiwiVenue.setVenue(id); } catch (_) {}
           // A brand-new venue should land on "Aujourd'hui", not a stale range.
@@ -1829,7 +1836,7 @@ ar: {
           const KV = window.KiwiVenue;
           if (KV && KV.isCustom && KV.isCustom() && window.KiwiSales) {
             const num = parseFloat(String(amount).replace(',', '.')) || 0;
-            if (num <= 0) { toast(tr({fr:'Montant invalide', en:'Invalid amount', ar:'المبلغ غير صالح'}), { type: 'pend', force: true }); return; }
+            if (num <= 0) { toast(tr({fr:'Montant invalide', en:'Invalid amount', ar:'المبلغ غير صالح'}), { type: 'warn', force: true }); return; }
             m.close();
             window.KiwiSales.add(KV.getVenue(), { amount: num, method });
             const ML = { card: 'carte', qr: 'QR Wallet', link: 'lien de paiement' };
@@ -3004,7 +3011,7 @@ ar: {
           </div>
         `)}
         ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_section_failure, `
-          <div style="background:#FDE8E4; border:1px solid #F5C2B8; border-radius:12px; padding:14px 16px;">
+          <div style="background:color-mix(in srgb, var(--danger) 10%, var(--surface)); border:1px solid color-mix(in srgb, var(--danger) 30%, transparent); border-radius:12px; padding:14px 16px;">
             <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
               <div>
                 <div style="font-weight:500; font-size:13.5px;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_card}</div>
@@ -3090,7 +3097,7 @@ ar: {
           </div>
         `)}
         ${kpiSection((KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_section_reactivate, `
-          <div style="padding:14px 16px; background:#FFF4DD; border:1px solid #F4D89A; border-radius:12px; font-size:13px; color:#5C4310; line-height:1.5;">
+          <div style="padding:14px 16px; background:color-mix(in srgb, var(--warn-ink) 12%, var(--surface)); border:1px solid color-mix(in srgb, var(--warn-ink) 32%, transparent); border-radius:12px; font-size:13px; color:var(--warn-ink); line-height:1.5;">
             ${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).regulars_reactivate_text}
           </div>
         `)}

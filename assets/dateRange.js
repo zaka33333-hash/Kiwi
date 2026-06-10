@@ -2023,7 +2023,7 @@
           <div class="v" data-kpi-val></div>
           <div class="d" data-kpi-delta></div>
           <svg class="sp" viewBox="0 0 120 22" preserveAspectRatio="none">
-            <path d="${sparkPath}" stroke="#0B6E4F" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="${sparkPath}" style="stroke: var(--atlas)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
           </svg>
         </div>
       `;

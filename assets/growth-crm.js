@@ -70,7 +70,7 @@
   .crm-colt { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--n-500); margin-bottom:10px; }
   .crm-tbl { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--n-200); border-radius:16px; overflow:hidden; }
   .crm-tbl th { font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--n-500); text-align:start; padding:11px 14px; background:var(--paper-soft); font-weight:500; }
-  .crm-tbl td { padding:12px 14px; font-size:13px; border-top:1px solid var(--n-200); }
+  .crm-tbl td { padding:12px 14px; font-size:13px; border-top:1px solid var(--n-200); transition: background-color 180ms cubic-bezier(0.32, 0.72, 0, 1); }
   .crm-tbl td.mono { font-family:var(--mono); font-size:12px; } .crm-tbl tr:hover td { background:var(--paper-soft); }
   .crm-tag { font-size:10.5px; font-family:var(--mono); padding:3px 9px; border-radius:999px; }
   .crm-tag.reg { background:var(--mint-soft); color:#075238; } .crm-tag.vip { background:#FBF0D6; color:#8A6210; } .crm-tag.new { background:#E4ECF8; color:#3E78C9; } .crm-tag.win { background:#FBE3DD; color:#C0492F; }
@@ -79,7 +79,9 @@
   .crm-comp h4 { margin:0 0 14px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--n-500); font-weight:500; }
   .crm-f { margin-bottom:12px; } .crm-f .fl { font-size:11px; color:var(--n-500); margin-bottom:6px; }
   .crm-chips { display:flex; gap:7px; flex-wrap:wrap; }
-  .crm-chip { font-size:12px; padding:6px 12px; border-radius:9px; border:1px solid var(--n-200); background:#fff; cursor:pointer; transition:all .12s; }
+  .crm-chip { font-size:12px; padding:6px 12px; border-radius:9px; border:1px solid var(--n-200); background:var(--surface); cursor:pointer; transition: background-color 150ms cubic-bezier(0.32,0.72,0,1), border-color 150ms cubic-bezier(0.32,0.72,0,1), color 150ms ease, transform 150ms cubic-bezier(0.34,1.45,0.5,1); }
+  .crm-chip:hover:not(.on) { border-color:var(--n-300); background:var(--paper-soft); }
+  .crm-chip:active { transform:scale(0.96); }
   .crm-chip.on { background:var(--atlas); color:#fff; border-color:var(--atlas); }
   .crm-sel { width:100%; font-size:13px; padding:9px 12px; border:1px solid var(--n-200); border-radius:10px; background:#fff; color:var(--ink); font-family:inherit; }
   .crm-bubble { background:#DCF8C6; color:#0A1F12; border-radius:4px 14px 14px 14px; padding:11px 13px; font-size:12.5px; line-height:1.5; position:relative; box-shadow:0 1px 2px rgba(10,15,13,.12); }
@@ -97,6 +99,10 @@
   html[data-theme="dark"] .crm-tbl th, html[data-theme="dark"] .crm-kpi { background:#0f1714; } html[data-theme="dark"] .crm-tbl td { border-color:#26302b; }
   html[data-theme="dark"] .crm-tbl tr:hover td, html[data-theme="dark"] .crm-chip { background:#0f1714; }
   html[data-theme="dark"] .crm-chip { border-color:#26302b; } html[data-theme="dark"] .crm-sel { background:#0f1714; border-color:#26302b; color:var(--paper); }
+  html[data-theme="dark"] .crm-chip.on { background:var(--atlas); border-color:var(--atlas); color:#fff; }
+  html[data-theme="dark"] .crm-tag.vip { background:rgba(217,154,43,0.16); color:#E8B765; }
+  html[data-theme="dark"] .crm-tag.new { background:rgba(91,146,224,0.16); color:#7FA9E8; }
+  html[data-theme="dark"] .crm-tag.win { background:rgba(239,110,92,0.14); color:#EF6E5C; }
   @media (max-width:860px){ .crm-segs{grid-template-columns:1fr 1fr;} .crm-grid{grid-template-columns:1fr;} }
   `;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);

@@ -755,7 +755,10 @@
   .p-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .p-table thead th { text-align: left; padding: 9px 12px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; color: var(--n-500); text-transform: uppercase; background: var(--paper-soft); border-bottom: 1px solid var(--n-200); font-weight: 500; }
   .p-table tbody td { padding: 11px 12px; border-bottom: 1px solid var(--n-200); }
-  .p-table tbody tr:hover { background: var(--paper-soft); cursor: pointer; }
+  .p-table tbody tr { transition: background 160ms cubic-bezier(0.32, 0.72, 0, 1); }
+  .p-table tbody tr:hover { background: color-mix(in srgb, var(--atlas) 5%, var(--surface)); cursor: pointer; }
+  .p-table tbody td:first-child { border-start-start-radius: 10px; border-end-start-radius: 10px; }
+  .p-table tbody td:last-child { border-start-end-radius: 10px; border-end-end-radius: 10px; }
   .p-table .mono { font-family: var(--mono); font-feature-settings: "tnum" 1; font-weight: 500; }
   .p-table .right { text-align: right; }
 

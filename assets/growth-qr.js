@@ -58,7 +58,9 @@
   .qro-col-t { font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--n-500); display:flex; justify-content:space-between; }
 
   /* Phone */
-  .qro-phone { margin-top:12px; width:300px; border-radius:34px; background:var(--ink); padding:11px; box-shadow:0 30px 60px -28px rgba(10,15,13,.5); }
+  /* Theme-locked device mockup — a phone bezel stays dark in every theme
+   * (var(--ink) would invert it to a white phone in dark mode). */
+  .qro-phone { margin-top:12px; width:300px; border-radius:34px; background:#0A0F0D; padding:11px; box-shadow:0 30px 60px -28px rgba(10,15,13,.5); }
   .qro-screen { background:var(--paper); border-radius:25px; overflow:hidden; }
   .qro-ph-head { background:linear-gradient(150deg,var(--riad),var(--atlas)); color:var(--paper); padding:18px 18px 16px; text-align:center; }
   .qro-ph-name { font-family:var(--serif); font-size:19px; } .qro-ph-tbl { font-size:11px; color:#cdeed9; margin-top:2px; font-family:var(--mono); letter-spacing:.06em; }
@@ -67,7 +69,7 @@
   .qro-ph-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--n-200); }
   .qro-ph-item .nm { flex:1; font-size:13px; } .qro-ph-item .pr { font-family:var(--mono); font-size:12px; color:var(--n-600); }
   .qro-ph-add { width:24px; height:24px; border-radius:8px; background:var(--mint-soft); color:var(--atlas); border:0; font-size:15px; line-height:1; cursor:pointer; flex:0 0 auto; }
-  .qro-ph-cart { background:var(--ink); color:var(--paper); margin:14px; border-radius:14px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
+  .qro-ph-cart { background:#0A0F0D; color:#F7F5F0; margin:14px; border-radius:14px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; }
   .qro-ph-cart .c { font-size:12.5px; } .qro-ph-cart .pay { background:var(--mint); color:var(--riad); font-weight:600; font-size:13px; padding:7px 16px; border-radius:9px; }
 
   .qro-tables { margin-top:12px; display:grid; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:12px; }

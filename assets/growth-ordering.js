@@ -63,7 +63,9 @@
   .ord-tag { font-size:13px; color:#cdeed9; line-height:1.5; max-width:34ch; }
   .ord-link { margin-top:16px; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16); border-radius:12px; padding:11px 14px; }
   .ord-link .u { font-family:var(--mono); font-size:13px; color:var(--paper); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .ord-link .cp { font-size:12.5px; color:var(--mint); font-weight:600; cursor:pointer; background:none; border:0; white-space:nowrap; }
+  .ord-link .cp { font-size:12.5px; color:var(--mint); font-weight:600; cursor:pointer; background:none; border:0; white-space:nowrap; transition: color 150ms cubic-bezier(0.32,0.72,0,1), transform 150ms cubic-bezier(0.34,1.45,0.5,1); }
+  .ord-link .cp:hover { color:#fff; }
+  .ord-link .cp:active { transform:scale(0.95); }
   .ord-statusrow { margin-top:14px; display:flex; align-items:center; gap:12px; }
   .ord-status { display:flex; align-items:center; gap:7px; font-size:12px; color:#cdeed9; }
   .ord-status .dot { width:7px; height:7px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 3px rgba(125,242,176,.18); }
@@ -100,7 +102,8 @@
   .ord-connect:hover { background:#c8ecd6; }
 
   .ord-feed { margin-top:12px; border:1px solid var(--n-200); border-radius:16px; overflow:hidden; background:#fff; }
-  .ord-o { display:grid; grid-template-columns:auto 1fr auto auto; gap:14px; align-items:center; padding:13px 16px; cursor:pointer; transition:background .12s; }
+  .ord-o { display:grid; grid-template-columns:auto 1fr auto auto; gap:14px; align-items:center; padding:13px 16px; cursor:pointer; transition: background-color 180ms cubic-bezier(0.32,0.72,0,1); }
+  .ord-o:active { background:var(--paper-muted, var(--paper-soft)); }
   .ord-o + .ord-o { border-top:1px solid var(--n-200); }
   .ord-o:hover { background:var(--paper-soft); }
   .ord-o-ch { font-size:10px; font-family:var(--mono); letter-spacing:.04em; padding:4px 9px; border-radius:7px; white-space:nowrap; }
