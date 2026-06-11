@@ -811,6 +811,10 @@
       flex: 1; min-height: 0;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      /* Rows must fit card content. Once the grid is height-constrained (scroll),
+         auto tracks collapse to the card's min-height and the content overflows
+         into the next row — max-content keeps every row at full card height. */
+      grid-auto-rows: max-content;
       gap: 12px;
       overflow-y: auto;
       padding-bottom: 8px;
