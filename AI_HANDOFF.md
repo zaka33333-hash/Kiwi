@@ -141,6 +141,34 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 11 (night):** `50bdbce`+`57b181b` **PIN 0000 turns kiwi-caisse into a pressing** —
+the Tangier-prospect demo: one terminal, two métiers. His restaurant = any 4-digit code
+(caisse untouched), his pressing = **0000**; the KDS station moved to **0001** (pin-foot
+hint updated). New `assets/pressing-caisse.{js,css}` (~2 700 lines) inject a full laundry
+counter scoped to `body.is-pressing` — the only shared surface is the 3-way PIN branch +
+`window.__kiwiPinReset()` (extracted from lockoutKitchen). The **headline differentiator
+is the VISUAL intake grid** (24 hand-drawn SVG garments, 6 catégories, prix MAD par
+garment×service — text-list incumbents don't have this). Intake flow: tap garment →
+config sheet (service segmenté à la **lentille liquide** — liquid-lens.js now loads in
+the caisse, its selectors match nothing restaurant-side; costume 2/3 pièces, tapis S/M/L,
+couleur, notes usuelles, **photo état** mock) → ticket courant → client **PHONE-FIRST**
+(reco fidèle + préférences, B2B –15 %, fiche rapide, passage) → date promise suggérée
+(dimanche sauté) → **reçu thermique + 1 étiquette code-barres PAR PIÈCE** (costume 3p =
+3 étiquettes) → encaissement (maintenant / acompte / **au retrait = habituel** / sur
+compte B2B; espèces avec rendu, carte = montant envoyé au lecteur partenaire, V1 sans
+encaissement Kiwi). Ops: tableau 4 statuts **par pièce** avec recherche téléphone,
+détail à steppers, tout-prêt auto-déclenche le **WhatsApp « c'est prêt »** (+ photo du
+vêtement fini), retrait par téléphone/scan (cintre en GROS, solde verrouille la remise),
+rangement rails A/B/C × 12, hors-ligne simulé (file + sync). Demo data: **Pressing
+Marshan** (Tanger), 7 clients dont **Hôtel Bab El Bahr** (compte B2B · facture mensuelle),
+12 commandes seedées, 1 en retard. Gotchas: the caisse `.modal-veil`s are z-100 over
+`.px-screen` z-90 but DOM ORDER decides between veils (close detail before opening
+tags/pay); the offline banner needed `[hidden]{display:none}` (its `display:flex` was
+winning); preview verification needs a **resize jiggle 1366×900↔901 to force repaint**
+(hidden-tab compositor serves stale frames) and `preview_resize` must be re-applied
+after every reload. Dashboard deliberately untouched (owner: "caisse only for now") —
+the venue-switcher half of the pressing brief is still open.
+
 **Jun 10 evening (6):** `c98e317` **every card is alive** — staggered card entrance
 (.dash-col .block nth-child delays), hover lift (+shadow; rule is `html body .block` to
 outrank theme.css's `html .block` color-only transition — merge color transitions in or
