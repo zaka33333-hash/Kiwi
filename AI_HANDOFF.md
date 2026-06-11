@@ -149,9 +149,12 @@ counter scoped to `body.is-pressing` — the only shared surface is the 3-way PI
 `window.__kiwiPinReset()` (extracted from lockoutKitchen). The **headline differentiator
 is the VISUAL intake grid** (24 hand-drawn SVG garments, 6 catégories, prix MAD par
 garment×service — text-list incumbents don't have this). Intake flow: tap garment →
-config sheet (service segmenté à la **lentille liquide** — liquid-lens.js now loads in
-the caisse, its selectors match nothing restaurant-side; costume 2/3 pièces, tapis S/M/L,
-couleur, notes usuelles, **photo état** mock) → ticket courant → client **PHONE-FIRST**
+config sheet (services **MULTI-SELECT et cumulables** — lavage + repassage = le classique,
+prix additionnés, exclusions réelles sec⟷lavage/repassage via SVC_CONFLICTS, codes
+combinés LAV+REP sur ticket/étiquettes/détail; les variantes restent single-select à la
+**lentille liquide** — liquid-lens.js loads in the caisse, its selectors match nothing
+restaurant-side; costume 2/3 pièces, tapis S/M/L, couleur, notes usuelles, **photo état**
+mock) → ticket courant → client **PHONE-FIRST**
 (reco fidèle + préférences, B2B –15 %, fiche rapide, passage) → date promise suggérée
 (dimanche sauté) → **reçu thermique + 1 étiquette code-barres PAR PIÈCE** (costume 3p =
 3 étiquettes) → encaissement (maintenant / acompte / **au retrait = habituel** / sur

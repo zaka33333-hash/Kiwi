@@ -349,6 +349,12 @@ body.is-pressing .px-screen.is-entering { animation: px-dive 640ms cubic-bezier(
 .px-seg-it.on { color: #fff; }
 .px-seg-it.on small { color: rgba(255,255,255,0.75); }
 .px-seg .kw-lens { border-radius: 10px; }
+/* multi-select variant (services combinables) — several chips can be on at
+   once, so no traveling lens; each selected chip wears the brand fill */
+.px-seg.is-multi .px-seg-it.on {
+  background: linear-gradient(135deg, var(--atlas) 0%, var(--riad) 100%);
+  box-shadow: 0 4px 14px -4px rgba(11,110,79,0.45), inset 0 1px 0 rgba(255,255,255,0.16);
+}
 
 /* qty + variant row */
 .px-row-2 { display: flex; gap: 12px; }

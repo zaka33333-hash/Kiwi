@@ -95,14 +95,21 @@
   /* ───────────────────────── services + price list ─────────────────────────
      Per garment × service — same garment, different service = different price.
      A missing key = service not offered for that garment. MAD, Tanger 2026. */
+  /* Services are COMBINABLE on one garment (lavage + repassage is the
+     classic ask) — prices add up. Two real-world exclusions: le nettoyage
+     à sec est un procédé complet (il inclut le repassage) et ne se cumule
+     jamais avec le lavage à l'eau. Détachage / retouche stack with anything. */
   const SERVICES = [
     { id: 'sec',       label: 'Nettoyage à sec', short: 'À sec',     code: 'SEC' },
-    { id: 'lavage',    label: 'Lavage + pliage', short: 'Lavage',    code: 'LAV' },
-    { id: 'repassage', label: 'Repassage seul',  short: 'Repassage', code: 'REP' },
+    { id: 'lavage',    label: 'Lavage',          short: 'Lavage',    code: 'LAV' },
+    { id: 'repassage', label: 'Repassage',       short: 'Repassage', code: 'REP' },
     { id: 'detachage', label: 'Détachage',       short: 'Détachage', code: 'DET' },
     { id: 'retouche',  label: 'Retouche',        short: 'Retouche',  code: 'RET' },
   ];
   const SVC = Object.fromEntries(SERVICES.map((s) => [s.id, s]));
+  const SVC_CONFLICTS = { sec: ['lavage', 'repassage'], lavage: ['sec'], repassage: ['sec'] };
+  const svcCodes  = (svcs) => svcs.map((s) => SVC[s].code).join('+');
+  const svcShorts = (svcs) => svcs.map((s) => SVC[s].short).join(' + ');
 
   const CATALOG = [
     { id: 'hauts', label: 'Hauts', items: [
@@ -220,7 +227,7 @@
           pieces.push({
             pid: `${orderId}-${n}`, n, lineIdx: li,
             label: plabel ? `${item.label} · ${plabel}` : item.label,
-            itemId: ln.itemId, svc: ln.service, color: ln.color,
+            itemId: ln.itemId, svcs: ln.services, color: ln.color,
             status: (statuses && statuses[n - 1]) || 'recu',
             photos: ln.photos || 0,
           });
@@ -232,7 +239,7 @@
   }
   function lineTotal(ln) {
     const t = priceTable(ITEMS[ln.itemId], ln.variantId);
-    return (t[ln.service] || 0) * ln.qty;
+    return ln.services.reduce((s, sv) => s + (t[sv] || 0), 0) * ln.qty;
   }
   function orderTotals(o) {
     const sub = o.lines.reduce((s, ln) => s + lineTotal(ln), 0);
@@ -256,7 +263,7 @@
     const o = {
       id: cfg.id, custId: cfg.custId || null, guest: cfg.guest || null,
       b2b: !!(cfg.custId && CUST[cfg.custId] && CUST[cfg.custId].b2b),
-      lines: cfg.lines.map((l) => ({ itemId: l[0], service: l[1], qty: l[2], color: l[3], notes: l[4] || [], freeNote: l[5] || '', photos: l[6] || 0, variantId: l[7] || null })),
+      lines: cfg.lines.map((l) => ({ itemId: l[0], services: Array.isArray(l[1]) ? l[1] : [l[1]], qty: l[2], color: l[3], notes: l[4] || [], freeNote: l[5] || '', photos: l[6] || 0, variantId: l[7] || null })),
       droppedAt: new Date(NOW - cfg.droppedH * H),
       readyAt:   new Date(NOW + cfg.readyH * H),
       pay: cfg.pay,           /* {mode:'now'|'acompte'|'pickup'|'compte', method, paid} */
@@ -277,7 +284,7 @@
       lines: [['jean', 'lavage', 2, 'bleu'], ['pull', 'sec', 1, 'gris', ['Tache manche'], '', 1]] }),
     mkOrder({ id: 'P-1043', custId: 'c1', droppedH: 1.4, readyH: 46, status: 'recu',
       pay: { mode: 'acompte', method: 'especes', paid: 40 },
-      lines: [['chemise', 'lavage', 4, 'blanc'], ['robe', 'sec', 1, 'rouge', ['Délicat'], '', 2]] }),
+      lines: [['chemise', ['lavage', 'repassage'], 4, 'blanc'], ['robe', 'sec', 1, 'rouge', ['Délicat'], '', 2]] }),
     mkOrder({ id: 'P-1042', custId: 'c6', droppedH: 2.5, readyH: 22, status: 'recu',
       pay: { mode: 'pickup', method: null, paid: 0 },
       lines: [['chemise', 'repassage', 10, 'blanc', [], 'Lot du lundi'], ['pantalon', 'repassage', 2, 'noir']] }),
@@ -300,7 +307,7 @@
       lines: [['pantalon', 'sec', 2, 'noir']] }),
     mkOrder({ id: 'P-1037', custId: 'c6', droppedH: 32, readyH: -1, status: 'pret', rack: 'B-07',
       pay: { mode: 'pickup', method: null, paid: 0 },
-      lines: [['chemise', 'lavage', 8, 'blanc'], ['veste', 'sec', 1, 'gris']] }),
+      lines: [['chemise', ['lavage', 'repassage'], 8, 'blanc'], ['veste', 'sec', 1, 'gris']] }),
     mkOrder({ id: 'P-1036', custId: 'c4', droppedH: 26, readyH: -4, status: 'pret',
       pay: { mode: 'acompte', method: 'carte', paid: 30 },
       lines: [['doudoune', 'lavage', 1, 'noir', [], '', 1], ['tshirt', 'lavage', 3, 'blanc']] }),
@@ -641,7 +648,7 @@
         <span class="px-line-name">${esc(item.label)}${variant ? ` · ${esc(variant.label)}` : ''}</span>
         <span class="px-line-sub">
           <i class="dot" style="background:${COLOR[ln.color] ? COLOR[ln.color].hex : '#ccc'}"></i>
-          <span class="svc">${SVC[ln.service].code}</span> ${esc(SVC[ln.service].short)}
+          <span class="svc">${svcCodes(ln.services)}</span> ${esc(svcShorts(ln.services))}
           ${notesCt ? `<span class="meta"><i data-lucide="sticky-note"></i>${notesCt}</span>` : ''}
           ${ln.photos ? `<span class="meta"><i data-lucide="camera"></i>${ln.photos}</span>` : ''}
         </span>
@@ -656,17 +663,21 @@
   }
 
   /* ═══════════════════════ CONFIG SHEET ═══════════════════════ */
-  const sheet = { itemId: null, service: null, variantId: null, qty: 1, color: 'blanc', notes: [], freeNote: '', photos: 0 };
+  const sheet = { itemId: null, services: [], variantId: null, qty: 1, color: 'blanc', notes: [], freeNote: '', photos: 0 };
+
+  function defaultService(item, variantId) {
+    const avail = availServices(item, variantId);
+    return (item.def && avail.some((s) => s.id === item.def)) ? item.def : avail[0].id;
+  }
 
   function openSheet(itemId) {
     const item = ITEMS[itemId];
     Object.assign(sheet, {
       itemId,
       variantId: item.variants ? item.variants[0].id : null,
-      service: null, qty: 1, color: 'blanc', notes: [], freeNote: '', photos: 0,
+      services: [], qty: 1, color: 'blanc', notes: [], freeNote: '', photos: 0,
     });
-    const avail = availServices(item, sheet.variantId);
-    sheet.service = (item.def && avail.some((s) => s.id === item.def)) ? item.def : avail[0].id;
+    sheet.services = [defaultService(item, sheet.variantId)];
     renderSheet();
     openVeil('#px-sheet-veil');
     icons();
@@ -674,13 +685,16 @@
   }
 
   function sheetUnit() {
-    return priceTable(ITEMS[sheet.itemId], sheet.variantId)[sheet.service] || 0;
+    const t = priceTable(ITEMS[sheet.itemId], sheet.variantId);
+    return sheet.services.reduce((s, sv) => s + (t[sv] || 0), 0);
   }
 
   function renderSheet() {
     const item = ITEMS[sheet.itemId];
     const avail = availServices(item, sheet.variantId);
-    if (!avail.some((s) => s.id === sheet.service)) sheet.service = avail[0].id;
+    /* un changement de variante peut retirer des services du tarif */
+    sheet.services = sheet.services.filter((sv) => avail.some((s) => s.id === sv));
+    if (!sheet.services.length) sheet.services = [defaultService(item, sheet.variantId)];
     const unit = sheetUnit();
     const el = $('#px-sheet', root);
     el.innerHTML = `
@@ -692,9 +706,9 @@
       </div>
 
       <div class="px-f">
-        <div class="px-f-lbl">Service</div>
-        <div class="px-seg" data-lens-demo id="px-svc-seg">
-          ${avail.map((s) => `<button class="px-seg-it ${s.id === sheet.service ? 'on' : ''}" data-lens-item data-px-svc="${s.id}">${esc(s.short)}<small>${priceTable(item, sheet.variantId)[s.id]} MAD</small></button>`).join('')}
+        <div class="px-f-lbl">Service <span class="opt">· combinables — ex. lavage + repassage</span></div>
+        <div class="px-seg is-multi" id="px-svc-seg">
+          ${avail.map((s) => `<button class="px-seg-it ${sheet.services.includes(s.id) ? 'on' : ''}" data-px-svc="${s.id}" aria-pressed="${sheet.services.includes(s.id)}">${esc(s.short)}<small>${priceTable(item, sheet.variantId)[s.id]} MAD</small></button>`).join('')}
         </div>
       </div>
 
@@ -754,8 +768,24 @@
     $('#px-svc-seg', el).onclick = (e) => {
       const b = e.target.closest('[data-px-svc]');
       if (!b) return;
-      sheet.service = b.dataset.pxSvc;
-      $$('[data-px-svc]', el).forEach((x) => x.classList.toggle('on', x === b));
+      const id = b.dataset.pxSvc;
+      const i = sheet.services.indexOf(id);
+      if (i >= 0) {
+        if (sheet.services.length === 1) return;          /* toujours ≥ 1 service */
+        sheet.services.splice(i, 1);
+      } else {
+        /* déposer les services incompatibles (sec ⟷ lavage/repassage) */
+        (SVC_CONFLICTS[id] || []).forEach((c) => {
+          const j = sheet.services.indexOf(c);
+          if (j >= 0) sheet.services.splice(j, 1);
+        });
+        sheet.services.push(id);
+      }
+      $$('[data-px-svc]', el).forEach((x) => {
+        const on = sheet.services.includes(x.dataset.pxSvc);
+        x.classList.toggle('on', on);
+        x.setAttribute('aria-pressed', on);
+      });
       refreshPrice();
     };
     const varSeg = $('#px-var-seg', el);
@@ -790,13 +820,13 @@
 
   function addSheetToTicket() {
     state.ticket.lines.push({
-      itemId: sheet.itemId, variantId: sheet.variantId, service: sheet.service,
+      itemId: sheet.itemId, variantId: sheet.variantId, services: sheet.services.slice(),
       qty: sheet.qty, color: sheet.color, notes: sheet.notes.slice(), freeNote: sheet.freeNote.trim(),
       photos: sheet.photos,
     });
     closeVeil('#px-sheet-veil');
     const item = ITEMS[sheet.itemId];
-    toast(`${item.label} × ${sheet.qty} · ${SVC[sheet.service].short} — sur le ticket`);
+    toast(`${item.label} × ${sheet.qty} · ${svcShorts(sheet.services)} — sur le ticket`);
     renderTicket(); icons();
   }
 
@@ -1014,7 +1044,7 @@
       ${o.lines.map((ln) => {
         const item = ITEMS[ln.itemId];
         const variant = item.variants ? (item.variants.find((v) => v.id === ln.variantId) || item.variants[0]).label : '';
-        return `<div class="row"><span class="nm">${ln.qty} × ${esc(item.label)}${variant ? ` (${esc(variant)})` : ''} · ${SVC[ln.service].code}</span><span>${lineTotal(ln)}</span></div>`;
+        return `<div class="row"><span class="nm">${ln.qty} × ${esc(item.label)}${variant ? ` (${esc(variant)})` : ''} · ${svcCodes(ln.services)}</span><span>${lineTotal(ln)}</span></div>`;
       }).join('')}
       <hr>
       <div class="row"><span>Sous-total</span><span>${sub} MAD</span></div>
@@ -1035,7 +1065,7 @@
     return `<div class="px-tag">
       <div class="px-tag-top"><span class="px-tag-num">${o.id}</span><span class="px-tag-i">pièce ${p.n}/${p.of}</span></div>
       <div class="px-tag-client">${esc(c.name)}</div>
-      <div class="px-tag-item"><i class="dot" style="background:${COLOR[p.color] ? COLOR[p.color].hex : '#ccc'}"></i>${esc(p.label)} · <span class="svc">${SVC[p.svc].code}</span></div>
+      <div class="px-tag-item"><i class="dot" style="background:${COLOR[p.color] ? COLOR[p.color].hex : '#ccc'}"></i>${esc(p.label)} · <span class="svc">${svcCodes(p.svcs)}</span></div>
       ${barcode(p.pid, 26)}
       <div class="px-tag-id">${p.pid}</div>
     </div>`;
@@ -1392,7 +1422,7 @@
           <div class="px-piece">
             <span class="px-piece-art">${ART[p.itemId] || ''}</span>
             <span class="px-piece-mid">
-              <span class="px-piece-name"><i class="dot" style="background:${COLOR[p.color] ? COLOR[p.color].hex : '#ccc'}"></i>${esc(p.label)} · <span style="font-family:var(--mono);font-size:11px;">${SVC[p.svc].code}</span></span>
+              <span class="px-piece-name"><i class="dot" style="background:${COLOR[p.color] ? COLOR[p.color].hex : '#ccc'}"></i>${esc(p.label)} · <span style="font-family:var(--mono);font-size:11px;">${svcCodes(p.svcs)}</span></span>
               <span class="px-piece-id">${p.pid}${p.photos ? `<span class="ph"><i data-lucide="camera"></i>${p.photos} photo${p.photos > 1 ? 's' : ''}</span>` : ''}</span>
             </span>
             ${delivered || p.status === 'livre'
@@ -1591,7 +1621,7 @@
         <div class="px-rt-slot ${o.rack ? '' : 'none'}">${o.rack ? `<b>${o.rack}</b><span>cintre</span>` : '<b>—</b><span>non rangé</span>'}</div>
       </div>
       <div class="px-rt-pieces">
-        ${o.pieces.map((p) => `<div class="px-rt-piece"><i data-lucide="check-circle-2"></i>${esc(p.label)} · ${SVC[p.svc].code}<span class="pid">${p.pid}</span></div>`).join('')}
+        ${o.pieces.map((p) => `<div class="px-rt-piece"><i data-lucide="check-circle-2"></i>${esc(p.label)} · ${svcCodes(p.svcs)}<span class="pid">${p.pid}</span></div>`).join('')}
       </div>
       <div class="px-rt-balance ${due > 0 ? '' : 'paid'}">
         <span>${due > 0 ? 'Solde à encaisser' : o.pay.mode === 'compte' ? 'Sur compte B2B — facture fin de mois' : 'Déjà réglé'}</span>
@@ -1644,7 +1674,7 @@
     const c = custOf(o);
     return `<div class="px-tag-top"><span class="px-tag-num">${o.id}</span><span class="px-tag-i">pièce ${p.n}/${p.of}</span></div>
       <div class="px-tag-client">${esc(c.name)}</div>
-      <div class="px-tag-item">${esc(p.label)} · <span class="svc">${SVC[p.svc].code}</span></div>
+      <div class="px-tag-item">${esc(p.label)} · <span class="svc">${svcCodes(p.svcs)}</span></div>
       ${barcode(p.pid, 22)}
       <div class="px-tag-id">${p.pid}</div>`;
   }
