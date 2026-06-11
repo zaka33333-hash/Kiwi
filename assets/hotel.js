@@ -1,15 +1,23 @@
 /* ═══════════════════════════════════════════════════════════════════════════
- * Kiwi · Hotel vertical (Riad Yasmina) — dashboard2-only module.
+ * Kiwi · Hotel vertical — loaded by BOTH dashboards.
  *
- * Pages (sidebar · venues2.js VERTICAL_SECTIONS.hotel):
+ * Pages (sidebar · VERTICAL_SECTIONS.hotel in venues.js / venues2.js):
  *   Réception · Plan des chambres · Réservations & séjours (tape chart) ·
  *   Ménage · Tarifs & occupation · Clients & fidélité · Folios ·
  *   Canaux & OTA · Intelligence hôtel
  *
  * The folio engine is the strategic core: restaurant (POS) and hammam (spa)
  * charges post straight onto the room bill, taxe de séjour included — one
- * property, one system, one source of truth. Demo property: Riad Yasmina,
- * Médina de Marrakech · 24 chambres · restaurant + hammam intégrés.
+ * property, one system, one source of truth.
+ *
+ * Two operating modes, switched per-venue at runtime:
+ *  · DEMO — the Riad Yasmina property (24 chambres, Médina de Marrakech).
+ *    Only reachable on dashboard2.html, whose venues2.js registers the
+ *    venue; on dashboard.html that data is simply never activated.
+ *  · CUSTOM — any 0000-onboarded hotel (both dashboards): starter pages on
+ *    the live rack/folio engine, sized by the step-2 « rooms » answer.
+ * This file also owns the onboarding-wizard fork (obOnboard) that adds the
+ * « Hôtel / Riad » trade to the 0000 flow on whichever dashboard loads it.
  * ─────────────────────────────────────────────────────────────────────────── */
 (() => {
   'use strict';

@@ -1856,6 +1856,13 @@
     revPerDay:    '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/>',
     txPerDay:     '<path d="M4 6h16M4 12h16M4 18h10"/>',
     tempsTable:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    // hotel (custom 0000 venues — see assets/hotel.js)
+    occupation:   '<path d="M3 18v-7"/><path d="M3 16h18v-3a2 2 0 00-2-2h-9v5"/><circle cx="6.5" cy="11.5" r="1.5"/><path d="M21 18v-2"/>',
+    adr:          '<path d="M20.6 13.4L11 3.8A2 2 0 009.6 3H5a2 2 0 00-2 2v4.6c0 .5.2 1 .6 1.4l9.6 9.6a2 2 0 002.8 0l4.6-4.6a2 2 0 000-2.6z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+    revpar:       '<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
+    arrdep:       '<path d="M7 4v12"/><path d="M3 12l4 4 4-4"/><path d="M17 20V8"/><path d="M13 12l4-4 4 4"/>',
+    menage:       '<path d="M11 4l1.2 3.4 3.4 1.2-3.4 1.2L11 13.2 9.8 9.8 6.4 8.6l3.4-1.2z"/><path d="M18 13l.8 2.2L21 16l-2.2.8L18 19l-.8-2.2L15 16l2.2-.8z"/>',
+    mixRev:       '<path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/>',
   };
   // One sparkline path per key. Colour stays atlas; deltas drive the up/down chip.
   const KPI_SPARKS = {
@@ -1875,6 +1882,12 @@
     revPerDay:  'M0 16 L15 14 L30 15 L45 12 L60 10 L75 11 L90 8 L105 6 L120 4',
     txPerDay:   'M0 15 L15 13 L30 14 L45 11 L60 12 L75 9 L90 10 L105 6 L120 4',
     tempsTable: 'M0 6 L15 8 L30 7 L45 9 L60 11 L75 10 L90 12 L105 14 L120 13',
+    occupation: 'M0 14 L15 12 L30 13 L45 10 L60 9 L75 7 L90 8 L105 5 L120 4',
+    adr:        'M0 12 L15 11 L30 12 L45 10 L60 11 L75 9 L90 8 L105 7 L120 6',
+    revpar:     'M0 16 L15 14 L30 13 L45 12 L60 10 L75 8 L90 9 L105 6 L120 4',
+    arrdep:     'M0 12 L15 9 L30 13 L45 8 L60 12 L75 7 L90 11 L105 6 L120 9',
+    menage:     'M0 6 L15 9 L30 7 L45 11 L60 8 L75 12 L90 10 L105 13 L120 12',
+    mixRev:     'M0 11 L15 11 L30 10 L45 11 L60 10 L75 10 L90 9 L105 10 L120 9',
   };
 
   /* ═══════════════ KPI CATALOG · personnalisation ═══════════════
@@ -1918,6 +1931,18 @@
                   desc: 'Premières visites estimées', derive: (d) => { if (!d.tx || !d.regulars) return null; return { value: Math.max(0, d.tx.value - d.regulars.value), unit: '', fmt: 'int', delta: r1(d.tx.delta - d.regulars.delta * 0.3) }; } },
     txPerDay:   { labels: { default: 'Ventes par jour', spa: 'RDV par jour' }, i18n: 'dash.kpi.txPerDay',
                   desc: 'Nombre de ventes moyen par jour', derive: (d, ctx) => d.tx ? { value: d.tx.value / ctx.nbDays, unit: '', fmt: 'int', delta: d.tx.delta } : null },
+    occupation: { labels: { default: "Taux d'occupation" }, i18n: 'dash.kpi.occupancy',
+                  desc: 'Chambres occupées vs chambres disponibles', derive: (d) => d.occupation || null },
+    adr:        { labels: { default: 'ADR · prix moyen / nuit' }, i18n: 'dash.kpi.adr',
+                  desc: 'Prix moyen par nuit vendue (Average Daily Rate)', derive: (d) => d.adr || null },
+    revpar:     { labels: { default: 'RevPAR' }, i18n: 'dash.kpi.revpar',
+                  desc: 'Revenu par chambre disponible · ADR × occupation', derive: (d) => d.revpar || null },
+    arrdep:     { labels: { default: 'Arrivées / départs' }, i18n: 'dash.kpi.arrdep',
+                  desc: 'Mouvements à la réception sur la période', derive: (d) => d.arrdep || null },
+    menage:     { labels: { default: 'Chambres à nettoyer' }, i18n: 'dash.kpi.toClean',
+                  desc: 'File ménage · chambres à remettre à blanc', derive: (d) => d.menage || null },
+    mixRev:     { labels: { default: 'Mix revenu · ch · resto · spa' }, i18n: 'dash.kpi.revMix',
+                  desc: 'Répartition du revenu : chambres / restaurant / hammam', derive: (d) => d.mixRev || null },
     tauxRetour: { labels: { default: 'Taux retour' }, i18n: 'dash.kpi.returnRate',
                   desc: 'Part des articles retournés', derive: (d) => d.tauxRetour || null },
     tempsTable: { labels: { default: 'Temps moyen à table', spa: 'Temps moyen en cabine' }, i18n: 'dash.kpi.tableTime',
@@ -1988,6 +2013,21 @@
         ratio:    data.ratio    ? { ...data.ratio,    text: '—', unit: '', delta: 0 } : data.ratio,
         regulars: data.regulars ? { ...data.regulars, value: 0, unit: '', delta: 0 } : data.regulars,
       };
+      // A custom HOTEL's band needs the hotel tiles — there is no hotel demo
+      // sibling on this dashboard to zero-clone, so build them blank here.
+      // The ménage denominator follows the step-2 « Nombre de chambres ».
+      if (window.KiwiVenue?.getVenueType?.() === 'hotel') {
+        const rooms = +((window.KiwiVenue?.getCurrentVenueData?.() || {}).profileInfo?.rooms) || 0;
+        data = {
+          ...data,
+          occupation: { value: 0, unit: '%',   fmt: 'pct1', delta: 0 },
+          adr:        { value: 0, unit: 'MAD', fmt: 'int',  delta: 0 },
+          revpar:     { value: 0, unit: 'MAD', fmt: 'int',  delta: 0 },
+          arrdep:     { text: '0 / 0', unit: '', delta: 0 },
+          menage:     { value: 0, unit: rooms ? `/ ${rooms}` : '', fmt: 'int', delta: 0 },
+          mixRev:     { text: '—', unit: '', delta: 0 },
+        };
+      }
     }
 
     // Resolve which 6 KPI keys to render — owner's saved layout, or the

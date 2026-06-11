@@ -276,6 +276,17 @@
     services: '<path d="M12 2l2 6h6l-5 4 2 7-5-4-5 4 2-7-5-4h6z"/>',
     practitioners: '<circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/><path d="M16 11l2 2 4-4"/>',
     clients: '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 14h6M9 18h6M9 10h2"/>',
+    // hotel — onboarding vertical (no demo venue on this dashboard; the
+    // Riad Yasmina demo lives in dashboard2's venues2.js fork)
+    reception: '<path d="M4 19h16"/><path d="M5 19v-4a7 7 0 0114 0v4"/><path d="M12 8V6"/><path d="M10 6h4"/>',
+    chambres: '<path d="M3 18v-7"/><path d="M3 16h18v-3a2 2 0 00-2-2h-9v5"/><circle cx="6.5" cy="11.5" r="1.5"/><path d="M21 18v-2"/>',
+    sejours: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/><path d="M7 13h4M13 16h4"/>',
+    menage: '<path d="M11 4l1.2 3.4L15.6 8.6 12.2 9.8 11 13.2 9.8 9.8 6.4 8.6 9.8 7.4z"/><path d="M18 13l.8 2.2L21 16l-2.2.8L18 19l-.8-2.2L15 16l2.2-.8z"/><path d="M5 16l.6 1.7L7.4 18.3 5.6 19 5 20.7 4.4 19 2.6 18.3 4.4 17.7z"/>',
+    tarifs: '<path d="M20.6 13.4L11 3.8A2 2 0 009.6 3H5a2 2 0 00-2 2v4.6c0 .5.2 1 .6 1.4l9.6 9.6a2 2 0 002.8 0l4.6-4.6a2 2 0 000-2.6z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+    hotes: '<circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/><path d="M17.5 10.5l1.5 1.5 3-3"/>',
+    folios: '<path d="M5 3h14v18l-2.3-1.5L14.4 21l-2.4-1.5L9.6 21l-2.3-1.5L5 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+    canaux: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 010 18M12 3a13.5 13.5 0 000 18"/>',
+    intel: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3.7M12 17.8v3.7M2.5 12h3.7M17.8 12h3.7M5.3 5.3l2.6 2.6M16.1 16.1l2.6 2.6M18.7 5.3l-2.6 2.6M7.9 16.1l-2.6 2.6"/>',
   };
 
   const VERTICAL_SECTIONS = {
@@ -310,6 +321,23 @@
         { nav: 'clients',       label: 'Fiches clients',         i18n: 'sidebar.spa.clients',                    icon: ICONS.clients },
       ],
     },
+    /* Hotel — reachable only via the 0000 onboarding (custom venues);
+     * assets/hotel.js renders these pages on the live rack/folio engine. */
+    hotel: {
+      header: 'Hôtel & Riad',
+      i18nHeader: 'sidebar.section.hotel',
+      items: [
+        { nav: 'reception',  label: 'Réception',              i18n: 'sidebar.hotel.reception', tag: 'LIVE', icon: ICONS.reception },
+        { nav: 'chambres',   label: 'Plan des chambres',      i18n: 'sidebar.hotel.chambres',               icon: ICONS.chambres },
+        { nav: 'sejours',    label: 'Réservations & séjours', i18n: 'sidebar.hotel.sejours',                icon: ICONS.sejours },
+        { nav: 'menage',     label: 'Ménage',                 i18n: 'sidebar.hotel.menage',                 icon: ICONS.menage },
+        { nav: 'tarifs',     label: 'Tarifs & occupation',    i18n: 'sidebar.hotel.tarifs',                 icon: ICONS.tarifs },
+        { nav: 'hotes',      label: 'Clients & fidélité',     i18n: 'sidebar.hotel.hotes',                  icon: ICONS.hotes },
+        { nav: 'folios',     label: 'Notes clients · folios', i18n: 'sidebar.hotel.folios',                 icon: ICONS.folios },
+        { nav: 'canaux',     label: 'Canaux & OTA',           i18n: 'sidebar.hotel.canaux',                 icon: ICONS.canaux },
+        { nav: 'hotelintel', label: 'Intelligence hôtel',     i18n: 'sidebar.hotel.intel',     tag: 'IA',   icon: ICONS.intel },
+      ],
+    },
   };
 
   /* ═══════════════ SUBTYPE PROFILES ═══════════════
@@ -336,6 +364,15 @@
       { k: 'cabins',  type: 'number', ph: 'Ex. 4',             label: { fr: 'Cabines de soin', en: 'Treatment rooms', ar: 'غرف العناية' } },
       { k: 'staff',   type: 'number', ph: 'Ex. 6',             label: { fr: 'Praticien·ne·s', en: 'Practitioners', ar: 'الممارسون' } },
       { k: 'signature', type: 'text', ph: 'Ex. Hammam + argan', label: { fr: 'Soins signature', en: 'Signature treatments', ar: 'علاجات مميزة' } },
+    ] },
+    /* 4th primary trade — native sections (VERTICAL_SECTIONS.hotel) +
+     * native KPI band (KPI_BY_TYPE.hotel); like the 3 base primaries it
+     * only defines its step-2 questions. `rooms` sizes the starter room
+     * rack in assets/hotel.js. */
+    hotel: { base: 'hotel', questions: [
+      { k: 'rooms',   type: 'number', ph: 'Ex. 24',                   label: { fr: 'Nombre de chambres', en: 'Number of rooms', ar: 'عدد الغرف' } },
+      { k: 'resto',   type: 'text',   ph: 'Ex. Restaurant + terrasse', label: { fr: 'Restauration sur place', en: 'On-site dining', ar: 'مطعم في الموقع' } },
+      { k: 'spa',     type: 'text',   ph: 'Ex. Hammam + massages',     label: { fr: 'Spa / hammam', en: 'Spa / hammam', ar: 'سبا / حمّام' } },
     ] },
     cafe: { base: 'restaurant',
       header: { fr: 'Café', en: 'Café', ar: 'المقهى' },
@@ -818,6 +855,26 @@
       navOrders: { fr: 'Encaissements', en: 'Checkouts', ar: 'التحصيلات' },
       askPlaceholder: { fr: 'Posez votre question sur votre institut...', en: 'Ask a question about your spa...', ar: 'اطرح سؤالاً حول معهدك...' },
     },
+    hotel: {
+      feedEmpty: { fr: { badge: 'RÉCEPTION OUVERTE', title: 'Premier encaissement à venir', sub: 'Le flux s\'active dès le premier check-in ou la première vente encaissée.' },
+                   en: { badge: 'FRONT DESK OPEN', title: 'First checkout coming up', sub: 'The feed starts with the first check-in or sale rung up.' },
+                   ar: { badge: 'الاستقبال مفتوح', title: 'أول تحصيل قادم', sub: 'يبدأ التدفّق مع أول تسجيل وصول أو أول عملية بيع.' } },
+      feedAwait: { fr: 'Réception ouverte · en attente du 1ᵉʳ encaissement', en: 'Front desk open · awaiting first checkout', ar: 'الاستقبال مفتوح · في انتظار أول تحصيل' },
+      stockEmpty: { fr: { msg: 'Dès que vous suivez votre linge et vos consommables, Kiwi AI estime les quantités à recommander.' },
+                    en: { msg: 'Once you track your linen and supplies, Kiwi AI estimates the quantities to reorder.' },
+                    ar: { msg: 'بمجرد تتبّع البياضات والمستلزمات، يقدّر Kiwi AI الكميات الواجب طلبها.' } },
+      productsEmpty: { fr: { title: 'Top chambres & prestations', manage: 'Gérer les tarifs →', msg: 'Vos chambres et prestations les plus vendues s\'afficheront ici dès la première nuitée.' },
+                       en: { title: 'Top rooms & services', manage: 'Manage rates →', msg: 'Your best-selling rooms and services will appear here after the first night sold.' },
+                       ar: { title: 'أفضل الغرف والخدمات', manage: 'إدارة الأسعار ←', msg: 'ستظهر غرفك وخدماتك الأكثر مبيعًا هنا بعد أول ليلة.' } },
+      eveningEmpty: { fr: { lbl: 'CE SOIR · ARRIVÉES', head: 'Aucune arrivée prévue', msg: 'Vos arrivées du soir s\'afficheront ici dès votre première réservation.' },
+                      en: { lbl: 'TONIGHT · ARRIVALS', head: 'No arrivals expected', msg: 'Your evening arrivals will appear here as soon as a booking lands.' },
+                      ar: { lbl: 'الليلة · الوصول', head: 'لا وصول متوقع', msg: 'ستظهر وصولات المساء هنا بمجرد أول حجز.' } },
+      staffEmpty: { fr: { title: 'Performance équipe', sub: 'Aucun membre', msg: 'Ajoutez réception, ménage et restauration pour suivre l\'activité par personne.' },
+                    en: { title: 'Team performance', sub: 'No staff yet', msg: 'Add front desk, housekeeping and F&B to track activity per person.' },
+                    ar: { title: 'أداء الفريق', sub: 'لا موظفون بعد', msg: 'أضِف الاستقبال والتنظيف والمطعم لتتبّع النشاط لكل شخص.' } },
+      navOrders: { fr: 'Encaissements', en: 'Checkouts', ar: 'التحصيلات' },
+      askPlaceholder: { fr: 'Posez votre question sur votre établissement...', en: 'Ask a question about your property...', ar: 'اطرح سؤالاً حول منشأتك...' },
+    },
   };
 
   /* ═══════════════ VERTICAL → KPI BAND SPEC ═══════════════
@@ -853,6 +910,15 @@
       { key: 'ratio',      label: 'Ratio card / cash', i18n: 'dash.kpi.ratio' },
       { key: 'regulars',   label: 'Clients fidèles',   i18n: 'dash.kpi.loyalCustomers' },
       /* "Temps moyen en cabine" available in Personnaliser. */
+    ],
+    hotel: [
+      { key: 'occupation', label: "Taux d'occupation",         i18n: 'dash.kpi.occupancy' },
+      { key: 'adr',        label: 'ADR · prix moyen / nuit',   i18n: 'dash.kpi.adr' },
+      { key: 'revpar',     label: 'RevPAR',                    i18n: 'dash.kpi.revpar' },
+      { key: 'arrdep',     label: 'Arrivées / départs',        i18n: 'dash.kpi.arrdep' },
+      { key: 'menage',     label: 'Chambres à nettoyer',       i18n: 'dash.kpi.toClean' },
+      { key: 'mixRev',     label: 'Mix revenu · ch · resto · spa', i18n: 'dash.kpi.revMix' },
+      /* tx / panier / marge / regulars stay available in Personnaliser. */
     ],
     // Fusion = portfolio-wide KPIs. Same six tiles render in the band, but
     // the values are aggregated sums (see dateRange.js · vData fusion path).
@@ -1082,8 +1148,8 @@
   function createVenue(cfg) {
     cfg = cfg || {};
     const id = 'v' + Date.now().toString(36);
-    const TYPE_LABELS = { restaurant: 'Restaurant', boutique: 'Boutique', spa: 'Spa' };
-    const type = ['restaurant', 'boutique', 'spa'].includes(cfg.type) ? cfg.type : 'restaurant';
+    const TYPE_LABELS = { restaurant: 'Restaurant', boutique: 'Boutique', spa: 'Spa', hotel: 'Hôtel' };
+    const type = ['restaurant', 'boutique', 'spa', 'hotel'].includes(cfg.type) ? cfg.type : 'restaurant';
     const name = (cfg.name || 'Mon activité').trim();
     const location = (cfg.location || '').trim();
     VENUES[id] = {
@@ -1204,6 +1270,7 @@
     restaurant: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h2v11M11 2v20M11 11h8a3 3 0 003-3V4M19 4v17"/></svg>',
     boutique:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a4 4 0 018 0v2"/></svg>',
     spa:        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 6h6l-5 4 2 7-5-4-5 4 2-7-5-4h6z"/></svg>',
+    hotel:      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7a2 2 0 012-2h10a2 2 0 012 2v14"/><path d="M9 9h2M13 9h2M9 13h2M13 13h2"/><path d="M10 21v-3h4v3"/></svg>',
   };
 
   const DROPDOWN_CTA = {
