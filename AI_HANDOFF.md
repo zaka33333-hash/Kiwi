@@ -141,6 +141,17 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 11 (later):** `47c2002` **the whole home enters alive** — the c98e317 card entrance
+played at DOM load, hidden BEHIND the PIN lock; users saw a frozen page. Now all three
+reveal paths (PIN unlock 3 200 ms dive-in, 0000 onboard unlock, « Entrer dans la démo »
+skipToApp) add `body.cards-enter`, and every entrance animation (blocks, .settle, oppo
+cards, mix legend) is gated on it. Hover on every card upgraded to −2px lift + atlas border
+tint. Heures-de-pointe bars rise (hh-rise, `--i` stagger) and feed rows cascade on real
+data changes only — both gated `classList.toggle(x, !liveTickInProgress)` so the 3 s demo
+tick never replays them. GOTCHA: any new load-time animation on the dashboard is invisible
+(lock screen covers it) — gate it on `body.cards-enter`. oppo-cards base opacity:0 removed
+(entrance moved into keyframes + backwards fill) so cards can't be stuck invisible.
+
 **Jun 11 (late):** `f0efdfd`+`01b5149`+`6afd310` **kiwi-caisse becomes 14 POS verticals, one
 per métier** — the dashboard's venue universe (boutique, spa, hôtel, fast-food, boulangerie,
 pizzeria, traiteur, food truck, épicerie, pharmacie, librairie, fleuriste, coiffure, salle
