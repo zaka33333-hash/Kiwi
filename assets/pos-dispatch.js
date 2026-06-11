@@ -78,6 +78,11 @@
     st.textContent = `
       body.is-pos .shell, body.is-pos .topbar,
       body.is-pos .clockin-screen, body.is-pos .welcome-banner { display: none !important; }
+      /* #toast-stack ships at z-index 90 — equal to the vertical roots and below
+         the modal kit (z-100), so confirmations would paint UNDER the open
+         vertical. Lift it above both whenever a métier is active (scoped: the
+         restaurant caisse is untouched). */
+      body.is-pos #toast-stack { z-index: 200; }
       .vx-screen {
         --atlas: #0B6E4F; --riad: #053B2C;
         position: fixed; inset: 0; z-index: 90; display: none;

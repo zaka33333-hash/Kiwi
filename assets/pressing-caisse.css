@@ -16,6 +16,9 @@ body.is-pressing .shell,
 body.is-pressing .topbar,
 body.is-pressing .clockin-screen,
 body.is-pressing .welcome-banner { display: none !important; }
+/* toasts (#toast-stack, z-90) sit at the same layer as .px-screen and below
+   the modal kit — lift them above both while the pressing is active */
+body.is-pressing #toast-stack { z-index: 200; }
 
 .px-screen {
   /* brand tokens consumed by liquid-lens.js's brand skin */
