@@ -845,12 +845,17 @@
   .hero-left { position: relative; display: grid; min-width: 0; }
   .hero-left-layer {
     grid-area: 1 / 1; min-width: 0;
-    transition: opacity 360ms ease, transform 460ms cubic-bezier(0.32,0.72,0,1);
+    /* visibility rides along with a delay equal to the fade — the hidden
+     * layer leaves the compositor entirely. An opacity-0 layer kept alive
+     * under the design-2026 mix-blend sheen ghosts its GPU backing store
+     * onto the card as a faint lighter rectangle (Chrome artifact). */
+    transition: opacity 360ms ease, transform 460ms cubic-bezier(0.32,0.72,0,1), visibility 0s linear 360ms;
   }
   .hero-left-today { display: flex; flex-direction: column; justify-content: space-between; gap: 18px; }
   .hero-left-chart {
     display: flex; flex-direction: column;
     opacity: 0; transform: translateY(16px) scale(0.985); pointer-events: none;
+    visibility: hidden;
   }
   /* Chart fills all space left between its header and the legend */
   /* flex-basis:0 — the SVG's intrinsic (width × viewBox-aspect) height must
@@ -860,10 +865,13 @@
   .hero-left-chart .chart-legend { margin-top: 12px; }
   .hero-today.chart-view .hero-left-today {
     opacity: 0; transform: translateY(-16px) scale(0.985); pointer-events: none;
+    visibility: hidden;
   }
   .hero-today.chart-view .hero-left-chart {
     opacity: 1; transform: none; pointer-events: auto;
+    visibility: visible; transition-delay: 0s;
   }
+  .hero-today:not(.chart-view) .hero-left-today { visibility: visible; transition-delay: 0s; }
 
   /* Chart restyled for the dark-green card surface */
   .hero-left-chart .block-head { align-items: flex-start; }
