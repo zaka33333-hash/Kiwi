@@ -159,11 +159,16 @@
     const requested = range === 'personnalise' ? effRange() : range;
     const hasRequested = !!(table?.[v]?.[requested] ?? table?.cafeAtlas?.[requested]);
     const eff = knownRanges.includes(range) || hasRequested ? requested : 'trenteJours';
-    // A user-created venue has no demo data — hand back a zeroed clone of the
-    // cafeAtlas shape so the dashboard renders empty rather than borrowing
-    // Café Atlas's numbers via the fallback below.
+    // A user-created venue has no demo data — hand back a zeroed clone of its
+    // base type's demo sibling so the dashboard renders empty rather than
+    // borrowing live numbers via the fallback below. The shape must match the
+    // vertical (a boutique-based venue needs tauxRetour, a spa needs tips…),
+    // otherwise vertical-specific KPI tiles silently drop.
     if (window.KiwiVenue?.isCustom?.(v)) {
-      const shape = table?.cafeAtlas?.[eff] ?? table?.cafeAtlas?.trenteJours;
+      const baseIds = { restaurant: 'cafeAtlas', boutique: 'maisonMansour', spa: 'spaBahia', hotel: 'riadYasmina' };
+      const baseId = baseIds[window.KiwiVenue?.getVenueType?.() || 'restaurant'] || 'cafeAtlas';
+      const shape = table?.[baseId]?.[eff] ?? table?.[baseId]?.trenteJours
+                 ?? table?.cafeAtlas?.[eff] ?? table?.cafeAtlas?.trenteJours;
       return shape == null ? shape : zeroClone(shape);
     }
     if (v === 'fusion') {
@@ -2036,6 +2041,18 @@
   /* ═══════════════ RENDER: HERO AI PANEL (per venue) ═══════════════ */
 
   function renderHeroAi() {
+    /* Ask-bar placeholder follows the trade — a gym owner asks about their
+     * salle, not their restaurant. Defaults mirror i18n.js so switching back
+     * to a demo venue restores the stock copy without waiting for setLang. */
+    const input = document.querySelector('[data-hai-input]');
+    if (input) {
+      const trade = window.KiwiVenue?.getVocab?.('askPlaceholder');
+      const lang = getLang();
+      input.placeholder = trade
+        || (lang === 'en' ? 'Ask a question about your restaurant...'
+          : lang === 'ar' ? 'اطرح سؤالاً حول مطعمك...'
+          : 'Posez votre question sur votre restaurant...');
+    }
     const rec = window.KiwiVenue?.getHeroAiRec?.();
     if (!rec) return;
     const titleEl = document.querySelector('.hai-rec-title');
@@ -2273,7 +2290,7 @@
     regulars:   { labels: { default: 'Clients réguliers', boutique: 'Clients fidèles', spa: 'Clients fidèles' }, i18n: 'dash.kpi.regular',
                   desc: 'Clients déjà venus sur la période', derive: (d) => d.regulars || null },
     retention:  { labels: { default: 'Taux de fidélité' }, i18n: 'dash.kpi.retention',
-                  desc: 'Part de clients réguliers parmi les ventes', derive: (d) => { if (!d.tx || !d.regulars) return null; return { value: d.regulars.value / d.tx.value * 100, unit: '%', fmt: 'pct1', delta: r1(d.regulars.delta - d.tx.delta) }; } },
+                  desc: 'Part de clients réguliers parmi les ventes', derive: (d) => { if (!d.tx || !d.regulars) return null; const pct = d.tx.value ? d.regulars.value / d.tx.value * 100 : 0; return { value: pct, unit: '%', fmt: 'pct1', delta: r1(d.regulars.delta - d.tx.delta) }; } },
     newClients: { labels: { default: 'Nouveaux clients' }, i18n: 'dash.kpi.newClients',
                   desc: 'Premières visites estimées', derive: (d) => { if (!d.tx || !d.regulars) return null; return { value: Math.max(0, d.tx.value - d.regulars.value), unit: '', fmt: 'int', delta: r1(d.tx.delta - d.regulars.delta * 0.3) }; } },
     txPerDay:   { labels: { default: 'Ventes par jour', spa: 'RDV par jour' }, i18n: 'dash.kpi.txPerDay',
@@ -2357,9 +2374,21 @@
         tx:     { ...(data.tx || {}),     value: t.count,              delta: 0 },
         panier: { ...(data.panier || {}), value: Math.round(t.basket), delta: 0 },
         // Blank the string-valued KPIs zeroClone can't zero (text / unit).
-        ratio:    data.ratio    ? { ...data.ratio,    text: '—', delta: 0 } : data.ratio,
+        ratio:    data.ratio    ? { ...data.ratio,    text: '—', unit: '', delta: 0 } : data.ratio,
         regulars: data.regulars ? { ...data.regulars, value: 0, unit: '', delta: 0 } : data.regulars,
       };
+      // A custom HOTEL's band carries text/unit tiles zeroClone preserved
+      // verbatim from the riad shape — blank them, and scale the ménage
+      // denominator to the merchant's own room count (step-2 answer).
+      if (window.KiwiVenue?.getVenueType?.() === 'hotel') {
+        const rooms = +((window.KiwiVenue?.getCurrentVenueData?.() || {}).profileInfo?.rooms) || 0;
+        data = {
+          ...data,
+          arrdep: data.arrdep ? { ...data.arrdep, text: '0 / 0', delta: 0 } : data.arrdep,
+          menage: data.menage ? { ...data.menage, value: 0, unit: rooms ? `/ ${rooms}` : '', delta: 0 } : data.menage,
+          mixRev: data.mixRev ? { ...data.mixRev, text: '—', unit: '', delta: 0 } : data.mixRev,
+        };
+      }
     }
 
     // Resolve which 6 KPI keys to render — owner's saved layout, or the
@@ -2375,10 +2404,19 @@
       if (t) derived[k] = t;
     });
     data = { ...data, ...derived };
+    // A custom venue with a subtype profile speaks its trade's vocabulary:
+    // getKpiSpec returns {key,label} pairs (no i18n field) already resolved
+    // for the current language. Those labels win over the generic catalog,
+    // and the tile skips data-i18n so i18n.js doesn't overwrite them — the
+    // langchange refire re-renders the band with freshly-picked labels.
+    const profLabels = {};
+    (window.KiwiVenue?.getKpiSpec?.(venueType) || []).forEach((s) => {
+      if (s.label && !s.i18n) profLabels[s.key] = s.label;
+    });
     const spec = layout.map((k) => ({
       key: k,
-      i18n: (KPI_CATALOG[k] || {}).i18n,
-      label: kpiLabel(k, venueType, lang),
+      i18n: profLabels[k] ? '' : (KPI_CATALOG[k] || {}).i18n,
+      label: profLabels[k] || kpiLabel(k, venueType, lang),
     }));
 
     // Read previous values (for count-up animation continuity within same venue)
@@ -2412,7 +2450,7 @@
           <div class="v" data-kpi-val></div>
           <div class="d" data-kpi-delta></div>
           <svg class="sp" viewBox="0 0 120 22" preserveAspectRatio="none">
-            <path d="${sparkPath}" stroke="#0B6E4F" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="${sparkPath}" style="stroke: var(--atlas)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
           </svg>
         </div>
       `;
@@ -3420,7 +3458,7 @@
     if (wrap) {
       if (!rows || rows.length === 0) {
         /* Empty state — start of hour, no orders yet. */
-        const fe = FEED_EMPTY[lang] || FEED_EMPTY.fr;
+        const fe = tradeStr('feedEmpty', FEED_EMPTY[lang] || FEED_EMPTY.fr);
         wrap['inner' + 'HTML'] = `
           <div style="padding: 36px 14px; text-align: center; color: var(--n-500); font-size: 13px;">
             <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; background:var(--paper-soft); border-radius:999px; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; color:var(--n-600); margin-bottom:10px;">
@@ -3482,9 +3520,10 @@
     const subEl = document.querySelector('[data-feed-sub]');
     if (subEl) {
       if (isLive && rows && rows.length === 0) {
-        subEl.textContent = lang === 'en' ? 'Service open · awaiting first order'
-                          : lang === 'ar' ? 'الخدمة مفتوحة · في انتظار الطلب الأول'
-                          : 'Service ouvert · en attente de la 1ʳᵉ commande';
+        subEl.textContent = tradeStr('feedAwait',
+            lang === 'en' ? 'Service open · awaiting first order'
+          : lang === 'ar' ? 'الخدمة مفتوحة · في انتظار الطلب الأول'
+          : 'Service ouvert · en attente de la 1ʳᵉ commande');
       } else if (isLive) {
         /* Live subtitle reflects the actual row count + total today. */
         const sim = window.KiwiDemoClock?.getSimState?.();
@@ -3597,6 +3636,40 @@
       `color:var(--n-500);line-height:1.5;max-width:320px;margin-inline:auto;">${msg}</div>`;
   }
 
+  /* Grow [data-grow] elements from width 0 to their target — bars draw in
+   * on every data change. The double-rAF lets the 0-width frame paint first
+   * so the CSS width transition has something to animate from. */
+  function growBars(scope) {
+    if (!scope) return;
+    const els = scope.querySelectorAll('[data-grow]');
+    if (!els.length) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach((el) => { el.style.width = el.dataset.grow; });
+      return;
+    }
+    const apply = () => els.forEach((el) => { el.style.width = el.dataset.grow; });
+    requestAnimationFrame(() => requestAnimationFrame(apply));
+    /* rAF is frozen in hidden tabs — the timer guarantees the bars land at
+     * their real widths even if the render happened in the background. */
+    setTimeout(apply, 450);
+  }
+
+  /* Merge the current venue's trade vocabulary over a default empty-state
+   * dict — a gym's cards talk passages/adhérents, a boutique's talk ventes.
+   * KiwiVenue.getVocab returns null for demo venues and plain restaurants,
+   * so the defaults pass through untouched. */
+  function tradeStr(section, base) {
+    const v = window.KiwiVenue?.getVocab?.(section);
+    if (!v) return base;
+    return typeof base === 'string' ? v : { ...base, ...v };
+  }
+
+  /* Card titles owned by JS (not data-i18n) so the trade vocabulary can
+   * relabel them per venue. Values mirror the former i18n.js entries. */
+  const PRODUCTS_TITLE  = { fr: 'Top produits', en: 'Top products', ar: 'المنتجات الأكثر مبيعًا' };
+  const PRODUCTS_MANAGE = { fr: 'Gérer menu →', en: 'Manage menu →', ar: 'إدارة القائمة →' };
+  const STAFF_TITLE     = { fr: 'Performance équipe', en: 'Team performance', ar: 'أداء الفريق' };
+
   let _healthOrig = null, _benchOrig = null, _integOrig = null;
 
   /* Integrations — for custom venues, show the tools as available-to-connect
@@ -3681,7 +3754,7 @@
     if (!el) return;
     if (_eveningOrig == null) _eveningOrig = el['inner' + 'HTML'];
     if (window.KiwiVenue?.isCustom?.()) {
-      const t = EVENING_EMPTY[getLang()] || EVENING_EMPTY.fr;
+      const t = tradeStr('eveningEmpty', EVENING_EMPTY[getLang()] || EVENING_EMPTY.fr);
       el['inner' + 'HTML'] =
         `<div class="lbl">${t.lbl}</div>` +
         `<div style="padding:28px 4px 8px;text-align:center;">` +
@@ -3717,7 +3790,7 @@
     if (!el) return;
     if (_stockOrig == null) _stockOrig = el['inner' + 'HTML'];
     if (window.KiwiVenue?.isCustom?.()) {
-      const t = STOCK_EMPTY[getLang()] || STOCK_EMPTY.fr;
+      const t = tradeStr('stockEmpty', STOCK_EMPTY[getLang()] || STOCK_EMPTY.fr);
       el['inner' + 'HTML'] =
         `<div class="block-head" style="margin-bottom:14px;"><div>` +
         `<div class="t">${t.title}</div></div></div>` +
@@ -3829,7 +3902,7 @@
     if (subEl) subEl.textContent = benchLabels.sub || BENCH_SUB[lang]?.[currentRange] || BENCH_SUB.fr[currentRange];
 
     const rankEl = document.querySelector('[data-bench-rank]');
-    if (rankEl) rankEl.textContent = `#${data.rank}`;
+    if (rankEl) animateNumber(rankEl, parseIntFromEl(rankEl), data.rank, { duration: 650, format: v => `#${Math.round(v)}` });
 
     // Match the rank-sub wording to the vertical
     const venueType = window.KiwiVenue?.getVenueType?.() || 'restaurant';
@@ -3840,16 +3913,17 @@
 
     const comp = document.querySelector('[data-bench-comp]');
     if (comp) {
-      comp.innerHTML = data.rows.map(r => `
-        <div class="bench-row">
+      comp.innerHTML = data.rows.map((r, i) => `
+        <div class="bench-row" style="--i:${i};">
           <div class="lbl">${trStr(r.lbl, BENCH_LBL)}</div>
           <div class="bench-bar">
-            <div class="you" style="width: ${r.you}%;"></div>
+            <div class="you" style="width: 0%;" data-grow="${r.you}%"></div>
             <div class="peer" style="left: ${r.peer}%;"></div>
           </div>
           <div class="v"${r.warn ? ' style="color: var(--warning);"' : ''}>${r.v}</div>
         </div>
       `).join('');
+      growBars(comp);
     }
   }
 
@@ -3860,25 +3934,31 @@
     const effective = effRange();
     const isCustom = !!window.KiwiVenue?.isCustom?.();
     const data = isCustom ? [] : vData(productsByVenue, currentRange);
+    const pe = tradeStr('productsEmpty', PRODUCTS_EMPTY[lang] || PRODUCTS_EMPTY.fr);
+    const titleEl = document.querySelector('[data-products-title]');
+    if (titleEl) titleEl.textContent = (isCustom && pe.title) || PRODUCTS_TITLE[lang] || PRODUCTS_TITLE.fr;
+    const manageEl = document.querySelector('[data-products-manage]');
+    if (manageEl) manageEl.textContent = (isCustom && pe.manage) || PRODUCTS_MANAGE[lang] || PRODUCTS_MANAGE.fr;
     const list = document.querySelector('[data-products-list]');
     if (list && isCustom) {
-      list.innerHTML = emptyListBody((PRODUCTS_EMPTY[lang] || PRODUCTS_EMPTY.fr).msg);
+      list.innerHTML = emptyListBody(pe.msg);
     } else if (list && data) {
       list.innerHTML = data.map((p, i) => `
-        <div class="prod-row">
+        <div class="prod-row" style="--i:${i};">
           <div class="rank${i === 0 ? ' top' : ''}">${p.rank}</div>
           <div class="info">
             <div class="n">${p.name}</div>
             <div class="r">${p.sub}</div>
           </div>
-          <div class="mini-bar"><div style="width: ${p.bar}%;"></div></div>
+          <div class="mini-bar"><div style="width: 0%;" data-grow="${p.bar}%"></div></div>
           <div class="sales">${p.sales}</div>
         </div>
       `).join('');
+      growBars(list);
     }
     const sub = document.querySelector('[data-products-sub]');
     if (sub) sub.textContent = isCustom
-      ? (PRODUCTS_EMPTY[lang] || PRODUCTS_EMPTY.fr).sub
+      ? pe.sub
       : (PRODUCTS_SUB[lang]?.[currentRange] || PRODUCTS_SUB.fr[currentRange]);
   }
 
@@ -3889,12 +3969,15 @@
     const effective = effRange();
     const isCustom = !!window.KiwiVenue?.isCustom?.();
     const data = isCustom ? [] : vData(staffByVenue, currentRange);
+    const se = tradeStr('staffEmpty', STAFF_EMPTY[lang] || STAFF_EMPTY.fr);
+    const titleEl = document.querySelector('[data-staff-title]');
+    if (titleEl) titleEl.textContent = (isCustom && se.title) || STAFF_TITLE[lang] || STAFF_TITLE.fr;
     const list = document.querySelector('[data-staff-list]');
     if (list && isCustom) {
-      list.innerHTML = emptyListBody((STAFF_EMPTY[lang] || STAFF_EMPTY.fr).msg);
+      list.innerHTML = emptyListBody(se.msg);
     } else if (list && data) {
-      list.innerHTML = data.map(s => `
-        <div class="staff-row">
+      list.innerHTML = data.map((s, i) => `
+        <div class="staff-row" style="--i:${i};">
           <div class="av ${s.cls}"${s.cls === 'offline' ? ' style="background: var(--n-400);"' : ''}>${s.av}</div>
           <div class="info">
             <div class="n">${s.name}</div>
@@ -3907,7 +3990,7 @@
     }
     const sub = document.querySelector('[data-staff-sub]');
     if (sub) sub.textContent = isCustom
-      ? (STAFF_EMPTY[lang] || STAFF_EMPTY.fr).sub
+      ? se.sub
       : (STAFF_SUB[lang]?.[currentRange] || STAFF_SUB.fr[currentRange]);
   }
 
@@ -3929,6 +4012,7 @@
       // Re-render everything that has lang-dependent text
       renderSelector();
       renderHero();
+      renderHeroAi();
       renderGoal();
       renderHeatmap();
       renderKpiBand();

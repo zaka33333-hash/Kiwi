@@ -102,8 +102,8 @@
   /* Venue dropdown — floats inside the sidebar, just below the loc-switch */
   .venue-dropdown {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0;
-    background: #fff;
-    border: 1px solid #E5E5E5;
+    background: var(--surface);
+    border: 1px solid var(--n-200);
     border-radius: 12px;
     padding: 6px;
     z-index: 30;
@@ -121,8 +121,9 @@
     text-align: left; cursor: pointer;
     transition: background 150ms ease-out;
   }
-  .venue-row:hover:not(.active) { background: #F7F7F5; }
-  .venue-row.active { background: #F4F4F2; }
+  .venue-row:hover:not(.active) { background: var(--n-100); }
+  .venue-row:active { background: var(--paper-soft); }
+  .venue-row.active { background: var(--n-100); }
   .venue-row-icon { color: var(--atlas); display: flex; align-items: center; justify-content: center; }
   .venue-row-body { min-width: 0; }
   .venue-row-name { font-size: 13px; font-weight: 500; color: var(--ink); letter-spacing: -0.005em; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -437,7 +438,7 @@
   /* ─────────────── KPI BAND ─────────────── */
   .kpi-band-head { display: flex; justify-content: flex-end; margin-bottom: 8px; }
   .kpi-customize { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500;
-    color: var(--n-600); background: #fff; border: 1px solid var(--n-200); border-radius: 999px;
+    color: var(--n-600); background: var(--surface); border: 1px solid var(--n-200); border-radius: 999px;
     padding: 6px 12px; cursor: pointer; transition: all 140ms; }
   .kpi-customize:hover { color: var(--atlas); border-color: var(--atlas); }
   .kpi-customize svg { width: 13px; height: 13px; }
@@ -534,7 +535,7 @@
   .kpi-m:hover { transform: translateY(-2px); box-shadow: 0 12px 26px -16px rgba(10, 15, 13, 0.32); }
   .kpi-m:active { transform: translateY(0); transition-duration: 90ms; }
   /* Clickable list rows + integration cards — a crisp, consistent press. */
-  .feed-row, .integ-card { transition: background 140ms ease, border-color 140ms ease, transform 150ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .feed-row, .integ-card { transition: background 140ms ease, border-color 140ms ease, transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1); }
   .feed-row:active, .integ-card:active { transform: scale(0.992); }
   /* Buttons — one press feel across the dashboard. */
   .kb, .icon-btn { transition: transform 130ms cubic-bezier(0.16, 1, 0.3, 1), background 150ms ease, box-shadow 150ms ease, border-color 150ms ease; }
@@ -550,6 +551,33 @@
 
   /* ─────────────── BLOCK STYLE ─────────────── */
   .block { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 22px 24px; }
+  /* ── Cards alive: entrance choreography + hover lift + growing visuals ──
+   * Every home card breathes: it fades up on load (staggered down each
+   * column), lifts gently under the cursor, and its bars/rows draw in on
+   * every data change (range, venue, language). The live 3s tick only
+   * re-renders hero/KPI/chart/feed, so these never replay on their own. */
+  /* html body — outranks theme.css's `html .block` color-transition rule;
+   * the color transitions are merged in so theme switching stays smooth. */
+  html body .block { transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease,
+    transform 220ms cubic-bezier(0.32, 0.72, 0, 1), box-shadow 220ms ease; }
+  .block:hover { transform: translateY(-1px); box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--ink) 26%, transparent); }
+  @keyframes card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .dash-col .block, .row .block { animation: card-in 480ms cubic-bezier(0.32, 0.72, 0, 1) backwards; }
+  .dash-col .block:nth-child(1) { animation-delay: 60ms; }
+  .dash-col .block:nth-child(2) { animation-delay: 140ms; }
+  .dash-col .block:nth-child(3) { animation-delay: 220ms; }
+  .dash-col .block:nth-child(4) { animation-delay: 300ms; }
+  @keyframes row-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .prod-row, .staff-row, .bench-row {
+    animation: row-in 380ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 45ms + 60ms);
+  }
+  .mini-bar > div, .bench-bar .you { transition: width 720ms cubic-bezier(0.16, 1, 0.3, 1); }
+  @media (prefers-reduced-motion: reduce) {
+    .block, .dash-col .block, .row .block, .prod-row, .staff-row, .bench-row { animation: none; transition: none; }
+    .block:hover { transform: none; box-shadow: none; }
+    .mini-bar > div, .bench-bar .you { transition: none; }
+  }
   .block-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
   .block-head .t { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
   .block-head .t .pulse-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s infinite; }
@@ -562,7 +590,7 @@
   .rev-hero-delta { display: flex; align-items: center; gap: 6px; margin-top: 6px; min-height: 18px;
     font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .rev-hero-delta.up { color: var(--atlas); }
-  .rev-hero-delta.down { color: #C2362B; }
+  .rev-hero-delta.down { color: var(--danger); }
   .rev-hero-delta .lbl { color: var(--n-500); font-weight: 400; margin-inline-start: 3px; }
   .rev-hero-delta svg { width: 12px; height: 12px; }
   .rev-card .block-head .s { margin-top: 8px; }
@@ -588,6 +616,27 @@
   .row.r-3 { grid-template-columns: repeat(3, 1fr); }
   .row.r-65-35 { grid-template-columns: 1.85fr 1fr; }
   @media (max-width: 1100px) { .row.r-2-1, .row.r-1-1, .row.r-3, .row.r-65-35 { grid-template-columns: 1fr; } }
+  /* Main column + side rail: two independent stacks — each card sits right
+   * under its column sibling, regardless of the other column's height. */
+  .dash-cols { display: grid; grid-template-columns: 1.85fr 1fr; gap: 14px; align-items: start; margin-bottom: 16px; }
+  .dash-cols--even { grid-template-columns: 1fr 1fr; }
+  .dash-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  @media (max-width: 1100px) {
+    /* Single column: dissolve the rails and interleave by priority
+     * (orders are scoped per .dash-cols container, so the two instances
+     * — home and analyses — don't interfere). */
+    .dash-cols { display: flex; flex-direction: column; gap: 16px; }
+    .dash-col { display: contents; }
+    .dash-cols .block:has([data-hh-row]) { order: 1; }
+    .dash-cols [data-mix-block] { order: 2; }
+    .dash-cols .block:has([data-feed]) { order: 3; }
+    .dash-cols .settle { order: 4; }
+    .dash-cols [data-stock-card] { order: 5; }
+    .dash-cols [data-health-card] { order: 1; }
+    .dash-cols [data-bench-card] { order: 2; }
+    .dash-cols .block:has([data-products-list]) { order: 3; }
+    .dash-cols .block:has([data-staff-list]) { order: 4; }
+  }
 
   /* ─────────── SECONDARY-ANALYSIS DISCLOSURE ───────────
    * The default dashboard leads with the day's decisions; deeper
@@ -669,7 +718,7 @@
   .chart-legend label { display: inline-flex; align-items: center; gap: 8px; }
   .chart-legend .leg-line { display: inline-block; width: 14px; height: 2px; border-radius: 2px; flex-shrink: 0; }
   .chart-legend .leg-line-primary { background: var(--riad); }
-  .chart-legend .leg-line-compare { background: #9A9A9A; }
+  .chart-legend .leg-line-compare { background: var(--n-400); }
   /* Chart entrance — pathLength=1 trick keeps duration path-length-independent */
   .rev-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: rev-draw 1200ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   @keyframes rev-draw { to { stroke-dashoffset: 0; } }
@@ -742,6 +791,7 @@
     color: var(--paper);
     box-shadow: 0 4px 14px -4px rgba(11,110,79,0.45), 0 1px 2px rgba(0,0,0,0.04);
   }
+  .cmp-btn:active, .hero-view-toggle:active { transform: scale(0.97); }
   .cmp-caption {
     font-size: 11px; font-style: italic; color: var(--n-500);
     margin-top: 4px; letter-spacing: 0.01em;
@@ -857,13 +907,15 @@
   .hh-cell.future { opacity: 0.32; filter: saturate(0.5); }
   .hh-cell.now    { box-shadow: 0 0 0 2px var(--mint), 0 0 16px -2px rgba(125,242,176,0.6); }
   .hh-cell:hover { transform: scale(1.05); z-index: 2; }
-  .hh-cell.i0 { background: #E8F5EC; }
-  .hh-cell.i1 { background: #B9E5CC; }
-  .hh-cell.i2 { background: #7FD4A4; }
-  .hh-cell.i3 { background: #3FB57A; }
-  .hh-cell.i4 { background: #0B6E4F; }
+  /* Ramp derived from tokens — inverts cleanly in dark mode (fusion-mode
+   * keeps its own deliberate mint-topped ramp below). */
+  .hh-cell.i0 { background: color-mix(in srgb, var(--atlas) 8%, var(--surface)); }
+  .hh-cell.i1 { background: color-mix(in srgb, var(--atlas) 24%, var(--surface)); }
+  .hh-cell.i2 { background: color-mix(in srgb, var(--atlas) 48%, var(--surface)); }
+  .hh-cell.i3 { background: color-mix(in srgb, var(--atlas) 72%, var(--surface)); }
+  .hh-cell.i4 { background: var(--atlas); }
   .hh-h { font-size: 11px; color: var(--n-500); font-weight: 500; margin-top: 8px; font-family: var(--mono); text-align: center; letter-spacing: 0.02em; }
-  .hh-tooltip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid var(--n-200); border-radius: 8px; padding: 8px 12px; box-shadow: 0 8px 20px -8px rgba(10,15,13,0.15), 0 1px 3px rgba(10,15,13,0.06); opacity: 0; pointer-events: none; transition: opacity 150ms; white-space: nowrap; z-index: 3; }
+  .hh-tooltip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--n-200); border-radius: 8px; padding: 8px 12px; box-shadow: 0 8px 20px -8px rgba(10,15,13,0.15), 0 1px 3px rgba(10,15,13,0.06); opacity: 0; pointer-events: none; transition: opacity 150ms; white-space: nowrap; z-index: 3; }
   .hh-tooltip .hour { font-size: 12px; font-weight: 600; color: var(--ink); }
   .hh-tooltip .met { font-size: 12px; color: var(--n-500); margin-top: 1px; font-feature-settings: 'tnum' 1; }
   .hh-tooltip .met b { color: var(--ink); font-weight: 500; }
@@ -1019,7 +1071,7 @@
   .integ-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 4px; }
   @media (max-width: 1000px) { .integ-grid { grid-template-columns: 1fr 1fr; } }
   .integ-card { background: #fff; border: 1px solid var(--n-200); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 12px; transition: border-color 150ms; cursor: pointer; }
-  .integ-card:hover { border-color: var(--n-400); }
+  .integ-card:hover { border-color: var(--n-400); transform: translateY(-2px); box-shadow: 0 12px 26px -16px rgba(10, 15, 13, 0.32); }
   .integ-card .logo { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; letter-spacing: -0.04em; color: #fff; flex-shrink: 0; font-size: 15px; }
   .integ-card .info { flex: 1; min-width: 0; }
   .integ-card .n { font-weight: 500; font-size: 13.5px; letter-spacing: -0.005em; }
@@ -2005,7 +2057,8 @@
     text-align: left;
     transition: background 120ms;
   }
-  .venue-action:hover { background: #F7F7F5; }
+  .venue-action:hover { background: var(--n-100); }
+  .venue-action:active { background: var(--paper-soft); }
   .venue-action.fusion-cta {
     background: linear-gradient(135deg, #053B2C 0%, #0B6E4F 100%);
     color: #fff;
@@ -2587,6 +2640,46 @@
     background: var(--paper-soft);
     border-color: rgba(125,242,176,0.10);
   }
+
+  /* ── Exclusif Ultra band — the 1 499 pillars, lived in-product.
+   * Only ever visible inside fusion mode (dark palette). ── */
+  .fs-ultra-mark { color: var(--mint); }
+  .fs-ultra { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 980px) { .fs-ultra { grid-template-columns: 1fr; } }
+  .fs-ultra-card {
+    position: relative; overflow: hidden;
+    background: linear-gradient(165deg, rgba(125,242,176,0.06), transparent 45%), var(--paper-soft);
+    border: 1px solid rgba(125,242,176,0.16);
+    border-radius: 14px; padding: 18px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .fs-ultra-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mint); margin-bottom: 10px; }
+  .fs-ultra-t { font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .fs-ultra-d { font-size: 12.5px; color: var(--n-500); line-height: 1.55; }
+  .fs-ultra-proj { margin-top: 12px; font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--mint); }
+  .fs-ultra-cta {
+    margin-top: 14px; display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 14px; border-radius: 10px;
+    border: 1px solid rgba(125,242,176,0.35); background: rgba(125,242,176,0.10);
+    color: var(--mint); font: 500 12.5px var(--sans); cursor: pointer;
+    transition: background 160ms cubic-bezier(0.32,0.72,0,1), transform 150ms cubic-bezier(0.34,1.45,0.5,1);
+  }
+  .fs-ultra-cta:hover { background: rgba(125,242,176,0.16); }
+  .fs-ultra-cta:active { transform: scale(0.97); }
+  .fs-ultra-am { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .fs-ultra-av {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(150deg, var(--atlas), var(--riad)); color: var(--mint);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 16px -8px rgba(11,110,79,0.6);
+  }
+  .fs-ultra-am-n { font-weight: 600; font-size: 13.5px; }
+  .fs-ultra-am-r { font-size: 11.5px; color: var(--n-500); margin-top: 1px; }
+  .fs-ultra-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: var(--n-500); }
+  .fs-ultra-row:last-of-type { border-bottom: 0; }
+  .fs-ultra-row b { font-family: var(--mono); font-weight: 500; font-size: 11.5px; color: var(--ink); }
+  .fs-ultra-row b.fs-ultra-ok { color: var(--mint); }
   .fs-intel-ico {
     width: 32px; height: 32px;
     border-radius: 9px;
@@ -3065,7 +3158,10 @@
   .eq-table td { padding: 12px 11px; border-bottom: 1px solid var(--n-200); font-size: 13px; vertical-align: middle; color: var(--ink); }
   .eq-table tbody tr { transition: background 130ms; cursor: default; }
   .eq-table tbody tr:nth-child(even) { background: var(--n-50); }
-  .eq-table tbody tr:hover { background: var(--paper-soft); }
+  .eq-table tbody tr { transition: background 140ms cubic-bezier(0.32, 0.72, 0, 1); }
+  .eq-table tbody tr:hover { background: color-mix(in srgb, var(--atlas) 5%, var(--surface)); }
+  .eq-table tbody td:first-child { border-start-start-radius: 10px; border-end-start-radius: 10px; }
+  .eq-table tbody td:last-child { border-start-end-radius: 10px; border-end-end-radius: 10px; }
   .eq-table tbody tr.eq-row-in { animation: eq-fade 200ms ease-out; }
   @keyframes eq-fade { from { opacity: 0; } to { opacity: 1; } }
   .eq-table tbody tr.eq-row-out { animation: eq-fadeout 150ms ease-in forwards; }
@@ -3352,9 +3448,12 @@
   .mi-list { width: 100%; border-collapse: collapse; min-width: 800px; }
   .mi-list th { text-align: left; font-size: 9.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); padding: 0 10px 11px; white-space: nowrap; }
   .mi-list td { padding: 11px 10px; border-bottom: 1px solid var(--n-200); font-size: 12.5px; color: var(--ink); vertical-align: middle; }
-  .mi-list tbody tr { transition: background 130ms, opacity 280ms; cursor: pointer; }
+  .mi-list tbody tr { transition: background 140ms cubic-bezier(0.32, 0.72, 0, 1), opacity 280ms; cursor: pointer; }
+  .mi-list tbody td:first-child { border-start-start-radius: 10px; border-end-start-radius: 10px; }
+  .mi-list tbody td:last-child { border-start-end-radius: 10px; border-end-end-radius: 10px; }
+  .mi-list tbody tr:active { background: color-mix(in srgb, var(--atlas) 9%, var(--surface)); }
   .mi-list tbody tr:nth-child(even) { background: var(--n-50); }
-  .mi-list tbody tr:hover { background: var(--paper-soft); }
+  .mi-list tbody tr:hover { background: color-mix(in srgb, var(--atlas) 5%, var(--surface)); }
   .mi-list tbody tr.removing { opacity: 0; }
 
   /* ── Tab 1 · modifiers + stations ─────────────────────────────────────── */
@@ -5116,8 +5215,14 @@
       </div>
       <div class="kpi-band" data-kpi-band></div>
 
+      <!-- ═══ POUR VOUS · opportunity cards (assets/oppo-cards.js) ═══ -->
+      <div class="oppo-band" data-oppo-band></div>
+
       <!-- ═══ HEATMAP (65) + PAYMENT MIX (35) ═══ -->
-      <div class="row r-65-35">
+      <!-- ═══ MAIN COLUMN + SIDE RAIL — two independent stacks, so every
+           card packs right under its column sibling (no row-height holes) ═══ -->
+      <div class="dash-cols">
+        <div class="dash-col">
         <div class="block">
           <div class="block-head">
             <div>
@@ -5145,34 +5250,7 @@
           </div>
         </div>
 
-        <div class="block" data-mix-block>
-          <div class="block-head">
-            <div>
-              <div class="t" data-i18n="dash.mix.title">Mix de paiement</div>
-              <div class="s" data-mix-sub>Aujourd'hui</div>
-            </div>
-          </div>
-          <div class="donut-row">
-            <div style="position: relative; width: 150px; height: 150px;">
-              <svg width="150" height="150" viewBox="0 0 42 42" data-mix-donut>
-                <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#EBE8E0" stroke-width="4.6" pathLength="100"/>
-              </svg>
-              <div class="ring-center">
-                <div class="score" style="font-size: 22px;" data-mix-center-amt>16 590</div>
-                <div class="slash" data-i18n="dash.mix.center.unit">MAD carte</div>
-              </div>
-            </div>
-            <div class="donut-legend" data-mix-legend></div>
-          </div>
-          <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--n-200); display: flex; justify-content: space-between; font-size: 12.5px;">
-            <div style="color: var(--n-500);" data-i18n="dash.mix.subscription">Abonnement Kiwi Pro</div>
-            <div style="font-family: var(--mono); font-weight: 500; color: var(--atlas);" data-i18n="dash.mix.subscription.price">399 MAD/mois · tout inclus</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ LIVE FEED + SETTLEMENT ═══ -->
-      <div class="row r-2-1">
+        <!-- (Mix de paiement lives in the side rail below) -->
         <!-- Live transactions feed -->
         <div class="block">
           <div class="block-head">
@@ -5191,11 +5269,37 @@
                in as the simulated day progresses. -->
           <div class="feed" data-feed></div>
         </div>
+        </div><!-- /.dash-col · main -->
 
-        <!-- Service du soir + Stock à recommander
-             (replaces the payment-processing settle + calendar — Kiwi 1.0
-              has no processing license · see KIWI_2.0_ROADMAP.md) -->
-        <div style="display: flex; flex-direction: column; gap: 14px;">
+        <!-- Side rail · Mix + Service du soir + Stock à recommander
+             (settle replaces payment-processing — Kiwi 1.0 has no
+              processing license · see KIWI_2.0_ROADMAP.md) -->
+        <div class="dash-col">
+
+          <div class="block" data-mix-block>
+            <div class="block-head">
+              <div>
+                <div class="t" data-i18n="dash.mix.title">Mix de paiement</div>
+                <div class="s" data-mix-sub>Aujourd'hui</div>
+              </div>
+            </div>
+            <div class="donut-row">
+              <div style="position: relative; width: 150px; height: 150px;">
+                <svg width="150" height="150" viewBox="0 0 42 42" data-mix-donut>
+                  <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#EBE8E0" stroke-width="4.6" pathLength="100"/>
+                </svg>
+                <div class="ring-center">
+                  <div class="score" style="font-size: 22px;" data-mix-center-amt>16 590</div>
+                  <div class="slash" data-i18n="dash.mix.center.unit">MAD carte</div>
+                </div>
+              </div>
+              <div class="donut-legend" data-mix-legend></div>
+            </div>
+            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--n-200); display: flex; justify-content: space-between; font-size: 12.5px;">
+              <div style="color: var(--n-500);" data-i18n="dash.mix.subscription">Abonnement Kiwi Pro</div>
+              <div style="font-family: var(--mono); font-weight: 500; color: var(--atlas);" data-i18n="dash.mix.subscription.price">399 MAD/mois · tout inclus</div>
+            </div>
+          </div>
 
           <!-- Service du soir — uses the .settle dark-atlas card -->
           <div class="settle" data-evening-card>
@@ -5297,8 +5401,8 @@
               <a href="#" data-action="view-suppliers" style="font-size: 12.5px; color: var(--atlas); font-weight: 500;" data-i18n="dash.stock.suppliers">Fournisseurs &amp; historique des commandes →</a>
             </div>
           </div>
-        </div>
-      </div>
+        </div><!-- /.dash-col · side -->
+      </div><!-- /.dash-cols -->
 
       <!-- ═══ SECONDARY ANALYSIS — collapsed by default (Codex roast:
        *   keep the first screen on the day's decisions, deeper analysis
@@ -5317,7 +5421,8 @@
       <div class="dash-more" id="dash-more" data-dash-more inert>
 
       <!-- ═══ HEALTH + BENCHMARK ═══ -->
-      <div class="row r-1-1">
+      <div class="dash-cols dash-cols--even">
+        <div class="dash-col">
         <!-- Health score -->
         <div class="block" data-health-card>
           <div class="block-head">
@@ -5368,6 +5473,23 @@
         </div>
 
         <!-- Benchmark -->
+        <!-- Top products -->
+        <div class="block">
+          <div class="block-head">
+            <div>
+              <div class="t" data-products-title>Top produits</div>
+              <div class="s" data-products-sub>Aujourd'hui · tous les items</div>
+            </div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+              <a href="#" data-action="view-margins" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.margins">Marges →</a>
+              <a href="#" data-action="menu-edit" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-products-manage>Gérer menu →</a>
+            </div>
+          </div>
+          <div class="prod-list" data-products-list></div>
+        </div>
+        </div><!-- /.dash-col A -->
+
+        <div class="dash-col">
         <div class="block" data-bench-card>
           <div class="block-head">
             <div>
@@ -5384,37 +5506,20 @@
             <span data-i18n="dash.bench.summary">Vous surperformez <b>4 cafés sur 5</b> sur Casablanca. Le seul levier faible : le <b>pourboire</b>.</span> <a href="#" data-action="tip-prompt" style="color: var(--atlas); font-weight: 500;" data-i18n="dash.bench.autoPrompt">Activer prompt auto →</a>
           </div>
         </div>
-      </div>
-
-      <!-- ═══ PRODUCTS + STAFF ═══ -->
-      <div class="row r-1-1">
-        <!-- Top products -->
-        <div class="block">
-          <div class="block-head">
-            <div>
-              <div class="t" data-i18n="dash.products.title">Top produits</div>
-              <div class="s" data-products-sub>Aujourd'hui · tous les items</div>
-            </div>
-            <div style="display: flex; gap: 14px; align-items: center;">
-              <a href="#" data-action="view-margins" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.margins">Marges →</a>
-              <a href="#" data-action="menu-edit" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.products.manageMenu">Gérer menu →</a>
-            </div>
-          </div>
-          <div class="prod-list" data-products-list></div>
-        </div>
 
         <!-- Staff -->
         <div class="block">
           <div class="block-head">
             <div>
-              <div class="t" data-i18n="dash.staff.title">Performance équipe</div>
+              <div class="t" data-staff-title>Performance équipe</div>
               <div class="s" data-staff-sub>Service en cours · PIN connecté</div>
             </div>
             <a href="#" data-action="team-settings" style="font-size: 13px; color: var(--atlas); font-weight: 500;" data-i18n="dash.staff.settings">Paramètres équipe →</a>
           </div>
           <div data-staff-list></div>
         </div>
-      </div>
+        </div><!-- /.dash-col B -->
+      </div><!-- /.dash-cols even -->
 
       <!-- ═══ INTEGRATIONS ═══ -->
       <div class="block" data-integ-card>
@@ -5529,6 +5634,18 @@
           <div class="fs-intel" data-fs-intel></div>
         </div>
 
+        <!-- ── Section 5b · Exclusif Ultra — the pillars the 1 499 buys,
+             lived in-product instead of bullet-pointed: actionable portfolio
+             AI, the dedicated account manager, the enterprise API. Painted
+             trilingually by renderFusionView(). ──────────────────────── -->
+        <div class="fs-section fs-ultra-section">
+          <div class="fs-section-head">
+            <h3><span class="fs-ultra-mark">✦</span> <span data-i18n="dash.fusion.ultra.title">Exclusif Ultra</span></h3>
+            <span class="fs-section-sub" data-fs-ultra-roi></span>
+          </div>
+          <div class="fs-ultra" data-fs-ultra></div>
+        </div>
+
         <!-- ── Section 6 · Alerts (conditional) ────────────────────── -->
         <div class="fs-section fs-alerts-section" data-fs-alerts hidden></div>
 
@@ -5599,6 +5716,7 @@
 <script src="assets/i18n.js" defer></script>
 <script src="assets/interactive.js" defer></script>
 <script src="assets/features.js" defer></script>
+<script src="assets/oppo-cards.js" defer></script>
 <script src="assets/insights.js" defer></script>
 <script src="assets/growth-kit.js" defer></script>
 <script src="assets/growth-ordering.js" defer></script>

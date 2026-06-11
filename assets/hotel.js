@@ -301,20 +301,57 @@
   let openModal = null;
   const K = () => window.Kiwi;
 
+  /* ═══════════════ CUSTOM (0000-SESSION) HOTELS ═══════════════
+   * A merchant-created hotel (onboarding wizard, type 'hotel') gets its OWN
+   * rooms + folios — sized by the step-2 « Nombre de chambres » answer —
+   * never the Riad Yasmina demo data. State is per-venue, session-local. */
+  const isCustomHotel = () => {
+    const KV = window.KiwiVenue;
+    return !!(KV && KV.isCustom && KV.isCustom() && KV.getVenueType && KV.getVenueType() === 'hotel');
+  };
+  const CUSTOM_HX = {}; // venueId → { rooms, folios, baseRate, count, sold }
+  function cuState() {
+    const KV = window.KiwiVenue;
+    const id = KV.getVenue();
+    if (!CUSTOM_HX[id]) {
+      const vd = KV.getCurrentVenueData() || {};
+      const count = Math.min(120, Math.max(1, parseInt(vd.profileInfo && vd.profileInfo.rooms, 10) || 12));
+      const rooms = {};
+      for (let n = 1; n <= count; n++) rooms[n] = { n, type: 'std', status: 'libre', hk: 'clean', guest: null, meta: 'Libre · propre' };
+      CUSTOM_HX[id] = { rooms, folios: {}, baseRate: 900, count, sold: 0 };
+    }
+    return CUSTOM_HX[id];
+  }
+  /* Venue-routed accessors — the shared folio/rack/walk-in engine reads
+   * through these so it operates on whichever hotel is active. */
+  const R = () => (isCustomHotel() ? cuState().rooms : ROOMS);
+  const F = () => (isCustomHotel() ? cuState().folios : FOLIOS);
+  const roomTypeOf = (n) => (isCustomHotel() ? { name: 'Chambre', base: cuState().baseRate } : TYPES[ROOMS[n].type]);
+  const totalRooms = () => (isCustomHotel() ? cuState().count : 24);
+  const vName = () => ((window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && window.KiwiVenue.getCurrentVenueData()) || {}).name || 'Votre établissement';
+  /* A custom hotel's encaissements are REAL — feed the merchant sales store
+   * so the hero, KPI band and feed recompute from them (same pipeline as
+   * the POS «Nouvelle vente»). */
+  function recordSale(amount) {
+    const KV = window.KiwiVenue;
+    if (!isCustomHotel() || !window.KiwiSales || !KV) return;
+    if (amount > 0) window.KiwiSales.add(KV.getVenue(), { amount: Math.round(amount), method: 'card' });
+  }
+
   function page(pageKey, title, subtitle, bodyFn) {
-    const d = K().drawer({ title, subtitle, fullpage: true, body: bodyFn() });
-    openDrawer = { el: d.el, page: pageKey, bodyFn, close: d.close };
-    return d;
+    const p = K().appPage(pageKey, { title, subtitle, body: bodyFn() });
+    openDrawer = { el: p.el, page: pageKey, bodyFn, close: p.close };
+    return p;
   }
   function rerender() {
     if (!openDrawer) return;
-    const body = openDrawer.el.querySelector('.kiwi-drawer-body');
+    const body = openDrawer.el.querySelector('.genpage-body') || openDrawer.el.querySelector('.kiwi-drawer-body');
     if (body) body.innerHTML = openDrawer.bodyFn();
   }
 
   /* ═══════════════ FOLIO MODAL · la note unifiée ═══════════════ */
   function folioModalHtml(room, highlightNew) {
-    const f = FOLIOS[room];
+    const f = F()[room];
     if (!f) return '<div style="padding:20px;color:var(--n-500);font-size:13px;">Aucun folio ouvert pour cette chambre.</div>';
     const total = folioTotal(f);
     const paid = folioPaid(f);
@@ -337,7 +374,7 @@
     return `
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
         ${srcPill(f.src)}
-        <span style="font-size:12px;color:var(--n-500);">${f.pax} pers · séjour ${f.nights} nuits · ${TYPES[ROOMS[room].type].name}</span>
+        <span style="font-size:12px;color:var(--n-500);">${f.pax} pers · séjour ${f.nights} nuits · ${roomTypeOf(room).name}</span>
       </div>
       ${gHtml}
       <div class="hx-fol-tot"><span>Total folio</span><span class="am">${MAD(total)}</span></div>
@@ -349,7 +386,7 @@
       </div>`;
   }
   function openFolio(room, highlightNew) {
-    const f = FOLIOS[room];
+    const f = F()[room];
     const m = K().modal({
       tag: 'FOLIO · CH. ' + room,
       title: f ? f.guest : 'Chambre ' + room,
@@ -370,12 +407,29 @@
     { label: 'Gommage beldi', amt: 250, src: 'spa' },
     { label: 'Rituel hammam + massage duo', amt: 980, src: 'spa' },
   ];
+  /* Custom hotel → generic picker shaped by the step-2 profile (resto / spa
+   * answered ⇒ their item families appear); riad → the Café-Atlas-DNA carte. */
+  function quickItems() {
+    if (!isCustomHotel()) return QUICK_ITEMS;
+    const p = ((window.KiwiVenue.getCurrentVenueData() || {}).profileInfo) || {};
+    const items = [];
+    if (p.resto || p.resto === undefined) items.push(
+      { label: 'Petit-déjeuner', amt: 80, src: 'resto' },
+      { label: 'Dîner · couvert', amt: 240, src: 'resto' },
+    );
+    if (p.spa) items.push({ label: 'Soin spa / hammam', amt: 300, src: 'spa' });
+    items.push({ label: 'Minibar', amt: 45, src: 'resto' }, { label: 'Late check-out', amt: 150, src: 'fee' });
+    return items;
+  }
   function addChargeHtml(room) {
+    const intro = isCustomHotel()
+      ? `Votre caisse — la charge se poste directement sur la note de la chambre ${room}.`
+      : `Caisse restaurant et hammam du riad — la charge se poste directement sur la note de la chambre ${room}.`;
     return `
-      <div style="font-size:12px;color:var(--n-500);margin-bottom:10px;">Caisse restaurant et hammam du riad — la charge se poste directement sur la note de la chambre ${room}.</div>
-      ${QUICK_ITEMS.map((q, i) => `<div class="hx-fol-line" style="cursor:pointer;" data-action="hx-post-charge" data-arg="${room}|${i}">
+      <div style="font-size:12px;color:var(--n-500);margin-bottom:10px;">${intro}</div>
+      ${quickItems().map((q, i) => `<div class="hx-fol-line" style="cursor:pointer;" data-action="hx-post-charge" data-arg="${room}|${i}">
         <span><span class="hx-srcdot ${SRC_DOT[q.src]}" style="margin-right:7px;"></span>${q.label}</span>
-        <span class="qt">${q.src === 'resto' ? 'POS' : 'SPA'}</span>
+        <span class="qt">${q.src === 'resto' ? 'POS' : q.src === 'spa' ? 'SPA' : 'FRAIS'}</span>
         <span class="am">${MAD(q.amt)}</span>
       </div>`).join('')}
       <div style="display:flex;justify-content:flex-end;margin-top:16px;">
@@ -389,7 +443,7 @@
     return '14h37';
   }
   function postCharge(room, label, amt, src, silent) {
-    const f = FOLIOS[room];
+    const f = F()[room];
     if (!f) return;
     f.lines.push({ t: nowLabel(), label, qty: '', amt, src, isNew: true });
     if (!silent) K().toast(label + ' → folio Ch. ' + room, { type: 'success', desc: (src === 'resto' ? 'Restaurant · POS' : 'Hammam & spa') + ' · ' + MAD(amt) + ' postés sur la note de chambre.' });
@@ -397,6 +451,14 @@
 
   /* ═══════════════ PAGE · RÉCEPTION ═══════════════ */
   function counts() {
+    if (isCustomHotel()) {
+      const rs = Object.values(R());
+      return {
+        occToNight: rs.filter((r) => r.status === 'occ').length,
+        toClean: rs.filter((r) => r.status === 'sale').length,
+        arrDone: 0, depPending: 0,
+      };
+    }
     const occToNight = Object.values(ROOMS).filter((r) => ['occ', 'depart', 'arrivee', 'sale'].includes(r.status) && r.guest).length;
     const toClean = HK_QUEUE.length;
     const arrDone = ARRIVALS.filter((a) => a.done).length;
@@ -484,24 +546,26 @@
     </div>`;
   }
   function roomModal(n) {
-    const r = ROOMS[n];
-    if ((r.status === 'occ' || r.status === 'depart') && FOLIOS[n]) return openFolio(n);
-    if (r.status === 'arrivee' && FOLIOS[n]) return openFolio(n);
+    const r = R()[n];
+    if ((r.status === 'occ' || r.status === 'depart') && F()[n]) return openFolio(n);
+    if (r.status === 'arrivee' && F()[n]) return openFolio(n);
     const stLbl = { arrivee: 'Arrivée attendue', libre: 'Libre · propre', sale: 'Libre · sale — en remise', hs: 'Hors-service' };
     const m = K().modal({
-      tag: 'CH. ' + n + ' · ' + TYPES[r.type].name.toUpperCase(),
+      tag: 'CH. ' + n + ' · ' + roomTypeOf(n).name.toUpperCase(),
       title: r.guest || stLbl[r.status] || 'Chambre ' + n,
       desc: r.meta || '',
       width: 480,
       body: `
         <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
           <div style="display:flex;justify-content:space-between;"><span style="color:var(--n-500);">Statut</span><b>${stLbl[r.status] || r.status}</b></div>
-          <div style="display:flex;justify-content:space-between;"><span style="color:var(--n-500);">Tarif de base</span><b style="font-family:var(--mono);">${MAD(TYPES[r.type].base)} / nuit</b></div>
-          ${r.status === 'sale' ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--n-500);">Ménage</span><b>${(HK_QUEUE.find((q) => q.room === n) || {}).who || 'à assigner'}</b></div>` : ''}
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--n-500);">Tarif de base</span><b style="font-family:var(--mono);">${MAD(roomTypeOf(n).base)} / nuit</b></div>
+          ${r.status === 'sale' ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--n-500);">Ménage</span><b>${isCustomHotel() ? 'à remettre à blanc' : ((HK_QUEUE.find((q) => q.room === n) || {}).who || 'à assigner')}</b></div>` : ''}
         </div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap;">
           ${r.status === 'libre' ? `<button class="hx-btn atlas" data-action="hx-walkin-room" data-arg="${n}">Vendre ce soir · walk-in</button>` : ''}
-          ${r.status === 'sale' ? `<button class="hx-btn atlas" data-action="hx-hk-open">Ouvrir la file ménage</button>` : ''}
+          ${r.status === 'sale' ? (isCustomHotel()
+            ? `<button class="hx-btn atlas" data-action="hx-hk-done" data-arg="${n}">Marquer propre · relouable</button>`
+            : `<button class="hx-btn atlas" data-action="hx-hk-open">Ouvrir la file ménage</button>`) : ''}
           ${r.status === 'hs' ? `<button class="hx-btn ghost" data-action="hx-hs-fix" data-arg="${n}">Marquer réparée</button>` : ''}
         </div>`,
     });
@@ -884,20 +948,406 @@
   }
 
   /* ═══════════════ ACTIONS ═══════════════ */
+  /* ═══════════════ CUSTOM-HOTEL PAGES (0000 session) ═══════════════
+   * A merchant-created hotel speaks the same modules in starter state —
+   * no Riad Yasmina data anywhere. The rack, walk-in, folio and ménage
+   * loops are LIVE on the merchant's own rooms; data-fed pages (tape,
+   * CRM, canaux, intelligence) show what will appear, pages-pro style. */
+  const SPARK_IC = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 001.3 1.3L21 12l-5.8 1.9a2 2 0 00-1.3 1.3L12 21l-1.9-5.8a2 2 0 00-1.3-1.3L3 12l5.8-1.9a2 2 0 001.3-1.3z"/></svg>';
+  const CHECK_IC = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  function cuStarter(head, msg, bullets, foot) {
+    return `<div class="gp-starter">
+      <div class="gp-starter-ic">${SPARK_IC}</div>
+      <h3>${head}</h3>
+      <p>${msg}</p>
+      <div class="gp-starter-list">
+        ${(bullets || []).map((b) => `<div class="gp-starter-row"><span style="color:var(--atlas);display:inline-flex;">${CHECK_IC}</span><span>${b}</span></div>`).join('')}
+      </div>
+      ${foot ? `<div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap;">${foot}</div>` : ''}
+    </div>`;
+  }
+  function cuStrip() {
+    const c = counts();
+    const total = totalRooms();
+    const free = Object.values(R()).filter((r) => r.status === 'libre').length;
+    const pct = total ? (c.occToNight / total * 100).toFixed(1).replace('.', ',') : '0,0';
+    return `<div class="hx-strip">
+      <div class="hx-kpi"><div class="l">Occupation ce soir</div><div class="v">${c.occToNight} / ${total}</div><div class="d">${pct} % · se met à jour à chaque vente</div></div>
+      <div class="hx-kpi"><div class="l">Libres · propres</div><div class="v">${free}</div><div class="d">prêtes à vendre</div></div>
+      <div class="hx-kpi"><div class="l">À remettre à blanc</div><div class="v">${c.toClean}</div><div class="d">${c.toClean ? 'voir Ménage' : 'tout est propre ✓'}</div></div>
+      <div class="hx-kpi"><div class="l">Tarif de base</div><div class="v">${fmt(cuState().baseRate)} <small>MAD</small></div><div class="d">réglable dans Tarifs</div></div>
+    </div>`;
+  }
+  function cuReceptionBody() {
+    const sold = cuState().sold;
+    return `<div class="hx-page">
+      ${cuStrip()}
+      <div class="hx-h"><span class="t">Arrivées & départs</span><span class="s">vos réservations apparaîtront ici · le walk-in fonctionne dès maintenant</span>
+        <button class="hx-btn atlas" data-action="hx-walkin">+ Walk-in · vendre une chambre</button>
+      </div>
+      <div class="block" style="padding:8px 14px;">
+        ${cuStarter(
+          sold ? 'La réception tourne.' : 'Encore rien ici — et c\'est normal.',
+          sold ? 'Vos walk-ins de ce soir sont sur le plan des chambres ; chaque vente alimente votre chiffre réel.'
+               : 'Votre journal d\'arrivées et de départs se remplit avec vos réservations et vos walk-ins.',
+          ['Check-in en un geste — la chambre passe « occupée », le folio s\'ouvre',
+           'Restaurant et spa postent sur la note de chambre automatiquement',
+           'Taxe de séjour calculée par personne et par nuit, prête à déclarer'],
+          '<button class="hx-btn ghost" data-action="nav-chambres">Plan des chambres →</button>'
+        )}
+      </div>
+    </div>`;
+  }
+  function cuFloors() {
+    const st = cuState();
+    const nums = Object.keys(st.rooms).map(Number).sort((a, b) => a - b);
+    if (nums.length <= 8) return [{ lbl: 'Vos chambres', rooms: nums }];
+    const out = [];
+    for (let i = 0; i < nums.length; i += 8) out.push({ lbl: 'Niveau ' + (Math.floor(i / 8) + 1), rooms: nums.slice(i, i + 8) });
+    return out;
+  }
+  function cuRackBody() {
+    const floors = cuFloors().map((f) => `
+      <div class="hx-floor-lbl">${f.lbl}</div>
+      <div class="hx-rack">${f.rooms.map((n) => {
+        const r = R()[n];
+        const bdg = r.status === 'sale' ? '<span class="bdg">MÉNAGE</span>' : '';
+        return `<div class="hx-room st-${r.status}" data-action="hx-room" data-arg="${n}">
+          ${bdg}
+          <div><div class="no">CH. ${n}</div><div class="ty">Chambre</div></div>
+          <div><div class="gu">${r.guest || 'Libre'}</div><div class="mt">${r.meta || ''}</div></div>
+        </div>`;
+      }).join('')}</div>`).join('');
+    return `<div class="hx-page">
+      <div class="hx-legend">
+        <span><span class="sw" style="background:var(--atlas);border-color:var(--atlas);"></span>Occupée</span>
+        <span><span class="sw" style="background:var(--surface,#fff);"></span>Libre · propre</span>
+        <span><span class="sw" style="background:var(--warn-soft);border-color:var(--warning);"></span>Libre · sale</span>
+        <span style="margin-left:auto;">Toucher une chambre libre → walk-in · occupée → folio</span>
+      </div>
+      ${floors}
+    </div>`;
+  }
+  function cuMenageBody() {
+    const dirty = Object.values(R()).filter((r) => r.status === 'sale');
+    const rows = dirty.map((r) => `
+      <div class="hx-q">
+        <i class="dot" style="background:var(--warning);"></i>
+        <div><div class="nm">Ch. ${r.n} · Chambre</div><div class="nt">${r.meta || 'À remettre à blanc'}</div></div>
+        <span class="hx-pill late">À FAIRE</span>
+        <button class="hx-btn ghost" data-action="hx-hk-done" data-arg="${r.n}">Marquer propre</button>
+      </div>`).join('');
+    return `<div class="hx-page">
+      ${cuStrip()}
+      <div class="hx-h"><span class="t">File de remise à blanc</span><span class="s">chaque départ encaissé pousse sa chambre ici</span></div>
+      <div class="block" style="padding:8px 14px;">
+        ${dirty.length ? `<div class="hx-list">${rows}</div>` : cuStarter(
+          'Tout est propre.',
+          'Quand un départ est encaissé, sa chambre arrive ici pour remise à blanc — assignable à votre équipe.',
+          ['File priorisée par les arrivées du soir', 'Assignation femme de chambre en un geste', 'Temps de rotation mesuré automatiquement']
+        )}
+      </div>
+    </div>`;
+  }
+  function cuTarifsBody() {
+    const st = cuState();
+    return `<div class="hx-page">
+      ${cuStrip()}
+      <div class="hx-h"><span class="t">Tarif de base</span><span class="s">appliqué aux walk-ins et nouvelles réservations · ajustez-le à votre marché</span></div>
+      <div class="block" style="padding:22px 14px;display:flex;align-items:center;justify-content:center;gap:20px;">
+        <button class="hx-btn ghost" data-action="hx-cb-rate-step" data-arg="-50">−50</button>
+        <div style="font-family:var(--mono);font-size:30px;font-weight:600;">${fmt(st.baseRate)} <span style="font-size:13px;color:var(--n-500);">MAD / nuit</span></div>
+        <button class="hx-btn ghost" data-action="hx-cb-rate-step" data-arg="50">+50</button>
+      </div>
+      <div class="block" style="padding:8px 14px;margin-top:14px;">
+        ${cuStarter(
+          'ADR, RevPAR et tarification IA s\'activent ici.',
+          'Avec vos premières nuitées, Kiwi calcule votre prix moyen réel et suggère des tarifs par jour — weekends, saisons, Ramadan et Aïd compris.',
+          ['Calendrier tarifaire par type de chambre', 'Suggestions IA appliquables en un geste', 'Occupation prévisionnelle sur 12 mois']
+        )}
+      </div>
+    </div>`;
+  }
+  function cuFoliosBody() {
+    const fl = Object.values(F());
+    const rows = fl.map((f) => `
+      <div class="hx-arr">
+        <span class="tm">Ch. ${f.room}</span>
+        <div class="who"><b>${f.guest}</b><div class="sub">${f.nights} nuit${f.nights > 1 ? 's' : ''} · ${f.pax} pers · ${f.lines.length} ligne${f.lines.length > 1 ? 's' : ''}</div></div>
+        <span style="font-family:var(--mono);font-weight:600;">${MAD(folioTotal(f))}</span>
+        <button class="hx-btn ghost" data-action="hx-folio" data-arg="${f.room}">Ouvrir</button>
+      </div>`).join('');
+    return `<div class="hx-page">
+      <div class="hx-h"><span class="t">Folios ouverts · ${fl.length}</span><span class="s">une seule note par séjour — chambre + extras + taxe</span></div>
+      <div class="block" style="padding:8px 14px;">
+        ${fl.length ? `<div class="hx-list">${rows}</div>` : cuStarter(
+          'Aucun folio ouvert.',
+          'Chaque check-in ouvre la note du séjour : nuits, restaurant, spa et taxe de séjour s\'y regroupent jusqu\'à l\'encaissement du départ.',
+          ['Charges restaurant / spa postées automatiquement', 'Taxe de séjour incluse ligne par ligne', 'Encaissement en un geste au check-out'],
+          '<button class="hx-btn atlas" data-action="hx-walkin">+ Walk-in · ouvrir un premier folio</button>'
+        )}
+      </div>
+    </div>`;
+  }
+  function cuSejoursBody() {
+    return `<div class="hx-page">
+      ${cuStrip()}
+      <div class="block" style="padding:8px 14px;">
+        ${cuStarter(
+          'Votre tape chart arrive avec vos réservations.',
+          'Chambres × dates : chaque séjour devient une barre colorée par canal — Booking, direct, Airbnb, walk-in — avec la ligne d\'occupation en pied.',
+          ['Vue 14 jours glissants par chambre', 'Sources de réservation identifiables d\'un coup d\'œil', 'Taux d\'occupation calculé par jour'],
+          '<button class="hx-btn ghost" data-action="nav-canaux">Connecter mes canaux →</button>'
+        )}
+      </div>
+    </div>`;
+  }
+  function cuHotesBody() {
+    return `<div class="hx-page">
+      <div class="block" style="padding:8px 14px;">
+        ${cuStarter(
+          'Vos fiches clients se créent toutes seules.',
+          'Dès le premier séjour, chaque client a sa fiche : préférences, allergies, dépenses par poste, valeur vie — et la reconnaissance des fidèles au check-in.',
+          ['« Client fidèle ×2 » signalé à l\'arrivée', 'Mix nationalités pour viser vos marchés', 'Relance directe −10 % pour court-circuiter les OTA']
+        )}
+      </div>
+    </div>`;
+  }
+  function cuCanauxBody() {
+    const ch = [
+      { id: 'booking', name: 'Booking.com', fee: '15–18 %' },
+      { id: 'expedia', name: 'Expedia', fee: '15–18 %' },
+      { id: 'airbnb', name: 'Airbnb', fee: '3 % + frais voyageur' },
+    ];
+    const rows = ch.map((c) => `
+      <div class="hx-arr">
+        <span class="tm">OTA</span>
+        <div class="who"><b>${c.name}</b><div class="sub">commission ${c.fee} — visible sur chaque réservation une fois connecté</div></div>
+        <button class="hx-btn ghost" data-action="hx-cb-connect" data-arg="${c.name}">Connecter</button>
+      </div>`).join('');
+    return `<div class="hx-page">
+      <div class="hx-strip">
+        <div class="hx-kpi"><div class="l">Réservation directe</div><div class="v">100 <small>%</small></div><div class="d up">0 MAD de commission versée</div></div>
+        <div class="hx-kpi"><div class="l">Canaux connectés</div><div class="v">0</div><div class="d">walk-in et direct actifs</div></div>
+      </div>
+      <div class="hx-h"><span class="t">Connecter un canal</span><span class="s">Kiwi affiche la commission de chaque canal, réservation par réservation</span></div>
+      <div class="block" style="padding:8px 14px;"><div class="hx-list">${rows}</div></div>
+      <div class="block" style="padding:8px 14px;margin-top:14px;">
+        ${cuStarter(
+          'Le vrai prix des OTA, enfin visible.',
+          'Une fois vos canaux connectés, Kiwi calcule ce que chaque canal vous coûte réellement — et combien la réservation directe vous fait économiser.',
+          ['Répartition des nuitées par canal', 'Commissions cumulées par mois, en MAD', 'Plan de reconquête des clients fidèles vers le direct']
+        )}
+      </div>
+    </div>`;
+  }
+  function cuIntelBody() {
+    return `<div class="hx-page">
+      <div class="block" style="padding:8px 14px;">
+        ${cuStarter(
+          'L\'intelligence hôtel s\'entraîne sur vos données.',
+          'Avec quelques semaines d\'historique, Kiwi prévoit votre occupation — saisons marocaines, Ramadan et Aïd compris — et vous dit où part l\'argent.',
+          ['Prévision d\'occupation 12 mois', 'Suggestions tarifaires par période', 'Risque de no-show par réservation', '« Où part l\'argent » — commissions, taxe, frais']
+        )}
+      </div>
+    </div>`;
+  }
+
+  /* ═══════════════ ONBOARDING WIZARD · fork with the hotel trade ═══════════════
+   * dashboard2-only override of interactive.js's 'onboard' handler — same
+   * wizard, plus « Hôtel / Riad » as a 4th primary type. Kept in this file
+   * (with venues2.js SUBTYPE_PROFILES.hotel) so dashboard.html stays intact. */
+  function obOnboard() {
+    const Kw = window.Kiwi;
+    const trL = (o) => { const l = (window.KiwiI18n && window.KiwiI18n.getLang && window.KiwiI18n.getLang()) || 'fr'; return o == null ? '' : (o[l] ?? o.fr ?? o); };
+    let picked = 'restaurant';
+    const ic = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+    const TYPES_OB = [
+      { id: 'restaurant', base: 'restaurant', primary: true, label: 'Restaurant',          icon: ic('<path d="M3 3v6a2 2 0 002 2h1v10M6 11V3M11 3c-1 0-2 1.6-2 4s1 4 2 4 2-1.6 2-4-1-4-2-4zM11 11v10"/>') },
+      { id: 'boutique',   base: 'boutique',   primary: true, label: 'Boutique',            icon: ic('<path d="M6 2 3 6v13a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/>') },
+      { id: 'spa',        base: 'spa',        primary: true, label: trL({fr:'Spa / Bien-être', en:'Spa / Wellness', ar:'سبا / عافية'}),     icon: ic('<path d="M11 20A7 7 0 019.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>') },
+      { id: 'hotel',      base: 'hotel',      primary: true, label: trL({fr:'Hôtel / Riad', en:'Hotel / Riad', ar:'فندق / رياض'}),          icon: ic('<path d="M3 21h18"/><path d="M5 21V7a2 2 0 012-2h10a2 2 0 012 2v14"/><path d="M9 9h2M13 9h2M9 13h2M13 13h2"/><path d="M10 21v-3h4v3"/>') },
+      { id: 'cafe',       base: 'restaurant',                label: trL({fr:'Café / Salon de thé', en:'Café / Tea room', ar:'مقهى / صالون شاي'}), icon: ic('<path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4z"/><path d="M6 2v2.5M10 2v2.5M14 2v2.5"/>') },
+      { id: 'fastfood',   base: 'restaurant',                label: trL({fr:'Fast-food / Snack', en:'Fast food / Snack', ar:'وجبات سريعة / سناك'}),   icon: ic('<path d="M3 11a9 9 0 0118 0"/><path d="M2 15h20"/><path d="M5 19h14a2 2 0 002-2H3a2 2 0 002 2z"/><path d="M7.5 7.6h.01M12 6.6h.01M16.5 7.6h.01"/>') },
+      { id: 'bakery',     base: 'restaurant',                label: trL({fr:'Boulangerie', en:'Bakery', ar:'مخبزة'}),         icon: ic('<path d="M4 13a8 4.5 0 0116 0v4.5A1.5 1.5 0 0118.5 19h-13A1.5 1.5 0 014 17.5z"/><path d="M9.5 13.5v5M14.5 13.5v5"/>') },
+      { id: 'pizzeria',   base: 'restaurant',                label: 'Pizzeria',            icon: ic('<path d="M3 7l9 14 9-14z"/><path d="M3 7a30 30 0 0118 0"/><path d="M9.5 11h.01M13 13.5h.01M11 16.5h.01"/>') },
+      { id: 'traiteur',   base: 'restaurant',                label: trL({fr:'Traiteur', en:'Caterer', ar:'خدمات تقديم الطعام'}),            icon: ic('<path d="M4 17a8 8 0 0116 0z"/><path d="M2 17h20"/><path d="M12 5v4"/><path d="M10.5 5h3"/>') },
+      { id: 'foodtruck',  base: 'restaurant',                label: 'Food truck',          icon: ic('<path d="M14 17V6a1 1 0 00-1-1H3a1 1 0 00-1 1v11h2"/><path d="M14 9h4l4 4v4h-2"/><path d="M9 17h2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>') },
+      { id: 'epicerie',   base: 'boutique',                  label: trL({fr:'Épicerie', en:'Grocery', ar:'بقالة'}),            icon: ic('<path d="M3 4h2l2.6 11.4a1 1 0 001 .8h8.8a1 1 0 001-.8L21 8H6"/><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/>') },
+      { id: 'pharmacie',  base: 'boutique',                  label: 'Pharmacie',           icon: ic('<path d="M9.5 3h5a1 1 0 011 1v4.5H20a1 1 0 011 1v5a1 1 0 01-1 1h-4.5V20a1 1 0 01-1 1h-5a1 1 0 01-1-1v-4.5H4a1 1 0 01-1-1v-5a1 1 0 011-1h4.5V4a1 1 0 011-1z"/>') },
+      { id: 'librairie',  base: 'boutique',                  label: trL({fr:'Librairie', en:'Bookshop', ar:'مكتبة'}),           icon: ic('<path d="M12 7v14"/><path d="M3 18a1 1 0 01-1-1V4a1 1 0 011-1h5a3 3 0 013 3v14a3 3 0 00-3-3z"/><path d="M21 18a1 1 0 001-1V4a1 1 0 00-1-1h-5a3 3 0 00-3 3v14a3 3 0 013-3z"/>') },
+      { id: 'fleuriste',  base: 'boutique',                  label: trL({fr:'Fleuriste', en:'Florist', ar:'محل أزهار'}),           icon: ic('<path d="M12 22V12"/><path d="M12 12C9 12 7 9.5 7 6c4 0 5 2.5 5 6z"/><path d="M12 12c3 0 5-2.5 5-6-4 0-5 2.5-5 6z"/><path d="M8 22h8"/>') },
+      { id: 'coiffure',   base: 'spa',                       label: trL({fr:'Salon de coiffure', en:'Hair salon', ar:'صالون حلاقة'}),   icon: ic('<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/>') },
+      { id: 'sport',      base: 'spa',                       label: trL({fr:'Salle de sport', en:'Gym', ar:'صالة رياضية'}),      icon: ic('<path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/>') },
+    ];
+    const moreCount = TYPES_OB.filter((t) => !t.primary).length;
+    const fld = 'width:100%;padding:11px 13px;border:1px solid var(--n-200);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--surface);outline:none;box-sizing:border-box;';
+    const lbl = 'display:block;font-size:12px;font-weight:500;color:var(--n-600);margin:16px 0 6px;';
+    const m = Kw.modal({
+      tag: 'BIENVENUE SUR KIWI',
+      title: 'Configurez votre tableau de bord',
+      desc: 'Une minute pour créer le vôtre — vide, prêt à se remplir avec vos vraies ventes.',
+      width: 520,
+      body: `
+        <style>
+          .ob-type{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 8px;
+            border:1px solid var(--n-200);border-radius:12px;background:var(--surface);cursor:pointer;
+            font-family:var(--sans);font-size:12px;font-weight:500;color:var(--n-600);text-align:center;
+            transition:border-color 140ms,background 140ms,color 140ms;}
+          .ob-type svg{width:22px;height:22px;}
+          .ob-type:hover{border-color:var(--n-400);}
+          .ob-type.sel{border-color:var(--atlas);background:rgba(11,110,79,0.05);color:var(--atlas);}
+          .ob-type.ob-more{display:none;}
+          .ob-morebtn{margin-top:8px;width:100%;padding:9px;border:1px dashed var(--n-300);
+            border-radius:10px;background:var(--surface);cursor:pointer;font-family:var(--sans);font-size:12.5px;
+            font-weight:500;color:var(--n-600);transition:border-color 140ms,color 140ms;}
+          .ob-morebtn:hover{border-color:var(--atlas);color:var(--atlas);}
+          .ob-field:focus{border-color:var(--atlas)!important;}
+        </style>
+        <label style="${lbl}margin-top:4px;">Type d'activité</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          ${TYPES_OB.map((t) => `<button type="button" class="ob-type${t.id === picked ? ' sel' : ''}${t.primary ? '' : ' ob-more'}" data-ob-type="${t.id}">${t.icon}<span>${t.label}</span></button>`).join('')}
+        </div>
+        <button type="button" class="ob-morebtn" data-ob-more>+ Plus de types (${moreCount})</button>
+        <label style="${lbl}">Nom de l'activité</label>
+        <input class="ob-field" data-ob-name placeholder="Ex. Café des Oudayas" style="${fld}" maxlength="40"/>
+        <label style="${lbl}">Ville</label>
+        <input class="ob-field" data-ob-city placeholder="Ex. Rabat" style="${fld}" maxlength="30"/>
+        <label style="${lbl}">Objectif de chiffre d'affaires par jour <span style="color:var(--n-400);font-weight:400;">· optionnel</span></label>
+        <input class="ob-field" data-ob-goal type="number" inputmode="numeric" placeholder="Ex. 5000 MAD" style="${fld}" min="0"/>
+      `,
+      foot: `<button class="kb atlas" data-ob-create type="button" style="width:100%;justify-content:center;padding:13px;font-size:15px;">Créer mon tableau de bord →</button>`,
+    });
+    const nameInput = m.el.querySelector('[data-ob-name]');
+    setTimeout(() => nameInput && nameInput.focus(), 320);
+    m.el.querySelectorAll('[data-ob-type]').forEach((x) => x.classList.toggle('sel', x.dataset.obType === picked));
+    let step1 = null;
+    const doCreate = (answers) => {
+      const { name, city, goal, def } = step1;
+      let id = null;
+      try {
+        id = window.KiwiVenue?.createVenue?.({
+          type: def.base, subtype: def.id, typeLabel: def.label,
+          name, location: city, goal, profile: answers,
+        });
+      } catch (_) {}
+      if (!id) { Kw.toast(trL({fr:'Création impossible', en:'Creation failed', ar:'تعذّر الإنشاء'}), { type: 'warn', force: true }); return; }
+      m.close();
+      try { window.KiwiVenue.setVenue(id); } catch (_) {}
+      const todayPill = document.querySelector('[data-action="date-range"][data-range="aujourdhui"]');
+      if (todayPill && !todayPill.classList.contains('on')) todayPill.click();
+      Kw.confetti();
+      Kw.toast(trL({fr:'Votre tableau de bord est prêt', en:'Your dashboard is ready', ar:'لوحة التحكم جاهزة'}), { type: 'success', force: true,
+        desc: `${name} — ${answers
+          ? trL({fr:'profil complété ✓ · enregistrez votre première vente.', en:'profile completed ✓ · record your first sale.', ar:'اكتمل الملف ✓ · سجّل أول عملية بيع.'})
+          : trL({fr:'enregistrez votre première vente pour le voir prendre vie.', en:'record your first sale to see it come alive.', ar:'سجّل أول عملية بيع لتراها تنبض بالحياة.'})}` });
+      if (def.id === 'hotel') {
+        setTimeout(() => Kw.toast(trL({fr:'Votre hôtel est en place', en:'Your hotel is set up', ar:'فندقك جاهز'}), { type: 'info', force: true,
+          desc: trL({fr:'Plan des chambres, réception, folios et ménage sont prêts — vendez votre première chambre en walk-in.', en:'Room rack, front desk, folios and housekeeping are ready — sell your first room as a walk-in.', ar:'مخطط الغرف والاستقبال والفواتير جاهزة — بِع أول غرفة walk-in.'}) }), 1700);
+      }
+    };
+    const readAnswers = () => {
+      const out = {};
+      m.el.querySelectorAll('[data-ob-q]').forEach((i) => {
+        const v = (i.value || '').trim();
+        if (v) out[i.dataset.obQ] = v;
+      });
+      return Object.keys(out).length ? out : null;
+    };
+    m.el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-ob-more]')) {
+        m.el.querySelectorAll('.ob-type.ob-more').forEach((x) => x.classList.remove('ob-more'));
+        const btn = m.el.querySelector('[data-ob-more]');
+        if (btn) btn.style.display = 'none';
+        return;
+      }
+      const t = e.target.closest('[data-ob-type]');
+      if (t) {
+        picked = t.dataset.obType;
+        m.el.querySelectorAll('[data-ob-type]').forEach((x) => x.classList.toggle('sel', x === t));
+        return;
+      }
+      if (e.target.closest('[data-ob-create]')) {
+        const name = (nameInput.value || '').trim();
+        if (!name) { Kw.toast(trL({fr:'Donnez un nom à votre activité', en:'Give your business a name', ar:'أدخل اسم نشاطك التجاري'}), { type: 'warn', force: true }); nameInput.focus(); return; }
+        const city = (m.el.querySelector('[data-ob-city]').value || '').trim();
+        const goal = +(m.el.querySelector('[data-ob-goal]').value) || 0;
+        const def = TYPES_OB.find((x) => x.id === picked) || TYPES_OB[0];
+        step1 = { name, city, goal, def };
+        const prof = window.KiwiVenue?.getSubtypeProfile?.(picked);
+        if (!prof || !prof.questions || !prof.questions.length) { doCreate(null); return; }
+        const optWord = trL({fr:'optionnel', en:'optional', ar:'اختياري'});
+        m.el.querySelector('.kiwi-modal-body').innerHTML = `
+          <style>.ob-field:focus{border-color:var(--atlas)!important;}</style>
+          <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;color:var(--atlas);margin:2px 0 10px;">${trL({fr:'ÉTAPE 2 / 2 · TOUT EST OPTIONNEL', en:'STEP 2 / 2 · ALL OPTIONAL', ar:'الخطوة 2/2 · كل شيء اختياري'})}</div>
+          <div style="font-size:17px;font-weight:600;letter-spacing:-0.01em;">${trL({fr:'Parlez-nous de votre activité', en:'Tell us about your business', ar:'حدثنا عن نشاطك'})} · ${def.label}</div>
+          <p style="font-size:13px;color:var(--n-500);margin:6px 0 2px;line-height:1.5;">${trL({fr:'30 secondes — Kiwi personnalise vos indicateurs et vos modules. Modifiable plus tard dans Paramètres.', en:'30 seconds — Kiwi tailors your indicators and modules. Editable later in Settings.', ar:'30 ثانية — يخصص كيوي مؤشراتك ووحداتك. قابل للتعديل لاحقًا في الإعدادات.'})}</p>
+          ${prof.questions.map((q) => `
+            <label style="${lbl}">${trL(q.label)} <span style="color:var(--n-400);font-weight:400;">· ${optWord}</span></label>
+            <input class="ob-field" data-ob-q="${q.k}" ${q.type === 'number' ? 'type="number" inputmode="numeric" min="0"' : 'maxlength="60"'} placeholder="${q.ph}" style="${fld}"/>
+          `).join('')}`;
+        const foot = m.el.querySelector('.kiwi-modal-foot');
+        if (foot) foot.innerHTML = `
+          <button class="kb ghost" data-ob-skip type="button" style="flex:1;justify-content:center;">${trL({fr:'Passer pour l\'instant', en:'Skip for now', ar:'تخطّ الآن'})}</button>
+          <button class="kb atlas" data-ob-finish type="button" style="flex:1.4;justify-content:center;">${trL({fr:'Terminer →', en:'Finish →', ar:'إنهاء ←'})}</button>`;
+        setTimeout(() => { const f = m.el.querySelector('[data-ob-q]'); if (f) f.focus(); }, 120);
+        return;
+      }
+      if (e.target.closest('[data-ob-skip]')) { doCreate(null); return; }
+      if (e.target.closest('[data-ob-finish]')) { doCreate(readAnswers()); return; }
+    });
+  }
+
   function register() {
-    if (!window.Kiwi || !window.Kiwi.handlers || !window.Kiwi.drawer) { setTimeout(register, 80); return; }
+    if (!window.Kiwi || !window.Kiwi.handlers || !window.Kiwi.appPage) { setTimeout(register, 80); return; }
     const { handlers, toast } = window.Kiwi;
 
-    /* — navigation (sidebar + cards) — */
-    handlers['nav-reception'] = () => page('reception', 'Réception', 'Riad Yasmina · Médina, Marrakech · arrivées, départs, walk-ins — en un geste', receptionBody);
-    handlers['nav-chambres'] = () => page('chambres', 'Plan des chambres', '24 chambres · 3 niveaux · toucher une chambre ouvre le client et son folio', rackBody);
-    handlers['nav-sejours'] = () => page('sejours', 'Réservations & séjours', 'Tape chart · chambres × dates · sources de réservation et ligne d\'occupation', tapeBody);
-    handlers['nav-menage'] = () => page('menage', 'Ménage', 'File de remise à blanc · assignation · inspection gouvernante', menageBody);
-    handlers['nav-tarifs'] = () => page('tarifs', 'Tarifs & occupation', 'ADR · RevPAR · calendrier tarifaire propriétaire + suggestions IA', tarifsBody);
-    handlers['nav-hotes'] = () => page('hotes', 'Clients & fidélité', 'Reconnaissance des habitués · préférences · valeur vie · mix nationalités', hotesBody);
-    handlers['nav-folios'] = () => page('folios', 'Notes clients · folios', 'Chambres + restaurant + hammam + taxe de séjour — une seule note par séjour', foliosBody);
-    handlers['nav-canaux'] = () => page('canaux', 'Canaux & OTA', 'Booking.com, Expedia, Airbnb, direct · commissions visibles, enfin', canauxBody);
-    handlers['nav-hotelintel'] = () => page('hotelintel', 'Intelligence hôtel', 'Prévision d\'occupation · tarification · no-shows · où part l\'argent', intelBody);
+    /* The 0000 wizard now offers « Hôtel / Riad » — dashboard2-only fork of
+     * interactive.js's onboard handler (see obOnboard above). Re-asserted
+     * after load like pages-pro's starter wraps, in case of re-registration. */
+    handlers['onboard'] = obOnboard;
+
+    /* — navigation (sidebar + cards) — custom (0000) hotels get their own
+     * starter pages on the live rack/folio engine; the riad keeps its demo. */
+    const cu = isCustomHotel;
+    handlers['nav-reception'] = () => cu()
+      ? page('reception', 'Réception', vName() + ' · arrivées, départs, walk-ins — en un geste', cuReceptionBody)
+      : page('reception', 'Réception', 'Riad Yasmina · Médina, Marrakech · arrivées, départs, walk-ins — en un geste', receptionBody);
+    handlers['nav-chambres'] = () => cu()
+      ? page('chambres', 'Plan des chambres', totalRooms() + ' chambres · toucher une chambre libre la vend en walk-in', cuRackBody)
+      : page('chambres', 'Plan des chambres', '24 chambres · 3 niveaux · toucher une chambre ouvre le client et son folio', rackBody);
+    handlers['nav-sejours'] = () => cu()
+      ? page('sejours', 'Réservations & séjours', vName() + ' · le tape chart se remplit avec vos réservations', cuSejoursBody)
+      : page('sejours', 'Réservations & séjours', 'Tape chart · chambres × dates · sources de réservation et ligne d\'occupation', tapeBody);
+    handlers['nav-menage'] = () => cu()
+      ? page('menage', 'Ménage', 'Remise à blanc · chaque départ encaissé pousse sa chambre ici', cuMenageBody)
+      : page('menage', 'Ménage', 'File de remise à blanc · assignation · inspection gouvernante', menageBody);
+    handlers['nav-tarifs'] = () => cu()
+      ? page('tarifs', 'Tarifs & occupation', 'Tarif de base · ADR, RevPAR et IA s\'activent avec vos nuitées', cuTarifsBody)
+      : page('tarifs', 'Tarifs & occupation', 'ADR · RevPAR · calendrier tarifaire propriétaire + suggestions IA', tarifsBody);
+    handlers['nav-hotes'] = () => cu()
+      ? page('hotes', 'Clients & fidélité', vName() + ' · vos fiches clients se créent au premier séjour', cuHotesBody)
+      : page('hotes', 'Clients & fidélité', 'Reconnaissance des habitués · préférences · valeur vie · mix nationalités', hotesBody);
+    handlers['nav-folios'] = () => cu()
+      ? page('folios', 'Notes clients · folios', 'Chambres + extras + taxe de séjour — une seule note par séjour', cuFoliosBody)
+      : page('folios', 'Notes clients · folios', 'Chambres + restaurant + hammam + taxe de séjour — une seule note par séjour', foliosBody);
+    handlers['nav-canaux'] = () => cu()
+      ? page('canaux', 'Canaux & OTA', '100 % direct aujourd\'hui · connectez vos canaux quand vous êtes prêt', cuCanauxBody)
+      : page('canaux', 'Canaux & OTA', 'Booking.com, Expedia, Airbnb, direct · commissions visibles, enfin', canauxBody);
+    handlers['nav-hotelintel'] = () => cu()
+      ? page('hotelintel', 'Intelligence hôtel', 'Prévisions et suggestions — l\'IA s\'entraîne sur vos données réelles', cuIntelBody)
+      : page('hotelintel', 'Intelligence hôtel', 'Prévision d\'occupation · tarification · no-shows · où part l\'argent', intelBody);
+
+    /* — custom-hotel controls — */
+    handlers['hx-cb-rate-step'] = (el, arg) => {
+      if (!isCustomHotel()) return;
+      const st = cuState();
+      st.baseRate = Math.max(150, st.baseRate + parseInt(arg, 10));
+      rerender();
+    };
+    handlers['hx-cb-connect'] = (el, arg) => {
+      toast('Connexion ' + arg + ' demandée', { type: 'success', desc: 'Notre équipe configure le channel manager avec vous — vos réservations arriveront ici avec leur commission visible.' });
+    };
 
     /* — folio — */
     handlers['hx-folio'] = (el, arg) => openFolio(parseInt(arg, 10));
@@ -912,17 +1362,28 @@
     };
     handlers['hx-post-charge'] = (el, arg) => {
       const [room, idx] = arg.split('|');
-      const q = QUICK_ITEMS[+idx];
+      const q = quickItems()[+idx];
+      if (!q) return;
       postCharge(+room, q.label, q.amt, q.src);
       const body = el.closest('.kiwi-modal')?.querySelector('.kiwi-modal-body');
       if (body) body.innerHTML = folioModalHtml(+room, true);
     };
     handlers['hx-checkout-pay'] = (el, arg) => {
       const room = parseInt(arg, 10);
-      const f = FOLIOS[room];
+      const f = F()[room];
       const due = folioTotal(f) - folioPaid(f);
       openModal?.close?.();
       toast('Folio Ch. ' + room + ' encaissé · ' + MAD(due), { type: 'success', desc: 'Taxe de séjour incluse · règlement T+1 demain 9h00 sur votre IBAN.' });
+      if (isCustomHotel()) {
+        recordSale(due);
+        const r = R()[room];
+        r.status = 'sale'; r.hk = 'dirty'; r.guest = null;
+        r.meta = 'Départ soldé · à remettre à blanc';
+        delete F()[room];
+        setTimeout(() => toast('Ch. ' + room + ' → à remettre à blanc', { type: 'info', desc: 'Marquez-la propre depuis Ménage pour la revendre ce soir.' }), 1400);
+        rerender();
+        return;
+      }
       const dep = DEPARTURES.find((d) => d.room === room && !d.settled);
       if (dep) { dep.settled = true; dep.folio = folioTotal(f); }
       ROOMS[room].status = 'sale'; ROOMS[room].hk = 'dirty';
@@ -950,25 +1411,29 @@
     };
     handlers['hx-checkout'] = (el, arg) => openFolio(parseInt(arg, 10));
     handlers['hx-walkin'] = () => {
-      const free = Object.values(ROOMS).filter((r) => r.status === 'libre');
+      const free = Object.values(R()).filter((r) => r.status === 'libre');
       const m = K().modal({
         tag: 'WALK-IN', title: 'Vendre une chambre ce soir', desc: free.length + ' chambres libres et propres', width: 460,
         body: free.map((r) => `<div class="hx-fol-line" style="cursor:pointer;" data-action="hx-walkin-room" data-arg="${r.n}">
-            <span><b style="font-family:var(--mono);">Ch. ${r.n}</b> · ${TYPES[r.type].name}</span><span class="qt">1 nuit</span><span class="am">${MAD(TYPES[r.type].base)}</span>
+            <span><b style="font-family:var(--mono);">Ch. ${r.n}</b> · ${roomTypeOf(r.n).name}</span><span class="qt">1 nuit</span><span class="am">${MAD(roomTypeOf(r.n).base)}</span>
           </div>`).join('') || '<div style="padding:14px;font-size:13px;color:var(--n-500);">Complet ce soir — aucune chambre libre.</div>',
       });
       openModal = { el: m.el, close: m.close };
     };
     handlers['hx-walkin-room'] = (el, arg) => {
       const n = parseInt(arg, 10);
-      const r = ROOMS[n];
-      r.status = 'occ'; r.guest = 'Walk-in · M. Idrissi'; r.meta = 'Walk-in · 1 nuit · réglé d\'avance';
-      folio(n, 'Walk-in · M. Idrissi', 'walkin', 1, 1, [
-        { t: nowLabel(), label: 'Nuit 1 · ' + TYPES[r.type].name, qty: '×1', amt: TYPES[r.type].base, src: 'room', paid: true },
+      const r = R()[n];
+      const cu = isCustomHotel();
+      const guest = cu ? 'Walk-in · client comptoir' : 'Walk-in · M. Idrissi';
+      const rate = roomTypeOf(n).base;
+      r.status = 'occ'; r.guest = guest; r.meta = 'Walk-in · 1 nuit · réglé d\'avance';
+      F()[n] = { room: n, guest, src: 'walkin', pax: 1, nights: 1, lines: [
+        { t: nowLabel(), label: 'Nuit 1 · ' + roomTypeOf(n).name, qty: '×1', amt: rate, src: 'room', paid: true },
         { t: 'auto', label: 'Taxe de séjour · 1 pers × 1 nuit', qty: '', amt: TAX_PP_NIGHT, src: 'taxe' },
-      ]);
+      ] };
+      if (cu) { recordSale(rate); cuState().sold += 1; }
       openModal?.close?.();
-      toast('Ch. ' + n + ' vendue · ' + MAD(TYPES[r.type].base), { type: 'success', desc: 'Walk-in enregistré · occupation ce soir ' + counts().occToNight + ' / 24.' });
+      toast('Ch. ' + n + ' vendue · ' + MAD(rate), { type: 'success', desc: 'Walk-in enregistré · occupation ce soir ' + counts().occToNight + ' / ' + totalRooms() + (cu ? ' · vente réelle au compteur.' : '.') });
       rerender();
     };
 
@@ -995,6 +1460,14 @@
     };
     handlers['hx-hk-done'] = (el, arg) => {
       const room = parseInt(arg, 10);
+      if (isCustomHotel()) {
+        const r = R()[room];
+        if (r) { r.status = 'libre'; r.hk = 'clean'; r.guest = null; r.meta = 'Libre · propre'; }
+        openModal?.close?.();
+        toast('Ch. ' + room + ' remise à blanc', { type: 'success', desc: 'Propre et relouable — visible « libre » sur le plan des chambres.' });
+        rerender();
+        return;
+      }
       const i = HK_QUEUE.findIndex((x) => x.room === room);
       if (i >= 0) {
         const it = HK_QUEUE.splice(i, 1)[0];
@@ -1083,4 +1556,9 @@
     };
   }
   register();
+  /* Same insurance as pages-pro's starter wraps: modules that re-install
+   * handlers at load+setTimeout(0) must not clobber the wizard override. */
+  window.addEventListener('load', () => setTimeout(() => {
+    if (window.Kiwi && window.Kiwi.handlers) window.Kiwi.handlers['onboard'] = obOnboard;
+  }, 200));
 })();
