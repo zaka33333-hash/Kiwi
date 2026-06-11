@@ -1287,18 +1287,430 @@
     openVeil('#px-pay-veil');
   }
 
-  /* ═══════════════════════ BOARD / RETRAIT / RACK — pass 2 ═══════════════════════ */
+  /* ═══════════════════════ TABLEAU DES COMMANDES ═══════════════════════ */
+  const STATUS_DOT_HEX = { recu: 'var(--ink-4)', trait: '#D99A2B', pret: 'var(--emerald)', livre: 'var(--line)' };
+
+  function payPill(o) {
+    const { total } = orderTotals(o);
+    if (o.pay.mode === 'compte') return '<span class="px-pill ok">Compte B2B</span>';
+    const due = Math.max(0, total - o.pay.paid);
+    if (due <= 0) return '<span class="px-pill ok">Payé</span>';
+    if (o.pay.paid > 0) return `<span class="px-pill warn">Acompte · solde ${due} MAD</span>`;
+    return `<span class="px-pill due">Au retrait · ${due} MAD</span>`;
+  }
+
+  function matchesQuery(o, q) {
+    if (!q) return true;
+    const c = custOf(o);
+    const digits = q.replace(/\D/g, '');
+    return o.id.toLowerCase().includes(q.toLowerCase()) ||
+      c.name.toLowerCase().includes(q.toLowerCase()) ||
+      (digits.length >= 2 && (c.phone || '').replace(/\D/g, '').includes(digits));
+  }
+
+  function orderCard(o) {
+    const c = custOf(o);
+    const late = isLate(o);
+    const st = orderStatus(o);
+    const when = st === 'livre'
+      ? `retiré ${fmtDay(o.collectedAt || o.readyAt)}`
+      : `prêt ${fmtDT(o.readyAt)}`;
+    return `<button class="px-ocard ${late ? 'is-late' : ''}" data-px-order="${o.id}">
+      <span class="px-ocard-top"><span class="px-ocard-num">${o.id}</span>
+        <span class="px-ocard-when ${late ? 'late' : ''}">${late ? 'EN RETARD · ' : ''}${esc(when)}</span></span>
+      <span class="px-ocard-client"><i data-lucide="${o.b2b ? 'building-2' : 'user'}"></i>${esc(c.name)}</span>
+      <span class="px-ocard-meta">
+        <span class="px-pill"><i data-lucide="tag"></i>${o.pieces.length} pièce${o.pieces.length > 1 ? 's' : ''}</span>
+        ${payPill(o)}
+        ${o.rack ? `<span class="px-pill rack">${o.rack}</span>` : ''}
+        ${o.notified && st === 'pret' ? '<span class="px-pill wa">Notifié</span>' : ''}
+      </span>
+      <span class="px-piece-dots">${o.pieces.map((p) => `<i class="px-pdot ${p.status}"></i>`).join('')}</span>
+    </button>`;
+  }
+
   function renderBoard() {
     const panel = $('[data-px-panel="commandes"]', root);
-    panel.innerHTML = '<div class="px-bempty" style="margin:40px;">Tableau des commandes — en construction (pass 2)</div>';
+    const q = state.boardQuery;
+    panel.innerHTML = `
+      <div class="px-board">
+        <header class="px-head">
+          <div><h1>Tableau des commandes</h1><div class="px-head-sub">Chaque pièce a son statut — pas seulement le ticket</div></div>
+          <div class="px-search"><i data-lucide="search"></i>
+            <input id="px-board-q" placeholder="Téléphone, nom ou n° de ticket…" value="${esc(q)}" /></div>
+        </header>
+        <div class="px-board-cols">
+          ${STATUS_FLOW.map((s) => {
+            const list = ORDERS.filter((o) => orderStatus(o) === s && matchesQuery(o, q));
+            return `<div class="px-bcol">
+              <div class="px-bcol-head"><i style="background:${STATUS_DOT_HEX[s]}"></i>${STATUS[s].label} <span class="ct">${list.length}</span></div>
+              ${list.map(orderCard).join('') || '<div class="px-bempty">—</div>'}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    $('#px-board-q', panel).oninput = (e) => {
+      state.boardQuery = e.target.value;
+      renderBoard(); icons();
+      const i = $('#px-board-q', panel); i.focus(); moveCaretEnd(i);
+    };
+    panel.onclick = (e) => {
+      const b = e.target.closest('[data-px-order]');
+      if (b) openDetail(b.dataset.pxOrder);
+    };
+    icons();
   }
+
+  /* ---------- détail commande + statuts par pièce ---------- */
+  function openDetail(orderId) {
+    const o = findOrder(orderId);
+    if (!o) return;
+    const el = $('#px-detailm', root);
+    const c = custOf(o);
+    const { total } = orderTotals(o);
+    const due = o.pay.mode === 'compte' ? 0 : Math.max(0, total - o.pay.paid);
+    const st = orderStatus(o);
+    const delivered = st === 'livre';
+
+    el.innerHTML = `
+      <button class="px-modal-x" data-px-close aria-label="Fermer"><i data-lucide="x"></i></button>
+      <div class="px-dt-head">
+        <div>
+          <h3>${o.id}</h3>
+          <div class="px-dt-sub">${esc(c.name)} ${c.phone ? `<span class="tel">${esc(c.phone)}</span>` : ''}
+            ${o.b2b ? '<span class="px-b2b-chip">B2B</span>' : ''}
+            <span class="px-pill ${st === 'pret' ? 'ok' : st === 'trait' ? 'warn' : ''}">${STATUS[st].label}</span>
+            ${isLate(o) ? '<span class="px-pill due">En retard</span>' : ''}
+            ${payPill(o)}
+            ${o.rack ? `<span class="px-pill rack">${o.rack}</span>` : ''}
+          </div>
+          <div class="px-dt-sub" style="margin-top:5px;">Déposé ${fmtDT(o.droppedAt)} · promis ${fmtDT(o.readyAt)}${o.collectedAt ? ` · retiré ${fmtDT(o.collectedAt)}` : ''}</div>
+        </div>
+      </div>
+      <div class="px-dt-grid">
+        ${o.pieces.map((p, i) => `
+          <div class="px-piece">
+            <span class="px-piece-art">${ART[p.itemId] || ''}</span>
+            <span class="px-piece-mid">
+              <span class="px-piece-name"><i class="dot" style="background:${COLOR[p.color] ? COLOR[p.color].hex : '#ccc'}"></i>${esc(p.label)} · <span style="font-family:var(--mono);font-size:11px;">${SVC[p.svc].code}</span></span>
+              <span class="px-piece-id">${p.pid}${p.photos ? `<span class="ph"><i data-lucide="camera"></i>${p.photos} photo${p.photos > 1 ? 's' : ''}</span>` : ''}</span>
+            </span>
+            ${delivered || p.status === 'livre'
+              ? '<span class="px-pill">Livré</span>'
+              : `<span class="px-pstatus">
+                  ${['recu', 'trait', 'pret'].map((s) => `<button class="px-pstep ${p.status === s ? 'on ' + s : ''}" data-px-piece="${i}" data-px-st="${s}">${s === 'recu' ? 'Reçu' : s === 'trait' ? 'Trait.' : 'Prêt'}</button>`).join('')}
+                </span>`}
+          </div>`).join('')}
+      </div>
+      <div class="px-dt-actions">
+        ${delivered ? '' : `
+          ${o.pieces.some((p) => p.status === 'recu') ? '<button class="px-btn secondary" data-px-all="trait"><i data-lucide="loader"></i>Tout en traitement</button>' : ''}
+          ${o.pieces.some((p) => p.status !== 'pret' && p.status !== 'livre') ? '<button class="px-btn secondary" data-px-all="pret"><i data-lucide="check-check"></i>Tout prêt</button>' : ''}`}
+        <button class="px-btn secondary" id="px-dt-tags"><i data-lucide="printer"></i>Étiquettes</button>
+        ${due > 0 && !delivered ? `<button class="px-btn secondary" id="px-dt-pay"><i data-lucide="banknote"></i>Solde · ${due} MAD</button>` : ''}
+        ${st === 'pret' ? `<button class="px-btn ${o.notified ? 'secondary' : 'primary'}" id="px-dt-wa"><i data-lucide="message-circle"></i>${o.notified ? 'Re-notifier' : 'WhatsApp « c’est prêt »'}</button>` : ''}
+        ${st === 'pret' && !o.rack ? '<button class="px-btn primary" id="px-dt-rack"><i data-lucide="archive"></i>Ranger</button>' : ''}
+        ${o.rack && !delivered ? '<button class="px-btn ghost" id="px-dt-unrack">Libérer le cintre</button>' : ''}
+      </div>`;
+    openVeil('#px-detail-veil');
+    icons();
+
+    $$('[data-px-close]', el).forEach((b) => { b.onclick = () => closeVeil('#px-detail-veil'); });
+    $$('[data-px-piece]', el).forEach((b) => {
+      b.onclick = () => {
+        const p = o.pieces[+b.dataset.pxPiece];
+        const wasPret = orderStatus(o) === 'pret';
+        p.status = b.dataset.pxSt;
+        queueIfOffline('Statut pièce');
+        afterStatusChange(o, wasPret);
+      };
+    });
+    $$('[data-px-all]', el).forEach((b) => {
+      b.onclick = () => {
+        const wasPret = orderStatus(o) === 'pret';
+        o.pieces.forEach((p) => { if (p.status !== 'livre') p.status = b.dataset.pxAll; });
+        queueIfOffline('Statut commande');
+        afterStatusChange(o, wasPret);
+      };
+    });
+    /* tags/pay veils precede the detail veil in the DOM — close detail first
+       so they don't paint underneath it */
+    $('#px-dt-tags', el).onclick = () => { closeVeil('#px-detail-veil'); openTags(o, { fresh: false }); };
+    const payB = $('#px-dt-pay', el);
+    if (payB) payB.onclick = () => {
+      closeVeil('#px-detail-veil');
+      openPay(o, { settle: true, onSettled: () => { openDetail(o.id); refreshOps(); } });
+    };
+    const waB = $('#px-dt-wa', el);
+    if (waB) waB.onclick = () => openWa(o);
+    const rackB = $('#px-dt-rack', el);
+    if (rackB) rackB.onclick = () => {
+      closeVeil('#px-detail-veil');
+      state.rackSelect = o.id;
+      switchView('rangement');
+    };
+    const unrackB = $('#px-dt-unrack', el);
+    if (unrackB) unrackB.onclick = () => {
+      releaseSlot(o);
+      toast(`${o.id} — cintre libéré`);
+      openDetail(o.id); refreshOps();
+    };
+  }
+
+  function afterStatusChange(o, wasPret) {
+    const nowSt = orderStatus(o);
+    openDetail(o.id);
+    refreshOps();
+    if (nowSt === 'pret' && !wasPret && !o.notified) {
+      toast(`${o.id} est prêt — prévenez ${custOf(o).name.split(' ')[0]} ?`);
+      setTimeout(() => openWa(o), 450);
+    }
+  }
+
+  /* re-render whatever ops view is behind the modal + the rail badges */
+  function refreshOps() {
+    renderBadges();
+    if (state.view === 'commandes') renderBoard();
+    if (state.view === 'retrait') renderRetrait();
+    if (state.view === 'rangement') renderRack();
+    icons();
+  }
+
+  /* ═══════════════════════ WHATSAPP « C'EST PRÊT » ═══════════════════════ */
+  function waMessage(o) {
+    const c = custOf(o);
+    const first = c.b2b ? c.name : c.name.split(' ')[0];
+    const { total } = orderTotals(o);
+    const due = o.pay.mode === 'compte' ? 0 : Math.max(0, total - o.pay.paid);
+    return `Sba7 lkhir ${first} — votre commande ${o.id} (${o.pieces.length} pièce${o.pieces.length > 1 ? 's' : ''}) est prête chez Pressing Marshan.`
+      + `\nRetrait dès maintenant, jusqu'à 20h00.`
+      + (due > 0 ? `\nSolde à régler au retrait : ${due} MAD.` : '')
+      + `\n— envoyé via Kiwi`;
+  }
+
+  function openWa(o) {
+    const el = $('#px-wam', root);
+    const c = custOf(o);
+    const photoPiece = o.pieces.find((p) => p.photos > 0) || o.pieces[0];
+    let withPhoto = false;
+    el.innerHTML = `
+      <button class="px-modal-x" data-px-close aria-label="Fermer"><i data-lucide="x"></i></button>
+      <h3 class="modal-title">WhatsApp — c'est prêt</h3>
+      <p class="modal-subtle">${esc(c.name)} ${c.phone ? `· ${esc(c.phone)}` : '· numéro manquant (passage)'}</p>
+      <div class="px-wa-bubblewrap">
+        <div class="px-wa-bubble">
+          <textarea id="px-wa-text">${esc(waMessage(o))}</textarea>
+          <div class="px-wa-meta">${pad2(new Date().getHours())}:${pad2(new Date().getMinutes())} ✓✓</div>
+        </div>
+      </div>
+      <button class="px-wa-photo" id="px-wa-photo">
+        <span class="th">${ART[photoPiece.itemId] || ''}</span>
+        <span class="l">Joindre une photo du vêtement fini — le client voit son linge avant de se déplacer</span>
+        <span class="tick"><i data-lucide="check"></i></span>
+      </button>
+      <div class="px-sheet-foot">
+        <button class="px-btn ghost" data-px-close>Plus tard</button>
+        <button class="px-btn primary" id="px-wa-send" ${c.phone ? '' : 'disabled'}><i data-lucide="send"></i>Envoyer sur WhatsApp</button>
+      </div>`;
+    openVeil('#px-wa-veil');
+    icons();
+    $$('[data-px-close]', el).forEach((b) => { b.onclick = () => closeVeil('#px-wa-veil'); });
+    $('#px-wa-photo', el).onclick = () => {
+      withPhoto = !withPhoto;
+      $('#px-wa-photo', el).classList.toggle('on', withPhoto);
+    };
+    $('#px-wa-send', el).onclick = () => {
+      o.notified = true;
+      closeVeil('#px-wa-veil');
+      queueIfOffline('Notification WhatsApp');
+      toast(`WhatsApp envoyé à ${c.name}${withPhoto ? ' (avec photo)' : ''}`);
+      refreshOps();
+    };
+  }
+
+  /* ═══════════════════════ RETRAIT ═══════════════════════ */
   function renderRetrait() {
     const panel = $('[data-px-panel="retrait"]', root);
-    panel.innerHTML = '<div class="px-bempty" style="margin:40px;">Retrait — en construction (pass 2)</div>';
+    const q = state.rtQuery;
+    const hits = q ? ORDERS.filter((o) => orderStatus(o) !== 'livre' && matchesQuery(o, q)) : [];
+    const prets = hits.filter((o) => orderStatus(o) === 'pret');
+    const others = hits.filter((o) => orderStatus(o) !== 'pret');
+    panel.innerHTML = `
+      <div class="px-retrait">
+        <div class="px-rt-inner">
+          <header class="px-head" style="padding:22px 0 0;">
+            <div><h1>Retrait</h1><div class="px-head-sub">Le client donne son téléphone — ou on scanne son ticket / une étiquette</div></div>
+          </header>
+          <div class="px-rt-search">
+            <div class="px-phone-in"><i data-lucide="phone"></i>
+              <input id="px-rt-q" inputmode="tel" placeholder="06… ou nom du client" value="${esc(q)}" autocomplete="off" /></div>
+          </div>
+          <div class="px-rt-or">ou</div>
+          <button class="px-rt-scan" id="px-rt-scan"><i data-lucide="scan-line"></i>Scanner ticket ou étiquette</button>
+          <div class="px-rt-results">
+            ${prets.map(rtCard).join('')}
+            ${others.map((o) => `
+              <div class="px-rt-card">
+                <div class="px-rt-top">
+                  <div class="px-rt-who"><b>${o.id} · ${esc(custOf(o).name)}</b><span>${o.pieces.length} pièces · ${STATUS[orderStatus(o)].label}</span></div>
+                  <span class="px-pill warn">Pas encore prêt — promis ${fmtDT(o.readyAt)}</span>
+                </div>
+              </div>`).join('')}
+            ${q && !hits.length ? `<div class="px-bempty">Rien pour « ${esc(q)} » — vérifiez le numéro, ou cherchez au tableau.</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    $('#px-rt-q', panel).oninput = (e) => {
+      state.rtQuery = e.target.value;
+      renderRetrait(); icons();
+      const i = $('#px-rt-q', panel); i.focus(); moveCaretEnd(i);
+    };
+    $('#px-rt-scan', panel).onclick = openScan;
+    $$('[data-px-rt-pay]', panel).forEach((b) => {
+      b.onclick = () => {
+        const o = findOrder(b.dataset.pxRtPay);
+        openPay(o, { settle: true, onSettled: refreshOps });
+      };
+    });
+    $$('[data-px-rt-give]', panel).forEach((b) => {
+      b.onclick = () => deliverOrder(b.dataset.pxRtGive);
+    });
+    $$('[data-px-rt-wa]', panel).forEach((b) => {
+      b.onclick = () => openWa(findOrder(b.dataset.pxRtWa));
+    });
+    icons();
   }
+
+  function rtCard(o) {
+    const c = custOf(o);
+    const { total } = orderTotals(o);
+    const due = o.pay.mode === 'compte' ? 0 : Math.max(0, total - o.pay.paid);
+    return `<div class="px-rt-card">
+      <div class="px-rt-top">
+        <div class="px-rt-who"><b>${o.id} · ${esc(c.name)}</b><span>${c.phone ? esc(c.phone) + ' · ' : ''}déposé ${fmtDay(o.droppedAt)}${o.notified ? ' · notifié' : ''}</span></div>
+        <div class="px-rt-slot ${o.rack ? '' : 'none'}">${o.rack ? `<b>${o.rack}</b><span>cintre</span>` : '<b>—</b><span>non rangé</span>'}</div>
+      </div>
+      <div class="px-rt-pieces">
+        ${o.pieces.map((p) => `<div class="px-rt-piece"><i data-lucide="check-circle-2"></i>${esc(p.label)} · ${SVC[p.svc].code}<span class="pid">${p.pid}</span></div>`).join('')}
+      </div>
+      <div class="px-rt-balance ${due > 0 ? '' : 'paid'}">
+        <span>${due > 0 ? 'Solde à encaisser' : o.pay.mode === 'compte' ? 'Sur compte B2B — facture fin de mois' : 'Déjà réglé'}</span>
+        <span class="amt">${due > 0 ? fmtMAD(due) : '✓'}</span>
+      </div>
+      <div class="px-rt-actions">
+        ${due > 0 ? `<button class="px-btn secondary" style="flex:1;" data-px-rt-pay="${o.id}"><i data-lucide="banknote"></i>Encaisser ${fmtMAD(due)}</button>` : ''}
+        <button class="px-btn primary" style="flex:1;" data-px-rt-give="${o.id}" ${due > 0 ? 'disabled title="Encaissez le solde d’abord"' : ''}><i data-lucide="check"></i>Remettre au client</button>
+        ${!o.notified ? `<button class="px-btn ghost" data-px-rt-wa="${o.id}"><i data-lucide="message-circle"></i></button>` : ''}
+      </div>
+    </div>`;
+  }
+
+  function deliverOrder(orderId) {
+    const o = findOrder(orderId);
+    if (!o) return;
+    o.pieces.forEach((p) => { p.status = 'livre'; });
+    o.collectedAt = new Date();
+    releaseSlot(o);
+    queueIfOffline('Retrait');
+    toast(`${o.id} remis à ${custOf(o).name} — merci envoyé sur WhatsApp`);
+    refreshOps();
+  }
+
+  function openScan() {
+    const target = ORDERS.find((o) => orderStatus(o) === 'pret' && o.rack) || ORDERS.find((o) => orderStatus(o) === 'pret');
+    const el = $('#px-scanm', root);
+    const p = target ? target.pieces[0] : null;
+    el.innerHTML = `
+      <h3 class="modal-title">Scan en cours…</h3>
+      <p class="modal-subtle">Présentez le ticket ou n'importe quelle étiquette de la commande.</p>
+      <div class="px-scan-stage">
+        ${p ? `<div class="px-tag px-scan-tag">${tagInner(p, target)}</div>` : ''}
+        <div class="px-scan-laser"></div>
+      </div>`;
+    openVeil('#px-scan-veil');
+    icons();
+    setTimeout(() => {
+      closeVeil('#px-scan-veil');
+      if (target) {
+        state.rtQuery = target.id;
+        renderRetrait(); icons();
+        toast(`Étiquette lue — ${target.id}${target.rack ? ' · cintre ' + target.rack : ''}`);
+      } else {
+        toast('Aucune commande prête à scanner (démo)');
+      }
+    }, 1500);
+  }
+  function tagInner(p, o) {
+    const c = custOf(o);
+    return `<div class="px-tag-top"><span class="px-tag-num">${o.id}</span><span class="px-tag-i">pièce ${p.n}/${p.of}</span></div>
+      <div class="px-tag-client">${esc(c.name)}</div>
+      <div class="px-tag-item">${esc(p.label)} · <span class="svc">${SVC[p.svc].code}</span></div>
+      ${barcode(p.pid, 22)}
+      <div class="px-tag-id">${p.pid}</div>`;
+  }
+
+  /* ═══════════════════════ RANGEMENT (rack) ═══════════════════════ */
+  function releaseSlot(o) {
+    if (o.rack) { delete rackSlots[o.rack]; o.rack = null; }
+  }
+  function assignSlot(o, slot) {
+    releaseSlot(o);
+    rackSlots[slot] = o.id;
+    o.rack = slot;
+  }
+
   function renderRack() {
     const panel = $('[data-px-panel="rangement"]', root);
-    panel.innerHTML = '<div class="px-bempty" style="margin:40px;">Rangement — en construction (pass 2)</div>';
+    const queue = ORDERS.filter((o) => orderStatus(o) === 'pret' && !o.rack);
+    if (state.rackSelect && !queue.some((o) => o.id === state.rackSelect)) state.rackSelect = null;
+    const sel = state.rackSelect;
+    panel.innerHTML = `
+      <div class="px-rack">
+        <div class="px-rack-queue">
+          <div class="px-rack-queue-head"><i data-lucide="archive"></i>À ranger <span class="ct">${queue.length}</span></div>
+          ${queue.map((o) => `
+            <button class="px-qcard ${sel === o.id ? 'on' : ''}" data-px-q="${o.id}">
+              <div class="num">${o.id}</div>
+              <div class="who">${esc(custOf(o).name)}</div>
+              <div class="sub">${o.pieces.length} pièce${o.pieces.length > 1 ? 's' : ''} · ${o.notified ? 'client notifié' : 'pas encore notifié'}</div>
+            </button>`).join('') || '<div class="px-rack-hint">Rien à ranger.<br>Quand une commande passe « prête », elle arrive ici.</div>'}
+          ${queue.length ? `<div class="px-rack-hint">${sel ? 'Touchez un emplacement libre →' : 'Sélectionnez une commande, puis son emplacement.'}</div>` : ''}
+        </div>
+        <div class="px-rails">
+          ${RAILS.map((r) => {
+            const free = Array.from({ length: RAIL_SIZE }, (_, i) => `${r}-${pad2(i + 1)}`).filter((s) => !rackSlots[s]).length;
+            return `<div class="px-rail-row">
+              <div class="px-rail-lbl"><i data-lucide="move-horizontal"></i>RAIL ${r}<span class="free">${free} libres</span></div>
+              <div class="px-slots">
+                ${Array.from({ length: RAIL_SIZE }, (_, i) => {
+                  const slot = `${r}-${pad2(i + 1)}`;
+                  const oid = rackSlots[slot];
+                  if (oid) return `<button class="px-slot is-full" data-px-slot-full="${oid}"><span class="pos">${slot}</span><span class="oid">${oid.replace('P-', '')}</span></button>`;
+                  return `<button class="px-slot ${sel ? 'is-target' : ''}" data-px-slot="${slot}"><span class="pos">${slot}</span></button>`;
+                }).join('')}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    panel.onclick = (e) => {
+      const qc = e.target.closest('[data-px-q]');
+      if (qc) { state.rackSelect = state.rackSelect === qc.dataset.pxQ ? null : qc.dataset.pxQ; renderRack(); icons(); return; }
+      const full = e.target.closest('[data-px-slot-full]');
+      if (full) { openDetail(full.dataset.pxSlotFull); return; }
+      const slot = e.target.closest('[data-px-slot]');
+      if (slot && state.rackSelect) {
+        const o = findOrder(state.rackSelect);
+        assignSlot(o, slot.dataset.pxSlot);
+        state.rackSelect = null;
+        queueIfOffline('Rangement');
+        toast(`${o.id} → cintre ${o.rack} — retrouvable en un scan`);
+        renderRack(); renderBadges(); icons();
+        const flash = $(`[data-px-slot-full="${o.id}"]`, panel);
+        if (flash) flash.classList.add('flash');
+      }
+    };
+    icons();
   }
 
   /* ═══════════════════════ OFFLINE (file d'attente simulée) ═══════════════════════ */
