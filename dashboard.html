@@ -558,24 +558,50 @@
    * re-renders hero/KPI/chart/feed, so these never replay on their own. */
   /* html body — outranks theme.css's `html .block` color-transition rule;
    * the color transitions are merged in so theme switching stays smooth. */
-  html body .block { transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease,
+  html body .block, html body .settle { transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease,
     transform 220ms cubic-bezier(0.32, 0.72, 0, 1), box-shadow 220ms ease; }
-  .block:hover { transform: translateY(-1px); box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--ink) 26%, transparent); }
-  @keyframes card-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .dash-col .block, .row .block { animation: card-in 480ms cubic-bezier(0.32, 0.72, 0, 1) backwards; }
-  .dash-col .block:nth-child(1) { animation-delay: 60ms; }
-  .dash-col .block:nth-child(2) { animation-delay: 140ms; }
-  .dash-col .block:nth-child(3) { animation-delay: 220ms; }
-  .dash-col .block:nth-child(4) { animation-delay: 300ms; }
+  .block:hover, .settle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px -16px color-mix(in srgb, var(--ink) 32%, transparent);
+    border-color: color-mix(in srgb, var(--atlas) 26%, var(--n-200));
+  }
+  /* Entrance choreography — gated on body.cards-enter, which unlock() adds
+   * the moment the dashboard becomes visible. Before that gate the cards
+   * sit fully rendered (no animation wasted behind the lock screen). */
+  @keyframes card-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  body.cards-enter .dash-col .block, body.cards-enter .row .block, body.cards-enter .settle {
+    animation: card-in 520ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+  }
+  body.cards-enter .dash-col .block:nth-child(1) { animation-delay: 60ms; }
+  body.cards-enter .dash-col .block:nth-child(2) { animation-delay: 150ms; }
+  body.cards-enter .dash-col .block:nth-child(3) { animation-delay: 240ms; }
+  body.cards-enter .dash-col .block:nth-child(4) { animation-delay: 330ms; }
+  body.cards-enter .settle { animation-delay: 200ms; }
   @keyframes row-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .prod-row, .staff-row, .bench-row {
     animation: row-in 380ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
     animation-delay: calc(var(--i, 0) * 45ms + 60ms);
   }
   .mini-bar > div, .bench-bar .you { transition: width 720ms cubic-bezier(0.16, 1, 0.3, 1); }
+  /* Heatmap bars rise into place — .hh-anim is set per render, only when the
+   * rebuild is NOT a 3-second live tick (dateRange.js renderHeatmap). */
+  @keyframes hh-rise { from { opacity: 0; transform: translateY(8px) scaleY(0.55); } to { opacity: 1; transform: none; } }
+  .hh-anim .hh-col { transform-origin: bottom; animation: hh-rise 440ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 22ms); }
+  /* Live-order rows cascade on data changes (never on live ticks). */
+  .feed-anim .feed-row { animation: row-in 360ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 35ms); }
+  /* Payment-mix legend cascades once at unlock (built a single time). */
+  body.cards-enter [data-mix-legend] .li { animation: row-in 380ms cubic-bezier(0.32, 0.72, 0, 1) backwards; }
+  body.cards-enter [data-mix-legend] .li:nth-child(1) { animation-delay: 120ms; }
+  body.cards-enter [data-mix-legend] .li:nth-child(2) { animation-delay: 190ms; }
+  body.cards-enter [data-mix-legend] .li:nth-child(3) { animation-delay: 260ms; }
+  body.cards-enter [data-mix-legend] .li:nth-child(4) { animation-delay: 330ms; }
   @media (prefers-reduced-motion: reduce) {
-    .block, .dash-col .block, .row .block, .prod-row, .staff-row, .bench-row { animation: none; transition: none; }
-    .block:hover { transform: none; box-shadow: none; }
+    .block, .settle, body.cards-enter .dash-col .block, body.cards-enter .row .block, body.cards-enter .settle,
+    .prod-row, .staff-row, .bench-row, .hh-anim .hh-col, .feed-anim .feed-row,
+    body.cards-enter [data-mix-legend] .li { animation: none; transition: none; }
+    .block:hover, .settle:hover { transform: none; box-shadow: none; }
     .mini-bar > div, .bench-bar .you { transition: none; }
   }
   .block-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
@@ -5914,6 +5940,7 @@
       if (app)     app.classList.remove('kw-app-hidden');
       if (demoBar) demoBar.classList.remove('kw-bar-hidden');
       if (greet && greet.parentNode) greet.remove();
+      document.body.classList.add('cards-enter');
     }, 880);
     setTimeout(() => {
       const h = window.Kiwi && window.Kiwi.handlers && window.Kiwi.handlers['onboard'];
@@ -5989,6 +6016,11 @@
       greet.setAttribute('aria-hidden', 'true');
       if (app)     app.classList.remove('kw-app-hidden');
       if (demoBar) demoBar.classList.remove('kw-bar-hidden');
+      /* Entrance choreography fires NOW — while the user is watching.
+       * (Cards' load-time animations used to play hidden behind the lock.)
+       * The class stays on for the session: card animations are gated on it
+       * and re-run only when their DOM is rebuilt. */
+      document.body.classList.add('cards-enter');
       /* PIN 0505 was entered → after the greeting's fade settles, fire
        * the keynote-style "Introducing Marketing Suite" tease. The 900 ms
        * extra delay (= 4100 ms after unlock) lets the greeting fully
@@ -6019,6 +6051,7 @@
     document.documentElement.style.overflow = '';
     if (app)     app.classList.remove('kw-app-hidden');
     if (demoBar) demoBar.classList.remove('kw-bar-hidden');
+    document.body.classList.add('cards-enter');
     if (lock && lock.parentNode) {
       lock.classList.add('is-unlocking');
       setTimeout(() => { if (lock.parentNode) lock.remove(); }, 280);

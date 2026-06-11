@@ -1801,6 +1801,9 @@
     }
     const row = document.querySelector('[data-hh-row]');
     if (row) {
+      /* Bars rise into place on real data changes; a 3s live tick rebuilds
+       * silently (no replay while the demo clock runs). */
+      row.classList.toggle('hh-anim', !liveTickInProgress);
       row.innerHTML = data.map((d, i) => {
         let stateCls = '';
         if (simIdx >= 0) {
@@ -1809,7 +1812,7 @@
           else stateCls = 'future';
         }
         return `
-        <div class="hh-col">
+        <div class="hh-col" style="--i:${i};">
           <div class="hh-cell ${intensityClass(d.intensity)}${stateCls ? ' ' + stateCls : ''}">
             <div class="hh-tooltip">
               <div class="hour">${d.hour}</div>
@@ -3112,6 +3115,9 @@
          * detail (items, server, breakdown) from a stable key — avoids
          * round-tripping JSON through DOM attributes. */
         window.__kiwiFeedOrders = {};
+        /* Rows cascade on data changes; live ticks rebuild without replay
+         * (the .new row keeps its own slide-in). */
+        wrap.classList.toggle('feed-anim', !liveTickInProgress);
         wrap.innerHTML = rows.map((r, idx) => {
           const key = `o${idx}`;
           window.__kiwiFeedOrders[key] = r;
@@ -3137,7 +3143,7 @@
           const who = r.customer ? r.customer : (r.ctx || '');
 
           return `
-          <div class="feed-row${r.isNew ? ' new' : ''}" tabindex="0" role="button" data-action="open-order" data-order-key="${key}">
+          <div class="feed-row${r.isNew ? ' new' : ''}" style="--i:${idx};" tabindex="0" role="button" data-action="open-order" data-order-key="${key}">
             <div class="t">${r.t}</div>
             <div class="method">
               <div class="ci ${r.method}">${chipInner}</div>

@@ -144,12 +144,13 @@
       .oppo-card { position: relative; overflow: hidden; background: var(--surface);
         border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent); border-radius: 16px;
         padding: 18px 18px 16px; display: flex; flex-direction: column; min-height: 158px;
-        opacity: 0; transform: translateY(10px);
-        animation: oppo-in 480ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
-        animation-delay: calc(var(--i) * 70ms);
         transition: transform 220ms cubic-bezier(0.32, 0.72, 0, 1), box-shadow 220ms ease, opacity 200ms ease; }
+      /* Entrance plays once body.cards-enter lands (the unlock reveal) and
+       * again on every re-render after that (dismiss refill, lang switch). */
+      body.cards-enter .oppo-card { animation: oppo-in 480ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+        animation-delay: calc(var(--i) * 70ms + 90ms); }
       .oppo-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -14px color-mix(in srgb, var(--ink) 28%, transparent); }
-      @keyframes oppo-in { to { opacity: 1; transform: translateY(0); } }
+      @keyframes oppo-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       .oppo-card.out { opacity: 0; transform: scale(0.96); pointer-events: none; }
       .oppo-art { position: absolute; inset-inline-end: -12px; bottom: -10px; width: 116px; height: 92px;
         opacity: 0.95; transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1); pointer-events: none; }
@@ -166,7 +167,7 @@
       .oppo-card:hover .oppo-x, .oppo-x:focus-visible { opacity: 1; }
       .oppo-x:hover { background: var(--paper-soft); color: var(--ink); }
       @media (prefers-reduced-motion: reduce) {
-        .oppo-card { animation: none; opacity: 1; transform: none; transition: none; }
+        .oppo-card, body.cards-enter .oppo-card { animation: none; transition: none; }
         .oppo-card:hover .oppo-art { transform: none; }
       }`;
     const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
