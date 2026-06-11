@@ -772,6 +772,15 @@
 
     .view-vrap { padding-top: 10px; }
 
+    /* Builder must fill the view as a flex column so .menu-grid (flex:1) becomes
+       the scroll area — otherwise it grows past the view's overflow:hidden and
+       the lower dishes can't be reached. */
+    #vrap-builder {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column;
+    }
+    #vrap-builder[hidden] { display: none; }
+
     .cat-pills {
       display: flex; gap: 6px;
       overflow-x: auto;
@@ -3764,6 +3773,7 @@
     .vrap-hrow-done svg { width: 13px; height: 13px; }
     .vrap-back-btn {
       display: inline-flex; align-items: center; gap: 7px;
+      align-self: flex-start;
       padding: 8px 14px; border-radius: 999px;
       background: var(--paper-mute); color: var(--ink-2);
       font-size: 12.5px; font-weight: 600; margin-bottom: 12px;
