@@ -141,6 +141,45 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 11 (late):** `f0efdfd`+`01b5149`+`6afd310` **kiwi-caisse becomes 14 POS verticals, one
+per métier** — the dashboard's venue universe (boutique, spa, hôtel, fast-food, boulangerie,
+pizzeria, traiteur, food truck, épicerie, pharmacie, librairie, fleuriste, coiffure, salle
+de sport) now each has a real hardware POS app behind its own PIN. **`assets/pos-dispatch.js`**
+is the router: registry `0002`–`0015` → lazy-loads `assets/pos-<id>.{js,css}` on first
+unlock, owns the shared unlock/greet/lock choreography (dot success → fade → greeting flash →
+`body.is-pos.is-pos-<id>`, lock-back via `__kiwiPinReset`), a tappable **code legend** on the
+pin-foot, and an honest "module indisponible" toast if a module is missing. Modules
+self-register: `KiwiPosDispatch.register({id, greet, mount(root), onShow})` — `mount` builds
+into the dispatcher-provided root (`<div class="vx-screen" id="pos-<id>">`, fixed inset-0,
+z-90), never `document.body`. **PIN map:** 0000 pressing · 0001 cuisine(KDS) · 0002 boutique
+(Maison Mansour — échanges & avoirs, stock par taille) · 0003 spa (Spa Bahia — cures à carte
+poinçonnée) · 0004 hôtel (Riad Yasmina — folio + taxe de séjour) · 0005 fast-food (Snack
+Chamal — combo upsell, file d'appel) · 0006 boulangerie (Bab Kasbah — fournées/restant,
+précommandes gâteaux) · 0007 pizzeria (La Marsa — moitié-moitié, livraison) · 0008 traiteur
+(Dar Zellij — devis/personne, échéancier d'acomptes) · 0009 food truck (Karavan — vente 2
+taps) · 0010 épicerie (Si Brahim — **le carnet de crédit/ardoise**, vente au poids) · 0011
+pharmacie (Ibn Batouta — **tiers payant** part mutuelle/patient, opérationnel only) · 0012
+librairie (Al Boughaz — commandes spéciales, listes scolaires) · 0013 fleuriste (Fleurs du
+Détroit — composer de bouquet, carte message) · 0014 coiffure (Salon Yasmine — formule
+couleur mémorisée) · 0015 gym (Atlas Fitness — check-in vert/rouge) · **tout autre code →
+caisse restaurant Café Atlas, le démo principal, intact.** Each module (~1 100–1 700 lignes
+JS) reuses the caisse tokens + modal kit (`.modal-veil/.cash-*/.reader-*/.ma-btn/.pay-tip`)
+and `#toast-stack`, with its own `<prefix>-` CSS namespace, dark rail, SVG line-art, phone-
+first clients, offline chip, seeded mid-shift Moroccan data. **Build method:** a build+review
+agent **Workflow** (the first 14-agent run hit the 4:50pm session reset mid-flight — 8 built,
+6 left; a second 12-agent run finished the rest). All 14 verified live by the orchestrator
+(mount + every view renders + zero console errors + signature feature exercised). **Toast
+z-index fix** rode along: `#toast-stack` shipped at z-90 = the vertical roots, so toasts
+painted underneath — lifted to 200 under `body.is-pos`/`body.is-pressing` (restaurant
+untouched). **Two gotchas for the next session:** (1) the preview tab kept getting hijacked
+to `dashboard2.html` and the shared `:8765` server died repeatedly during the agent runs —
+verify one PIN at a time, re-navigate + re-harness when it drifts, and don't trust the first
+screenshot (intermittent DPR downscale — functional DOM probes are the reliable signal). (2)
+**`assets/pressing.js` is stray untracked cruft** (the old `hx-`-prefixed pressing prototype,
+superseded by `pressing-caisse.js`, referenced nowhere) — it's the sole `node tools/check.js`
+failure (`data-action="modal-close"` unwired, + 3 `var(--ink)` warnings). Safe to delete;
+left in place pending the owner's OK (not created by this session).
+
 **Jun 11 (night):** `50bdbce`+`57b181b` **PIN 0000 turns kiwi-caisse into a pressing** —
 the Tangier-prospect demo: one terminal, two métiers. His restaurant = any 4-digit code
 (caisse untouched), his pressing = **0000**; the KDS station moved to **0001** (pin-foot
