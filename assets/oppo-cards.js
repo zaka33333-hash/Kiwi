@@ -75,10 +75,28 @@
         <ellipse cx="88" cy="76" rx="14" ry="6" fill="var(--atlas)" opacity="0.7"/>
         <ellipse cx="88" cy="71" rx="14" ry="6" fill="var(--mint)" opacity="0.8"/>
       </svg>`,
+    /* Kiwi card with a chip + outflow arrow (Dépenses) */
+    depenses: `
+      <svg viewBox="0 0 120 96" fill="none" aria-hidden="true">
+        <rect x="18" y="24" width="80" height="50" rx="10" fill="var(--riad)"/>
+        <rect x="18" y="35" width="80" height="9" fill="var(--atlas)" opacity="0.5"/>
+        <rect x="28" y="52" width="16" height="12" rx="3" fill="var(--mint)"/>
+        <rect x="54" y="57" width="34" height="5" rx="2.5" fill="var(--paper)" opacity="0.45"/>
+        <circle cx="96" cy="22" r="15" fill="var(--mint)"/>
+        <path d="M96 15v13M90 22l6 6 6-6" stroke="var(--riad)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
   };
 
   /* ─── Card pool — one feature per card, CTA = the feature's real handler ─── */
   const POOL = [
+    {
+      id: 'depenses', art: 'depenses', action: 'open-depenses',
+      t: { fr: 'Maîtrisez vos sorties', en: 'Control what goes out', ar: 'تحكّم في مصاريفك' },
+      d: { fr: 'Des cartes Kiwi pour votre équipe, un plafond par catégorie, et chaque dirham qui sort — net de ce qui rentre.',
+           en: 'Kiwi cards for your team, a per-category limit, and every dirham going out — net of what comes in.',
+           ar: 'بطاقات Kiwi لفريقك، حدّ لكل فئة، وكل درهم يخرج — مقابل ما يدخل.' },
+      cta: { fr: 'Voir Dépenses', en: 'Open Spend', ar: 'فتح المصاريف' },
+    },
     {
       id: 'paylink', art: 'paylink', action: 'payment-link',
       t: { fr: 'Encaissez à distance', en: 'Get paid remotely', ar: 'حصّل عن بُعد' },

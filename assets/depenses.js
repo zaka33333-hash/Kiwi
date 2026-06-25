@@ -411,6 +411,8 @@
   }
 
   handlers['nav-depenses'] = render;
+  /* « Pour vous » opportunity card + any other in-page CTA opens the page. */
+  handlers['open-depenses'] = render;
 
   /* ─────────────── ACTIONS ─────────────── */
   handlers['dep-freeze'] = (_el, id) => {
