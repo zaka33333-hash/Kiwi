@@ -80,6 +80,22 @@
     ncCat:    { fr: 'Catégorie autorisée', en: 'Allowed category', ar: 'الفئة المسموحة' },
     ncIssue:  { fr: 'Émettre la carte', en: 'Issue card', ar: 'إصدار البطاقة' },
     cancel:   { fr: 'Annuler', en: 'Cancel', ar: 'إلغاء' },
+    // Ultra · cross-site portfolio (fusion view)
+    uTitle:   { fr: 'Dépenses · portefeuille', en: 'Spend · portfolio', ar: 'المصاريف · المحفظة' },
+    uSub:     { fr: '3 établissements · juin · contrôle consolidé', en: '3 venues · June · consolidated control', ar: '3 منشآت · يونيو · مراقبة موحّدة' },
+    uBadge:   { fr: 'EXCLUSIF ULTRA', en: 'ULTRA EXCLUSIVE', ar: 'حصري ألترا' },
+    uBadgeMsg:{ fr: 'Une seule boîte d\'approbation et un seul net pour vos 3 établissements. Le contrôle des sorties à l\'échelle du portefeuille — réservé au palier Ultra (1 499 MAD/mois).',
+                en: 'One approval inbox and one net across your 3 venues. Portfolio-wide outflow control — Ultra tier only (1,499 MAD/mo).',
+                ar: 'صندوق موافقة واحد وصافٍ واحد لمنشآتك الثلاث. التحكّم في المصاريف على مستوى المحفظة — حصري لباقة ألترا (1,499 درهم/شهر).' },
+    uInLbl:   { fr: 'ENCAISSÉ · 3 SITES', en: 'COLLECTED · 3 VENUES', ar: 'المحصّل · 3 مواقع' },
+    uOutLbl:  { fr: 'DÉPENSÉ · 3 SITES', en: 'SPENT · 3 VENUES', ar: 'المصروف · 3 مواقع' },
+    uNetLbl:  { fr: 'NET CONSOLIDÉ', en: 'CONSOLIDATED NET', ar: 'الصافي الموحّد' },
+    uSitesH:  { fr: 'Sorties par établissement', en: 'Outflow by venue', ar: 'المصاريف حسب المنشأة' },
+    uInboxH:  { fr: 'À approuver · tous sites', en: 'To approve · all venues', ar: 'بانتظار الموافقة · كل المواقع' },
+    uBudH:    { fr: 'Budgets consolidés', en: 'Consolidated budgets', ar: 'الميزانيات الموحّدة' },
+    uOpen:    { fr: 'Ouvrir', en: 'Open', ar: 'فتح' },
+    uShare:   { fr: 'des sorties', en: 'of outflow', ar: 'من المصاريف' },
+    cardsWord:{ fr: 'cartes', en: 'cards', ar: 'بطاقات' },
     // starter (custom venue)
     stTitle:  { fr: 'Vos dépenses, sous contrôle', en: 'Your spending, under control', ar: 'مصاريفك تحت السيطرة' },
     stMsg:    { fr: 'Donnez à votre équipe des cartes Kiwi avec un plafond par catégorie, approuvez avant que l\'argent ne bouge, et voyez chaque dirham qui sort — net de ce qui rentre.',
@@ -139,6 +155,32 @@
     { t: 'Hier',  merchant: 'Atelier Salé',       cat: 'achats',  who: 'Hamid',  amount: 1450, receipt: true },
     { t: 'Hier',  merchant: 'Maroc Telecom',      cat: 'telecom', who: null,     amount: 340,  receipt: true },
   ];
+
+  /* ─── ULTRA · cross-site portfolio (fusion view) ───
+   * The 1 499 MAD/mois superpower: one owner controls outflow across every
+   * établissement from a single screen — one approval inbox, one net. */
+  const SITES = [
+    { id: 'cafeAtlas',     name: 'Café Atlas',     loc: 'Maarif',    av: 'CA', hue: 'var(--atlas)', rev: 248600, spent: 90440, cards: 4 },
+    { id: 'maisonMansour', name: 'Maison Mansour', loc: 'Guéliz',    av: 'MM', hue: 'var(--riad)',  rev: 186200, spent: 71200, cards: 3 },
+    { id: 'spaBahia',      name: 'Spa Bahia',      loc: 'Hivernage', av: 'SB', hue: '#1f6f53',      rev: 142800, spent: 58900, cards: 2 },
+  ];
+  const xbudgets = [
+    { cat: 'achats',  spent: 96000, cap: 120000 },
+    { cat: 'salaire', spent: 71000, cap: 78000 },
+    { cat: 'energie', spent: 18400, cap: 22000 },
+    { cat: 'loyer',   spent: 34000, cap: 34000 },
+    { cat: 'market',  spent: 6900,  cap: 12000 },
+  ];
+  let xpending;
+  function seedX() {
+    xpending = [
+      { id: 'x1', site: 'Café Atlas',     who: 'Hamid Jelloul',  av: 'HJ', merchant: 'Métro Cash & Carry',  cat: 'achats', amount: 2340, receipt: true },
+      { id: 'x2', site: 'Maison Mansour', who: 'Salma Benani',   av: 'SB', merchant: 'Atelier textile Fès', cat: 'achats', amount: 5600, receipt: true },
+      { id: 'x3', site: 'Spa Bahia',      who: 'Yasmine Tahiri', av: 'YT', merchant: 'Huiles & cosmétiques', cat: 'achats', amount: 3120, receipt: false },
+      { id: 'x4', site: 'Maison Mansour', who: 'Karim Lahlou',   av: 'KL', merchant: 'Déco vitrine',        cat: 'market', amount: 1850, receipt: true },
+    ];
+  }
+  seedX();
 
   /* ─────────────── STYLES ─────────────── */
   (function injectCss() {
@@ -248,10 +290,35 @@
     .dep-starter-row + .dep-starter-row { border-top: 1px solid color-mix(in srgb, var(--ink) 6%, transparent); }
     .dep-starter-row svg { color: var(--atlas); flex: none; }
     .dep-starter-foot { font-size: 12px; color: var(--n-500); line-height: 1.5; max-width: 430px; margin: 0 auto; }
+    /* ── Ultra · cross-site portfolio ── */
+    .dep-ultra { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start;
+      background: linear-gradient(100deg, color-mix(in srgb, var(--riad) 12%, var(--surface)), color-mix(in srgb, var(--mint) 14%, var(--surface)));
+      border: 1px solid color-mix(in srgb, var(--atlas) 30%, transparent); border-radius: 12px; padding: 9px 14px;
+      font-size: 12px; color: var(--n-700); line-height: 1.45; max-width: 780px; }
+    .dep-ultra b { font-family: var(--mono); font-size: 10px; letter-spacing: 0.09em; color: var(--atlas); white-space: nowrap; }
+    .dep-sites { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 920px) { .dep-sites { grid-template-columns: 1fr; } }
+    .dep-site { text-align: start; background: var(--surface); border: 1px solid color-mix(in srgb, var(--ink) 9%, transparent);
+      border-radius: 14px; padding: 15px 16px; cursor: pointer; font-family: inherit; width: 100%;
+      transition: transform 200ms cubic-bezier(0.32,0.72,0,1), box-shadow 200ms ease, border-color 200ms ease; }
+    .dep-site:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -18px color-mix(in srgb, var(--ink) 32%, transparent); border-color: color-mix(in srgb, var(--atlas) 30%, transparent); }
+    .dep-site-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .dep-site-av { width: 30px; height: 30px; border-radius: 8px; color: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex: none; }
+    .dep-site-nm { font-size: 13.5px; font-weight: 600; }
+    .dep-site-loc { font-size: 11px; color: var(--n-500); margin-top: 1px; }
+    .dep-site-net { font-size: 21px; font-weight: 600; letter-spacing: -0.02em; color: var(--atlas); font-variant-numeric: tabular-nums; }
+    .dep-site-net .u { font-size: 11px; font-weight: 500; color: var(--n-500); margin-inline-start: 3px; }
+    .dep-site-io { display: flex; gap: 14px; font-size: 11.5px; color: var(--n-500); margin-top: 4px; }
+    .dep-site-io b { color: var(--riad); font-weight: 600; }
+    .dep-site-bar { height: 6px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 8%, transparent); overflow: hidden; margin-top: 10px; }
+    .dep-site-bar > i { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--riad), var(--atlas)); transition: width 760ms cubic-bezier(0.16,1,0.3,1); }
+    .dep-site-foot { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--n-500); margin-top: 8px; }
+    .dep-site-open { color: var(--atlas); font-weight: 600; }
+    .dep-site-tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.04em; background: color-mix(in srgb, var(--atlas) 12%, var(--surface)); color: var(--atlas); border-radius: 999px; padding: 2px 7px; white-space: nowrap; }
     @media (prefers-reduced-motion: reduce) {
       .dep-card { animation: none; }
-      .dep-budget .br > i, .dep-kc-bar > i, .dep-bud .br > i { transition: none; }
-      .dep-kc:hover { transform: none; }
+      .dep-budget .br > i, .dep-kc-bar > i, .dep-bud .br > i, .dep-site-bar > i { transition: none; }
+      .dep-kc:hover, .dep-site:hover { transform: none; }
     }`;
     const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
   })();
@@ -379,6 +446,79 @@
       </div>`;
   }
 
+  function fusionBodyHtml() {
+    const totIn = SITES.reduce((s, x) => s + x.rev, 0);
+    const totOut = SITES.reduce((s, x) => s + x.spent, 0);
+    const net = totIn - totOut;
+
+    const ledger = `
+      <div class="dep-ledger">
+        <div class="dep-led"><div class="l">${pick(T.uInLbl)}</div><div class="v">${mad(totIn)}<span class="u">MAD</span></div></div>
+        <div class="dep-led out"><div class="l">${pick(T.uOutLbl)}</div><div class="v">${mad(totOut)}<span class="u">MAD</span></div></div>
+        <div class="dep-led net"><div class="l">${pick(T.uNetLbl)}</div><div class="v">+${mad(net)}<span class="u">MAD</span></div></div>
+      </div>`;
+
+    const sitesHtml = SITES.map((x) => {
+      const sNet = x.rev - x.spent;
+      const outRatio = Math.round((x.spent / x.rev) * 100);
+      const shareOut = Math.round((x.spent / totOut) * 100);
+      return `
+        <button class="dep-site" data-action="dep-site" data-arg="${x.id}">
+          <div class="dep-site-top">
+            <div class="dep-site-av" style="background:${x.hue};">${x.av}</div>
+            <div><div class="dep-site-nm">${esc(x.name)}</div><div class="dep-site-loc">${esc(x.loc)} · ${x.cards} ${pick(T.cardsWord)}</div></div>
+          </div>
+          <div class="dep-site-net">+${mad(sNet)}<span class="u">MAD ${pick(T.netLbl).toLowerCase()}</span></div>
+          <div class="dep-site-io"><span>↑ ${mad(x.rev)}</span><span>↓ <b>${mad(x.spent)}</b></span></div>
+          <div class="dep-site-bar"><i data-grow="${outRatio}%"></i></div>
+          <div class="dep-site-foot"><span>${shareOut}% ${pick(T.uShare)}</span><span class="dep-site-open">${pick(T.uOpen)} →</span></div>
+        </button>`;
+    }).join('');
+
+    const inboxHtml = xpending.length ? xpending.map((p) => `
+      <div class="dep-appr">
+        <div class="dep-av">${esc(p.av)}</div>
+        <div class="dep-appr-mid">
+          <div class="dep-appr-top">${esc(p.who)} · ${esc(p.merchant)}</div>
+          <div class="dep-appr-sub"><span class="dep-site-tag">${esc(p.site)}</span><span>${esc(pick(CAT[p.cat]))}</span>
+            <span class="dep-rcpt${p.receipt ? '' : ' miss'}">${I.rcpt}${p.receipt ? pick(T.receipt) : pick(T.noReceipt)}</span></div>
+        </div>
+        <div class="dep-appr-amt">${mad(p.amount)} MAD</div>
+        <div class="dep-appr-btns">
+          <button class="dep-mini no" data-action="dep-refuse" data-arg="${p.id}">${pick(T.refuse)}</button>
+          <button class="dep-mini ok" data-action="dep-approve" data-arg="${p.id}">${pick(T.approve)}</button>
+        </div>
+      </div>`).join('') : `<div class="dep-empty">${pick(T.apprNone)}</div>`;
+
+    const budHtml = xbudgets.map((b) => {
+      const pct = Math.min(100, Math.round((b.spent / b.cap) * 100));
+      const cls = pct >= 100 ? 'full' : pct >= 88 ? 'warn' : '';
+      return `<div class="dep-bud">
+        <div class="dep-bud-top"><span>${esc(pick(CAT[b.cat]))}</span><span class="pct ${cls}">${mad(b.spent)} / ${mad(b.cap)} · ${pct}%</span></div>
+        <div class="br"><i class="${cls}" data-grow="${pct}%"></i></div></div>`;
+    }).join('');
+
+    return `
+      <div class="dep-wrap">
+        <div class="dep-ultra"><b>${pick(T.uBadge)}</b><span>${pick(T.uBadgeMsg)}</span></div>
+        ${ledger}
+        <div class="dep-card" style="animation-delay:60ms;">
+          <div class="dep-h"><div class="t">${pick(T.uSitesH)}</div></div>
+          <div class="dep-sites">${sitesHtml}</div>
+        </div>
+        <div class="dep-grid">
+          <div class="dep-card" style="animation-delay:120ms;">
+            <div class="dep-h"><div class="t">${pick(T.uInboxH)}${xpending.length ? ` · ${xpending.length}` : ''}</div></div>
+            ${inboxHtml}
+          </div>
+          <div class="dep-card" style="animation-delay:160ms;">
+            <div class="dep-h"><div class="t">${pick(T.uBudH)}</div></div>
+            ${budHtml}
+          </div>
+        </div>
+      </div>`;
+  }
+
   function starterHtml() {
     const rows = [T.stB1, T.stB2, T.stB3].map((b) => `<div class="dep-starter-row">${I.check}<span>${pick(b)}</span></div>`).join('');
     return `<div class="dep-starter">
@@ -401,11 +541,16 @@
   }
 
   function render() {
-    const custom = !!(window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom());
+    const KV = window.KiwiVenue;
+    const custom = !!(KV && KV.isCustom && KV.isCustom());
+    /* Portfolio (fusion) venue → the consolidated Ultra view. A custom venue
+     * is never the fusion demo, so custom wins the branch. */
+    const fusion = !custom && !!(KV && KV.getVenue && KV.getVenue() === 'fusion');
     const r = window.Kiwi.appPage('depenses', {
-      title: pick(T.title),
-      subtitle: custom ? ((window.KiwiVenue.getCurrentVenueData && window.KiwiVenue.getCurrentVenueData().name) || '') + ' · compte en démarrage' : pick(T.subtitle),
-      body: custom ? starterHtml() : bodyHtml(),
+      title: fusion ? pick(T.uTitle) : pick(T.title),
+      subtitle: custom ? ((KV.getCurrentVenueData && KV.getCurrentVenueData().name) || '') + ' · compte en démarrage'
+              : fusion ? pick(T.uSub) : pick(T.subtitle),
+      body: custom ? starterHtml() : fusion ? fusionBodyHtml() : bodyHtml(),
     });
     if (!custom && r && r.el) growBars(r.el);
   }
@@ -421,17 +566,38 @@
     render();
     toast(c.frozen ? pick(T.tFrozen) : pick(T.tUnfroze), { type: c.frozen ? 'warn' : 'success', desc: c.frozen ? pick(T.tFrozenD) : pick(T.tUnfrozeD) });
   };
+  /* x-prefixed ids belong to the cross-site (fusion) approval inbox. */
   handlers['dep-approve'] = (_el, id) => {
+    if (id && id.charAt(0) === 'x') {
+      if (!xpending.some((x) => x.id === id)) return;
+      xpending = xpending.filter((x) => x.id !== id);
+      render();
+      toast(pick(T.tApproved), { type: 'success', desc: pick(T.tApprDesc) });
+      return;
+    }
     const p = pending.find((x) => x.id === id); if (!p) return;
     pending = pending.filter((x) => x.id !== id);
     render();
     toast(pick(T.tApproved), { type: 'success', desc: pick(T.tApprDesc) });
   };
   handlers['dep-refuse'] = (_el, id) => {
+    if (id && id.charAt(0) === 'x') {
+      if (!xpending.some((x) => x.id === id)) return;
+      xpending = xpending.filter((x) => x.id !== id);
+      render();
+      toast(pick(T.tRefused), { type: 'warn', desc: pick(T.tRefDesc) });
+      return;
+    }
     const p = pending.find((x) => x.id === id); if (!p) return;
     pending = pending.filter((x) => x.id !== id);
     render();
     toast(pick(T.tRefused), { type: 'warn', desc: pick(T.tRefDesc) });
+  };
+  /* Drill into one établissement from the portfolio view — switching the
+   * venue exits fusion; the venue subscriber below repaints this page. */
+  handlers['dep-site'] = (_el, id) => {
+    if (window.KiwiVenue && window.KiwiVenue.setVenue) window.KiwiVenue.setVenue(id);
+    else render();
   };
   handlers['dep-pay'] = (_el, id) => {
     const s = suppliers.find((x) => x.id === id); if (!s) return;
@@ -475,4 +641,15 @@
   window.addEventListener('kiwi:langchange', () => {
     if (window.Kiwi && window.Kiwi.activePage === 'depenses') render();
   });
+
+  /* Re-render when the venue changes while the page is open — so picking
+   * « Go Ultra » (→ fusion) or drilling into a site repaints in place.
+   * KiwiVenue may not exist yet at module load; retry until it does. */
+  (function hookVenue() {
+    if (window.KiwiVenue && window.KiwiVenue.subscribe) {
+      window.KiwiVenue.subscribe(() => {
+        if (window.Kiwi && window.Kiwi.activePage === 'depenses') render();
+      });
+    } else { setTimeout(hookVenue, 50); }
+  })();
 })();
