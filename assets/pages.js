@@ -2196,6 +2196,7 @@
     'stock',    // Stock & approvisionnement
     'equipe',   // Équipe
     'payroll',  // Paie & planning
+    'depenses', // Dépenses & cartes (Kiwi Pay · Phase 2)
   ]);
   document.addEventListener('click', (e) => {
     const a = e.target.closest('.sidebar nav a[data-nav]');

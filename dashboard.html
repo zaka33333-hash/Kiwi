@@ -327,6 +327,7 @@
   .role-badge svg { color: var(--warning); flex-shrink: 0; }
   body.role-manager .role-badge { display: inline-flex; }
   body.role-manager .sidebar a[data-nav="finance"],
+  body.role-manager .sidebar a[data-nav="depenses"],
   body.role-manager .sidebar a[data-nav="payroll"] { display: none !important; }
   /* Croissance is a gated preview — hidden by default; the 1111 PIN reveals it for
    * the session. body.growth-locked is set on the <body> tag and removed on 1111. */
@@ -5022,6 +5023,13 @@
         <span class="tag" data-i18n="dash.sidebar.new">NOUV.</span>
       </a>
 
+      <div class="sect" data-i18n="dash.sidebar.kiwipay">Kiwi Pay</div>
+      <a href="#" data-nav="depenses">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h3"/></svg>
+        <span data-i18n="dash.sidebar.depenses">Dépenses &amp; cartes</span>
+        <span class="tag">PHASE 2</span>
+      </a>
+
       <div class="sect" data-i18n="dash.sidebar.growth">Croissance</div>
       <a href="#" data-action="growth-ordering">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -5750,6 +5758,7 @@
 <script src="assets/i18n.js" defer></script>
 <script src="assets/interactive.js" defer></script>
 <script src="assets/features.js" defer></script>
+<script src="assets/depenses.js" defer></script>
 <script src="assets/oppo-cards.js" defer></script>
 <script src="assets/insights.js" defer></script>
 <script src="assets/growth-kit.js" defer></script>
