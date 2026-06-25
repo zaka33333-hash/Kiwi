@@ -141,6 +141,17 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 25 (later):** `171b03f` **Ultra cross-site spend control** — `assets/depenses.js`
+`render()` now branches custom → **fusion** → single. When the portfolio (fusion) venue is
+active it paints the consolidated Ultra view: « EXCLUSIF ULTRA » banner (1 499 MAD/mois),
+consolidated ledger (in/out/net across 3 sites), « Sorties par établissement » cards (click
+→ `dep-site` → `KiwiVenue.setVenue(id)` drills into that single site), and ONE cross-site
+approval inbox (`xpending`, site-tagged). `dep-approve`/`dep-refuse` are cross-site aware:
+**x-prefixed ids** hit the portfolio inbox, numeric ids the single-venue one. A
+`KiwiVenue.subscribe` re-renders the open page on venue change (so « Go Ultra » → portfolio,
+site drill-in → single, both repaint in place). `b1f7ea7` surfaced Dépenses on the home via
+a « Pour vous » oppo card (`open-depenses`). Verified live incl. AR.
+
 **Jun 25:** `cb7a51b` **Kiwi Dépenses (Kiwi Pay · Phase 2)** — the outflow half of the
 merchant OS. New full-page destination « Dépenses & cartes » (sidebar → new **KIWI PAY**
 section, `data-nav="depenses"`, PHASE 2 tag). Self-contained `assets/depenses.js` (injects
