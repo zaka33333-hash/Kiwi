@@ -84,8 +84,95 @@
   ];
   const SHOP_ITEM = Object.fromEntries(SHOP.map((s) => [s.id, s]));
 
-  /* ───────────────────────── coachs ───────────────────────── */
-  const COACHES = ['Coach Amine', 'Coach Salma', 'Coach Réda', 'Sans coach'];
+  /* ───────────────────────── coachs ─────────────────────────
+     Objets désormais (id, tag spécialité). Les membres référencent toujours
+     le coach par son `name` ('Coach Amine'…) ou la valeur sentinelle
+     'Sans coach' — rétro-compatible. */
+  const COACHES = [
+    { id: 'amine', name: 'Coach Amine', tag: 'Force & hypertrophie' },
+    { id: 'salma', name: 'Coach Salma', tag: 'Cardio & cross-training' },
+    { id: 'reda',  name: 'Coach Réda',  tag: 'Boxe & condition physique' },
+  ];
+  const COACH = Object.fromEntries(COACHES.map((c) => [c.id, c]));
+  const COACH_BY_NAME = Object.fromEntries(COACHES.map((c) => [c.name, c]));
+
+  /* ───────────────────────── cours collectifs (planning) ─────────────────────
+     Line-art des cours : même voix gy-art (traits forest, fills mint-tint),
+     via le helper art() partagé. */
+  const CLASS_ART = {
+    spin: art(`<circle class="fill" cx="30" cy="34" r="14"/><circle cx="30" cy="34" r="14"/><circle cx="30" cy="34" r="2.6"/><path class="thin" d="M30 20v28M16 34h28M21 25l18 18M39 25L21 43"/><path d="M22 51h18"/><path d="M27 47l-2 4M35 47l2 4"/>`),
+    barbell: art(`<path d="M12 32h40"/><rect class="fill" x="8" y="23" width="6" height="18" rx="2"/><rect x="8" y="23" width="6" height="18" rx="2"/><rect class="fill" x="50" y="23" width="6" height="18" rx="2"/><rect x="50" y="23" width="6" height="18" rx="2"/><rect class="fill" x="16" y="26" width="5" height="12" rx="1.6"/><rect x="16" y="26" width="5" height="12" rx="1.6"/><rect class="fill" x="43" y="26" width="5" height="12" rx="1.6"/><rect x="43" y="26" width="5" height="12" rx="1.6"/>`),
+    yoga: art(`<circle class="fill" cx="32" cy="16" r="6"/><circle cx="32" cy="16" r="6"/><path class="fill" d="M17 47c0-6 7-10 15-10s15 4 15 10z"/><path d="M17 47c0-6 7-10 15-10s15 4 15 10"/><path d="M32 24v9"/><path d="M21 39c4 3 18 3 22 0"/><path class="thin" d="M15 47h34"/>`),
+    boxe: art(`<path class="fill" d="M21 27c0-6 5-9 11-9s12 4 12 11v8a8 8 0 0 1-8 8H27a6 6 0 0 1-6-6z"/><path d="M21 27c0-6 5-9 11-9s12 4 12 11v8a8 8 0 0 1-8 8H27a6 6 0 0 1-6-6z"/><path class="fill" d="M21 31h-3a4 4 0 0 0-4 4v2a4 4 0 0 0 4 4h3z"/><path d="M21 31h-3a4 4 0 0 0-4 4v2a4 4 0 0 0 4 4h3"/><path class="thin" d="M33 21v8M39 23v7"/><path d="M23 41h17"/>`),
+    kettle: art(`<path d="M24 31c-2-2-3-4-3-7a11 11 0 0 1 22 0c0 3-1 5-3 7"/><path class="fill" d="M24 30h16a17 17 0 0 1 4 13 12 12 0 0 1-24 0 17 17 0 0 1 4-13z"/><path d="M24 30h16a17 17 0 0 1 4 13 12 12 0 0 1-24 0 17 17 0 0 1 4-13z"/><path class="thin" d="M28 42c2 2 8 2 10 0"/>`),
+    dance: art(`<circle class="fill" cx="36" cy="15" r="5"/><circle cx="36" cy="15" r="5"/><path d="M36 20c-2 5-3 8-2 12l5 5-3 13"/><path d="M34 32l-9 2"/><path d="M37 24l9-4"/><path d="M35 37l-9 11"/><path class="thin" d="M16 51h32"/>`),
+    hiit: art(`<circle class="fill" cx="32" cy="37" r="17"/><circle cx="32" cy="37" r="17"/><path d="M32 37V27"/><path class="thin" d="M32 37l7 4"/><rect class="fill" x="27" y="10" width="10" height="6" rx="2"/><rect x="27" y="10" width="10" height="6" rx="2"/><path d="M32 16v4"/><path class="thin" d="M45 23l3-3"/>`),
+  };
+  const classArt = (id) => CLASS_ART[id] || CLASS_ART.spin;
+  /* ticket — séance unique / pass journée */
+  ART.pass = art(`<path class="fill" d="M12 25h40v7a4 4 0 0 0 0 8v7H12v-7a4 4 0 0 0 0-8z"/><path d="M12 25h40v7a4 4 0 0 0 0 8v7H12v-7a4 4 0 0 0 0-8z"/><path class="thin" d="M40 27v18"/><path class="thin" d="M19 32h12M19 38h9"/>`);
+
+  const CLASSES = [
+    { id: 'rpm',      label: 'RPM · Cycle',    art: 'spin',    room: 'Studio cycle', coach: 'Coach Salma', dur: 45 },
+    { id: 'bodypump', label: 'Body Pump',      art: 'barbell', room: 'Studio 1',     coach: 'Coach Amine', dur: 55 },
+    { id: 'yoga',     label: 'Yoga Vinyasa',   art: 'yoga',    room: 'Studio 2',     coach: 'Coach Salma', dur: 60 },
+    { id: 'boxe',     label: 'Boxe / Cardio',  art: 'boxe',    room: 'Le Ring',      coach: 'Coach Réda',  dur: 50 },
+    { id: 'crossfit', label: 'CrossFit · WOD', art: 'kettle',  room: 'La Box',       coach: 'Coach Amine', dur: 60 },
+    { id: 'zumba',    label: 'Zumba',          art: 'dance',   room: 'Studio 1',     coach: 'Coach Salma', dur: 45 },
+    { id: 'hiit',     label: 'HIIT Express',   art: 'hiit',    room: 'Studio 2',     coach: 'Coach Réda',  dur: 30 },
+  ];
+  const CLASS = Object.fromEntries(CLASSES.map((c) => [c.id, c]));
+
+  /* Planning du jour — calé MID-SHIFT (~17 h) : le matin est passé (terminé),
+     le CrossFit de 17 h est EN COURS, et la soirée se réserve (un RPM complet
+     avec liste d'attente, le moment « la salle tourne »). booked = ids membres
+     nommés + `extra` (réservations anonymes) pour des compteurs crédibles. */
+  const SCHEDULE = [
+    { id: 's1', classId: 'rpm',      time: '07:00', state: 'done',     cap: 18, booked: ['m6', 'm1'],          extra: 12, checkedIn: ['m6', 'm1'], wait: [], waitExtra: 0 },
+    { id: 's2', classId: 'bodypump', time: '09:00', state: 'done',     cap: 20, booked: ['m1', 'm5'],          extra: 13, checkedIn: ['m1', 'm5'], wait: [], waitExtra: 0 },
+    { id: 's3', classId: 'yoga',     time: '12:30', state: 'done',     cap: 14, booked: ['m4', 'm8'],          extra: 8,  checkedIn: ['m4', 'm8'], wait: [], waitExtra: 0 },
+    { id: 's4', classId: 'crossfit', time: '17:00', state: 'live',     cap: 16, booked: ['m6', 'm1', 'm7'],    extra: 9,  checkedIn: ['m6', 'm1'],  wait: [], waitExtra: 0 },
+    { id: 's5', classId: 'boxe',     time: '18:00', state: 'soon',     cap: 12, booked: ['m7', 'm5'],          extra: 8,  checkedIn: [],            wait: [], waitExtra: 0 },
+    { id: 's6', classId: 'rpm',      time: '19:00', state: 'upcoming', cap: 18, booked: ['m4', 'm6', 'm10'],   extra: 15, checkedIn: [],            wait: ['m8'], waitExtra: 1 },
+    { id: 's7', classId: 'zumba',    time: '20:00', state: 'upcoming', cap: 22, booked: ['m4', 'm10'],         extra: 6,  checkedIn: [],            wait: [], waitExtra: 0 },
+  ];
+
+  /* ───────────────────────── coaching personnel (PT) ─────────────────────────
+     Packs de séances perso + séances 1:1 du jour par coach. Les cours collectifs
+     du coach sont dérivés du SCHEDULE à l'affichage. */
+  const PT_PACKS = [
+    { id: 'pt1',  n: 1,  price: 150,  sub: 'séance découverte' },
+    { id: 'pt5',  n: 5,  price: 650,  sub: '5 séances · 130 MAD/séance', flag: 'populaire' },
+    { id: 'pt10', n: 10, price: 1200, sub: '10 séances · 120 MAD/séance', flag: 'le malin' },
+  ];
+  const PT_TODAY = {
+    amine: [
+      { time: '08:00', mid: 'm1',  state: 'done',     focus: 'Prise de masse' },
+      { time: '18:30', mid: 'm7',  state: 'upcoming', focus: 'Hypertrophie haut du corps' },
+    ],
+    salma: [
+      { time: '16:00', mid: 'm6',  state: 'done',     focus: 'Soulevé de terre — technique' },
+      { time: '19:30', mid: 'm4',  state: 'upcoming', focus: 'Tonification & gainage' },
+    ],
+    reda: [
+      { time: '09:00', mid: 'm5',  state: 'done',     focus: 'Perte de poids — cardio' },
+      { time: '18:45', mid: 'm3',  state: 'upcoming', focus: 'Reprise en douceur' },
+    ],
+  };
+
+  /* ───────────────────────── pilotage (KPIs du gérant) ───────────────────────
+     Le club entier dépasse les 10 membres nommés (échantillon) : base ~247.
+     Les compteurs « du jour » sont seedés mid-shift puis montent en live à
+     chaque vente — la démo respire. */
+  const CLUB = {
+    activeBase: 247,
+    newThisMonth: 18,
+    churnThisMonth: 6,
+    mrr: 64200,
+    capacity: 120,
+    attend7: [186, 204, 198, 231, 215, 248, 0], /* le dernier (aujourd'hui) se remplit en live */
+    mix: [ { id: 'mensuel', pct: 52 }, { id: 'trimestriel', pct: 31 }, { id: 'annuel', pct: 17 } ],
+  };
 
   /* ───────────────────────── membres (Tanger) ─────────────────────────
      fin = date d'expiration relative à aujourd'hui (en jours). Le seed est
@@ -103,17 +190,18 @@
       coach: cfg.coach, goal: cfg.goal,
       frozen: !!cfg.frozen, frozenUntil: cfg.frozenUntilD != null ? startOfDay(dPlus(cfg.frozenUntilD)) : null,
       checkedToday: !!cfg.checkedToday,
+      ptCredits: cfg.ptCredits || 0,   /* séances de coaching perso restantes */
     };
   }
 
   const MEMBERS = [
-    mkMember({ id: 'm1', code: '20418', name: 'Omar Sefrioui',        phone: '0661 23 45 67', plan: 'annuel',      startD: -288, endD: 78,  visits: 14, lastVisitD: -1, coach: 'Coach Amine', goal: 'Prise de masse — +5 kg', checkedToday: false }),
+    mkMember({ id: 'm1', code: '20418', name: 'Omar Sefrioui',        phone: '0661 23 45 67', plan: 'annuel',      startD: -288, endD: 78,  visits: 14, lastVisitD: -1, coach: 'Coach Amine', goal: 'Prise de masse — +5 kg', checkedToday: false, ptCredits: 6 }),
     mkMember({ id: 'm2', code: '20419', name: 'Yassine El Khattabi',  phone: '0670 11 22 33', plan: 'mensuel',     startD: -30,  endD: 0,   visits: 11, lastVisitD: -1, coach: 'Coach Réda',  goal: 'Cardio — semi-marathon' }),
     mkMember({ id: 'm3', code: '20420', name: 'Karim Bennani',        phone: '0662 09 18 27', plan: 'mensuel',     startD: -42,  endD: -12, visits: 3,  lastVisitD: -14, coach: 'Sans coach',  goal: 'Remise en forme' }),
-    mkMember({ id: 'm4', code: '20421', name: 'Salma Tazi',           phone: '0668 54 32 10', plan: 'trimestriel', startD: -50,  endD: 42,  visits: 18, lastVisitD: 0, coach: 'Coach Salma', goal: 'Tonification', checkedToday: true }),
-    mkMember({ id: 'm5', code: '20422', name: 'Mehdi Lamrani',        phone: '0677 65 43 21', plan: 'mensuel',     startD: -26,  endD: 4,   visits: 7,  lastVisitD: -2, coach: 'Coach Amine', goal: 'Perte de poids — −8 kg' }),
-    mkMember({ id: 'm6', code: '20423', name: 'Imane Berrada',        phone: '0650 88 77 66', plan: 'annuel',      startD: -120, endD: 246, visits: 21, lastVisitD: 0, coach: 'Coach Salma', goal: 'Force — soulevé de terre', student: false, checkedToday: true }),
-    mkMember({ id: 'm7', code: '20424', name: 'Anas Chraibi',         phone: '0655 44 33 22', plan: 'trimestriel', startD: -60,  endD: 32,  visits: 9,  lastVisitD: -3, coach: 'Coach Réda',  goal: 'Hypertrophie', student: true }),
+    mkMember({ id: 'm4', code: '20421', name: 'Salma Tazi',           phone: '0668 54 32 10', plan: 'trimestriel', startD: -50,  endD: 42,  visits: 18, lastVisitD: 0, coach: 'Coach Salma', goal: 'Tonification', checkedToday: true, ptCredits: 4 }),
+    mkMember({ id: 'm5', code: '20422', name: 'Mehdi Lamrani',        phone: '0677 65 43 21', plan: 'mensuel',     startD: -26,  endD: 4,   visits: 7,  lastVisitD: -2, coach: 'Coach Amine', goal: 'Perte de poids — −8 kg', ptCredits: 2 }),
+    mkMember({ id: 'm6', code: '20423', name: 'Imane Berrada',        phone: '0650 88 77 66', plan: 'annuel',      startD: -120, endD: 246, visits: 21, lastVisitD: 0, coach: 'Coach Salma', goal: 'Force — soulevé de terre', student: false, checkedToday: true, ptCredits: 9 }),
+    mkMember({ id: 'm7', code: '20424', name: 'Anas Chraibi',         phone: '0655 44 33 22', plan: 'trimestriel', startD: -60,  endD: 32,  visits: 9,  lastVisitD: -3, coach: 'Coach Réda',  goal: 'Hypertrophie', student: true, ptCredits: 3 }),
     mkMember({ id: 'm8', code: '20425', name: 'Hajar El Idrissi',     phone: '0663 12 78 90', plan: 'mensuel',     startD: -28,  endD: 2,   visits: 5,  lastVisitD: -1, coach: 'Sans coach',  goal: 'Bien-être · stress' }),
     mkMember({ id: 'm9', code: '20426', name: 'Réda Mansouri',        phone: '0667 90 12 34', plan: 'annuel',      startD: -200, endD: 165, visits: 16, lastVisitD: -1, coach: 'Coach Amine', goal: 'Performance — crossfit', frozen: true, frozenUntilD: 9 }),
     mkMember({ id: 'm10', code: '20427', name: 'Khadija Amrani',     phone: '0661 55 66 77', plan: 'mensuel',     startD: -22,  endD: 8,   visits: 6,  lastVisitD: -2, coach: 'Coach Salma', goal: 'Premiers pas en muscu', student: true }),
@@ -150,7 +238,14 @@
     cart: [],                  /* comptoir : [{id, qty}] */
     memberQuery: '',
     offline: false, queued: 0,
+    /* recette du jour (seedée mid-shift, monte en live à chaque vente) */
+    dayRevenue: { abos: 3150, shop: 740, coaching: 600, pass: 160 },
+    inGym: 38,                 /* présents dans la salle maintenant */
+    passesToday: 3,            /* séances uniques / pass journée vendus */
   };
+
+  const addRevenue = (bucket, amount) => { state.dayRevenue[bucket] = (state.dayRevenue[bucket] || 0) + amount; };
+  const revenueTotal = () => Object.values(state.dayRevenue).reduce((s, v) => s + v, 0);
 
   const passagesToday = () => MEMBERS.reduce((s, m) => s + (m.checkedToday ? 1 : 0), 0) + BASE_PASSAGES;
   let BASE_PASSAGES = 23 - MEMBERS.filter((m) => m.checkedToday).length;  /* keep live counter at 23 at boot */
@@ -168,6 +263,40 @@
   function moveCaretEnd(input) { const v = input.value; input.value = ''; input.value = v; }
   function firstName(name) { return name.split(/\s+/)[0]; }
 
+  /* ───────────────────────── helpers : planning / coachs ─────────────────────
+     booked = ids membres nommés ; extra = réservations anonymes. */
+  const classOf = (s) => CLASS[s.classId];
+  const sessionBooked = (s) => s.booked.length + s.extra;
+  const sessionPlaces = (s) => Math.max(0, s.cap - sessionBooked(s));
+  const sessionFull = (s) => sessionBooked(s) >= s.cap;
+  const sessionWait = (s) => s.wait.length + s.waitExtra;
+  const sessionPresent = (s) => s.checkedIn.length + (s.state === 'live' || s.state === 'done' ? Math.round(s.extra * 0.82) : 0);
+  const sessionById = (id) => SCHEDULE.find((s) => s.id === id);
+  const STATE_RANK = { live: 0, soon: 1, upcoming: 2, done: 3 };
+
+  /* journée d'un coach : ses cours collectifs (dérivés du SCHEDULE) + ses
+     séances perso (PT_TODAY), fusionnés et triés par heure. */
+  function coachClasses(coachName) { return SCHEDULE.filter((s) => classOf(s).coach === coachName); }
+  function coachDay(coachId) {
+    const c = COACH[coachId];
+    const rows = [];
+    coachClasses(c.name).forEach((s) => rows.push({ kind: 'class', time: s.time, session: s, state: s.state }));
+    (PT_TODAY[coachId] || []).forEach((p) => rows.push({ kind: 'pt', time: p.time, mid: p.mid, focus: p.focus, state: p.state }));
+    return rows.sort((a, b) => a.time.localeCompare(b.time));
+  }
+  function coachPTCount(coachId) { return (PT_TODAY[coachId] || []).length; }
+  /* membres rattachés à ce coach (échantillon nommé) */
+  function coachMembers(coachName) { return MEMBERS.filter((m) => m.coach === coachName); }
+
+  /* prochain cours réservé d'un membre (pour la fiche) */
+  function memberNextClass(mid) {
+    return SCHEDULE
+      .filter((s) => (s.state === 'live' || s.state === 'soon' || s.state === 'upcoming') && s.booked.includes(mid))
+      .sort((a, b) => a.time.localeCompare(b.time))[0] || null;
+  }
+
+  const activeCount = () => CLUB.activeBase;
+
   /* ═══════════════════════ MOUNT ═══════════════════════ */
   let root = null;
 
@@ -182,9 +311,12 @@
         </div>
         <nav class="gy-nav" id="gy-nav">
           <button class="gy-nav-it on" data-gy-view="checkin"><i data-lucide="scan-line"></i><span>Check-in</span><b class="gy-nav-badge" id="gy-badge-checkin"></b></button>
+          <button class="gy-nav-it" data-gy-view="planning"><i data-lucide="calendar-days"></i><span>Planning</span><b class="gy-nav-badge" id="gy-badge-planning"></b></button>
+          <button class="gy-nav-it" data-gy-view="coachs"><i data-lucide="dumbbell"></i><span>Coachs</span><b class="gy-nav-badge" id="gy-badge-coachs"></b></button>
           <button class="gy-nav-it" data-gy-view="abos"><i data-lucide="badge-check"></i><span>Abonnements</span><b class="gy-nav-badge" id="gy-badge-abos"></b></button>
           <button class="gy-nav-it" data-gy-view="comptoir"><i data-lucide="shopping-bag"></i><span>Comptoir</span><b class="gy-nav-badge" id="gy-badge-comptoir"></b></button>
           <button class="gy-nav-it" data-gy-view="membres"><i data-lucide="users"></i><span>Membres</span><b class="gy-nav-badge" id="gy-badge-membres"></b></button>
+          <button class="gy-nav-it" data-gy-view="pilotage"><i data-lucide="layout-dashboard"></i><span>Pilotage</span><b class="gy-nav-badge" id="gy-badge-pilotage"></b></button>
         </nav>
         <div class="gy-rail-foot">
           <button class="gy-net" id="gy-net" title="Simuler une coupure réseau">
@@ -218,6 +350,11 @@
                   <button class="gy-ci-scanbtn" id="gy-ci-scanbtn"><i data-lucide="scan-line"></i> Scanner le badge</button>
                   <button class="gy-ci-go" id="gy-ci-go"><i data-lucide="check"></i> Valider l'entrée</button>
                 </div>
+                <button class="gy-ci-pass" id="gy-ci-pass">
+                  <span class="gy-ci-pass-art">${ART.pass}</span>
+                  <span class="gy-ci-pass-l"><b>Visiteur sans abonnement&nbsp;?</b><span>Vendre une séance unique ou un pass journée — drop-in</span></span>
+                  <i data-lucide="chevron-right"></i>
+                </button>
                 <div class="gy-ci-hint" id="gy-ci-quick"></div>
               </div>
               <div class="gy-ci-result" id="gy-ci-result"></div>
@@ -272,6 +409,30 @@
           </header>
           <div class="gy-mem-scroll" id="gy-mem-body"></div>
         </section>
+
+        <section class="gy-view" data-gy-panel="planning">
+          <header class="gy-head">
+            <div><h1>Planning</h1><div class="gy-head-sub">Cours collectifs du jour — réserver, pointer les présences, gérer la liste d'attente.</div></div>
+            <div class="gy-head-right"><div class="gy-week" id="gy-week"></div></div>
+          </header>
+          <div class="gy-plan-scroll" id="gy-plan-body"></div>
+        </section>
+
+        <section class="gy-view" data-gy-panel="coachs">
+          <header class="gy-head">
+            <div><h1>Coachs</h1><div class="gy-head-sub">La journée de chaque coach — cours, séances perso, et la vente de séances.</div></div>
+            <div class="gy-head-right"><button class="gy-btn primary sm" id="gy-pt-sell"><i data-lucide="plus"></i> Vendre des séances</button></div>
+          </header>
+          <div class="gy-coach-scroll" id="gy-coach-body"></div>
+        </section>
+
+        <section class="gy-view" data-gy-panel="pilotage">
+          <header class="gy-head">
+            <div><h1>Pilotage</h1><div class="gy-head-sub">Atlas Fitness en un coup d'œil — l'état du club, aujourd'hui.</div></div>
+            <div class="gy-head-right"><span class="gy-pilot-live"><i class="gy-live-dot"></i> en direct</span></div>
+          </header>
+          <div class="gy-pilot-scroll" id="gy-pilot-body"></div>
+        </section>
       </main>
 
       <div class="modal-veil" id="gy-member-veil"><div class="modal gy-member gy-rel" id="gy-memberm"></div></div>
@@ -279,7 +440,12 @@
       <div class="modal-veil" id="gy-freeze-veil"><div class="modal gy-rel" id="gy-freezem"></div></div>
       <div class="modal-veil" id="gy-wa-veil"><div class="modal gy-wa gy-rel" id="gy-wam"></div></div>
       <div class="modal-veil" id="gy-pay-veil"><div class="modal gy-rel" id="gy-paym"></div></div>
-      <div class="modal-veil" id="gy-scan-veil"><div class="modal gy-scan gy-rel" id="gy-scanm"></div></div>`;
+      <div class="modal-veil" id="gy-scan-veil"><div class="modal gy-scan gy-rel" id="gy-scanm"></div></div>
+      <div class="modal-veil" id="gy-roster-veil"><div class="modal gy-roster gy-rel" id="gy-rosterm"></div></div>
+      <div class="modal-veil" id="gy-pick-veil"><div class="modal gy-pick gy-rel" id="gy-pickm"></div></div>
+      <div class="modal-veil" id="gy-coach-veil"><div class="modal gy-coach gy-rel" id="gy-coachm"></div></div>
+      <div class="modal-veil" id="gy-ptpack-veil"><div class="modal gy-ptpack gy-rel" id="gy-ptpackm"></div></div>
+      <div class="modal-veil" id="gy-pass-veil"><div class="modal gy-rel" id="gy-passm"></div></div>`;
     /* root is already attached to the DOM by the dispatcher (#pos-gym) */
 
     /* ---- static bindings (delegation on persistent containers) ---- */
@@ -364,6 +530,32 @@
       if (row) openMember(row.dataset.gyMem);
     });
 
+    /* ---- check-in : séance unique / pass journée (drop-in) ---- */
+    $('#gy-ci-pass', root).addEventListener('click', openDayPass);
+
+    /* ---- planning (cours collectifs) ---- */
+    $('#gy-plan-body', root).addEventListener('click', (e) => {
+      const card = e.target.closest('[data-gy-session]');
+      if (card) openRoster(card.dataset.gySession);
+    });
+
+    /* ---- coachs ---- */
+    $('#gy-coach-body', root).addEventListener('click', (e) => {
+      const sell = e.target.closest('[data-gy-coach-sell]');
+      if (sell) { openPtSell(null, sell.dataset.gyCoachSell); return; }
+      const card = e.target.closest('[data-gy-coach]');
+      if (card) openCoach(card.dataset.gyCoach);
+    });
+    $('#gy-pt-sell', root).addEventListener('click', () => openPtSell());
+
+    /* ---- pilotage ---- */
+    $('#gy-pilot-body', root).addEventListener('click', (e) => {
+      if (e.target.closest('[data-gy-pilot-relance]')) { state.aboSeg = 'expirations'; switchView('abos'); return; }
+      if (e.target.closest('[data-gy-pilot-planning]')) { switchView('planning'); return; }
+      const mem = e.target.closest('[data-gy-pilot-mem]');
+      if (mem) openMember(mem.dataset.gyPilotMem);
+    });
+
     renderAll();
     if (window.KiwiLens) try { window.KiwiLens.rescan(); } catch (e) {}
   }
@@ -377,9 +569,12 @@
     $$('.gy-nav-it', root).forEach((b) => b.classList.toggle('on', b.dataset.gyView === view));
     $$('.gy-view', root).forEach((p) => p.classList.toggle('is-on', p.dataset.gyPanel === view));
     if (view === 'checkin')  renderCheckin();
+    if (view === 'planning') renderPlanning();
+    if (view === 'coachs')   renderCoachs();
     if (view === 'abos')     renderAbo();
     if (view === 'comptoir') renderShop();
     if (view === 'membres')  renderMembers();
+    if (view === 'pilotage') renderPilotage();
     icons();
   }
 
@@ -406,6 +601,13 @@
     bM.style.display = '';
     const expCt = $('#gy-abo-exp-ct', root);
     if (expCt) expCt.textContent = exp || '';
+    /* new pillars */
+    const bP = $('#gy-badge-planning', root), bCo = $('#gy-badge-coachs', root), bPi = $('#gy-badge-pilotage', root);
+    const liveLeft = SCHEDULE.filter((s) => s.state === 'live' || s.state === 'soon' || s.state === 'upcoming').length;
+    const ptToday = Object.values(PT_TODAY).reduce((s, arr) => s + arr.length, 0);
+    if (bP)  { bP.textContent = liveLeft || ''; bP.style.display = liveLeft ? '' : 'none'; }
+    if (bCo) { bCo.textContent = ptToday || ''; bCo.style.display = ptToday ? '' : 'none'; }
+    if (bPi) { bPi.textContent = exp || ''; bPi.style.display = exp ? '' : 'none'; }
   }
 
   /* ═══════════════════════ CHECK-IN — la signature ═══════════════════════ */
@@ -520,6 +722,7 @@
     const frozenBlocked = status === 'frozen';
 
     if (open) {
+      if (!m.checkedToday) state.inGym++;
       m.checkedToday = true;
       queueIfOffline('Pointage entrée');
       el.className = 'gy-ci-result is-green gy-flash';
@@ -778,10 +981,12 @@
       });
       m.end = newEnd;
       MEMBERS.push(m); MEMBER[id] = m;
+      CLUB.activeBase++; CLUB.newThisMonth++;
       queueIfOffline('Nouvel abonnement');
       toast(`Abonnement ${PLAN[sel.plan].label.toLowerCase()} vendu — badge ${code} à remettre`);
       setTimeout(() => openMember(id), 350);
     }
+    addRevenue('abos', price);
     refreshOps();
   }
 
@@ -898,7 +1103,9 @@
       sub: esc(summary),
       onPaid: (method, rendu) => {
         state.cart = [];
+        addRevenue('shop', total);
         renderCart(); renderBadges(); icons();
+        if (state.view === 'pilotage') renderPilotage();
         toast(`Khlass — ${fmtMAD(total)} encaissé${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
       },
     });
@@ -1055,6 +1262,7 @@
     const el = $('#gy-memberm', root);
     const s = memberStatus(m);
     const d = daysLeft(m);
+    const nextCls = memberNextClass(m.id);
     /* mini-bars : passages des 6 dernières semaines (déterministe à partir des visites) */
     const weeks = visitWeeks(m);
     const maxW = Math.max(...weeks, 1);
@@ -1107,6 +1315,8 @@
       <div class="gy-mb-meta">
         <div class="gy-mb-meta-row"><span class="gy-mb-meta-ic"><i data-lucide="user-check"></i></span><div><b>Coach assigné</b><span>${m.coach === 'Sans coach' ? 'Aucun — proposer un suivi' : esc(m.coach)}</span></div></div>
         <div class="gy-mb-meta-row"><span class="gy-mb-meta-ic"><i data-lucide="target"></i></span><div><b>Objectif</b><span>${esc(m.goal)}</span></div></div>
+        <div class="gy-mb-meta-row"><span class="gy-mb-meta-ic ${m.ptCredits > 0 ? 'on' : ''}"><i data-lucide="dumbbell"></i></span><div><b>Séances de coaching</b><span>${m.ptCredits > 0 ? `${m.ptCredits} séance${m.ptCredits > 1 ? 's' : ''} restante${m.ptCredits > 1 ? 's' : ''}` : 'Aucune — proposer un pack de séances'}</span></div></div>
+        ${nextCls ? `<div class="gy-mb-meta-row"><span class="gy-mb-meta-ic on"><i data-lucide="calendar-days"></i></span><div><b>Prochain cours réservé</b><span>${esc(CLASS[nextCls.classId].label)} · ${nextCls.time}${nextCls.state === 'live' ? ' · en cours' : ''}</span></div></div>` : ''}
       </div>
 
       <div class="gy-mb-actions">
@@ -1114,6 +1324,7 @@
         ${s === 'frozen'
           ? '<button class="gy-btn secondary" data-gy-mb-thaw><i data-lucide="play"></i> Réactiver</button>'
           : (s !== 'expired' ? '<button class="gy-btn secondary" data-gy-mb-freeze><i data-lucide="snowflake"></i> Geler</button>' : '')}
+        <button class="gy-btn secondary" data-gy-mb-pt><i data-lucide="dumbbell"></i> Séances</button>
         <button class="gy-btn secondary" data-gy-mb-wa><i data-lucide="message-circle"></i> WhatsApp</button>
         ${(s === 'active' || s === 'expiring') ? '<button class="gy-btn ghost" data-gy-mb-checkin><i data-lucide="check-circle-2"></i> Pointer l\'entrée</button>' : ''}
       </div>`;
@@ -1127,8 +1338,10 @@
     const tw = $('[data-gy-mb-thaw]', el);
     if (tw) tw.onclick = () => { thawMember(m); openMember(m.id); };
     $('[data-gy-mb-wa]', el).onclick = () => openWa(m);
+    $('[data-gy-mb-pt]', el).onclick = () => { closeVeil('#gy-member-veil'); openPtSell(m); };
     const ci = $('[data-gy-mb-checkin]', el);
     if (ci) ci.onclick = () => {
+      if (!m.checkedToday) state.inGym++;
       m.checkedToday = true;
       queueIfOffline('Pointage entrée');
       toast(`${firstName(m.name)} — entrée pointée`);
@@ -1228,12 +1441,508 @@
   /* ───────────────────────── scan modal (member badge) ─────────────── */
   function openScan() { mockScan(); }
 
+  /* ═══════════════════════ PLANNING — cours collectifs ═══════════════════════ */
+  const STATE_LBL = { live: 'en cours', soon: 'commence bientôt', upcoming: 'à venir', done: 'terminé' };
+
+  function renderPlanning() {
+    renderWeekStrip();
+    const body = $('#gy-plan-body', root);
+    const order = SCHEDULE.slice().sort((a, b) => STATE_RANK[a.state] - STATE_RANK[b.state] || a.time.localeCompare(b.time));
+    const live = order.filter((s) => s.state === 'live');
+    const next = order.filter((s) => s.state === 'soon' || s.state === 'upcoming').sort((a, b) => a.time.localeCompare(b.time));
+    const done = order.filter((s) => s.state === 'done').sort((a, b) => a.time.localeCompare(b.time));
+    const totalBooked = SCHEDULE.reduce((n, s) => n + sessionBooked(s), 0);
+    body.innerHTML = `
+      <div class="gy-plan-summary">
+        <div class="gy-plan-sum-cell"><b>${SCHEDULE.length}</b><span>cours aujourd'hui</span></div>
+        <div class="gy-plan-sum-cell"><b>${totalBooked}</b><span>réservations</span></div>
+        <div class="gy-plan-sum-cell"><b>${next.length}</b><span>à venir</span></div>
+        <div class="gy-plan-sum-cell live"><b>${live.length}</b><span>en cours</span></div>
+      </div>
+      ${live.length ? `<div class="gy-plan-secl"><i class="gy-live-dot"></i> En cours</div><div class="gy-class-list">${live.map(sessionCard).join('')}</div>` : ''}
+      <div class="gy-plan-secl">À venir</div>
+      <div class="gy-class-list">${next.length ? next.map(sessionCard).join('') : '<div class="gy-empty">Plus de cours à venir aujourd\'hui.</div>'}</div>
+      <div class="gy-plan-secl muted">Terminés</div>
+      <div class="gy-class-list dim">${done.map(sessionCard).join('')}</div>`;
+    icons();
+  }
+
+  function renderWeekStrip() {
+    const el = $('#gy-week', root);
+    if (!el) return;
+    const today = new Date();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    const wd = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday); d.setDate(monday.getDate() + i);
+      const on = daysBetween(d, today) === 0;
+      html += `<span class="gy-week-day ${on ? 'on' : ''}"><span class="gy-week-d">${wd[i]}</span><b>${d.getDate()}</b></span>`;
+    }
+    el.innerHTML = html;
+  }
+
+  function sessionCard(s) {
+    const c = classOf(s);
+    const booked = sessionBooked(s), places = sessionPlaces(s), full = sessionFull(s);
+    const pct = Math.min(100, Math.round((booked / s.cap) * 100));
+    const capLine = s.state === 'done'
+      ? `${sessionPresent(s)} présents · ${booked}/${s.cap} inscrits`
+      : full
+        ? (sessionWait(s) ? `complet · ${sessionWait(s)} en liste d'attente` : 'complet')
+        : `${booked}/${s.cap} inscrits · ${places} place${places > 1 ? 's' : ''} libre${places > 1 ? 's' : ''}`;
+    return `<button class="gy-class-card st-${s.state} ${full ? 'is-full' : ''}" data-gy-session="${s.id}">
+      <span class="gy-class-time"><b>${s.time}</b><span>${c.dur} min</span></span>
+      <span class="gy-class-art">${classArt(c.art)}</span>
+      <span class="gy-class-main">
+        <span class="gy-class-name">${esc(c.label)}</span>
+        <span class="gy-class-meta"><i data-lucide="user"></i> ${esc(c.coach.replace('Coach ', ''))}<span class="gy-dot-sep">·</span><i data-lucide="map-pin"></i> ${esc(c.room)}</span>
+        <span class="gy-class-capbar"><i style="width:${pct}%" class="${full ? 'full' : ''}"></i></span>
+        <span class="gy-class-capline">${capLine}</span>
+      </span>
+      <span class="gy-class-side">
+        <span class="gy-class-state ${s.state}">${s.state === 'live' ? '<i class="gy-live-dot"></i> ' : ''}${STATE_LBL[s.state]}</span>
+        <span class="gy-class-cta">${s.state === 'done' ? 'présences' : 'gérer'} <i data-lucide="chevron-right"></i></span>
+      </span>
+    </button>`;
+  }
+
+  /* ───────────────────────── feuille de présence / roster ─────────────────── */
+  function openRoster(sessionId) {
+    const s = sessionById(sessionId);
+    if (!s) return;
+    const el = $('#gy-rosterm', root);
+    const c = classOf(s);
+    const render = () => {
+      const booked = sessionBooked(s), full = sessionFull(s), places = sessionPlaces(s);
+      const pct = Math.min(100, Math.round((booked / s.cap) * 100));
+      const canCheck = s.state === 'live' || s.state === 'soon';
+      const named = s.booked.map((id) => MEMBER[id]).filter(Boolean);
+      const present = s.checkedIn.length;
+      el.innerHTML = `
+        <button class="gy-modal-x" data-gy-close aria-label="Fermer"><i data-lucide="x"></i></button>
+        <div class="gy-rost-head">
+          <span class="gy-rost-art">${classArt(c.art)}</span>
+          <div class="gy-rost-id">
+            <h3 class="modal-title" style="margin:0">${esc(c.label)}</h3>
+            <p class="modal-subtle" style="margin-top:3px">${s.time} · ${c.dur} min · ${esc(c.coach)} · ${esc(c.room)}</p>
+          </div>
+          <span class="gy-class-state ${s.state}">${s.state === 'live' ? '<i class="gy-live-dot"></i> ' : ''}${STATE_LBL[s.state]}</span>
+        </div>
+        <div class="gy-rost-cap">
+          <div class="gy-rost-cap-l"><b>${booked}</b> / ${s.cap} inscrits${s.state === 'done' || s.state === 'live' ? ` · <b>${present + (s.state === 'done' ? Math.round(s.extra * 0.82) : 0)}</b> présents` : full ? ` · complet` : ` · ${places} place${places > 1 ? 's' : ''}`}</div>
+          <div class="gy-class-capbar lg"><i style="width:${pct}%" class="${full ? 'full' : ''}"></i></div>
+        </div>
+        ${canCheck ? `<div class="gy-rost-hint"><i data-lucide="info"></i> Pointez chaque membre à son arrivée — la présence compte aussi comme une entrée salle.</div>` : ''}
+        <div class="gy-f-lbl" style="margin-top:6px">Inscrits ${named.length ? `· ${named.length} nominatifs` : ''}</div>
+        <div class="gy-rost-list">
+          ${named.map((m) => rosterRow(s, m.id, canCheck)).join('') || '<div class="gy-empty">Aucun inscrit nominatif.</div>'}
+          ${s.extra > 0 ? `<div class="gy-rost-extra"><span class="gy-mem-ava mut">+${s.extra}</span><span class="gy-rost-l"><b>${s.extra} autres membres</b><span>réservés via l'app Kiwi Membre</span></span></div>` : ''}
+        </div>
+        ${sessionWait(s) ? `
+          <div class="gy-f-lbl" style="margin-top:14px">Liste d'attente · ${sessionWait(s)}</div>
+          <div class="gy-rost-list">
+            ${s.wait.map((id) => { const m = MEMBER[id]; return m ? `<div class="gy-rost-row wait"><span class="gy-mem-ava soon">${esc(initials(m.name))}</span><span class="gy-rost-l"><b>${esc(m.name)}</b><span>prévenu si une place se libère</span></span><span class="gy-rost-tag">en attente</span></div>` : ''; }).join('')}
+            ${s.waitExtra > 0 ? `<div class="gy-rost-extra"><span class="gy-mem-ava mut">+${s.waitExtra}</span><span class="gy-rost-l"><b>${s.waitExtra} en attente</b><span>via l'app</span></span></div>` : ''}
+          </div>` : ''}
+        <div class="gy-sell-foot">
+          <button class="gy-btn ghost" data-gy-close>Fermer</button>
+          <button class="gy-btn primary" data-gy-rost-book><i data-lucide="user-plus"></i> ${full ? 'Ajouter à la liste d\'attente' : 'Réserver un membre'}</button>
+        </div>`;
+      icons();
+      $$('[data-gy-close]', el).forEach((b) => { b.onclick = () => closeVeil('#gy-roster-veil'); });
+      $$('[data-gy-rost-in]', el).forEach((b) => { b.onclick = () => { classCheckIn(s, b.dataset.gyRostIn); render(); refreshOps(); }; });
+      $('[data-gy-rost-book]', el).onclick = () => {
+        openPick({
+          title: `Réserver — ${c.label} · ${s.time}`,
+          sub: full ? 'Cours complet : le membre ira en liste d\'attente.' : `${places} place${places > 1 ? 's' : ''} libre${places > 1 ? 's' : ''}.`,
+          exclude: s.booked.concat(s.wait),
+          onPick: (mid) => { bookIntoSession(s, mid); render(); refreshOps(); },
+        });
+      };
+    };
+    render();
+    openVeil('#gy-roster-veil');
+  }
+
+  function rosterRow(s, mid, canCheck) {
+    const m = MEMBER[mid];
+    if (!m) return '';
+    const inn = s.checkedIn.includes(mid);
+    return `<div class="gy-rost-row ${inn ? 'in' : ''}">
+      <span class="gy-mem-ava ${memberStatus(m) === 'expired' ? 'expired' : memberStatus(m) === 'expiring' ? 'soon' : ''}">${esc(initials(m.name))}</span>
+      <span class="gy-rost-l"><b>${esc(m.name)}</b><span>${esc(PLAN[m.plan].label)}${m.coach !== 'Sans coach' ? ' · ' + esc(m.coach) : ''}</span></span>
+      ${inn
+        ? '<span class="gy-rost-tag in"><i data-lucide="check-circle-2"></i> présent</span>'
+        : canCheck
+          ? `<button class="gy-btn sm secondary" data-gy-rost-in="${mid}"><i data-lucide="check"></i> Pointer</button>`
+          : '<span class="gy-rost-tag">inscrit</span>'}
+    </div>`;
+  }
+
+  function classCheckIn(s, mid) {
+    if (s.checkedIn.includes(mid)) return;
+    s.checkedIn.push(mid);
+    const m = MEMBER[mid];
+    if (m && !m.checkedToday) { m.checkedToday = true; state.inGym++; }
+    queueIfOffline('Présence cours');
+    toast(`${m ? firstName(m.name) : 'Membre'} — présent au cours`);
+  }
+
+  function bookIntoSession(s, mid) {
+    const m = MEMBER[mid];
+    if (!m) return;
+    if (s.booked.includes(mid) || s.wait.includes(mid)) { toast('Déjà inscrit à ce cours'); return; }
+    if (sessionFull(s)) { s.wait.push(mid); queueIfOffline('Liste d\'attente'); toast(`${firstName(m.name)} — ajouté à la liste d'attente`); }
+    else { s.booked.push(mid); queueIfOffline('Réservation cours'); toast(`${firstName(m.name)} — réservé · ${classOf(s).label} à ${s.time}`); }
+  }
+
+  /* ───────────────────────── member picker (générique) ─────────────────────
+     cfg = { title, sub, exclude:[ids], onPick(mid) } */
+  function openPick(cfg) {
+    cfg = cfg || {};
+    const el = $('#gy-pickm', root);
+    const base = MEMBERS.filter((m) => !(cfg.exclude || []).includes(m.id));
+    el.innerHTML = `
+      <button class="gy-modal-x" data-gy-close aria-label="Fermer"><i data-lucide="x"></i></button>
+      <h3 class="modal-title">${esc(cfg.title || 'Choisir un membre')}</h3>
+      <p class="modal-subtle">${esc(cfg.sub || 'Cherchez par nom, code badge ou téléphone.')}</p>
+      <div class="gy-pick-search"><i data-lucide="search"></i><input id="gy-pick-q" inputmode="search" placeholder="nom, code ou 06…" autocomplete="off" /></div>
+      <div class="gy-pick-list" id="gy-pick-list"></div>`;
+    openVeil('#gy-pick-veil');
+    icons();
+    const renderList = (q) => {
+      q = (q || '').trim();
+      const digits = q.replace(/\D/g, ''), ql = q.toLowerCase();
+      const hits = !q ? base : base.filter((m) =>
+        (digits && (m.phone.replace(/\D/g, '').includes(digits) || m.code.includes(digits))) ||
+        (!digits && m.name.toLowerCase().includes(ql)));
+      $('#gy-pick-list', el).innerHTML = hits.length ? hits.map((m) => `
+        <button class="gy-cl-row" data-gy-pick="${m.id}">
+          <span class="gy-mem-ava ${memberStatus(m) === 'expired' ? 'expired' : memberStatus(m) === 'expiring' ? 'soon' : memberStatus(m) === 'frozen' ? 'frozen' : ''}">${esc(initials(m.name))}</span>
+          <span class="gy-cl-mid"><span class="gy-cl-name">${esc(m.name)}</span><span class="gy-cl-sub">${esc(PLAN[m.plan].label)} · ${esc(m.phone)}</span></span>
+          <span class="gy-cl-right">${statusPill(m)}</span>
+        </button>`).join('') : `<div class="gy-empty">Aucun membre pour « ${esc(q)} ».</div>`;
+      icons();
+    };
+    renderList('');
+    $$('[data-gy-close]', el).forEach((b) => { b.onclick = () => closeVeil('#gy-pick-veil'); });
+    const q = $('#gy-pick-q', el);
+    q.oninput = () => { renderList(q.value); const i = $('#gy-pick-q', el); i.focus(); moveCaretEnd(i); };
+    $('#gy-pick-list', el).onclick = (e) => {
+      const b = e.target.closest('[data-gy-pick]');
+      if (!b) return;
+      closeVeil('#gy-pick-veil');
+      if (typeof cfg.onPick === 'function') cfg.onPick(b.dataset.gyPick);
+    };
+    setTimeout(() => { const i = $('#gy-pick-q', el); if (i) i.focus(); }, 60);
+  }
+
+  /* ═══════════════════════ COACHS — séances perso (PT) ═══════════════════════ */
+  function renderCoachs() {
+    const body = $('#gy-coach-body', root);
+    const totalCredits = MEMBERS.reduce((n, m) => n + m.ptCredits, 0);
+    const ptToday = Object.values(PT_TODAY).reduce((s, arr) => s + arr.length, 0);
+    body.innerHTML = `
+      <div class="gy-coach-intro">
+        <div class="gy-coach-intro-l">
+          <b>Coaching personnel</b>
+          <span>Vendez des packs de séances, suivez la journée de chaque coach. <b class="gy-ci-strong">${totalCredits}</b> séances créditées chez les membres · <b class="gy-ci-strong">${ptToday}</b> séances perso aujourd'hui.</span>
+        </div>
+      </div>
+      <div class="gy-coach-grid">${COACHES.map(coachCard).join('')}</div>`;
+    icons();
+  }
+
+  function coachCard(c) {
+    const day = coachDay(c.id);
+    const ptCount = coachPTCount(c.id);
+    const classCount = coachClasses(c.name).length;
+    const mem = coachMembers(c.name);
+    return `<div class="gy-coach-card">
+      <div class="gy-coach-head" data-gy-coach="${c.id}">
+        <span class="gy-coach-ava">${esc(initials(c.name))}</span>
+        <span class="gy-coach-id"><b>${esc(c.name)}</b><span>${esc(c.tag)}</span></span>
+        <i data-lucide="chevron-right" class="gy-coach-chev"></i>
+      </div>
+      <div class="gy-coach-stats">
+        <span><b>${classCount}</b> cours</span><span><b>${ptCount}</b> perso</span><span><b>${mem.length}</b> suivis</span>
+      </div>
+      <div class="gy-coach-tl">
+        ${day.length ? day.map(coachRow).join('') : '<div class="gy-coach-tl-empty">Journée libre — disponible pour une séance.</div>'}
+      </div>
+      <div class="gy-coach-foot">
+        <button class="gy-btn secondary sm" data-gy-coach="${c.id}"><i data-lucide="calendar"></i> La journée</button>
+        <button class="gy-btn primary sm" data-gy-coach-sell="${c.id}"><i data-lucide="plus"></i> Vendre des séances</button>
+      </div>
+    </div>`;
+  }
+
+  function coachRow(r) {
+    if (r.kind === 'class') {
+      const c = classOf(r.session);
+      return `<div class="gy-ctl-row st-${r.state}">
+        <span class="gy-ctl-time">${r.time}</span>
+        <span class="gy-ctl-dot cls"></span>
+        <span class="gy-ctl-l"><b>${esc(c.label)}</b><span>cours collectif · ${sessionBooked(r.session)}/${r.session.cap}</span></span>
+        ${r.state === 'live' ? '<span class="gy-ctl-live"><i class="gy-live-dot"></i> live</span>' : r.state === 'done' ? '<span class="gy-ctl-done">terminé</span>' : ''}
+      </div>`;
+    }
+    const m = MEMBER[r.mid];
+    return `<div class="gy-ctl-row st-${r.state}">
+      <span class="gy-ctl-time">${r.time}</span>
+      <span class="gy-ctl-dot pt"></span>
+      <span class="gy-ctl-l"><b>${m ? esc(firstName(m.name)) : 'Séance'} · perso</b><span>${esc(r.focus)}</span></span>
+      ${r.state === 'done' ? '<span class="gy-ctl-done">terminé</span>' : ''}
+    </div>`;
+  }
+
+  function openCoach(coachId) {
+    const c = COACH[coachId];
+    if (!c) return;
+    const el = $('#gy-coachm', root);
+    const day = coachDay(coachId);
+    const mem = coachMembers(c.name);
+    el.innerHTML = `
+      <button class="gy-modal-x" data-gy-close aria-label="Fermer"><i data-lucide="x"></i></button>
+      <div class="gy-coach-mhead">
+        <span class="gy-coach-ava lg">${esc(initials(c.name))}</span>
+        <div class="gy-coach-mid"><h3 class="modal-title" style="margin:0">${esc(c.name)}</h3><p class="modal-subtle" style="margin-top:3px">${esc(c.tag)}</p></div>
+      </div>
+      <div class="gy-coach-mstats">
+        <div><b>${coachClasses(c.name).length}</b><span>cours aujourd'hui</span></div>
+        <div><b>${coachPTCount(coachId)}</b><span>séances perso</span></div>
+        <div><b>${mem.length}</b><span>membres suivis</span></div>
+      </div>
+      <div class="gy-f-lbl" style="margin-top:14px">Journée — ${fmtDay(new Date())}</div>
+      <div class="gy-coach-mtl">${day.length ? day.map(coachRow).join('') : '<div class="gy-coach-tl-empty">Journée libre.</div>'}</div>
+      <div class="gy-f-lbl" style="margin-top:14px">Membres suivis · ${mem.length}</div>
+      <div class="gy-coach-mem">${mem.length ? mem.map((m) => `
+        <button class="gy-cl-row" data-gy-coach-mem="${m.id}">
+          <span class="gy-mem-ava ${memberStatus(m) === 'expired' ? 'expired' : ''}">${esc(initials(m.name))}</span>
+          <span class="gy-cl-mid"><span class="gy-cl-name">${esc(m.name)}</span><span class="gy-cl-sub">${esc(m.goal)}</span></span>
+          <span class="gy-cl-right"><b>${m.ptCredits}</b> séance${m.ptCredits > 1 ? 's' : ''}</span>
+        </button>`).join('') : '<div class="gy-empty">Aucun membre rattaché à ce coach.</div>'}</div>
+      <div class="gy-sell-foot">
+        <button class="gy-btn ghost" data-gy-close>Fermer</button>
+        <button class="gy-btn primary" data-gy-coach-sell2><i data-lucide="plus"></i> Vendre des séances</button>
+      </div>`;
+    openVeil('#gy-coach-veil');
+    icons();
+    $$('[data-gy-close]', el).forEach((b) => { b.onclick = () => closeVeil('#gy-coach-veil'); });
+    $('[data-gy-coach-sell2]', el).onclick = () => { closeVeil('#gy-coach-veil'); openPtSell(null, coachId); };
+    $$('[data-gy-coach-mem]', el).forEach((b) => { b.onclick = () => { closeVeil('#gy-coach-veil'); openMember(b.dataset.gyCoachMem); }; });
+  }
+
+  /* ───────────────────────── vendre un pack de séances ─────────────────────── */
+  function openPtSell(member, coachId) {
+    const el = $('#gy-ptpackm', root);
+    const sel = { pack: 'pt5', member: member || null, coach: coachId || (member && member.coach !== 'Sans coach' && COACH_BY_NAME[member.coach] ? COACH_BY_NAME[member.coach].id : null) };
+    const render = () => {
+      const pk = PT_PACKS.find((p) => p.id === sel.pack);
+      el.innerHTML = `
+        <button class="gy-modal-x" data-gy-close aria-label="Fermer"><i data-lucide="x"></i></button>
+        <h3 class="modal-title">Vendre des séances de coaching</h3>
+        <p class="modal-subtle">${sel.member ? esc(sel.member.name) + ' · ' + esc(sel.member.phone || 'sans téléphone') : 'Choisissez le pack, puis le membre à créditer.'}</p>
+        <div class="gy-f"><div class="gy-f-lbl">Pack de séances</div>
+          <div class="gy-plan-pick">${PT_PACKS.map((p) => `
+            <button class="gy-plan-opt ${p.id === sel.pack ? 'on' : ''}" data-gy-pp="${p.id}">
+              ${p.flag ? `<span class="gy-pp-flag">${esc(p.flag)}</span>` : ''}
+              <span class="gy-plan-opt-name">${p.n} séance${p.n > 1 ? 's' : ''}</span>
+              <span class="gy-plan-opt-price mono">${esc(fmtMAD(p.price))}</span>
+              <span class="gy-plan-opt-sub">${esc(p.sub)}</span>
+            </button>`).join('')}</div>
+        </div>
+        <div class="gy-f"><div class="gy-f-lbl">Membre</div>
+          <button class="gy-ptsell-mem ${sel.member ? 'set' : ''}" id="gy-pt-mem">
+            ${sel.member
+              ? `<span class="gy-mem-ava ${memberStatus(sel.member) === 'expired' ? 'expired' : ''}">${esc(initials(sel.member.name))}</span><span class="gy-cl-mid"><span class="gy-cl-name">${esc(sel.member.name)}</span><span class="gy-cl-sub">${sel.member.ptCredits} séance${sel.member.ptCredits > 1 ? 's' : ''} déjà au compteur</span></span><span class="gy-cl-right">changer</span>`
+              : '<span class="gy-ptsell-pick"><i data-lucide="user-plus"></i> Choisir le membre</span>'}
+          </button>
+        </div>
+        <div class="gy-f"><div class="gy-f-lbl">Coach (optionnel)</div>
+          <div class="gy-coach-chips">${COACHES.map((c) => `<button class="gy-coach-chip ${sel.coach === c.id ? 'on' : ''}" data-gy-cc="${c.id}">${esc(c.name)}</button>`).join('')}</div>
+        </div>
+        <div class="gy-sell-summary">
+          <div class="gy-sell-sum-row"><span>${pk.n} séance${pk.n > 1 ? 's' : ''} de coaching${sel.coach ? ' · ' + esc(COACH[sel.coach].name) : ''}</span><b>${esc(fmtMAD(pk.price))}</b></div>
+          <div class="gy-sell-sum-row total"><span>À encaisser</span><b class="mono">${esc(fmtMAD(pk.price))}</b></div>
+        </div>
+        <div class="gy-sell-foot">
+          <button class="gy-btn ghost" data-gy-close>Annuler</button>
+          <button class="gy-btn primary" id="gy-pt-pay" ${sel.member ? '' : 'disabled'}><i data-lucide="banknote"></i> Encaisser ${esc(fmtMAD(pk.price))}</button>
+        </div>`;
+      icons();
+      $$('[data-gy-close]', el).forEach((b) => { b.onclick = () => closeVeil('#gy-ptpack-veil'); });
+      $$('[data-gy-pp]', el).forEach((b) => { b.onclick = () => { sel.pack = b.dataset.gyPp; render(); }; });
+      $$('[data-gy-cc]', el).forEach((b) => { b.onclick = () => { sel.coach = sel.coach === b.dataset.gyCc ? null : b.dataset.gyCc; render(); }; });
+      $('#gy-pt-mem', el).onclick = () => {
+        openPtSellKeepOpen();
+        openPick({
+          title: 'Membre pour le pack', sub: 'À qui créditer les séances ?',
+          onPick: (mid) => {
+            sel.member = MEMBER[mid];
+            if (!sel.coach && sel.member.coach !== 'Sans coach' && COACH_BY_NAME[sel.member.coach]) sel.coach = COACH_BY_NAME[sel.member.coach].id;
+            render(); openVeil('#gy-ptpack-veil');
+          },
+        });
+      };
+      const pay = $('#gy-pt-pay', el);
+      if (pay) pay.onclick = () => {
+        closeVeil('#gy-ptpack-veil');
+        openPay({
+          amount: pk.price, title: 'Séances de coaching',
+          sub: `${esc(sel.member.name)} · ${pk.n} séance${pk.n > 1 ? 's' : ''}`,
+          onPaid: (method, rendu) => {
+            sel.member.ptCredits += pk.n;
+            if (sel.coach && sel.member.coach === 'Sans coach') sel.member.coach = COACH[sel.coach].name;
+            addRevenue('coaching', pk.price);
+            queueIfOffline('Vente séances coaching');
+            toast(`${firstName(sel.member.name)} — ${pk.n} séance${pk.n > 1 ? 's' : ''} ajoutée${pk.n > 1 ? 's' : ''}${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+            refreshOps();
+          },
+        });
+      };
+    };
+    /* opening the picker hides this veil so they don't stack; we reopen on pick */
+    const openPtSellKeepOpen = () => closeVeil('#gy-ptpack-veil');
+    render();
+    openVeil('#gy-ptpack-veil');
+  }
+
+  /* ═══════════════════════ PILOTAGE — le tableau de bord du gérant ═══════════ */
+  function renderPilotage() {
+    const body = $('#gy-pilot-body', root);
+    const passages = passagesToday();
+    const exp = MEMBERS.filter((m) => { const s = memberStatus(m); return s === 'expiring' || s === 'expired'; }).length;
+    const occ = Math.min(100, Math.round((state.inGym / CLUB.capacity) * 100));
+    const rev = state.dayRevenue, revTot = revenueTotal();
+    const attend = CLUB.attend7.slice(); attend[6] = passages;
+    const maxA = Math.max.apply(null, attend.concat([1]));
+    const wd = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    const newM = CLUB.newThisMonth, churn = CLUB.churnThisMonth, net = newM - churn;
+    body.innerHTML = `
+      <div class="gy-kpi-grid">
+        <div class="gy-kpi">
+          <div class="gy-kpi-top"><span class="gy-kpi-ic"><i data-lucide="users"></i></span><span class="gy-kpi-trend up"><i data-lucide="trending-up"></i> +${newM} ce mois</span></div>
+          <div class="gy-kpi-val">${activeCount()}</div>
+          <div class="gy-kpi-lbl">Membres actifs</div>
+        </div>
+        <div class="gy-kpi">
+          <div class="gy-kpi-top"><span class="gy-kpi-ic"><i data-lucide="repeat"></i></span><span class="gy-kpi-trend">/ mois</span></div>
+          <div class="gy-kpi-val">${esc(fmtMAD(CLUB.mrr))}</div>
+          <div class="gy-kpi-lbl">Revenu récurrent (MRR)</div>
+        </div>
+        <div class="gy-kpi feat">
+          <div class="gy-kpi-top"><span class="gy-kpi-ic"><i data-lucide="banknote"></i></span><span class="gy-kpi-trend live"><i class="gy-live-dot"></i> en direct</span></div>
+          <div class="gy-kpi-val">${esc(fmtMAD(revTot))}</div>
+          <div class="gy-kpi-lbl">Recette du jour</div>
+        </div>
+        <div class="gy-kpi">
+          <div class="gy-kpi-top"><span class="gy-kpi-ic"><i data-lucide="scan-line"></i></span></div>
+          <div class="gy-kpi-val">${passages}</div>
+          <div class="gy-kpi-lbl">Passages aujourd'hui</div>
+        </div>
+        <div class="gy-kpi">
+          <div class="gy-kpi-top"><span class="gy-kpi-ic"><i data-lucide="activity"></i></span><span class="gy-kpi-trend mono">${state.inGym}/${CLUB.capacity}</span></div>
+          <div class="gy-kpi-val">${occ}<span class="gy-kpi-unit">%</span></div>
+          <div class="gy-kpi-lbl">Occupation salle</div>
+          <div class="gy-kpi-bar"><i style="width:${occ}%"></i></div>
+        </div>
+      </div>
+
+      <div class="gy-pilot-cols">
+        <div class="gy-pilot-card">
+          <div class="gy-pilot-card-h"><b>Fréquentation — 7 derniers jours</b><span class="mono">${passages} auj.</span></div>
+          <div class="gy-att-bars">${attend.map((v, i) => `<div class="gy-att-bar ${i === 6 ? 'today' : ''}"><span class="gy-att-col"><i style="height:${Math.round((v / maxA) * 100)}%"></i></span><span class="gy-att-v mono">${v}</span><span class="gy-att-d">${wd[i]}</span></div>`).join('')}</div>
+        </div>
+        <div class="gy-pilot-card">
+          <div class="gy-pilot-card-h"><b>Recette du jour</b><span class="mono">${esc(fmtMAD(revTot))}</span></div>
+          <div class="gy-rev-rows">
+            ${revRow('Abonnements', 'badge-check', rev.abos, revTot)}
+            ${revRow('Coaching', 'dumbbell', rev.coaching, revTot)}
+            ${revRow('Comptoir', 'shopping-bag', rev.shop, revTot)}
+            ${revRow('Séances / pass', 'ticket', rev.pass, revTot)}
+          </div>
+        </div>
+      </div>
+
+      <div class="gy-pilot-cols">
+        <div class="gy-pilot-card">
+          <div class="gy-pilot-card-h"><b>Répartition des formules</b><span>${activeCount()} actifs</span></div>
+          <div class="gy-mix">${CLUB.mix.map((x) => `<div class="gy-mix-row"><span class="gy-mix-lbl">${esc(PLAN[x.id].label)}</span><span class="gy-mix-bar"><i class="m-${x.id}" style="width:${x.pct}%"></i></span><span class="gy-mix-pct mono">${x.pct}%</span></div>`).join('')}</div>
+          <div class="gy-mix-foot"><span><b class="up">+${newM}</b> nouveaux</span><span><b class="down">−${churn}</b> partis</span><span>net <b>${net >= 0 ? '+' : ''}${net}</b></span></div>
+        </div>
+        <button class="gy-pilot-card relance" data-gy-pilot-relance>
+          <div class="gy-pilot-card-h"><b>À relancer</b><span class="gy-pill ${exp ? 'red' : 'ok'}">${exp || '0'}</span></div>
+          <div class="gy-relance-l">${exp ? `${exp} abonnement${exp > 1 ? 's' : ''} expire${exp > 1 ? 'nt' : ''} cette semaine ou ${exp > 1 ? 'ont' : 'a'} déjà expiré. Un message WhatsApp motivant est prêt pour chacun.` : 'Aucune relance en attente — la rétention est bonne.'}</div>
+          <span class="gy-relance-cta">Ouvrir les relances <i data-lucide="arrow-right"></i></span>
+        </button>
+      </div>
+
+      <div class="gy-pilot-foot">Données de démonstration — le club entier (${activeCount()} membres) ; les 10 fiches nominatives sont l'échantillon manipulable du comptoir.</div>`;
+    icons();
+  }
+
+  function revRow(label, icon, val, tot) {
+    const pct = tot ? Math.round((val / tot) * 100) : 0;
+    return `<div class="gy-rev-row"><span class="gy-rev-ic"><i data-lucide="${icon}"></i></span><span class="gy-rev-lbl">${esc(label)}</span><span class="gy-rev-track"><i style="width:${pct}%"></i></span><span class="gy-rev-val mono">${esc(fmtMAD(val))}</span></div>`;
+  }
+
+  /* ═══════════════════════ SÉANCE UNIQUE / PASS JOURNÉE (drop-in) ════════════ */
+  const DAY_PASSES = [
+    { id: 'unique', label: 'Séance unique', price: 50, sub: '1 accès · aujourd\'hui' },
+    { id: 'jour',   label: 'Pass journée',  price: 80, sub: 'accès illimité · journée', flag: 'tout compris' },
+    { id: 'duo',    label: 'Pass duo',      price: 90, sub: '2 personnes · 1 séance' },
+  ];
+  function openDayPass() {
+    const el = $('#gy-passm', root);
+    el.innerHTML = `
+      <button class="gy-modal-x" data-gy-close aria-label="Fermer"><i data-lucide="x"></i></button>
+      <h3 class="modal-title">Séance unique / Pass journée</h3>
+      <p class="modal-subtle">Pour un visiteur sans abonnement — touriste, invité, séance d'essai. Accès immédiat, sans créer de fiche.</p>
+      <div class="gy-pass-grid">${DAY_PASSES.map((p) => `
+        <button class="gy-pass-card" data-gy-pass="${p.id}">
+          ${p.flag ? `<span class="gy-shop-flag">${esc(p.flag)}</span>` : ''}
+          <span class="gy-pass-art">${ART.pass}</span>
+          <span class="gy-pass-name">${esc(p.label)}</span>
+          <span class="gy-pass-price"><b>${p.price}</b> MAD</span>
+          <span class="gy-pass-sub">${esc(p.sub)}</span>
+        </button>`).join('')}</div>
+      <div class="gy-pass-note"><i data-lucide="info"></i> Le pass ouvre le tourniquet une fois. Proposez l'abonnement si le visiteur revient — c'est là que la conversion se joue.</div>`;
+    openVeil('#gy-pass-veil');
+    icons();
+    $$('[data-gy-close]', el).forEach((b) => { b.onclick = () => closeVeil('#gy-pass-veil'); });
+    $$('[data-gy-pass]', el).forEach((b) => {
+      b.onclick = () => {
+        const p = DAY_PASSES.find((x) => x.id === b.dataset.gyPass);
+        closeVeil('#gy-pass-veil');
+        openPay({
+          amount: p.price, title: p.label, sub: 'Accès visiteur — sans abonnement',
+          onPaid: (method, rendu) => {
+            BASE_PASSAGES += (p.id === 'duo' ? 2 : 1);
+            state.passesToday += 1;
+            state.inGym += (p.id === 'duo' ? 2 : 1);
+            addRevenue('pass', p.price);
+            queueIfOffline('Séance unique / pass');
+            toast(`${p.label} vendu — accès ouvert${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+            refreshOps();
+            if (state.view === 'checkin') renderCounter();
+          },
+        });
+      };
+    });
+  }
+
   /* ═══════════════════════ refresh ops behind modals ═══════════════════════ */
   function refreshOps() {
     renderBadges();
     if (state.view === 'abos') renderAbo();
     if (state.view === 'membres') renderMemberList();
     if (state.view === 'checkin') { renderCounter(); renderQuickCodes(); }
+    if (state.view === 'planning') renderPlanning();
+    if (state.view === 'coachs') renderCoachs();
+    if (state.view === 'pilotage') renderPilotage();
     icons();
   }
 
