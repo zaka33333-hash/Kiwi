@@ -141,6 +141,22 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jun 25:** `cb7a51b` **Kiwi Dépenses (Kiwi Pay · Phase 2)** — the outflow half of the
+merchant OS. New full-page destination « Dépenses & cartes » (sidebar → new **KIWI PAY**
+section, `data-nav="depenses"`, PHASE 2 tag). Self-contained `assets/depenses.js` (injects
+own CSS, renders via `Kiwi.appPage`): two-sided ledger (encaissé vs dépensé vs net +
+budget bar), 4 team **Kiwi cards** with per-category limits + freeze/unfreeze, **approve/
+refuse** spend requests, budgets-by-category growing bars, recent-spend feed, supplier
+bills (Payer). « Émettre une carte » modal issues a live virtual card. **Honest framing:**
+a `KIWI PAY · PHASE 2` banner states cards + supplier payments need a Bank Al-Maghrib
+payment-institution licence — roadmap preview, no real money. Custom (0000) venues get a
+starter (no demo leak); manager role (0909) hides it like Marges/Paie. Wired: `nav-depenses`
+handler, `FULL_PAGE_NAVS` (pages.js), i18n `dash.sidebar.{kiwipay,depenses}` EN+AR,
+`role-manager` hide rule. Trilingual + dark-mode verified. To extend: edit the `cards` /
+`pending` / `budgets` / `suppliers` seed + the `T`/`CAT` dicts in depenses.js. This was the
+first **Pay/Banking surface** built — previously forbidden without explicit ask; the user
+explicitly asked. Don't add more Pay/Banking surfaces beyond this without the same.
+
 **Jun 11 (later):** `47c2002` **the whole home enters alive** — the c98e317 card entrance
 played at DOM load, hidden BEHIND the PIN lock; users saw a frozen page. Now all three
 reveal paths (PIN unlock 3 200 ms dive-in, 0000 onboard unlock, « Entrer dans la démo »
