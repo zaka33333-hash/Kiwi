@@ -40,15 +40,21 @@ To activate it:
 2. Add a variable:
    - **Name:** `SITE_PASSWORD`
    - **Value:** *(the passcode you hand the client — e.g. a word + a few digits)*
-3. **Save**, then **redeploy** (Deployments → Retry deployment, or push a commit).
+3. **Save**, then trigger a **brand-new deployment** — push a commit (or Deployments
+   → *Create deployment*). **Do _not_ use "Retry deployment":** a retry replays the
+   previous deployment's frozen env snapshot, so a variable you added *after* that
+   deployment (like `SITE_PASSWORD`) will be missing and the gate will silently
+   fail open. Only a freshly created deployment picks up new/changed variables.
 
 Now visitors see a branded "Accès privé" screen and must enter the passcode. It is
 remembered on that device for 30 days.
 
 - **The passcode is stored only in Cloudflare — never in this repo.**
-- **To change or revoke access:** edit `SITE_PASSWORD` and redeploy. Every existing
-  device is logged out immediately (cookies are derived from the passcode).
-- **To disable the gate entirely:** delete the `SITE_PASSWORD` variable and redeploy.
+- **To change or revoke access:** edit `SITE_PASSWORD`, then create a new deployment
+  (not a retry). Every existing device is logged out immediately (cookies are derived
+  from the passcode).
+- **To disable the gate entirely:** delete the `SITE_PASSWORD` variable and create a
+  new deployment.
 
 ## 3. A nice URL
 
