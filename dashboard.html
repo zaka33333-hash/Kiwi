@@ -329,6 +329,14 @@
   body.role-manager .sidebar a[data-nav="finance"],
   body.role-manager .sidebar a[data-nav="depenses"],
   body.role-manager .sidebar a[data-nav="payroll"] { display: none !important; }
+  /* Staff (an onboarding-created team code) — operational surfaces only:
+   * caisse, commandes, salle, KDS, stock. No money, no admin, no compliance. */
+  body.role-staff .role-badge { display: inline-flex; }
+  body.role-staff .sidebar a[data-nav="finance"],
+  body.role-staff .sidebar a[data-nav="depenses"],
+  body.role-staff .sidebar a[data-nav="payroll"],
+  body.role-staff .sidebar a[data-nav="conformite"],
+  body.role-staff .sidebar a[data-nav="equipe"] { display: none !important; }
   /* Croissance is a gated preview — hidden by default; the 1111 PIN reveals it for
    * the session. body.growth-locked is set on the <body> tag and removed on 1111. */
   body.growth-locked .sidebar .sect[data-i18n="dash.sidebar.growth"],
@@ -4921,7 +4929,7 @@
 (function () {
   let role = 'owner';
   try { role = localStorage.getItem('kiwiRole') || 'owner'; } catch (_) {}
-  if (role !== 'owner' && role !== 'manager') role = 'owner';
+  if (role !== 'owner' && role !== 'manager' && role !== 'staff') role = 'owner';
   document.body.classList.add('role-' + role);
   window.__kiwiRole = role;
 })();
@@ -5776,6 +5784,7 @@
 <script src="assets/dateRange.js" defer></script>
 <script src="assets/mobile-nav.js" defer></script>
 <script src="assets/liquid-lens.js" defer></script>
+<script src="assets/onboarding.js" defer></script>
 <!-- Below: user-triggered surfaces — not needed for first paint. -->
 <script src="assets/agent.js" defer fetchpriority="low"></script>
 <script src="assets/accounting.js" defer fetchpriority="low"></script>
@@ -5833,6 +5842,37 @@
   const skipBtn  = document.querySelector('[data-kiwi-skip]');
   if (!lock || !greet || !pinInput || !cells.length) return;
 
+  /* ── Personalization + a small control surface for the onboarding wizard
+   *    (assets/onboarding.js). Once a client has completed setup we know
+   *    their name, business and team codes — so the entry stops being
+   *    "Bonjour Rachid · Café Atlas" and becomes theirs. ─────────────────── */
+  const store = (k) => { try { return localStorage.getItem(k); } catch (_) { return null; } };
+  function setGreetName(name) {
+    if (!name) return;
+    const s = greet.querySelector('[data-i18n="dash.hello"]') || greet.querySelector('h1 span');
+    if (s) { s.textContent = 'Bonjour ' + name + ','; s.removeAttribute('data-i18n'); }
+  }
+  (function personalize() {
+    const owner = store('kiwiOwnerName');
+    const biz = store('kiwiBizName');
+    if (owner) setGreetName(owner);
+    if (biz) {
+      const sub = greet.querySelector('[data-kiwi-greet-sub]');
+      if (sub) sub.textContent = biz + ' · service ouvert';
+    }
+    /* A staff-tier team code gets its own restricted-view badge label. */
+    if ((store('kiwiRole') || '') === 'staff') {
+      const b = document.querySelector('[data-role-badge] span');
+      if (b) { b.textContent = 'Vue équipe'; b.removeAttribute('data-i18n'); }
+    }
+  })();
+  window.__kiwiLock = {
+    hide() { lock.style.display = 'none'; },
+    show() { lock.style.display = ''; document.documentElement.style.overflow = 'hidden'; setTimeout(() => { try { pinInput.focus(); } catch (_) {} }, 60); },
+    reveal() { skipToApp(); },
+    setGreetName,
+  };
+
   /* No persistence — the lock + greeting flow ALWAYS replays on reload
    * so the demo entry sequence is fully repeatable. The Skip control
    * lets a repeat viewer collapse it without sitting through it again. */
@@ -5848,6 +5888,8 @@
   setTimeout(refocus, 180);
   lock.addEventListener('click', refocus);
   document.addEventListener('keydown', (e) => {
+    /* While the onboarding wizard is up, the lock is hidden — let it own the keyboard. */
+    if (lock.style.display === 'none') return;
     /* Escape collapses the intro from either the lock or the greeting. */
     if (e.key === 'Escape') { skipToApp(); return; }
     if (!lock.isConnected) return;
@@ -5896,10 +5938,23 @@
       let role = 'owner';
       if (val === '0000' || val === '0505') role = 'owner';   /* config / tease both run as owner */
       else if (val === '0909') role = 'manager';
+      /* Client-configured team codes (chosen during onboarding) win for any
+       * non-reserved PIN — each maps to the role + person the owner assigned. */
+      try {
+        if (val !== '0000' && val !== '0505' && val !== '0909' && val !== '1111') {
+          const pins = JSON.parse(localStorage.getItem('kiwiPins') || '[]');
+          const hit = Array.isArray(pins) && pins.find((p) => p && p.code === val);
+          if (hit) {
+            role = (hit.role === 'manager' || hit.role === 'staff') ? hit.role : 'owner';
+            if (hit.name) setGreetName(hit.name);
+          }
+        }
+      } catch (_) {}
       window.__kiwiRole = role;
       try { localStorage.setItem('kiwiRole', role); } catch (_) {}
-      document.body.classList.remove('role-owner', 'role-manager');
+      document.body.classList.remove('role-owner', 'role-manager', 'role-staff');
       document.body.classList.add('role-' + role);
+      if (role === 'staff') { const b = document.querySelector('[data-role-badge] span'); if (b) { b.textContent = 'Vue équipe'; b.removeAttribute('data-i18n'); } }
       /* Every passcode enables the stable Design 2026 "Liquid Glass" skin
        * (no on-screen toggle — KiwiDesign2026.disable() reverts; persists). */
       if (window.KiwiDesign2026) window.KiwiDesign2026.enable();

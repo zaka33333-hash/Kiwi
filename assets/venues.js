@@ -1161,7 +1161,7 @@
       subtype: cfg.subtype || '',
       profileInfo: cfg.profile || null,
       siblings: '', status: 'En service', ice: '—',
-      txCount: 0, staffCount: 0, custom: true,
+      txCount: 0, staffCount: Math.max(0, +cfg.staffCount || 0), custom: true,
       hours: cfg.hours || '', methods: cfg.methods || '', goal: +cfg.goal || 0,
     };
     customIds.add(id);
