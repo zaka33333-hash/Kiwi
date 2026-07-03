@@ -174,7 +174,7 @@
   function initShortcutsOverlay() {
     function open() {
       if (document.querySelector('.kb-overlay-backdrop')) return;
-      const isDash = /dashboard\.html/.test(location.pathname);
+      const isDash = /dashboard(?:\.html)?(?:$|\/)/.test(location.pathname);
       const back = document.createElement('div');
       back.className = 'kb-overlay-backdrop';
       back.innerHTML = `
@@ -220,7 +220,7 @@
         open();
       }
       // Single key shortcuts on dashboard
-      if (!e.target.matches('input, textarea, [contenteditable]') && /dashboard\.html/.test(location.pathname)) {
+      if (!e.target.matches('input, textarea, [contenteditable]') && /dashboard(?:\.html)?(?:$|\/)/.test(location.pathname)) {
         if (e.key === 'n' && !e.metaKey && !e.ctrlKey) {
           e.preventDefault();
           window.Kiwi?.handlers?.['new-sale']?.();

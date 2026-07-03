@@ -132,7 +132,7 @@
 
   function start() {
     if (started) return;
-    if (!/dashboard\.html/.test(location.pathname)) return;
+    if (!/dashboard(?:\.html)?(?:$|\/)/.test(location.pathname)) return;
     started = true;
     window.__kiwiDemoActive = true;
 

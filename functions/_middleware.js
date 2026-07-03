@@ -46,14 +46,7 @@ export async function onRequest(context) {
   const password = env.SITE_PASSWORD;
 
   // Gate disabled when no passcode is configured — the site serves openly.
-  if (!password) {
-    // TEMP DIAGNOSTIC: report which env keys the Function actually receives
-    // (names only, no values) so we can see why SITE_PASSWORD is missing.
-    const res = await next();
-    const out = new Response(res.body, res);
-    out.headers.set('x-kiwi-envkeys', Object.keys(env || {}).join(',').slice(0, 180));
-    return out;
-  }
+  if (!password) return next();
 
   const token = await expectedToken(password);
 

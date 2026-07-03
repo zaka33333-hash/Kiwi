@@ -4365,7 +4365,7 @@
   }
 
   function init() {
-    if (!/dashboard2?\.html/.test(location.pathname)) return;
+    if (!/dashboard2?(?:\.html)?(?:$|\/)/.test(location.pathname)) return;
     let stored = null;
     try { stored = localStorage.getItem(STORAGE_KEY); } catch (_) {}
     try { customRange = parseCustom(localStorage.getItem(CUSTOM_KEY)); } catch (_) {}

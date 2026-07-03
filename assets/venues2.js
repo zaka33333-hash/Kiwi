@@ -2725,7 +2725,7 @@
   /* ═══════════════ INIT ═══════════════ */
 
   function init() {
-    if (!/dashboard2?\.html/.test(location.pathname)) return;
+    if (!/dashboard2?(?:\.html)?(?:$|\/)/.test(location.pathname)) return;
     /* Sidebar upsell + dropdown CTA + subtype-profiled vertical section
      * render their own copy — re-translate live. */
     window.addEventListener('kiwi:langchange', () => {
