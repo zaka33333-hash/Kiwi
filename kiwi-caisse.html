@@ -24,6 +24,7 @@
        opt-ins. -->
   <script src="assets/liquid-lens.js" defer></script>
   <script src="assets/caisse-motion.js" defer></script>
+  <script src="assets/caisse-hardware.js" defer></script>
   <link rel="stylesheet" href="assets/pressing-caisse.css" />
   <script src="assets/pressing-caisse.js" defer></script>
   <!-- Multi-métier PIN dispatcher: 0002–0015 lazy-load one POS vertical each
@@ -6232,7 +6233,20 @@
       btn.addEventListener('click', () => {
         const a = btn.dataset.action;
         // 'discount' is handled by the [data-action] delegation listener below.
-        if (a === 'print-bill') toast('Imprimante en cours…');
+        if (a === 'print-bill') {
+          var _lines = Array.prototype.slice.call(document.querySelectorAll('#rp-items > *')).map(function (row) {
+            var q = row.querySelector('.rp-item-qty'); var n = row.querySelector('.rp-item-name'); var p = row.querySelector('.rp-item-price');
+            var name = n ? n.textContent.trim() : '';
+            return name ? { qty: (q ? q.textContent.replace('×', '').trim() : ''), name: name, price: (p ? p.textContent.trim() : '') } : null;
+          }).filter(Boolean);
+          var _ticket = {
+            title: (document.getElementById('rp-table') ? document.getElementById('rp-table').textContent.trim() : 'Reçu Kiwi'),
+            lines: _lines,
+            total: (document.getElementById('rp-total') ? document.getElementById('rp-total').textContent.trim() : '')
+          };
+          window.__lastTicket = _ticket;
+          if (window.KiwiHardware) window.KiwiHardware.print(_ticket);
+        }
         else if (a === 'cancel-table') {
           if (mode === 'order') {
             // Building a new mesa — cancel it properly (drops the order, back to Salle)
