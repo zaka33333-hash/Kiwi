@@ -29,6 +29,9 @@
    * mode overrides these in theme.css (subtler, no green cast). */
   --elev-1: 0 1px 2px -1px rgba(11,110,79,.10), 0 10px 26px -20px rgba(11,110,79,.22), inset 0 1px 0 rgba(255,255,255,.7);
   --elev-2: 0 3px 8px -3px rgba(11,110,79,.16), 0 24px 48px -22px rgba(11,110,79,.32), inset 0 1px 0 rgba(255,255,255,.85);
+  /* Signature spring — la lentille liquide settle curve. Single source; the
+     caisse skin and motion layer both reference var(--spring). */
+  --spring: cubic-bezier(0.34, 1.45, 0.5, 1);
 
   /* Neutrals */
   --n-50: #FAFAF8;

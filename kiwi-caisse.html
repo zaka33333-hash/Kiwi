@@ -30,6 +30,12 @@
        Any unlisted code still opens the restaurant caisse below. -->
   <script src="assets/pos-dispatch.js" defer></script>
 
+  <!-- Shared material tokens (elevation, paper, spring). Linked BEFORE the
+       inline <style> so the caisse's own palette still wins; only the tokens
+       the inline block does not define (--elev-1/2, --paper-elev, --spring)
+       are inherited from here. -->
+  <link rel="stylesheet" href="assets/tokens.css" />
+
   <style>
     /* ---------- Tokens (inline, file is standalone) ---------- */
     :root {
@@ -3786,6 +3792,7 @@
     .vrap-back-btn:hover { background: var(--line); }
     .vrap-back-btn svg { width: 14px; height: 14px; }
   </style>
+  <link rel="stylesheet" href="assets/caisse-skin.css" />
 </head>
 
 <body>
@@ -4402,7 +4409,7 @@
           <button class="vrap-back-btn" id="vrap-back-board">
             <i data-lucide="arrow-left"></i><span>Commandes à emporter</span>
           </button>
-          <div class="cat-pills" id="cat-pills" role="tablist"></div>
+          <div class="cat-pills" data-lens-demo id="cat-pills" role="tablist"></div>
           <div class="menu-grid" id="menu-grid"></div>
         </div>
       </section>
@@ -5882,7 +5889,7 @@
       menuItems.forEach(m => { counts[m.cat] = (counts[m.cat] || 0) + 1; });
       const cats = ['all', 'entrees', 'tajines', 'couscous', 'pastillas', 'sandwiches', 'boissons', 'desserts'];
       $('#cat-pills').innerHTML = cats.map(c => `
-        <button class="cat-pill ${c === activeCat ? 'is-active' : ''}" data-cat="${c}">
+        <button class="cat-pill ${c === activeCat ? 'is-active' : ''}" data-lens-item data-cat="${c}">
           ${catLabels[c]}<span class="count mono">${counts[c] || 0}</span>
         </button>
       `).join('');

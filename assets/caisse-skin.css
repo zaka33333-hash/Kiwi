@@ -1,0 +1,41 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Kiwi Caisse — premium skin.
+ * Layers lit-paper elevation onto the existing register chrome WITHOUT touching
+ * per-vertical logic. Loaded AFTER the inline <style> (these rules win); relies
+ * on tokens.css (linked BEFORE the inline block) for --elev-1/2, --paper-elev,
+ * --spring. The caisse keeps its own --forest/--emerald palette.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* ---- Light register surfaces: warm lit paper instead of cold #fff ---- */
+.rightpanel {
+  background: var(--paper-elev);
+  box-shadow: var(--elev-1);
+}
+.menu-item {
+  background: var(--paper-elev);
+  box-shadow: var(--elev-1);
+  transition: box-shadow .22s var(--spring), transform .18s var(--spring),
+              background .18s ease;
+}
+.menu-item:hover { box-shadow: var(--elev-2); }
+.menu-item.is-in-cart { box-shadow: var(--elev-2); }
+
+/* Lit icon plate on menu tiles (mint → paper wash + inset highlight) */
+.menu-item-art {
+  background: linear-gradient(160deg,
+              color-mix(in srgb, var(--mint) 40%, var(--paper-elev)) 0%,
+              var(--paper-elev) 70%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+/* ---- Category tabs: cooperate with the liquid-lens pill ----
+ * The lens paints the moving selection pill behind the active tab, so each pill
+ * is transparent-resting; the active pill's fill comes from the lens, not the
+ * tab. Keep the active TEXT colour for legibility. */
+.cat-pills { position: relative; }         /* lens positions against this */
+.cat-pill { background: transparent; box-shadow: none; }
+.cat-pill:hover { background: color-mix(in srgb, var(--forest) 6%, transparent); }
+.cat-pill.is-active { background: transparent; color: var(--forest); }
+
+/* ---- Stat cards in the light zone read as lit paper ---- */
+.stat-card { box-shadow: var(--elev-1); }
