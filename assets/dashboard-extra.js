@@ -477,6 +477,48 @@
     const lang = trLang();
     const str = INTEG_STR[lang] || INTEG_STR.fr;
 
+    /* Client (custom) venue: NEVER surface another business's connected tools,
+     * sync times or IBAN (Café Atlas'). Present everything as available-to-
+     * connect, with a generic hero and a safe bank description. */
+    const isCustom = !!(window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom());
+    if (isCustom) {
+      const heroT = ({ fr: 'Connecteurs', en: 'Connectors', ar: 'الموصلات' })[lang] || 'Connecteurs';
+      const safeBank = ({ fr: 'Rapprochement bancaire automatique', en: 'Automatic bank reconciliation', ar: 'تسوية بنكية تلقائية' })[lang];
+      const catalog = [
+        { name: 'Glovo',          color: '#F29137', tag: 'G', desc: str['integ.glovo.desc'] },
+        { name: 'Jumia Food',     color: '#E7611A', tag: 'J', desc: str['integ.jumia.desc'] },
+        { name: 'Comptabilité',   color: '#1D3F6B', tag: 'A', desc: str['integ.compta.desc'] },
+        { name: 'Bank of Africa', color: '#00613E', tag: 'B', desc: safeBank },
+        ...INTEGRATIONS_OFF.map((i) => ({ name: i.name, color: i.color, tag: i.tag, desc: str[i.i18nDesc] })),
+      ];
+      drawer({
+        title: str.title,
+        subtitle: str.subtitle(0, catalog.length),
+        width: 720,
+        body: `
+          <div class="p-hero">
+            <div class="l">${heroT}</div>
+            <div class="big">${str.heroSubtitle(0)}</div>
+            <div class="sub">${str.heroDesc}</div>
+          </div>
+          <div style="font-size:11px; letter-spacing:0.1em; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; margin:4px 0 8px;">${str.available}</div>
+          ${catalog.map((i) => `
+            <div class="p-card" style="margin-bottom:8px;">
+              <div style="display:grid; grid-template-columns:38px 1fr auto; gap:12px; align-items:center;">
+                <div style="width:38px; height:38px; border-radius:9px; background:${i.color}; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; opacity:0.85;">${i.tag}</div>
+                <div>
+                  <div style="font-weight:600; font-size:14px;">${i.name}</div>
+                  <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">${i.desc}</div>
+                </div>
+                <button class="kb atlas xs" data-action="integration-connect" data-arg="${i.name}">${str.connect}</button>
+              </div>
+            </div>
+          `).join('')}
+        `,
+      });
+      return;
+    }
+
     drawer({
       title: str.title,
       subtitle: str.subtitle(INTEGRATIONS_ON.length, INTEGRATIONS_OFF.length),

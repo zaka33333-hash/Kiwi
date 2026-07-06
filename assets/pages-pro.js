@@ -11530,6 +11530,105 @@ handlers['bout-cat-publish'] = () => {
                      b: ['Une fiche créée automatiquement par client', 'Historique, préférences et notes', 'Campagnes anniversaires et fidélité'] },
   };
 
+  /* ── Actionable layer: let the client add their OWN data right here ──────
+   * Config-type destinations (menu, team, devices…) get an "Add {noun}" button
+   * that opens a guided modal; what they type persists per venue and shows back
+   * on the page. Output destinations (ventes, marges, KDS…) build from real
+   * sales, so their primary action is "record my first sale" (a real sale on a
+   * custom venue — it lights the whole dashboard up). Nobody hits a dead end. */
+  const LANG = () => (window.KiwiI18n?.getLang?.() || 'fr');
+  const T = (o) => (o == null ? '' : (o[LANG()] ?? o.fr ?? ''));
+  const escS = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const UI = {
+    firstSale: { fr: 'Encaisser ma première vente', en: 'Record my first sale', ar: 'سجّل أول عملية بيع' },
+    addMore:   { fr: 'Ajouter', en: 'Add', ar: 'إضافة' },
+    done:      { fr: 'Terminé', en: 'Done', ar: 'تم' },
+    saved:     { fr: 'Enregistré', en: 'Saved', ar: 'تم الحفظ' },
+    started:   { fr: "Bien joué — c'est un début.", en: "Nice — that's a start.", ar: 'أحسنت — هذه بداية.' },
+    normal:    { fr: "Encore rien ici — et c'est normal.", en: "Nothing here yet — and that's fine.", ar: 'لا شيء هنا بعد — وهذا طبيعي.' },
+    nothing:   { fr: 'Rien encore.', en: 'Nothing yet.', ar: 'لا شيء بعد.' },
+    addHint:   { fr: 'Ajoutez-en autant que vous voulez — enregistré pour votre établissement.', en: 'Add as many as you like — saved to your business.', ar: 'أضف ما تشاء — محفوظ لنشاطك.' },
+    footSale:  { fr: 'Cette page se construit automatiquement avec vos données réelles, dès vos premières ventes sur la caisse.', en: 'This page builds itself from your real data, starting with your first sales on the register.', ar: 'تُبنى هذه الصفحة تلقائياً من بياناتك الحقيقية بمجرد أول عملية بيع.' },
+    footAdd:   { fr: 'Ajoutez vos éléments maintenant, ou laissez-les se créer tout seuls dès la première vente.', en: 'Add your items now, or let them create themselves on the first sale.', ar: 'أضف عناصرك الآن، أو دعها تُنشأ تلقائياً عند أول عملية بيع.' },
+  };
+
+  /* Direct-add destinations — trade-neutral noun/placeholder for each. */
+  const ADD = {
+    terminaux:    { title: { fr: 'Ajouter un appareil', en: 'Add a device', ar: 'إضافة جهاز' },        plural: { fr: 'Vos appareils', en: 'Your devices', ar: 'أجهزتك' },        ph: { fr: 'Ex. iPad caisse · comptoir', en: 'e.g. iPad · counter', ar: 'مثال: جهاز الكاونتر' } },
+    equipe:       { title: { fr: 'Ajouter un membre', en: 'Add a member', ar: 'إضافة عضو' },           plural: { fr: 'Votre équipe', en: 'Your team', ar: 'فريقك' },             ph: { fr: 'Prénom · rôle (ex. Salma · caisse)', en: 'Name · role', ar: 'الاسم · الدور' } },
+    practitioners:{ title: { fr: 'Ajouter un membre', en: 'Add a member', ar: 'إضافة عضو' },           plural: { fr: 'Votre équipe', en: 'Your team', ar: 'فريقك' },             ph: { fr: 'Prénom · spécialité', en: 'Name · specialty', ar: 'الاسم · التخصص' } },
+    payroll:      { title: { fr: 'Ajouter un employé', en: 'Add an employee', ar: 'إضافة موظف' },      plural: { fr: 'Vos employés', en: 'Your employees', ar: 'موظفوك' },       ph: { fr: 'Prénom · poste', en: 'Name · position', ar: 'الاسم · المنصب' } },
+    menu:         { title: { fr: 'Ajouter un produit', en: 'Add a product', ar: 'إضافة منتج' },        plural: { fr: 'Votre carte', en: 'Your menu', ar: 'قائمتك' },             ph: { fr: 'Ex. Café · 12 MAD', en: 'e.g. Coffee · 12 MAD', ar: 'مثال: قهوة · 12 درهم' } },
+    services:     { title: { fr: 'Ajouter une prestation', en: 'Add a service', ar: 'إضافة خدمة' },    plural: { fr: 'Vos prestations', en: 'Your services', ar: 'خدماتك' },     ph: { fr: 'Ex. Coupe · 80 MAD', en: 'e.g. Haircut · 80 MAD', ar: 'مثال: قص · 80 درهم' } },
+    tables:       { title: { fr: 'Ajouter une table', en: 'Add a table', ar: 'إضافة طاولة' },          plural: { fr: 'Votre salle', en: 'Your floor', ar: 'قاعتك' },             ph: { fr: 'Ex. Table 4 · terrasse', en: 'e.g. Table 4 · terrace', ar: 'مثال: طاولة 4' } },
+    stock:        { title: { fr: 'Ajouter une référence', en: 'Add an item', ar: 'إضافة صنف' },        plural: { fr: 'Votre stock', en: 'Your stock', ar: 'مخزونك' },            ph: { fr: 'Ex. Lait · 40 unités', en: 'e.g. Milk · 40 units', ar: 'مثال: حليب · 40' } },
+    inventory:    { title: { fr: 'Ajouter une référence', en: 'Add an item', ar: 'إضافة صنف' },        plural: { fr: 'Votre inventaire', en: 'Your inventory', ar: 'جردك' },     ph: { fr: 'Ex. Référence · quantité', en: 'e.g. Item · qty', ar: 'مثال: صنف · كمية' } },
+    categories:   { title: { fr: 'Ajouter une catégorie', en: 'Add a category', ar: 'إضافة فئة' },     plural: { fr: 'Vos catégories', en: 'Your categories', ar: 'فئاتك' },     ph: { fr: 'Ex. Boissons chaudes', en: 'e.g. Hot drinks', ar: 'مثال: مشروبات ساخنة' } },
+    promos:       { title: { fr: 'Créer une offre', en: 'Create an offer', ar: 'إنشاء عرض' },          plural: { fr: 'Vos offres', en: 'Your offers', ar: 'عروضك' },             ph: { fr: 'Ex. −10% happy hour', en: 'e.g. −10% happy hour', ar: 'مثال: −10٪' } },
+    clients:      { title: { fr: 'Ajouter un client', en: 'Add a customer', ar: 'إضافة عميل' },        plural: { fr: 'Vos clients', en: 'Your customers', ar: 'عملاؤك' },        ph: { fr: 'Nom · téléphone', en: 'Name · phone', ar: 'الاسم · الهاتف' } },
+    reservations: { title: { fr: 'Ajouter une réservation', en: 'Add a booking', ar: 'إضافة حجز' },    plural: { fr: 'Vos réservations', en: 'Your bookings', ar: 'حجوزاتك' },   ph: { fr: 'Nom · date · couverts', en: 'Name · date · guests', ar: 'الاسم · التاريخ' } },
+    appointments: { title: { fr: 'Ajouter un rendez-vous', en: 'Add an appointment', ar: 'إضافة موعد' }, plural: { fr: 'Vos rendez-vous', en: 'Your appointments', ar: 'مواعيدك' }, ph: { fr: 'Nom · date · prestation', en: 'Name · date · service', ar: 'الاسم · التاريخ' } },
+  };
+
+  const venueId = () => { const KV = window.KiwiVenue; return (KV && KV.getCurrentVenueData && KV.getCurrentVenueData() || {}).id || (KV && KV.getVenue && KV.getVenue()) || 'v'; };
+  const skey = (nav) => 'kiwiStarter:' + venueId() + ':' + nav;
+  function getItems(nav) { try { return JSON.parse(localStorage.getItem(skey(nav)) || '[]'); } catch (_) { return []; } }
+  function setItems(nav, arr) { try { localStorage.setItem(skey(nav), JSON.stringify(arr)); } catch (_) {} }
+
+  /* Guided "add" modal — the client types their items; DOM-built list (no
+   * innerHTML), persisted on Done, reflected back on the page. */
+  function openAddModal(nav) {
+    const cfg = ADD[nav]; if (!cfg || !window.Kiwi || !window.Kiwi.modal) return;
+    const toast = window.Kiwi.toast;
+    const m = window.Kiwi.modal({
+      tag: ((window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && window.KiwiVenue.getCurrentVenueData()) || {}).name || 'Kiwi',
+      title: T(cfg.title),
+      desc: T(UI.addHint),
+      width: 460,
+      body: `<input data-add-input type="text" placeholder="${escS(T(cfg.ph))}" style="width:100%;box-sizing:border-box;padding:13px 14px;border:1.5px solid var(--n-200);border-radius:12px;font-family:var(--sans);font-size:15px;color:var(--ink);background:var(--surface);outline:none;"/>
+             <div class="gp-add-list" data-add-list></div>`,
+      foot: `<button class="kb ghost" type="button" data-add-more style="flex:1;justify-content:center;">${T(UI.addMore)}</button>
+             <button class="kb atlas" type="button" data-add-done style="flex:1.3;justify-content:center;">${T(UI.done)}</button>`,
+    });
+    const input = m.el.querySelector('[data-add-input]');
+    const list = m.el.querySelector('[data-add-list]');
+    const draft = getItems(nav).slice();
+    function paint() {
+      while (list.firstChild) list.removeChild(list.firstChild);
+      if (!draft.length) {
+        const e = document.createElement('div'); e.className = 'gp-add-empty'; e.textContent = T(UI.nothing); list.appendChild(e); return;
+      }
+      draft.forEach((txt, i) => {
+        const row = document.createElement('div'); row.className = 'gp-add-item';
+        const span = document.createElement('span'); span.textContent = txt; span.style.flex = '1'; span.style.minWidth = '0';
+        const x = document.createElement('span'); x.className = 'x'; x.textContent = '×'; x.dataset.del = String(i);
+        row.appendChild(span); row.appendChild(x); list.appendChild(row);
+      });
+    }
+    function add() { const v = (input.value || '').trim(); if (!v) { input.focus(); return; } draft.push(v); input.value = ''; input.focus(); paint(); }
+    m.el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-add-more]')) { add(); return; }
+      const x = e.target.closest('[data-del]'); if (x) { draft.splice(+x.dataset.del, 1); paint(); return; }
+      if (e.target.closest('[data-add-done]')) {
+        setItems(nav, draft);
+        m.close();
+        if (window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom()) renderStarter(nav, STARTERS[nav]);
+        if (toast) toast(T(UI.saved), { type: 'success', force: true, desc: draft.length + ' · ' + T(cfg.plural) });
+        try { if (draft.length && window.Kiwi.confetti) window.Kiwi.confetti(); } catch (_) {}
+        return;
+      }
+    });
+    if (input) input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+    paint();
+    setTimeout(() => { try { input && input.focus(); } catch (_) {} }, 200);
+  }
+
+  function registerActions() {
+    const H = window.Kiwi && window.Kiwi.handlers; if (!H) return;
+    if (!H['starter-add']) H['starter-add'] = (_el, nav) => openAddModal(nav);
+  }
+
   function starterTitle(nav, meta) {
     const KV = window.KiwiVenue;
     /* The trade's own label for this destination (subtype profile) wins. */
@@ -11550,18 +11649,47 @@ handlers['bout-cat-publish'] = () => {
   function renderStarter(nav, meta) {
     const KV = window.KiwiVenue;
     const vd = KV?.getCurrentVenueData?.() || {};
+    const cfg = ADD[nav];
+    const items = cfg ? getItems(nav) : [];
+    const hasItems = items.length > 0;
+
+    /* What this page becomes (kept — the honest framing). */
+    const capRows = meta.b.map(x => `<div class="gp-starter-row">${CHECK}<span>${x}</span></div>`).join('');
+
+    /* What the client has already added — real, persisted, shown right back. */
+    const prep = hasItems ? `
+      <div class="gp-starter-eyebrow">${escS(T(cfg.plural))} · ${items.length}</div>
+      <div class="gp-starter-prep">
+        ${items.map(x => `<div class="gp-prep-row">${CHECK}<span>${escS(x)}</span></div>`).join('')}
+      </div>` : '';
+
+    /* Concrete ways to add data. Config pages get an "Add {noun}" button + the
+     * universal first-sale action; output pages get first-sale as the primary. */
+    const actions = cfg
+      ? `<div class="gp-starter-actions">
+           <button class="kb atlas" type="button" data-action="starter-add" data-arg="${nav}">${escS(T(cfg.title))}</button>
+           <button class="kb ghost" type="button" data-action="new-sale">${escS(T(UI.firstSale))}</button>
+         </div>`
+      : `<div class="gp-starter-actions">
+           <button class="kb atlas" type="button" data-action="new-sale">${escS(T(UI.firstSale))}</button>
+         </div>`;
+
+    const h3 = escS(hasItems ? T(UI.started) : T(UI.normal));
+    const foot = cfg ? T(UI.footAdd) : T(UI.footSale);
+    const startingUp = T({ fr: 'compte en démarrage', en: 'account getting started', ar: 'حساب قيد الإعداد' });
+
     window.Kiwi.appPage(nav, {
       title: starterTitle(nav, meta),
-      subtitle: `${vd.name || 'Votre établissement'} · compte en démarrage`,
+      subtitle: `${vd.name || 'Votre établissement'} · ${startingUp}`,
       body: `
         <div class="gp-starter">
           <div class="gp-starter-ic">${SPARK}</div>
-          <h3>Encore rien ici — et c'est normal.</h3>
+          <h3>${h3}</h3>
           <p>${meta.d}</p>
-          <div class="gp-starter-list">
-            ${meta.b.map(x => `<div class="gp-starter-row">${CHECK}<span>${x}</span></div>`).join('')}
-          </div>
-          <p class="gp-starter-foot">Cette page se construit automatiquement avec vos données réelles, dès vos premières ventes sur la caisse.</p>
+          ${prep}
+          ${actions}
+          <div class="gp-starter-list">${capRows}</div>
+          <p class="gp-starter-foot">${foot}</p>
         </div>
       `,
     });
@@ -11576,6 +11704,7 @@ handlers['bout-cat-publish'] = () => {
   function installStarters() {
     const H = window.Kiwi && window.Kiwi.handlers;
     if (!H) return;
+    registerActions();
     Object.entries(STARTERS).forEach(([nav, meta]) => {
       const key = 'nav-' + nav;
       const orig = H[key];

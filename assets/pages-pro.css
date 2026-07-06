@@ -3054,3 +3054,20 @@ html[data-theme="dark"] .kw-item .thumb { background: var(--paper-muted); }
 .gp-starter-row + .gp-starter-row { border-top: 1px solid color-mix(in srgb, var(--ink) 6%, transparent); }
 .gp-starter-row svg { color: var(--atlas); flex: none; }
 .gp-starter-foot { font-size: 12px; color: var(--n-500); line-height: 1.5; max-width: 420px; margin: 0 auto; }
+/* Actionable starter: "add my data" buttons + a live list of what's been prepared. */
+.gp-starter-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 0 0 16px; }
+.gp-starter-actions .kb { padding: 12px 18px; font-size: 14px; }
+.gp-starter-eyebrow { text-align: start; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--n-500); margin: 2px 4px 8px; }
+.gp-starter-prep { text-align: start; background: var(--surface); border: 1px solid color-mix(in srgb, var(--atlas) 30%, transparent); border-radius: 14px; padding: 6px 18px; margin-bottom: 16px; }
+.gp-starter-prep .gp-prep-row { display: flex; gap: 10px; align-items: center; padding: 11px 0; font-size: 13px; color: var(--n-700); }
+.gp-starter-prep .gp-prep-row + .gp-prep-row { border-top: 1px solid color-mix(in srgb, var(--ink) 6%, transparent); }
+.gp-starter-prep .gp-prep-row svg { color: var(--atlas); flex: none; }
+.gp-starter-prep .gp-prep-row .x { margin-inline-start: auto; color: var(--n-400); cursor: pointer; font-size: 17px; line-height: 1; padding: 2px 6px; border-radius: 6px; }
+.gp-starter-prep .gp-prep-row .x:hover { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+/* Generic guided "add" modal — chips of what the client has entered so far. */
+.gp-add-list { display: flex; flex-direction: column; gap: 7px; margin: 14px 0 4px; }
+.gp-add-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 11px; font-size: 13.5px; color: var(--ink); }
+.gp-add-item svg { color: var(--atlas); flex: none; }
+.gp-add-item .x { margin-inline-start: auto; color: var(--n-400); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+.gp-add-item .x:hover { color: var(--danger); }
+.gp-add-empty { font-size: 12.5px; color: var(--n-500); text-align: center; padding: 14px 0 4px; }
