@@ -140,7 +140,7 @@
   position: relative;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   padding: 18px 12px 15px;
-  background: #fff;
+  background: var(--paper-elev);
   border: 1px solid var(--line);
   border-radius: var(--r-xl);
   text-align: center;
@@ -184,7 +184,7 @@
 /* ---------- ticket (right panel) ---------- */
 .ft-ticket {
   width: 364px; flex: 0 0 364px;
-  background: #fff;
+  background: var(--paper-elev);
   border-left: 1px solid var(--line);
   display: flex; flex-direction: column;
   min-height: 0;
@@ -242,7 +242,7 @@
 .ft-line-qty button:hover { background: var(--paper-mute); border-color: var(--ink-4); }
 .ft-line-qty b { font-family: var(--mono); font-size: 14px; min-width: 16px; text-align: center; }
 
-.ft-foot { border-top: 1px solid var(--line); padding: 13px 16px 16px; display: flex; flex-direction: column; gap: 11px; background: #fff; }
+.ft-foot { border-top: 1px solid var(--line); padding: 13px 16px 16px; display: flex; flex-direction: column; gap: 11px; background: var(--paper-elev); }
 .ft-total { display: flex; align-items: baseline; justify-content: space-between; }
 .ft-total .lbl { font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
 .ft-total .val {
@@ -267,7 +267,7 @@
   flex: 1;
   display: flex; align-items: center; justify-content: center; gap: 8px;
   height: 62px; border-radius: 14px;
-  background: #fff; border: 1px solid var(--line);
+  background: var(--paper-elev); border: 1px solid var(--line);
   font-size: 14.5px; font-weight: 600; color: var(--ink-2);
   transition: border-color 150ms, color 150ms, transform 150ms, opacity 150ms;
 }
@@ -307,7 +307,7 @@
 .ft-qlist > * { max-width: 880px; }
 .ft-qrow {
   display: flex; align-items: center; gap: 14px;
-  background: #fff;
+  background: var(--paper-elev);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 13px 16px;
@@ -373,7 +373,7 @@
 .ft-ghost:hover { color: var(--ink); border-color: var(--ink-4); }
 .ft-srow {
   display: flex; align-items: center; gap: 12px;
-  background: #fff;
+  background: var(--paper-elev);
   border: 1px solid var(--line-soft);
   border-radius: 14px;
   padding: 10px 14px;
@@ -392,7 +392,7 @@
 .ft-spot-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 24px 30px; }
 .ft-spot-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 980px; }
 .ft-spot-card {
-  background: #fff;
+  background: var(--paper-elev);
   border: 1px solid var(--line);
   border-radius: var(--r-2xl);
   padding: 18px 18px 16px;
@@ -451,7 +451,7 @@
 
 .ft-vitals { display: grid; grid-template-columns: repeat(auto-fit, minmax(216px, 1fr)); gap: 10px; max-width: 980px; }
 .ft-vital {
-  background: #fff;
+  background: var(--paper-elev);
   border: 1px solid var(--line);
   border-radius: var(--r-xl);
   padding: 14px 15px 13px;
@@ -485,7 +485,7 @@ button.ft-vital:active { transform: scale(0.985); }
 .ft-battbar { height: 6px; border-radius: 999px; background: var(--paper-mute); overflow: hidden; }
 .ft-battbar i { display: block; height: 100%; border-radius: 999px; background: var(--emerald); }
 
-.ft-rota { max-width: 980px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; }
+.ft-rota { max-width: 980px; background: var(--paper-elev); border: 1px solid var(--line); border-radius: var(--r-xl); overflow: hidden; }
 .ft-rota-row {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 16px;
@@ -517,7 +517,7 @@ button.ft-vital:active { transform: scale(0.985); }
 .ft-rec-sub { font-size: 12px; color: rgba(255,255,255,0.6); }
 .ft-rec-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 980px; margin-top: 12px; }
 .ft-rcard {
-  background: #fff;
+  background: var(--paper-elev);
   border: 1px solid var(--line);
   border-radius: var(--r-xl);
   padding: 16px;
@@ -609,7 +609,7 @@ button.ft-vital:active { transform: scale(0.985); }
 .ft-btn:active { transform: scale(0.98); }
 .ft-btn.primary { background: var(--forest); color: #fff; flex: 2; box-shadow: 0 5px 16px -6px rgba(31,93,60,0.45); }
 .ft-btn.primary:hover { background: var(--forest-deep); }
-.ft-btn.secondary { background: #fff; border: 1px solid var(--line); color: var(--ink-2); flex: 1; }
+.ft-btn.secondary { background: var(--paper-elev); border: 1px solid var(--line); color: var(--ink-2); flex: 1; }
 .ft-btn.secondary:hover { border-color: var(--ink-4); color: var(--ink); }
 .ft-btn.ghost { background: none; color: var(--ink-3); }
 .ft-btn.ghost:hover { color: var(--ink); background: var(--paper-mute); }
@@ -621,7 +621,7 @@ button.ft-vital:active { transform: scale(0.985); }
 .ft-den-lbl { font-family: var(--mono); font-size: 12px; font-weight: 600; width: 64px; flex-shrink: 0; color: var(--ink-2); }
 .ft-den button {
   width: 32px; height: 32px; border-radius: 9px;
-  border: 1px solid var(--line); background: #fff;
+  border: 1px solid var(--line); background: var(--paper-elev);
   font-size: 15px; color: var(--ink-2); line-height: 1;
   display: inline-flex; align-items: center; justify-content: center;
   transition: background 120ms, color 120ms;
@@ -632,7 +632,7 @@ button.ft-vital:active { transform: scale(0.985); }
   padding: 7px 6px;
   border: 1px solid var(--line); border-radius: 9px;
   font-family: var(--mono); font-size: 13.5px; font-weight: 600; color: var(--ink);
-  background: #fff; outline: none;
+  background: var(--paper-elev); outline: none;
 }
 .ft-den-in:focus { border-color: var(--emerald); }
 .ft-den-tot { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }

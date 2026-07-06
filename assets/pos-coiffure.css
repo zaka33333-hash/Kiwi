@@ -125,7 +125,7 @@
 .cf-chip {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 12px; border-radius: 999px;
-  border: 1px solid var(--line); background: #fff;
+  border: 1px solid var(--line); background: var(--paper-elev);
   font-size: 12px; font-weight: 600; color: var(--ink-2);
 }
 .cf-chip svg { width: 13px; height: 13px; color: var(--ink-3); }
@@ -152,7 +152,7 @@
   width: 320px; flex: 0 0 320px;
   border-right: 1px solid var(--line);
   display: flex; flex-direction: column; min-height: 0;
-  background: #fff;
+  background: var(--paper-elev);
 }
 .cf-fq-head {
   display: flex; align-items: center; gap: 8px;
@@ -274,7 +274,7 @@
   padding: 9px 13px; flex-shrink: 0;
   border-radius: 10px;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--paper-elev);
   font-size: 12.5px; font-weight: 500; color: var(--ink-2);
   white-space: nowrap;
   transition: background 130ms, border-color 130ms, color 130ms;
@@ -303,7 +303,7 @@
 .cf-card {
   display: flex; flex-direction: column; align-items: center; gap: 7px;
   padding: 14px 10px 12px;
-  background: #fff;
+  background: var(--paper-elev);
   border: 1px solid var(--line);
   border-radius: var(--r-xl);
   text-align: center;
@@ -346,7 +346,7 @@
 /* ---------- ticket panel (le passage) ---------- */
 .cf-ticket {
   width: 360px; flex: 0 0 360px;
-  background: #fff;
+  background: var(--paper-elev);
   border-left: 1px solid var(--line);
   display: flex; flex-direction: column;
   min-height: 0;
@@ -413,7 +413,7 @@
 .cf-line-rm svg { width: 13px; height: 13px; }
 .cf-line-rm:hover { background: var(--paper-mute); border-color: var(--danger-mute); color: var(--danger-mute); }
 
-.cf-tk-foot { border-top: 1px solid var(--line); padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px; background: #fff; }
+.cf-tk-foot { border-top: 1px solid var(--line); padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px; background: var(--paper-elev); }
 .cf-tk-tot { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--ink-3); }
 .cf-tk-tot .dur { display: inline-flex; align-items: center; gap: 5px; }
 .cf-tk-tot .dur svg { width: 12px; height: 12px; }
@@ -499,7 +499,7 @@
   padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--paper-elev);
   font-size: 11.5px; font-weight: 500; color: var(--ink-2);
   transition: background 130ms, border-color 130ms, color 130ms;
 }
@@ -518,7 +518,7 @@
 }
 .cf-formula-recall:hover { box-shadow: 0 0 0 1.5px var(--forest); }
 .cf-formula-recall:active { transform: scale(0.995); }
-.cf-formula-recall .ic { width: 38px; height: 38px; border-radius: 11px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cf-formula-recall .ic { width: 38px; height: 38px; border-radius: 11px; background: var(--paper-elev); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .cf-formula-recall .ic svg { width: 20px; height: 20px; color: var(--forest); }
 .cf-formula-recall .l { flex: 1; min-width: 0; }
 .cf-formula-recall .l b { display: block; font-size: 13px; font-weight: 700; color: var(--ink); }
@@ -530,7 +530,7 @@
   padding: 9px 12px;
   border: 1px solid var(--line); border-radius: 10px;
   font-size: 12.5px; color: var(--ink);
-  background: #fff; outline: none;
+  background: var(--paper-elev); outline: none;
 }
 .cf-note-free:focus { border-color: var(--emerald); }
 
@@ -546,7 +546,7 @@
 .cf-btn:active { transform: scale(0.98); }
 .cf-btn.primary { background: var(--forest); color: #fff; flex: 2; box-shadow: 0 5px 16px -6px rgba(31,93,60,0.45); }
 .cf-btn.primary:hover { background: var(--forest-deep); }
-.cf-btn.secondary { background: #fff; border: 1px solid var(--line); color: var(--ink-2); flex: 1; }
+.cf-btn.secondary { background: var(--paper-elev); border: 1px solid var(--line); color: var(--ink-2); flex: 1; }
 .cf-btn.secondary:hover { border-color: var(--ink-4); color: var(--ink); }
 .cf-btn.ghost { background: none; color: var(--ink-3); }
 .cf-btn.ghost:hover { color: var(--ink); background: var(--paper-mute); }
@@ -610,7 +610,7 @@
   width: 100%;
   padding: 11px 13px;
   border: 1px solid var(--line); border-radius: 11px;
-  font-size: 13.5px; color: var(--ink); background: #fff;
+  font-size: 13.5px; color: var(--ink); background: var(--paper-elev);
   outline: none;
 }
 .cf-in:focus { border-color: var(--emerald); }
@@ -663,7 +663,7 @@
   margin-left: auto;
   display: inline-flex; align-items: center; gap: 5px;
   font-size: 12px; font-weight: 600; color: var(--forest);
-  background: #fff; border: 1px solid var(--mint-edge); border-radius: 999px; padding: 4px 10px;
+  background: var(--paper-elev); border: 1px solid var(--mint-edge); border-radius: 999px; padding: 4px 10px;
 }
 .cf-formula-recipe .pose svg { width: 12px; height: 12px; }
 .cf-formula-detail { display: flex; flex-direction: column; gap: 6px; }
@@ -776,7 +776,7 @@
 .cf-tip-stepper { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .cf-tip-stepper button {
   width: 30px; height: 30px; border-radius: 9px;
-  border: 1px solid var(--line); background: #fff;
+  border: 1px solid var(--line); background: var(--paper-elev);
   display: inline-flex; align-items: center; justify-content: center;
   color: var(--ink-2); transition: background 120ms, border-color 120ms, color 120ms;
 }
@@ -795,7 +795,7 @@
   margin-bottom: 18px;
 }
 .cf-day-kpi {
-  background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--paper-elev); border: 1px solid var(--line); border-radius: 16px;
   padding: 15px 16px;
 }
 .cf-day-kpi .lbl { font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
@@ -815,7 +815,7 @@
 .cf-day-cards { display: flex; flex-direction: column; gap: 10px; }
 .cf-day-card {
   display: flex; align-items: center; gap: 16px;
-  background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--paper-elev); border: 1px solid var(--line); border-radius: 16px;
   padding: 16px 18px;
   flex-wrap: wrap;
 }
