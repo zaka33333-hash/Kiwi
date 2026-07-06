@@ -4516,6 +4516,9 @@
               <button class="pay-btn pay-icon" id="pay-cash" aria-label="Payer en espèces">
                 <i data-lucide="banknote"></i>
               </button>
+              <button class="pay-btn pay-icon" id="pay-qr" aria-label="Payer par QR">
+                <i data-lucide="qr-code"></i>
+              </button>
             </div>
             <div class="pay-row">
               <button class="pay-btn pay-split" id="pay-split">
@@ -4544,6 +4547,9 @@
         <div class="rp-meta">
           <button class="meta-btn" data-action="print-bill">
             <i data-lucide="printer"></i><span>Imprimer</span>
+          </button>
+          <button class="meta-btn" data-action="reprint-bill">
+            <i data-lucide="rotate-ccw"></i><span>Réimprimer</span>
           </button>
           <button class="meta-btn danger" data-action="cancel-table">
             <i data-lucide="x"></i><span data-cancel-label>Annuler mesa</span>
@@ -6247,6 +6253,9 @@
           window.__lastTicket = _ticket;
           if (window.KiwiHardware) window.KiwiHardware.print(_ticket);
         }
+        else if (a === 'reprint-bill') {
+          if (window.__lastTicket && window.KiwiHardware) window.KiwiHardware.print(window.__lastTicket);
+        }
         else if (a === 'cancel-table') {
           if (mode === 'order') {
             // Building a new mesa — cancel it properly (drops the order, back to Salle)
@@ -6424,7 +6433,8 @@
       reader.disc.innerHTML = '<i data-lucide="check"></i>';
       reader.status.classList.add('is-success');
       window.CaisseFx && window.CaisseFx.confetti(document.querySelector('.reader-disc') || document.getElementById('rp-total'));
-      reader.status.textContent = 'Khlass! Carte approuvée';
+      reader.status.textContent = ((document.getElementById('card-modal-title') || {}).textContent === 'Paiement QR')
+        ? 'Khlass! Paiement QR confirmé' : 'Khlass! Carte approuvée';
       reader.method.style.display = 'none';
       const txn = 'TXN #KW-' + (28000 + Math.floor(Math.random() * 999));
       reader.txn.textContent = txn;
@@ -6457,6 +6467,19 @@
       }
     }
     $('#pay-card').addEventListener('click', openCardModal);
+    $('#pay-qr').addEventListener('click', function () {
+      openCardModal();
+      var title = document.getElementById('card-modal-title');
+      if (title) title.textContent = 'Paiement QR';
+      if (reader && reader.status) reader.status.textContent = 'Scannez le QR — paiement mobile';
+      if (reader && reader.disc) {
+        reader.disc.replaceChildren();
+        var ic = document.createElement('i');
+        ic.setAttribute('data-lucide', 'qr-code');
+        reader.disc.appendChild(ic);
+        if (window.lucide) lucide.createIcons();
+      }
+    });
     cardModal.addEventListener('click', (e) => {
       if (e.target === cardModal) closeCardModal({ paid: true });
       const action = e.target.closest('[data-modal-action]')?.dataset.modalAction;
