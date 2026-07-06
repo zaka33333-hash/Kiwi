@@ -2669,10 +2669,15 @@
     .narrow-guard h2 { margin: 0; font-size: 18px; color: var(--ink); }
     .narrow-guard p { margin: 0; font-size: 13px; color: var(--ink-3); max-width: 280px; line-height: 1.55; }
 
-    /* Narrow-viewport guard retired: the register is now responsive down to
-       phone widths (caisse-skin.css bottom-sheet ticket + off-canvas nav), so
-       phones get the real register instead of a "rotate your screen" wall.
-       The .narrow-guard element stays in the DOM but never shows. */
+    /* Narrow-viewport guard — retired for the responsive café register (it now
+       reflows to a phone bottom-sheet + off-canvas nav in caisse-skin.css), but
+       KEPT for the pressing (body.is-pressing) and pos-* (body.is-pos) verticals,
+       which are landscape-optimised and not reflowed this round. On a phone the
+       café shows the real register; those verticals show the rotate hint. */
+    @media (max-width: 768px) {
+      body.is-pressing .narrow-guard,
+      body.is-pos .narrow-guard { display: flex; }
+    }
 
     /* ===========================================================
        GREETING FLASH (full-viewport, plays after PIN unlock,
