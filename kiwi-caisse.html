@@ -23,6 +23,7 @@
        match nothing in the restaurant markup, only the pressing's data-lens
        opt-ins. -->
   <script src="assets/liquid-lens.js" defer></script>
+  <script src="assets/caisse-motion.js" defer></script>
   <link rel="stylesheet" href="assets/pressing-caisse.css" />
   <script src="assets/pressing-caisse.js" defer></script>
   <!-- Multi-métier PIN dispatcher: 0002–0015 lazy-load one POS vertical each
@@ -5653,6 +5654,7 @@
 
       $('#rp-subtotal').textContent = fmtMAD(total);
       $('#rp-total').textContent = fmtMAD(net);
+      window.CaisseFx && window.CaisseFx.countTotal();
 
       // Sync modal labels too
       $$('[data-bind="table"]').forEach(el => el.textContent = id);
@@ -5893,6 +5895,7 @@
           ${catLabels[c]}<span class="count mono">${counts[c] || 0}</span>
         </button>
       `).join('');
+      window.CaisseFx && window.CaisseFx.lens();
 
       $('#vrap-item-count').textContent = `${menuItems.length} articles`;
       $('#vrap-cat-count').textContent = `${cats.length - 1} catégories`;
@@ -6090,6 +6093,7 @@
 
       $('#rp-subtotal').textContent = fmtMAD(gross);
       $('#rp-total').textContent = fmtMAD(net);
+      window.CaisseFx && window.CaisseFx.countTotal();
 
       // Sync modal labels
       $$('[data-bind="table"]').forEach(el => el.textContent = 'À emporter');
@@ -6390,6 +6394,7 @@
       reader.disc.classList.add('flash', 'is-success');
       reader.disc.innerHTML = '<i data-lucide="check"></i>';
       reader.status.classList.add('is-success');
+      window.CaisseFx && window.CaisseFx.confetti(document.querySelector('.reader-disc') || document.getElementById('rp-total'));
       reader.status.textContent = 'Khlass! Carte approuvée';
       reader.method.style.display = 'none';
       const txn = 'TXN #KW-' + (28000 + Math.floor(Math.random() * 999));
@@ -6526,6 +6531,7 @@
       cashStepSuccess.hidden = false;
       cashStepSuccess.style.display = 'flex';
       cashSuccessRendu.textContent = fmtMADcents(change);
+      window.CaisseFx && window.CaisseFx.confetti(document.querySelector('.reader-disc') || document.getElementById('rp-total'));
       lucide.createIcons();
     });
     cashModal.addEventListener('click', (e) => {
@@ -6884,6 +6890,7 @@
 
       $('#rp-subtotal').textContent = fmtMAD(total);
       $('#rp-total').textContent = fmtMAD(total);
+      window.CaisseFx && window.CaisseFx.countTotal();
       showPayButtons(true);
       lucide.createIcons();
     }
