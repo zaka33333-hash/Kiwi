@@ -3,7 +3,7 @@
   'use strict';
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('assets/caisse-sw.js').catch(function () {});
+      navigator.serviceWorker.register('/kiwi-sw.js').catch(function () {});
     });
   }
 
