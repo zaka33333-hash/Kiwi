@@ -19,8 +19,16 @@
   --paper-soft: #EFECE3;
   --paper-muted: #E8E6E0;
   --surface: #FFFFFF;        /* card/panel fill — stays bright in light, darkens in dark (see theme.css) */
+  --paper-elev: #FFFDFA;     /* warm elevated card fill — cards read as lit paper, never cold #fff */
   --ink: #0A0F0D;
   --ink-soft: #1A201D;
+
+  /* Elevation — the resting depth that makes a card a physical surface, not a
+   * flat form. Shadows are tinted with --atlas (green) so they read as brand
+   * light, not generic grey. --elev-1 = resting, --elev-2 = hover/lift. Dark
+   * mode overrides these in theme.css (subtler, no green cast). */
+  --elev-1: 0 1px 2px -1px rgba(11,110,79,.10), 0 10px 26px -20px rgba(11,110,79,.22), inset 0 1px 0 rgba(255,255,255,.7);
+  --elev-2: 0 3px 8px -3px rgba(11,110,79,.16), 0 24px 48px -22px rgba(11,110,79,.32), inset 0 1px 0 rgba(255,255,255,.85);
 
   /* Neutrals */
   --n-50: #FAFAF8;
@@ -96,7 +104,7 @@ button { font-family: inherit; cursor: pointer; border: 0; background: none; }
 .stack-32 > * + * { margin-top: 32px; }
 
 /* Card */
-.card { background: var(--surface); border: 1px solid var(--n-200); border-radius: var(--r-lg); }
+.card { background: var(--paper-elev); border: 1px solid color-mix(in srgb, var(--ink) 7%, transparent); border-radius: var(--r-lg); box-shadow: var(--elev-1); }
 .card-dark { background: var(--ink); color: var(--paper); border-radius: var(--r-lg); }
 .card-atlas { background: var(--atlas); color: var(--paper); border-radius: var(--r-lg); }
 .card-riad { background: var(--riad); color: var(--paper); border-radius: var(--r-lg); }

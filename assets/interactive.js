@@ -1880,10 +1880,32 @@ ar: {
           if (KV && KV.isCustom && KV.isCustom() && window.KiwiSales) {
             const num = parseFloat(String(amount).replace(',', '.')) || 0;
             if (num <= 0) { toast(tr({fr:'Montant invalide', en:'Invalid amount', ar:'المبلغ غير صالح'}), { type: 'warn', force: true }); return; }
+            const vid = KV.getVenue();
+            // Read BEFORE adding — the very first sale is a milestone, not a
+            // routine toast. This is the moment onboarding literally promised.
+            const first = (window.KiwiSales.totals(vid).count === 0);
             m.close();
-            window.KiwiSales.add(KV.getVenue(), { amount: num, method });
+            window.KiwiSales.add(vid, { amount: num, method });
             const ML = { card: 'carte', qr: 'QR Wallet', link: 'lien de paiement' };
-            toast(tr({fr:'Vente enregistrée', en:'Sale recorded', ar:'تم تسجيل البيع'}), { type: 'success', force: true, desc: `${amount} MAD · ${ML[method] || method}` });
+            // Pulse the hero number so the merchant SEES their money land — a
+            // spring scale via Web Animations (no CSS dependency).
+            const pulseHero = () => { try { const h = document.querySelector('[data-hero-amount]'); if (h && h.animate) h.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.055)' }, { transform: 'scale(1)' }], { duration: 720, easing: 'cubic-bezier(0.34,1.45,0.5,1)' }); } catch (_) {} };
+            if (first) {
+              let owner = ''; try { owner = (localStorage.getItem('kiwiOwnerName') || '').trim(); } catch (_) {}
+              try { confetti(); } catch (_) {}
+              setTimeout(pulseHero, 140);
+              toast(tr({ fr: 'Votre première vente sur Kiwi', en: 'Your first sale on Kiwi', ar: 'أول عملية بيع لك على كيوي' }), {
+                type: 'success', force: true, duration: 5200,
+                desc: tr({
+                  fr: `${amount} MAD encaissés · c'est parti${owner ? ', ' + owner : ''} — votre tableau de bord est vivant.`,
+                  en: `${amount} MAD in · you're live${owner ? ', ' + owner : ''} — your dashboard is alive.`,
+                  ar: `${amount} درهم · انطلقت${owner ? '، ' + owner : ''} — لوحتك الآن حيّة.`,
+                }),
+              });
+            } else {
+              setTimeout(pulseHero, 60);
+              toast(tr({ fr: 'Vente enregistrée', en: 'Sale recorded', ar: 'تم تسجيل البيع' }), { type: 'success', force: true, desc: `${amount} MAD · ${ML[method] || method}` });
+            }
             return;
           }
           m.close();

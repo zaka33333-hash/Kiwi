@@ -12,6 +12,10 @@ html[data-theme="dark"] {
   --paper-soft: #131916;
   --paper-muted: #1A201D;
   --surface: #151B18;        /* card/panel fill — bright white in light, soft dark panel here */
+  --paper-elev: #1A211D;     /* elevated card fill on dark — a touch above the panel */
+  /* Elevation on dark: real black-based depth, no green cast, no white inset. */
+  --elev-1: 0 1px 2px -1px rgba(0,0,0,.5), 0 12px 30px -20px rgba(0,0,0,.7);
+  --elev-2: 0 4px 12px -3px rgba(0,0,0,.6), 0 26px 52px -22px rgba(0,0,0,.85);
   --warn-soft: #2C2410;      /* amber alert fill — dark amber so light text on it stays legible */
   --warn-ink: #E8B765;       /* amber alert text — pale amber, readable on dark */
   --danger: #EF6E5C;         /* brick red dims on dark — brighten so negative amounts read */
@@ -74,6 +78,10 @@ html[data-theme="dark"] .prod.paper,
 html[data-theme="dark"] .tx-big,
 html[data-theme="dark"] .feed-row,
 html[data-theme="dark"] .testi-card { background: var(--paper-soft); border-color: var(--n-200); }
+/* Resting depth on dark — black-based, so cards still read as physical panels. */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .block,
+html[data-theme="dark"] .kpi-m { box-shadow: var(--elev-1); }
 
 html[data-theme="dark"] .kpi-m:hover,
 html[data-theme="dark"] .integ-card:hover { border-color: var(--n-400); }
