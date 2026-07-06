@@ -80,6 +80,7 @@
     // Bottom-sheet ticket toggle (Task 4 peek bar).
     document.addEventListener('click', function (e) {
       if (e.target.closest('[data-action="toggle-ticket"]')) document.body.classList.toggle('ticket-open');
+      if (e.target.closest('[data-action="toggle-nav"]')) document.body.classList.toggle('nav-open');
     });
   });
 

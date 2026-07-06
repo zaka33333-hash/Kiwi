@@ -2668,10 +2668,10 @@
     .narrow-guard h2 { margin: 0; font-size: 18px; color: var(--ink); }
     .narrow-guard p { margin: 0; font-size: 13px; color: var(--ink-3); max-width: 280px; line-height: 1.55; }
 
-    @media (max-width: 768px) {
-      .narrow-guard { display: flex; }
-      .topbar, .shell { display: none; }
-    }
+    /* Narrow-viewport guard retired: the register is now responsive down to
+       phone widths (caisse-skin.css bottom-sheet ticket + off-canvas nav), so
+       phones get the real register instead of a "rotate your screen" wall.
+       The .narrow-guard element stays in the DOM but never shows. */
 
     /* ===========================================================
        GREETING FLASH (full-viewport, plays after PIN unlock,
@@ -3894,6 +3894,10 @@
   <div class="shell">
 
     <!-- --------- LEFT SIDEBAR --------- -->
+    <button class="kw-hamburger" data-action="toggle-nav" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+    <div class="kw-scrim" data-action="toggle-nav" aria-hidden="true"></div>
     <aside class="sidebar" aria-label="Caisse">
       <div class="brand-row">
         <div class="brand-mark" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>
@@ -4429,6 +4433,10 @@
 
     <!-- --------- RIGHT BILL PANEL --------- -->
     <aside class="rightpanel" aria-label="Addition">
+      <button class="rp-peek" id="rp-peek" data-action="toggle-ticket" aria-label="Afficher l'addition">
+        <span>Addition</span>
+        <span id="rp-peek-total">0 MAD</span>
+      </button>
       <!-- empty state -->
       <div class="rp-empty" id="rp-empty">
         <div class="wordmark" aria-hidden="true">kiwi<span class="dot">.</span></div>
