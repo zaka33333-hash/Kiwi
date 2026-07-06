@@ -22,6 +22,8 @@
     orders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>',
     team:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 20a5.6 5.6 0 0 1 11 0"/><path d="M16.2 5.3a3.4 3.4 0 0 1 0 5.4M17 20a5.6 5.6 0 0 0-3.2-5"/></svg>',
     menu:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+    sale:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+    ai:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.9 8.9 0 0 1-4-.9L3 21l1.9-5.5a8.9 8.9 0 0 1-.9-4A8.4 8.4 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"/><path d="M12.5 8.2l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9z"/></svg>',
   };
   const MERCHANT = 'assets/landing/icons/merchant.png';
 
@@ -159,12 +161,12 @@
         <button class="kw-tab" data-kw-tab="commandes" type="button">
           ${I.orders}<span class="kw-tab-badge" data-kw-badge hidden></span><span class="kw-tab-l" data-i18n="dash.sidebar.orders">Commandes</span>
         </button>
-        <button class="kw-tab kw-tab-ai" data-kw-tab="ai" type="button" aria-label="Kiwi AI">
-          <span class="kw-tab-ico"><img src="${MERCHANT}" alt="" width="20" height="20" decoding="async"/></span>
-          <span class="kw-tab-l">Kiwi AI</span>
+        <button class="kw-tab kw-tab-ai kw-tab-sell" data-kw-tab="vente" type="button" aria-label="Nouvelle vente">
+          <span class="kw-tab-ico">${I.sale}</span>
+          <span class="kw-tab-l" data-i18n="dash.mobilenav.sale">Vente</span>
         </button>
-        <button class="kw-tab" data-kw-tab="equipe" type="button">
-          ${I.team}<span class="kw-tab-l" data-i18n="dash.sidebar.team">Équipe</span>
+        <button class="kw-tab" data-kw-tab="ai" type="button" aria-label="Kiwi AI">
+          ${I.ai}<span class="kw-tab-l">Kiwi AI</span>
         </button>
         <button class="kw-tab" data-kw-tab="menu" type="button"
                 aria-controls="kw-sidebar" aria-expanded="false">
@@ -251,8 +253,10 @@
         goHome();
       } else if (key === 'commandes') {
         runHandler('nav-transactions'); setActive('commandes');
-      } else if (key === 'equipe') {
-        runHandler('nav-equipe'); setActive('equipe');
+      } else if (key === 'vente') {
+        /* The center bead is an ACTION, not a destination — ring up a sale and
+         * leave the active tab where it was (the sale modal takes over). */
+        runHandler('new-sale');
       } else if (key === 'ai') {
         runHandler('open-assistant'); setActive('ai');
       }
