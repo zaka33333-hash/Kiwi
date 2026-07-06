@@ -5,7 +5,7 @@
  * versioned bust. Replaces assets/caisse-sw.js (which was scoped to /assets/
  * and therefore controlled no navigations). */
 'use strict';
-var CACHE = 'kiwi-app-v2';
+var CACHE = 'kiwi-app-v3';
 var SHELL = [
   '/dashboard.html',
   '/kiwi-caisse.html',

@@ -1458,18 +1458,22 @@ ar: {
       width: 460,
       body: `
         <style>
-          .kset-row { display:flex; align-items:center; gap:12px; padding:11px 6px; border-bottom:1px solid var(--n-200); cursor:pointer; transition:background 100ms; border-radius:8px; }
+          .kset-card { background:var(--paper-elev, #FBFAF6); border-radius:14px; box-shadow:var(--elev-1); padding:2px 10px; }
+          .kset-row { display:flex; align-items:center; gap:12px; padding:12px 4px; cursor:pointer; transition:background 120ms; border-radius:10px; }
+          .kset-row + .kset-row { border-top:1px solid rgba(10,15,13,0.06); }
           .kset-row:hover { background:var(--paper-soft); }
           .kset-row:focus-visible { outline:2px solid var(--atlas); outline-offset:-2px; }
-          .kset-emoji { width:28px; text-align:center; font-size:16px; flex-shrink:0; }
-          .kset-toggle { width:34px; height:20px; background:var(--n-300); border-radius:999px; position:relative; transition:background 160ms; flex-shrink:0; }
+          .kset-ico { width:30px; height:30px; flex-shrink:0; display:grid; place-items:center; border-radius:9px; color:var(--atlas); background:rgba(11,110,79,0.10); }
+          .kset-ico-txt { font-size:15px; }
+          .kset-chev { opacity:0.8; flex-shrink:0; }
+          .kset-toggle { width:36px; height:21px; background:var(--n-300); border-radius:999px; position:relative; transition:background 160ms; flex-shrink:0; }
           .kset-toggle.on { background:var(--atlas); }
-          .kset-knob { position:absolute; top:2px; inset-inline-start:2px; width:16px; height:16px; background:#fff; border-radius:50%; transition:inset-inline-start 160ms; box-shadow:0 1px 2px rgba(10,15,13,0.25); }
-          .kset-toggle.on .kset-knob { inset-inline-start:16px; }
+          .kset-knob { position:absolute; top:2px; inset-inline-start:2px; width:17px; height:17px; background:#fff; border-radius:50%; transition:inset-inline-start 160ms; box-shadow:0 1px 3px rgba(10,15,13,0.28); }
+          .kset-toggle.on .kset-knob { inset-inline-start:17px; }
         </style>
         <div style="margin-bottom:20px;">
           ${sec(tr({ fr: 'PRÉFÉRENCES', en: 'PREFERENCES', ar: 'التفضيلات' }))}
-          <div style="display:flex; flex-direction:column; gap:2px;">
+          <div class="kset-card">
             ${settingsRow('🌍', tr({ fr: 'Langue', en: 'Language', ar: 'اللغة' }), LANGNAME[lang] || 'Français', { action: 'settings-lang' })}
             ${settingsRow('🔔', tr({ fr: 'Notifications WhatsApp', en: 'WhatsApp notifications', ar: 'إشعارات واتساب' }), tr({ fr: 'Résumé quotidien 19h', en: 'Daily summary 7pm', ar: 'ملخص يومي 19:00' }), { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
             ${settingsRow('💰', tr({ fr: 'Devise d\'affichage', en: 'Display currency', ar: 'عملة العرض' }), escape(getSet('currency', 'MAD · Dirham marocain')), { action: 'settings-currency' })}
@@ -1478,7 +1482,7 @@ ar: {
         </div>
         <div style="margin-bottom:20px;">
           ${sec(tr({ fr: 'BOUTIQUE', en: 'STORE', ar: 'المتجر' }))}
-          <div style="display:flex; flex-direction:column; gap:2px;">
+          <div class="kset-card">
             ${cv ? `
             ${settingsRow('🏪', escape(vd.fullDisplay || vd.name || tr({ fr: 'Ma boutique', en: 'My store', ar: 'متجري' })), escape(vd.typeLabel || tr({ fr: 'Activité', en: 'Business', ar: 'النشاط' })), { action: 'settings-edit-venue' })}
             ${settingsRow('⏰', tr({ fr: 'Heures d\'ouverture', en: 'Opening hours', ar: 'ساعات العمل' }), escape(vd.hours || tr({ fr: 'À définir', en: 'To set', ar: 'غير محدد' })), { action: 'settings-edit-venue' })}
@@ -1494,7 +1498,7 @@ ar: {
         </div>
         <div style="margin-bottom:20px;">
           ${sec(tr({ fr: 'CONFORMITÉ & SÉCURITÉ', en: 'COMPLIANCE & SECURITY', ar: 'الامتثال والأمان' }))}
-          <div style="display:flex; flex-direction:column; gap:2px;">
+          <div class="kset-card">
             ${settingsRow('🛡️', tr({ fr: 'Authentification 2FA', en: 'Two-factor auth', ar: 'المصادقة الثنائية' }), tr({ fr: 'SMS activé', en: 'SMS on', ar: 'الرسائل مفعلة' }), { toggle: true, on: setOn('2fa'), action: 'settings-toggle', arg: '2fa' })}
             ${settingsRow('🔐', 'PCI-DSS', tr({ fr: 'Certification valide 2026', en: 'Certification valid 2026', ar: 'شهادة سارية 2026' }), { toggle: true, on: setOn('pcidss'), action: 'settings-toggle', arg: 'pcidss' })}
             ${settingsRow('📋', 'KYC', tr({ fr: 'Vérifié le 12 mars 2026', en: 'Verified 12 March 2026', ar: 'تم التحقق 12 مارس 2026' }), { toggle: true, on: setOn('kyc'), action: 'settings-toggle', arg: 'kyc' })}
@@ -1503,7 +1507,7 @@ ar: {
         </div>
         <div>
           ${sec(tr({ fr: 'INTÉGRATIONS', en: 'INTEGRATIONS', ar: 'التكاملات' }))}
-          <div style="display:flex; flex-direction:column; gap:2px;">
+          <div class="kset-card">
             ${settingsRow('🟠', 'Glovo', tr({ fr: 'Connecté · 1 420 MAD aujourd\'hui', en: 'Connected · 1,420 MAD today', ar: 'متصل · 1 420 درهم اليوم' }), { toggle: true, on: setOn('glovo'), action: 'settings-toggle', arg: 'glovo' })}
             ${settingsRow('🔴', 'Jumia Food', tr({ fr: 'Connecté · 24 commandes', en: 'Connected · 24 orders', ar: 'متصل · 24 طلبًا' }), { toggle: true, on: setOn('jumia'), action: 'settings-toggle', arg: 'jumia' })}
             ${settingsRow('📊', tr({ fr: 'Comptabilité', en: 'Accounting', ar: 'المحاسبة' }), tr({ fr: 'Export quotidien OCP', en: 'Daily OCP export', ar: 'تصدير يومي OCP' }), { toggle: true, on: setOn('compta'), action: 'settings-toggle', arg: 'compta' })}
@@ -2266,13 +2270,13 @@ ar: {
       { label: 'Café Atlas · Marrakech', icon: '<div style="width:18px; height:18px; background:#D99A2B; border-radius:5px;"></div>' },
       { sep: true },
       { label: tr({fr:'+ Ajouter un emplacement', en:'+ Add a location', ar:'+ إضافة موقع'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>', onClick: () => toast(tr({fr:'Assistant de nouvel emplacement', en:'New location wizard', ar:'معالج الموقع الجديد'}), {type:'info'}) },
-      { label: 'Paramètres multi-boutiques', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>', onClick: () => handlers.settings() },
+      { label: 'Paramètres multi-boutiques', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>', onClick: () => handlers.settings() },
     ]),
 
     'profile-menu': (el) => menu(el, [
       { head: 'RACHID BENHIMA' },
       { label: tr({fr:'Mon profil', en:'My profile', ar:'ملفي الشخصي'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/></svg>', onClick: () => handlers['account-profile'] && handlers['account-profile']() },
-      { label: 'Paramètres', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>', onClick: () => handlers.settings() },
+      { label: 'Paramètres', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>', onClick: () => handlers.settings() },
       { label: tr({fr:'Facturation', en:'Billing', ar:'الفواتير'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>', onClick: () => handlers['account-billing'] && handlers['account-billing']() },
       { sep: true },
       { label: tr({fr:'Centre d\'aide', en:'Help centre', ar:'مركز المساعدة'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9a3 3 0 016 0c0 2-3 2-3 4M12 17h.01"/></svg>', onClick: () => handlers['account-help'] && handlers['account-help']() },
@@ -2433,17 +2437,45 @@ ar: {
   };
 
   /* ─── Helpers for rendering ─── */
-  function settingsRow(emoji, label, value, opts) {
+  // On-brand line-art icons for the settings rows, keyed by the legacy emoji so
+  // call sites don't change. Unmapped keys fall back to the emoji in the chip.
+  const KSET_ICONS = {
+    '🌍': '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/>',
+    '🔔': '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+    '💰': '<circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M14.5 9.3c-.4-.9-1.4-1.4-2.5-1.4-1.4 0-2.4.8-2.4 1.9 0 2.5 4.9 1.3 4.9 3.9 0 1.1-1 1.9-2.5 1.9-1.1 0-2.1-.5-2.5-1.4"/>',
+    '🧊': '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+    '🏪': '<path d="M4 4h16l1 5H3l1-5z"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/>',
+    '⏰': '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>',
+    '🎯': '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+    '💳': '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/>',
+    '🛡️': '<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/>',
+    '🛡': '<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/>',
+    '🔐': '<rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>',
+    '📋': '<rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5h6v3H9z"/><path d="M9 13l2 2 4-4"/>',
+    '🏛️': '<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 21h18"/>',
+    '🏛': '<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 21h18"/>',
+    '📊': '<path d="M4 20V11M9.3 20V5M14.6 20v-6M20 20H3.5"/>',
+    '🏦': '<path d="M3 10l9-6 9 6"/><path d="M4 10v9M20 10v9M8 10v9M16 10v9M12 10v9"/><path d="M3 21h18"/>',
+    '🟠': '<path d="M6.5 8h11l-1 11.5H7.5L6.5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+    '🔴': '<path d="M6.5 8h11l-1 11.5H7.5L6.5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'
+  };
+  function ksetIco(key) {
+    const p = KSET_ICONS[key];
+    return p
+      ? '<span class="kset-ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg></span>'
+      : '<span class="kset-ico kset-ico-txt">' + key + '</span>';
+  }
+  function settingsRow(icon, label, value, opts) {
     if (opts === true) opts = { toggle: true, on: true };
     opts = opts || {};
     const attrs = (opts.action ? ` data-action="${opts.action}"` : '') +
                   (opts.arg ? ` data-arg="${opts.arg}"` : '');
     const right = opts.toggle
       ? `<div class="kset-toggle${opts.on ? ' on' : ''}" data-kset-toggle><div class="kset-knob"></div></div>`
-      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--n-400)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>';
+      : '<svg class="kset-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--n-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
     return `<div class="kset-row"${attrs} role="button" tabindex="0">` +
-      `<div class="kset-emoji">${emoji}</div>` +
-      `<div style="flex:1; min-width:0;"><div style="font-size:13.5px; font-weight:500;">${label}</div>` +
+      ksetIco(icon) +
+      `<div style="flex:1; min-width:0;"><div style="font-size:13.5px; font-weight:600; letter-spacing:-0.01em;">${label}</div>` +
       `<div class="kset-val" style="font-size:12px; color:var(--n-500); margin-top:1px;">${value}</div></div>` +
       right + `</div>`;
   }
