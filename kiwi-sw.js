@@ -5,7 +5,7 @@
  * versioned bust. Replaces assets/caisse-sw.js (which was scoped to /assets/
  * and therefore controlled no navigations). */
 'use strict';
-var CACHE = 'kiwi-app-v1';
+var CACHE = 'kiwi-app-v2';
 var SHELL = [
   '/dashboard.html',
   '/kiwi-caisse.html',
@@ -35,6 +35,7 @@ var SHELL = [
   '/assets/oppo-cards.js',
   '/assets/dashboard-pwa.js',
   '/assets/dashboard-native.js',
+  '/assets/pwa-update.js',
   '/assets/caisse-skin.css',
   '/assets/caisse-motion.js',
   '/assets/caisse-pwa.js',
@@ -51,7 +52,8 @@ var SHELL = [
 ];
 
 self.addEventListener('install', function (e) {
-  self.skipWaiting();
+  // No blind skipWaiting — the new worker waits until the page asks it to take
+  // over (see the 'message' handler), so a deploy never swaps assets mid-session.
   e.waitUntil(caches.open(CACHE).then(function (c) {
     // Cache each asset individually so one missing file doesn't fail install.
     return Promise.all(SHELL.map(function (u) {
@@ -64,6 +66,11 @@ self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
     return Promise.all(keys.map(function (k) { return k === CACHE ? null : caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
+});
+
+// Activate on demand — the page posts this after the user taps "Rafraîchir".
+self.addEventListener('message', function (e) {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('fetch', function (e) {
