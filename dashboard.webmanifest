@@ -1,0 +1,19 @@
+{
+  "name": "Kiwi",
+  "short_name": "Kiwi",
+  "description": "Le tableau de bord commerçant Kiwi — pilotez votre activité depuis votre poche.",
+  "start_url": "/dashboard.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0A0F0D",
+  "theme_color": "#053B2C",
+  "categories": ["business", "productivity"],
+  "lang": "fr",
+  "dir": "auto",
+  "icons": [
+    { "src": "assets/icons/kiwi-app.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" },
+    { "src": "assets/icons/kiwi-app-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any maskable" },
+    { "src": "assets/icons/kiwi-app-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any maskable" }
+  ]
+}
