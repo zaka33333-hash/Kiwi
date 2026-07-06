@@ -1,0 +1,16 @@
+{
+  "name": "Kiwi Caisse",
+  "short_name": "Caisse",
+  "description": "Caisse Kiwi — encaissement multi-métiers",
+  "start_url": "/kiwi-caisse.html",
+  "scope": "/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#0A0F0D",
+  "theme_color": "#053B2C",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "assets/icons/kiwi-caisse.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

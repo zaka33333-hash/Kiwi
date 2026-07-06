@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#053B2C"/>
+  <text x="256" y="300" text-anchor="middle" font-family="'Inter Tight',system-ui,sans-serif"
+        font-size="180" font-weight="800" fill="#F7F5F0" letter-spacing="-8">kiwi</text>
+  <circle cx="388" cy="300" r="20" fill="#7DF2B0"/>
+</svg>
