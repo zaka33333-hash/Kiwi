@@ -1284,9 +1284,16 @@
     if (!wrap) return;
     const dd = DROPDOWN_CTA[fusionLang()] || DROPDOWN_CTA.fr;
     const inFusion = currentVenue === 'fusion';
-    /* The 0000 session is a brand-new merchant's account — their switcher
-     * lists only THEIR venues. Café Atlas & co are demo-session material. */
-    const onboard = !!window.__kiwiOnboard;
+    /* Client account — their switcher lists ONLY their own venues. Café Atlas,
+     * Maison Mansour & Spa Bahia are demo-session material and must never leak
+     * into a real merchant's switcher (nor the fusion/portfolio view, whose
+     * data is hardcoded from those demo venues). Two ways in: the in-session
+     * 0000 flag, or a persisted onboarding (kiwiOnboarded) from the setup
+     * wizard — a returning client logs in with their own PIN, not 0000, so the
+     * session flag alone isn't enough. */
+    let persistedClient = false;
+    try { persistedClient = localStorage.getItem('kiwiOnboarded') === '1'; } catch (_) {}
+    const onboard = !!window.__kiwiOnboard || persistedClient;
     const listIds = onboard
       ? Object.keys(VENUES).filter(id => VENUES[id] && VENUES[id].custom)
       : REAL_VENUES;
