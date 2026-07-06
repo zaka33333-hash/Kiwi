@@ -88,5 +88,45 @@
       } else { hide(); }
     });
   })();
-  // (Task 6 appends live-sale toasts here.)
+  /* ── Live-sale toasts: a native-style "Nouvelle vente" notification slides
+   *    in at intervals while the app is foregrounded, on phones. SIMULATED
+   *    (self-contained demo data) — real push notifications need the backend
+   *    horizon. Tapping routes to the Transactions destination. ── */
+  (function toasts() {
+    var ITEMS = ['Café noir', 'Cappuccino', 'Thé à la menthe', 'Jus d\'orange',
+                 'Msemen', 'Sandwich', 'Pizza Margherita', 'Salade', 'Formule déj', 'Croissant'];
+    var timer = null;
+    function amount() { return (Math.floor(Math.random() * 180) + 12) + ',00 MAD'; }
+    function show() {
+      if (!phone()) { schedule(); return; }
+      var t = document.createElement('button');
+      t.type = 'button';
+      t.className = 'kw-toast';
+      var strong = document.createElement('strong'); strong.textContent = 'Nouvelle vente';
+      var span = document.createElement('span');
+      span.textContent = ITEMS[Math.floor(Math.random() * ITEMS.length)] + ' · ' + amount();
+      t.appendChild(strong); t.appendChild(span);
+      t.addEventListener('click', function () {
+        t.remove();
+        var link = document.querySelector('.sidebar nav a[data-nav="transactions"]');
+        if (link) link.click();
+      });
+      document.body.appendChild(t);
+      requestAnimationFrame(function () { t.classList.add('in'); });
+      setTimeout(function () {
+        t.classList.remove('in');
+        setTimeout(function () { t.remove(); }, 360);
+      }, 4200);
+      schedule();
+    }
+    function schedule() {
+      clearTimeout(timer);
+      if (document.hidden) return;
+      timer = setTimeout(show, 18000 + Math.floor(Math.random() * 22000)); // 18–40 s
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) clearTimeout(timer); else schedule();
+    });
+    schedule();
+  })();
 })();
