@@ -1,0 +1,46 @@
+// POST /api/sale — record one real sale into Cloudflare D1.
+//
+// Runs behind the passcode gate (functions/_middleware.js): the caisse's
+// same-origin fetch carries the kiwi_gate cookie, so unlocked devices reach it
+// and outsiders don't. Free on the Cloudflare Pages + D1 tiers.
+//
+// Requires a D1 binding named DB (see wrangler.toml / LIVE_LINK.md). If the
+// binding is missing the endpoint fails soft (503) so the app never breaks.
+
+function json(obj, status) {
+  return new Response(JSON.stringify(obj), {
+    status: status || 200,
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  });
+}
+
+export async function onRequestPost({ request, env }) {
+  if (!env || !env.DB) return json({ error: 'no-db' }, 503);
+
+  let b;
+  try { b = await request.json(); } catch (_) { return json({ error: 'bad-json' }, 400); }
+
+  const amount = Math.round(Number(b && b.amount) || 0);
+  if (amount <= 0) return json({ error: 'bad-amount' }, 400);
+
+  const merchant = String((b && b.merchant) || 'default').slice(0, 64);
+  const method = String((b && b.method) || 'cash').slice(0, 16);
+  const label = String((b && b.label) || 'Vente').slice(0, 80);
+  const ref = String((b && b.ref) || '').slice(0, 40);
+  const ts = Number(b && b.ts) || Date.now();
+  const id = 'sale-' + ts + '-' + Math.random().toString(36).slice(2, 8);
+
+  try {
+    await env.DB.prepare(
+      'INSERT INTO sales (id, merchant, amount, method, label, ref, ts) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    ).bind(id, merchant, amount, method, label, ref, ts).run();
+  } catch (e) {
+    return json({ error: 'db', detail: String(e && e.message || e) }, 500);
+  }
+  return json({ ok: true, id });
+}
+
+// A stray GET shouldn't 405-noise the console — just report health.
+export function onRequestGet({ env }) {
+  return json({ ok: true, db: !!(env && env.DB) });
+}

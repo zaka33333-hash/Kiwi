@@ -3818,6 +3818,7 @@
   <link rel="apple-touch-icon" href="assets/icons/kiwi-caisse-180.png" />
   <script src="assets/pwa-update.js" defer></script>
   <script src="assets/caisse-pwa.js" defer></script>
+  <script src="assets/live-link.js" defer></script>
 </head>
 
 <body>
@@ -7767,6 +7768,9 @@
       }
       journal.push(entry);
       lastSaleId = entry.id;
+      // Live Link (opt-in, off by default): mirror this sale to the owner's
+      // dashboard via /api/sale. No-op unless kiwiLive is on. Never blocks the sale.
+      try { if (window.KiwiLive) window.KiwiLive.postSale(entry); } catch (_) {}
       renderShiftStats();
       if ($('#journal-drawer').classList.contains('is-open')) renderJournal();
     }

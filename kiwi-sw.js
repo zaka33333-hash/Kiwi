@@ -5,7 +5,7 @@
  * versioned bust. Replaces assets/caisse-sw.js (which was scoped to /assets/
  * and therefore controlled no navigations). */
 'use strict';
-var CACHE = 'kiwi-app-v6';
+var CACHE = 'kiwi-app-v7';
 var SHELL = [
   '/dashboard.html',
   '/kiwi-caisse.html',
@@ -39,6 +39,7 @@ var SHELL = [
   '/assets/caisse-skin.css',
   '/assets/caisse-motion.js',
   '/assets/caisse-pwa.js',
+  '/assets/live-link.js',
   '/assets/caisse-hardware.js',
   '/assets/pos-dispatch.js',
   '/assets/pressing-caisse.js',
@@ -78,6 +79,9 @@ self.addEventListener('message', function (e) {
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  // Live Link API is dynamic — never cache it, or the dashboard poll would read
+  // stale sales. Let /api/* fall straight through to the network.
+  if (new URL(req.url).pathname.indexOf('/api/') === 0) return;
   e.respondWith(
     caches.match(req).then(function (hit) {
       if (hit) return hit;
