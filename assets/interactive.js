@@ -1470,6 +1470,7 @@ ar: {
           .kset-toggle.on { background:var(--atlas); }
           .kset-knob { position:absolute; top:2px; inset-inline-start:2px; width:17px; height:17px; background:#fff; border-radius:50%; transition:inset-inline-start 160ms; box-shadow:0 1px 3px rgba(10,15,13,0.28); }
           .kset-toggle.on .kset-knob { inset-inline-start:17px; }
+          .kset-badge { font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.1em; color:var(--atlas); background:rgba(11,110,79,0.10); border:1px solid rgba(11,110,79,0.22); padding:4px 8px; border-radius:999px; flex-shrink:0; }
         </style>
         <div style="margin-bottom:20px;">
           ${sec(tr({ fr: 'PRÉFÉRENCES', en: 'PREFERENCES', ar: 'التفضيلات' }))}
@@ -1478,6 +1479,9 @@ ar: {
             ${settingsRow('🔔', tr({ fr: 'Notifications WhatsApp', en: 'WhatsApp notifications', ar: 'إشعارات واتساب' }), tr({ fr: 'Résumé quotidien 19h', en: 'Daily summary 7pm', ar: 'ملخص يومي 19:00' }), { toggle: true, on: setOn('waNotif'), action: 'settings-toggle', arg: 'waNotif' })}
             ${settingsRow('💰', tr({ fr: 'Devise d\'affichage', en: 'Display currency', ar: 'عملة العرض' }), escape(getSet('currency', 'MAD · Dirham marocain')), { action: 'settings-currency' })}
             ${(window.KiwiDesignIOS27 && window.KiwiDesignIOS27.isOn()) ? settingsRow('🧊', 'Liquid Glass', ({ clear: tr({ fr: 'Clair', en: 'Clear', ar: 'شفاف' }), standard: tr({ fr: 'Standard', en: 'Standard', ar: 'قياسي' }), frosted: tr({ fr: 'Givré', en: 'Frosted', ar: 'مصنفر' }), opaque: tr({ fr: 'Opaque', en: 'Opaque', ar: 'معتم' }) })[window.KiwiDesignIOS27.getGlass()] || 'Standard', { action: 'glass-level' }) : ''}
+            ${(document.documentElement.getAttribute('data-theme') === 'dark')
+              ? settingsRow('🌙', tr({ fr: 'Mode sombre', en: 'Dark mode', ar: 'الوضع الداكن' }), tr({ fr: 'Activé · Kiwi Ultra', en: 'On · Kiwi Ultra', ar: 'مفعّل · Kiwi Ultra' }), { badge: '✓' })
+              : settingsRow('🌙', tr({ fr: 'Mode sombre', en: 'Dark mode', ar: 'الوضع الداكن' }), tr({ fr: 'Interface nuit · confort du soir', en: 'Night interface · easy on the eyes', ar: 'واجهة ليلية · مريحة للعين' }), { action: 'settings-dark-ultra', badge: 'ULTRA' })}
           </div>
         </div>
         <div style="margin-bottom:20px;">
@@ -1539,6 +1543,49 @@ ar: {
           toast('Liquid Glass · ' + L[k], { type: 'success', force: true });
         },
       })));
+    },
+
+    /* Dark mode is a Kiwi Ultra perk. Instead of a dead lock, this hands the
+     * merchant a real live preview of the (already-built) dark surface, then
+     * routes to the upgrade flow. The *persistent* dark dashboard ships with
+     * Ultra / the consolidated fusion view — this is the single-venue hook. */
+    'settings-dark-ultra': () => {
+      const de = document.documentElement;
+      const orig = de.getAttribute('data-theme') || 'light';
+      let reverted = false;
+      const revert = () => { if (reverted) return; reverted = true; de.setAttribute('data-theme', orig); };
+      const preview = () => {
+        // Close any open drawer so the preview shows the pure dark dashboard,
+        // not a light settings panel floating over it.
+        document.querySelectorAll('.kiwi-drawer-backdrop').forEach((b) => b.__kiwiClose && b.__kiwiClose());
+        de.setAttribute('data-theme', 'dark');
+        toast(tr({ fr: 'Aperçu du mode sombre · réservé à Kiwi Ultra', en: 'Dark-mode preview · Kiwi Ultra only', ar: 'معاينة الوضع الداكن · حصريًا لـ Kiwi Ultra' }), { type: 'info', force: true });
+        setTimeout(() => {
+          revert();
+          toast(tr({ fr: 'Aperçu terminé — Ultra pour le garder', en: 'Preview over — go Ultra to keep it', ar: 'انتهت المعاينة — انتقل إلى Ultra للاحتفاظ به' }), { type: 'info', force: true });
+        }, 6000);
+      };
+      const check = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>';
+      const feat = (t) => `<div style="display:flex; gap:10px; align-items:flex-start; font-size:13.5px; line-height:1.45; color:var(--ink);">${check}<span>${t}</span></div>`;
+      const m = modal({
+        tag: 'KIWI ULTRA',
+        title: tr({ fr: 'Le mode sombre fait partie de Kiwi Ultra', en: 'Dark mode is part of Kiwi Ultra', ar: 'الوضع الداكن جزء من Kiwi Ultra' }),
+        desc: tr({ fr: 'Une interface nuit pensée pour le service du soir et la vue consolidée multi-établissements.', en: 'A night interface built for evening service and the consolidated multi-site view.', ar: 'واجهة ليلية مصمّمة لخدمة المساء والعرض الموحّد متعدد الفروع.' }),
+        width: 440,
+        body: `<div style="display:flex; flex-direction:column; gap:13px; margin-top:2px;">
+          ${feat(tr({ fr: 'Confort visuel du soir — moins de fatigue en service', en: 'Easy on the eyes at night — less fatigue in service', ar: 'راحة بصرية مساءً — إرهاق أقل أثناء الخدمة' }))}
+          ${feat(tr({ fr: 'Vue Portefeuille consolidée multi-établissements', en: 'Consolidated multi-site portfolio view', ar: 'عرض محفظة موحّد متعدد الفروع' }))}
+          ${feat(tr({ fr: 'Se synchronise sur tous vos appareils Kiwi', en: 'Syncs across all your Kiwi devices', ar: 'يتزامن عبر جميع أجهزة Kiwi لديك' }))}
+        </div>`,
+        foot: `
+          <button class="kb ghost" data-dark-preview type="button">${tr({ fr: 'Aperçu 6 s', en: 'Preview 6s', ar: 'معاينة 6 ثوانٍ' })}</button>
+          <button class="kb atlas" data-dark-upgrade type="button">${tr({ fr: 'Passer à Ultra →', en: 'Go Ultra →', ar: 'الانتقال إلى Ultra ←' })}</button>
+        `,
+      });
+      const pv = m.el.querySelector('[data-dark-preview]');
+      const up = m.el.querySelector('[data-dark-upgrade]');
+      if (pv) pv.onclick = () => { m.close(); preview(); };
+      if (up) up.onclick = () => { revert(); m.close(); if (handlers['upgrade-pro']) handlers['upgrade-pro'](); };
     },
 
     'settings-lang': (el) => {
@@ -2457,7 +2504,8 @@ ar: {
     '📊': '<path d="M4 20V11M9.3 20V5M14.6 20v-6M20 20H3.5"/>',
     '🏦': '<path d="M3 10l9-6 9 6"/><path d="M4 10v9M20 10v9M8 10v9M16 10v9M12 10v9"/><path d="M3 21h18"/>',
     '🟠': '<path d="M6.5 8h11l-1 11.5H7.5L6.5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
-    '🔴': '<path d="M6.5 8h11l-1 11.5H7.5L6.5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'
+    '🔴': '<path d="M6.5 8h11l-1 11.5H7.5L6.5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+    '🌙': '<path d="M20.5 13.4A8.5 8.5 0 0 1 10.6 3.5 8.5 8.5 0 1 0 20.5 13.4z"/>'
   };
   function ksetIco(key) {
     const p = KSET_ICONS[key];
@@ -2472,6 +2520,8 @@ ar: {
                   (opts.arg ? ` data-arg="${opts.arg}"` : '');
     const right = opts.toggle
       ? `<div class="kset-toggle${opts.on ? ' on' : ''}" data-kset-toggle><div class="kset-knob"></div></div>`
+      : opts.badge
+      ? `<span class="kset-badge">${escape(opts.badge)}</span>`
       : '<svg class="kset-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--n-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
     return `<div class="kset-row"${attrs} role="button" tabindex="0">` +
       ksetIco(icon) +
