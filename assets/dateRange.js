@@ -2092,7 +2092,8 @@
           <div class="v" data-kpi-val></div>
           <div class="d" data-kpi-delta></div>
           <svg class="sp" viewBox="0 0 120 22" preserveAspectRatio="none">
-            <path d="${sparkPath}" style="stroke: var(--atlas)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="${sparkPath}" style="stroke: var(--atlas)" stroke-width="4" stroke-opacity="0.16" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="${sparkPath}" style="stroke: var(--atlas)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
       `;
@@ -2164,7 +2165,7 @@
           <span class="l"><span>${kpiLabel(k, venueType, lang)}</span><span class="ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg></span></span>
           <span class="v">${valHtml}</span>
           <span class="d${dCls}">${arrowSvg(dv >= 0)}${fmtPct(dv)} ${deltaSuffix}</span>
-          <svg class="sp" viewBox="0 0 120 22" preserveAspectRatio="none"><path d="${sparkPath}" stroke="#0B6E4F" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          <svg class="sp" viewBox="0 0 120 22" preserveAspectRatio="none"><path d="${sparkPath}" stroke="#0B6E4F" stroke-width="4" stroke-opacity="0.16" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${sparkPath}" stroke="#0B6E4F" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>`;
     };
 

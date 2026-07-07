@@ -433,7 +433,11 @@
   .hero-right { position: relative; display: flex; flex-direction: column; gap: 18px; height: 100%; }
   .hai-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--mint); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; }
   .hai-title { font-size: 19px; font-weight: 500; color: #fff; letter-spacing: -0.015em; margin-top: 6px; line-height: 1.25; }
-  .hai-recs { display: flex; flex-direction: column; gap: 18px; flex: 1; }
+  .hai-recs { display: flex; flex-direction: column; gap: 18px; flex: 0 0 auto; }
+  .hai-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+  .hai-chip { font-family: var(--sans); font-size: 12px; color: rgba(247,245,240,0.82); background: rgba(255,255,255,0.06); border: 1px solid rgba(125,242,176,0.18); border-radius: 999px; padding: 7px 12px; cursor: pointer; transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 90ms ease; letter-spacing: -0.005em; line-height: 1; }
+  .hai-chip:hover { background: rgba(125,242,176,0.12); border-color: rgba(125,242,176,0.4); color: #fff; }
+  .hai-chip:active { transform: translateY(1px); }
   .hai-rec { position: relative; padding-left: 16px; }
   .hai-rec::before { content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 2px; background: var(--mint); border-radius: 1px; }
   .hai-rec-title { font-size: 14px; font-weight: 600; color: #fff; line-height: 1.4; letter-spacing: -0.005em; }
@@ -5258,6 +5262,11 @@
                 <div class="hai-rec-obs" data-i18n="dash.hero.ai.rec1.obs">Entre 15h et 17h, vous réalisez seulement 8% de votre chiffre d'affaires quotidien. Pourtant, c'est l'heure où vos clients restent le plus longtemps assis (temps moyen : 47 minutes, contre 31 minutes au déjeuner).</div>
                 <div class="hai-rec-act" data-i18n="dash.hero.ai.rec1.act">→ Proposer un menu « goûter » avec thé à la menthe et msemen à prix réduit pourrait augmenter la rotation des tables de 20-30%.</div>
               </div>
+            </div>
+            <div class="hai-chips">
+              <button type="button" class="hai-chip" data-i18n="dash.hero.ai.chip1" onclick="var i=this.closest('.hero-right').querySelector('[data-hai-input]');if(i){i.value=this.textContent.trim();i.focus();}">Quel plat retirer de ma carte ?</button>
+              <button type="button" class="hai-chip" data-i18n="dash.hero.ai.chip2" onclick="var i=this.closest('.hero-right').querySelector('[data-hai-input]');if(i){i.value=this.textContent.trim();i.focus();}">Prévision des ventes ce soir</button>
+              <button type="button" class="hai-chip" data-i18n="dash.hero.ai.chip3" onclick="var i=this.closest('.hero-right').querySelector('[data-hai-input]');if(i){i.value=this.textContent.trim();i.focus();}">Pourquoi mon panier moyen baisse&nbsp;?</button>
             </div>
             <form class="hai-input" onsubmit="event.preventDefault();">
               <input type="text" data-hai-input data-i18n-attr="placeholder:dash.hero.ai.input.placeholder" placeholder="Posez votre question sur votre restaurant..." />

@@ -232,6 +232,10 @@
 
   /* Hero LIVE chip — one line, never a stacked 3-row capsule */
   .hero-today .live-badge { white-space: nowrap; flex-shrink: 0; }
+  /* Session caption drops to its own full-width line instead of cramming
+     four wrapped lines into the sliver of space beside the LIVE chip. */
+  .hero-left .greet { flex-wrap: wrap; }
+  .hero-left .meta { flex-basis: 100%; }
 
   /* ─────────────── HOME · HERO ─────────────── */
   .hero-today { padding: 52px 22px 30px; border-radius: 22px; }
