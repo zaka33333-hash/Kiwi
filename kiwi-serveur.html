@@ -3384,6 +3384,10 @@
     </div>
   </div>
 
+  <!-- Live Link — optional $0 backend bridge. OFF by default; ?live=1 turns it on,
+       then each settled table POSTs to /api/sale and shows on the owner's dashboard. -->
+  <script src="assets/live-link.js" defer></script>
+
   <script>
     /* =========================================================
        Kiwi Serveur — demo logic
@@ -5211,7 +5215,7 @@
         cb();
         return;
       }
-      if (tableId) markTablePaid(tableId);
+      if (tableId) markTablePaid(tableId, 'card');
     }
 
     cardModal.addEventListener('click', (e) => {
@@ -5298,7 +5302,7 @@
         cb();
         return;
       }
-      if (tableId) markTablePaid(tableId);
+      if (tableId) markTablePaid(tableId, 'cash');
     }
 
     cashInput.addEventListener('input', updateRendu);
@@ -5324,8 +5328,19 @@
     });
 
     /* ---------- Mark paid ---------- */
-    function markTablePaid(id) {
+    function markTablePaid(id, method) {
       const t = tables[id];
+      // Live Link — surface this settled table on the owner's dashboard live feed.
+      // No-op unless ?live=1 (KiwiLive.postSale gates itself); mirrors the caisse.
+      // Capture the amount BEFORE we flip status / clear the order below.
+      try {
+        if (window.KiwiLive) window.KiwiLive.postSale({
+          amount: getTableTotal(id),
+          method: method || 'card',        // card | cash | split
+          label: 'Table ' + id,
+          ref: id,
+        });
+      } catch (_) {}
       t.status = 'khlass';
       t.elapsed = 0;
       tablesPaid++;
@@ -5804,7 +5819,7 @@
         $('#split-all-done').hidden = false;
         if (splitState.tableId) {
           tableSplits.delete(splitState.tableId);
-          markTablePaid(splitState.tableId);
+          markTablePaid(splitState.tableId, 'split');
         }
         lucide.createIcons();
       }

@@ -3,9 +3,10 @@
  * OFF by default: the apps run their normal mocked, per-browser demo. Turn it on
  * with  localStorage.kiwiLive = '1'  (or add  ?live=1  to the URL once). When on:
  *   • the CAISSE POSTs every confirmed sale to  /api/sale
- *   • the DASHBOARD polls  /api/feed  and shows real sales in an "EN DIRECT ·
- *     CAISSE" card — so a sale rung on one device appears on the owner's
- *     dashboard on another device, for real.
+ *   • the SERVEUR POSTs every settled table (card · cash · split) to  /api/sale
+ *   • the DASHBOARD polls  /api/feed  and shows real sales in an "EN DIRECT"
+ *     card — so a sale rung on one device appears on the owner's dashboard on
+ *     another device, for real. Each row self-identifies (table vs. caisse).
  *
  * Same-origin fetch carries the passcode-gate cookie, so it works behind the
  * Cloudflare edge gate. Vanilla, no dependencies. The simulated dashboard feed is
@@ -29,7 +30,7 @@
     try { return localStorage.getItem('kiwiLiveMerchant') || 'cafe-atlas'; } catch (_) { return 'cafe-atlas'; }
   }
 
-  var METHOD_LABEL = { cash: 'Espèces', card: 'Carte', tap: 'Kiwi Tap', qr: 'QR', wallet: 'Kiwi Wallet' };
+  var METHOD_LABEL = { cash: 'Espèces', card: 'Carte', tap: 'Kiwi Tap', qr: 'QR', wallet: 'Kiwi Wallet', split: 'Partagée' };
   function fmtMAD(n) { try { return (Math.round(n) || 0).toLocaleString('fr-FR'); } catch (_) { return String(Math.round(n) || 0); } }
   function hhmm(ts) {
     var d = new Date(ts || Date.now());
@@ -120,9 +121,9 @@
 
     var head = el('div', 'klc-head');
     head.appendChild(el('span', 'klc-dot'));
-    head.appendChild(document.createTextNode('En direct · caisse'));
+    head.appendChild(document.createTextNode('En direct · ventes'));
     var total = el('span', 'klc-total');
-    total.appendChild(document.createTextNode('Encaissé caisse · '));
+    total.appendChild(document.createTextNode('Encaissé · '));
     var totalB = el('b', null, '0');
     totalB.setAttribute('data-klc-total', '');
     total.appendChild(totalB);
@@ -132,7 +133,7 @@
 
     var list = el('div', 'klc-list');
     list.setAttribute('data-klc-list', '');
-    list.appendChild(el('div', 'klc-empty', 'En attente d’une vente à la caisse…'));
+    list.appendChild(el('div', 'klc-empty', 'En attente d’une vente…'));
     card.appendChild(list);
     return card;
   }
@@ -155,7 +156,7 @@
     runningTotal += Math.round(s.amount) || 0;
     if (totalEl) totalEl.textContent = fmtMAD(runningTotal);
     if (window.Kiwi && typeof window.Kiwi.toast === 'function') {
-      try { window.Kiwi.toast('Vente encaissée · ' + fmtMAD(s.amount) + ' MAD', { desc: mlabel + ' · caisse en direct', type: 'success' }); } catch (_) {}
+      try { window.Kiwi.toast('Vente encaissée · ' + fmtMAD(s.amount) + ' MAD', { desc: mlabel + ' · ' + (s.label || 'en direct'), type: 'success' }); } catch (_) {}
     }
   }
 

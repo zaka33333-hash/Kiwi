@@ -21,9 +21,11 @@ mocked per-browser demo. Nothing here can disturb the current pitch demo.
 - `functions/api/feed.js` — `GET /api/feed?merchant=…&since=<cursor>` returns new
   sales since the last one the dashboard saw (SQLite `rowid` is the cursor).
 - `assets/live-link.js` — the caisse calls `postSale()` from `recordSale()` (every
-  tender: cash / card / QR / split); the dashboard polls `/api/feed` every ~3.5 s
-  and shows results in an **"EN DIRECT · CAISSE"** card it fully owns (the
-  simulated feed is never touched).
+  tender: cash / card / QR / split), **and the serveur calls it from
+  `markTablePaid()`** whenever a table is settled (card · cash · split); the
+  dashboard polls `/api/feed` every ~3.5 s and shows results in an
+  **"EN DIRECT · VENTES"** card it fully owns (each row self-identifies — a caisse
+  ticket vs. a `Table Tx`; the simulated feed is never touched).
 - Both `/api` calls are same-origin, so they ride **behind the passcode gate**
   automatically (a device must be unlocked once). The service worker is set to
   **never cache `/api/*`**, so the poll is always fresh.
