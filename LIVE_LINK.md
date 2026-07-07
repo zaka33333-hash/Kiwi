@@ -7,6 +7,14 @@ live. Runs entirely on the **free** Cloudflare Pages + D1 tiers.
 **It is OFF by default** — with no flag set, both apps behave exactly as the
 mocked per-browser demo. Nothing here can disturb the current pitch demo.
 
+> **✅ Provisioned (2026-07-07).** The one-time Cloudflare setup below is already
+> done on the `kiwi-maroc` Pages project: D1 database **`kiwi-sales`** created,
+> `schema.sql` applied, and bound as variable **`DB`**. Health check
+> `GET https://kiwi-maroc.pages.dev/api/sale` returns `{"ok":true,"db":true}`.
+> Verified end-to-end in production (a card sale on the caisse appeared on the
+> dashboard's live card). To use it, just open the apps with `?live=1` (below).
+> The steps in the next section are kept for reference / re-provisioning only.
+
 ## How it works
 
 - `functions/api/sale.js` — `POST /api/sale` writes one sale to Cloudflare **D1**.
