@@ -18,3 +18,18 @@ CREATE TABLE IF NOT EXISTS sales (
 -- appends rowid to every index, so this covers the (merchant, rowid) order.
 -- (You cannot name rowid in CREATE INDEX — SQLite rejects it.)
 CREATE INDEX IF NOT EXISTS idx_sales_merchant ON sales (merchant);
+
+-- ── Accounts (merchant login + lead capture) ────────────────────────────────
+-- One row per merchant who signs up. Passwords are PBKDF2-SHA256: `salt` and
+-- `hash` are hex; the plaintext password is never stored. This table doubles as
+-- the leads list (email/name/business/created_ts); signups are also mirrored to
+-- a Google Sheet via LEADS_WEBHOOK. See functions/auth/*.
+CREATE TABLE IF NOT EXISTS accounts (
+  id         TEXT PRIMARY KEY,       -- "acc-<uuid>"
+  email      TEXT NOT NULL UNIQUE,   -- normalized lowercase, login key
+  name       TEXT,                   -- contact name
+  business   TEXT,                   -- établissement
+  salt       TEXT NOT NULL,          -- PBKDF2 salt (hex)
+  hash       TEXT NOT NULL,          -- PBKDF2 derived key (hex)
+  created_ts INTEGER NOT NULL        -- epoch ms of signup
+);
