@@ -13,5 +13,8 @@ CREATE TABLE IF NOT EXISTS sales (
   ts       INTEGER NOT NULL    -- epoch ms of the sale
 );
 
--- The dashboard polls "WHERE merchant = ? AND rowid > ?"; index it.
-CREATE INDEX IF NOT EXISTS idx_sales_merchant_rowid ON sales (merchant, rowid);
+-- The dashboard polls "WHERE merchant = ? AND rowid > ? ORDER BY rowid".
+-- Index on merchant alone is enough: on a rowid table SQLite implicitly
+-- appends rowid to every index, so this covers the (merchant, rowid) order.
+-- (You cannot name rowid in CREATE INDEX — SQLite rejects it.)
+CREATE INDEX IF NOT EXISTS idx_sales_merchant ON sales (merchant);
