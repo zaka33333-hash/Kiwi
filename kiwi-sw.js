@@ -5,7 +5,7 @@
  * versioned bust. Replaces assets/caisse-sw.js (which was scoped to /assets/
  * and therefore controlled no navigations). */
 'use strict';
-var CACHE = 'kiwi-app-v5';
+var CACHE = 'kiwi-app-v6';
 var SHELL = [
   '/dashboard.html',
   '/kiwi-caisse.html',
@@ -48,7 +48,9 @@ var SHELL = [
   '/assets/icons/kiwi-app-192.png',
   '/assets/icons/kiwi-app-512.png',
   '/assets/icons/kiwi-app-180.png',
-  '/assets/icons/kiwi-caisse.svg'
+  '/assets/icons/kiwi-caisse.svg',
+  '/assets/icons/kiwi-caisse-192.png',
+  '/assets/icons/kiwi-caisse-180.png'
 ];
 
 self.addEventListener('install', function (e) {
