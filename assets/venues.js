@@ -1302,7 +1302,7 @@
      * session flag alone isn't enough. */
     let persistedClient = false;
     try { persistedClient = localStorage.getItem('kiwiOnboarded') === '1'; } catch (_) {}
-    const onboard = !!window.__kiwiOnboard || persistedClient;
+    const onboard = !!window.__kiwiOnboard || persistedClient || !!(window.KiwiEnv && window.KiwiEnv.demosAllowed === false);
     const listIds = onboard
       ? Object.keys(VENUES).filter(id => VENUES[id] && VENUES[id].custom)
       : REAL_VENUES;
@@ -2688,6 +2688,17 @@
 
   /* ═══════════════ INIT ═══════════════ */
 
+  /* A real signed-up merchant: on the HOSTED app (demos off) OR anyone who
+     completed onboarding. They only ever see their own store — never the demo
+     venues (Café Atlas / Maison Mansour / Spa Bahia). */
+  function isRealMerchant() {
+    try {
+      if (window.KiwiEnv && window.KiwiEnv.demosAllowed === false) return true;
+      if (localStorage.getItem('kiwiOnboarded') === '1') return true;
+    } catch (_) {}
+    return false;
+  }
+
   function init() {
     if (!/dashboard(?:\.html)?(?:$|\/)/.test(location.pathname)) return;
     /* Sidebar upsell + dropdown CTA + subtype-profiled vertical section
@@ -2704,7 +2715,16 @@
       stored = null;
       try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
     }
-    currentVenue = (REAL_VENUES.includes(stored) || customIds.has(stored)) ? stored : DEFAULT_VENUE;
+    if (isRealMerchant()) {
+      /* Real merchant → their OWN store only. Never a demo venue — even a stale
+         kiwiVenue=cafeAtlas persisted by an earlier (broken) session; heal it so
+         "my boutique opens as Café Atlas with demo numbers" can't happen. */
+      const firstCustom = [...customIds][0] || null;
+      currentVenue = customIds.has(stored) ? stored : (firstCustom || DEFAULT_VENUE);
+      if (currentVenue !== stored) { try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {} }
+    } else {
+      currentVenue = (REAL_VENUES.includes(stored) || customIds.has(stored)) ? stored : DEFAULT_VENUE;
+    }
     // Defensive: strip any stale fusion classes + dark theme attribute.
     document.body.classList.remove('fusion-mode', 'fusion-glass-melt', 'fusion-reconstruct');
     document.documentElement.removeAttribute('data-theme');

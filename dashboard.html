@@ -5790,6 +5790,8 @@
      no globals and only register click-time handlers, so they are moved
      past dateRange.js and marked fetchpriority="low" — the first screen
      no longer waits on 657 KB it doesn't need yet. (Codex roast P1) -->
+<!-- Env gate (demos local-only) — must run before venues.js and the app. -->
+<script src="assets/kiwi-env.js" defer></script>
 <script src="assets/i18n.js" defer></script>
 <script src="assets/interactive.js" defer></script>
 <script src="assets/features.js" defer></script>
