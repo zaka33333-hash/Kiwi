@@ -5832,6 +5832,9 @@
 <!-- Operator feature flags — hides modules the operator toggled off for this
      merchant. Fail-safe: no backend ⇒ nothing changes. See ADMIN.md. -->
 <script defer src="assets/merchant-config.js"></script>
+<!-- Real logged-in identity — swaps the demo owner/business (Rachid · Café Atlas)
+     for the account's own via /api/me. No-op for the local demo / staff / operator. -->
+<script defer src="assets/identity.js"></script>
 <!-- Global operator access — long-press any Kiwi logo to open the console. -->
 <script defer src="assets/operator-access.js"></script>
 <script src="assets/liquid-lens.js" defer></script>
