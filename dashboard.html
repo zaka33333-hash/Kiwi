@@ -5910,6 +5910,21 @@
   const helpEl   = document.querySelector('.kiwi-lock-help');
   const helpHTML = helpEl ? helpEl.innerHTML : '';
   function configuredPins() {
+    /* Operator wins when online: if the server config (managed in God mode) has
+     * loaded a non-empty PIN set for this merchant, that is the authoritative
+     * list the lock validates against. Offline / not-yet-loaded / operator-
+     * emptied → fall back to the client's own last-known local set, so a wiped
+     * server never bricks a legitimate client. Server rows use `pin`; the local
+     * set uses `code`. */
+    try {
+      const kc = window.KiwiConfig;
+      if (kc && kc.loaded && Array.isArray(kc.pins) && kc.pins.length) {
+        const s = kc.pins
+          .map((x) => ({ code: String((x && (x.code || x.pin)) || ''), name: (x && x.name) || '', role: (x && x.role) || 'staff' }))
+          .filter((x) => /^\d{4}$/.test(x.code));
+        if (s.length) return s;
+      }
+    } catch (_) {}
     try {
       const p = JSON.parse(localStorage.getItem('kiwiPins') || '[]');
       return Array.isArray(p) ? p.filter((x) => x && /^\d{4}$/.test(x.code)) : [];
@@ -6046,7 +6061,9 @@
        * non-reserved PIN — each maps to the role + person the owner assigned. */
       try {
         if (val !== '0000' && val !== '0505' && val !== '0909' && val !== '1111') {
-          const pins = JSON.parse(localStorage.getItem('kiwiPins') || '[]');
+          /* Same authoritative set the gate validated against (server when online,
+           * else local) — so an operator-added PIN also gets its assigned role. */
+          const pins = configuredPins();
           const hit = Array.isArray(pins) && pins.find((p) => p && p.code === val);
           if (hit) {
             role = (hit.role === 'manager' || hit.role === 'staff') ? hit.role : 'owner';

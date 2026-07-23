@@ -30,8 +30,25 @@
     } catch (_) { return 'cafe-atlas'; }
   }
 
-  var cfg = { features: {}, pins: [], loaded: false, apply: applyFeatures };
+  var cfg = { features: {}, pins: [], loaded: false, apply: applyFeatures, syncPins: syncPins };
   window.KiwiConfig = cfg;
+
+  /* Push this merchant's own staff PINs up to the server so the operator console
+   * (God mode) can see and manage them. The server derives the merchant from the
+   * session — we never send a slug. Fire-and-forget + fail-safe: on a static host
+   * (GitHub Pages, local) or offline the POST just fails and nothing changes.
+   * `pins` is the client's local shape [{ role, name, code }]. */
+  function syncPins(pins) {
+    if (!Array.isArray(pins)) return Promise.resolve(false);
+    return fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ pins: pins }),
+    }).then(function (r) {
+      if (r && r.ok) { cfg.loaded = true; try { return r.json().then(function (d) { if (d && Array.isArray(d.pins)) cfg.pins = d.pins; return true; }).catch(function () { return true; }); } catch (_) { return true; } }
+      return false;
+    }).catch(function () { return false; });
+  }
 
   function applyFeatures() {
     var features = cfg.features || {};

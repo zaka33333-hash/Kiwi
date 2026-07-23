@@ -483,6 +483,10 @@
     LS.set('kiwiTeamSize', String(S.teamSize));
     LS.set('kiwiGoals', JSON.stringify(S.goals));
     LS.set('kiwiPins', JSON.stringify(validPins));
+    /* Mirror the client's PINs up to the server so the operator console can see
+     * and manage them (God mode). Fire-and-forget + fail-safe — a static host or
+     * offline session just keeps the local copy, nothing breaks. */
+    try { if (window.KiwiConfig && window.KiwiConfig.syncPins) window.KiwiConfig.syncPins(validPins); } catch (_) {}
     LS.set('kiwiRole', 'owner');
     LS.set('kiwiOnboarded', '1');
     LS.del('kiwiSkipOnboard');
