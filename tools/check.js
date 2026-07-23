@@ -80,7 +80,7 @@ section('i18n key parity (data-i18n → i18n.js EN/AR)');
   const i18nSrc = read(path.join(ROOT, 'assets', 'i18n.js'));
   const used = new Set();
   // Only pages that actually load assets/i18n.js — the standalone surfaces
-  // (cafe-atlas, kiwi-caisse, kiwi-serveur, …) carry their own inline dicts.
+  // (kiwi-order, kiwi-caisse, kiwi-serveur, …) carry their own inline dicts.
   for (const f of HTML_FILES.filter((f) => read(f).includes('assets/i18n.js'))) {
     const src = read(f);
     let m;
