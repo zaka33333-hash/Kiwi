@@ -11508,10 +11508,12 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
   /* Destinations that now have a REAL per-venue, persistent UI — they render
      their functional page for custom (onboarded) venues too, NOT a starter
      placeholder. This set grows as more pages become per-venue functional. */
-  // NOTE: payroll & practitioners were removed — their handlers still hardcode
-  // demo staff (Fatima/Sofia… / Spa Bahia's PRACS), so a custom venue must get the
-  // zeroed starter, not the demo roster, until they become genuinely per-venue.
-  const REAL_FOR_CUSTOM = new Set(['inventory', 'categories', 'equipe']);
+  /* 'menu' is now a real per-venue editor (assets/menu-catalog.js →
+     window.KiwiMenuStore), so it renders functionally for custom venues.
+     'payroll' & 'practitioners' stay OUT: their handlers still hardcode demo
+     staff (Fatima/Sofia… / Spa Bahia's PRACS), so a custom venue must get the
+     zeroed starter, not the demo roster, until they become genuinely per-venue. */
+  const REAL_FOR_CUSTOM = new Set(['inventory', 'categories', 'equipe', 'menu']);
 
   /* ── Actionable layer: let the client add their OWN data right here ──────
    * Config-type destinations (menu, team, devices…) get an "Add {noun}" button

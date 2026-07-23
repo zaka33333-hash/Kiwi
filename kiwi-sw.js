@@ -59,6 +59,8 @@ var SHELL = [
   '/assets/caisse-hardware.js',
   '/assets/barcode.js',
   '/assets/boutique-catalog.js',
+  '/assets/venue-store.js',
+  '/assets/menu-catalog.js',
   '/assets/pos-dispatch.js',
   '/assets/caisse-pairing.js',
   '/assets/pressing-caisse.js',
