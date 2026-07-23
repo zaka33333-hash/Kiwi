@@ -142,6 +142,38 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 
 ## 8. What this session shipped (newest first)
 
+**Jul 23:** **Boutique inventory + real barcode system (caisse 0002 ↔ dashboard, one
+shared DB).** Two new engine modules, loaded in `kiwi-caisse.html`, `dashboard.html`,
+`dashboard2.html`:
+- `assets/barcode.js` (`window.KiwiBarcode`) — dependency-free, **real scannable** EAN-13
+  (L/G/R + parity + mod-10 check) and Code 128-B encoders → inline SVG; `nextInStoreEan()`
+  generates codes in the GS1 in-store range (prefix 20–29, never collides with real GTINs);
+  `detect()`, `isValidEan13()`, and `printLabels(labels,{copies})` (a `@media print` label
+  sheet → `window.print()` to the label printer).
+- `assets/boutique-catalog.js` (`window.KiwiBoutiqueCatalog`) — the **shared product
+  database** in `localStorage` (`kiwiBoutiqueCatalog:v1:maisonMansour`). Model: Category →
+  Product → **Variant (= product × colour × size)**, each variant holds a `barcodes[]` list
+  (a generated EAN-13 `primary` + any scanned old-POS codes kept verbatim as `imported`).
+  Full CRUD + `generateBarcode`/`attachBarcode`/`findByBarcode`/`resolveScan`; `subscribe()`
+  + `storage` event so the caisse tab and dashboard tab stay live-synced; seeds once from the
+  caisse's old `RAYONS` (each product fanned into colour×size variants; legacy EANs kept as
+  aliases). `compat()` rebuilds the old `{RAYONS,P,BY_EAN}` shape the caisse renders from.
+- **Caisse (`pos-boutique.js`, PIN 0002)** — now catalog-backed (sale grid, sheet, scanner
+  all track the live DB). New **Inventaire** nav view: create product · colour×size variants ·
+  input stock · **generate + print EAN-13 labels** · **register an existing old-POS barcode**
+  (no reprint). A **global keyboard-wedge scanner** (document keydown buffer) adds the exact
+  scanned variant to the ticket from anywhere on the sales screen; unknown scan → "register
+  on an article" flow. Stock decrements on a sale stay in-memory (demo); creation + stock
+  input persist to the DB.
+- **Dashboard (`pages-pro.js` `nav-inventory` + `nav-categories`)** — rewritten from static
+  mock to live catalog: product grid → drawer with the variant matrix (editable stock,
+  per-variant barcode chip, generate/print/register), real category **create/rename/recolour/
+  delete** (with product reassignment). Handlers are prefixed `bqx-`.
+- GOTCHA: `barcode.js` must load **before** `boutique-catalog.js`; both must load before
+  `pos-dispatch.js` / `pages-pro.js`. `localStorage` sync is **same-origin only** (real
+  cross-device sync waits for the backend). `window.print()` opens a native dialog — it can
+  block headless browser tooling; that's the print path working, not a bug.
+
 **Jun 25 (later):** `171b03f` **Ultra cross-site spend control** — `assets/depenses.js`
 `render()` now branches custom → **fusion** → single. When the portfolio (fusion) venue is
 active it paints the consolidated Ultra view: « EXCLUSIF ULTRA » banner (1 499 MAD/mois),

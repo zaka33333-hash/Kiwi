@@ -27,6 +27,11 @@
   <script src="assets/caisse-hardware.js" defer></script>
   <link rel="stylesheet" href="assets/pressing-caisse.css" />
   <script src="assets/pressing-caisse.js" defer></script>
+  <!-- Boutique shared database + real barcode engine (EAN-13 / Code 128).
+       Loaded here so the lazy-loaded boutique vertical (PIN 0002) and the
+       dashboard read/write the SAME product catalog (localStorage). -->
+  <script src="assets/barcode.js" defer></script>
+  <script src="assets/boutique-catalog.js" defer></script>
   <!-- Multi-métier PIN dispatcher: 0002–0015 lazy-load one POS vertical each
        (assets/pos-<id>.{js,css}). Tap the pin-foot note for the code legend.
        Any unlisted code still opens the restaurant caisse below. -->

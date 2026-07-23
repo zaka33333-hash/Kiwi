@@ -6655,666 +6655,630 @@ const _mad = (n) => n.toLocaleString('fr-FR', {minimumFractionDigits: 0, maximum
 const _mad2 = (n) => n.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}).replace(/,/g, ' ').replace(/ /g, ' ');
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * 1. nav-inventory · Inventaire produits
- *    1040-wide drawer · 4-up KPI strip · filter pills · 16 SKU cards in 3-col grid
+ * Kiwi · BOUTIQUE vertical · Maison Mansour, Gueliz · S2 sidebar handlers
+ *  - nav-inventory   · Inventaire produits — LIVE, backed by the shared catalog
+ *  - nav-categories  · Catégories — real create / rename / recolour / delete
+ *
+ * Both pages read/write window.KiwiBoutiqueCatalog — the SAME product database
+ * the caisse (PIN 0002) creates products into — and render real scannable
+ * barcodes via window.KiwiBarcode. Every edit persists (localStorage) and both
+ * surfaces stay in sync (subscribe() same-page + the native `storage` event
+ * cross-tab). A variant = product × colour × size is the atomic barcoded unit.
  * ─────────────────────────────────────────────────────────────────────────── */
-handlers['nav-inventory'] = () => {
-  const skus = [
-    { id: 'CFB-001', name: 'Caftan brodé main',          price: 1890, stock: 8,  cat: 'vetements',    catL: 'Vêtements', sup: 'Atelier Salé',                       sold: '12 avril', grad: ['#0B6E4F', '#053B2C'] },
-    { id: 'TPB-014', name: 'Tapis berbère Beni Ourain',   price: 3200, stock: 3,  cat: 'decoration',   catL: 'Décoration', sup: 'Coopérative féminine Tighmert',     sold: '24 avril', grad: ['#8A6210', '#D99A2B'] },
-    { id: 'BAB-022', name: 'Babouches en cuir naturel',   price: 450,  stock: 24, cat: 'vetements',    catL: 'Vêtements', sup: 'Atelier Salé',                       sold: '28 avril', grad: ['#7A4A1F', '#C28B5A'] },
-    { id: 'THA-003', name: 'Théière argentée gravée',     price: 680,  stock: 12, cat: 'decoration',   catL: 'Décoration', sup: 'Souk des bijoutiers',               sold: '26 avril', grad: ['#4F5A60', '#A0AAB0'] },
-    { id: 'COU-018', name: 'Coussin tissé sabra',         price: 240,  stock: 36, cat: 'decoration',   catL: 'Décoration', sup: 'Coopérative féminine Tighmert',     sold: '27 avril', grad: ['#053B2C', '#7DF2B0'] },
-    { id: 'LMP-007', name: 'Lampe artisanale cuivre',     price: 920,  stock: 6,  cat: 'decoration',   catL: 'Décoration', sup: 'Atelier Salé',                       sold: '21 avril', grad: ['#B85C2C', '#E0A569'] },
-    { id: 'BRA-031', name: 'Bracelet argent berbère',     price: 380,  stock: 22, cat: 'bijoux',       catL: 'Bijoux',    sup: 'Souk des bijoutiers',               sold: '28 avril', grad: ['#8B95A0', '#D5DDE3'] },
-    { id: 'FOU-012', name: 'Foulard soie peint',          price: 520,  stock: 18, cat: 'vetements',    catL: 'Vêtements', sup: 'Atelier Salé',                       sold: '25 avril', grad: ['#9F2B3E', '#D67588'] },
-    { id: 'PLT-009', name: 'Plat tagine peint Fès',       price: 190,  stock: 2,  cat: 'decoration',   catL: 'Décoration', sup: 'Coopérative féminine Tighmert',     sold: '23 avril', grad: ['#0B6E4F', '#56A883'] },
-    { id: 'BUR-002', name: 'Burnous laine vierge',        price: 1240, stock: 4,  cat: 'vetements',    catL: 'Vêtements', sup: 'Atelier Salé',                       sold: '18 avril', grad: ['#3A2E20', '#7A6A55'] },
-    { id: 'SAC-017', name: 'Sac cuir nubuck',             price: 820,  stock: 11, cat: 'vetements',    catL: 'Vêtements', sup: 'Atelier Salé',                       sold: '27 avril', grad: ['#5A3D26', '#A87B5D'] },
-    { id: 'COA-005', name: 'Coffret huile d\'argan',      price: 320,  stock: 0,  cat: 'cosmetiques',  catL: 'Cosmétiques', sup: 'Coopérative argan Essaouira',     sold: '22 avril', grad: ['#D99A2B', '#F2D49B'] },
-    { id: 'THA-021', name: 'Théière arabesque ciselée',   price: 560,  stock: 9,  cat: 'decoration',   catL: 'Décoration', sup: 'Souk des bijoutiers',               sold: '20 avril', grad: ['#5C5048', '#A89784'] },
-    { id: 'PLA-013', name: 'Plateau cuivre martelé',      price: 440,  stock: 14, cat: 'decoration',   catL: 'Décoration', sup: 'Atelier Salé',                       sold: '24 avril', grad: ['#B85C2C', '#D99A2B'] },
-    { id: 'PEN-026', name: 'Pendentif main de Fatma',     price: 290,  stock: 28, cat: 'bijoux',       catL: 'Bijoux',    sup: 'Souk des bijoutiers',               sold: '28 avril', grad: ['#8B95A0', '#C0CAD0'] },
-    { id: 'COS-011', name: 'Cosmétique henné soin',       price: 140,  stock: 1,  cat: 'cosmetiques',  catL: 'Cosmétiques', sup: 'Coopérative argan Essaouira',     sold: '19 avril', grad: ['#5A3D26', '#9C7860'] },
-  ];
+const CAT = () => window.KiwiBoutiqueCatalog;
+const BC  = () => window.KiwiBarcode;
+const _bqxReady = () => !!(window.KiwiBoutiqueCatalog && window.KiwiBarcode);
 
-  const totalVal = skus.reduce((s, x) => s + x.price * x.stock, 0);
-  const ruptures = skus.filter(s => s.stock === 0).length;
-  const lowStock = skus.filter(s => s.stock > 0 && s.stock <= 5).length;
-  const activeSkus = skus.filter(s => s.stock > 0).length;
+const _esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const _TAGHEX = { atlas: '#0B6E4F', riad: '#053B2C', mint: '#7DF2B0', warn: '#D99A2B', danger: '#9B2F22', info: '#3D6B8C' };
+const _TAGS = [
+  { id: 'atlas', hex: '#0B6E4F', name: 'Atlas' }, { id: 'riad', hex: '#053B2C', name: 'Riad' },
+  { id: 'mint', hex: '#7DF2B0', name: 'Menthe' }, { id: 'warn', hex: '#D99A2B', name: 'Safran' },
+  { id: 'danger', hex: '#9B2F22', name: 'Carmin' }, { id: 'info', hex: '#3D6B8C', name: 'Indigo' },
+];
 
-  window.Kiwi.appPage('inventory', {
-    title: 'Inventaire produits',
-    subtitle: `Maison Mansour · Gueliz · ${skus.length} SKUs suivis · stock vivant`,
-    body: `
-      <div class="kx-kpi-strip">
-        <div class="kx-kpi"><div class="l">SKUs ACTIFS</div><div class="v">${activeSkus}<span class="u">/ ${skus.length}</span></div><div class="d">${ruptures} en rupture</div></div>
-        <div class="kx-kpi"><div class="l">VALEUR DE STOCK</div><div class="v">${_mad(totalVal)}<span class="u">MAD</span></div><div class="d">Coût · prix de vente</div></div>
-        <div class="kx-kpi ${lowStock ? 'warn' : ''}"><div class="l">STOCK BAS / RUPTURES</div><div class="v">${lowStock}<span class="u">+ ${ruptures}</span></div><div class="d">Seuil ≤ 5 unités</div></div>
-        <div class="kx-kpi"><div class="l">PROCHAINE LIVRAISON</div><div class="v">5<span class="u">jours</span></div><div class="d">Atelier Salé · 12 ref</div></div>
-      </div>
+let _bqxFilter = 'all';
+let _bqxQuery = '';
+let _bqxDrawerPid = null;
+let _bqxModal = null;
+let _bqxSubbed = false;
 
-      <div class="p-toolbar" style="margin-top: 4px;">
-        <div class="p-search">${_ICN.search}<span style="margin-left:6px;">Rechercher SKU, nom, fournisseur…</span></div>
-        <button class="kb ghost" data-action="bout-scan">${_ICN.scan}Scanner</button>
-        <button class="kb ghost" data-action="bout-import-csv">${_ICN.upload}Importer CSV</button>
-        <button class="kb primary" data-action="bout-add-sku">${_ICN.plus}Nouveau SKU</button>
-      </div>
+/* one-time styles for the variant matrix, barcode chips and category rows */
+function _bqxCss() {
+  if (document.getElementById('bqx-css')) return;
+  const st = document.createElement('style');
+  st.id = 'bqx-css';
+  st.textContent = `
+    .bqx-vwrap { margin-top: 10px; border: 1px solid var(--line, #e7e3da); border-radius: 12px; overflow: hidden; }
+    .bqx-vtable { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .bqx-vtable th { text-align: left; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--n-500, #77807b); padding: 8px 10px; background: var(--paper-soft, #f3f1ea); }
+    .bqx-vtable td { padding: 9px 10px; border-top: 1px solid var(--line, #eee); vertical-align: middle; }
+    .bqx-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,.18); vertical-align: -2px; margin-right: 7px; }
+    .bqx-stk { display: inline-flex; align-items: center; gap: 5px; }
+    .bqx-stk input { width: 46px; text-align: center; font-family: var(--mono, monospace); font-size: 13px; padding: 4px; border: 1px solid var(--line, #ddd); border-radius: 7px; background: var(--paper, #fff); color: var(--ink, #0A0F0D); }
+    .bqx-stk button { width: 24px; height: 24px; border-radius: 7px; border: 1px solid var(--line, #ddd); background: var(--paper, #fff); cursor: pointer; font-size: 15px; line-height: 1; color: var(--ink, #0A0F0D); }
+    .bqx-stk button:hover { background: var(--paper-soft, #f3f1ea); }
+    .bqx-bc { display: flex; align-items: center; gap: 9px; }
+    .bqx-bc svg { display: block; }
+    .bqx-bc-code { font-family: var(--mono, monospace); font-size: 11px; color: var(--n-600, #555); white-space: nowrap; }
+    .bqx-badge { font-size: 9px; padding: 1px 6px; border-radius: 6px; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+    .bqx-badge.gen { background: rgba(11,110,79,.12); color: #0B6E4F; }
+    .bqx-badge.imp { background: rgba(217,154,43,.16); color: #8A6210; }
+    .bqx-vact { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+    .bqx-nocode { color: var(--n-500, #99a); font-size: 12px; font-style: italic; }
+    .bqx-cat-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line, #e7e3da); border-radius: 12px; margin-bottom: 8px; background: var(--paper, #fff); }
+    .bqx-cat-bar { width: 5px; align-self: stretch; border-radius: 3px; min-height: 34px; }
+    .bqx-cat-info { flex: 1; min-width: 0; }
+    .bqx-cat-info .n { font-weight: 600; font-size: 14px; }
+    .bqx-cat-info .m { font-size: 12px; color: var(--n-500, #77807b); margin-top: 2px; }
+    .bqx-cat-sw { display: flex; gap: 5px; }
+    .bqx-cat-sw button { width: 18px; height: 18px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+    .bqx-cat-sw button.on { border-color: var(--ink, #0A0F0D); }
+    .bqx-price-tag { font-family: var(--mono, monospace); }
+  `;
+  document.head.appendChild(st);
+}
 
-      <div class="kx-pills" data-pill-group="bout-cat">
-        <button class="kx-pill on" data-pill="all">Tous <span class="ct">${skus.length}</span></button>
-        <button class="kx-pill" data-pill="vetements">Vêtements <span class="ct">${skus.filter(s=>s.cat==='vetements').length}</span></button>
-        <button class="kx-pill" data-pill="decoration">Décoration <span class="ct">${skus.filter(s=>s.cat==='decoration').length}</span></button>
-        <button class="kx-pill" data-pill="bijoux">Bijoux <span class="ct">${skus.filter(s=>s.cat==='bijoux').length}</span></button>
-        <button class="kx-pill" data-pill="cosmetiques">Cosmétiques <span class="ct">${skus.filter(s=>s.cat==='cosmetiques').length}</span></button>
-      </div>
-
-      <div class="kx-sku-grid">
-        ${skus.map(s => {
-          const isOut = s.stock === 0;
-          const isLow = !isOut && s.stock <= 5;
-          const stockClass = isOut ? 'out' : isLow ? 'low' : '';
-          const stockChip = isOut ? '<span class="chip ref">Rupture</span>' : isLow ? '<span class="chip pend">Stock bas</span>' : '';
-          return `
-            <div class="kx-sku" data-sku="${s.id}" data-cat="${s.cat}">
-              <div class="kx-sku-img" style="background: linear-gradient(135deg, ${s.grad[0]}, ${s.grad[1]});">
-                <div class="kx-sku-img-tag">${s.cat.charAt(0).toUpperCase()}</div>
-              </div>
-              <div class="kx-sku-body">
-                <div class="kx-sku-head">
-                  <div class="n">${s.name}</div>
-                  <span class="chip neutral">${s.catL}</span>
-                </div>
-                <div class="kx-sku-sku mono">${s.id}</div>
-                <div class="kx-sku-row">
-                  <div class="kx-sku-price mono">${_mad(s.price)} MAD</div>
-                  <div class="kx-sku-stock ${stockClass} mono">${s.stock} en stock</div>
-                </div>
-                <div class="kx-sku-meta">
-                  <span>${s.sup}</span>
-                  <span class="dot"></span>
-                  <span>Vendu ${s.sold}</span>
-                  ${stockChip}
-                </div>
-                <div class="kx-sku-actions">
-                  <button class="kb ghost xs" data-action="bout-sku-edit" data-arg="${s.id}">${_ICN.edit}Modifier</button>
-                  <button class="kb ghost xs" data-action="bout-sku-dup" data-arg="${s.id}">${_ICN.copy}Dupliquer</button>
-                  <button class="kb ghost xs danger-text" data-action="bout-sku-archive" data-arg="${s.id}">${_ICN.arch}Archiver</button>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-
-      <div class="kx-foot-hint">
-        <div class="lh">Astuce</div>
-        <div class="rh">Cliquez un SKU pour voir l'historique de vente, les variantes, le coût d'acquisition et le marge brute.</div>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-action="bout-export-inv">${_ICN.upload}Exporter inventaire</button>
-      <button class="kb atlas" data-action="bout-reorder">Bon de commande groupé</button>
-    `,
-  });
-
-  /* ─── filter-pill delegation, mounted after the page is in DOM ─── */
-  setTimeout(() => {
-    const root = document.querySelector('.dash-genpage');
-    if (!root) return;
-    const pills = root.querySelectorAll('.kx-pill');
-    pills.forEach(p => {
-      p.addEventListener('click', () => {
-        pills.forEach(x => x.classList.remove('on'));
-        p.classList.add('on');
-        const target = p.dataset.pill;
-        root.querySelectorAll('.kx-sku').forEach(c => {
-          c.style.display = (target === 'all' || c.dataset.cat === target) ? '' : 'none';
-        });
-      });
-    });
-    /* clicking the card itself opens the SKU detail */
-    root.querySelectorAll('.kx-sku').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('button')) return;
-        const sku = skus.find(s => s.id === card.dataset.sku);
-        if (sku) _openSkuDetail(sku);
-      });
-    });
-  }, 0);
-};
-
-/* ─── SKU detail nested drawer ─── */
-function _openSkuDetail(s) {
-  const margin = Math.round(s.price * 0.42);
-  const cost   = s.price - margin;
-  drawer({
-    title: s.name,
-    subtitle: `${s.id} · ${s.catL} · ${s.sup}`,
-    width: 540,
-    body: `
-      <div class="kx-sku-img" style="height:120px; border-radius:14px; background: linear-gradient(135deg, ${s.grad[0]}, ${s.grad[1]}); margin-bottom:16px;"></div>
-      <div class="kx-stat-3">
-        <div class="stat"><div class="l">PRIX VENTE</div><div class="v">${_mad(s.price)} MAD</div><div class="sub">TVA 20 % incl.</div></div>
-        <div class="stat"><div class="l">COÛT D'ACHAT</div><div class="v">${_mad(cost)} MAD</div><div class="sub">Marge ${Math.round(margin/s.price*100)} %</div></div>
-        <div class="stat"><div class="l">EN STOCK</div><div class="v">${s.stock}</div><div class="sub">Seuil bas : 5</div></div>
-      </div>
-      <dl class="kx-kv">
-        <dt>SKU interne</dt><dd>${s.id}</dd>
-        <dt>Catégorie</dt><dd>${s.catL}</dd>
-        <dt>Fournisseur</dt><dd>${s.sup}</dd>
-        <dt>Dernière vente</dt><dd>${s.sold}</dd>
-        <dt>Vendus 30 j</dt><dd>${Math.max(2, Math.round(40 / Math.max(1,s.stock)))}</dd>
-        <dt>Réappro suggérée</dt><dd>${s.stock <= 5 ? 'Maintenant' : '15-21 jours'}</dd>
-      </dl>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Fermer</button>
-      <button class="kb ghost" data-action="bout-sku-history" data-arg="${s.id}">Historique ventes</button>
-      <button class="kb atlas" data-action="bout-sku-edit" data-arg="${s.id}">${_ICN.edit}Modifier le SKU</button>
-    `,
+function _bqxSubscribe() {
+  if (_bqxSubbed || !_bqxReady()) return;
+  _bqxSubbed = true;
+  CAT().subscribe(() => {
+    const nav = document.querySelector('.sidebar nav a.active');
+    const navKey = nav && nav.getAttribute('data-nav');
+    const drawerOpen = document.querySelector('.kiwi-drawer-backdrop');
+    if (!drawerOpen) {
+      if (navKey === 'inventory') _renderInventory();
+      else if (navKey === 'categories') _renderCategories();
+    }
+    _bqxRefreshDrawer();
   });
 }
 
-/* ─── inventory action handlers ─── */
-handlers['bout-scan'] = () => {
-  toast('Scanner activé', { desc: 'Pointez un code-barres avec votre Kiwi Tap (caméra arrière). Détection auto.', type: 'info', duration: 3000 });
-};
-
-handlers['bout-import-csv'] = () => {
-  modal({
-    title: 'Importer un catalogue CSV',
-    tag: 'BULK · 1 000 SKUs / fichier',
-    desc: 'Téléchargez le modèle, remplissez vos références, glissez le fichier ici.',
-    width: 560,
-    body: `
-      <div class="kx-csv-drop">
-        ${_ICN.upload}
-        <div class="t">Glissez votre fichier .csv ici</div>
-        <div class="m">ou cliquez pour parcourir · max 5 MB · UTF-8</div>
-      </div>
-      <div class="kx-csv-cols">
-        <div class="kx-csv-col"><div class="l">Colonnes attendues</div><ul><li>nom</li><li>sku_code</li><li>categorie</li><li>prix_mad</li><li>stock_initial</li><li>fournisseur</li></ul></div>
-        <div class="kx-csv-col"><div class="l">Détecté automatiquement</div><ul><li>encodage UTF-8 / latin-1</li><li>séparateur , ; \\t</li><li>doublons par SKU code</li></ul></div>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-action="bout-csv-template">Télécharger le modèle</button>
-      <button class="kb atlas" data-action="bout-csv-confirm">Démarrer l'import</button>
-    `,
-  });
-};
-
-handlers['bout-csv-template'] = () => {
-  toast('Modèle CSV téléchargé', { desc: 'kiwi-inventory-template.csv · 6 colonnes, 1 ligne d\'exemple.', type: 'success' });
-};
-
-handlers['bout-csv-confirm'] = () => {
-  document.querySelector('.kiwi-backdrop')?.querySelector('.kiwi-modal-close')?.click();
-  setTimeout(() => toast('Import démarré', { desc: '247 lignes en cours · vous serez notifié à la fin.', type: 'info' }), 300);
-};
-
-handlers['bout-add-sku'] = () => {
-  modal({
-    title: 'Nouveau SKU',
-    tag: 'INVENTAIRE · MAISON MANSOUR',
-    desc: 'Renseignez les informations produit. Le code SKU est généré automatiquement.',
-    width: 560,
-    body: `
-      <div class="kf-group">
-        <label class="kf-label">Nom du produit</label>
-        <input class="kf-input" placeholder="Caftan brodé main · taille S" />
-      </div>
-      <div class="kf-row">
-        <div class="kf-group"><label class="kf-label">Catégorie</label>
-          <select class="kf-input"><option>Vêtements traditionnels</option><option>Décoration</option><option>Bijoux</option><option>Cosmétiques</option></select>
-        </div>
-        <div class="kf-group"><label class="kf-label">Sous-catégorie</label>
-          <select class="kf-input"><option>Caftans</option><option>Djellabas</option><option>Babouches</option></select>
-        </div>
-      </div>
-      <div class="kf-row">
-        <div class="kf-group"><label class="kf-label">Prix vente (MAD)</label>
-          <input class="kf-input" placeholder="1 890" /></div>
-        <div class="kf-group"><label class="kf-label">Stock initial</label>
-          <input class="kf-input" placeholder="8" /></div>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Fournisseur</label>
-        <select class="kf-input"><option>Atelier Salé (Salé)</option><option>Coopérative féminine Tighmert (Guelmim)</option><option>Souk des bijoutiers (Marrakech)</option><option>Coopérative argan Essaouira</option></select>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Code SKU (auto)</label>
-        <input class="kf-input mono" value="CFB-${Math.floor(Math.random()*900+100)}" disabled style="background: var(--paper-soft); color: var(--n-500);" />
-        <div class="kf-help">Généré à partir de la catégorie. Vous pourrez le modifier après création.</div>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-action="bout-add-sku-confirm">Créer le SKU</button>
-    `,
-  });
-};
-
-handlers['bout-add-sku-confirm'] = () => {
-  document.querySelector('.kiwi-backdrop')?.querySelector('.kiwi-modal-close')?.click();
-  setTimeout(() => toast('SKU créé', { desc: 'Le produit est en ligne. Stock initial enregistré, fournisseur lié.', type: 'success' }), 250);
-};
-
-handlers['bout-sku-edit'] = (_, arg) => {
-  toast('Édition du SKU', { desc: `Ouverture du formulaire d'édition · ${arg || 'SKU'}`, type: 'info' });
-};
-
-handlers['bout-sku-dup'] = (_, arg) => {
-  toast('SKU dupliqué', { desc: `Une copie de ${arg || 'ce SKU'} est créée avec un stock à 0. Modifiez avant publication.`, type: 'success' });
-};
-
-handlers['bout-sku-archive'] = (_, arg) => {
-  modal({
-    title: 'Archiver ce SKU ?',
-    desc: `Le produit ${arg || ''} sera retiré de la boutique mais conservé pour l'historique. Vous pourrez le restaurer plus tard.`,
-    width: 460,
-    body: `
-      <div class="kx-warn-box">
-        <div class="hd">Conséquences</div>
-        <ul>
-          <li>Le SKU disparaît du POS et de la boutique en ligne.</li>
-          <li>Les données de vente restent disponibles dans les rapports.</li>
-          <li>Les variantes et photos sont conservées 12 mois.</li>
-        </ul>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb danger" data-action="bout-sku-archive-confirm" data-arg="${arg || ''}">${_ICN.arch}Archiver le SKU</button>
-    `,
-  });
-};
-
-handlers['bout-sku-archive-confirm'] = (_, arg) => {
-  document.querySelector('.kiwi-backdrop')?.querySelector('.kiwi-modal-close')?.click();
-  setTimeout(() => toast('SKU archivé', { desc: `${arg || 'Le produit'} n'est plus visible en boutique. Restaurez-le depuis Archives.`, type: 'warn' }), 250);
-};
-
-handlers['bout-sku-history'] = (_, arg) => {
-  toast('Historique des ventes', { desc: `${arg || 'SKU'} · 142 unités vendues sur 90 jours · panier moyen 1 240 MAD`, type: 'info' });
-};
-
-handlers['bout-export-inv'] = () => {
-  toast('Export en cours', { desc: 'Inventaire complet · format Excel · vous recevrez un email d\'ici 2 minutes.', type: 'info' });
-};
-
-handlers['bout-reorder'] = () => {
-  modal({
-    title: 'Bon de commande groupé',
-    tag: 'RÉAPPRO · 4 FOURNISSEURS',
-    desc: 'Kiwi suggère un bon de commande basé sur les seuils de stock et la vélocité des ventes.',
-    width: 560,
-    body: `
-      <div class="kx-reorder-row"><b>Atelier Salé</b><div class="m">12 références · livraison 5 j</div><span class="mono">14 280 MAD</span></div>
-      <div class="kx-reorder-row"><b>Coopérative féminine Tighmert</b><div class="m">8 références · livraison 8 j</div><span class="mono">9 640 MAD</span></div>
-      <div class="kx-reorder-row"><b>Souk des bijoutiers</b><div class="m">6 références · livraison 3 j</div><span class="mono">5 820 MAD</span></div>
-      <div class="kx-reorder-row"><b>Coopérative argan Essaouira</b><div class="m">2 références · livraison 4 j</div><span class="mono">2 240 MAD</span></div>
-      <div class="kx-reorder-total"><span>Total bon de commande</span><b class="mono">31 980 MAD</b></div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-action="bout-reorder-send">Envoyer aux fournisseurs</button>
-    `,
-  });
-};
-
-handlers['bout-reorder-send'] = () => {
-  document.querySelector('.kiwi-backdrop')?.querySelector('.kiwi-modal-close')?.click();
-  setTimeout(() => toast('Bons de commande envoyés', { desc: '4 fournisseurs notifiés par email · accusé de réception sous 24h.', type: 'success' }), 250);
-};
-
+/* ─────────────────────────── colours / options helpers ─────────────────────────── */
+function _colorOptions(sel) {
+  return CAT().colors().map((c) => `<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${_esc(c.label)}</option>`).join('');
+}
+function _catOptions(sel, includeNone) {
+  const none = includeNone ? `<option value="">— Sans catégorie</option>` : '';
+  return none + CAT().listCategories().map((c) => `<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${_esc(c.name)}</option>`).join('');
+}
+function _kindOptions(sel) {
+  const k = [['taille', 'Vêtement (tailles S-XL)'], ['pointure', 'Chaussure (pointures)'], ['tu', 'Taille unique']];
+  return k.map(([v, l]) => `<option value="${v}" ${v === sel ? 'selected' : ''}>${l}</option>`).join('');
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * 2. nav-categories · Catégories
- *    920-wide drawer · hierarchical tree · color tags · iOS toggles · reorder
+ * 1. INVENTAIRE PRODUITS
  * ─────────────────────────────────────────────────────────────────────────── */
-handlers['nav-categories'] = () => {
-  /* color palette: 6 brand-safe tags */
-  const palette = [
-    { id: 'atlas',  hex: '#0B6E4F', name: 'Atlas' },
-    { id: 'riad',   hex: '#053B2C', name: 'Riad' },
-    { id: 'mint',   hex: '#7DF2B0', name: 'Menthe' },
-    { id: 'warn',   hex: '#D99A2B', name: 'Safran' },
-    { id: 'danger', hex: '#9B2F22', name: 'Carmin' },
-    { id: 'info',   hex: '#3D6B8C', name: 'Indigo' },
-  ];
+function _bqxGridHtml() {
+  const products = CAT().listProducts({ categoryId: _bqxFilter, q: _bqxQuery });
+  if (!products.length) {
+    return `<div class="kx-foot-hint"><div class="lh">Aucun produit</div><div class="rh">${_bqxQuery ? 'Aucun résultat pour cette recherche.' : 'Créez un produit ici, ou depuis la caisse (code 0002) avec la douchette.'}</div></div>`;
+  }
+  return `<div class="kx-sku-grid">${products.map((p) => {
+    const data = CAT().getProduct(p.id);
+    const stock = data.stock;
+    const cat = data.category;
+    const barHex = cat ? (_TAGHEX[cat.color] || '#0B6E4F') : '#9AA09D';
+    const isOut = stock === 0, isLow = !isOut && stock <= 5;
+    const stockClass = isOut ? 'out' : isLow ? 'low' : '';
+    const chip = isOut ? '<span class="chip ref">Rupture</span>' : isLow ? '<span class="chip pend">Stock bas</span>' : '';
+    const nBc = data.variants.reduce((s, v) => s + ((v.barcodes && v.barcodes.length) ? 1 : 0), 0);
+    return `<div class="kx-sku" data-action="bqx-open" data-arg="${p.id}" style="cursor:pointer;">
+      <div class="kx-sku-img" style="background: linear-gradient(135deg, ${barHex}, ${barHex}22);">
+        <div class="kx-sku-img-tag">${cat ? _esc(cat.name.charAt(0).toUpperCase()) : '·'}</div>
+      </div>
+      <div class="kx-sku-body">
+        <div class="kx-sku-head"><div class="n">${_esc(p.name)}</div><span class="chip neutral">${cat ? _esc(cat.name) : 'Divers'}</span></div>
+        <div class="kx-sku-sku mono">${data.colors.length} coul. · ${data.sizes.length} taille${data.sizes.length > 1 ? 's' : ''} · ${data.variants.length} variantes</div>
+        <div class="kx-sku-row">
+          <div class="kx-sku-price mono">${_mad(p.priceMAD)} MAD</div>
+          <div class="kx-sku-stock ${stockClass} mono">${stock} en stock</div>
+        </div>
+        <div class="kx-sku-meta"><span>${nBc}/${data.variants.length} codes-barres</span>${chip ? '<span class="dot"></span>' + chip : ''}</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
 
-  const tree = [
-    { name: 'Vêtements traditionnels', count: 42, val: 64320, tag: 'atlas',  hidden: false, kids: [
-        { name: 'Caftans',                  count: 18, val: 33420, tag: 'atlas' },
-        { name: 'Djellabas',                count: 14, val: 22840, tag: 'atlas' },
-        { name: 'Babouches',                count: 10, val: 8060,  tag: 'mint' },
-    ]},
-    { name: 'Décoration',              count: 78, val: 142680, tag: 'warn', hidden: false, kids: [
-        { name: 'Tapis berbères',           count: 11, val: 38400, tag: 'warn' },
-        { name: 'Théières & arts de table', count: 22, val: 24680, tag: 'warn' },
-        { name: 'Coussins & textiles',      count: 28, val: 12240, tag: 'mint' },
-        { name: 'Lampes',                   count: 17, val: 18920, tag: 'warn' },
-    ]},
-    { name: 'Bijoux',                  count: 56, val: 32480, tag: 'riad', hidden: false, kids: [
-        { name: 'Argent berbère',           count: 38, val: 22120, tag: 'riad' },
-        { name: 'Pierres semi-précieuses',  count: 18, val: 10360, tag: 'info' },
-    ]},
-    { name: 'Cosmétiques',             count: 24, val: 9840, tag: 'mint', hidden: true, kids: [
-        { name: 'Argan',                    count: 14, val: 6720,  tag: 'mint' },
-        { name: 'Henné & savons',           count: 10, val: 3120,  tag: 'mint' },
-    ]},
-  ];
-
-  const _swatches = (active) => palette.map(p => `<button class="kx-swatch ${p.id === active ? 'on' : ''}" data-action="bout-cat-tag" data-tone="${p.id}" style="background: ${p.hex};" title="${p.name}"></button>`).join('');
-
-  const totalRoots = tree.length;
-  const totalSubs = tree.reduce((s, t) => s + t.kids.length, 0);
-  const totalItems = tree.reduce((s, t) => s + t.count, 0);
-  const totalVal = tree.reduce((s, t) => s + t.val, 0);
-
-  window.Kiwi.appPage('categories', {
-    title: 'Catégories',
-    subtitle: `${totalRoots} racines · ${totalSubs} sous-catégories · ${totalItems} produits référencés`,
+function _renderInventory() {
+  const cat = CAT();
+  const st = cat.stats();
+  const cats = cat.listCategories();
+  window.Kiwi.appPage('inventory', {
+    title: 'Inventaire produits',
+    subtitle: `Maison Mansour · Gueliz · ${st.products} produits · ${st.variants} variantes · base partagée avec la caisse`,
     body: `
-      <div class="kx-kpi-strip cols-3">
-        <div class="kx-kpi"><div class="l">CATÉGORIES TOTALES</div><div class="v">${totalRoots + totalSubs}</div><div class="d">${totalRoots} racines · ${totalSubs} enfants</div></div>
-        <div class="kx-kpi"><div class="l">PRODUITS RÉFÉRENCÉS</div><div class="v">${totalItems}</div><div class="d">Tous SKUs catégorisés</div></div>
-        <div class="kx-kpi"><div class="l">VALEUR DE STOCK</div><div class="v">${_mad(totalVal)}<span class="u">MAD</span></div><div class="d">Toutes catégories</div></div>
+      <div class="kx-kpi-strip">
+        <div class="kx-kpi"><div class="l">PRODUITS</div><div class="v">${st.products}<span class="u">/ ${st.variants} var.</span></div><div class="d">${st.ruptures} en rupture</div></div>
+        <div class="kx-kpi"><div class="l">VALEUR DE STOCK</div><div class="v">${_mad(st.stockValue)}<span class="u">MAD</span></div><div class="d">${st.totalStock} pièces</div></div>
+        <div class="kx-kpi ${st.low ? 'warn' : ''}"><div class="l">STOCK BAS / RUPTURES</div><div class="v">${st.low}<span class="u">+ ${st.ruptures}</span></div><div class="d">Seuil ≤ 5 unités</div></div>
+        <div class="kx-kpi"><div class="l">CATÉGORIES</div><div class="v">${st.categories}</div><div class="d">Créer / supprimer côté Catégories</div></div>
       </div>
 
       <div class="p-toolbar" style="margin-top: 4px;">
-        <div class="p-search">${_ICN.search}<span style="margin-left:6px;">Filtrer une catégorie…</span></div>
-        <button class="kb ghost" data-action="bout-cat-restruct">Restructurer</button>
-        <button class="kb primary" data-action="bout-cat-add">${_ICN.plus}Ajouter une catégorie</button>
+        <div class="p-search" style="flex:1;"><span style="display:inline-flex;align-items:center;">${_ICN.search}</span>
+          <input data-bqx-search placeholder="Rechercher produit, catégorie, code-barres…" value="${_esc(_bqxQuery)}" style="border:none;background:transparent;outline:none;margin-left:6px;font:inherit;color:inherit;flex:1;min-width:120px;" /></div>
+        <button class="kb ghost" data-action="bqx-export">${_ICN.upload}Exporter CSV</button>
+        <button class="kb primary" data-action="bqx-new">${_ICN.plus}Nouveau produit</button>
       </div>
 
-      <div class="kx-tree">
-        ${tree.map((root, ri) => `
-          <div class="kx-tree-root" data-root="${ri}">
-            <div class="kx-tree-line lv-0">
-              <div class="kx-tree-handle">${_ICN.up}${_ICN.down}</div>
-              <div class="kx-tree-bar" style="background: ${palette.find(p=>p.id===root.tag).hex};"></div>
-              <div class="kx-tree-info">
-                <div class="n">${root.name}</div>
-                <div class="m">${root.count} produits · ${_mad(root.val)} MAD de stock · ${root.kids.length} sous-catégories</div>
-              </div>
-              <div class="kx-tree-tags">
-                <div class="kx-swatches">${_swatches(root.tag)}</div>
-              </div>
-              <div class="kx-tree-toggle">
-                <button class="kx-ios ${root.hidden ? '' : 'on'}" data-action="bout-cat-hide" data-arg="${root.name}" title="Masquer en boutique"><i></i></button>
-                <span class="kx-toggle-l">${root.hidden ? 'Masqué' : 'En boutique'}</span>
-              </div>
-              <div class="kx-tree-actions">
-                <button class="kb ghost xs" data-action="bout-cat-edit" data-arg="${root.name}">${_ICN.edit}</button>
-                <button class="kb ghost xs" data-action="bout-cat-merge" data-arg="${root.name}">${_ICN.merge}</button>
-                <button class="kb ghost xs danger-text" data-action="bout-cat-del" data-arg="${root.name}">${_ICN.trash}</button>
-              </div>
+      <div class="kx-pills" data-pill-group="bqx-cat">
+        <button class="kx-pill ${_bqxFilter === 'all' ? 'on' : ''}" data-action="bqx-filter" data-arg="all">Tous <span class="ct">${st.products}</span></button>
+        ${cats.map((c) => `<button class="kx-pill ${_bqxFilter === c.id ? 'on' : ''}" data-action="bqx-filter" data-arg="${c.id}">${_esc(c.name)} <span class="ct">${cat.categoryCount(c.id)}</span></button>`).join('')}
+      </div>
+
+      <div id="bqx-grid">${_bqxGridHtml()}</div>
+
+      <div class="kx-foot-hint">
+        <div class="lh">Astuce</div>
+        <div class="rh">Cliquez un produit pour ouvrir sa matrice couleur × taille : stock par variante, génération et impression d'étiquettes EAN-13, ou enregistrement d'un ancien code-barres.</div>
+      </div>
+    `,
+  });
+  /* live search — re-render only the grid so the field keeps focus */
+  setTimeout(() => {
+    const s = document.querySelector('.dash-genpage [data-bqx-search]');
+    if (s) s.addEventListener('input', () => {
+      _bqxQuery = s.value.trim();
+      const g = document.getElementById('bqx-grid');
+      if (g) g.innerHTML = _bqxGridHtml();
+    });
+  }, 0);
+}
+
+handlers['nav-inventory'] = () => {
+  if (!_bqxReady()) { toast('Module inventaire indisponible', { desc: 'Les moteurs catalogue/code-barres ne sont pas chargés.', type: 'warn' }); return; }
+  _bqxCss(); _bqxSubscribe(); _renderInventory();
+};
+
+handlers['bqx-filter'] = (_el, arg) => { _bqxFilter = arg || 'all'; _renderInventory(); };
+handlers['bqx-export'] = () => {
+  try {
+    const csv = CAT().exportCsv();
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'inventaire-maison-mansour.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Inventaire exporté', { desc: 'Fichier CSV téléchargé (produit, couleur, taille, stock, code-barres).', type: 'success' });
+  } catch (e) { toast('Export impossible', { type: 'warn' }); }
+};
+
+/* ─── product detail drawer (the variant matrix) ─── */
+function _variantRow(v, kind) {
+  const primary = (v.barcodes || []).find((b) => b.primary) || (v.barcodes || [])[0];
+  let bcCell;
+  if (primary) {
+    const svg = BC().svg(primary.code, { height: 26, module: 1.1, showText: false });
+    const badge = primary.type === 'imported' ? '<span class="bqx-badge imp">importé</span>' : '<span class="bqx-badge gen">généré</span>';
+    bcCell = `<div class="bqx-bc">${svg}<span><span class="bqx-bc-code">${_esc(primary.code)}</span> ${badge}</span></div>`;
+  } else {
+    bcCell = `<span class="bqx-nocode">aucun code</span>`;
+  }
+  const genOrPrint = primary
+    ? `<button class="kb ghost xs" data-action="bqx-var-print" data-arg="${v.id}" title="Imprimer l'étiquette">${_ICN.upload}Étiquette</button>`
+    : `<button class="kb ghost xs" data-action="bqx-var-gen" data-arg="${v.id}" title="Générer un EAN-13">${_ICN.scan}Générer</button>`;
+  return `<tr>
+    <td><span class="bqx-dot" style="background:${v.colorHex};"></span>${_esc(v.colorLabel)}</td>
+    <td class="mono">${_esc(v.size)}</td>
+    <td><span class="bqx-stk">
+      <button data-action="bqx-var-dec" data-arg="${v.id}" aria-label="−1">−</button>
+      <input type="number" min="0" value="${v.stock}" data-var-stock="${v.id}" />
+      <button data-action="bqx-var-inc" data-arg="${v.id}" aria-label="+1">+</button>
+    </span></td>
+    <td>${bcCell}</td>
+    <td><div class="bqx-vact">
+      ${genOrPrint}
+      <button class="kb ghost xs" data-action="bqx-var-reg" data-arg="${v.id}" title="Enregistrer un code existant">${_ICN.copy}Code existant</button>
+      <button class="kb ghost xs danger-text" data-action="bqx-var-del" data-arg="${v.id}" title="Supprimer la variante">${_ICN.trash}</button>
+    </div></td>
+  </tr>`;
+}
+
+function _bqxProductBody(pid) {
+  const data = CAT().getProduct(pid);
+  if (!data) return '<p>Produit introuvable.</p>';
+  const p = data.product;
+  const margin = p.priceMAD ? Math.round((1 - (p.cost || 0) / p.priceMAD) * 100) : 0;
+  const rows = data.variants.length
+    ? data.variants.map((v) => _variantRow(v, p.kind)).join('')
+    : `<tr><td colspan="5" style="text-align:center;color:var(--n-500,#99a);padding:18px;">Aucune variante. Ajoutez une couleur × taille ci-dessous.</td></tr>`;
+  return `
+    <div class="kx-stat-3">
+      <div class="stat"><div class="l">PRIX VENTE</div><div class="v bqx-price-tag">${_mad(p.priceMAD)} MAD</div><div class="sub">Marge ${margin} %</div></div>
+      <div class="stat"><div class="l">EN STOCK</div><div class="v">${data.stock}</div><div class="sub">${data.variants.length} variantes</div></div>
+      <div class="stat"><div class="l">CATÉGORIE</div><div class="v" style="font-size:16px;">${data.category ? _esc(data.category.name) : 'Divers'}</div><div class="sub">${data.colors.length} couleurs</div></div>
+    </div>
+    <div class="bqx-vwrap">
+      <table class="bqx-vtable">
+        <thead><tr><th>Couleur</th><th>Taille</th><th>Stock</th><th>Code-barres</th><th style="text-align:right;">Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="kb atlas" data-action="bqx-var-add" data-arg="${pid}">${_ICN.plus}Ajouter une variante</button>
+      <button class="kb ghost" data-action="bqx-prod-print" data-arg="${pid}">${_ICN.upload}Imprimer toutes les étiquettes</button>
+    </div>`;
+}
+
+function _bqxOpenProduct(pid) {
+  const data = CAT().getProduct(pid);
+  if (!data) { toast('Produit introuvable', { type: 'warn' }); return; }
+  _bqxDrawerPid = pid;
+  const p = data.product;
+  drawer({
+    title: p.name,
+    subtitle: `${data.category ? data.category.name : 'Sans catégorie'} · ${_mad(p.priceMAD)} MAD · ${data.stock} en stock`,
+    width: 640,
+    body: _bqxProductBody(pid),
+    foot: `
+      <button class="kb ghost" data-dismiss>Fermer</button>
+      <button class="kb ghost danger-text" data-action="bqx-prod-del" data-arg="${pid}">${_ICN.trash}Supprimer</button>
+      <button class="kb atlas" data-action="bqx-prod-edit" data-arg="${pid}">${_ICN.edit}Modifier le produit</button>`,
+  });
+  _bqxMountDrawer(pid);
+  /* re-render the grid behind once the drawer is dismissed */
+  const bd = document.querySelector('.kiwi-drawer-backdrop');
+  if (bd && window.MutationObserver) {
+    const mo = new MutationObserver(() => {
+      if (!document.body.contains(bd)) {
+        mo.disconnect(); _bqxDrawerPid = null;
+        const nav = document.querySelector('.sidebar nav a.active');
+        if (nav && nav.getAttribute('data-nav') === 'inventory') _renderInventory();
+      }
+    });
+    mo.observe(document.body, { childList: true });
+  }
+}
+
+function _bqxMountDrawer(pid) {
+  const root = document.querySelector('.kiwi-drawer-backdrop');
+  if (!root) return;
+  root.querySelectorAll('[data-var-stock]').forEach((inp) => {
+    inp.addEventListener('change', () => { CAT().setStock(inp.getAttribute('data-var-stock'), parseInt(inp.value, 10) || 0); });
+  });
+  if (window.lucide) try { window.lucide.createIcons(); } catch (e) {}
+}
+
+function _bqxRefreshDrawer() {
+  if (!_bqxDrawerPid) return;
+  const back = document.querySelector('.kiwi-drawer-backdrop');
+  if (!back) return;
+  const body = back.querySelector('.kiwi-drawer-body');
+  if (!body) return;
+  const data = CAT().getProduct(_bqxDrawerPid);
+  if (!data) { return; }
+  body.innerHTML = _bqxProductBody(_bqxDrawerPid);
+  const sub = back.querySelector('.kiwi-drawer-head p');
+  if (sub) sub.textContent = `${data.category ? data.category.name : 'Sans catégorie'} · ${_mad(data.product.priceMAD)} MAD · ${data.stock} en stock`;
+  _bqxMountDrawer(_bqxDrawerPid);
+}
+
+handlers['bqx-open'] = (_el, arg) => { if (arg) _bqxOpenProduct(arg); };
+
+/* ─── variant actions (all persist via the catalog → subscribe re-renders) ─── */
+handlers['bqx-var-inc'] = (_el, arg) => CAT().adjustStock(arg, +1);
+handlers['bqx-var-dec'] = (_el, arg) => CAT().adjustStock(arg, -1);
+handlers['bqx-var-del'] = (_el, arg) => CAT().deleteVariant(arg);
+handlers['bqx-var-gen'] = (_el, arg) => {
+  const code = CAT().generateBarcode(arg);
+  if (code) toast('EAN-13 généré', { desc: `Code ${code} · imprimez l'étiquette pour l'article.`, type: 'success', duration: 2600 });
+};
+handlers['bqx-var-print'] = (_el, arg) => _bqxPrintVariant(arg);
+
+function _bqxLabelFor(pid, v) {
+  const p = CAT().getProduct(pid).product;
+  const code = CAT().primaryBarcode(v);
+  if (!code) return null;
+  const fmt = BC().isValidEan13(code) ? 'ean13' : 'code128';
+  return { title: p.name, sub: `${v.colorLabel} · ${v.size}`, price: _mad(p.priceMAD), code, format: fmt };
+}
+function _bqxPrintVariant(vid) {
+  const cat = CAT();
+  const all = cat.listProducts({ includeArchived: true });
+  let found = null, pid = null;
+  for (const p of all) { const v = cat.listVariants(p.id).find((x) => x.id === vid); if (v) { found = v; pid = p.id; break; } }
+  if (!found) return;
+  const label = _bqxLabelFor(pid, found);
+  if (!label) { toast('Aucun code à imprimer', { desc: 'Générez d\'abord un EAN-13 pour cette variante.', type: 'warn' }); return; }
+  _bqxAskCopies((copies) => { BC().printLabels([label], { copies }); });
+}
+handlers['bqx-prod-print'] = (_el, arg) => {
+  const data = CAT().getProduct(arg);
+  if (!data) return;
+  const labels = data.variants.map((v) => _bqxLabelFor(arg, v)).filter(Boolean);
+  if (!labels.length) { toast('Aucun code à imprimer', { desc: 'Générez au moins un EAN-13 pour ce produit.', type: 'warn' }); return; }
+  _bqxAskCopies((copies) => { BC().printLabels(labels, { copies }); }, `${labels.length} variante(s) avec code-barres`);
+};
+
+function _bqxAskCopies(cb, note) {
+  _bqxModal = modal({
+    title: 'Imprimer les étiquettes', tag: 'ÉTIQUETTES · IMPRIMANTE',
+    desc: note || 'Choisissez le nombre de copies par variante, puis lancez l\'impression.',
+    width: 440,
+    body: `<div class="kf-group"><label class="kf-label">Copies par variante</label>
+      <input class="kf-input" type="number" min="1" value="1" data-bqx-copies /></div>
+      <div class="kf-help">L'aperçu d'impression s'ouvre — envoyez-le vers l'imprimante à étiquettes.</div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-action="bqx-print-go">Imprimer</button>`,
+  });
+  _bqxPrintCb = cb;
+}
+let _bqxPrintCb = null;
+handlers['bqx-print-go'] = () => {
+  const n = parseInt(document.querySelector('.kiwi-backdrop [data-bqx-copies]')?.value, 10) || 1;
+  if (_bqxModal) _bqxModal.close();
+  if (_bqxPrintCb) { const cb = _bqxPrintCb; _bqxPrintCb = null; setTimeout(() => cb(Math.max(1, n)), 120); }
+};
+
+/* register an EXISTING barcode onto a variant (old POS code, kept verbatim) */
+handlers['bqx-var-reg'] = (_el, arg) => {
+  _bqxModal = modal({
+    title: 'Enregistrer un code existant', tag: 'ANCIEN CODE-BARRES',
+    desc: 'Scannez ou saisissez le code-barres déjà présent sur l\'article. Il est conservé tel quel — aucune réimpression.',
+    width: 480,
+    body: `<div class="kf-group"><label class="kf-label">Code-barres</label>
+      <input class="kf-input mono" placeholder="Scannez ou tapez le code…" data-bqx-regcode autocomplete="off" /></div>
+      <div class="kf-help">Le code peut être un EAN-13, UPC, ou tout code de l'ancien système. Il sera rattaché à cette couleur/taille.</div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-action="bqx-var-reg-save" data-arg="${arg}">Enregistrer le code</button>`,
+  });
+  setTimeout(() => { const i = document.querySelector('.kiwi-backdrop [data-bqx-regcode]'); if (i) i.focus(); }, 60);
+};
+handlers['bqx-var-reg-save'] = (_el, arg) => {
+  const inp = document.querySelector('.kiwi-backdrop [data-bqx-regcode]');
+  const raw = inp ? inp.value.trim() : '';
+  if (!raw) { toast('Code vide', { type: 'warn' }); return; }
+  const res = CAT().attachBarcode(arg, raw);
+  if (res.ok) {
+    if (_bqxModal) _bqxModal.close();
+    toast(res.already ? 'Code déjà rattaché' : 'Code enregistré', { desc: `${raw} rattaché à la variante — scannable en caisse.`, type: 'success', duration: 2600 });
+  } else if (res.reason === 'doublon') {
+    toast('Code déjà utilisé', { desc: `Ce code est déjà rattaché à ${res.owner.product.name} (${res.owner.variant.colorLabel} · ${res.owner.variant.size}).`, type: 'warn', duration: 3600 });
+  } else {
+    toast('Enregistrement impossible', { type: 'warn' });
+  }
+};
+
+/* add a variant (colour × size × stock) */
+handlers['bqx-var-add'] = (_el, arg) => {
+  const data = CAT().getProduct(arg);
+  const kind = data ? data.product.kind : 'taille';
+  const presets = CAT().sizePresets(kind);
+  _bqxModal = modal({
+    title: 'Ajouter une variante', tag: 'COULEUR × TAILLE',
+    desc: 'Chaque variante est un article distinct avec son propre code-barres.',
+    width: 480,
+    body: `
+      <div class="kf-row">
+        <div class="kf-group"><label class="kf-label">Couleur</label><select class="kf-input" data-bqx-vcolor>${_colorOptions()}</select></div>
+        <div class="kf-group"><label class="kf-label">${kind === 'pointure' ? 'Pointure' : kind === 'tu' ? 'Taille' : 'Taille'}</label>
+          <input class="kf-input" list="bqx-sizes" data-bqx-vsize value="${_esc(presets[0] || '')}" />
+          <datalist id="bqx-sizes">${presets.map((s) => `<option value="${_esc(s)}">`).join('')}</datalist></div>
+      </div>
+      <div class="kf-row">
+        <div class="kf-group"><label class="kf-label">Stock initial</label><input class="kf-input" type="number" min="0" value="0" data-bqx-vstock /></div>
+        <div class="kf-group"><label class="kf-label">Code-barres</label><select class="kf-input" data-bqx-vbc><option value="gen">Générer un EAN-13</option><option value="none">Aucun (plus tard)</option></select></div>
+      </div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-action="bqx-var-add-save" data-arg="${arg}">Ajouter</button>`,
+  });
+};
+handlers['bqx-var-add-save'] = (_el, arg) => {
+  const b = document.querySelector('.kiwi-backdrop');
+  if (!b) return;
+  const colorId = b.querySelector('[data-bqx-vcolor]').value;
+  const size = b.querySelector('[data-bqx-vsize]').value.trim() || 'TU';
+  const stock = parseInt(b.querySelector('[data-bqx-vstock]').value, 10) || 0;
+  const bc = b.querySelector('[data-bqx-vbc]').value;
+  const v = CAT().addVariant({ productId: arg, colorId, size, stock });
+  if (v && bc === 'gen') CAT().generateBarcode(v.id);
+  if (_bqxModal) _bqxModal.close();
+  toast('Variante ajoutée', { desc: `${CAT().colorById(colorId)?.label || colorId} · ${size}${bc === 'gen' ? ' · EAN-13 généré' : ''}`, type: 'success', duration: 2400 });
+};
+
+/* new product */
+handlers['bqx-new'] = () => {
+  _bqxModal = modal({
+    title: 'Nouveau produit', tag: 'INVENTAIRE · MAISON MANSOUR',
+    desc: 'Créez le produit, puis ajoutez ses variantes couleur × taille et leurs codes-barres.',
+    width: 520,
+    body: `
+      <div class="kf-group"><label class="kf-label">Nom du produit</label><input class="kf-input" placeholder="Ex. Caftan brodé main" data-bqx-name /></div>
+      <div class="kf-row">
+        <div class="kf-group"><label class="kf-label">Catégorie</label><select class="kf-input" data-bqx-cat>${_catOptions(_bqxFilter !== 'all' ? _bqxFilter : '', true)}</select></div>
+        <div class="kf-group"><label class="kf-label">Type</label><select class="kf-input" data-bqx-kind>${_kindOptions('taille')}</select></div>
+      </div>
+      <div class="kf-row">
+        <div class="kf-group"><label class="kf-label">Prix vente (MAD)</label><input class="kf-input" type="number" min="0" placeholder="1890" data-bqx-price /></div>
+        <div class="kf-group"><label class="kf-label">Coût d'achat (MAD)</label><input class="kf-input" type="number" min="0" placeholder="optionnel" data-bqx-cost /></div>
+      </div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-action="bqx-new-save">Créer le produit</button>`,
+  });
+  setTimeout(() => { const i = document.querySelector('.kiwi-backdrop [data-bqx-name]'); if (i) i.focus(); }, 60);
+};
+handlers['bqx-new-save'] = () => {
+  const b = document.querySelector('.kiwi-backdrop');
+  if (!b) return;
+  const name = b.querySelector('[data-bqx-name]').value.trim();
+  if (!name) { toast('Nom requis', { type: 'warn' }); return; }
+  const p = CAT().addProduct({
+    name, categoryId: b.querySelector('[data-bqx-cat]').value || null,
+    kind: b.querySelector('[data-bqx-kind]').value,
+    priceMAD: parseInt(b.querySelector('[data-bqx-price]').value, 10) || 0,
+    cost: parseInt(b.querySelector('[data-bqx-cost]').value, 10) || 0,
+  });
+  if (_bqxModal) _bqxModal.close();
+  toast('Produit créé', { desc: 'Ajoutez maintenant ses variantes couleur × taille.', type: 'success' });
+  setTimeout(() => _bqxOpenProduct(p.id), 260);
+};
+
+/* edit / delete product */
+handlers['bqx-prod-edit'] = (_el, arg) => {
+  const data = CAT().getProduct(arg);
+  if (!data) return;
+  const p = data.product;
+  _bqxModal = modal({
+    title: 'Modifier le produit', tag: _esc(p.name), width: 520,
+    body: `
+      <div class="kf-group"><label class="kf-label">Nom</label><input class="kf-input" value="${_esc(p.name)}" data-bqx-ename /></div>
+      <div class="kf-row">
+        <div class="kf-group"><label class="kf-label">Catégorie</label><select class="kf-input" data-bqx-ecat>${_catOptions(p.categoryId, true)}</select></div>
+        <div class="kf-group"><label class="kf-label">Type</label><select class="kf-input" data-bqx-ekind>${_kindOptions(p.kind)}</select></div>
+      </div>
+      <div class="kf-row">
+        <div class="kf-group"><label class="kf-label">Prix vente (MAD)</label><input class="kf-input" type="number" min="0" value="${p.priceMAD}" data-bqx-eprice /></div>
+        <div class="kf-group"><label class="kf-label">Coût d'achat (MAD)</label><input class="kf-input" type="number" min="0" value="${p.cost || 0}" data-bqx-ecost /></div>
+      </div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-action="bqx-prod-edit-save" data-arg="${arg}">Enregistrer</button>`,
+  });
+};
+handlers['bqx-prod-edit-save'] = (_el, arg) => {
+  const b = document.querySelector('.kiwi-backdrop');
+  if (!b) return;
+  CAT().updateProduct(arg, {
+    name: b.querySelector('[data-bqx-ename]').value.trim() || undefined,
+    categoryId: b.querySelector('[data-bqx-ecat]').value || null,
+    kind: b.querySelector('[data-bqx-ekind]').value,
+    priceMAD: parseInt(b.querySelector('[data-bqx-eprice]').value, 10) || 0,
+    cost: parseInt(b.querySelector('[data-bqx-ecost]').value, 10) || 0,
+  });
+  if (_bqxModal) _bqxModal.close();
+  toast('Produit mis à jour', { type: 'success', duration: 2000 });
+};
+handlers['bqx-prod-del'] = (_el, arg) => {
+  const data = CAT().getProduct(arg);
+  if (!data) return;
+  _bqxModal = modal({
+    title: 'Supprimer ce produit ?', width: 460,
+    desc: `« ${data.product.name} » et ses ${data.variants.length} variantes (codes-barres inclus) seront supprimés définitivement.`,
+    body: `<div class="kx-warn-box danger"><div class="hd">Action irréversible</div><ul><li>Le produit disparaît de la caisse et du dashboard.</li><li>Les codes-barres associés sont libérés.</li></ul></div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb danger" data-action="bqx-prod-del-ok" data-arg="${arg}">${_ICN.trash}Supprimer définitivement</button>`,
+  });
+};
+handlers['bqx-prod-del-ok'] = (_el, arg) => {
+  CAT().deleteProduct(arg);
+  if (_bqxModal) _bqxModal.close();
+  const back = document.querySelector('.kiwi-drawer-backdrop');
+  if (back && back.__kiwiClose) back.__kiwiClose();
+  _bqxDrawerPid = null;
+  toast('Produit supprimé', { type: 'warn', duration: 2200 });
+  _renderInventory();
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * 2. CATÉGORIES — real create / rename / recolour / delete (with reassign)
+ * ─────────────────────────────────────────────────────────────────────────── */
+function _renderCategories() {
+  const cat = CAT();
+  const cats = cat.listCategories();
+  const st = cat.stats();
+  window.Kiwi.appPage('categories', {
+    title: 'Catégories',
+    subtitle: `${cats.length} catégories · ${st.products} produits référencés · base partagée avec la caisse`,
+    body: `
+      <div class="kx-kpi-strip cols-3">
+        <div class="kx-kpi"><div class="l">CATÉGORIES</div><div class="v">${cats.length}</div><div class="d">Créez / supprimez librement</div></div>
+        <div class="kx-kpi"><div class="l">PRODUITS RÉFÉRENCÉS</div><div class="v">${st.products}</div><div class="d">${cat.listProducts({ categoryId: 'all' }).filter((p) => !p.categoryId).length} sans catégorie</div></div>
+        <div class="kx-kpi"><div class="l">VALEUR DE STOCK</div><div class="v">${_mad(st.stockValue)}<span class="u">MAD</span></div><div class="d">Toutes catégories</div></div>
+      </div>
+
+      <div class="p-toolbar" style="margin-top:4px;">
+        <div class="p-search" style="flex:1;"><span style="display:inline-flex;align-items:center;">${_ICN.search}</span><span style="margin-left:6px;color:var(--n-500,#77807b);">Organisez vos rayons — couleur, renommage, suppression</span></div>
+        <button class="kb primary" data-action="bqx-cat-new">${_ICN.plus}Ajouter une catégorie</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        ${cats.length ? cats.map((c) => {
+          const count = cat.categoryCount(c.id);
+          const hex = _TAGHEX[c.color] || '#0B6E4F';
+          return `<div class="bqx-cat-row">
+            <div class="bqx-cat-bar" style="background:${hex};"></div>
+            <div class="bqx-cat-info"><div class="n">${_esc(c.name)}</div><div class="m">${count} produit${count > 1 ? 's' : ''}</div></div>
+            <div class="bqx-cat-sw">${_TAGS.map((t) => `<button class="${t.id === c.color ? 'on' : ''}" style="background:${t.hex};" title="${t.name}" data-action="bqx-cat-color" data-arg="${c.id}::${t.id}"></button>`).join('')}</div>
+            <div class="kx-tree-actions">
+              <button class="kb ghost xs" data-action="bqx-cat-rename" data-arg="${c.id}">${_ICN.edit}</button>
+              <button class="kb ghost xs danger-text" data-action="bqx-cat-del" data-arg="${c.id}">${_ICN.trash}</button>
             </div>
-            ${root.kids.map((kid, ki) => `
-              <div class="kx-tree-line lv-1" data-kid="${ki}">
-                <div class="kx-tree-handle">${_ICN.up}${_ICN.down}</div>
-                <div class="kx-tree-bar" style="background: ${palette.find(p=>p.id===kid.tag).hex};"></div>
-                <div class="kx-tree-info">
-                  <div class="n">${kid.name}</div>
-                  <div class="m">${kid.count} produits · ${_mad(kid.val)} MAD · sous ${root.name}</div>
-                </div>
-                <div class="kx-tree-tags">
-                  <div class="kx-swatches">${_swatches(kid.tag)}</div>
-                </div>
-                <div class="kx-tree-toggle">
-                  <button class="kx-ios on" data-action="bout-cat-hide" data-arg="${kid.name}" title="Masquer en boutique"><i></i></button>
-                  <span class="kx-toggle-l">En boutique</span>
-                </div>
-                <div class="kx-tree-actions">
-                  <button class="kb ghost xs" data-action="bout-cat-edit" data-arg="${kid.name}">${_ICN.edit}</button>
-                  <button class="kb ghost xs" data-action="bout-cat-merge" data-arg="${kid.name}">${_ICN.merge}</button>
-                  <button class="kb ghost xs danger-text" data-action="bout-cat-del" data-arg="${kid.name}">${_ICN.trash}</button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('') : '<div class="kx-foot-hint"><div class="lh">Aucune catégorie</div><div class="rh">Ajoutez votre premier rayon.</div></div>'}
       </div>
 
       <div class="kx-foot-hint">
         <div class="lh">Conseil</div>
-        <div class="rh">Utilisez les couleurs pour grouper visuellement les rayons (ex. atlas pour traditionnel, safran pour décoration). Les couleurs apparaissent au POS et sur la boutique en ligne.</div>
+        <div class="rh">Les couleurs de catégorie apparaissent aussi en caisse (code 0002). Supprimer une catégorie déplace ses produits vers « Sans catégorie » ou une catégorie de votre choix.</div>
       </div>
     `,
-    foot: `
-      <button class="kb ghost" data-action="bout-cat-export">Exporter arborescence</button>
-      <button class="kb atlas" data-action="bout-cat-publish">Publier les changements</button>
-    `,
   });
+}
 
-  /* ─── interactions: swatches toggle, iOS toggle, reorder buttons ─── */
+handlers['nav-categories'] = () => {
+  if (!_bqxReady()) { toast('Module catégories indisponible', { type: 'warn' }); return; }
+  _bqxCss(); _bqxSubscribe(); _renderCategories();
+};
+
+handlers['bqx-cat-new'] = () => {
+  _bqxModal = modal({
+    title: 'Ajouter une catégorie', tag: 'RAYON', width: 480,
+    body: `
+      <div class="kf-group"><label class="kf-label">Nom de la catégorie</label><input class="kf-input" placeholder="Ex. Caftans de mariée" data-bqx-cname /></div>
+      <div class="kf-group"><label class="kf-label">Couleur</label>
+        <div class="bqx-cat-sw" data-bqx-cnewsw>${_TAGS.map((t, i) => `<button class="${i === 0 ? 'on' : ''}" style="background:${t.hex};width:24px;height:24px;" title="${t.name}" data-tone="${t.id}"></button>`).join('')}</div></div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-action="bqx-cat-new-save">Créer la catégorie</button>`,
+  });
   setTimeout(() => {
-    const root = document.querySelector('.dash-genpage');
-    if (!root) return;
-
-    /* swatch picker — toggle 'on' inside its group */
-    root.querySelectorAll('.kx-swatches').forEach(group => {
-      group.querySelectorAll('.kx-swatch').forEach(sw => {
-        sw.addEventListener('click', (e) => {
-          e.stopPropagation();
-          group.querySelectorAll('.kx-swatch').forEach(x => x.classList.remove('on'));
-          sw.classList.add('on');
-          const bar = sw.closest('.kx-tree-line').querySelector('.kx-tree-bar');
-          if (bar) bar.style.background = sw.style.background;
-          toast('Couleur mise à jour', { desc: 'La nouvelle teinte sera appliquée à la prochaine publication.', type: 'success', duration: 2000 });
-        });
-      });
-    });
-
-    /* iOS toggle for hide/show */
-    root.querySelectorAll('.kx-ios').forEach(t => {
-      t.addEventListener('click', (e) => {
-        e.stopPropagation();
-        t.classList.toggle('on');
-        const lab = t.parentElement.querySelector('.kx-toggle-l');
-        if (lab) lab.textContent = t.classList.contains('on') ? 'En boutique' : 'Masqué';
-      });
-    });
-
-    /* reorder up/down — visually move the row */
-    root.querySelectorAll('.kx-tree-handle').forEach(h => {
-      const upBtn = h.querySelectorAll('svg')[0];
-      const dnBtn = h.querySelectorAll('svg')[1];
-      [upBtn, dnBtn].forEach((btn, idx) => {
-        btn.style.cursor = 'pointer';
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const line = btn.closest('.kx-tree-line');
-          if (!line) return;
-          const sibling = idx === 0 ? line.previousElementSibling : line.nextElementSibling;
-          if (sibling && sibling.classList.contains('kx-tree-line')) {
-            if (idx === 0) line.parentNode.insertBefore(line, sibling);
-            else line.parentNode.insertBefore(sibling, line);
-            toast('Ordre mis à jour', { desc: 'Le nouvel ordre est sauvegardé pour le POS et la boutique.', type: 'success', duration: 1800 });
-          }
-        });
-      });
-    });
-  }, 0);
+    const sw = document.querySelector('.kiwi-backdrop [data-bqx-cnewsw]');
+    if (sw) sw.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => { sw.querySelectorAll('button').forEach((x) => x.classList.remove('on')); btn.classList.add('on'); }));
+    const i = document.querySelector('.kiwi-backdrop [data-bqx-cname]'); if (i) i.focus();
+  }, 60);
 };
-
-/* ─── category action handlers ─── */
-handlers['bout-cat-add'] = () => {
-  modal({
-    title: 'Ajouter une catégorie',
-    tag: 'ARBORESCENCE',
-    desc: 'Créez une catégorie racine ou rattachez-la à une catégorie existante.',
-    width: 520,
-    body: `
-      <div class="kf-group">
-        <label class="kf-label">Nom de la catégorie</label>
-        <input class="kf-input" placeholder="Caftans de mariée" />
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Parent (optionnel)</label>
-        <select class="kf-input"><option>— Aucune (racine)</option><option>Vêtements traditionnels</option><option>Décoration</option><option>Bijoux</option><option>Cosmétiques</option></select>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Couleur de tag</label>
-        <div class="kx-swatches">
-          <button class="kx-swatch on" style="background:#0B6E4F;"></button>
-          <button class="kx-swatch" style="background:#053B2C;"></button>
-          <button class="kx-swatch" style="background:#7DF2B0;"></button>
-          <button class="kx-swatch" style="background:#D99A2B;"></button>
-          <button class="kx-swatch" style="background:#9B2F22;"></button>
-          <button class="kx-swatch" style="background:#3D6B8C;"></button>
-        </div>
-      </div>
-      <div class="kf-group">
-        <label class="kf-label">Visibilité boutique en ligne</label>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <button class="kx-ios on" data-action="bout-cat-vis-toggle"><i></i></button>
-          <span style="font-size:13px;">Visible en boutique dès la création</span>
-        </div>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-action="bout-cat-add-confirm">Créer la catégorie</button>
-    `,
+handlers['bqx-cat-new-save'] = () => {
+  const b = document.querySelector('.kiwi-backdrop');
+  if (!b) return;
+  const name = b.querySelector('[data-bqx-cname]').value.trim();
+  if (!name) { toast('Nom requis', { type: 'warn' }); return; }
+  const tone = b.querySelector('[data-bqx-cnewsw] button.on')?.getAttribute('data-tone') || 'atlas';
+  CAT().addCategory(name, tone);
+  if (_bqxModal) _bqxModal.close();
+  toast('Catégorie créée', { desc: `« ${name} » est disponible en caisse et au dashboard.`, type: 'success' });
+};
+handlers['bqx-cat-color'] = (_el, arg) => {
+  const [cid, tone] = String(arg || '').split('::');
+  if (cid && tone) CAT().setCategoryColor(cid, tone);
+};
+handlers['bqx-cat-rename'] = (_el, arg) => {
+  const c = CAT().listCategories().find((x) => x.id === arg);
+  if (!c) return;
+  _bqxModal = modal({
+    title: 'Renommer la catégorie', width: 440,
+    body: `<div class="kf-group"><label class="kf-label">Nom</label><input class="kf-input" value="${_esc(c.name)}" data-bqx-crename /></div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-action="bqx-cat-rename-save" data-arg="${arg}">Enregistrer</button>`,
   });
 };
-
-handlers['bout-cat-vis-toggle'] = () => {
-  const t = event.currentTarget;
-  if (t) t.classList.toggle('on');
+handlers['bqx-cat-rename-save'] = (_el, arg) => {
+  const v = document.querySelector('.kiwi-backdrop [data-bqx-crename]')?.value.trim();
+  if (!v) { toast('Nom requis', { type: 'warn' }); return; }
+  CAT().renameCategory(arg, v);
+  if (_bqxModal) _bqxModal.close();
+  toast('Catégorie renommée', { type: 'success', duration: 1800 });
 };
-
-handlers['bout-cat-add-confirm'] = () => {
-  document.querySelector('.kiwi-backdrop')?.querySelector('.kiwi-modal-close')?.click();
-  setTimeout(() => toast('Catégorie créée', { desc: 'Vous pouvez maintenant rattacher des SKUs depuis l\'inventaire.', type: 'success' }), 250);
-};
-
-handlers['bout-cat-edit'] = (_, arg) => {
-  toast(`Édition · ${arg || 'catégorie'}`, { desc: 'Renommer, changer le parent, ajuster la couleur ou l\'icône.', type: 'info' });
-};
-
-handlers['bout-cat-merge'] = (_, arg) => {
-  modal({
-    title: 'Fusionner cette catégorie',
-    desc: `Tous les produits de "${arg}" seront déplacés vers la catégorie cible. L'opération est réversible pendant 30 jours.`,
-    width: 480,
-    body: `
-      <div class="kf-group">
-        <label class="kf-label">Catégorie cible</label>
-        <select class="kf-input"><option>Vêtements traditionnels</option><option>Décoration</option><option>Bijoux</option><option>Cosmétiques</option></select>
-      </div>
-      <div class="kx-warn-box info">
-        <div class="hd">Aperçu de la fusion</div>
-        <ul>
-          <li>Les SKUs de "${arg}" recevront la couleur cible.</li>
-          <li>Les pages boutique de "${arg}" redirigeront pendant 6 mois.</li>
-          <li>Les rapports historiques restent disjoints.</li>
-        </ul>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb atlas" data-action="bout-cat-merge-confirm" data-arg="${arg || ''}">Fusionner</button>
-    `,
+handlers['bqx-cat-del'] = (_el, arg) => {
+  const cat = CAT();
+  const c = cat.listCategories().find((x) => x.id === arg);
+  if (!c) return;
+  const count = cat.categoryCount(arg);
+  const others = cat.listCategories().filter((x) => x.id !== arg);
+  _bqxModal = modal({
+    title: 'Supprimer cette catégorie ?', width: 480,
+    desc: `« ${c.name} » contient ${count} produit${count > 1 ? 's' : ''}. Choisissez où les déplacer.`,
+    body: `<div class="kf-group"><label class="kf-label">Déplacer les produits vers</label>
+      <select class="kf-input" data-bqx-reassign><option value="">— Sans catégorie</option>${others.map((o) => `<option value="${o.id}">${_esc(o.name)}</option>`).join('')}</select></div>
+      <div class="kx-warn-box danger"><div class="hd">Suppression</div><ul><li>La catégorie disparaît de la caisse et du dashboard.</li><li>Les produits sont conservés et déplacés, jamais supprimés.</li></ul></div>`,
+    foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb danger" data-action="bqx-cat-del-ok" data-arg="${arg}">${_ICN.trash}Supprimer</button>`,
   });
 };
-
-handlers['bout-cat-merge-confirm'] = (_, arg) => {
-  document.querySelector('.kiwi-backdrop')?.querySelector('.kiwi-modal-close')?.click();
-  setTimeout(() => toast('Catégorie fusionnée', { desc: `${arg || 'Catégorie'} déplacée. Annulez sous 30 jours depuis Archives.`, type: 'success' }), 250);
-};
-
-handlers['bout-cat-del'] = (_, arg) => {
-  modal({
-    title: 'Supprimer cette catégorie ?',
-    desc: `"${arg}" sera supprimée définitivement. Les produits qu'elle contient devront être recatégorisés.`,
-    width: 460,
-    body: `
-      <div class="kx-warn-box danger">
-        <div class="hd">Action irréversible</div>
-        <ul>
-          <li>Les produits associés perdent leur catégorie (à recatégoriser).</li>
-          <li>L'ordre de l'arborescence est ré-équilibré automatiquement.</li>
-          <li>Les rapports historiques restent disponibles 24 mois.</li>
-        </ul>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb danger" data-action="bout-cat-del-confirm" data-arg="${arg || ''}">${_ICN.trash}Supprimer définitivement</button>
-    `,
-  });
-};
-
-handlers['bout-cat-del-confirm'] = (_, arg) => {
-  document.querySelector('.kiwi-backdrop')?.querySelector('.kiwi-modal-close')?.click();
-  setTimeout(() => toast('Catégorie supprimée', { desc: `${arg || 'Catégorie'} supprimée · ${Math.floor(Math.random()*30+5)} produits à recatégoriser.`, type: 'warn' }), 250);
-};
-
-handlers['bout-cat-hide'] = (_, arg) => {
-  toast(`Visibilité mise à jour`, { desc: `${arg || 'Catégorie'} · sera publié à la prochaine synchronisation boutique.`, type: 'info', duration: 2200 });
-};
-
-handlers['bout-cat-restruct'] = () => {
-  modal({
-    title: 'Restructurer l\'arborescence',
-    tag: 'AVANT / APRÈS',
-    desc: 'Kiwi propose une arborescence optimisée selon les ventes et la saisonnalité.',
-    width: 720,
-    body: `
-      <div class="kx-restruct-grid">
-        <div class="kx-restruct-col">
-          <div class="hd">Actuelle</div>
-          <ul>
-            <li><b>Vêtements traditionnels</b> · Caftans, Djellabas, Babouches</li>
-            <li><b>Décoration</b> · Tapis, Théières, Coussins, Lampes</li>
-            <li><b>Bijoux</b> · Argent berbère, Pierres</li>
-            <li><b>Cosmétiques</b> · Argan, Henné</li>
-          </ul>
-        </div>
-        <div class="kx-restruct-col atlas">
-          <div class="hd">Proposée par Kiwi</div>
-          <ul>
-            <li><b>Tenues d'apparat</b> · Caftans (mariée / soirée), Djellabas, Burnous</li>
-            <li><b>Accessoires & souks</b> · Babouches, Sacs, Foulards, Bijoux argent</li>
-            <li><b>Maison Mansour</b> · Tapis, Théières, Coussins, Lampes, Plats</li>
-            <li><b>Soins authentiques</b> · Argan, Henné, Savons</li>
-          </ul>
-        </div>
-      </div>
-      <div class="kx-restruct-foot">
-        <div class="m">Basée sur 12 mois de données : taux de conversion, panier moyen, retours clients touristes.</div>
-      </div>
-    `,
-    foot: `
-      <button class="kb ghost" data-dismiss>Annuler</button>
-      <button class="kb ghost" data-action="bout-cat-restruct-preview">Aperçu boutique</button>
-      <button class="kb atlas" data-action="bout-cat-restruct-apply">Appliquer · réversible 30 j</button>
-    `,
-  });
-};
-
-handlers['bout-cat-restruct-preview'] = () => {
-  toast('Aperçu boutique', { desc: 'Ouverture du brouillon dans un nouvel onglet · aucune modification publiée.', type: 'info' });
-};
-
-handlers['bout-cat-restruct-apply'] = () => {
-  document.querySelector('.kiwi-backdrop')?.querySelector('.kiwi-modal-close')?.click();
-  setTimeout(() => toast('Arborescence restructurée', { desc: '4 catégories réorganisées · 220 SKUs replacés · réversible pendant 30 jours.', type: 'success' }), 250);
-};
-
-handlers['bout-cat-tag'] = () => { /* handled inline by swatch click — no-op fallback */ };
-
-handlers['bout-cat-export'] = () => {
-  toast('Export arborescence', { desc: 'Format JSON + CSV plat · email envoyé sous 1 minute.', type: 'info' });
-};
-
-handlers['bout-cat-publish'] = () => {
-  toast('Changements publiés', { desc: 'POS Kiwi + boutique en ligne synchronisés · cache CDN purgé.', type: 'success' });
+handlers['bqx-cat-del-ok'] = (_el, arg) => {
+  const reassignTo = document.querySelector('.kiwi-backdrop [data-bqx-reassign]')?.value || null;
+  CAT().deleteCategory(arg, { reassignTo });
+  if (_bqxModal) _bqxModal.close();
+  toast('Catégorie supprimée', { desc: 'Les produits ont été déplacés.', type: 'warn', duration: 2200 });
 };
 })();
 
