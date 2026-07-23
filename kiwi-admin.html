@@ -56,6 +56,13 @@
   .mini.ghost{border-style:dashed}
   .mini.danger{color:var(--warn); border-color:#e7ccc6}
   .mini.danger:hover{background:#fbeeeb}
+  .mini:disabled{opacity:.45; cursor:default}
+  .mini:disabled:hover{background:var(--surface); border-color:var(--line)}
+  .danger-zone{margin-top:22px; padding-top:18px; border-top:1px solid var(--line)}
+  .danger-zone .dz-desc{font-size:.85rem; color:var(--muted); margin:0 0 12px; max-width:660px}
+  .danger-zone .dz-desc b{color:var(--riad)}
+  .danger-zone .dz-input{font:inherit; font-size:.86rem; padding:9px 11px; border:1.5px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); min-width:260px}
+  .danger-zone .dz-input:focus{outline:none; border-color:var(--warn)}
   .row-actions{display:flex; gap:8px; justify-content:flex-end}
   .panel{padding:18px}
   .panel .grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px}
@@ -144,6 +151,18 @@
             <div id="feat-list"></div>
             <p class="hint">Désactiver un module le masque dans l’app du client à son prochain chargement. Réservé à l’opérateur — lié à l’offre.</p>
           </div>
+        </div>
+
+        <div class="danger-zone" id="danger-zone">
+          <p class="sub" style="color:var(--warn); margin-top:0">Zone dangereuse</p>
+          <p class="dz-desc">Supprime définitivement <b id="dz-name"></b> et toutes ses données —
+            compte de connexion, ventes, PINs du personnel et configuration. Le client repart de zéro.
+            <b>Action irréversible.</b></p>
+          <div class="addrow">
+            <input id="del-confirm" class="dz-input" placeholder="Tapez le nom pour confirmer" aria-label="Confirmer le nom de l’établissement" autocomplete="off" spellcheck="false" />
+            <button class="mini danger" id="del-account" disabled>Supprimer le compte</button>
+          </div>
+          <p class="err" id="del-err"></p>
         </div>
       </div>
     </section>
@@ -283,6 +302,19 @@
       if (LIVE) { return api('/operators?id=' + encodeURIComponent(id), { method:'DELETE' }); }
       var m = mock(); m.operators = m.operators.filter(function(o){ return o.id !== id; }); saveMock(m);
     },
+    async deleteClient(merchant, email){
+      if (LIVE) {
+        var qs = '/clients?merchant=' + encodeURIComponent(merchant) +
+                 (email ? '&email=' + encodeURIComponent(email) : '');
+        return api(qs, { method:'DELETE' });
+      }
+      var m = mock();
+      m.clients = (m.clients || []).filter(function(c){ return c.merchant !== merchant; });
+      if (m.pins) delete m.pins[merchant];
+      if (m.features) delete m.features[merchant];
+      saveMock(m);
+      return { ok:true };
+    },
   };
 
   // ── render ─────────────────────────────────────────────────────────────────
@@ -361,7 +393,44 @@
     document.getElementById('manage').hidden = false;
     renderClients();
     await Promise.all([renderPins(), renderFeatures()]);
+    renderDanger();
     document.getElementById('manage').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  // Danger zone — permanently delete the selected account. Guarded by a
+  // type-the-name confirmation: the button only enables once the input matches
+  // the établissement name (or its merchant key), so a stray click can't wipe a
+  // client. Handlers are assigned (not addEventListener) so re-selecting a
+  // different client rewires the same nodes without stacking listeners.
+  function renderDanger(){
+    if (!selected) return;
+    var name = selected.business || selected.merchant;
+    var input = document.getElementById('del-confirm');
+    var btn = document.getElementById('del-account');
+    var err = document.getElementById('del-err');
+    document.getElementById('dz-name').textContent = name;
+    input.value = ''; err.textContent = '';
+    btn.disabled = true; btn.textContent = 'Supprimer le compte';
+
+    function norm(s){ return String(s || '').trim().toLowerCase(); }
+    input.oninput = function(){
+      var v = norm(input.value);
+      btn.disabled = !(v && (v === norm(name) || v === norm(selected.merchant)));
+    };
+    btn.onclick = async function(){
+      if (btn.disabled) return;
+      err.textContent = '';
+      btn.disabled = true; btn.textContent = 'Suppression…';
+      try {
+        await store.deleteClient(selected.merchant, selected.email);
+        selected = null;
+        document.getElementById('manage').hidden = true;
+        await renderClients();
+      } catch(e){
+        err.textContent = 'Échec de la suppression.';
+        btn.textContent = 'Supprimer le compte'; btn.disabled = false;
+      }
+    };
   }
 
   async function renderPins(){

@@ -67,3 +67,51 @@ export async function onRequestGet(context) {
   const clients = [...map.values()].sort((a, b) => (b.last_ts || 0) - (a.last_ts || 0));
   return json({ clients, dayStart, now });
 }
+
+// DELETE /api/admin/clients?merchant=slug[&email=…] — nuke an entire account so
+// the operator can start it fresh. Removes, in one shot:
+//   · the login row              (accounts, matched by email — the unique key)
+//   · all sales                  (sales     WHERE merchant = slug)
+//   · all staff PINs             (staff_pins WHERE merchant = slug)
+//   · the feature/plan config    (merchant_config WHERE merchant = slug)
+// merchant (the slug the roster already computed) drives the merchant-keyed
+// wipes; email removes the account itself. Either alone is accepted — a demo
+// with no account is cleared by merchant only; an orphan account with a renamed
+// business is cleared by email only. Irreversible; operator-gated. The console's
+// type-the-name confirmation is the guard against an accidental call.
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+  if (!(await isOperator(request, env))) return json({ error: 'forbidden' }, 403);
+  if (!env.DB) return json({ error: 'no-db' }, 503);
+
+  const url = new URL(request.url);
+  let merchant = (url.searchParams.get('merchant') || '').trim();
+  let email = (url.searchParams.get('email') || '').trim().toLowerCase();
+  if (!merchant && !email) {
+    try {
+      const b = await request.json();
+      merchant = (b.merchant || '').toString().trim();
+      email = (b.email || '').toString().trim().toLowerCase();
+    } catch (_) { /* no body */ }
+  }
+  if (!merchant && !email) return json({ error: 'merchant-or-email-required' }, 400);
+
+  const deleted = { sales: 0, pins: 0, config: 0, account: 0 };
+  try {
+    if (merchant) {
+      const s = await env.DB.prepare(`DELETE FROM sales WHERE merchant = ?`).bind(merchant).run();
+      const p = await env.DB.prepare(`DELETE FROM staff_pins WHERE merchant = ?`).bind(merchant).run();
+      const c = await env.DB.prepare(`DELETE FROM merchant_config WHERE merchant = ?`).bind(merchant).run();
+      deleted.sales = (s.meta && s.meta.changes) || 0;
+      deleted.pins = (p.meta && p.meta.changes) || 0;
+      deleted.config = (c.meta && c.meta.changes) || 0;
+    }
+    if (email) {
+      const a = await env.DB.prepare(`DELETE FROM accounts WHERE email = ?`).bind(email).run();
+      deleted.account = (a.meta && a.meta.changes) || 0;
+    }
+  } catch (e) {
+    return json({ error: 'delete-failed', detail: String(e) }, 500);
+  }
+  return json({ ok: true, merchant, email, deleted });
+}
