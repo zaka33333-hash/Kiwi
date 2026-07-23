@@ -56,8 +56,23 @@
     }
   }
 
-  function run(id) {
-    var go = function () { apply(id); };
+  // Drive the venue engine so the switcher/header show the scoped client, not the
+  // operator's own local venues. Retried alongside the DOM patch for async nav.
+  function applyScopedVenue(label, type) {
+    try {
+      if (window.KiwiVenue && window.KiwiVenue.applyScopedVenue) {
+        window.KiwiVenue.applyScopedVenue({ name: label, type: type || '' });
+      }
+    } catch (_) {}
+  }
+
+  function run(id, scoped, label, type) {
+    var go = function () {
+      // In a God-mode scoped view, take over the venue FIRST so the switcher and
+      // header render the client; then patch identity on top.
+      if (scoped) applyScopedVenue(label, type);
+      apply(id);
+    };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
     else go();
     // Re-apply once after the venue engine finishes its async render (it rewrites
@@ -65,10 +80,55 @@
     setTimeout(go, 700);
   }
 
-  fetch('/api/me', { headers: { Accept: 'application/json' } })
+  // "kandisky-boutique" → "Kandisky Boutique" — a readable fallback label when an
+  // operator scopes into a slug that has no account row yet.
+  function prettifySlug(slug) {
+    return String(slug || '').split('-').filter(Boolean)
+      .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+  }
+
+  // A scoped view is an operator opening a client (?op / ?merchant). Compute the
+  // merchant slug the same way merchant-config.js does, so /api/me can resolve the
+  // client server-side (the query param alone grants nothing — the operator cookie
+  // does). Empty string ⇒ a plain, non-scoped load (a real client on their own).
+  function scopedMerchant() {
+    try {
+      var p = new URLSearchParams(location.search);
+      var m = p.get('merchant');
+      if (m) return m;
+      if (p.has('op')) { try { return localStorage.getItem('kiwiLiveMerchant') || ''; } catch (_) { return ''; } }
+    } catch (_) {}
+    return '';
+  }
+
+  var slug = scopedMerchant();
+  var meUrl = '/api/me' + (slug ? '?merchant=' + encodeURIComponent(slug) : '');
+
+  fetch(meUrl, { headers: { Accept: 'application/json' } })
     .then(function (r) { return (r && r.ok) ? r.json() : null; })
     .then(function (me) {
-      if (!me || !me.authenticated) return;   // demo / staff / operator → leave demo identity
+      if (!me) return;
+
+      // Operator (God mode) scoped into a client. Show that client — its real
+      // identity if an account exists, else the slug as a readable label — and
+      // hand the venue engine a single scoped venue so the operator's own local
+      // venues never appear. Crucially, do NOT write the client's name into the
+      // localStorage keys account.js reads: that store belongs to THIS browser's
+      // owner, and polluting it would leak the client into the operator's own view.
+      if (me.operator) {
+        var label = (me.business || '').trim() || (me.name || '').trim() || prettifySlug(me.slug || slug);
+        var opId = {
+          name: (me.name || '').trim() || label,
+          business: (me.business || '').trim() || label,
+          email: (me.email || '').trim(),
+        };
+        window.KiwiMe = opId;
+        run(opId, true, label, (me.type || '').trim());
+        return;
+      }
+
+      // A real merchant on their own device.
+      if (!me.authenticated) return;   // demo / staff → leave demo identity
       var id = {
         name: (me.name || '').trim(),
         business: (me.business || '').trim(),
@@ -80,7 +140,7 @@
       if (id.business) { ls('kiwiBizName', id.business); }
       if (id.email) { ls('kiwiSet:ownerEmail', id.email); ls('kiwiOwnerEmail', id.email); }
       window.KiwiMe = id;
-      run(id);
+      run(id, false);
     })
     .catch(function () { /* offline / missing endpoint → keep whatever is shown */ });
 })();

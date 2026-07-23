@@ -1145,7 +1145,10 @@
     saved.forEach(v => { if (v && v.id) { VENUES[v.id] = v; customIds.add(v.id); } });
   }
   function persistCustomVenues() {
-    try { localStorage.setItem(CUSTOM_KEY, JSON.stringify([...customIds].map(id => VENUES[id]))); }
+    // 'scoped' is the transient operator-God-mode venue (see applyScopedVenue) —
+    // it is a view of someone else's client and must NEVER be written into THIS
+    // browser's localStorage, or the operator's own copy would inherit it.
+    try { localStorage.setItem(CUSTOM_KEY, JSON.stringify([...customIds].filter(id => id !== 'scoped').map(id => VENUES[id]))); }
     catch (_) {}
   }
   const isCustom = id => customIds.has(id || currentVenue);
@@ -1207,6 +1210,13 @@
   // (?op=1&merchant=…) without mutating their own local venue. null = use the
   // venue's own type (the multi-venue demo is untouched: no server type ⇒ no call).
   let typeOverride = null;
+  // scopedActive: the OPERATOR (God mode) is viewing a client via ?op/?merchant.
+  // The switcher then lists ONLY that client as a single zeroed venue (the custom
+  // venue data path already hands back zeros), never the operator's own local
+  // venues — so one browser's test venues can never bleed into a client view.
+  // Transient: the synthetic 'scoped' venue is never persisted (see
+  // persistCustomVenues) and is rebuilt from the server on each scoped load.
+  let scopedActive = false;
   const getVenueType = id => ((!id || id === currentVenue) && typeOverride)
     ? typeOverride
     : (VENUES[id] || VENUES[currentVenue])?.type;
@@ -1232,6 +1242,38 @@
     typeOverride = base;
     try { renderVerticalSection({ skipFade: true }); } catch (_) {}
     subscribers.forEach(fn => { try { fn(currentVenue); } catch (_) {} });
+    return true;
+  }
+
+  /* Enter operator-scoped mode: replace whatever the operator's browser has
+   * locally with a single synthetic venue that IS the scoped client. Called by
+   * identity.js only after the server confirms an operator cookie (God mode), so
+   * a real client can never trigger it. The venue carries no data (custom path ⇒
+   * zeros), which is the honest truth: a client's own venues/sales live on the
+   * client's device, never on the server. Transient + never persisted. */
+  function applyScopedVenue(info) {
+    info = info || {};
+    const name = String(info.name || '').trim() || 'Client';
+    const location = String(info.location || '').trim();
+    const base = SUBTYPE_BASE[info.type] ||
+      (TYPE_BASES.indexOf(info.type) >= 0 ? info.type : 'restaurant');
+    const TYPE_LABELS = { restaurant: 'Restaurant', boutique: 'Boutique', spa: 'Spa', hotel: 'Hôtel' };
+    VENUES.scoped = {
+      id: 'scoped', name, location,
+      fullDisplay: location ? `${name} · ${location}` : name,
+      type: base, typeLabel: TYPE_LABELS[base] || 'Restaurant',
+      subtype: '', profileInfo: null,
+      siblings: '', status: 'En service', ice: '—',
+      txCount: 0, staffCount: 0, custom: true,
+      hours: '', methods: '', goal: 0,
+    };
+    customIds.add('scoped');   // zeroed-data custom path (never persisted)
+    scopedActive = true;
+    typeOverride = null;
+    currentVenue = 'scoped';   // set directly — do NOT write STORAGE_KEY for a scoped view
+    document.body.classList.remove('fusion-mode');
+    try { renderAll(); } catch (_) {}
+    subscribers.forEach(fn => { try { fn('scoped'); } catch (_) {} });
     return true;
   }
 
@@ -1337,9 +1379,13 @@
     let persistedClient = false;
     try { persistedClient = localStorage.getItem('kiwiOnboarded') === '1'; } catch (_) {}
     const onboard = !!window.__kiwiOnboard || persistedClient || !!(window.KiwiEnv && window.KiwiEnv.demosAllowed === false);
-    const listIds = onboard
-      ? Object.keys(VENUES).filter(id => VENUES[id] && VENUES[id].custom)
-      : REAL_VENUES;
+    // Operator-scoped (God mode): show ONLY the scoped client, never the
+    // operator's own local venues (those are this browser's test cache).
+    const listIds = scopedActive
+      ? ['scoped']
+      : onboard
+        ? Object.keys(VENUES).filter(id => VENUES[id] && VENUES[id].custom && id !== 'scoped')
+        : REAL_VENUES;
     /* Custom venue names/locations are merchant-typed — escape them. */
     const escD = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const venueRows = listIds.map(id => {
@@ -1360,7 +1406,7 @@
     // CTA appended at the bottom of the dropdown — toggles fusion mode.
     // Fresh-merchant session: the fusion view aggregates DEMO venues, so the
     // CTA becomes "add a venue" (opens the onboarding wizard) instead.
-    const cta = onboard ? `
+    const cta = scopedActive ? '' : onboard ? `
         <button type="button" class="venue-action fusion-cta" data-action="onboard">
           <div class="va-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -7692,6 +7738,7 @@
     getCurrentVenueData,
     getVenueType,
     applyServerType,
+    applyScopedVenue,
     getKpiSpec: type => {
       /* Subtype profile first: a custom venue's KPI band speaks its trade's
        * language (labels resolve per-language; dateRange re-renders the band
