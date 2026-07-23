@@ -1424,6 +1424,21 @@
         };
         SALES.unshift(sale);
         saleSeq++;
+        // Mirror the sale to the owner/operator dashboard (Live Link) so the
+        // boutique's real sales show up on the "En direct" feed + running total —
+        // the main caisse does the same via recordSale(). No-op unless live is on;
+        // wrapped so a mirror failure can never break the sale.
+        try {
+          if (window.KiwiLive && window.KiwiLive.isOn()) {
+            const pm = (parts || []).map((x) => x.m);
+            const method = pm.indexOf('carte') >= 0 ? 'card' : (pm.indexOf('espèces') >= 0 ? 'cash' : 'wallet');
+            const first = t.lines[0];
+            const pieces = t.lines.reduce((n, ln) => n + ln.qty, 0);
+            const name = (first && P[first.pid]) ? P[first.pid].name : 'Vente';
+            const label = t.lines.length > 1 ? (name + ' +' + (pieces - first.qty) + ' art.') : name;
+            window.KiwiLive.postSale({ amount: total, method: method, label: label, ref: sale.id, time: sale.at });
+          }
+        } catch (_) {}
         let ptsLine = '';
         if (c) {
           const pts = Math.round(total / 10);
