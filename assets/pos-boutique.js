@@ -80,7 +80,48 @@
     sac: art(`<path d="M24 21c0-9 16-9 16 0"/><path class="fill" d="M15 21h34l-4 29H19z"/><path d="M15 21h34l-4 29H19z"/><path class="thin" d="M19.5 28h25M18.5 35h27M18 42h26"/><path class="thin" d="M24 22l-2 27M32 22v27M40 22l2 27"/>`),
     cabas: art(`<path d="M23 21c0-7 5.5-7 5.5 0M35.5 21c0-7 5.5-7 5.5 0"/><rect class="fill" x="14" y="21" width="36" height="29" rx="2.5"/><rect x="14" y="21" width="36" height="29" rx="2.5"/><path class="thin" d="M14 31l6-4.5 6 4.5 6-4.5 6 4.5 6-4.5 6 4.5"/><path class="thin" d="M14 41l6-4.5 6 4.5 6-4.5 6 4.5 6-4.5 6 4.5"/>`),
     pochette: art(`<rect class="fill" x="13" y="23" width="38" height="23" rx="5"/><rect x="13" y="23" width="38" height="23" rx="5"/><path d="M13 31h38"/><circle cx="32" cy="35.5" r="2"/><path class="thin" d="M47 23c5-3.5 7-8 3.5-11"/><circle class="thin" cx="20" cy="40" r=".8"/><circle class="thin" cx="26" cy="38" r=".8"/><circle class="thin" cx="40" cy="40" r=".8"/><circle class="thin" cx="44" cy="37" r=".8"/>`),
+    /* ── generic clothing / retail icons (any boutique, not just Moroccan wear) ── */
+    tshirt:     art(`<path class="fill" d="M23 15 13 21l4 8 5-3v24h20V26l5 3 4-8-10-6c-3 4-9 4-12 0z"/><path d="M23 15 13 21l4 8 5-3v24h20V26l5 3 4-8-10-6"/><path d="M23 15c3 4 9 4 12 0"/>`),
+    chemise:    art(`<path class="fill" d="M23 15 13 21l4 8 5-3v24h20V26l5 3 4-8-10-6-5 4-5-4z"/><path d="M23 15 13 21l4 8 5-3v24h20V26l5 3 4-8-10-6"/><path class="thin" d="M28 15l4 4 4-4"/><path class="thin" d="M32 19v27"/><circle class="thin" cx="32" cy="28" r=".8"/><circle class="thin" cx="32" cy="35" r=".8"/><circle class="thin" cx="32" cy="42" r=".8"/>`),
+    pull:       art(`<path class="fill" d="M23 16 12 22l3 17 5-2v13h24V37l5 2 3-17-11-6c-4 4-8 4-13 0z"/><path d="M23 16 12 22l3 17 5-2v13h24V37l5 2 3-17-11-6"/><path d="M23 16c5 4 9 4 13 0"/><path class="thin" d="M20 45h24"/>`),
+    robe:       art(`<path class="fill" d="M25 15 15 21l4 7 5-3-7 25h30l-7-25 5 3 4-7-10-6c-3 4-8 4-13 0z"/><path d="M25 15 15 21l4 7 5-3-7 25h30l-7-25 5 3 4-7-10-6"/><path d="M25 15c5 4 8 4 13 0"/><path class="thin" d="M27 33h10"/>`),
+    jupe:       art(`<path class="fill" d="M22 24h20l6 24H16z"/><path d="M22 24h20l6 24H16z"/><path d="M22 24h20"/><path class="thin" d="M28 26 25 48M36 26l3 22M32 26v22"/>`),
+    pantalon:   art(`<path class="fill" d="M22 15h20l-2 35h-7l-1-20-1 20h-7z"/><path d="M22 15h20l-2 35h-7l-1-20-1 20h-7z"/><path d="M22 21h20"/><path class="thin" d="M26 24v23"/>`),
+    veste:      art(`<path class="fill" d="M23 15 13 21l4 8 5-3v24h8V24h6v26h8V26l5 3 4-8-10-6-6 6-6-6z"/><path d="M23 15 13 21l4 8 5-3v24h8V24h6v26h8V26l5 3 4-8-10-6"/><path class="thin" d="M29 21l-3 10M35 21l3 10"/>`),
+    chaussures: art(`<path class="fill" d="M10 42c0-5 3-8 8-9l8 0 8 5 14 1c4 1 6 3 6 6v2H10z"/><path d="M10 42c0-5 3-8 8-9l8 0 8 5 14 1c4 1 6 3 6 6v2H10z"/><path class="thin" d="M20 34l2 6M25 34l2 6M10 45h44"/>`),
+    chapeau:    art(`<path class="fill" d="M24 37c0-15 16-15 16 0z"/><path d="M24 37c0-15 16-15 16 0"/><path class="fill" d="M13 37h38c0 3-8 4-19 4s-19-1-19-4z"/><path d="M13 37c0 3 8 4 19 4s19-1 19-4"/><path class="thin" d="M24 35h16"/>`),
+    ceinture:   art(`<path class="fill" d="M8 28h48v8H8z"/><path d="M8 28h48v8H8z"/><rect class="fill" x="27" y="25" width="12" height="14" rx="2"/><rect x="27" y="25" width="12" height="14" rx="2"/><path class="thin" d="M33 25v14"/>`),
+    lunettes:   art(`<circle class="fill" cx="20" cy="34" r="8"/><circle cx="20" cy="34" r="8"/><circle class="fill" cx="44" cy="34" r="8"/><circle cx="44" cy="34" r="8"/><path d="M28 33c2-2 6-2 8 0"/><path class="thin" d="M12 30l-4-3M52 30l4-3"/>`),
+    montre:     art(`<circle class="fill" cx="32" cy="33" r="11"/><circle cx="32" cy="33" r="11"/><path d="M27 23l1-8h8l1 8M27 43l1 7h8l1-7"/><path class="thin" d="M32 33v-6M32 33l5 2"/>`),
+    parfum:     art(`<rect class="fill" x="24" y="24" width="16" height="24" rx="3"/><rect x="24" y="24" width="16" height="24" rx="3"/><rect class="fill" x="28" y="16" width="8" height="8" rx="1"/><rect x="28" y="16" width="8" height="8" rx="1"/><path d="M28 16v-3h8v3"/><path class="thin" d="M28 33h8"/>`),
+    sac_main:   art(`<path d="M22 26c0-10 20-10 20 0"/><path class="fill" d="M16 26h32l-3 22H19z"/><path d="M16 26h32l-3 22H19z"/><path class="thin" d="M32 32a4 4 0 010 8"/>`),
+    tag:        art(`<path class="fill" d="M14 14h16l22 22-16 16-22-22z"/><path d="M14 14h16l22 22-16 16-22-22z"/><circle class="thin" cx="21" cy="21" r="2.6"/>`),
+    cintre:     art(`<path class="fill" d="M13 44 32 29l19 15z"/><path d="M13 44 32 29l19 15z"/><path d="M32 29v-4a3 3 0 10-3-3"/><path d="M12 44h40"/>`),
   };
+
+  /* Product-icon "database" for the create/edit picker — ordered + labelled.
+     artOf() renders a product's icon with a safe default so nothing is blank. */
+  const DEFAULT_ICON = 'cintre';
+  const artOf = (k) => ART[k] || ART[DEFAULT_ICON];
+  const ICON_LABELS = {
+    tshirt: 'T-shirt / Haut', chemise: 'Chemise', pull: 'Pull / Sweat', robe: 'Robe', jupe: 'Jupe',
+    pantalon: 'Pantalon / Jean', veste: 'Veste / Manteau', chaussures: 'Chaussures', chapeau: 'Chapeau',
+    ceinture: 'Ceinture', lunettes: 'Lunettes', montre: 'Montre', parfum: 'Parfum', sac_main: 'Sac à main',
+    tag: 'Étiquette', cintre: 'Cintre', caftan: 'Caftan', takchita: 'Takchita', foulard: 'Foulard',
+    chale: 'Châle', broche: 'Broche / Bijou', mdamma: 'Mdamma', babouche: 'Babouche', cabas: 'Cabas',
+    sac: 'Sac', pochette: 'Pochette',
+  };
+  const ICON_KEYS = ['tshirt', 'chemise', 'pull', 'robe', 'jupe', 'pantalon', 'veste', 'chaussures', 'chapeau', 'ceinture', 'lunettes', 'montre', 'parfum', 'sac_main', 'tag', 'cintre', 'caftan', 'takchita', 'foulard', 'chale', 'broche', 'mdamma', 'babouche', 'cabas', 'sac', 'pochette'];
+  function iconPickerHtml(sel) {
+    return `<div class="bqi-iconpick">${ICON_KEYS.map((k) => `<button type="button" class="bqi-icon${k === sel ? ' on' : ''}" data-icon="${k}" title="${esc(ICON_LABELS[k] || k)}">${ART[k]}</button>`).join('')}</div>`;
+  }
+  function wireIconPicker(el, onPick) {
+    el.querySelectorAll('.bqi-icon').forEach((b) => b.addEventListener('click', () => {
+      el.querySelectorAll('.bqi-icon').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      if (onPick) onPick(b.getAttribute('data-icon'));
+    }));
+  }
 
   /* ───────────────────────── couleurs ───────────────────────── */
   const COLORS = [
@@ -427,7 +468,7 @@
       <div class="bq-cat-head">${esc(r.label)}</div>
       <div class="bq-grid">${r.items.map((p) => `
         <button class="bq-card ${stockOf(p) === 0 ? 'is-out' : ''}" data-bq-item="${p.id}" style="--i:${i++}">
-          <span class="bq-card-art">${ART[p.art] || ''}</span>
+          <span class="bq-card-art">${artOf(p.art)}</span>
           <span class="bq-card-name">${esc(p.name)}</span>
           <span class="bq-card-price">${fmtMAD(p.price)}</span>
           ${cardFlag(p)}
@@ -544,7 +585,7 @@
     const p = P[ln.pid];
     const u = lineUnit(ln);
     return `<div class="bq-line">
-      <span class="bq-line-art">${ART[p.art] || ''}</span>
+      <span class="bq-line-art">${artOf(p.art)}</span>
       <span class="bq-line-mid">
         <span class="bq-line-name">${esc(p.name)}</span>
         <span class="bq-line-sub">
@@ -610,7 +651,7 @@
     el.innerHTML = `
       <button class="bq-modal-x" data-bq-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <div class="bq-sheet-head">
-        <span class="bq-sheet-art">${ART[p.art] || ''}</span>
+        <span class="bq-sheet-art">${artOf(p.art)}</span>
         <span class="bq-sheet-title"><h3>${esc(p.name)}</h3><span class="sub">${esc((RAYONS.find((r) => r.id === p.rayon) || { label: 'Divers' }).label)}${p.flag ? ` · ${esc(p.flag)}` : ''}${p.ean ? ` · ${esc(p.ean)}` : ''}</span></span>
         <span class="bq-sheet-price">
           <span class="val" id="bq-sheet-total">${fmtMAD(unit * sheet.qty)}</span>
@@ -964,7 +1005,7 @@
           <div class="bq-scan-stage" id="bq-scan-stage"><span id="bq-scan-stage-ean"></span><div class="bq-scan-laser"></div></div>
           ${last ? `
           <div class="bq-scan-last">
-            <span class="bq-line-art">${ART[P[last.pid].art] || ''}</span>
+            <span class="bq-line-art">${artOf(P[last.pid].art)}</span>
             <span class="l"><b>${esc(P[last.pid].name)} · ${esc(last.size)}</b><span>EAN ${last.ean} · ${fmtHM(last.at)}</span></span>
             <span class="amt">${fmtMAD(P[last.pid].price)}</span>
           </div>` : ''}
@@ -1134,7 +1175,7 @@
           if (l.returned) {
             return `<button class="bq-sline is-locked" data-bq-locked="1">
               <span class="tick"></span>
-              <span class="bq-line-art">${ART[p.art] || ''}</span>
+              <span class="bq-line-art">${artOf(p.art)}</span>
               <span class="mid"><span class="bq-line-name">${esc(p.name)}</span>
                 <span class="bq-line-sub"><span class="sz">${esc(l.size)}</span> ${esc(l.note || 'retournée')}</span></span>
               <span class="bq-pill warn">retournée</span>
@@ -1142,7 +1183,7 @@
           }
           return `<button class="bq-sline ${sel.has(i) ? 'on' : ''}" data-bq-pick="${s.id}:${i}">
             <span class="tick"><i data-lucide="check"></i></span>
-            <span class="bq-line-art">${ART[p.art] || ''}</span>
+            <span class="bq-line-art">${artOf(p.art)}</span>
             <span class="mid"><span class="bq-line-name">${esc(p.name)}</span>
               <span class="bq-line-sub">
                 <i class="dot" style="background:${COLOR[l.color] ? COLOR[l.color].hex : '#ccc'}"></i>
@@ -1290,12 +1331,12 @@
       <h3 class="modal-title">Échange — ${sale.id}</h3>
       <p class="modal-subtle">${c ? esc(c.name) : 'Cliente de passage'} · la pièce rendue repart en stock</p>
       <div class="bq-exch-row is-ret">
-        <span class="bq-line-art">${ART[oldP.art] || ''}</span>
+        <span class="bq-line-art">${artOf(oldP.art)}</span>
         <span class="mid"><b>${esc(oldP.name)}</b><span>retour · ${esc(ln.size)} · ${esc(COLOR[ln.color] ? COLOR[ln.color].label : ln.color)}${ln.remise ? ` · payé avec −${ln.remise} %` : ''}</span></span>
         <span class="amt">−${fmtMAD(ln.unit)}</span>
       </div>
       <div class="bq-exch-row is-new">
-        <span class="bq-line-art">${ART[newP.art] || ''}</span>
+        <span class="bq-line-art">${artOf(newP.art)}</span>
         <span class="mid"><b>${esc(newP.name)}</b><span>remplacement · ${esc(newSize)} · ${esc(COLOR[newColor] ? COLOR[newColor].label : newColor)}</span></span>
         <span class="amt">+${fmtMAD(newP.price)}</span>
       </div>
@@ -1688,6 +1729,11 @@
       .bqi-swrow { display: flex; gap: 7px; flex-wrap: wrap; }
       .bqi-sw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
       .bqi-sw.on { border-color: var(--ink); }
+      .bqi-iconpick { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 8px; max-height: 168px; overflow-y: auto; padding: 8px; border: 1px solid rgba(10,15,13,.14); border-radius: 12px; background: var(--paper); }
+      .bqi-icon { aspect-ratio: 1; border: 1.5px solid rgba(10,15,13,.10); border-radius: 10px; background: var(--paper); cursor: pointer; padding: 5px; color: var(--riad); display: flex; align-items: center; justify-content: center; }
+      .bqi-icon:hover { border-color: rgba(11,110,79,.5); }
+      .bqi-icon.on { border-color: var(--atlas); border-width: 2px; background: #EAF5EF; }
+      .bqi-icon .bq-art { width: 100%; height: 100%; }
       .bqi-help { font-size: 12px; color: #77807b; margin-top: -6px; margin-bottom: 12px; }
     `;
     document.head.appendChild(st);
@@ -1771,7 +1817,7 @@
     const nBc = d.variants.reduce((s, v) => s + ((v.barcodes && v.barcodes.length) ? 1 : 0), 0);
     const cls = d.stock === 0 ? 'rupture' : (d.stock <= 5 ? 'bas' : '');
     return `<div class="bqi-row" data-inv-open="${p.id}">
-      <span class="bqi-art">${ART[p.art] || '<svg viewBox="0 0 64 64"></svg>'}</span>
+      <span class="bqi-art">${artOf(p.art)}</span>
       <span class="bqi-info"><b>${esc(p.name)}</b><span>${d.category ? esc(d.category.name) : 'Divers'} · ${d.colors.length} coul. · ${d.sizes.length} taille${d.sizes.length > 1 ? 's' : ''} · ${nBc}/${d.variants.length} codes-barres</span></span>
       <span class="bqi-stock ${cls}">${d.stock}</span>
       <span class="bqi-price">${fmtMAD(p.priceMAD)}</span>
@@ -1799,7 +1845,7 @@
     const html = `
       <button class="bq-modal-x" data-inv-x aria-label="Fermer"><i data-lucide="x"></i></button>
       <div class="bqi-modh">
-        <span class="bqi-art">${ART[p.art] || '<svg viewBox="0 0 64 64"></svg>'}</span>
+        <span class="bqi-art">${artOf(p.art)}</span>
         <div><h3>${esc(p.name)}</h3><span>${d.category ? esc(d.category.name) : 'Divers'} · ${fmtMAD(p.priceMAD)} · ${d.stock} en stock</span></div>
         <button class="bqi-mini" data-inv-edit title="Modifier le produit"><i data-lucide="pencil"></i></button>
       </div>
@@ -1867,9 +1913,12 @@
           <div class="bqi-fg"><label>Prix de vente (MAD)</label><input id="bqi-n-price" type="number" min="0" placeholder="1890" /></div>
           <div class="bqi-fg"><label>Coût d'achat (MAD)</label><input id="bqi-n-cost" type="number" min="0" placeholder="optionnel" /></div>
         </div>
+        <div class="bqi-fg"><label>Icône du produit</label>${iconPickerHtml('tshirt')}</div>
       </div>
       <div class="bqi-modfoot"><button class="bq-btn secondary" data-inv-x>Annuler</button><button class="bq-btn" id="bqi-n-save">Créer et ajouter des variantes</button></div>`;
     invSetModal(html, (el) => {
+      let icon = 'tshirt';
+      wireIconPicker(el, (k) => { icon = k; });
       $('#bqi-n-save', el).addEventListener('click', () => {
         const cat = catDB();
         const name = $('#bqi-n-name', el).value.trim();
@@ -1877,7 +1926,7 @@
         let catId = $('#bqi-n-cat', el).value || null;
         const newCat = $('#bqi-n-newcat', el).value.trim();
         if (newCat) catId = cat.addCategory(newCat).id;
-        const p = cat.addProduct({ name, categoryId: catId, kind: $('#bqi-n-kind', el).value, priceMAD: parseInt($('#bqi-n-price', el).value, 10) || 0, cost: parseInt($('#bqi-n-cost', el).value, 10) || 0 });
+        const p = cat.addProduct({ name, categoryId: catId, kind: $('#bqi-n-kind', el).value, art: icon, priceMAD: parseInt($('#bqi-n-price', el).value, 10) || 0, cost: parseInt($('#bqi-n-cost', el).value, 10) || 0 });
         toast(`${name} créé — ajoutez ses variantes`);
         openInvProduct(p.id);
       });
@@ -1900,12 +1949,15 @@
           <div class="bqi-fg"><label>Prix de vente (MAD)</label><input id="bqi-e-price" type="number" min="0" value="${p.priceMAD}" /></div>
           <div class="bqi-fg"><label>Coût d'achat (MAD)</label><input id="bqi-e-cost" type="number" min="0" value="${p.cost || 0}" /></div>
         </div>
+        <div class="bqi-fg"><label>Icône du produit</label>${iconPickerHtml(p.art || 'tshirt')}</div>
       </div>
       <div class="bqi-modfoot"><button class="bq-btn secondary" data-inv-back>Retour</button><button class="bq-btn" id="bqi-e-save">Enregistrer</button></div>`;
     invSetModal(html, (el) => {
+      let icon = p.art || 'tshirt';
+      wireIconPicker(el, (k) => { icon = k; });
       $('[data-inv-back]', el).addEventListener('click', () => openInvProduct(pid));
       $('#bqi-e-save', el).addEventListener('click', () => {
-        cat.updateProduct(pid, { name: $('#bqi-e-name', el).value.trim() || undefined, categoryId: $('#bqi-e-cat', el).value || null, kind: $('#bqi-e-kind', el).value, priceMAD: parseInt($('#bqi-e-price', el).value, 10) || 0, cost: parseInt($('#bqi-e-cost', el).value, 10) || 0 });
+        cat.updateProduct(pid, { name: $('#bqi-e-name', el).value.trim() || undefined, categoryId: $('#bqi-e-cat', el).value || null, kind: $('#bqi-e-kind', el).value, art: icon, priceMAD: parseInt($('#bqi-e-price', el).value, 10) || 0, cost: parseInt($('#bqi-e-cost', el).value, 10) || 0 });
         toast('Produit mis à jour');
         openInvProduct(pid);
       });
