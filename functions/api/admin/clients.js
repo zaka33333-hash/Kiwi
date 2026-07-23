@@ -26,7 +26,7 @@ export async function onRequestGet(context) {
     let r = map.get(m);
     // demo:true until an account claims this merchant (see the accounts loop).
     // A merchant that only ever appears via demo sales / config is a demo.
-    if (!r) { r = { merchant: m, business: '', email: '', name: '', plan: '', today_amount: 0, today_count: 0, last_ts: 0, demo: true }; map.set(m, r); }
+    if (!r) { r = { merchant: m, business: '', email: '', name: '', plan: '', today_amount: 0, today_count: 0, last_ts: 0, demo: true, status: 'active' }; map.set(m, r); }
     return r;
   }
 
@@ -51,13 +51,14 @@ export async function onRequestGet(context) {
     for (const c of (cfg.results || [])) { row(c.merchant).plan = c.plan || ''; }
 
     // Accounts → contact + ensure a row exists even with zero sales.
-    const accts = await env.DB.prepare(`SELECT email, name, business FROM accounts`).all();
+    const accts = await env.DB.prepare(`SELECT email, name, business, status FROM accounts`).all();
     for (const a of (accts.results || [])) {
       const m = slugMerchant(a.business || a.email);
       const r = row(m);
       r.business = a.business || r.business;
       r.email = a.email || r.email;
       r.name = a.name || r.name;
+      r.status = a.status || 'active'; // active | suspended (frozen for non-payment)
       r.demo = false; // real email+password signup → a real client
     }
   } catch (e) {
@@ -66,6 +67,37 @@ export async function onRequestGet(context) {
 
   const clients = [...map.values()].sort((a, b) => (b.last_ts || 0) - (a.last_ts || 0));
   return json({ clients, dayStart, now });
+}
+
+// PATCH /api/admin/clients — freeze or reactivate an account.
+// Body { email, status:'active'|'suspended' }. Suspending flips accounts.status;
+// the site gate then revokes the client's live session on their next request
+// (see accountActive in _middleware.js) WITHOUT deleting any data, so a client
+// who stops paying is locked out instantly and can be thawed the moment they do.
+// Keyed by email (the account's unique login key). Irreversible? No — that's the
+// point vs. delete. Operator-gated.
+export async function onRequestPatch(context) {
+  const { request, env } = context;
+  if (!(await isOperator(request, env))) return json({ error: 'forbidden' }, 403);
+  if (!env.DB) return json({ error: 'no-db' }, 503);
+
+  let email = '';
+  let status = '';
+  try {
+    const b = await request.json();
+    email = (b.email || '').toString().trim().toLowerCase();
+    status = (b.status || '').toString().trim();
+  } catch (_) { /* no body */ }
+  if (!email) return json({ error: 'email-required' }, 400);
+  if (status !== 'active' && status !== 'suspended') return json({ error: 'bad-status' }, 400);
+
+  try {
+    const r = await env.DB.prepare('UPDATE accounts SET status = ? WHERE email = ?').bind(status, email).run();
+    if (!((r.meta && r.meta.changes) || 0)) return json({ error: 'not-found' }, 404);
+  } catch (e) {
+    return json({ error: 'update-failed', detail: String(e) }, 500);
+  }
+  return json({ ok: true, email, status });
 }
 
 // DELETE /api/admin/clients?merchant=slug[&email=…] — nuke an entire account so

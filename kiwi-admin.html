@@ -56,6 +56,12 @@
   .mini.ghost{border-style:dashed}
   .mini.danger{color:var(--warn); border-color:#e7ccc6}
   .mini.danger:hover{background:#fbeeeb}
+  .mini.warn{color:#8a5a00; border-color:#e8d9b0; background:#fdf6e6}
+  .mini.warn:hover{background:#f6e8c2}
+  .sus-badge{display:inline-block; margin-left:8px; font:600 9.5px/1 var(--mono); text-transform:uppercase; letter-spacing:.05em; color:#8a5a00; background:#fbeecb; border:1px solid #e8d9b0; padding:3px 6px; border-radius:5px; vertical-align:middle}
+  tr.suspended{background:rgba(180,140,0,.06)}
+  .op-toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(8px); background:var(--riad); color:#eafff4; padding:11px 18px; border-radius:11px; font-size:.86rem; font-weight:560; box-shadow:0 10px 30px rgba(5,59,44,.35); z-index:60; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s}
+  .op-toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
   .mini:disabled{opacity:.45; cursor:default}
   .mini:disabled:hover{background:var(--surface); border-color:var(--line)}
   .danger-zone{margin-top:22px; padding-top:18px; border-top:1px solid var(--line)}
@@ -98,6 +104,10 @@
     .pin,.op-item{background:#111713}
     .plan.basic,.plan.pro{background:#1c2420;color:#bfe8cf}
     .mini{background:#151b18;color:#cfeeda} .plan{background:#1c2420;color:#bfe8cf}
+    .mini.warn{color:#f0cf8a; border-color:#3a3320; background:#211d10}
+    .mini.warn:hover{background:#2b2513}
+    .sus-badge{color:#f0cf8a; background:#241f10; border-color:#3a3320}
+    tr.suspended{background:rgba(200,160,40,.08)}
   }
 </style>
 </head>
@@ -205,6 +215,16 @@
     return n;
   }
   function clear(el){ while (el.firstChild) el.removeChild(el.firstChild); }
+  var toastTimer = null;
+  function notify(msg){
+    var el = document.getElementById('op-toast');
+    if (!el){ el = h('div', { id:'op-toast', class:'op-toast' }); document.body.appendChild(el); }
+    el.textContent = msg;
+    // reflow so the transition replays even on back-to-back calls
+    void el.offsetWidth; el.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2600);
+  }
   function fmt(n){ try { return (Math.round(n)||0).toLocaleString('fr-FR'); } catch(_) { return String(Math.round(n)||0); } }
   function ago(ts){
     if (!ts) return '—';
@@ -302,6 +322,13 @@
       if (LIVE) { return api('/operators?id=' + encodeURIComponent(id), { method:'DELETE' }); }
       var m = mock(); m.operators = m.operators.filter(function(o){ return o.id !== id; }); saveMock(m);
     },
+    async setStatus(email, status){
+      if (LIVE) { return api('/clients', { method:'PATCH', body:JSON.stringify({ email:email, status:status }) }); }
+      var m = mock();
+      (m.clients || []).forEach(function(c){ if (c.email === email) c.status = status; });
+      saveMock(m);
+      return { ok:true };
+    },
     async deleteClient(merchant, email){
       if (LIVE) {
         var qs = '/clients?merchant=' + encodeURIComponent(merchant) +
@@ -341,21 +368,51 @@
 
   function clientRow(c){
     var live = c.last_ts && (Date.now() - c.last_ts < 1000*60*15);
-    var tr = h('tr', { class: (selected && selected.merchant === c.merchant) ? 'sel' : '' },
-      h('td', null, h('div', { style:'font-weight:600' }, c.business || c.merchant),
+    var suspended = c.status === 'suspended';
+    // Actions. Suspend/Réactiver only shows for real accounts — a demo has no
+    // login to freeze. Reversible: suspend cuts access now, reactivate restores it.
+    var actions = [
+      h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); openDashboard(c.merchant); } }, 'Ouvrir dashboard'),
+      h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); select(c); } }, 'Gérer')
+    ];
+    if (c.email){
+      actions.push(h('button', { class:'mini' + (suspended ? ' warn' : ''),
+        onClick:function(e){ e.stopPropagation(); toggleSuspend(c); } },
+        suspended ? 'Réactiver' : 'Suspendre'));
+    }
+    actions.push(h('button', { class:'mini danger', onClick:function(e){ e.stopPropagation(); select(c).then(revealDanger); } }, 'Supprimer'));
+
+    var cls = (selected && selected.merchant === c.merchant) ? 'sel' : '';
+    if (suspended) cls += (cls ? ' ' : '') + 'suspended';
+    var tr = h('tr', { class: cls },
+      h('td', null, h('div', { style:'font-weight:600' }, c.business || c.merchant,
+                      suspended ? h('span', { class:'sus-badge' }, 'suspendu') : null),
                     c.name ? h('div', { class:'nm', style:'color:var(--muted);font-size:.78rem' }, c.name + (c.email ? ' · ' + c.email : '')) : null),
       h('td', null, h('code', { style:'font-family:var(--mono);font-size:.82rem;color:var(--muted)' }, c.merchant)),
       h('td', null, c.plan ? h('span', { class:'plan ' + c.plan }, c.plan) : h('span', { class:'plan' }, '—')),
       h('td', { class:'num' }, fmt(c.today_amount) + ' MAD'),
       h('td', { class:'num' }, String(c.today_count || 0)),
       h('td', null, h('span', { class:'online' + (live?' live':'') }, h('span', { class:'d' }), ago(c.last_ts))),
-      h('td', null, h('div', { class:'row-actions' },
-        h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); openDashboard(c.merchant); } }, 'Ouvrir dashboard'),
-        h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); select(c); } }, 'Gérer'),
-        h('button', { class:'mini danger', onClick:function(e){ e.stopPropagation(); select(c).then(revealDanger); } }, 'Supprimer')))
+      h('td', null, h.apply(null, ['div', { class:'row-actions' }].concat(actions)))
     );
     tr.addEventListener('click', function(){ select(c); });
     return tr;
+  }
+
+  // Freeze / thaw a paying client. Suspending flips accounts.status; the site
+  // gate then revokes their live session on the next request (no data deleted).
+  async function toggleSuspend(c){
+    var next = c.status === 'suspended' ? 'active' : 'suspended';
+    try {
+      await store.setStatus(c.email, next);
+      c.status = next;
+      await renderClients();
+      notify(next === 'suspended'
+        ? 'Compte suspendu — accès coupé à la prochaine requête.'
+        : 'Compte réactivé — accès rétabli.');
+    } catch(e){
+      notify('Échec : ' + ((e && e.body && e.body.error) || (e && e.message) || 'erreur'));
+    }
   }
 
   async function renderClients(){

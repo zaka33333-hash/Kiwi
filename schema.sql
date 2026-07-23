@@ -31,8 +31,13 @@ CREATE TABLE IF NOT EXISTS accounts (
   business   TEXT,                   -- établissement
   salt       TEXT NOT NULL,          -- PBKDF2 salt (hex)
   hash       TEXT NOT NULL,          -- PBKDF2 derived key (hex)
-  created_ts INTEGER NOT NULL        -- epoch ms of signup
+  created_ts INTEGER NOT NULL,       -- epoch ms of signup
+  status     TEXT NOT NULL DEFAULT 'active'  -- 'active' | 'suspended' (frozen for non-payment)
 );
+-- Existing databases (table already created): add the column once —
+--   ALTER TABLE accounts ADD COLUMN status TEXT NOT NULL DEFAULT 'active';
+-- The site gate (functions/_middleware.js → accountActive) revokes a live
+-- session as soon as its account row is missing (deleted) or status='suspended'.
 
 -- ── Operator console (Kiwi's own back-office) ───────────────────────────────
 -- Operator access codes for kiwi-admin.html. Hashed exactly like account

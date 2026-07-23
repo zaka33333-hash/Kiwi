@@ -22,7 +22,7 @@
 // Changing a variable requires a fresh deployment (not "Retry") to take effect.
 
 import {
-  readSession, readCookie, SESS_COOKIE,
+  readSession, readCookie, SESS_COOKIE, clearSessionCookie,
   operatorToken, OP_COOKIE, verifyPassword,
 } from './auth/_lib.js';
 
@@ -43,20 +43,58 @@ async function expectedToken(password) {
   return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Is this account still allowed in? The session token is stateless (signature +
+// expiry only), so on its own it keeps working for up to 30 days even after we
+// delete or suspend the client. This turns that trust into a live check:
+//   · row missing  → the account was deleted   → revoke (return false)
+//   · status suspended → the client is frozen   → revoke (return false)
+//   · active       → allow
+// FAIL OPEN on any infrastructure problem (no DB binding, query throws, or the
+// `status` column not migrated yet): we return true so a transient database
+// blip can never lock out every paying client at once. Only a definitive
+// "row is gone" or "status = suspended" result revokes access.
+async function accountActive(env, aid) {
+  if (!env.DB || !aid) return true;
+  try {
+    const row = await env.DB.prepare('SELECT status FROM accounts WHERE id = ?').bind(aid).first();
+    if (!row) return false;                 // deleted
+    return row.status !== 'suspended';      // frozen for non-payment, etc.
+  } catch (_) {
+    return true;                            // can't verify → don't lock anyone out
+  }
+}
+
 export async function onRequest(context) {
   const { request, env, next } = context;
   const url = new URL(request.url);
   const path = url.pathname;
   const authSecret = env.AUTH_SECRET;
   const sitePassword = env.SITE_PASSWORD;
+  const isApi = path.indexOf('/api/') === 0;
 
   // Nothing configured → open site (local dev / preview without secrets).
   if (!authSecret && !sitePassword) return next();
 
-  // 1. Valid account session?
+  // 1. Valid account session? A signed, unexpired token gets assets through
+  // immediately (they carry no per-account data). For page loads and API calls
+  // — the surfaces that expose a client's own data — we additionally confirm the
+  // account still exists and isn't suspended, so deleting or freezing a client
+  // cuts off their live session on the very next request. If the account was
+  // revoked we DON'T return next(): we fall through so a stray staff/operator
+  // cookie can still be honoured, then land on the lockout screen with the dead
+  // session cookie cleared.
+  let sessionRevoked = false;
   if (authSecret) {
     const token = readCookie(request, SESS_COOKIE);
-    if (token && await readSession(token, authSecret)) return next();
+    const sess = token ? await readSession(token, authSecret) : null;
+    if (sess) {
+      const dest = request.headers.get('Sec-Fetch-Dest');
+      const wantsDoc = dest === 'document' ||
+        (!dest && (request.headers.get('Accept') || '').indexOf('text/html') !== -1);
+      if (!(wantsDoc || isApi)) return next();          // asset → trust the token
+      if (await accountActive(env, sess.aid)) return next();
+      sessionRevoked = true;                            // deleted/suspended → lock out below
+    }
   }
 
   // 2. Valid staff bypass cookie?
@@ -118,8 +156,21 @@ export async function onRequest(context) {
     return htmlResponse(authPage({ allowStaff: !!sitePassword, operatorError: true }));
   }
 
-  // Locked → show the account screen.
-  return htmlResponse(authPage({ allowStaff: !!sitePassword }));
+  // Locked → show the account screen. If we got here because a signed session
+  // pointed at a deleted/suspended account, clear that dead cookie so the browser
+  // stops replaying it, and answer API callers with JSON instead of a login page.
+  const lockHeaders = { 'Cache-Control': 'no-store' };
+  if (sessionRevoked) lockHeaders['Set-Cookie'] = clearSessionCookie();
+  if (sessionRevoked && isApi) {
+    return new Response(JSON.stringify({ error: 'account-revoked' }), {
+      status: 401,
+      headers: { ...lockHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  return new Response(authPage({ allowStaff: !!sitePassword, revoked: sessionRevoked }), {
+    status: 401,
+    headers: { ...lockHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+  });
 }
 
 function htmlResponse(body) {
@@ -137,6 +188,7 @@ function authPage(opts) {
   const staffError = opts && opts.staffError;
   const allowStaff = opts && opts.allowStaff;
   const operatorError = opts && opts.operatorError;
+  const revoked = opts && opts.revoked;
   // Operator prompt — no visible affordance. Revealed only by a long-press on the
   // logo (see the script below), or shown pre-open when a code was rejected.
   const operatorBlock = `
@@ -250,6 +302,7 @@ function authPage(opts) {
     </div>
     <h1>Bienvenue sur Kiwi</h1>
     <p class="sub">Créez votre compte ou connectez-vous pour accéder à votre espace.</p>
+    ${revoked ? `<p class="err" role="alert" style="text-align:center;margin:-12px 0 16px">Votre session a été fermée. Reconnectez-vous.</p>` : ''}
 
     <div class="tabs" data-mode="login">
       <button type="button" class="tab" id="tab-login" aria-selected="true">Se connecter</button>
