@@ -20,6 +20,7 @@ var CACHE = 'kiwi-app-v22';
 var SHELL = [
   '/dashboard.html',
   '/kiwi-caisse.html',
+  '/assets/kiwi-env.js',
   '/dashboard.webmanifest',
   '/manifest.webmanifest',
   '/assets/tokens.css',
@@ -58,6 +59,7 @@ var SHELL = [
   '/assets/barcode.js',
   '/assets/boutique-catalog.js',
   '/assets/pos-dispatch.js',
+  '/assets/caisse-pairing.js',
   '/assets/pressing-caisse.js',
   '/assets/pressing-caisse.css',
   '/assets/lucide.min.js',

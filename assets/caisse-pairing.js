@@ -1,0 +1,243 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Kiwi · CAISSE PAIRING  (assets/caisse-pairing.js)
+ * ---------------------------------------------------------------------------
+ * Turns a hosted caisse into ONE specific store. On the local desktop copy it
+ * is a no-op — the demo PIN pad (0000-0015) works exactly as before. On the
+ * hosted app (KiwiEnv.demosAllowed === false) there are NO demo codes: the
+ * terminal shows a 6-digit "code d'appairage" pad instead, and once a code is
+ * redeemed the device becomes that store, of the right trade, and every sale it
+ * rings tags to that merchant so the owner's dashboard reacts live.
+ *
+ * Client-first + fail-soft: redeem tries POST /api/pair/redeem (cross-device,
+ * once the partner deploys it) and falls back to the same-browser localStorage
+ * pairing map (kiwiPairings) that the dashboard writes — so the whole flow works
+ * in one browser today with zero backend. A 404/405/network on the endpoint is
+ * the "backend absent" signal → localStorage; a 422 is a real "bad/expired code".
+ *
+ * State (all localStorage, shared same-origin with the dashboard):
+ *   kiwiPaired        '1' once this device is bound
+ *   kiwiPairedVenue   {merchant,venueId,type,subtype,name,location}
+ *   kiwiLiveMerchant  the merchant slug (consumed by live-link.js postSale/feed)
+ *   kiwiLive          '1' so Live Link posts sales
+ *   kiwiPairings      the dashboard-issued code map (fallback + connected mirror)
+ *
+ * Load order (kiwi-caisse.html): after kiwi-env.js, pos-dispatch.js, live-link.js
+ * and boutique-catalog.js (all defer → document order). The big inline caisse
+ * script runs at parse time, so window.__kiwiUnlockApp is already exposed.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  function env() { return window.KiwiEnv || { demosAllowed: true }; }
+  function hosted() { return env().demosAllowed === false; }
+  function ls(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }
+  function set(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+  function del(k) { try { localStorage.removeItem(k); } catch (_) {} }
+  function readMap() { try { return JSON.parse(ls('kiwiPairings') || '{}') || {}; } catch (_) { return {}; } }
+
+  function isPaired() { return ls('kiwiPaired') === '1'; }
+  function pairedVenue() { try { return JSON.parse(ls('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+
+  /* ── type/subtype → caisse vertical ─────────────────────────────────────
+   * The onboarding trade id (subtype) maps 1:1 to a dispatcher vertical for
+   * most trades; a couple are aliased; the four base types are the fallback.
+   * restaurant/cafe → the main restaurant caisse (unlockApp), not a vertical. */
+  var SUB_ALIAS = { bakery: 'boulangerie', sport: 'gym' };
+  function registryIds() {
+    var reg = (window.KiwiPosDispatch && window.KiwiPosDispatch.registry) || {};
+    var ids = {};
+    Object.keys(reg).forEach(function (pin) { ids[reg[pin].id] = true; });
+    return ids;
+  }
+  function routeFor(v) {
+    if (!v) return { kind: 'app' };
+    var ids = registryIds();
+    var sub = String(v.subtype || '').toLowerCase();
+    sub = SUB_ALIAS[sub] || sub;
+    if (sub && ids[sub]) return { kind: 'vertical', id: sub };
+    var t = String(v.type || '').toLowerCase();
+    if (t === 'boutique' && ids.boutique) return { kind: 'vertical', id: 'boutique' };
+    if (t === 'spa' && ids.spa) return { kind: 'vertical', id: 'spa' };
+    if (t === 'hotel' && ids.hotel) return { kind: 'vertical', id: 'hotel' };
+    return { kind: 'app' };
+  }
+
+  function bootVertical(v) {
+    hidePad();
+    hideNativePin();
+    var route = routeFor(v);
+    if (route.kind === 'vertical' && window.KiwiPosDispatch && window.KiwiPosDispatch.unlockById) {
+      if (route.id === 'boutique') window.__kiwiPairedBoutiqueVenue = (v && v.venueId) || null;
+      window.KiwiPosDispatch.unlockById(route.id);
+    } else if (typeof window.__kiwiUnlockApp === 'function') {
+      window.__kiwiUnlockApp();
+    }
+  }
+
+  /* ── redeem: backend first, fail-soft to the same-browser map ──────────── */
+  function applyPairing(code, d) {
+    var venue = {
+      merchant: d.merchant || '', venueId: d.venueId || '', type: d.type || '',
+      subtype: d.subtype || '', name: d.name || '', location: d.location || '',
+    };
+    set('kiwiLiveMerchant', venue.merchant);
+    set('kiwiLive', '1');
+    set('kiwiPaired', '1');
+    set('kiwiPairedVenue', JSON.stringify(venue));
+    // Reflect "connected" back into the map so the dashboard tab's storage
+    // listener flips its status pill to "Caisse connectée" (same-browser).
+    try {
+      var map = readMap();
+      if (map[code]) { map[code].status = 'connected'; map[code].connectedAt = Date.now(); set('kiwiPairings', JSON.stringify(map)); }
+    } catch (_) {}
+    return { ok: true, venue: venue };
+  }
+  function localRedeem(code) {
+    var map = readMap();
+    var e = map[code];
+    if (!e) return { ok: false, error: 'invalid' };
+    if (e.exp && e.exp < Date.now()) return { ok: false, error: 'expired' };
+    return applyPairing(code, e);
+  }
+  function redeem(code) {
+    code = String(code || '').replace(/\D/g, '').slice(0, 6);
+    if (code.length !== 6) return Promise.resolve({ ok: false, error: 'bad-code' });
+    return fetch('/api/pair/redeem', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code }),
+    }).then(function (r) {
+      if (r.status === 404 || r.status === 405) return localRedeem(code); // backend absent → same-browser
+      return r.json().then(function (j) {
+        if (j && j.ok) return applyPairing(code, j);
+        return { ok: false, error: (j && j.error) || 'invalid' };        // 422 etc — real rejection
+      });
+    }).catch(function () { return localRedeem(code); });                 // network → same-browser
+  }
+
+  function unpair() {
+    ['kiwiPaired', 'kiwiPairedVenue', 'kiwiLiveMerchant', 'kiwiLive'].forEach(del);
+    window.__kiwiPairedBoutiqueVenue = null;
+    try { if (window.KiwiPosDispatch && window.KiwiPosDispatch.lock) window.KiwiPosDispatch.lock(); } catch (_) {}
+    showPad();
+  }
+
+  /* ── the 6-digit pairing pad (reuses .pin-screen / .pin-pad CSS) ────────── */
+  var buf = '';
+  function hideNativePin() { var n = document.getElementById('pin-screen'); if (n) n.style.display = 'none'; }
+  function dotsHtml() {
+    var out = '';
+    for (var i = 0; i < 6; i++) out += '<span class="pin-dot' + (i < buf.length ? ' is-filled' : '') + '"></span>';
+    return out;
+  }
+  function renderDots() { var d = document.getElementById('cp-dots'); if (d) d.innerHTML = dotsHtml(); }
+  function key(n) { return '<button class="pin-key" data-cp="' + n + '">' + n + '</button>'; }
+
+  function injectCss() {
+    if (document.getElementById('cp-style')) return;
+    var s = document.createElement('style'); s.id = 'cp-style';
+    s.textContent =
+      '#cp-screen .pin-dot.is-filled{background:var(--mint,#7DF2B0);border-color:var(--mint,#7DF2B0);}' +
+      '#cp-screen .pin-prompt{letter-spacing:.14em;}' +
+      '#cp-resume{margin:14px auto 0;display:block;background:none;border:0;cursor:pointer;color:var(--mint,#7DF2B0);' +
+      'font:inherit;font-size:.9rem;font-weight:600;text-decoration:underline;text-underline-offset:3px;}' +
+      '#cp-screen.is-error{animation:cp-shake .4s;}' +
+      '@keyframes cp-shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(5px)}50%{transform:translateX(-7px)}}';
+    document.head.appendChild(s);
+  }
+
+  function showPad() {
+    if (!hosted()) return;
+    injectCss();
+    hideNativePin();
+    buf = '';
+    var pv = isPaired() ? pairedVenue() : null;
+    var scr = document.getElementById('cp-screen');
+    if (!scr) {
+      scr = document.createElement('div');
+      scr.className = 'pin-screen';
+      scr.id = 'cp-screen';
+      scr.setAttribute('role', 'dialog');
+      scr.setAttribute('aria-modal', 'true');
+      scr.setAttribute('aria-label', "Code d'appairage");
+      document.body.appendChild(scr);
+    }
+    scr.style.display = '';
+    scr.innerHTML =
+      '<div class="pin-brand" aria-label="Kiwi">kiwi<i aria-hidden="true"></i></div>' +
+      '<div class="pin-greet">' + (pv ? 'Reprendre ' + esc(pv.name || 'votre magasin') : 'Connectez cette caisse') + '</div>' +
+      '<div class="pin-prompt">CODE D\'APPAIRAGE · 6 CHIFFRES</div>' +
+      '<div class="pin-dots" id="cp-dots" aria-hidden="true">' + dotsHtml() + '</div>' +
+      '<div class="pin-pad" id="cp-pad">' +
+        key(1) + key(2) + key(3) + key(4) + key(5) + key(6) + key(7) + key(8) + key(9) +
+        '<button class="pin-key is-action" data-cp="clear" aria-label="Effacer tout">C</button>' + key(0) +
+        '<button class="pin-key is-action" data-cp="back" aria-label="Effacer">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H7l-5 7 5 7h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>' +
+        '</button>' +
+      '</div>' +
+      (pv ? '<button id="cp-resume" type="button">Ouvrir ' + esc(pv.name || 'le magasin') + ' →</button>' : '') +
+      '<div class="pin-foot">Entrez le code affiché sur votre tableau de bord Kiwi</div>';
+    renderDots();
+  }
+  function hidePad() { var s = document.getElementById('cp-screen'); if (s) s.style.display = 'none'; }
+  function esc(x) { return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); }
+
+  function feed(d) {
+    if (d === 'clear') { buf = ''; }
+    else if (d === 'back') { buf = buf.slice(0, -1); }
+    else if (/^[0-9]$/.test(d) && buf.length < 6) { buf += d; }
+    renderDots();
+    if (buf.length === 6) submit();
+  }
+  function submit() {
+    var code = buf;
+    redeem(code).then(function (res) {
+      if (res && res.ok) { hidePad(); bootVertical(res.venue); return; }
+      var scr = document.getElementById('cp-screen');
+      if (scr) { scr.classList.add('is-error'); setTimeout(function () { scr.classList.remove('is-error'); }, 420); }
+      toast(res && res.error === 'expired' ? 'Code expiré, régénérez-en un.' : 'Code invalide.');
+      buf = ''; renderDots();
+    });
+  }
+  function toast(msg) {
+    try {
+      var stack = document.getElementById('toast-stack');
+      if (stack) { var el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; stack.appendChild(el); setTimeout(function () { el.classList.add('fade'); }, 2200); setTimeout(function () { el.remove(); }, 2480); return; }
+    } catch (_) {}
+  }
+
+  // Delegated pad handling (survives re-renders of #cp-screen).
+  document.addEventListener('click', function (e) {
+    var k = e.target.closest && e.target.closest('#cp-pad [data-cp]');
+    if (k) { feed(k.getAttribute('data-cp')); return; }
+    if (e.target.closest && e.target.closest('#cp-resume')) { var pv = pairedVenue(); if (pv) { hidePad(); bootVertical(pv); } }
+  });
+  document.addEventListener('keydown', function (e) {
+    var scr = document.getElementById('cp-screen');
+    if (!scr || scr.style.display === 'none') return;
+    if (/^[0-9]$/.test(e.key)) { feed(e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { feed('back'); e.preventDefault(); }
+  });
+
+  /* ── boot ───────────────────────────────────────────────────────────────
+   * Local (demos allowed): no-op — native demo pad as before.
+   * Hosted + paired: boot straight into the bound store.
+   * Hosted + unpaired: show the pairing pad. */
+  function boot() {
+    if (!hosted()) return;
+    // A hosted terminal that locks its store returns to the pairing pad (which
+    // offers a one-tap "reprendre" when still bound).
+    try {
+      if (window.KiwiPosDispatch && window.KiwiPosDispatch.lock && !window.KiwiPosDispatch.__cpWrapped) {
+        var origLock = window.KiwiPosDispatch.lock;
+        window.KiwiPosDispatch.lock = function () { try { origLock.apply(this, arguments); } catch (_) {} if (hosted()) setTimeout(showPad, 60); };
+        window.KiwiPosDispatch.__cpWrapped = true;
+      }
+    } catch (_) {}
+    if (isPaired()) bootVertical(pairedVenue());
+    else showPad();
+  }
+
+  window.KiwiCaissePairing = { isPaired: isPaired, pairedVenue: pairedVenue, showPad: showPad, redeem: redeem, unpair: unpair, bootVertical: bootVertical };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
