@@ -555,10 +555,41 @@
 
   /* ═══════════════ ROOT STATE ═══════════════ */
   if (!window.__kiwiTeamV2) window.__kiwiTeamV2 = { byVenue: {}, hoursByVenue: {}, periodKind: 'week', periodLocked: false };
-  function ensureVenueData(venueType) {
+
+  /* A team is stored per venue. DEMO venues keep their type-keyed, in-memory
+     demo seed (unchanged). A REAL (custom/onboarded) venue is keyed by its own
+     id, starts EMPTY, and persists to localStorage — so a new store builds its
+     own team and it survives a reload, with no demo staff leaking in. */
+  function teamKey(venue) { return (venue && venue.custom) ? venue.id : ((venue && venue.type) || 'restaurant'); }
+  const DEMO_TYPE_KEYS = new Set(['restaurant', 'boutique', 'spa', 'hotel']);
+  const LS_TEAM = 'kiwiTeamV2:custom';
+  function loadCustomTeams() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LS_TEAM) || '{}');
+      const root = window.__kiwiTeamV2;
+      Object.keys(raw.byVenue || {}).forEach((k) => {
+        if (!DEMO_TYPE_KEYS.has(k)) { root.byVenue[k] = raw.byVenue[k]; root.hoursByVenue[k] = (raw.hoursByVenue || {})[k] || {}; }
+      });
+    } catch (_) {}
+  }
+  function saveCustomTeams() {
+    try {
+      const root = window.__kiwiTeamV2;
+      const out = { byVenue: {}, hoursByVenue: {} };
+      Object.keys(root.byVenue).forEach((k) => {
+        if (!DEMO_TYPE_KEYS.has(k)) { out.byVenue[k] = root.byVenue[k]; out.hoursByVenue[k] = root.hoursByVenue[k] || {}; }
+      });
+      localStorage.setItem(LS_TEAM, JSON.stringify(out));
+    } catch (_) {}
+  }
+  loadCustomTeams();
+  window.addEventListener('pagehide', saveCustomTeams);
+
+  function ensureVenueData(venue) {
     const root = window.__kiwiTeamV2;
-    if (!root.byVenue[venueType]) root.byVenue[venueType] = seedFor(venueType);
-    if (!root.hoursByVenue[venueType]) root.hoursByVenue[venueType] = seedHours(root.byVenue[venueType], buildPeriod(root.periodKind).days);
+    const key = teamKey(venue);
+    if (!root.byVenue[key]) root.byVenue[key] = (venue && venue.custom) ? [] : seedFor((venue && venue.type) || 'restaurant');
+    if (!root.hoursByVenue[key]) root.hoursByVenue[key] = seedHours(root.byVenue[key], buildPeriod(root.periodKind).days);
     return root;
   }
   function getMembers(venueType) { return window.__kiwiTeamV2.byVenue[venueType] || []; }
@@ -658,14 +689,14 @@
     window.scrollTo({ top: 0 });
 
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
-    ensureVenueData(venue.type || 'restaurant');
+    ensureVenueData(venue);
 
     /* Re-render when the venue or language changes. */
     if (!unsubscribeVenue && window.KiwiVenue?.subscribe) {
       unsubscribeVenue = window.KiwiVenue.subscribe(() => {
         if (!pageActive) return;
         const v2 = window.KiwiVenue.getCurrentVenueData();
-        ensureVenueData(v2?.type || 'restaurant');
+        ensureVenueData(v2);
         render();
       });
     }
@@ -693,7 +724,7 @@
     root.removeAttribute('hidden');
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
-    const venueType = venue.type || 'restaurant';
+    const venueType = teamKey(venue);
     const members = getMembers(venueType);
     root.innerHTML = `
       ${renderHeader(T, venue, members)}
@@ -717,7 +748,7 @@
     if (!root) return;
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
-    const venueType = venue.type || 'restaurant';
+    const venueType = teamKey(venue);
     const members = getMembers(venueType);
     const target = root.querySelector('[data-kt-grid-host]');
     if (!target) return;
@@ -1011,7 +1042,7 @@
     const root = document.querySelector('[data-equipe-root]');
     if (!root) return;
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
-    const vt = venue.type || 'restaurant';
+    const vt = teamKey(venue);
     const members = getMembers(vt);
     const hours = getHours(vt);
     let grandH = 0, grandP = 0;
@@ -1037,7 +1068,7 @@
   function openMemberModal(memberId) {
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant', name: 'Café Atlas' };
-    const venueType = venue.type || 'restaurant';
+    const venueType = teamKey(venue);
     const cat = catalogFor(venueType);
     const editing = !!memberId;
     const existing = editing ? (getMembers(venueType).find(m => m.id === memberId) || null) : null;
@@ -1309,6 +1340,7 @@
       h[member.id] = {};
       Kiwi.toast(T.tAdded(memberFullName(member)), { type: 'success', desc: T.tAddedDesc(member.password) });
     }
+    saveCustomTeams();
     mdl.close();
     window.__kiwiTeamModal = null;
     if (pageActive) render();
@@ -1318,7 +1350,7 @@
   handlers['kt-view-profile'] = (_el, id) => {
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
-    const venueType = venue.type || 'restaurant';
+    const venueType = teamKey(venue);
     const m = getMembers(venueType).find(x => x.id === id);
     if (!m) return;
 
@@ -1398,7 +1430,7 @@
   handlers['kt-delete-member'] = (_el, id) => {
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
-    const venueType = venue.type || 'restaurant';
+    const venueType = teamKey(venue);
     const members = getMembers(venueType);
     const m = members.find(x => x.id === id); if (!m) return;
     const confirmM = modal({
@@ -1424,13 +1456,14 @@
   handlers['kt-confirm-delete'] = (_el, id) => {
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
-    const venueType = venue.type || 'restaurant';
+    const venueType = teamKey(venue);
     const members = getMembers(venueType);
     const idx = members.findIndex(x => x.id === id);
     if (idx < 0) return;
     const removed = members.splice(idx, 1)[0];
     const h = window.__kiwiTeamV2.hoursByVenue[venueType] || {};
     delete h[id];
+    saveCustomTeams();
     if (window.__kiwiTeamConfirmModal) { try { window.__kiwiTeamConfirmModal.close(); } catch (_) {} window.__kiwiTeamConfirmModal = null; }
     if (window.__kiwiTeamProfileDrawer) { try { window.__kiwiTeamProfileDrawer.close(); } catch (_) {} window.__kiwiTeamProfileDrawer = null; }
     Kiwi.toast(T.tDeleted(memberFullName(removed)), { type: 'success' });
@@ -1444,7 +1477,7 @@
     root.periodKind = kind;
     root.periodLocked = false;
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
-    const vt = venue.type || 'restaurant';
+    const vt = teamKey(venue);
     const period = buildPeriod(kind);
     const members = getMembers(vt);
     const hours = window.__kiwiTeamV2.hoursByVenue[vt] || (window.__kiwiTeamV2.hoursByVenue[vt] = {});
@@ -1463,7 +1496,7 @@
   handlers['kt-quick-entry'] = () => {
     const T = t();
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
-    const venueType = venue.type || 'restaurant';
+    const venueType = teamKey(venue);
     const members = getMembers(venueType);
     if (!members.length) { Kiwi.toast('—', { type: 'info' }); return; }
     const today = toISO(new Date());
@@ -1496,7 +1529,7 @@
     const T = t();
     const qe = window.__kiwiTeamQuickEntry; if (!qe || !qe.el) return;
     const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant' };
-    const vt = venue.type || 'restaurant';
+    const vt = teamKey(venue);
     const mid = qe.el.querySelector('[data-kt-qe-member]')?.value;
     const date = qe.el.querySelector('[data-kt-qe-date]')?.value;
     const hVal = parseFloat(qe.el.querySelector('[data-kt-qe-hours]')?.value) || 0;

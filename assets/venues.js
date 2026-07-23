@@ -6522,10 +6522,29 @@
   function payMad(n) { return payNum(n) + ' MAD'; }
 
   function payStaffAll() { return [].concat(STAFF.cafeAtlas, STAFF.maisonMansour, STAFF.spaBahia); }
-  /* Staff in scope: the active venue, or all three under Go Ultra. */
+  /* Staff in scope: the active venue, or all three under Go Ultra. A REAL
+     (custom/onboarded) venue has no demo STAFF — its payroll is built from the
+     employees the merchant added on the Équipe page (team.js), so it starts
+     EMPTY and never falls back to Café Atlas's demo staff. */
   function payStaff() {
     if (currentVenue === 'fusion') return payStaffAll();
+    if (isCustom(currentVenue)) return customPayStaff();
     return (STAFF[currentVenue] || STAFF.cafeAtlas).slice();
+  }
+  function customPayStaff() {
+    const root = window.__kiwiTeamV2;
+    const members = (root && root.byVenue && root.byVenue[currentVenue]) || [];
+    const v = VENUES[currentVenue] || {};
+    return members.map((m) => ({
+      id: m.id,
+      name: ((m.firstName || '') + ' ' + (m.lastName || '')).trim() || m.firstName || 'Employé',
+      role: m.function || m.role || '', department: m.department || '',
+      venue: currentVenue, venueName: v.name || '',
+      hourlyRate: +m.hourlyRate || 0, contractHours: +m.contractHours || 40,
+      avatar: ((m.firstName || '?')[0] + ((m.lastName || '')[0] || '')).toUpperCase(),
+      status: 'off', clockedInAt: null,
+      shiftsThisMonth: 0, hoursThisMonth: 0, tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null,
+    }));
   }
   /* Gross monthly pay — same basis as the Équipe page (hours × rate). */
   function payGross(s) { return s.hoursThisMonth * s.hourlyRate; }
@@ -6612,7 +6631,8 @@
   function payHeadHtml(staff) {
     const venueName = currentVenue === 'fusion'
       ? 'Go Ultra · 3 emplacements'
-      : (STAFF[currentVenue] && STAFF[currentVenue][0] ? STAFF[currentVenue][0].venueName : 'Café Atlas');
+      : ((VENUES[currentVenue] && VENUES[currentVenue].name)
+         || (STAFF[currentVenue] && STAFF[currentVenue][0] ? STAFF[currentVenue][0].venueName : 'Café Atlas'));
     return `
       <div class="pay-head">
         <div>

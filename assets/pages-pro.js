@@ -6792,7 +6792,7 @@ function _renderInventory() {
   const cats = cat.listCategories();
   window.Kiwi.appPage('inventory', {
     title: 'Inventaire produits',
-    subtitle: `Maison Mansour · Gueliz · ${st.products} produits · ${st.variants} variantes · base partagée avec la caisse`,
+    subtitle: `${((window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && window.KiwiVenue.getCurrentVenueData()) || {}).fullDisplay || 'Boutique'} · ${st.products} produits · ${st.variants} variantes · base partagée avec la caisse`,
     body: `
       <div class="kx-kpi-strip">
         <div class="kx-kpi"><div class="l">PRODUITS</div><div class="v">${st.products}<span class="u">/ ${st.variants} var.</span></div><div class="d">${st.ruptures} en rupture</div></div>
@@ -11500,6 +11500,11 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
                      b: ['Une fiche créée automatiquement par client', 'Historique, préférences et notes', 'Campagnes anniversaires et fidélité'] },
   };
 
+  /* Destinations that now have a REAL per-venue, persistent UI — they render
+     their functional page for custom (onboarded) venues too, NOT a starter
+     placeholder. This set grows as more pages become per-venue functional. */
+  const REAL_FOR_CUSTOM = new Set(['inventory', 'categories', 'equipe', 'practitioners', 'payroll']);
+
   /* ── Actionable layer: let the client add their OWN data right here ──────
    * Config-type destinations (menu, team, devices…) get an "Add {noun}" button
    * that opens a guided modal; what they type persists per venue and shows back
@@ -11680,7 +11685,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       const orig = H[key];
       if (orig && orig.__kiwiStarter) return;
       const wrapped = function () {
-        if (window.KiwiVenue?.isCustom?.()) return renderStarter(nav, meta);
+        if (window.KiwiVenue?.isCustom?.() && !REAL_FOR_CUSTOM.has(nav)) return renderStarter(nav, meta);
         /* Direct invocations (mobile nav, palette, agent) bypass the sidebar
          * router's genpage cleanup — clear a leftover starter page so it
          * can't mask the destination's own body-class view. */
