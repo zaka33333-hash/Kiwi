@@ -17,8 +17,15 @@
 (function () {
   'use strict';
 
-  const VENUE = 'maisonMansour';
-  const KEY = 'kiwiBoutiqueCatalog:v1:' + VENUE;
+  // The catalogue is PER VENUE, so every boutique (present or future) gets its
+  // own inventory. `maisonMansour` is the pre-seeded demo store; any other venue
+  // starts EMPTY (a real new client re-scans their own stock). Surfaces call
+  // KiwiBoutiqueCatalog.use(venueId) to switch which store's catalogue is active
+  // (the caisse pins 0002 → 'maisonMansour'; the dashboard follows KiwiVenue).
+  const DEMO_VENUE = 'maisonMansour';
+  const keyFor = (v) => 'kiwiBoutiqueCatalog:v1:' + v;
+  let VENUE = DEMO_VENUE;
+  let KEY = keyFor(VENUE);
 
   /* ───────────────── shared colour palette (first-class attribute) ───────────────
      Lifted from the caisse COLORS so both surfaces speak the same colours. */
@@ -102,8 +109,24 @@
     if (raw) {
       try { db = JSON.parse(raw); } catch (e) { db = null; }
     }
-    if (!db || !db.products) { db = blank(); seed(); persist(); }
+    if (!db || !db.products) {
+      db = blank();
+      if (VENUE === DEMO_VENUE) seed();   // only the demo store is pre-filled; new boutiques start empty
+      persist();
+    }
     return db;
+  }
+
+  // Switch which store's catalogue is active. New venues load their own key
+  // (seeded only for the demo store), and all surfaces re-render.
+  function use(venueId) {
+    const v = venueId || DEMO_VENUE;
+    if (v === VENUE && db) return;
+    VENUE = v;
+    KEY = keyFor(VENUE);
+    db = null;
+    load();
+    notify();
   }
 
   function persist() {
@@ -400,7 +423,8 @@
   /* ───────────────── public API ───────────────── */
   window.KiwiBoutiqueCatalog = {
     // lifecycle
-    load, reset, subscribe(fn) { load(); subs.add(fn); return () => subs.delete(fn); },
+    load, reset, use, currentVenue: () => VENUE, demoVenue: DEMO_VENUE,
+    subscribe(fn) { load(); subs.add(fn); return () => subs.delete(fn); },
     // reference data
     colors: () => COLORS.slice(), colorById: (id) => COLOR_BY_ID[id] || null, sizePresets,
     // categories
@@ -422,6 +446,6 @@
     resolveScan: (c) => (load(), resolveScan(c)), barcodeExists: (c) => (load(), barcodeExists(c)), primaryBarcode,
     // util
     stats: () => (load(), stats()), compat: () => (load(), compat()), exportCsv: () => (load(), exportCsv()),
-    _key: KEY, _venue: VENUE,
+    get _key() { return KEY; }, get _venue() { return VENUE; },
   };
 })();

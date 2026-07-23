@@ -6781,8 +6781,13 @@ function _bqxGridHtml() {
   }).join('')}</div>`;
 }
 
+/* the boutique inventory follows the dashboard's active venue, so every boutique
+   (Maison Mansour or any future store) gets its OWN catalogue automatically. */
+function _bqxVenue() { return (window.KiwiVenue && window.KiwiVenue.getVenue && window.KiwiVenue.getVenue()) || 'maisonMansour'; }
+
 function _renderInventory() {
   const cat = CAT();
+  cat.use(_bqxVenue());
   const st = cat.stats();
   const cats = cat.listCategories();
   window.Kiwi.appPage('inventory', {
@@ -7168,6 +7173,7 @@ handlers['bqx-prod-del-ok'] = (_el, arg) => {
  * ─────────────────────────────────────────────────────────────────────────── */
 function _renderCategories() {
   const cat = CAT();
+  cat.use(_bqxVenue());
   const cats = cat.listCategories();
   const st = cat.stats();
   window.Kiwi.appPage('categories', {
