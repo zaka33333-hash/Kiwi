@@ -113,13 +113,13 @@
   /* ───────────────────────── occasions ─────────────────────────
      Le deuil change la copie : ton sobre, pas de festivité, pas d'emoji. */
   const OCCASIONS = [
-    { id: 'anniversaire', label: 'Anniversaire', icon: 'cake',        sub: 'Joyeuse fête — couleurs et lumière',
+    { id: 'anniversaire', label: 'Anniversaire', icon: 'cake',        sub: 'Joyeuse fête, couleurs et lumière',
       suggest: ['Joyeux anniversaire', 'Un an de plus, mille raisons de sourire', 'Tout mon amour pour ta journée'] },
     { id: 'mariage',      label: 'Mariage',      icon: 'heart',       sub: 'Union, cérémonie, table d\'honneur',
       suggest: ['Tous mes vœux de bonheur', 'Mabrouk pour votre union', 'Une vie pleine d\'amour'] },
-    { id: 'naissance',    label: 'Naissance',    icon: 'baby',        sub: 'Bienvenue — douceur et tendresse',
+    { id: 'naissance',    label: 'Naissance',    icon: 'baby',        sub: 'Bienvenue, douceur et tendresse',
       suggest: ['Bienvenue au monde, petit trésor', 'Félicitations aux heureux parents', 'Mabrouk pour cette belle naissance'] },
-    { id: 'deuil',        label: 'Condoléances', icon: 'leaf',        sub: 'Hommage et soutien — composition sobre', deuil: true,
+    { id: 'deuil',        label: 'Condoléances', icon: 'leaf',        sub: 'Hommage et soutien, composition sobre', deuil: true,
       suggest: ['Avec nos sincères condoléances', 'En cette épreuve, toute notre pensée', 'Nos pensées vous accompagnent'] },
   ];
   const OCC = Object.fromEntries(OCCASIONS.map((o) => [o.id, o]));
@@ -182,18 +182,18 @@
       recipient: { name: 'Famille Berrada', phone: '0661 70 21 55', addr: '14 rue de Belgique, Appt 3', district: 'Iberia' },
       buyerId: 'c1', items: [{ kind: 'preset', id: 'kasbah', label: 'Brassée Kasbah', n: 1, total: 260 }],
       total: 275, pay: { mode: 'now', method: 'carte', paid: 275 }, createdMin: 180,
-      message: 'Mabrouk pour cette belle naissance — toute notre tendresse.', note: 'Laisser à la réception si absent.' }),
+      message: 'Mabrouk pour cette belle naissance, toute notre tendresse.', note: 'Laisser à la réception si absent.' }),
     mkDelivery({ id: 'F-1061', slot: 's1', occ: 'anniversaire', status: 'route', photo: true,
       recipient: { name: 'Mme Loubna Tazi', phone: '0650 14 88 02', addr: '8 av. Hassan II, Résidence Al Andalous', district: 'Centre' },
       buyerId: 'c2', items: [{ kind: 'compose', label: 'Bouquet composé', n: 16, total: 168 }],
       total: 183, pay: { mode: 'now', method: 'especes', paid: 183 }, createdMin: 95,
-      message: 'Joyeux anniversaire Loubna — mille bonheurs.' }),
+      message: 'Joyeux anniversaire Loubna, mille bonheurs.' }),
     /* ── créneau après-midi ── */
     mkDelivery({ id: 'F-1063', slot: 's2', occ: 'mariage', status: 'prep',
-      recipient: { name: 'Salle Andalousia', phone: '0539 94 30 12', addr: 'Route de Rabat, km 4 — salle des fêtes', district: 'Malabata' },
+      recipient: { name: 'Salle Andalousia', phone: '0539 94 30 12', addr: 'Route de Rabat, km 4, salle des fêtes', district: 'Malabata' },
       buyerId: 'rh', items: [{ kind: 'preset', id: 'detroit', label: 'Bouquet Détroit', n: 4, total: 720 }],
       total: 720, pay: { mode: 'compte', method: 'compte', paid: 0 }, createdMin: 60,
-      message: 'Mabrouk pour votre union.', note: 'Quatre compositions pour la table d\'honneur — livrer avant 15h.' }),
+      message: 'Mabrouk pour votre union.', note: 'Quatre compositions pour la table d\'honneur, livrer avant 15h.' }),
     /* ── créneau soir ── */
     mkDelivery({ id: 'F-1066', slot: 's3', occ: 'anniversaire', status: 'prep',
       recipient: { name: 'Sofia Mernissi', phone: '0668 22 41 90', addr: '23 rue Ibn Batouta', district: 'Marshan' },
@@ -202,10 +202,10 @@
       message: 'Bon anniversaire Sofia.' }),
     /* ── l'ordre deuil — copie sobre ── */
     mkDelivery({ id: 'F-1067', slot: 's3', occ: 'deuil', status: 'prep',
-      recipient: { name: 'Famille Sefrioui', phone: '0661 03 55 27', addr: 'Cimetière Mujahidin — entrée principale', district: 'Tanger' },
+      recipient: { name: 'Famille Sefrioui', phone: '0661 03 55 27', addr: 'Cimetière Mujahidin, entrée principale', district: 'Tanger' },
       buyerId: 'c3', items: [{ kind: 'compose', label: 'Composition sobre', n: 18, total: 196 }],
       total: 196, pay: { mode: 'now', method: 'carte', paid: 196 }, createdMin: 25,
-      message: 'Avec nos sincères condoléances.', note: 'Gerbe blanche et verte — remettre avec discrétion.' }),
+      message: 'Avec nos sincères condoléances.', note: 'Gerbe blanche et verte, remettre avec discrétion.' }),
   ];
 
   /* ───────────────────────── arrivages du matin ─────────────────────────
@@ -215,9 +215,9 @@
     { id: 'rose_rouge',  qty: 120, fresh: 'fresh', sale: false },
     { id: 'pivoine',     qty: 40,  fresh: 'soon',  sale: false, batch: 'Arrivage Hollande · ce matin 06h' },
     { id: 'tulipe',      qty: 60,  fresh: 'fresh', sale: false },
-    { id: 'lys',         qty: 24,  fresh: 'today', sale: true,  batch: 'Reste de mardi — à écouler' },
+    { id: 'lys',         qty: 24,  fresh: 'today', sale: true,  batch: 'Reste de mardi, à écouler' },
     { id: 'renoncule',   qty: 30,  fresh: 'soon',  sale: false },
-    { id: 'gypsophile',  qty: 80,  fresh: 'today', sale: true,  batch: 'Bottes ouvertes — à écouler' },
+    { id: 'gypsophile',  qty: 80,  fresh: 'today', sale: true,  batch: 'Bottes ouvertes, à écouler' },
     { id: 'tournesol',   qty: 18,  fresh: 'fresh', sale: false },
   ];
   const SALE_RATE = 0.30;
@@ -309,7 +309,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -322,7 +322,7 @@
         <div class="fl-brand">kiwi<i></i></div>
         <div class="fl-venue">
           <div class="fl-venue-name">Fleurs du Détroit</div>
-          <div class="fl-venue-sub">Tanger · Marché central<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="fl-venue-sub">Tanger · Marché central<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="fl-nav" id="fl-nav">
           <button class="fl-nav-it on" data-fl-view="composer"><i data-lucide="flower"></i><span>Composer</span><b class="fl-nav-badge" id="fl-badge-bq"></b></button>
@@ -339,7 +339,7 @@
       </aside>
       <main class="fl-main">
         <div class="fl-offline-note" id="fl-offline-note" hidden>
-          Hors-ligne — les ventes et livraisons continuent sur la tablette, synchronisées au retour du réseau.
+          Hors-ligne, les ventes et livraisons continuent sur la tablette, synchronisées au retour du réseau.
           <b id="fl-queue-count"></b>
         </div>
 
@@ -348,7 +348,7 @@
             <div class="fl-stems">
               <header class="fl-head">
                 <div><h1>Composer un bouquet</h1><div class="fl-head-sub" id="fl-today"></div></div>
-                <div class="fl-head-hint">Touchez une tige pour l'ajouter — la taille se calcule seule</div>
+                <div class="fl-head-hint">Touchez une tige pour l'ajouter, la taille se calcule seule</div>
               </header>
               <div class="fl-cats" id="fl-cats"></div>
               <div class="fl-grid-scroll" id="fl-gridwrap"></div>
@@ -467,16 +467,16 @@
     if (state.cat === 'tous' || state.cat === 'signature') {
       if (state.cat === 'tous') {
         html += `<div class="fl-grid-head">Bouquets signatures</div><div class="fl-grid">${PRESETS.map((p) => presetCard(p, i++)).join('')}</div>`;
-        html += `<div class="fl-grid-head">Tiges — au détail</div><div class="fl-grid">${STEMS.map((s) => stemCard(s, i++)).join('')}</div>`;
+        html += `<div class="fl-grid-head">Tiges, au détail</div><div class="fl-grid">${STEMS.map((s) => stemCard(s, i++)).join('')}</div>`;
       } else {
-        html += `<div class="fl-grid-head">Bouquets signatures — composition figée</div><div class="fl-grid">${PRESETS.map((p) => presetCard(p, i++)).join('')}</div>`;
+        html += `<div class="fl-grid-head">Bouquets signatures, composition figée</div><div class="fl-grid">${PRESETS.map((p) => presetCard(p, i++)).join('')}</div>`;
       }
     } else if (state.cat === 'promo') {
       const sale = ARRIVALS.filter((a) => saleActive(a.id)).map((a) => STEM[a.id]);
-      html += `<div class="fl-grid-head">Fleurs à écouler — reprisées −30 %</div>`;
+      html += `<div class="fl-grid-head">Fleurs à écouler, reprisées −30 %</div>`;
       html += sale.length
         ? `<div class="fl-grid">${sale.map((s) => stemCard(s, i++)).join('')}</div>`
-        : `<div class="fl-bq-empty" style="padding:40px 0;"><i data-lucide="sprout"></i><div>Rien à écouler — tout est frais.<br>Activez une promo depuis l'onglet Arrivages.</div></div>`;
+        : `<div class="fl-bq-empty" style="padding:40px 0;"><i data-lucide="sprout"></i><div>Rien à écouler, tout est frais.<br>Activez une promo depuis l'onglet Arrivages.</div></div>`;
     }
     wrap.innerHTML = html;
     wrap.onclick = (e) => {
@@ -528,7 +528,7 @@
         <button class="fl-modal-x" data-fl-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <div class="fl-sheet-head">
           <span class="fl-sheet-art">${ART[s.id] || ''}</span>
-          <span class="fl-sheet-title"><h3>${esc(s.label)}</h3><span class="sub">${onSale ? 'À écouler — reprisée −30 %' : (s.note ? esc(s.note) : 'à la tige')}</span></span>
+          <span class="fl-sheet-title"><h3>${esc(s.label)}</h3><span class="sub">${onSale ? 'À écouler, reprisée −30 %' : (s.note ? esc(s.note) : 'à la tige')}</span></span>
           <span class="fl-sheet-price">
             <span class="val" id="fl-sheet-total">${fmtMAD(u * n)}</span>
             <span class="per">${onSale ? `<span class="was">${s.price}</span> ` : ''}${u} MAD × ${n}</span>
@@ -555,7 +555,7 @@
       $('#fl-sheet-set', el).onclick = () => {
         state.bouquet.stems[stemId] = n;
         closeVeil('#fl-sheet-veil');
-        toast(`${s.label} × ${n} — sur le bouquet`);
+        toast(`${s.label} × ${n}, sur le bouquet`);
         afterBouquetChange();
       };
       $$('[data-fl-close]', el).forEach((b) => { b.onclick = () => closeVeil('#fl-sheet-veil'); });
@@ -597,7 +597,7 @@
         ${empty ? `
           <div class="fl-bq-empty">
             <i data-lucide="flower"></i>
-            <div>Le bouquet est vide.<br>Touchez une tige dans la grille — ou partez d'un bouquet signature.</div>
+            <div>Le bouquet est vide.<br>Touchez une tige dans la grille, ou partez d'un bouquet signature.</div>
           </div>` : `
           ${b.presets.map((p, i) => presetLine(p, i)).join('')}
           ${Object.keys(b.stems).map((id) => stemLine(id)).join('')}`}
@@ -682,7 +682,7 @@
     const occ = OCC[b.occ];
     panel.innerHTML = `
       <header class="fl-head">
-        <div><h1>Occasion &amp; carte</h1><div class="fl-head-sub">L'occasion guide la composition — et la carte part imprimée avec le bouquet.</div></div>
+        <div><h1>Occasion &amp; carte</h1><div class="fl-head-sub">L'occasion guide la composition, et la carte part imprimée avec le bouquet.</div></div>
       </header>
       <div class="fl-occ">
         <div class="fl-occ-inner">
@@ -708,7 +708,7 @@
           </div>
 
           <div class="fl-occ-right">
-            <div class="fl-pv-rotate">Aperçu — petite carte</div>
+            <div class="fl-pv-rotate">Aperçu, petite carte</div>
             <div id="fl-card-pv"></div>
           </div>
         </div>
@@ -760,7 +760,7 @@
     $('#fl-cp-print', host).onclick = () => {
       if (!has) { toast('Écrivez d\'abord le message de la carte'); return; }
       queueIfOffline('Carte');
-      toast('Carte envoyée à l\'imprimante — jointe au bouquet');
+      toast('Carte envoyée à l\'imprimante, jointe au bouquet');
     };
     icons();
   }
@@ -823,7 +823,7 @@
     const render = () => {
       el.innerHTML = `
         <button class="fl-modal-x" data-fl-close aria-label="Fermer"><i data-lucide="x"></i></button>
-        <h3 class="modal-title">Ticket &amp; étiquette — ${b.num}</h3>
+        <h3 class="modal-title">Ticket &amp; étiquette, ${b.num}</h3>
         <p class="modal-subtle">${count} tige${count > 1 ? 's' : ''} · ${esc(occ.label)} · ${esc(cust.name)}. Choisissez retrait ou livraison, puis encaissez.</p>
         <div class="fl-recap-grid">
           ${recapReceipt(b, delivSlot)}
@@ -852,7 +852,7 @@
                 <div class="id">${b.num}-FDD</div>
               </div>
             </div>
-            <div class="fl-recap-note"><i data-lucide="shield-check"></i>${delivSlot ? 'En livraison : adresse du destinataire demandée à l\'encaissement.' : 'L\'étiquette suit le bouquet — soin, occasion et client en un coup d\'œil.'}</div>
+            <div class="fl-recap-note"><i data-lucide="shield-check"></i>${delivSlot ? 'En livraison : adresse du destinataire demandée à l\'encaissement.' : 'L\'étiquette suit le bouquet, soin, occasion et client en un coup d\'œil.'}</div>
           </div>
         </div>
         <div class="fl-recap-foot">
@@ -866,7 +866,7 @@
         delivSlot = o.dataset.flSlot === 'none' ? null : o.dataset.flSlot;
         render();
       };
-      $('#fl-recap-print', el).onclick = () => toast('Envoyé — ticket (80 mm) + étiquette bouquet' + (b.message ? ' + carte' : ''));
+      $('#fl-recap-print', el).onclick = () => toast('Envoyé, ticket (80 mm) + étiquette bouquet' + (b.message ? ' + carte' : ''));
       $('#fl-recap-pay', el).onclick = () => { closeVeil('#fl-recap-veil'); openPay({ b, delivSlot }); };
       icons();
     };
@@ -920,13 +920,13 @@
           ${ctx.delivSlot ? `
           <button class="fl-pay-opt" data-fl-paymode="pickup">
             <span class="ic"><i data-lucide="hand-coins"></i></span>
-            <span class="l"><b>Payé à la livraison</b><span>Le livreur encaisse — solde sur le bon</span></span>
+            <span class="l"><b>Payé à la livraison</b><span>Le livreur encaisse, solde sur le bon</span></span>
             <span class="amt">${fmtMAD(total)}</span>
           </button>` : ''}
           ${cust.b2b ? `
           <button class="fl-pay-opt" data-fl-paymode="compte">
             <span class="ic"><i data-lucide="building-2"></i></span>
-            <span class="l"><b>Sur compte B2B</b><span>${esc(cust.name)} — facture fin de mois</span></span>
+            <span class="l"><b>Sur compte B2B</b><span>${esc(cust.name)}, facture fin de mois</span></span>
           </button>` : ''}`}
         </div>`;
       icons();
@@ -935,7 +935,7 @@
         b.onclick = () => {
           const mode = b.dataset.flPaymode;
           if (mode === 'pickup') { finishFresh('pickup', null, 0, `Solde ${fmtMAD(total)} à encaisser à la livraison`); }
-          else if (mode === 'compte') { finishFresh('compte', 'compte', 0, 'Sur compte B2B — ajouté à la facture du mois'); }
+          else if (mode === 'compte') { finishFresh('compte', 'compte', 0, 'Sur compte B2B, ajouté à la facture du mois'); }
           else if (mode === 'acompte') { stepAcompte(); }
           else { stepMethod(total, 'now'); }
         };
@@ -992,7 +992,7 @@
           </button>
           <button class="fl-pay-opt" data-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire, V1 sans encaissement Kiwi</span></span>
           </button>
         </div>`;
       icons();
@@ -1040,7 +1040,7 @@
       el.innerHTML = `
         <button class="fl-modal-x" data-fl-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD(amount)}</h3>
-        <p class="modal-subtle">${settle ? order.id : ctx.b.num} · lecteur partenaire — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">${settle ? order.id : ctx.b.num} · lecteur partenaire, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="fl-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="fl-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
@@ -1066,13 +1066,13 @@
         order.pay.paid += amount;
         order.pay.method = method;
         closeVeil('#fl-pay-veil');
-        toast(`Solde encaissé — ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+        toast(`Solde encaissé, ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
         if (typeof ctx.onSettled === 'function') ctx.onSettled();
         return;
       }
       finishFresh(mode, method, amount, mode === 'acompte'
-        ? `Acompte ${fmtMAD(amount)} encaissé — solde ${fmtMAD(total - amount)} ${ctx.delivSlot ? 'à la livraison' : 'au retrait'}`
-        : `Encaissé — ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+        ? `Acompte ${fmtMAD(amount)} encaissé, solde ${fmtMAD(total - amount)} ${ctx.delivSlot ? 'à la livraison' : 'au retrait'}`
+        : `Encaissé, ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
     };
 
     /* commit a fresh bouquet → optional delivery, then reset the composer */
@@ -1091,11 +1091,11 @@
         });
         DELIVERIES.unshift(created);
         deliverySeq++;
-        toast(`Livraison ${created.id} créée — créneau ${SLOT[ctx.delivSlot].short}. Pensez à préciser l'adresse.`);
+        toast(`Livraison ${created.id} créée, créneau ${SLOT[ctx.delivSlot].short}. Pensez à préciser l'adresse.`);
         queueIfOffline(`Livraison ${created.id}`);
       } else {
         queueIfOffline(`Bon ${b.num}`);
-        toast(`${b.num} encaissé — bouquet remis`);
+        toast(`${b.num} encaissé, bouquet remis`);
       }
       bouquetSeq++;
       freshBouquet();
@@ -1156,7 +1156,7 @@
     const done = DELIVERIES.filter((d) => d.status === 'done').length;
     panel.innerHTML = `
       <header class="fl-head">
-        <div><h1>Livraisons du jour</h1><div class="fl-head-sub">${active} en cours · ${done} livrée${done > 1 ? 's' : ''} — le destinataire n'est pas toujours l'acheteur</div></div>
+        <div><h1>Livraisons du jour</h1><div class="fl-head-sub">${active} en cours · ${done} livrée${done > 1 ? 's' : ''}, le destinataire n'est pas toujours l'acheteur</div></div>
         <div class="fl-head-right">
           <div class="fl-chip" style="cursor:default;"><i data-lucide="calendar"></i>${fmtDay(new Date())}</div>
         </div>
@@ -1229,10 +1229,10 @@
       </div>
 
       <div class="fl-dt-block">
-        <div class="fl-dt-block-lbl">Preuve — photo avant départ</div>
+        <div class="fl-dt-block-lbl">Preuve, photo avant départ</div>
         <button class="fl-dt-photo ${d.photo ? 'done' : ''}" id="fl-dt-photo">
           <span class="th">${ART[d.occ === 'deuil' ? 'lys' : (d.items[0] && d.items[0].kind === 'preset' ? PRESET[d.items[0].id].art : 'rose_rouge')] || ''}</span>
-          <span class="l"><b>${d.photo ? 'Photo du bouquet prise' : 'Prendre la photo du bouquet'}</b><span>${d.photo ? 'Jointe au bon — le client voit ce qui part.' : 'Avant le départ — protège le fleuriste et rassure le client.'}</span></span>
+          <span class="l"><b>${d.photo ? 'Photo du bouquet prise' : 'Prendre la photo du bouquet'}</b><span>${d.photo ? 'Jointe au bon, le client voit ce qui part.' : 'Avant le départ, protège le fleuriste et rassure le client.'}</span></span>
           <span class="tick"><i data-lucide="${d.photo ? 'check' : 'camera'}"></i></span>
         </button>
       </div>
@@ -1275,8 +1275,8 @@
     if (s === 'done') d.doneAt = new Date();
     else if (d.doneAt) d.doneAt = null;
     queueIfOffline('Statut livraison');
-    if (s === 'route') toast(`${d.id} — en route vers ${recipFirst(d)}`);
-    else if (s === 'done') toast(`${d.id} livré à ${esc(d.recipient.name)} — merci envoyé`);
+    if (s === 'route') toast(`${d.id}, en route vers ${recipFirst(d)}`);
+    else if (s === 'done') toast(`${d.id} livré à ${esc(d.recipient.name)}, merci envoyé`);
     openDelivDetail(d.id);
     refreshOps();
   }
@@ -1304,7 +1304,7 @@
       setTimeout(() => {
         closeVeil('#fl-photo-veil');
         queueIfOffline('Photo bouquet');
-        toast(`Photo de ${d.id} enregistrée — jointe au bon de livraison`);
+        toast(`Photo de ${d.id} enregistrée, jointe au bon de livraison`);
         if ($('#fl-dt-veil', root).classList.contains('is-open')) openDelivDetail(d.id);
         refreshOps();
       }, 420);
@@ -1318,9 +1318,9 @@
     const first = recipFirst(d);
     if (occ.deuil) {
       return `Bonjour, une composition de la part de ${buyerLabel(d)} sera remise aujourd'hui (${SLOT[d.slot].hours}) à l'adresse indiquée.`
-        + `\nAvec nos sincères pensées — Fleurs du Détroit.`;
+        + `\nAvec nos sincères pensées, Fleurs du Détroit.`;
     }
-    return `Sba7 lkhir ${first} — un bouquet vous attend de la part de ${buyerLabel(d)}.`
+    return `Sba7 lkhir ${first}, un bouquet vous attend de la part de ${buyerLabel(d)}.`
       + `\nLivraison prévue aujourd'hui, créneau ${SLOT[d.slot].hours}.`
       + `\n— Fleurs du Détroit, via Kiwi`;
   }
@@ -1331,7 +1331,7 @@
     let withPhoto = d.photo;
     el.innerHTML = `
       <button class="fl-modal-x" data-fl-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">WhatsApp — prévenir le destinataire</h3>
+      <h3 class="modal-title">WhatsApp, prévenir le destinataire</h3>
       <p class="modal-subtle">${esc(d.recipient.name)} ${d.recipient.phone ? `· ${esc(d.recipient.phone)}` : '· numéro manquant'}</p>
       <div class="fl-wa-bubblewrap">
         <div class="fl-wa-bubble">
@@ -1341,7 +1341,7 @@
       </div>
       <button class="fl-wa-photo ${withPhoto ? 'on' : ''}" id="fl-wa-photo" ${d.photo ? '' : 'disabled style="opacity:.5"'}>
         <span class="th">${ART[occ.deuil ? 'lys' : 'rose_rouge'] || ''}</span>
-        <span class="l">${d.photo ? 'Joindre la photo du bouquet — le destinataire voit ce qui arrive' : 'Aucune photo encore — prenez-la depuis le bon'}</span>
+        <span class="l">${d.photo ? 'Joindre la photo du bouquet, le destinataire voit ce qui arrive' : 'Aucune photo encore, prenez-la depuis le bon'}</span>
         <span class="tick"><i data-lucide="check"></i></span>
       </button>
       <div class="fl-sheet-foot">
@@ -1367,7 +1367,7 @@
     const totalStems = ARRIVALS.reduce((s, a) => s + a.qty, 0);
     panel.innerHTML = `
       <header class="fl-head">
-        <div><h1>Arrivages &amp; fraîcheur</h1><div class="fl-head-sub">L'arrivage du matin — et ce qu'il faut écouler avant la fermeture</div></div>
+        <div><h1>Arrivages &amp; fraîcheur</h1><div class="fl-head-sub">L'arrivage du matin, et ce qu'il faut écouler avant la fermeture</div></div>
       </header>
       <div class="fl-arriv">
         <div class="fl-arriv-inner">
@@ -1378,7 +1378,7 @@
           <div class="fl-arriv-list" id="fl-arriv-list">
             ${ARRIVALS.map(arrivalRow).join('')}
           </div>
-          <div class="fl-arriv-foot"><i data-lucide="shield-check"></i>Une fleur fraîche tient le bouquet — écouler au bon moment, c'est la marge et la réputation.</div>
+          <div class="fl-arriv-foot"><i data-lucide="shield-check"></i>Une fleur fraîche tient le bouquet, écouler au bon moment, c'est la marge et la réputation.</div>
         </div>
       </div>`;
     $('#fl-arriv-list', panel).onclick = (e) => {
@@ -1414,8 +1414,8 @@
     saleState[stemId] = !saleState[stemId];
     queueIfOffline('Promo arrivage');
     toast(saleState[stemId]
-      ? `${STEM[stemId].label} en promo −30 % — ${unitPrice(stemId)} MAD la tige`
-      : `${STEM[stemId].label} — retour au prix plein`);
+      ? `${STEM[stemId].label} en promo −30 %, ${unitPrice(stemId)} MAD la tige`
+      : `${STEM[stemId].label}, retour au prix plein`);
     renderArrivages();
     /* live reprice everywhere the stem appears — grid prices + bouquet total */
     renderCats();
@@ -1438,7 +1438,7 @@
       el.innerHTML = `
         <button class="fl-modal-x" data-fl-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Client</h3>
-        <p class="modal-subtle">L'acheteur — pour la fiche, l'historique et la carte. Le destinataire se renseigne à la livraison.</p>
+        <p class="modal-subtle">L'acheteur, pour la fiche, l'historique et la carte. Le destinataire se renseigne à la livraison.</p>
         <div class="fl-phone-in"><i data-lucide="phone"></i>
           <input id="fl-cl-q" inputmode="tel" placeholder="06… ou nom du client" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -1457,7 +1457,7 @@
           ${hits.length === 1 ? recoPanel(hits[0]) : ''}
           <button class="fl-cl-new" id="fl-cl-new"><i data-lucide="user-plus"></i>Nouveau client${q && !hits.length ? ` · « ${esc(q)} »` : ''}</button>
           <div class="fl-sheet-foot" style="margin-top:10px;">
-            <button class="fl-btn ghost" id="fl-cl-guest">Client de passage — sans fiche</button>
+            <button class="fl-btn ghost" id="fl-cl-guest">Client de passage, sans fiche</button>
           </div>` : `
           <div class="fl-cl-form">
             <input class="fl-in" id="fl-cl-name" placeholder="Nom et prénom" value="${esc(/^[\d\s.+-]*$/.test(q || '') ? '' : (q || ''))}" />
@@ -1474,7 +1474,7 @@
           state.bouquet.customer = { type: 'known', id: b.dataset.flCl };
           closeVeil('#fl-client-veil');
           const c = CUST[b.dataset.flCl];
-          toast(c.b2b ? `${c.name} — compte B2B, remise −15 % appliquée` : `${c.name} — ${c.orders} commandes, bienvenue`);
+          toast(c.b2b ? `${c.name}, compte B2B, remise −15 % appliquée` : `${c.name}, ${c.orders} commandes, bienvenue`);
           renderBouquet();
           if (state.view === 'occasion') renderCardPreview();
           icons();
@@ -1500,7 +1500,7 @@
         CUSTOMERS.unshift(c); CUST[id] = c;
         state.bouquet.customer = { type: 'known', id };
         closeVeil('#fl-client-veil');
-        toast(`Fiche créée — ${name}`);
+        toast(`Fiche créée, ${name}`);
         renderBouquet();
         if (state.view === 'occasion') renderCardPreview();
         icons();
@@ -1513,7 +1513,7 @@
   }
   function recoPanel(c) {
     return `<div class="fl-reco">
-      <div class="fl-reco-head"><i data-lucide="sparkles"></i>${esc(c.name)} — client reconnu</div>
+      <div class="fl-reco-head"><i data-lucide="sparkles"></i>${esc(c.name)}, client reconnu</div>
       <div class="fl-reco-rows">
         ${(c.prefs || []).map((p) => `<div class="fl-reco-row"><i data-lucide="heart"></i>${esc(p)}</div>`).join('')}
         ${c.contact ? `<div class="fl-reco-row"><i data-lucide="user"></i>${esc(c.contact)}</div>` : ''}
@@ -1535,13 +1535,13 @@
     state.offline = !state.offline;
     if (!state.offline) {
       if (state.queued) {
-        toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+        toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
         state.queued = 0;
       } else {
-        toast('Réseau de retour — tout est synchronisé');
+        toast('Réseau de retour, tout est synchronisé');
       }
     } else {
-      toast('Mode hors-ligne — la boutique continue, tout est mis en file');
+      toast('Mode hors-ligne, la boutique continue, tout est mis en file');
     }
     renderNet();
   }

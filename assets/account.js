@@ -315,9 +315,9 @@
       tag: pick({ fr: 'CHANGEMENT DE FORMULE', en: 'PLAN CHANGE', ar: 'تغيير الباقة' }),
       title: pick({ fr: `Passer à ${ti.name} ?`, en: `Switch to ${ti.name}?`, ar: `الانتقال إلى ${ti.name}؟` }), width: 460,
       body: `<p style="font-size:14px; color:var(--n-600); line-height:1.6; margin:0;">${esc(pick({
-        fr: `Vous passerez à ${ti.name} (${ti.price}/mois). Le changement prend effet à votre prochaine échéance — vous gardez vos fonctionnalités actuelles jusque-là.`,
-        en: `You'll move to ${ti.name} (${ti.price}/mo). The change applies at your next billing date — you keep your current features until then.`,
-        ar: `ستنتقل إلى ${ti.name} (${ti.price}/شهر). يسري التغيير في تاريخ الفوترة القادم — تحتفظ بميزاتك حتى ذلك الحين.` }))}</p>`,
+        fr: `Vous passerez à ${ti.name} (${ti.price}/mois). Le changement prend effet à votre prochaine échéance, vous gardez vos fonctionnalités actuelles jusque-là.`,
+        en: `You'll move to ${ti.name} (${ti.price}/mo). The change applies at your next billing date, you keep your current features until then.`,
+        ar: `ستنتقل إلى ${ti.name} (${ti.price}/شهر). يسري التغيير في تاريخ الفوترة القادم, تحتفظ بميزاتك حتى ذلك الحين.` }))}</p>`,
       foot: `<button class="kb ghost" data-cancel type="button" style="flex:1;justify-content:center;">${esc(pick({ fr: 'Annuler', en: 'Cancel', ar: 'إلغاء' }))}</button><button class="kb atlas" data-confirm type="button" style="flex:1;justify-content:center;">${esc(pick({ fr: 'Confirmer', en: 'Confirm', ar: 'تأكيد' }))}</button>`,
     });
     m.el.addEventListener('click', (e) => {
@@ -325,7 +325,7 @@
       if (!e.target.closest('[data-confirm]')) return;
       try { localStorage.setItem('kiwiSet:plan', target); } catch (_) {}
       m.close(); setTimeout(openProfile, 80);
-      Kiwi.toast(pick({ fr: `Demande enregistrée — ${ti.name} au prochain cycle.`, en: `Saved — ${ti.name} from next cycle.`, ar: `تم الحفظ — ${ti.name} من الدورة القادمة.` }), { type: 'success', force: true });
+      Kiwi.toast(pick({ fr: `Demande enregistrée, ${ti.name} au prochain cycle.`, en: `Saved, ${ti.name} from next cycle.`, ar: `تم الحفظ, ${ti.name} من الدورة القادمة.` }), { type: 'success', force: true });
     });
   }
   function planCancelModal() {
@@ -333,9 +333,9 @@
       tag: pick({ fr: 'RÉSILIATION', en: 'CANCELLATION', ar: 'إلغاء' }),
       title: pick({ fr: 'Résilier votre abonnement', en: 'Cancel your subscription', ar: 'إلغاء اشتراكك' }), width: 470,
       body: `<p style="font-size:14px; color:var(--n-600); line-height:1.6; margin:0 0 16px;">${esc(pick({
-        fr: "La résiliation se fait avec votre account manager Kiwi — pour exporter vos données, planifier la transition et éviter toute interruption de service. Contactez-nous :",
-        en: 'Cancellation goes through your Kiwi account manager — to export your data, plan the transition and avoid any service interruption. Reach us:',
-        ar: 'يتم الإلغاء عبر مدير حسابك في كيوي — لتصدير بياناتك وتخطيط الانتقال وتجنّب أي انقطاع. تواصل معنا:' }))}</p>
+        fr: "La résiliation se fait avec votre account manager Kiwi, pour exporter vos données, planifier la transition et éviter toute interruption de service. Contactez-nous :",
+        en: 'Cancellation goes through your Kiwi account manager, to export your data, plan the transition and avoid any service interruption. Reach us:',
+        ar: 'يتم الإلغاء عبر مدير حسابك في كيوي, لتصدير بياناتك وتخطيط الانتقال وتجنّب أي انقطاع. تواصل معنا:' }))}</p>
         <div class="acc-contact" style="margin-bottom:0;">
           <div class="acc-contact-card" data-action="help-whatsapp"><div class="t">WhatsApp</div><div class="d">${esc(pick({ fr: 'Réponse < 5 min', en: 'Reply < 5 min', ar: 'رد < 5 د' }))}</div></div>
           <div class="acc-contact-card" data-action="account-help-mail"><div class="t">Email</div><div class="d">support@kiwi.ma</div></div>
@@ -346,7 +346,7 @@
     m.el.addEventListener('click', (e) => {
       if (!e.target.closest('[data-callback]')) return;
       m.close();
-      Kiwi.toast(pick({ fr: 'Demande envoyée — votre account manager vous rappelle sous 24 h.', en: 'Request sent — your account manager will call you within 24h.', ar: 'تم إرسال الطلب — سيتصل بك مدير حسابك خلال 24 ساعة.' }), { type: 'success', force: true });
+      Kiwi.toast(pick({ fr: 'Demande envoyée, votre account manager vous rappelle sous 24 h.', en: 'Request sent, your account manager will call you within 24h.', ar: 'تم إرسال الطلب, سيتصل بك مدير حسابك خلال 24 ساعة.' }), { type: 'success', force: true });
     });
   }
 

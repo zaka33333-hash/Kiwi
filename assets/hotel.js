@@ -378,7 +378,7 @@
     }).join('');
     const commission = SRC[f.src].fee > 0
       ? `<div class="hx-fol-meta warn"><span>Commission ${SRC[f.src].label} (${Math.round(SRC[f.src].fee * 100)} %) · facturée au riad en fin de mois</span><span style="font-family:var(--mono);">−${MAD(folioBySrc(f, 'room') * SRC[f.src].fee)}</span></div>`
-      : `<div class="hx-fol-meta"><span>Réservation directe — aucune commission OTA</span><span class="hx-pill ok">0 MAD</span></div>`;
+      : `<div class="hx-fol-meta"><span>Réservation directe, aucune commission OTA</span><span class="hx-pill ok">0 MAD</span></div>`;
     return `
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
         ${srcPill(f.src)}
@@ -398,7 +398,7 @@
     const m = K().modal({
       tag: 'FOLIO · CH. ' + room,
       title: f ? f.guest : 'Chambre ' + room,
-      desc: 'Chambres + restaurant + hammam + taxe de séjour — une seule note.',
+      desc: 'Chambres + restaurant + hammam + taxe de séjour, une seule note.',
       width: 600,
       body: folioModalHtml(room, highlightNew),
     });
@@ -431,8 +431,8 @@
   }
   function addChargeHtml(room) {
     const intro = isCustomHotel()
-      ? `Votre caisse — la charge se poste directement sur la note de la chambre ${room}.`
-      : `Caisse restaurant et hammam du riad — la charge se poste directement sur la note de la chambre ${room}.`;
+      ? `Votre caisse, la charge se poste directement sur la note de la chambre ${room}.`
+      : `Caisse restaurant et hammam du riad, la charge se poste directement sur la note de la chambre ${room}.`;
     return `
       <div style="font-size:12px;color:var(--n-500);margin-bottom:10px;">${intro}</div>
       ${quickItems().map((q, i) => `<div class="hx-fol-line" style="cursor:pointer;" data-action="hx-post-charge" data-arg="${room}|${i}">
@@ -557,7 +557,7 @@
     const r = R()[n];
     if ((r.status === 'occ' || r.status === 'depart') && F()[n]) return openFolio(n);
     if (r.status === 'arrivee' && F()[n]) return openFolio(n);
-    const stLbl = { arrivee: 'Arrivée attendue', libre: 'Libre · propre', sale: 'Libre · sale — en remise', hs: 'Hors-service' };
+    const stLbl = { arrivee: 'Arrivée attendue', libre: 'Libre · propre', sale: 'Libre · sale, en remise', hs: 'Hors-service' };
     const m = K().modal({
       tag: 'CH. ' + n + ' · ' + roomTypeOf(n).name.toUpperCase(),
       title: r.guest || stLbl[r.status] || 'Chambre ' + n,
@@ -611,7 +611,7 @@
         <span><span class="sw" style="background:var(--warning);"></span>Airbnb</span>
         <span><span class="sw" style="background:var(--n-400);"></span>Expedia</span>
         <span><span class="sw" style="background:var(--mint-soft);border-color:var(--atlas);"></span>Walk-in</span>
-        <span style="margin-left:auto;">Samedi 13 · 96 % — pensez aux tarifs weekend (Tarifs & occupation)</span>
+        <span style="margin-left:auto;">Samedi 13 · 96 %, pensez aux tarifs weekend (Tarifs & occupation)</span>
       </div>
       <div class="block hx-tape-wrap" style="padding:14px;">${head}</div>
     </div>`;
@@ -651,7 +651,7 @@
         <div class="hx-kpi"><div class="l">Inspections</div><div class="v">2 / 2</div><div class="d up">Khadija · gouvernante</div></div>
       </div>
       <div class="hx-h"><span class="t">File de remise à blanc</span><span class="s">sale → en cours → à inspecter → inspectée · la chambre repasse « libre propre »</span></div>
-      <div class="block" style="padding:6px 14px;">${q || '<div style="padding:14px;font-size:13px;color:var(--n-500);">File vide — toutes les chambres sont prêtes.</div>'}</div>
+      <div class="block" style="padding:6px 14px;">${q || '<div style="padding:14px;font-size:13px;color:var(--n-500);">File vide, toutes les chambres sont prêtes.</div>'}</div>
       <div class="hx-h"><span class="t">Remises terminées · aujourd'hui</span></div>
       <div class="block" style="padding:6px 14px;">${done}</div>
       <div class="hx-h"><span class="t">Équipe ménage · 4</span><span class="a" data-action="nav-equipe">Gérer l'équipe →</span></div>
@@ -688,7 +688,7 @@
         <div class="block" style="padding:16px;">
           <div class="hx-h" style="margin:0 0 10px;"><span class="t">Pourquoi ces suggestions</span></div>
           <div style="font-size:12.5px;color:var(--n-500);line-height:1.7;">
-            Samedi 13 juin est à <b style="color:var(--ink);">96 % de remplissage</b> avec 3 jours d'avance — la demande médina monte de 14 % cette semaine (comp-set 64 riads).
+            Samedi 13 juin est à <b style="color:var(--ink);">96 % de remplissage</b> avec 3 jours d'avance, la demande médina monte de 14 % cette semaine (comp-set 64 riads).
             La <b style="color:var(--ink);">Suite Terrasse Royale est sous-cotée</b> : vos 2 suites partent 5 jours sur 7 alors que le comp-set premium affiche +18 % sur le weekend.
             Revenu projeté si appliqué : <b style="color:var(--atlas);">+4 280 MAD sur 7 jours</b>.
           </div>
@@ -697,7 +697,7 @@
           <div class="hx-h" style="margin:0 0 10px;"><span class="t">Saisonnalité Marrakech</span></div>
           <div style="display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:var(--n-500);">
             <div style="display:flex;justify-content:space-between;"><span><span class="hx-ev peak">HAUTE SAISON</span></span><span>octobre → décembre · février → avril</span></div>
-            <div style="display:flex;justify-content:space-between;"><span><span class="hx-ev dip">ÉTÉ</span></span><span>juillet-août · chaleur — visez les nuitées MRE</span></div>
+            <div style="display:flex;justify-content:space-between;"><span><span class="hx-ev dip">ÉTÉ</span></span><span>juillet-août · chaleur, visez les nuitées MRE</span></div>
             <div style="display:flex;justify-content:space-between;"><span><span class="hx-ev dip">RAMADAN 2027</span></span><span>≈ 8 février → 9 mars · creux puis pic Aïd</span></div>
             <div style="display:flex;justify-content:space-between;"><span><span class="hx-ev peak">AÏD AL-FITR</span></span><span>≈ 10-13 mars 2027 · +28 % vs moyenne</span></div>
           </div>
@@ -745,7 +745,7 @@
             <div class="hx-donut" style="${donutCss(NATIONALITIES)}"><div class="ctr"><b>34 %</b><span>FRANCE</span></div></div>
             <div class="hx-dlg">${NATIONALITIES.map((n) => `<div class="r"><span class="sw" style="background:${n.color};"></span><span>${n.c}</span><span class="pc">${n.pct} %</span><span></span></div>`).join('')}</div>
           </div>
-          <div style="font-size:11.5px;color:var(--n-500);margin-top:12px;line-height:1.6;">Le couple FR + MA pèse 56 % des nuitées — alignez petits-déjeuners, langues du staff et horaires hammam.</div>
+          <div style="font-size:11.5px;color:var(--n-500);margin-top:12px;line-height:1.6;">Le couple FR + MA pèse 56 % des nuitées, alignez petits-déjeuners, langues du staff et horaires hammam.</div>
         </div>
       </div>
     </div>`;
@@ -769,7 +769,7 @@
             <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--n-500);margin-top:5px;"><span>Chambres ${g.split[0]} %</span><span>Restaurant ${g.split[1]} %</span><span>Hammam ${g.split[2]} %</span></div>
           </div>` : ''}
           <div>
-            <div style="font-size:11px;font-family:var(--mono);color:var(--n-500);letter-spacing:.05em;margin-bottom:6px;">PRÉFÉRENCES — SERVIES AU CHECK-IN</div>
+            <div style="font-size:11px;font-family:var(--mono);color:var(--n-500);letter-spacing:.05em;margin-bottom:6px;">PRÉFÉRENCES, SERVIES AU CHECK-IN</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">${g.prefs.map((p) => `<span class="hx-pref${/allergie/i.test(p) ? ' allergy' : ''}" style="font-size:11.5px;padding:4px 10px;">${p}</span>`).join('')}</div>
           </div>
         </div>
@@ -814,7 +814,7 @@
       <div class="block" style="padding:6px 14px;">${rows}</div>
       <div class="block" style="padding:16px;background:var(--mint-soft);border-color:var(--atlas);">
         <div style="font-size:13px;color:var(--riad);line-height:1.65;">
-          <b>C'est ça, le pitch Kiwi.</b> Un thé commandé en terrasse, un hammam réservé à l'accueil, trois nuits en Suite Yasmina —
+          <b>C'est ça, le pitch Kiwi.</b> Un thé commandé en terrasse, un hammam réservé à l'accueil, trois nuits en Suite Yasmina,
           tout atterrit sur la même note, taxe de séjour calculée, encaissée en un geste au départ. Aucun PMS étranger ne fait
           caisse + spa + chambres nativement pour un riad marocain.
         </div>
@@ -854,7 +854,7 @@
           <div class="lbl">LA MORSURE BOOKING · 30 JOURS</div>
           <div class="big">−${MAD(56180)}</div>
           <div class="sub">17 % de commission sur 295 nuitées. La même Confort Médina à 950 MAD vous laisse
-            <b style="color:var(--paper);">788,50 MAD via Booking</b> — et <b style="color:var(--mint);">950 MAD en direct</b>.</div>
+            <b style="color:var(--paper);">788,50 MAD via Booking</b>, et <b style="color:var(--mint);">950 MAD en direct</b>.</div>
           <div style="margin-top:14px;">
             <div class="hx-bleed-row"><div>1 séjour direct de 3 nuits<div class="nt">au lieu de Booking</div></div><span class="am" style="color:var(--mint);">+484 MAD</span></div>
             <div class="hx-bleed-row"><div>22 clients fidèles encore sur OTA<div class="nt">relance « revenez en direct −10 % »</div></div><span class="am" style="color:var(--mint);">+4 100 MAD / mois</span></div>
@@ -870,10 +870,10 @@
         <div class="block" style="padding:16px;">
           <div class="hx-h" style="margin:0 0 10px;"><span class="t">Règles par canal</span></div>
           <div style="font-size:12.5px;color:var(--n-500);line-height:1.9;">
-            <div style="display:flex;justify-content:space-between;"><span>Booking.com — annulation flexible</span><b style="color:var(--ink);">no-show : 1ʳᵉ nuit retenue</b></div>
-            <div style="display:flex;justify-content:space-between;"><span>Expedia — prépaiement virtuel (VCC)</span><b style="color:var(--ink);">encaissé à l'arrivée</b></div>
-            <div style="display:flex;justify-content:space-between;"><span>Airbnb — versement J+1 après arrivée</span><b style="color:var(--ink);">frais hôte 3 %</b></div>
-            <div style="display:flex;justify-content:space-between;"><span>Direct — acompte 30 % WhatsApp Pay</span><b style="color:var(--atlas);">0 % commission</b></div>
+            <div style="display:flex;justify-content:space-between;"><span>Booking.com, annulation flexible</span><b style="color:var(--ink);">no-show : 1ʳᵉ nuit retenue</b></div>
+            <div style="display:flex;justify-content:space-between;"><span>Expedia, prépaiement virtuel (VCC)</span><b style="color:var(--ink);">encaissé à l'arrivée</b></div>
+            <div style="display:flex;justify-content:space-between;"><span>Airbnb, versement J+1 après arrivée</span><b style="color:var(--ink);">frais hôte 3 %</b></div>
+            <div style="display:flex;justify-content:space-between;"><span>Direct, acompte 30 % WhatsApp Pay</span><b style="color:var(--atlas);">0 % commission</b></div>
           </div>
         </div>
       </div>
@@ -917,7 +917,7 @@
         <button class="hx-btn ghost" data-action="hx-noshow-secure" data-arg="${n.ref}">Demander prépaiement</button>
       </div>`).join('');
     return `<div class="hx-page">
-      <div class="hx-h"><span class="t">Prévision d'occupation · 12 mois</span><span class="s">saisonnalité Marrakech + calendrier hégirien + événements ville — comme la prévision de stock du restaurant</span></div>
+      <div class="hx-h"><span class="t">Prévision d'occupation · 12 mois</span><span class="s">saisonnalité Marrakech + calendrier hégirien + événements ville, comme la prévision de stock du restaurant</span></div>
       <div class="block" style="padding:16px;">
         ${forecastSvg()}
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
@@ -931,9 +931,9 @@
         <div class="block" style="padding:16px;">
           <div class="hx-h" style="margin:0 0 8px;"><span class="t">Suggestions tarifaires</span><span class="a" data-action="nav-tarifs">Ouvrir les tarifs →</span></div>
           <div style="font-size:12.5px;color:var(--n-500);line-height:1.8;">
-            <div>· Weekend 13-14 juin : <b style="color:var(--ink);">+18 %</b> sur Confort & Suites — 96 % de remplissage anticipé.</div>
+            <div>· Weekend 13-14 juin : <b style="color:var(--ink);">+18 %</b> sur Confort & Suites, 96 % de remplissage anticipé.</div>
             <div>· Suite Terrasse Royale <b style="color:var(--ink);">sous-cotée de ~200 MAD</b> vs comp-set premium médina.</div>
-            <div>· Mardi-mercredi : promo directe −10 % — remplirait <b style="color:var(--ink);">~2 chambres / semaine</b> en creux.</div>
+            <div>· Mardi-mercredi : promo directe −10 %, remplirait <b style="color:var(--ink);">~2 chambres / semaine</b> en creux.</div>
           </div>
         </div>
         <div class="block" style="padding:6px 14px;">
@@ -944,7 +944,7 @@
       <div class="hx-bleed">
         <div class="lbl">OÙ PART L'ARGENT · 30 JOURS</div>
         <div class="big">−${MAD(67190 + 3850 + 950)}</div>
-        <div class="sub">Trois fuites mesurées par Kiwi sur votre exploitation — et le manque à gagner des nuits invendues à surveiller.</div>
+        <div class="sub">Trois fuites mesurées par Kiwi sur votre exploitation, et le manque à gagner des nuits invendues à surveiller.</div>
         <div style="margin-top:14px;">
           <div class="hx-bleed-row"><div>Commissions OTA<div class="nt">Booking 56 180 · Expedia 8 810 · Airbnb 2 200</div></div><span class="am">−${MAD(67190)}</span></div>
           <div class="hx-bleed-row"><div>Late check-outs · 9 rotations bloquées<div class="nt">2 arrivées retardées + 1 surclassement offert</div></div><span class="am">−${MAD(3850)}</span></div>
@@ -995,10 +995,10 @@
       </div>
       <div class="block" style="padding:8px 14px;">
         ${cuStarter(
-          sold ? 'La réception tourne.' : 'Encore rien ici — et c\'est normal.',
+          sold ? 'La réception tourne.' : 'Encore rien ici, et c\'est normal.',
           sold ? 'Vos walk-ins de ce soir sont sur le plan des chambres ; chaque vente alimente votre chiffre réel.'
                : 'Votre journal d\'arrivées et de départs se remplit avec vos réservations et vos walk-ins.',
-          ['Check-in en un geste — la chambre passe « occupée », le folio s\'ouvre',
+          ['Check-in en un geste, la chambre passe « occupée », le folio s\'ouvre',
            'Restaurant et spa postent sur la note de chambre automatiquement',
            'Taxe de séjour calculée par personne et par nuit, prête à déclarer'],
           '<button class="hx-btn ghost" data-action="nav-chambres">Plan des chambres →</button>'
@@ -1051,7 +1051,7 @@
       <div class="block" style="padding:8px 14px;">
         ${dirty.length ? `<div class="hx-list">${rows}</div>` : cuStarter(
           'Tout est propre.',
-          'Quand un départ est encaissé, sa chambre arrive ici pour remise à blanc — assignable à votre équipe.',
+          'Quand un départ est encaissé, sa chambre arrive ici pour remise à blanc, assignable à votre équipe.',
           ['File priorisée par les arrivées du soir', 'Assignation femme de chambre en un geste', 'Temps de rotation mesuré automatiquement']
         )}
       </div>
@@ -1070,7 +1070,7 @@
       <div class="block" style="padding:8px 14px;margin-top:14px;">
         ${cuStarter(
           'ADR, RevPAR et tarification IA s\'activent ici.',
-          'Avec vos premières nuitées, Kiwi calcule votre prix moyen réel et suggère des tarifs par jour — weekends, saisons, Ramadan et Aïd compris.',
+          'Avec vos premières nuitées, Kiwi calcule votre prix moyen réel et suggère des tarifs par jour, weekends, saisons, Ramadan et Aïd compris.',
           ['Calendrier tarifaire par type de chambre', 'Suggestions IA appliquables en un geste', 'Occupation prévisionnelle sur 12 mois']
         )}
       </div>
@@ -1086,7 +1086,7 @@
         <button class="hx-btn ghost" data-action="hx-folio" data-arg="${f.room}">Ouvrir</button>
       </div>`).join('');
     return `<div class="hx-page">
-      <div class="hx-h"><span class="t">Folios ouverts · ${fl.length}</span><span class="s">une seule note par séjour — chambre + extras + taxe</span></div>
+      <div class="hx-h"><span class="t">Folios ouverts · ${fl.length}</span><span class="s">une seule note par séjour, chambre + extras + taxe</span></div>
       <div class="block" style="padding:8px 14px;">
         ${fl.length ? `<div class="hx-list">${rows}</div>` : cuStarter(
           'Aucun folio ouvert.',
@@ -1103,7 +1103,7 @@
       <div class="block" style="padding:8px 14px;">
         ${cuStarter(
           'Votre tape chart arrive avec vos réservations.',
-          'Chambres × dates : chaque séjour devient une barre colorée par canal — Booking, direct, Airbnb, walk-in — avec la ligne d\'occupation en pied.',
+          'Chambres × dates : chaque séjour devient une barre colorée par canal, Booking, direct, Airbnb, walk-in, avec la ligne d\'occupation en pied.',
           ['Vue 14 jours glissants par chambre', 'Sources de réservation identifiables d\'un coup d\'œil', 'Taux d\'occupation calculé par jour'],
           '<button class="hx-btn ghost" data-action="nav-canaux">Connecter mes canaux →</button>'
         )}
@@ -1115,7 +1115,7 @@
       <div class="block" style="padding:8px 14px;">
         ${cuStarter(
           'Vos fiches clients se créent toutes seules.',
-          'Dès le premier séjour, chaque client a sa fiche : préférences, allergies, dépenses par poste, valeur vie — et la reconnaissance des fidèles au check-in.',
+          'Dès le premier séjour, chaque client a sa fiche : préférences, allergies, dépenses par poste, valeur vie, et la reconnaissance des fidèles au check-in.',
           ['« Client fidèle ×2 » signalé à l\'arrivée', 'Mix nationalités pour viser vos marchés', 'Relance directe −10 % pour court-circuiter les OTA']
         )}
       </div>
@@ -1130,7 +1130,7 @@
     const rows = ch.map((c) => `
       <div class="hx-arr">
         <span class="tm">OTA</span>
-        <div class="who"><b>${c.name}</b><div class="sub">commission ${c.fee} — visible sur chaque réservation une fois connecté</div></div>
+        <div class="who"><b>${c.name}</b><div class="sub">commission ${c.fee}, visible sur chaque réservation une fois connecté</div></div>
         <button class="hx-btn ghost" data-action="hx-cb-connect" data-arg="${c.name}">Connecter</button>
       </div>`).join('');
     return `<div class="hx-page">
@@ -1143,7 +1143,7 @@
       <div class="block" style="padding:8px 14px;margin-top:14px;">
         ${cuStarter(
           'Le vrai prix des OTA, enfin visible.',
-          'Une fois vos canaux connectés, Kiwi calcule ce que chaque canal vous coûte réellement — et combien la réservation directe vous fait économiser.',
+          'Une fois vos canaux connectés, Kiwi calcule ce que chaque canal vous coûte réellement, et combien la réservation directe vous fait économiser.',
           ['Répartition des nuitées par canal', 'Commissions cumulées par mois, en MAD', 'Plan de reconquête des clients fidèles vers le direct']
         )}
       </div>
@@ -1154,8 +1154,8 @@
       <div class="block" style="padding:8px 14px;">
         ${cuStarter(
           'L\'intelligence hôtel s\'entraîne sur vos données.',
-          'Avec quelques semaines d\'historique, Kiwi prévoit votre occupation — saisons marocaines, Ramadan et Aïd compris — et vous dit où part l\'argent.',
-          ['Prévision d\'occupation 12 mois', 'Suggestions tarifaires par période', 'Risque de no-show par réservation', '« Où part l\'argent » — commissions, taxe, frais']
+          'Avec quelques semaines d\'historique, Kiwi prévoit votre occupation, saisons marocaines, Ramadan et Aïd compris, et vous dit où part l\'argent.',
+          ['Prévision d\'occupation 12 mois', 'Suggestions tarifaires par période', 'Risque de no-show par réservation', '« Où part l\'argent », commissions, taxe, frais']
         )}
       </div>
     </div>`;
@@ -1194,7 +1194,7 @@
     const m = Kw.modal({
       tag: 'BIENVENUE SUR KIWI',
       title: 'Configurez votre tableau de bord',
-      desc: 'Une minute pour créer le vôtre — vide, prêt à se remplir avec vos vraies ventes.',
+      desc: 'Une minute pour créer le vôtre, vide, prêt à se remplir avec vos vraies ventes.',
       width: 520,
       body: `
         <style>
@@ -1246,12 +1246,12 @@
       if (todayPill && !todayPill.classList.contains('on')) todayPill.click();
       Kw.confetti();
       Kw.toast(trL({fr:'Votre tableau de bord est prêt', en:'Your dashboard is ready', ar:'لوحة التحكم جاهزة'}), { type: 'success', force: true,
-        desc: `${name} — ${answers
+        desc: `${name}, ${answers
           ? trL({fr:'profil complété ✓ · enregistrez votre première vente.', en:'profile completed ✓ · record your first sale.', ar:'اكتمل الملف ✓ · سجّل أول عملية بيع.'})
           : trL({fr:'enregistrez votre première vente pour le voir prendre vie.', en:'record your first sale to see it come alive.', ar:'سجّل أول عملية بيع لتراها تنبض بالحياة.'})}` });
       if (def.id === 'hotel') {
         setTimeout(() => Kw.toast(trL({fr:'Votre hôtel est en place', en:'Your hotel is set up', ar:'فندقك جاهز'}), { type: 'info', force: true,
-          desc: trL({fr:'Plan des chambres, réception, folios et ménage sont prêts — vendez votre première chambre en walk-in.', en:'Room rack, front desk, folios and housekeeping are ready — sell your first room as a walk-in.', ar:'مخطط الغرف والاستقبال والفواتير جاهزة — بِع أول غرفة walk-in.'}) }), 1700);
+          desc: trL({fr:'Plan des chambres, réception, folios et ménage sont prêts, vendez votre première chambre en walk-in.', en:'Room rack, front desk, folios and housekeeping are ready, sell your first room as a walk-in.', ar:'مخطط الغرف والاستقبال والفواتير جاهزة, بِع أول غرفة walk-in.'}) }), 1700);
       }
     };
     const readAnswers = () => {
@@ -1289,7 +1289,7 @@
           <style>.ob-field:focus{border-color:var(--atlas)!important;}</style>
           <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;color:var(--atlas);margin:2px 0 10px;">${trL({fr:'ÉTAPE 2 / 2 · TOUT EST OPTIONNEL', en:'STEP 2 / 2 · ALL OPTIONAL', ar:'الخطوة 2/2 · كل شيء اختياري'})}</div>
           <div style="font-size:17px;font-weight:600;letter-spacing:-0.01em;">${trL({fr:'Parlez-nous de votre activité', en:'Tell us about your business', ar:'حدثنا عن نشاطك'})} · ${def.label}</div>
-          <p style="font-size:13px;color:var(--n-500);margin:6px 0 2px;line-height:1.5;">${trL({fr:'30 secondes — Kiwi personnalise vos indicateurs et vos modules. Modifiable plus tard dans Paramètres.', en:'30 seconds — Kiwi tailors your indicators and modules. Editable later in Settings.', ar:'30 ثانية — يخصص كيوي مؤشراتك ووحداتك. قابل للتعديل لاحقًا في الإعدادات.'})}</p>
+          <p style="font-size:13px;color:var(--n-500);margin:6px 0 2px;line-height:1.5;">${trL({fr:'30 secondes, Kiwi personnalise vos indicateurs et vos modules. Modifiable plus tard dans Paramètres.', en:'30 seconds, Kiwi tailors your indicators and modules. Editable later in Settings.', ar:'30 ثانية, يخصص كيوي مؤشراتك ووحداتك. قابل للتعديل لاحقًا في الإعدادات.'})}</p>
           ${prof.questions.map((q) => `
             <label style="${lbl}">${trL(q.label)} <span style="color:var(--n-400);font-weight:400;">· ${optWord}</span></label>
             <input class="ob-field" data-ob-q="${q.k}" ${q.type === 'number' ? 'type="number" inputmode="numeric" min="0"' : 'maxlength="60"'} placeholder="${q.ph}" style="${fld}"/>
@@ -1319,8 +1319,8 @@
      * starter pages on the live rack/folio engine; the riad keeps its demo. */
     const cu = isCustomHotel;
     handlers['nav-reception'] = () => cu()
-      ? page('reception', 'Réception', vName() + ' · arrivées, départs, walk-ins — en un geste', cuReceptionBody)
-      : page('reception', 'Réception', 'Riad Yasmina · Médina, Marrakech · arrivées, départs, walk-ins — en un geste', receptionBody);
+      ? page('reception', 'Réception', vName() + ' · arrivées, départs, walk-ins, en un geste', cuReceptionBody)
+      : page('reception', 'Réception', 'Riad Yasmina · Médina, Marrakech · arrivées, départs, walk-ins, en un geste', receptionBody);
     handlers['nav-chambres'] = () => cu()
       ? page('chambres', 'Plan des chambres', totalRooms() + ' chambres · toucher une chambre libre la vend en walk-in', cuRackBody)
       : page('chambres', 'Plan des chambres', '24 chambres · 3 niveaux · toucher une chambre ouvre le client et son folio', rackBody);
@@ -1337,13 +1337,13 @@
       ? page('hotes', 'Clients & fidélité', vName() + ' · vos fiches clients se créent au premier séjour', cuHotesBody)
       : page('hotes', 'Clients & fidélité', 'Reconnaissance des habitués · préférences · valeur vie · mix nationalités', hotesBody);
     handlers['nav-folios'] = () => cu()
-      ? page('folios', 'Notes clients · folios', 'Chambres + extras + taxe de séjour — une seule note par séjour', cuFoliosBody)
-      : page('folios', 'Notes clients · folios', 'Chambres + restaurant + hammam + taxe de séjour — une seule note par séjour', foliosBody);
+      ? page('folios', 'Notes clients · folios', 'Chambres + extras + taxe de séjour, une seule note par séjour', cuFoliosBody)
+      : page('folios', 'Notes clients · folios', 'Chambres + restaurant + hammam + taxe de séjour, une seule note par séjour', foliosBody);
     handlers['nav-canaux'] = () => cu()
       ? page('canaux', 'Canaux & OTA', '100 % direct aujourd\'hui · connectez vos canaux quand vous êtes prêt', cuCanauxBody)
       : page('canaux', 'Canaux & OTA', 'Booking.com, Expedia, Airbnb, direct · commissions visibles, enfin', canauxBody);
     handlers['nav-hotelintel'] = () => cu()
-      ? page('hotelintel', 'Intelligence hôtel', 'Prévisions et suggestions — l\'IA s\'entraîne sur vos données réelles', cuIntelBody)
+      ? page('hotelintel', 'Intelligence hôtel', 'Prévisions et suggestions, l\'IA s\'entraîne sur vos données réelles', cuIntelBody)
       : page('hotelintel', 'Intelligence hôtel', 'Prévision d\'occupation · tarification · no-shows · où part l\'argent', intelBody);
 
     /* — custom-hotel controls — */
@@ -1354,7 +1354,7 @@
       rerender();
     };
     handlers['hx-cb-connect'] = (el, arg) => {
-      toast('Connexion ' + arg + ' demandée', { type: 'success', desc: 'Notre équipe configure le channel manager avec vous — vos réservations arriveront ici avec leur commission visible.' });
+      toast('Connexion ' + arg + ' demandée', { type: 'success', desc: 'Notre équipe configure le channel manager avec vous, vos réservations arriveront ici avec leur commission visible.' });
     };
 
     /* — folio — */
@@ -1398,7 +1398,7 @@
       ROOMS[room].meta = 'Départ soldé · ménage à assigner';
       if (!HK_QUEUE.find((q) => q.room === room)) HK_QUEUE.push({ room, st: 'attente', who: null, note: 'Départ soldé à l\'instant · arrivée 19h00', prio: false });
       delete FOLIOS[room];
-      setTimeout(() => toast('Ch. ' + room + ' → file ménage', { type: 'info', desc: 'Arrivée Famille Lemoine prévue 19h00 — remise à blanc prioritaire.' }), 1400);
+      setTimeout(() => toast('Ch. ' + room + ' → file ménage', { type: 'info', desc: 'Arrivée Famille Lemoine prévue 19h00, remise à blanc prioritaire.' }), 1400);
       rerender();
     };
 
@@ -1413,7 +1413,7 @@
         { t: nowLabel(), label: 'Nuit 1 · ' + TYPES[r.type].name, qty: '×1', amt: TYPES[r.type].base, src: 'room' },
         { t: 'auto', label: `Taxe de séjour · ${a.pax} pers × 1 nuit`, qty: '', amt: TAX_PP_NIGHT * Math.min(a.pax, 2) , src: 'taxe' },
       ]);
-      toast(a.guest + ' · Ch. ' + a.room + ' — enregistrés', { type: 'success', desc: 'Folio ouvert · nuit 1 + taxe de séjour postées automatiquement.' });
+      toast(a.guest + ' · Ch. ' + a.room + ', enregistrés', { type: 'success', desc: 'Folio ouvert · nuit 1 + taxe de séjour postées automatiquement.' });
       if (a.repeat) setTimeout(() => toast('Client fidèle reconnu', { type: 'info', desc: 'Marta & Diego Gómez · 2ᵉ séjour · préférences : suite étage haut, thé sans sucre.' }), 1300);
       rerender();
     };
@@ -1424,7 +1424,7 @@
         tag: 'WALK-IN', title: 'Vendre une chambre ce soir', desc: free.length + ' chambres libres et propres', width: 460,
         body: free.map((r) => `<div class="hx-fol-line" style="cursor:pointer;" data-action="hx-walkin-room" data-arg="${r.n}">
             <span><b style="font-family:var(--mono);">Ch. ${r.n}</b> · ${roomTypeOf(r.n).name}</span><span class="qt">1 nuit</span><span class="am">${MAD(roomTypeOf(r.n).base)}</span>
-          </div>`).join('') || '<div style="padding:14px;font-size:13px;color:var(--n-500);">Complet ce soir — aucune chambre libre.</div>',
+          </div>`).join('') || '<div style="padding:14px;font-size:13px;color:var(--n-500);">Complet ce soir, aucune chambre libre.</div>',
       });
       openModal = { el: m.el, close: m.close };
     };
@@ -1472,7 +1472,7 @@
         const r = R()[room];
         if (r) { r.status = 'libre'; r.hk = 'clean'; r.guest = null; r.meta = 'Libre · propre'; }
         openModal?.close?.();
-        toast('Ch. ' + room + ' remise à blanc', { type: 'success', desc: 'Propre et relouable — visible « libre » sur le plan des chambres.' });
+        toast('Ch. ' + room + ' remise à blanc', { type: 'success', desc: 'Propre et relouable, visible « libre » sur le plan des chambres.' });
         rerender();
         return;
       }
@@ -1552,14 +1552,14 @@
     /* — LE MOMENT DÉMO · thé + hammam → folio — */
     handlers['hx-demo-folio'] = () => {
       openModal?.close?.();
-      toast('Restaurant · table terrasse', { type: 'info', desc: 'Thé à la menthe ×2 — le serveur encaisse sur la chambre 7.' });
+      toast('Restaurant · table terrasse', { type: 'info', desc: 'Thé à la menthe ×2, le serveur encaisse sur la chambre 7.' });
       setTimeout(() => postCharge(7, 'Thé à la menthe', 60, 'resto', true), 900);
       setTimeout(() => K().toast('Thé à la menthe ×2 → folio Ch. 7', { type: 'success', desc: 'Restaurant · POS · 60 MAD postés sur la note de chambre.' }), 950);
       setTimeout(() => postCharge(7, 'Rituel hammam + massage duo · demain 17h', 980, 'spa', true), 2100);
       setTimeout(() => K().toast('Hammam réservé → folio Ch. 7', { type: 'success', desc: 'Rituel duo demain 17h · 980 MAD postés sur la même note.' }), 2150);
       setTimeout(() => {
         openFolio(7, true);
-        setTimeout(() => K().toast('Une seule note. Un seul système.', { type: 'info', desc: 'Chambres + restaurant + hammam + taxe de séjour — encaissés en un geste au départ.' }), 800);
+        setTimeout(() => K().toast('Une seule note. Un seul système.', { type: 'info', desc: 'Chambres + restaurant + hammam + taxe de séjour, encaissés en un geste au départ.' }), 800);
       }, 3300);
     };
   }

@@ -198,7 +198,7 @@
         { type: 'debt', label: 'Recharge + biscuits',          amt: 30, at: dAgo(3, 17, 30) },
         { type: 'debt', label: 'Conserves + savon',            amt: 30, at: dAgo(0, 16, 20) },
       ] },
-    { id: 'k2', name: 'Hajj Driss', phone: '0670 33 12 09', note: 'retraité, ardoise du mois — règle le 1er',
+    { id: 'k2', name: 'Hajj Driss', phone: '0670 33 12 09', note: 'retraité, ardoise du mois, règle le 1er',
       hist: [
         { type: 'debt', label: 'Café + thé + sucre',  amt: 59, at: dAgo(11, 9, 0) },
         { type: 'debt', label: 'Œufs (×12) + lait',   amt: 26, at: dAgo(6, 8, 15) },
@@ -206,7 +206,7 @@
         { type: 'debt', label: 'Pain quotidien',      amt: 12, at: dAgo(1, 7, 50) },
         { type: 'debt', label: 'Tomates + oignons',   amt: 11, at: dAgo(0, 11, 10) },
       ] },
-    { id: 'k3', name: 'Mustapha (menuisier)', phone: '0662 78 45 33', note: "l'atelier d'à côté — déjeuner à crédit",
+    { id: 'k3', name: 'Mustapha (menuisier)', phone: '0662 78 45 33', note: "l'atelier d'à côté, déjeuner à crédit",
       hist: [
         { type: 'debt', label: 'Boissons + chips (équipe)', amt: 48, at: dAgo(8, 12, 30) },
         { type: 'debt', label: 'Pain + Vache Qui Rit',      amt: 22, at: dAgo(5, 12, 45) },
@@ -218,14 +218,14 @@
         { type: 'pay',  label: 'Règlement (samedi)',  amt: 64, at: dAgo(7, 11, 0) },
         { type: 'debt', label: 'Lait + yaourts + pain', amt: 27, at: dAgo(2, 9, 20) },
       ] },
-    { id: 'k5', name: 'Café Rif (en face)', phone: '0539 94 03 21', note: 'B2B — lait & sucre tous les matins, facture fin de mois',
+    { id: 'k5', name: 'Café Rif (en face)', phone: '0539 94 03 21', note: 'B2B, lait & sucre tous les matins, facture fin de mois',
       hist: [
         { type: 'debt', label: 'Lait ×10 + sucre ×4', amt: 128, at: dAgo(10, 7, 0) },
         { type: 'debt', label: 'Lait ×10',            amt: 80,  at: dAgo(6, 7, 0) },
         { type: 'pay',  label: 'Virement (acompte)',  amt: 100, at: dAgo(5, 14, 0) },
         { type: 'debt', label: 'Sucre ×6 + café',     amt: 100, at: dAgo(2, 7, 30) },
       ] },
-    { id: 'k6', name: 'Si Larbi', phone: '0668 11 55 42', note: 'à jour — pour mémoire',
+    { id: 'k6', name: 'Si Larbi', phone: '0668 11 55 42', note: 'à jour, pour mémoire',
       hist: [
         { type: 'debt', label: 'Courses',          amt: 45, at: dAgo(14, 17, 0) },
         { type: 'pay',  label: 'Règlement espèces', amt: 45, at: dAgo(9, 18, 0) },
@@ -287,7 +287,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
   function initials(name) {
@@ -313,7 +313,7 @@
         <div class="ep-brand">kiwi<i></i></div>
         <div class="ep-venue">
           <div class="ep-venue-name">Épicerie Si Brahim</div>
-          <div class="ep-venue-sub">Tanger · Souk Dakhli<br>Le même Kiwi — <b>un seul compte.</b></div>
+          <div class="ep-venue-sub">Tanger · Souk Dakhli<br>Le même Kiwi, <b>un seul compte.</b></div>
         </div>
         <nav class="ep-nav" id="ep-nav">
           <button class="ep-nav-it on" data-ep-view="caisse"><i data-lucide="scan-line"></i><span>Caisse</span></button>
@@ -330,7 +330,7 @@
       </aside>
       <main class="ep-main">
         <div class="ep-offline-note" id="ep-offline-note" hidden>
-          Hors-ligne — les ventes et les ardoises sont enregistrées sur la tablette, synchronisées au retour du réseau.
+          Hors-ligne, les ventes et les ardoises sont enregistrées sur la tablette, synchronisées au retour du réseau.
           <b id="ep-queue-count"></b>
         </div>
         <section class="ep-view is-on" data-ep-panel="caisse">
@@ -485,7 +485,7 @@
     const it = ITEMS[itemId];
     if (!it) return;
     if (typeof it.stock === 'number' && it.stock <= 0) {
-      toast(`${it.label} — rupture. Ajoutez-le au réassort dans Stock rapide.`);
+      toast(`${it.label}, rupture. Ajoutez-le au réassort dans Stock rapide.`);
       return;
     }
     if (isWeigh(it) && !(opts && opts.weight != null)) { openWeigh(it); return; }
@@ -606,9 +606,9 @@
     const it = BY_EAN[code];
     if (it) {
       addItem(it.id);
-      toast(`${it.label} — ajouté`);
+      toast(`${it.label}, ajouté`);
     } else {
-      toast(`Code « ${esc(code)} » inconnu — cherchez le produit`);
+      toast(`Code « ${esc(code)} » inconnu, cherchez le produit`);
       openSearch(code);
     }
     if (inp) inp.value = '';
@@ -627,13 +627,13 @@
         <div class="ep-scan-bars">${barcode(it.ean || it.id, 80)}</div>
         <div class="ep-scan-laser"></div>
       </div>
-      <div class="ep-scan-ean">${esc(it.ean || '— pas de code —')}</div>`;
+      <div class="ep-scan-ean">${esc(it.ean || 'pas de code,')}</div>`;
     openVeil('#ep-scan-veil');
     icons();
     setTimeout(() => {
       closeVeil('#ep-scan-veil');
       addItem(it.id);
-      toast(`${it.label} — ${fmtMAD2(it.price).replace(' MAD', '')} MAD`);
+      toast(`${it.label}, ${fmtMAD2(it.price).replace(' MAD', '')} MAD`);
     }, 1050);
   }
 
@@ -652,7 +652,7 @@
       el.innerHTML = `
         <button class="ep-modal-x" data-ep-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Chercher un produit</h3>
-        <p class="modal-subtle">Quand le code ne passe pas — par nom, rayon ou télécom.</p>
+        <p class="modal-subtle">Quand le code ne passe pas, par nom, rayon ou télécom.</p>
         <div class="ep-search-in"><i data-lucide="search"></i>
           <input id="ep-search-q" placeholder="Coca, lait, recharge inwi…" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -690,7 +690,7 @@
         <button class="ep-modal-x" data-ep-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <div class="ep-weigh-head">
           <span class="ep-weigh-art">${ART[it.art] || ''}</span>
-          <span class="ep-weigh-title"><h3>${esc(it.label)}</h3><span class="sub">${it.price} MAD / kg — sur la balance</span></span>
+          <span class="ep-weigh-title"><h3>${esc(it.label)}</h3><span class="sub">${it.price} MAD / kg, sur la balance</span></span>
         </div>
         <div class="ep-scale"><span class="kg" id="ep-scale-kg">${fmtKg(weight)}</span><span class="unit">kg</span></div>
         <div class="ep-weigh-presets" id="ep-weigh-presets">
@@ -731,10 +731,10 @@
         if (reweighIdx != null && state.ticket.lines[reweighIdx]) {
           state.ticket.lines[reweighIdx].weight = w;
           renderTicket(); icons();
-          toast(`${it.label} — ${fmtKg(w)} kg · ${fmtMAD2(it.price * w)}`);
+          toast(`${it.label}, ${fmtKg(w)} kg · ${fmtMAD2(it.price * w)}`);
         } else {
           addItem(it.id, { weight: w });
-          toast(`${it.label} — ${fmtKg(w)} kg · ${fmtMAD2(it.price * w)}`);
+          toast(`${it.label}, ${fmtKg(w)} kg · ${fmtMAD2(it.price * w)}`);
         }
       };
     };
@@ -760,7 +760,7 @@
         <div class="ep-pay-opts">
           <button class="ep-pay-opt is-usual" data-ep-m="especes">
             <span class="ic"><i data-lucide="banknote"></i></span>
-            <span class="l"><b>Espèces</b><span>Flous — rendu calculé</span></span>
+            <span class="l"><b>Espèces</b><span>Flous, rendu calculé</span></span>
             <span class="amt">${fmtMAD2(total)}</span>
           </button>
           <button class="ep-pay-opt" data-ep-m="carte">
@@ -769,7 +769,7 @@
           </button>
           <button class="ep-pay-opt" data-ep-m="ardoise">
             <span class="ic"><i data-lucide="notebook"></i></span>
-            <span class="l"><b>Mettre à l'ardoise</b><span>Au carnet d'un voisin — réglé plus tard</span></span>
+            <span class="l"><b>Mettre à l'ardoise</b><span>Au carnet d'un voisin, réglé plus tard</span></span>
           </button>
         </div>`;
       icons();
@@ -827,11 +827,11 @@
       el.innerHTML = `
         <button class="ep-modal-x" data-ep-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD2(total)}</h3>
-        <p class="modal-subtle">${t.num} · lecteur partenaire — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">${t.num} · lecteur partenaire, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="ep-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="ep-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">Lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">Lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons();
       $$('[data-ep-close]', el).forEach((b) => { b.onclick = () => closeVeil('#ep-pay-veil'); });
@@ -858,7 +858,7 @@
       freshTicket();
       renderTicket(); renderGrid(); renderBadges(); icons();
       queueIfOffline('Vente');
-      toast(`Encaissé — ${fmtMAD2(total)} en ${label}${rendu > 0.0001 ? ` · rendu ${fmtMAD2(rendu)}` : ''}`);
+      toast(`Encaissé, ${fmtMAD2(total)} en ${label}${rendu > 0.0001 ? ` · rendu ${fmtMAD2(rendu)}` : ''}`);
       focusScan();
     };
 
@@ -900,7 +900,7 @@
       el.innerHTML = mode === 'pick' ? `
         <button class="ep-modal-x" data-ep-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Mettre à l'ardoise</h3>
-        <p class="modal-subtle">${fmtMAD2(total)} · ${esc(basketLabel())} — sur le carnet de quel voisin ?</p>
+        <p class="modal-subtle">${fmtMAD2(total)} · ${esc(basketLabel())}, sur le carnet de quel voisin ?</p>
         <div class="ep-carnet-pick">
           ${CARNET.map((c) => {
             const bal = balanceOf(c);
@@ -918,7 +918,7 @@
       : `
         <button class="ep-modal-x" data-ep-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Nouveau voisin</h3>
-        <p class="modal-subtle">On ouvre une ardoise — ${fmtMAD2(total)} dessus.</p>
+        <p class="modal-subtle">On ouvre une ardoise, ${fmtMAD2(total)} dessus.</p>
         <div class="ep-cp-form">
           <input class="ep-in" id="ep-cp-name" placeholder="Nom (ex. Mme Naïma)" />
           <input class="ep-in" id="ep-cp-tel" inputmode="tel" placeholder="Téléphone (pour le rappel WhatsApp)" />
@@ -965,7 +965,7 @@
     freshTicket();
     renderTicket(); renderGrid(); renderBadges(); icons();
     queueIfOffline('Ardoise');
-    toast(`${fmtMAD2(total)} sur l'ardoise de ${c.name} — solde ${fmtMAD(balanceOf(c))}`);
+    toast(`${fmtMAD2(total)} sur l'ardoise de ${c.name}, solde ${fmtMAD(balanceOf(c))}`);
     focusScan();
   }
 
@@ -981,11 +981,11 @@
       <div class="ep-carnet">
         <div class="ep-carnet-list">
           <header class="ep-head">
-            <div><h1>Carnet de crédit</h1><div class="ep-head-sub">L'ardoise du quartier — fini le cahier sous le comptoir</div></div>
+            <div><h1>Carnet de crédit</h1><div class="ep-head-sub">L'ardoise du quartier, fini le cahier sous le comptoir</div></div>
           </header>
           ${state.attachFrom ? `<div class="ep-attach-banner" id="ep-attach-banner">
             <i data-lucide="notebook"></i>
-            <span>Panier en attente — <b>${esc(state.attachFrom.label)}</b> · ${fmtMAD2(state.attachFrom.total)}. Touchez un voisin pour l'y mettre.</span>
+            <span>Panier en attente, <b>${esc(state.attachFrom.label)}</b> · ${fmtMAD2(state.attachFrom.total)}. Touchez un voisin pour l'y mettre.</span>
             <button class="x" id="ep-attach-cancel"><i data-lucide="x"></i></button>
           </div>` : ''}
           <div class="ep-carnet-tools">
@@ -1142,7 +1142,7 @@
       day.creditAdded += Math.round(amt);
       closeVeil('#ep-pay-veil');
       queueIfOffline('Ardoise');
-      toast(`+${fmtMAD(amt)} sur l'ardoise de ${c.name} — solde ${fmtMAD(balanceOf(c))}`);
+      toast(`+${fmtMAD(amt)} sur l'ardoise de ${c.name}, solde ${fmtMAD(balanceOf(c))}`);
       renderBadges();
       openArdoise(c.id);
     };
@@ -1156,13 +1156,13 @@
     const step1 = () => {
       el.innerHTML = `
         <button class="ep-modal-x" data-ep-close aria-label="Fermer"><i data-lucide="x"></i></button>
-        <h3 class="modal-title">Règlement — ${esc(politeName(c.name))}</h3>
+        <h3 class="modal-title">Règlement, ${esc(politeName(c.name))}</h3>
         <p class="modal-subtle">Solde de l'ardoise · ${fmtMAD(bal)}</p>
         <div class="modal-amount size-md">${fmtMAD(bal)}</div>
         <div class="ep-pay-opts">
           <button class="ep-pay-opt is-usual" data-ep-settle="full">
             <span class="ic"><i data-lucide="check-check"></i></span>
-            <span class="l"><b>Tout régler</b><span>Solde le carnet — remis à zéro</span></span>
+            <span class="l"><b>Tout régler</b><span>Solde le carnet, remis à zéro</span></span>
             <span class="amt">${fmtMAD(bal)}</span>
           </button>
           <button class="ep-pay-opt" data-ep-settle="partial">
@@ -1244,8 +1244,8 @@
         queueIfOffline('Règlement');
         const newBal = balanceOf(c);
         toast(newBal > 0
-          ? `${fmtMAD(pay)} encaissé — reste ${fmtMAD(newBal)} sur l'ardoise${rendu > 0.0001 ? ` · rendu ${fmtMAD(rendu)}` : ''}`
-          : `Ardoise soldée — ${esc(c.name)}, l'lah ikhellik${rendu > 0.0001 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+          ? `${fmtMAD(pay)} encaissé, reste ${fmtMAD(newBal)} sur l'ardoise${rendu > 0.0001 ? ` · rendu ${fmtMAD(rendu)}` : ''}`
+          : `Ardoise soldée, ${esc(c.name)}, l'lah ikhellik${rendu > 0.0001 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
         renderBadges();
         openArdoise(c.id);
       };
@@ -1260,7 +1260,7 @@
     const bal = balanceOf(c);
     const first = politeName(c.name);
     return `Sba7 lkhir ${first}, j'espère que vous allez bien.`
-      + `\nPetit rappel tout doux de l'Épicerie Si Brahim : il reste ${bal} MAD sur le carnet, quand ça vous arrange — aucune urgence.`
+      + `\nPetit rappel tout doux de l'Épicerie Si Brahim : il reste ${bal} MAD sur le carnet, quand ça vous arrange, aucune urgence.`
       + `\nBaraka Allah o fik, et bonne journée.`;
   }
   function openWa(c) {
@@ -1269,8 +1269,8 @@
     el.innerHTML = `
       <button class="ep-modal-x" data-ep-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">Rappel WhatsApp</h3>
-      <p class="modal-subtle">${esc(c.name)} · ${esc(c.phone)} — solde ${fmtMAD(bal)}</p>
-      <div class="ep-wa-tone"><i data-lucide="heart"></i>Ton volontairement très poli — c'est un voisin, pas un débiteur.</div>
+      <p class="modal-subtle">${esc(c.name)} · ${esc(c.phone)}, solde ${fmtMAD(bal)}</p>
+      <div class="ep-wa-tone"><i data-lucide="heart"></i>Ton volontairement très poli, c'est un voisin, pas un débiteur.</div>
       <div class="ep-wa-bubblewrap">
         <div class="ep-wa-bubble">
           <textarea id="ep-wa-text">${esc(waMessage(c))}</textarea>
@@ -1287,7 +1287,7 @@
     $('#ep-wa-send', el).onclick = () => {
       closeVeil('#ep-wa-veil');
       queueIfOffline('Rappel WhatsApp');
-      toast(`Rappel envoyé à ${c.name} — tout en douceur`);
+      toast(`Rappel envoyé à ${c.name}, tout en douceur`);
     };
   }
 
@@ -1303,7 +1303,7 @@
       <div class="ep-stock">
         <div class="ep-stock-main">
           <header class="ep-head">
-            <div><h1>Stock rapide</h1><div class="ep-head-sub">Ce qui manque pour la tournée du grossiste — un coup d'œil, une liste</div></div>
+            <div><h1>Stock rapide</h1><div class="ep-head-sub">Ce qui manque pour la tournée du grossiste, un coup d'œil, une liste</div></div>
           </header>
           <div class="ep-stock-scroll">
             ${out.length ? `
@@ -1356,7 +1356,7 @@
       const n = Object.keys(state.reassort).filter((k) => state.reassort[k] > 0).length;
       if (!n) return;
       queueIfOffline('Réassort');
-      toast(`Liste de réassort envoyée — ${n} référence${n > 1 ? 's' : ''} pour le grossiste`);
+      toast(`Liste de réassort envoyée, ${n} référence${n > 1 ? 's' : ''} pour le grossiste`);
       state.reassort = {};
       renderStock(); icons();
     };
@@ -1417,7 +1417,7 @@
       <div class="ep-journee">
         <div class="ep-jr-inner">
           <header class="ep-head" style="padding:22px 0 0;">
-            <div><h1>Journée</h1><div class="ep-head-sub">${fmtDT(new Date())} — Épicerie Si Brahim</div></div>
+            <div><h1>Journée</h1><div class="ep-head-sub">${fmtDT(new Date())}, Épicerie Si Brahim</div></div>
           </header>
           <div class="ep-jr-stats">
             <div class="ep-jr-stat">
@@ -1483,7 +1483,7 @@
                     <span class="since">${oldest ? sinceLabel(oldest) : ''}</span>
                     <span class="amt">${fmtMAD(balanceOf(c))}</span>
                   </button>`;
-                }).join('') || '<div class="ep-sr-empty" style="padding:10px;">Aucun crédit en cours — tout le monde est à jour.</div>'}
+                }).join('') || '<div class="ep-sr-empty" style="padding:10px;">Aucun crédit en cours, tout le monde est à jour.</div>'}
               </div>
             </div>
           </div>
@@ -1500,10 +1500,10 @@
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — la caisse continue, tout est mis en file');
+      toast('Mode hors-ligne, la caisse continue, tout est mis en file');
     }
     renderNet();
   }

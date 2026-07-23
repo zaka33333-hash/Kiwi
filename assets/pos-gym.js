@@ -151,11 +151,11 @@
       { time: '18:30', mid: 'm7',  state: 'upcoming', focus: 'Hypertrophie haut du corps' },
     ],
     salma: [
-      { time: '16:00', mid: 'm6',  state: 'done',     focus: 'Soulevé de terre — technique' },
+      { time: '16:00', mid: 'm6',  state: 'done',     focus: 'Soulevé de terre, technique' },
       { time: '19:30', mid: 'm4',  state: 'upcoming', focus: 'Tonification & gainage' },
     ],
     reda: [
-      { time: '09:00', mid: 'm5',  state: 'done',     focus: 'Perte de poids — cardio' },
+      { time: '09:00', mid: 'm5',  state: 'done',     focus: 'Perte de poids, cardio' },
       { time: '18:45', mid: 'm3',  state: 'upcoming', focus: 'Reprise en douceur' },
     ],
   };
@@ -195,15 +195,15 @@
   }
 
   const MEMBERS = [
-    mkMember({ id: 'm1', code: '20418', name: 'Omar Sefrioui',        phone: '0661 23 45 67', plan: 'annuel',      startD: -288, endD: 78,  visits: 14, lastVisitD: -1, coach: 'Coach Amine', goal: 'Prise de masse — +5 kg', checkedToday: false, ptCredits: 6 }),
-    mkMember({ id: 'm2', code: '20419', name: 'Yassine El Khattabi',  phone: '0670 11 22 33', plan: 'mensuel',     startD: -30,  endD: 0,   visits: 11, lastVisitD: -1, coach: 'Coach Réda',  goal: 'Cardio — semi-marathon' }),
+    mkMember({ id: 'm1', code: '20418', name: 'Omar Sefrioui',        phone: '0661 23 45 67', plan: 'annuel',      startD: -288, endD: 78,  visits: 14, lastVisitD: -1, coach: 'Coach Amine', goal: 'Prise de masse, +5 kg', checkedToday: false, ptCredits: 6 }),
+    mkMember({ id: 'm2', code: '20419', name: 'Yassine El Khattabi',  phone: '0670 11 22 33', plan: 'mensuel',     startD: -30,  endD: 0,   visits: 11, lastVisitD: -1, coach: 'Coach Réda',  goal: 'Cardio, semi-marathon' }),
     mkMember({ id: 'm3', code: '20420', name: 'Karim Bennani',        phone: '0662 09 18 27', plan: 'mensuel',     startD: -42,  endD: -12, visits: 3,  lastVisitD: -14, coach: 'Sans coach',  goal: 'Remise en forme' }),
     mkMember({ id: 'm4', code: '20421', name: 'Salma Tazi',           phone: '0668 54 32 10', plan: 'trimestriel', startD: -50,  endD: 42,  visits: 18, lastVisitD: 0, coach: 'Coach Salma', goal: 'Tonification', checkedToday: true, ptCredits: 4 }),
-    mkMember({ id: 'm5', code: '20422', name: 'Mehdi Lamrani',        phone: '0677 65 43 21', plan: 'mensuel',     startD: -26,  endD: 4,   visits: 7,  lastVisitD: -2, coach: 'Coach Amine', goal: 'Perte de poids — −8 kg', ptCredits: 2 }),
-    mkMember({ id: 'm6', code: '20423', name: 'Imane Berrada',        phone: '0650 88 77 66', plan: 'annuel',      startD: -120, endD: 246, visits: 21, lastVisitD: 0, coach: 'Coach Salma', goal: 'Force — soulevé de terre', student: false, checkedToday: true, ptCredits: 9 }),
+    mkMember({ id: 'm5', code: '20422', name: 'Mehdi Lamrani',        phone: '0677 65 43 21', plan: 'mensuel',     startD: -26,  endD: 4,   visits: 7,  lastVisitD: -2, coach: 'Coach Amine', goal: 'Perte de poids, −8 kg', ptCredits: 2 }),
+    mkMember({ id: 'm6', code: '20423', name: 'Imane Berrada',        phone: '0650 88 77 66', plan: 'annuel',      startD: -120, endD: 246, visits: 21, lastVisitD: 0, coach: 'Coach Salma', goal: 'Force, soulevé de terre', student: false, checkedToday: true, ptCredits: 9 }),
     mkMember({ id: 'm7', code: '20424', name: 'Anas Chraibi',         phone: '0655 44 33 22', plan: 'trimestriel', startD: -60,  endD: 32,  visits: 9,  lastVisitD: -3, coach: 'Coach Réda',  goal: 'Hypertrophie', student: true, ptCredits: 3 }),
     mkMember({ id: 'm8', code: '20425', name: 'Hajar El Idrissi',     phone: '0663 12 78 90', plan: 'mensuel',     startD: -28,  endD: 2,   visits: 5,  lastVisitD: -1, coach: 'Sans coach',  goal: 'Bien-être · stress' }),
-    mkMember({ id: 'm9', code: '20426', name: 'Réda Mansouri',        phone: '0667 90 12 34', plan: 'annuel',      startD: -200, endD: 165, visits: 16, lastVisitD: -1, coach: 'Coach Amine', goal: 'Performance — crossfit', frozen: true, frozenUntilD: 9 }),
+    mkMember({ id: 'm9', code: '20426', name: 'Réda Mansouri',        phone: '0667 90 12 34', plan: 'annuel',      startD: -200, endD: 165, visits: 16, lastVisitD: -1, coach: 'Coach Amine', goal: 'Performance, crossfit', frozen: true, frozenUntilD: 9 }),
     mkMember({ id: 'm10', code: '20427', name: 'Khadija Amrani',     phone: '0661 55 66 77', plan: 'mensuel',     startD: -22,  endD: 8,   visits: 6,  lastVisitD: -2, coach: 'Coach Salma', goal: 'Premiers pas en muscu', student: true }),
   ];
   const MEMBER = Object.fromEntries(MEMBERS.map((m) => [m.id, m]));
@@ -254,7 +254,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
   function initials(name) {
@@ -307,7 +307,7 @@
         <div class="gy-brand">kiwi<i></i></div>
         <div class="gy-venue">
           <div class="gy-venue-name">Atlas Fitness</div>
-          <div class="gy-venue-sub">Tanger · Route de Rabat<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="gy-venue-sub">Tanger · Route de Rabat<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="gy-nav" id="gy-nav">
           <button class="gy-nav-it on" data-gy-view="checkin"><i data-lucide="scan-line"></i><span>Check-in</span><b class="gy-nav-badge" id="gy-badge-checkin"></b></button>
@@ -327,7 +327,7 @@
       </aside>
       <main class="gy-main">
         <div class="gy-offline-note" id="gy-offline-note" hidden>
-          Hors-ligne — les pointages et ventes restent sur la tablette et partent à la synchro au retour du réseau.
+          Hors-ligne, les pointages et ventes restent sur la tablette et partent à la synchro au retour du réseau.
           <b id="gy-queue-count"></b>
         </div>
 
@@ -352,7 +352,7 @@
                 </div>
                 <button class="gy-ci-pass" id="gy-ci-pass">
                   <span class="gy-ci-pass-art">${ART.pass}</span>
-                  <span class="gy-ci-pass-l"><b>Visiteur sans abonnement&nbsp;?</b><span>Vendre une séance unique ou un pass journée — drop-in</span></span>
+                  <span class="gy-ci-pass-l"><b>Visiteur sans abonnement&nbsp;?</b><span>Vendre une séance unique ou un pass journée, drop-in</span></span>
                   <i data-lucide="chevron-right"></i>
                 </button>
                 <div class="gy-ci-hint" id="gy-ci-quick"></div>
@@ -376,7 +376,7 @@
 
         <section class="gy-view" data-gy-panel="abos">
           <header class="gy-head">
-            <div><h1>Abonnements</h1><div class="gy-head-sub">Vendre, renouveler, geler — et relancer ceux qui expirent.</div></div>
+            <div><h1>Abonnements</h1><div class="gy-head-sub">Vendre, renouveler, geler, et relancer ceux qui expirent.</div></div>
             <div class="gy-head-right">
               <div class="gy-seg" data-lens-demo id="gy-abo-seg">
                 <button class="gy-seg-it on" data-lens-item data-gy-aboseg="vendre">Vendre / renouveler</button>
@@ -391,7 +391,7 @@
           <div class="gy-shop">
             <div class="gy-shop-main">
               <header class="gy-head">
-                <div><h1>Comptoir</h1><div class="gy-head-sub">Eau, snacks, serviette, séance coach — toucher pour ajouter.</div></div>
+                <div><h1>Comptoir</h1><div class="gy-head-sub">Eau, snacks, serviette, séance coach, toucher pour ajouter.</div></div>
               </header>
               <div class="gy-shop-gridwrap"><div class="gy-shop-grid" id="gy-shop-grid"></div></div>
             </div>
@@ -401,7 +401,7 @@
 
         <section class="gy-view" data-gy-panel="membres">
           <header class="gy-head">
-            <div><h1>Membres</h1><div class="gy-head-sub">Cherchez par téléphone, nom ou code — la fiche s'ouvre.</div></div>
+            <div><h1>Membres</h1><div class="gy-head-sub">Cherchez par téléphone, nom ou code, la fiche s'ouvre.</div></div>
             <div class="gy-head-right">
               <div class="gy-search"><i data-lucide="search"></i>
                 <input id="gy-mem-q" inputmode="search" placeholder="06…, nom ou code badge" autocomplete="off" /></div>
@@ -412,7 +412,7 @@
 
         <section class="gy-view" data-gy-panel="planning">
           <header class="gy-head">
-            <div><h1>Planning</h1><div class="gy-head-sub">Cours collectifs du jour — réserver, pointer les présences, gérer la liste d'attente.</div></div>
+            <div><h1>Planning</h1><div class="gy-head-sub">Cours collectifs du jour, réserver, pointer les présences, gérer la liste d'attente.</div></div>
             <div class="gy-head-right"><div class="gy-week" id="gy-week"></div></div>
           </header>
           <div class="gy-plan-scroll" id="gy-plan-body"></div>
@@ -420,7 +420,7 @@
 
         <section class="gy-view" data-gy-panel="coachs">
           <header class="gy-head">
-            <div><h1>Coachs</h1><div class="gy-head-sub">La journée de chaque coach — cours, séances perso, et la vente de séances.</div></div>
+            <div><h1>Coachs</h1><div class="gy-head-sub">La journée de chaque coach, cours, séances perso, et la vente de séances.</div></div>
             <div class="gy-head-right"><button class="gy-btn primary sm" id="gy-pt-sell"><i data-lucide="plus"></i> Vendre des séances</button></div>
           </header>
           <div class="gy-coach-scroll" id="gy-coach-body"></div>
@@ -428,7 +428,7 @@
 
         <section class="gy-view" data-gy-panel="pilotage">
           <header class="gy-head">
-            <div><h1>Pilotage</h1><div class="gy-head-sub">Atlas Fitness en un coup d'œil — l'état du club, aujourd'hui.</div></div>
+            <div><h1>Pilotage</h1><div class="gy-head-sub">Atlas Fitness en un coup d'œil, l'état du club, aujourd'hui.</div></div>
             <div class="gy-head-right"><span class="gy-pilot-live"><i class="gy-live-dot"></i> en direct</span></div>
           </header>
           <div class="gy-pilot-scroll" id="gy-pilot-body"></div>
@@ -624,7 +624,7 @@
   function renderQuickCodes() {
     const valid = MEMBER.m1, today = MEMBER.m2, expired = MEMBER.m3;
     $('#gy-ci-quick', root).innerHTML =
-      `<span class="gy-ci-hint-lbl">Démo — badges sous la main :</span>` +
+      `<span class="gy-ci-hint-lbl">Démo, badges sous la main :</span>` +
       [[valid, 'à jour'], [today, 'expire aujourd\'hui'], [expired, 'expiré']]
         .map(([m, tag]) => `<button class="gy-ci-quickcode" data-gy-quick="${m.code}"><b>${m.code}</b> ${esc(firstName(m.name))} · ${tag}</button>`).join('');
   }
@@ -646,7 +646,7 @@
         <span class="gy-peak-ct">${s.count || ''}</span>
         <span class="gy-peak-lbl">${s.lbl}</span>
       </div>`).join('');
-    $('#gy-peak-foot', root).textContent = `Pic vers ${PEAK_SLOTS[peakIdx].lbl} h — prévoir un coach de plus en salle.`;
+    $('#gy-peak-foot', root).textContent = `Pic vers ${PEAK_SLOTS[peakIdx].lbl} h, prévoir un coach de plus en salle.`;
   }
 
   function clearCheckinResult() {
@@ -656,7 +656,7 @@
     el.innerHTML = `
       <div class="gy-ci-idle">
         <i data-lucide="scan-line"></i>
-        <div>En attente d'un badge.<br>Le résultat s'affiche ici en grand — vert si l'accès est ouvert, rouge sinon.</div>
+        <div>En attente d'un badge.<br>Le résultat s'affiche ici en grand, vert si l'accès est ouvert, rouge sinon.</div>
       </div>`;
     icons();
   }
@@ -728,7 +728,7 @@
       el.className = 'gy-ci-result is-green gy-flash';
       const until = `jusqu'au ${fmtLong(m.end)}`;
       const warn = status === 'expiring'
-        ? `<div class="gy-ci-warnline"><i data-lucide="calendar-clock"></i> Plus que ${dleft === 0 ? "aujourd'hui" : dleft + ' jour' + (dleft > 1 ? 's' : '')} — proposez le renouvellement.</div>`
+        ? `<div class="gy-ci-warnline"><i data-lucide="calendar-clock"></i> Plus que ${dleft === 0 ? "aujourd'hui" : dleft + ' jour' + (dleft > 1 ? 's' : '')}, proposez le renouvellement.</div>`
         : '';
       el.innerHTML = `
         <div class="gy-ci-card">
@@ -750,7 +750,7 @@
         </div>`;
       icons();
       renderCounter(); renderBadges();
-      toast(`Marhba ${firstName(m.name)} — entrée pointée`);
+      toast(`Marhba ${firstName(m.name)}, entrée pointée`);
       restoreCiInput();
       return;
     }
@@ -765,7 +765,7 @@
           <div class="gy-ci-card-l">
             <div class="gy-ci-verdict"><i data-lucide="snowflake"></i> Abonnement gelé</div>
             <div class="gy-ci-name">${esc(m.name)}</div>
-            <div class="gy-ci-meta">En pause (vacances) — reprise prévue le ${esc(thaw)}.</div>
+            <div class="gy-ci-meta">En pause (vacances), reprise prévue le ${esc(thaw)}.</div>
           </div>
         </div>
         <div class="gy-ci-card-actions">
@@ -775,7 +775,7 @@
         </div>`;
       icons();
       $('[data-gy-ci-thaw]', el).onclick = () => { thawMember(m); openMember(m.id); };
-      toast(`${firstName(m.name)} — abonnement en pause`);
+      toast(`${firstName(m.name)}, abonnement en pause`);
       restoreCiInput();
       return;
     }
@@ -788,7 +788,7 @@
           <div class="gy-ci-verdict"><i data-lucide="x-circle"></i> Accès expiré</div>
           <div class="gy-ci-name">${esc(m.name)}</div>
           <div class="gy-ci-meta">Abonnement ${esc(PLAN[m.plan].label.toLowerCase())} terminé le ${esc(fmtLong(m.end))}.</div>
-          <div class="gy-ci-warnline red"><i data-lucide="calendar-x"></i> Expiré depuis ${since} jour${since > 1 ? 's' : ''} — accès refusé.</div>
+          <div class="gy-ci-warnline red"><i data-lucide="calendar-x"></i> Expiré depuis ${since} jour${since > 1 ? 's' : ''}, accès refusé.</div>
         </div>
         <div class="gy-ci-badge expired"><b>−${since}</b><span>jours</span></div>
       </div>
@@ -798,7 +798,7 @@
         <button class="gy-btn ghost" data-gy-ci-clear>Suivant</button>
       </div>`;
     icons();
-    toast(`${firstName(m.name)} — expiré depuis ${since} j`);
+    toast(`${firstName(m.name)}, expiré depuis ${since} j`);
     restoreCiInput();
   }
 
@@ -836,7 +836,7 @@
           <div class="gy-freeze-card">
             <div class="gy-freeze-l">
               <b>Mettre un abonnement en pause</b>
-              <span>Vacances, blessure, déplacement — la fin d'abonnement est repoussée d'autant. ${frozen.length ? `${frozen.length} membre${frozen.length > 1 ? 's' : ''} en pause actuellement.` : 'Aucun membre en pause.'}</span>
+              <span>Vacances, blessure, déplacement, la fin d'abonnement est repoussée d'autant. ${frozen.length ? `${frozen.length} membre${frozen.length > 1 ? 's' : ''} en pause actuellement.` : 'Aucun membre en pause.'}</span>
             </div>
             <button class="gy-btn secondary" id="gy-abo-freeze"><i data-lucide="snowflake"></i> Geler un abonnement</button>
           </div>
@@ -858,10 +858,10 @@
       .sort((a, b) => b.end - a.end);
 
     body.innerHTML = `
-      <div class="gy-abo-intro">Relancez en un tap — message motivant prêt sur WhatsApp, ou renouvellement direct au comptoir.</div>
+      <div class="gy-abo-intro">Relancez en un tap, message motivant prêt sur WhatsApp, ou renouvellement direct au comptoir.</div>
       <div class="gy-exp-sec">
         <div class="gy-exp-head"><i class="dot soon"></i> Expire cette semaine <span class="ct">${expiring.length}</span></div>
-        ${expiring.length ? expiring.map(expRow).join('') : '<div class="gy-empty">Personne n\'expire cette semaine — la rétention est bonne.</div>'}
+        ${expiring.length ? expiring.map(expRow).join('') : '<div class="gy-empty">Personne n\'expire cette semaine, la rétention est bonne.</div>'}
       </div>
       <div class="gy-exp-sec">
         <div class="gy-exp-head"><i class="dot red"></i> Déjà expirés <span class="ct">${expired.length}</span></div>
@@ -923,7 +923,7 @@
 
         <button class="gy-student-toggle ${sel.student ? 'on' : ''}" id="gy-sell-student">
           <span class="gy-student-tick"><i data-lucide="check"></i></span>
-          <span class="gy-student-l"><b>Tarif étudiant — 20 % de remise</b><span>Sur présentation de la carte étudiante</span></span>
+          <span class="gy-student-l"><b>Tarif étudiant, 20 % de remise</b><span>Sur présentation de la carte étudiante</span></span>
           <span class="gy-student-amt">${sel.student ? `−${PLAN[sel.plan].price - price} MAD` : 'appliquer'}</span>
         </button>
 
@@ -969,7 +969,7 @@
       m.end = newEnd;
       if (m.frozen) { m.frozen = false; m.frozenUntil = null; }
       queueIfOffline('Renouvellement');
-      toast(`${firstName(m.name)} — renouvelé ${PLAN[sel.plan].label.toLowerCase()}, jusqu'au ${fmtLong(m.end)}${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+      toast(`${firstName(m.name)}, renouvelé ${PLAN[sel.plan].label.toLowerCase()}, jusqu'au ${fmtLong(m.end)}${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
     } else {
       /* a brand-new member: minimal fiche, the rest gets filled later */
       const id = 'mx' + Date.now().toString(36);
@@ -983,7 +983,7 @@
       MEMBERS.push(m); MEMBER[id] = m;
       CLUB.activeBase++; CLUB.newThisMonth++;
       queueIfOffline('Nouvel abonnement');
-      toast(`Abonnement ${PLAN[sel.plan].label.toLowerCase()} vendu — badge ${code} à remettre`);
+      toast(`Abonnement ${PLAN[sel.plan].label.toLowerCase()} vendu, badge ${code} à remettre`);
       setTimeout(() => openMember(id), 350);
     }
     addRevenue('abos', price);
@@ -997,7 +997,7 @@
     el.innerHTML = `
       <button class="gy-modal-x" data-gy-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">Geler un abonnement</h3>
-      <p class="modal-subtle">Choisissez le membre — la fin d'abonnement sera repoussée d'autant à la reprise.</p>
+      <p class="modal-subtle">Choisissez le membre, la fin d'abonnement sera repoussée d'autant à la reprise.</p>
       <div class="gy-freeze-pick">
         ${eligible.map((m) => `
           <button class="gy-cl-row" data-gy-fz="${m.id}">
@@ -1021,13 +1021,13 @@
     /* push the end date out by the freeze span */
     m.end = startOfDay(new Date(m.end.getTime() + weeks * 7 * DAY));
     queueIfOffline('Gel abonnement');
-    toast(`${firstName(m.name)} — abonnement gelé, reprise le ${fmtLong(m.frozenUntil)}`);
+    toast(`${firstName(m.name)}, abonnement gelé, reprise le ${fmtLong(m.frozenUntil)}`);
     refreshOps();
   }
   function thawMember(m) {
     m.frozen = false; m.frozenUntil = null;
     queueIfOffline('Réactivation');
-    toast(`${firstName(m.name)} — abonnement réactivé`);
+    toast(`${firstName(m.name)}, abonnement réactivé`);
     refreshOps();
   }
 
@@ -1106,7 +1106,7 @@
         addRevenue('shop', total);
         renderCart(); renderBadges(); icons();
         if (state.view === 'pilotage') renderPilotage();
-        toast(`Khlass — ${fmtMAD(total)} encaissé${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+        toast(`Khlass, ${fmtMAD(total)} encaissé${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
       },
     });
   }
@@ -1132,14 +1132,14 @@
           </button>
           <button class="gy-pay-opt" data-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Lecteur partenaire, V1 sans encaissement Kiwi</span></span>
           </button>
         </div>`;
       icons(); bindX();
       $$('[data-m]', el).forEach((b) => {
         b.onclick = () => {
           if (b.dataset.m === 'carte' && state.offline) {
-            toast('Hors-ligne — le lecteur carte ne répond pas. Encaissez en espèces.');
+            toast('Hors-ligne, le lecteur carte ne répond pas. Encaissez en espèces.');
             return;
           }
           (b.dataset.m === 'carte' ? stepCard : stepCash)();
@@ -1192,7 +1192,7 @@
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="gy-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="gy-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons(); bindX();
       setTimeout(() => {
@@ -1229,7 +1229,7 @@
     if (!q) hits.sort((a, b) => statusRank(a) - statusRank(b) || a.end - b.end);
     const body = $('#gy-mem-body', root);
     body.innerHTML = hits.length ? `<div class="gy-mem-grid">${hits.map(memberCard).join('')}</div>` :
-      `<div class="gy-empty">Aucun membre pour « ${esc(q)} » — vérifiez le numéro, le nom ou le code badge.</div>`;
+      `<div class="gy-empty">Aucun membre pour « ${esc(q)} », vérifiez le numéro, le nom ou le code badge.</div>`;
     icons();
   }
   function statusRank(m) { return { expired: 0, expiring: 1, frozen: 2, active: 3 }[memberStatus(m)]; }
@@ -1313,9 +1313,9 @@
       </div>
 
       <div class="gy-mb-meta">
-        <div class="gy-mb-meta-row"><span class="gy-mb-meta-ic"><i data-lucide="user-check"></i></span><div><b>Coach assigné</b><span>${m.coach === 'Sans coach' ? 'Aucun — proposer un suivi' : esc(m.coach)}</span></div></div>
+        <div class="gy-mb-meta-row"><span class="gy-mb-meta-ic"><i data-lucide="user-check"></i></span><div><b>Coach assigné</b><span>${m.coach === 'Sans coach' ? 'Aucun, proposer un suivi' : esc(m.coach)}</span></div></div>
         <div class="gy-mb-meta-row"><span class="gy-mb-meta-ic"><i data-lucide="target"></i></span><div><b>Objectif</b><span>${esc(m.goal)}</span></div></div>
-        <div class="gy-mb-meta-row"><span class="gy-mb-meta-ic ${m.ptCredits > 0 ? 'on' : ''}"><i data-lucide="dumbbell"></i></span><div><b>Séances de coaching</b><span>${m.ptCredits > 0 ? `${m.ptCredits} séance${m.ptCredits > 1 ? 's' : ''} restante${m.ptCredits > 1 ? 's' : ''}` : 'Aucune — proposer un pack de séances'}</span></div></div>
+        <div class="gy-mb-meta-row"><span class="gy-mb-meta-ic ${m.ptCredits > 0 ? 'on' : ''}"><i data-lucide="dumbbell"></i></span><div><b>Séances de coaching</b><span>${m.ptCredits > 0 ? `${m.ptCredits} séance${m.ptCredits > 1 ? 's' : ''} restante${m.ptCredits > 1 ? 's' : ''}` : 'Aucune, proposer un pack de séances'}</span></div></div>
         ${nextCls ? `<div class="gy-mb-meta-row"><span class="gy-mb-meta-ic on"><i data-lucide="calendar-days"></i></span><div><b>Prochain cours réservé</b><span>${esc(CLASS[nextCls.classId].label)} · ${nextCls.time}${nextCls.state === 'live' ? ' · en cours' : ''}</span></div></div>` : ''}
       </div>
 
@@ -1344,7 +1344,7 @@
       if (!m.checkedToday) state.inGym++;
       m.checkedToday = true;
       queueIfOffline('Pointage entrée');
-      toast(`${firstName(m.name)} — entrée pointée`);
+      toast(`${firstName(m.name)}, entrée pointée`);
       renderBadges(); openMember(m.id);
       if (state.view === 'checkin') renderCounter();
     };
@@ -1367,18 +1367,18 @@
     const s = memberStatus(m);
     const d = daysLeft(m);
     if (s === 'expired') {
-      return `Salam ${first} ! On ne t'a pas vu à Atlas Fitness depuis un moment — ton abonnement a expiré il y a ${Math.abs(d)} jours.`
+      return `Salam ${first} ! On ne t'a pas vu à Atlas Fitness depuis un moment, ton abonnement a expiré il y a ${Math.abs(d)} jours.`
         + `\nReviens quand tu veux : on te garde le tarif ${PLAN[m.plan].label.toLowerCase()} (${planPrice(m.plan, m.student)} MAD) et ${m.coach !== 'Sans coach' ? m.coach + ' t\'attend' : 'un coach pour te relancer'}.`
         + `\nUne séance et on repart fort, nchallah.`
         + `\n— Atlas Fitness, via Kiwi`;
     }
     if (s === 'expiring') {
       return `Salam ${first} ! Ton abonnement Atlas Fitness se termine ${d === 0 ? "aujourd'hui" : 'dans ' + d + ' jour' + (d > 1 ? 's' : '')}.`
-        + `\nRenouvelle dès maintenant pour ne pas couper ton élan — ${PLAN[m.plan].label.toLowerCase()} à ${planPrice(m.plan, m.student)} MAD.`
+        + `\nRenouvelle dès maintenant pour ne pas couper ton élan, ${PLAN[m.plan].label.toLowerCase()} à ${planPrice(m.plan, m.student)} MAD.`
         + `\nObjectif « ${m.goal} » : on y est presque, lâche rien !`
         + `\n— Atlas Fitness, via Kiwi`;
     }
-    return `Salam ${first} ! Petit message d'Atlas Fitness — continue comme ça, ${m.visits} passages ce mois, c'est du sérieux.`
+    return `Salam ${first} ! Petit message d'Atlas Fitness, continue comme ça, ${m.visits} passages ce mois, c'est du sérieux.`
       + `\nBesoin d'un coup de main sur ton objectif « ${m.goal} » ? ${m.coach !== 'Sans coach' ? m.coach : 'Un coach'} est dispo cette semaine.`
       + `\n— Atlas Fitness, via Kiwi`;
   }
@@ -1386,9 +1386,9 @@
   function openWa(m) {
     const el = $('#gy-wam', root);
     const s = memberStatus(m);
-    const head = s === 'expired' ? 'WhatsApp — on te récupère'
-      : s === 'expiring' ? 'WhatsApp — relance avant expiration'
-      : 'WhatsApp — petit mot de motivation';
+    const head = s === 'expired' ? 'WhatsApp, on te récupère'
+      : s === 'expiring' ? 'WhatsApp, relance avant expiration'
+      : 'WhatsApp, petit mot de motivation';
     el.innerHTML = `
       <button class="gy-modal-x" data-gy-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">${head}</h3>
@@ -1428,7 +1428,7 @@
   function toneMessage(m, tone) {
     const first = firstName(m.name);
     if (tone === 'court') {
-      return `Salam ${first} ! Ton abonnement Atlas Fitness ${memberStatus(m) === 'expired' ? 'a expiré' : 'expire bientôt'}. On te garde ta place — passe quand tu veux. — Atlas Fitness, via Kiwi`;
+      return `Salam ${first} ! Ton abonnement Atlas Fitness ${memberStatus(m) === 'expired' ? 'a expiré' : 'expire bientôt'}. On te garde ta place, passe quand tu veux., Atlas Fitness, via Kiwi`;
     }
     if (tone === 'offre') {
       return `Salam ${first} ! Offre fidélité Atlas Fitness : renouvelle cette semaine et on t'offre une séance coach + un shaker.`
@@ -1534,7 +1534,7 @@
           <div class="gy-rost-cap-l"><b>${booked}</b> / ${s.cap} inscrits${s.state === 'done' || s.state === 'live' ? ` · <b>${present + (s.state === 'done' ? Math.round(s.extra * 0.82) : 0)}</b> présents` : full ? ` · complet` : ` · ${places} place${places > 1 ? 's' : ''}`}</div>
           <div class="gy-class-capbar lg"><i style="width:${pct}%" class="${full ? 'full' : ''}"></i></div>
         </div>
-        ${canCheck ? `<div class="gy-rost-hint"><i data-lucide="info"></i> Pointez chaque membre à son arrivée — la présence compte aussi comme une entrée salle.</div>` : ''}
+        ${canCheck ? `<div class="gy-rost-hint"><i data-lucide="info"></i> Pointez chaque membre à son arrivée, la présence compte aussi comme une entrée salle.</div>` : ''}
         <div class="gy-f-lbl" style="margin-top:6px">Inscrits ${named.length ? `· ${named.length} nominatifs` : ''}</div>
         <div class="gy-rost-list">
           ${named.map((m) => rosterRow(s, m.id, canCheck)).join('') || '<div class="gy-empty">Aucun inscrit nominatif.</div>'}
@@ -1555,7 +1555,7 @@
       $$('[data-gy-rost-in]', el).forEach((b) => { b.onclick = () => { classCheckIn(s, b.dataset.gyRostIn); render(); refreshOps(); }; });
       $('[data-gy-rost-book]', el).onclick = () => {
         openPick({
-          title: `Réserver — ${c.label} · ${s.time}`,
+          title: `Réserver, ${c.label} · ${s.time}`,
           sub: full ? 'Cours complet : le membre ira en liste d\'attente.' : `${places} place${places > 1 ? 's' : ''} libre${places > 1 ? 's' : ''}.`,
           exclude: s.booked.concat(s.wait),
           onPick: (mid) => { bookIntoSession(s, mid); render(); refreshOps(); },
@@ -1587,15 +1587,15 @@
     const m = MEMBER[mid];
     if (m && !m.checkedToday) { m.checkedToday = true; state.inGym++; }
     queueIfOffline('Présence cours');
-    toast(`${m ? firstName(m.name) : 'Membre'} — présent au cours`);
+    toast(`${m ? firstName(m.name) : 'Membre'}, présent au cours`);
   }
 
   function bookIntoSession(s, mid) {
     const m = MEMBER[mid];
     if (!m) return;
     if (s.booked.includes(mid) || s.wait.includes(mid)) { toast('Déjà inscrit à ce cours'); return; }
-    if (sessionFull(s)) { s.wait.push(mid); queueIfOffline('Liste d\'attente'); toast(`${firstName(m.name)} — ajouté à la liste d'attente`); }
-    else { s.booked.push(mid); queueIfOffline('Réservation cours'); toast(`${firstName(m.name)} — réservé · ${classOf(s).label} à ${s.time}`); }
+    if (sessionFull(s)) { s.wait.push(mid); queueIfOffline('Liste d\'attente'); toast(`${firstName(m.name)}, ajouté à la liste d'attente`); }
+    else { s.booked.push(mid); queueIfOffline('Réservation cours'); toast(`${firstName(m.name)}, réservé · ${classOf(s).label} à ${s.time}`); }
   }
 
   /* ───────────────────────── member picker (générique) ─────────────────────
@@ -1670,7 +1670,7 @@
         <span><b>${classCount}</b> cours</span><span><b>${ptCount}</b> perso</span><span><b>${mem.length}</b> suivis</span>
       </div>
       <div class="gy-coach-tl">
-        ${day.length ? day.map(coachRow).join('') : '<div class="gy-coach-tl-empty">Journée libre — disponible pour une séance.</div>'}
+        ${day.length ? day.map(coachRow).join('') : '<div class="gy-coach-tl-empty">Journée libre, disponible pour une séance.</div>'}
       </div>
       <div class="gy-coach-foot">
         <button class="gy-btn secondary sm" data-gy-coach="${c.id}"><i data-lucide="calendar"></i> La journée</button>
@@ -1715,7 +1715,7 @@
         <div><b>${coachPTCount(coachId)}</b><span>séances perso</span></div>
         <div><b>${mem.length}</b><span>membres suivis</span></div>
       </div>
-      <div class="gy-f-lbl" style="margin-top:14px">Journée — ${fmtDay(new Date())}</div>
+      <div class="gy-f-lbl" style="margin-top:14px">Journée, ${fmtDay(new Date())}</div>
       <div class="gy-coach-mtl">${day.length ? day.map(coachRow).join('') : '<div class="gy-coach-tl-empty">Journée libre.</div>'}</div>
       <div class="gy-f-lbl" style="margin-top:14px">Membres suivis · ${mem.length}</div>
       <div class="gy-coach-mem">${mem.length ? mem.map((m) => `
@@ -1798,7 +1798,7 @@
             if (sel.coach && sel.member.coach === 'Sans coach') sel.member.coach = COACH[sel.coach].name;
             addRevenue('coaching', pk.price);
             queueIfOffline('Vente séances coaching');
-            toast(`${firstName(sel.member.name)} — ${pk.n} séance${pk.n > 1 ? 's' : ''} ajoutée${pk.n > 1 ? 's' : ''}${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+            toast(`${firstName(sel.member.name)}, ${pk.n} séance${pk.n > 1 ? 's' : ''} ajoutée${pk.n > 1 ? 's' : ''}${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
             refreshOps();
           },
         });
@@ -1853,7 +1853,7 @@
 
       <div class="gy-pilot-cols">
         <div class="gy-pilot-card">
-          <div class="gy-pilot-card-h"><b>Fréquentation — 7 derniers jours</b><span class="mono">${passages} auj.</span></div>
+          <div class="gy-pilot-card-h"><b>Fréquentation, 7 derniers jours</b><span class="mono">${passages} auj.</span></div>
           <div class="gy-att-bars">${attend.map((v, i) => `<div class="gy-att-bar ${i === 6 ? 'today' : ''}"><span class="gy-att-col"><i style="height:${Math.round((v / maxA) * 100)}%"></i></span><span class="gy-att-v mono">${v}</span><span class="gy-att-d">${wd[i]}</span></div>`).join('')}</div>
         </div>
         <div class="gy-pilot-card">
@@ -1875,12 +1875,12 @@
         </div>
         <button class="gy-pilot-card relance" data-gy-pilot-relance>
           <div class="gy-pilot-card-h"><b>À relancer</b><span class="gy-pill ${exp ? 'red' : 'ok'}">${exp || '0'}</span></div>
-          <div class="gy-relance-l">${exp ? `${exp} abonnement${exp > 1 ? 's' : ''} expire${exp > 1 ? 'nt' : ''} cette semaine ou ${exp > 1 ? 'ont' : 'a'} déjà expiré. Un message WhatsApp motivant est prêt pour chacun.` : 'Aucune relance en attente — la rétention est bonne.'}</div>
+          <div class="gy-relance-l">${exp ? `${exp} abonnement${exp > 1 ? 's' : ''} expire${exp > 1 ? 'nt' : ''} cette semaine ou ${exp > 1 ? 'ont' : 'a'} déjà expiré. Un message WhatsApp motivant est prêt pour chacun.` : 'Aucune relance en attente, la rétention est bonne.'}</div>
           <span class="gy-relance-cta">Ouvrir les relances <i data-lucide="arrow-right"></i></span>
         </button>
       </div>
 
-      <div class="gy-pilot-foot">Données de démonstration — le club entier (${activeCount()} membres) ; les 10 fiches nominatives sont l'échantillon manipulable du comptoir.</div>`;
+      <div class="gy-pilot-foot">Données de démonstration, le club entier (${activeCount()} membres) ; les 10 fiches nominatives sont l'échantillon manipulable du comptoir.</div>`;
     icons();
   }
 
@@ -1900,7 +1900,7 @@
     el.innerHTML = `
       <button class="gy-modal-x" data-gy-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">Séance unique / Pass journée</h3>
-      <p class="modal-subtle">Pour un visiteur sans abonnement — touriste, invité, séance d'essai. Accès immédiat, sans créer de fiche.</p>
+      <p class="modal-subtle">Pour un visiteur sans abonnement, touriste, invité, séance d'essai. Accès immédiat, sans créer de fiche.</p>
       <div class="gy-pass-grid">${DAY_PASSES.map((p) => `
         <button class="gy-pass-card" data-gy-pass="${p.id}">
           ${p.flag ? `<span class="gy-shop-flag">${esc(p.flag)}</span>` : ''}
@@ -1909,7 +1909,7 @@
           <span class="gy-pass-price"><b>${p.price}</b> MAD</span>
           <span class="gy-pass-sub">${esc(p.sub)}</span>
         </button>`).join('')}</div>
-      <div class="gy-pass-note"><i data-lucide="info"></i> Le pass ouvre le tourniquet une fois. Proposez l'abonnement si le visiteur revient — c'est là que la conversion se joue.</div>`;
+      <div class="gy-pass-note"><i data-lucide="info"></i> Le pass ouvre le tourniquet une fois. Proposez l'abonnement si le visiteur revient, c'est là que la conversion se joue.</div>`;
     openVeil('#gy-pass-veil');
     icons();
     $$('[data-gy-close]', el).forEach((b) => { b.onclick = () => closeVeil('#gy-pass-veil'); });
@@ -1918,14 +1918,14 @@
         const p = DAY_PASSES.find((x) => x.id === b.dataset.gyPass);
         closeVeil('#gy-pass-veil');
         openPay({
-          amount: p.price, title: p.label, sub: 'Accès visiteur — sans abonnement',
+          amount: p.price, title: p.label, sub: 'Accès visiteur, sans abonnement',
           onPaid: (method, rendu) => {
             BASE_PASSAGES += (p.id === 'duo' ? 2 : 1);
             state.passesToday += 1;
             state.inGym += (p.id === 'duo' ? 2 : 1);
             addRevenue('pass', p.price);
             queueIfOffline('Séance unique / pass');
-            toast(`${p.label} vendu — accès ouvert${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+            toast(`${p.label} vendu, accès ouvert${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
             refreshOps();
             if (state.view === 'checkin') renderCounter();
           },
@@ -1951,13 +1951,13 @@
     state.offline = !state.offline;
     if (!state.offline) {
       if (state.queued) {
-        toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+        toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
         state.queued = 0;
       } else {
-        toast('Réseau de retour — tout est synchronisé');
+        toast('Réseau de retour, tout est synchronisé');
       }
     } else {
-      toast('Mode hors-ligne — la salle continue de tourner, tout est mis en file');
+      toast('Mode hors-ligne, la salle continue de tourner, tout est mis en file');
     }
     renderNet();
   }
@@ -1983,7 +1983,7 @@
     greet: {
       line1: 'Sba7 lkhir Coach Amine,',
       em: 'marhba.',
-      sub: 'Atlas Fitness <em>·</em> comptoir — check-in du jour',
+      sub: 'Atlas Fitness <em>·</em> comptoir, check-in du jour',
     },
     mount(rootEl) { mount(rootEl); },
     onShow() {

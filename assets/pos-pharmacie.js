@@ -208,15 +208,15 @@
      renouveler aujourd'hui (Mustapha). due = solde patient en attente. */
   const PATIENTS = [
     { id: 'p1', name: 'Mustapha El Fassi', phone: '0661 24 88 19', mut: 'cnops', aff: 'CN-4471902', age: 64,
-      chronic: { item: 'glucophage', label: 'Glucophage 850 — diabète', every: 30, dueIn: 0 },
+      chronic: { item: 'glucophage', label: 'Glucophage 850, diabète', every: 30, dueIn: 0 },
       allergies: ['Pénicilline'], visits: 38 },
     { id: 'p2', name: 'Najat Bouzidi', phone: '0670 55 31 02', mut: 'cnss', aff: 'CS-1180344', age: 41,
-      chronic: { item: 'levothyrox', label: 'Levothyrox 75 — thyroïde', every: 30, dueIn: 9 },
+      chronic: { item: 'levothyrox', label: 'Levothyrox 75, thyroïde', every: 30, dueIn: 9 },
       allergies: [], visits: 21 },
     { id: 'p3', name: 'Hicham Ouazzani', phone: '0662 90 14 77', mut: 'axa', aff: 'AX-77120-3', age: 35,
       chronic: null, allergies: ['Sulfamides'], visits: 7 },
     { id: 'p4', name: 'Latifa Sebti', phone: '0650 33 21 88', mut: 'cnops', aff: 'CN-2209815', age: 58,
-      chronic: { item: 'amlor', label: 'Amlor 5 — tension', every: 30, dueIn: 16 },
+      chronic: { item: 'amlor', label: 'Amlor 5, tension', every: 30, dueIn: 16 },
       allergies: [], visits: 29, due: 36 },
     { id: 'p5', name: 'Karim Sentissi', phone: '0677 12 65 40', mut: 'sans', aff: '', age: 28,
       chronic: null, allergies: [], visits: 3 },
@@ -265,7 +265,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -281,7 +281,7 @@
           <div class="ph-venue-name">Pharmacie Ibn Batouta
             <span class="ph-venue-night"><i data-lucide="moon"></i>Garde</span>
           </div>
-          <div class="ph-venue-sub">Tanger · Centre<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="ph-venue-sub">Tanger · Centre<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="ph-nav" id="ph-nav">
           <button class="ph-nav-it on" data-ph-view="vente"><i data-lucide="pill"></i><span>Vente</span><b class="ph-nav-badge" id="ph-badge-cart"></b></button>
@@ -298,16 +298,16 @@
       </aside>
       <main class="ph-main">
         <div class="ph-offline-note" id="ph-offline-note" hidden>
-          Hors-ligne — les actions sont enregistrées sur la tablette et synchronisées au retour du réseau.
+          Hors-ligne, les actions sont enregistrées sur la tablette et synchronisées au retour du réseau.
           <b id="ph-queue-count"></b>
         </div>
         <div class="ph-night-note" id="ph-night-note" hidden>
-          <i data-lucide="moon"></i>Garde de nuit active — les ventes sont consignées au journal de garde.
+          <i data-lucide="moon"></i>Garde de nuit active, les ventes sont consignées au journal de garde.
         </div>
         <section class="ph-view is-on" data-ph-panel="vente">
           <header class="ph-head">
             <div><h1>Vente</h1><div class="ph-head-sub" id="ph-today"></div></div>
-            <div class="ph-head-hint">Cherchez un médicament — ou scannez sa vignette</div>
+            <div class="ph-head-hint">Cherchez un médicament, ou scannez sa vignette</div>
           </header>
           <div class="ph-vente">
             <div class="ph-vente-left">
@@ -382,10 +382,10 @@
     if (window.KiwiLens) try { window.KiwiLens.rescan(); } catch (e) {}
     $('#ph-mode-hint', root).innerHTML = mode === 'ordonnance'
       ? '<i data-lucide="shield-check"></i>Patient + médecin rattachés à la délivrance'
-      : '<i data-lucide="shopping-bag"></i>Conseil comptoir — patient facultatif';
+      : '<i data-lucide="shopping-bag"></i>Conseil comptoir, patient facultatif';
     renderTicket();
     icons();
-    toast(mode === 'ordonnance' ? 'Mode ordonnance — rattachez le patient et le prescripteur' : 'Vente libre — comptoir');
+    toast(mode === 'ordonnance' ? 'Mode ordonnance, rattachez le patient et le prescripteur' : 'Vente libre, comptoir');
   }
 
   function renderBadges() {
@@ -501,7 +501,7 @@
     if (!t.patient) {
       const need = state.mode === 'ordonnance';
       return `<button class="ph-tk-row" id="ph-tk-patient"><i data-lucide="user-plus"></i>
-        <span class="l"><b>${need ? 'Rattacher le patient' : 'Patient (tiers payant)'}</b><span>${need ? 'Requis en mode ordonnance' : 'Pour appliquer la mutuelle — sinon vente comptoir'}</span></span>
+        <span class="l"><b>${need ? 'Rattacher le patient' : 'Patient (tiers payant)'}</b><span>${need ? 'Requis en mode ordonnance' : 'Pour appliquer la mutuelle, sinon vente comptoir'}</span></span>
         <span class="edit">Chercher</span></button>`;
     }
     const p = t.patient;
@@ -587,7 +587,7 @@
       <div class="ph-tk-foot">
         <div class="ph-tk-splitbox ${covered ? 'is-on' : ''}">
           <div class="hd"><i data-lucide="shield-check"></i>Tiers payant · ${esc(ticketMut().label)}</div>
-          <div class="rw mut"><span>Part mutuelle — à facturer</span><span class="v">${fmtMAD(split.mut)}</span></div>
+          <div class="rw mut"><span>Part mutuelle, à facturer</span><span class="v">${fmtMAD(split.mut)}</span></div>
           <div class="rw"><span>Reste à charge patient</span><span class="v">${fmtMAD(split.pat)}</span></div>
         </div>
         <div class="ph-tk-tot">
@@ -619,7 +619,7 @@
       if (idx < 0) return;
       const ln = t.lines[idx];
       if (plus) {
-        if (STOCK[ln.itemId] != null && ln.qty >= STOCK[ln.itemId]) { toast(`Stock limité — ${STOCK[ln.itemId]} en rayon`); return; }
+        if (STOCK[ln.itemId] != null && ln.qty >= STOCK[ln.itemId]) { toast(`Stock limité, ${STOCK[ln.itemId]} en rayon`); return; }
         ln.qty++;
       } else { ln.qty--; if (ln.qty <= 0) t.lines.splice(idx, 1); }
       renderTicket(); renderBadges(); icons();
@@ -638,7 +638,7 @@
     const existing = t.lines.find((l, i) => i !== idx && l.itemId === gen.id);
     if (existing) { existing.qty += ln.qty; t.lines.splice(idx, 1); }
     else ln.itemId = gen.id;
-    toast(`Substitué — ${gen.label} · −${savePct}% pour le patient`);
+    toast(`Substitué, ${gen.label} · −${savePct}% pour le patient`);
     renderTicket(); icons();
   }
 
@@ -648,7 +648,7 @@
   function openSheet(itemId) {
     const it = ITEMS[itemId];
     if (STOCK[it.id] <= 0) {
-      toast(`${it.label} — rupture de stock. Ajoutez-le à la commande grossiste.`);
+      toast(`${it.label}, rupture de stock. Ajoutez-le à la commande grossiste.`);
       return;
     }
     Object.assign(sheet, { itemId, qty: 1 });
@@ -727,12 +727,12 @@
     };
     $('#ph-qty-minus', el).onclick = () => { if (sheet.qty > 1) { sheet.qty--; refresh(); } };
     $('#ph-qty-plus', el).onclick = () => {
-      if (sheet.qty >= STOCK[it.id]) { toast(`Stock limité — ${STOCK[it.id]} en rayon`); return; }
+      if (sheet.qty >= STOCK[it.id]) { toast(`Stock limité, ${STOCK[it.id]} en rayon`); return; }
       sheet.qty++; refresh();
     };
     $('#ph-sheet-add', el).onclick = () => addToTicket(it.id, sheet.qty);
     const genBtn = $('#ph-sheet-gen', el);
-    if (genBtn) genBtn.onclick = () => { sheet.itemId = genItem.id; sheet.qty = Math.min(sheet.qty, STOCK[genItem.id]); renderSheet(); icons(); toast(`Générique sélectionné — ${genItem.label}`); };
+    if (genBtn) genBtn.onclick = () => { sheet.itemId = genItem.id; sheet.qty = Math.min(sheet.qty, STOCK[genItem.id]); renderSheet(); icons(); toast(`Générique sélectionné, ${genItem.label}`); };
     $$('[data-ph-close]', el).forEach((b) => { b.onclick = () => closeVeil('#ph-sheet-veil'); });
   }
 
@@ -744,9 +744,9 @@
     closeVeil('#ph-sheet-veil');
     const it = ITEMS[itemId];
     if (it.rx && state.mode !== 'ordonnance') {
-      toast(`${it.label} — médicament listé. Pensez au mode ordonnance.`);
+      toast(`${it.label}, médicament listé. Pensez au mode ordonnance.`);
     } else {
-      toast(`${it.label} × ${qty} — ajouté`);
+      toast(`${it.label} × ${qty}, ajouté`);
     }
     renderTicket(); renderBadges(); icons();
   }
@@ -766,7 +766,7 @@
       el.innerHTML = `
         <button class="ph-modal-x" data-ph-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Patient</h3>
-        <p class="modal-subtle">On cherche par téléphone — la mutuelle et l'historique remontent automatiquement.</p>
+        <p class="modal-subtle">On cherche par téléphone, la mutuelle et l'historique remontent automatiquement.</p>
         <div class="ph-phone-in"><i data-lucide="phone"></i>
           <input id="ph-pt-q" inputmode="tel" placeholder="06… ou nom du patient" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -787,7 +787,7 @@
           ${hits.length === 1 ? recoPanel(hits[0]) : ''}
           <button class="ph-pt-new" id="ph-pt-new"><i data-lucide="user-plus"></i>Nouveau patient${q && !hits.length ? ` · « ${esc(q)} »` : ''}</button>
           ${state.mode !== 'ordonnance' ? `<div class="ph-sheet-foot" style="margin-top:10px;">
-            <button class="ph-btn ghost" id="ph-pt-passage">Vente comptoir — sans patient</button>
+            <button class="ph-btn ghost" id="ph-pt-passage">Vente comptoir, sans patient</button>
           </div>` : ''}` : `
           <div class="ph-pt-form">
             <input class="ph-in" id="ph-pt-name" placeholder="Nom et prénom" value="${esc(/^[\\d\\s.+-]*$/.test(q || '') ? '' : (q || ''))}" />
@@ -811,7 +811,7 @@
           state.ticket.patient = p;
           closeVeil('#ph-patient-veil');
           const m = MUTUELLES[p.mut];
-          toast(p.mut === 'sans' ? `${p.name} — sans mutuelle, vente directe` : `${p.name} — ${m.label}, tiers payant actif`);
+          toast(p.mut === 'sans' ? `${p.name}, sans mutuelle, vente directe` : `${p.name}, ${m.label}, tiers payant actif`);
           renderTicket(); renderBadges(); icons();
         };
       });
@@ -833,7 +833,7 @@
         PATIENTS.unshift(p); PAT[id] = p;
         state.ticket.patient = p;
         closeVeil('#ph-patient-veil');
-        toast(`Fiche créée — ${name} · ${MUTUELLES[mut].label}`);
+        toast(`Fiche créée, ${name} · ${MUTUELLES[mut].label}`);
         renderTicket(); renderBadges(); icons();
       };
     };
@@ -846,10 +846,10 @@
   function recoPanel(p) {
     const m = MUTUELLES[p.mut];
     return `<div class="ph-reco">
-      <div class="ph-reco-head"><i data-lucide="sparkles"></i>${esc(p.name)} — fiche reconnue</div>
+      <div class="ph-reco-head"><i data-lucide="sparkles"></i>${esc(p.name)}, fiche reconnue</div>
       <div class="ph-reco-rows">
         <div class="ph-reco-row"><i data-lucide="shield-check"></i>${esc(m.label)}${p.aff ? ` · ${esc(p.aff)}` : ''}${p.mut !== 'sans' ? ` · prise en charge ${Math.round(m.rate * 100)} %` : ''}</div>
-        ${p.chronic ? `<div class="ph-reco-row"><i data-lucide="repeat" class="${p.chronic.dueIn <= 0 ? 'warn' : ''}"></i>${esc(p.chronic.label)}${p.chronic.dueIn <= 0 ? ' — <b>renouvellement dû</b>' : ` — dans ${p.chronic.dueIn} j`}</div>` : ''}
+        ${p.chronic ? `<div class="ph-reco-row"><i data-lucide="repeat" class="${p.chronic.dueIn <= 0 ? 'warn' : ''}"></i>${esc(p.chronic.label)}${p.chronic.dueIn <= 0 ? ', <b>renouvellement dû</b>' : `, dans ${p.chronic.dueIn} j`}</div>` : ''}
         ${(p.allergies || []).length ? `<div class="ph-reco-row"><i data-lucide="triangle-alert" class="danger"></i>Allergie · <b>${p.allergies.map(esc).join(', ')}</b></div>` : ''}
         ${dueOf(p) ? `<div class="ph-reco-row"><i data-lucide="hand-coins" class="warn"></i>Solde en attente · <b>${fmtNum(dueOf(p))} MAD</b></div>` : ''}
       </div>
@@ -862,12 +862,12 @@
     el.innerHTML = `
       <button class="ph-modal-x" data-ph-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">Médecin prescripteur</h3>
-      <p class="modal-subtle">Rattaché à la délivrance — il apparaît sur le ticket et le registre des ordonnances.</p>
+      <p class="modal-subtle">Rattaché à la délivrance, il apparaît sur le ticket et le registre des ordonnances.</p>
       <div class="ph-presc">
         <div class="ph-presc-chips" id="ph-presc-list">
           ${MEDECINS.map((m) => `<button class="ph-presc-chip ${state.ticket.medecin === m.id ? 'on' : ''}" data-ph-med="${m.id}"><b>${esc(m.name)}</b><span>${esc(m.spec)}</span></button>`).join('')}
         </div>
-        <input class="ph-in" id="ph-med-free" placeholder="Autre médecin — nom libre…" />
+        <input class="ph-in" id="ph-med-free" placeholder="Autre médecin, nom libre…" />
         <div class="ph-sheet-foot" style="margin-top:4px;">
           <button class="ph-btn secondary" data-ph-close>Annuler</button>
           <button class="ph-btn primary" id="ph-med-ok"><i data-lucide="check"></i>Rattacher</button>
@@ -892,7 +892,7 @@
       else { toast('Choisissez un médecin ou saisissez un nom'); return; }
       closeVeil('#ph-patient-veil');
       const m = MED[state.ticket.medecin];
-      toast(`Prescripteur — ${m ? m.name : free}`);
+      toast(`Prescripteur, ${m ? m.name : free}`);
       renderTicket(); icons();
     };
   }
@@ -909,7 +909,7 @@
     /* allergie croisée simple : si un antibiotique pénicilline + allergie connue */
     if (t.patient && (t.patient.allergies || []).some((a) => /pénicilline|penicilline/i.test(a))) {
       const pen = t.lines.find((l) => /amoxicilline|augmentin|clamoxyl/i.test(ITEMS[l.itemId].dci + ITEMS[l.itemId].label));
-      if (pen) toast(`Attention — ${t.patient.name} : allergie Pénicilline notée au dossier`, 3200);
+      if (pen) toast(`Attention, ${t.patient.name} : allergie Pénicilline notée au dossier`, 3200);
     }
     openReceipt(t);
   }
@@ -949,8 +949,8 @@
     const split = ticketSplit();
     el.innerHTML = `
       <button class="ph-modal-x" data-ph-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">Ticket — ${t.num}</h3>
-      <p class="modal-subtle">${split.mut ? `Tiers payant ${esc(ticketMut().label)} appliqué — le patient règle sa part.` : 'Vente comptoir — règlement direct.'}</p>
+      <h3 class="modal-title">Ticket, ${t.num}</h3>
+      <p class="modal-subtle">${split.mut ? `Tiers payant ${esc(ticketMut().label)} appliqué, le patient règle sa part.` : 'Vente comptoir, règlement direct.'}</p>
       ${receiptHTML(t)}
       <div class="ph-sheet-foot">
         <button class="ph-btn secondary" id="ph-rc-print"><i data-lucide="printer"></i>Imprimer</button>
@@ -984,7 +984,7 @@
       freshTicket();
       closeVeil('#ph-pay-veil');
       queueIfOffline(`Vente ${wasNum}`);
-      toast(`${wasNum} encaissé — ${fmtMAD(due)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+      toast(`${wasNum} encaissé, ${fmtMAD(due)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
       renderTicket(); renderBadges(); renderGrid(); icons();
     };
 
@@ -1006,7 +1006,7 @@
               <div class="who">à facturer (tiers payant)</div>
             </div>
           </div>
-          <div class="ph-pay-note"><i data-lucide="shield-check"></i>Le patient ne règle que sa part — la mutuelle est facturée à part.</div>
+          <div class="ph-pay-note"><i data-lucide="shield-check"></i>Le patient ne règle que sa part, la mutuelle est facturée à part.</div>
         ` : `<div class="modal-amount size-md">${fmtMAD(due)}</div>`}
         <div class="ph-pay-opts">
           <button class="ph-pay-opt" data-ph-m="especes">
@@ -1016,7 +1016,7 @@
           </button>
           <button class="ph-pay-opt" data-ph-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire, V1 sans encaissement Kiwi</span></span>
             <span class="amt">${fmtMAD(due)}</span>
           </button>
         </div>`;
@@ -1069,11 +1069,11 @@
       el.innerHTML = `
         <button class="ph-modal-x" data-ph-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD(due)}</h3>
-        <p class="modal-subtle">${t.num} · lecteur partenaire — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">${t.num} · lecteur partenaire, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="ph-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="ph-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">Lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">Lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons();
       $$('[data-ph-close]', el).forEach((b) => { b.onclick = () => closeVeil('#ph-pay-veil'); });
@@ -1104,7 +1104,7 @@
     }) : PATIENTS;
     panel.innerHTML = `
       <header class="ph-head">
-        <div><h1>Patients</h1><div class="ph-head-sub">Fiche par téléphone — mutuelle, traitements chroniques, allergies</div></div>
+        <div><h1>Patients</h1><div class="ph-head-sub">Fiche par téléphone, mutuelle, traitements chroniques, allergies</div></div>
         <div class="ph-search" style="margin:0;width:300px;">
           <i data-lucide="search"></i>
           <input id="ph-pat-q" placeholder="Nom ou téléphone…" value="${esc(q)}" autocomplete="off" />
@@ -1201,13 +1201,13 @@
     $$('[data-ph-close]', el).forEach((b) => { b.onclick = () => closeVeil('#ph-ptdetail-veil'); });
     const ren = $('[data-ph-renew]', el);
     if (ren) ren.onclick = () => { closeVeil('#ph-ptdetail-veil'); startRenewal(p.id); };
-    $('#ph-ptd-call', el).onclick = () => toast(`Appel — ${p.phone} (démo)`);
+    $('#ph-ptd-call', el).onclick = () => toast(`Appel, ${p.phone} (démo)`);
     $('#ph-ptd-sell', el).onclick = () => {
       state.ticket.patient = p;
       closeVeil('#ph-ptdetail-veil');
       switchView('vente');
       renderTicket(); icons();
-      toast(`${p.name} rattaché — ${m.label}`);
+      toast(`${p.name} rattaché, ${m.label}`);
     };
   }
 
@@ -1225,7 +1225,7 @@
     }
     switchView('vente');
     renderTicket(); renderBadges(); icons();
-    toast(`Renouvellement préparé — ${p.chronic.label}`);
+    toast(`Renouvellement préparé, ${p.chronic.label}`);
   }
 
   /* ═══════════════════════ GARDE ═══════════════════════ */
@@ -1241,7 +1241,7 @@
         <div class="ph-garde-toggle ${state.night ? 'is-on' : ''}" id="ph-garde-toggle">
           <span class="ic"><i data-lucide="moon"></i></span>
           <span class="l">
-            <b>Pharmacie de garde${state.night ? ' — active' : ''}</b>
+            <b>Pharmacie de garde${state.night ? ', active' : ''}</b>
             <span>${state.night ? 'Le terminal consigne chaque vente au journal de garde.' : 'Armez la garde quand vous prenez le service de nuit.'}</span>
           </span>
           <span class="ph-switch"></span>
@@ -1290,7 +1290,7 @@
     renderBadges();
     if (state.view === 'garde') renderGarde();
     icons();
-    toast(state.night ? 'Garde de nuit armée — bon courage Dr Wafae' : 'Garde de nuit désarmée — service de jour');
+    toast(state.night ? 'Garde de nuit armée, bon courage Dr Wafae' : 'Garde de nuit désarmée, service de jour');
   }
   function renderNight() {
     const note = $('#ph-night-note', root);
@@ -1354,7 +1354,7 @@
       </div>`;
     panel.onclick = (e) => {
       const lotBtn = e.target.closest('[data-ph-lot]');
-      if (lotBtn) { state.gross[lotBtn.dataset.phLot] = (state.gross[lotBtn.dataset.phLot] || 0) + 1; renderStock(); icons(); toast(`${ITEMS[lotBtn.dataset.phLot].label} — ajouté à la commande`); return; }
+      if (lotBtn) { state.gross[lotBtn.dataset.phLot] = (state.gross[lotBtn.dataset.phLot] || 0) + 1; renderStock(); icons(); toast(`${ITEMS[lotBtn.dataset.phLot].label}, ajouté à la commande`); return; }
       const gmin = e.target.closest('[data-ph-gmin]');
       const gplus = e.target.closest('[data-ph-gplus]');
       const grow = e.target.closest('[data-ph-grossrow]');
@@ -1369,7 +1369,7 @@
       const units = refs.reduce((s, [, q]) => s + q, 0);
       refs.forEach(([id]) => { state.gross[id] = 0; });
       queueIfOffline('Commande grossiste');
-      toast(`Commande envoyée à CoopharMa — ${refs.length} réf. · ${units} unités · livraison J+1`, 2800);
+      toast(`Commande envoyée à CoopharMa, ${refs.length} réf. · ${units} unités · livraison J+1`, 2800);
       renderStock(); renderBadges(); icons();
     };
     icons();
@@ -1395,7 +1395,7 @@
     setTimeout(() => {
       if (!$('#ph-scan-veil', root).classList.contains('is-open')) return;
       closeVeil('#ph-scan-veil');
-      toast(`Vignette lue — ${target.label}`);
+      toast(`Vignette lue, ${target.label}`);
       openSheet(target.id);
     }, 1400);
     $$('[data-ph-close]', el).forEach((b) => { b.onclick = () => closeVeil('#ph-scan-veil'); });
@@ -1405,10 +1405,10 @@
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — la caisse continue, tout est mis en file');
+      toast('Mode hors-ligne, la caisse continue, tout est mis en file');
     }
     renderNet();
   }

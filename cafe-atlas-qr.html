@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Café Atlas — Self-order QR · Kiwi POS demo</title>
+  <title>Café Atlas, Self-order QR · Kiwi POS demo</title>
   <meta name="description" content="Démonstration self-order par QR · iPhone 17 Pro · Kiwi POS" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -934,12 +934,12 @@
       <h1>Self-order par <em>QR code.</em></h1>
       <p>
         Chaque table du Café Atlas a son QR. Le client scanne, parcourt le menu sur son téléphone,
-        commande et paie — sans appeler le serveur. C'est là que la Gen Z va déjà ; autant les y attendre.
+        commande et paie, sans appeler le serveur. C'est là que la Gen Z va déjà ; autant les y attendre.
       </p>
       <ul>
         <li><span><b>Chaque table = un QR.</b> Pas d'app à télécharger, pas de compte à créer.</span></li>
         <li><span><b>Commande depuis le téléphone</b> du client, envoyée directement en cuisine.</span></li>
-        <li><span><b>Paiement intégré</b> — carte, Apple Pay, ou wallet Kiwi.</span></li>
+        <li><span><b>Paiement intégré</b>, carte, Apple Pay, ou wallet Kiwi.</span></li>
         <li><span><b>Moins de serveurs aux heures de pointe</b>, plus de rotation de tables.</span></li>
         <li><span><b>Le serveur reste pour ce qui compte</b> : conseil, ambiance, bouteilles ouvertes à table.</span></li>
       </ul>
@@ -1053,7 +1053,7 @@
                     <h2 class="cart-title">Votre commande</h2>
                     <div class="cart-subtitle">Table 7 · Café Atlas</div>
                     <ul class="cart-items" id="cart-items">
-                      <li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>
+                      <li class="cart-empty">Panier vide, choisissez quelque chose au menu.</li>
                     </ul>
                     <div class="cart-totals">
                       <span>Total</span>
@@ -1093,7 +1093,7 @@
     /* ============ menu data ============ */
     const MENU = [
       { id: 'espresso',  cat: 'coffee', name: 'Espresso',          desc: 'Court, intense, torréfaction du jour',           price: 12, icon: 'coffee' },
-      { id: 'noss-noss', cat: 'coffee', name: 'Noss-noss',          desc: 'Moitié café, moitié lait chaud — la fierté locale', price: 16, icon: 'coffee' },
+      { id: 'noss-noss', cat: 'coffee', name: 'Noss-noss',          desc: 'Moitié café, moitié lait chaud, la fierté locale', price: 16, icon: 'coffee' },
       { id: 'cappuccino', cat: 'coffee', name: 'Cappuccino',        desc: 'Mousse onctueuse, cacao en option',              price: 22, icon: 'coffee' },
       { id: 'msemen',    cat: 'pastry', name: 'Msemen au miel',     desc: 'Crêpe feuilletée chaude, miel d\'oranger',       price: 18, icon: 'croissant' },
       { id: 'briouate',  cat: 'pastry', name: 'Briouate aux amandes', desc: 'Pâte filo, amandes, eau de fleur d\'oranger',   price: 14, icon: 'cookie' },
@@ -1160,7 +1160,7 @@
 
       const itemsEl = $('#cart-items');
       if (count === 0) {
-        itemsEl.innerHTML = `<li class="cart-empty">Panier vide — choisissez quelque chose au menu.</li>`;
+        itemsEl.innerHTML = `<li class="cart-empty">Panier vide, choisissez quelque chose au menu.</li>`;
         return;
       }
       itemsEl.innerHTML = [...cart.entries()].map(([id, qty]) => `

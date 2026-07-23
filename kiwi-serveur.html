@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Kiwi Serveur — Démo</title>
-  <meta name="description" content="Application mobile serveur — démo Kiwi POS" />
+  <title>Kiwi Serveur, Démo</title>
+  <meta name="description" content="Application mobile serveur, démo Kiwi POS" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -3282,7 +3282,7 @@
                 <div class="split-tab-icon"><i data-lucide="equal"></i></div>
                 <div>
                   <div class="split-tab-title">Parts égales</div>
-                  <div class="split-tab-desc" id="split-egal-desc">2 parts · — chacun</div>
+                  <div class="split-tab-desc" id="split-egal-desc">2 parts ·, chacun</div>
                 </div>
               </button>
               <button class="split-tab" data-split-tab="article">
@@ -4350,7 +4350,7 @@
         body.innerHTML = `
           <div class="td-empty">
             <i data-lucide="utensils"></i>
-            <p>Aucun article — appuyez sur <strong>Prendre la commande</strong> pour ouvrir le menu.</p>
+            <p>Aucun article, appuyez sur <strong>Prendre la commande</strong> pour ouvrir le menu.</p>
           </div>
         `;
       } else {
@@ -4371,7 +4371,7 @@
                 <span class="td-item-price">${fmtMAD(l.price * l.qty)}</span>
                 ${optLine}
                 <input class="td-item-note${noteTxt ? ' has-note' : ''}" data-note-uid="${l.uid}"
-                  placeholder="Note cuisine — ex. bien chaud, sans oignon" aria-label="Note cuisine — ${esc(l.name)}" />
+                  placeholder="Note cuisine, ex. bien chaud, sans oignon" aria-label="Note cuisine, ${esc(l.name)}" />
               </div>
             `;
           } else {
@@ -6112,22 +6112,22 @@
         }
         if (snap.paid > kgState.records.bestNight) {
           return { label: 'Nouveau record', icon: 'trophy',
-                   text: '<em>' + snap.paid + ' tables</em> réglées — ton meilleur soir.',
+                   text: '<em>' + snap.paid + ' tables</em> réglées, ton meilleur soir.',
                    share: 'Nouveau record · ' + snap.paid + ' tables réglées' };
         }
         if (snap.speed != null && snap.speed > 0 && snap.speed < kgState.records.bestSpeed) {
           return { label: 'Nouveau record', icon: 'zap',
-                   text: '<em>' + snap.speed + ' mn</em> par table — jamais aussi rapide.',
+                   text: '<em>' + snap.speed + ' mn</em> par table, jamais aussi rapide.',
                    share: 'Record de vitesse · ' + snap.speed + ' mn par table' };
         }
         if (kgDefiProgress().done) {
           return { label: 'Défi accompli', icon: 'flag',
-                   text: 'Défi du soir relevé — <em>' + kgDefi.text.toLowerCase() + '</em>.',
+                   text: 'Défi du soir relevé, <em>' + kgDefi.text.toLowerCase() + '</em>.',
                    share: 'Défi du soir accompli' };
         }
         const lines = [
           'Service propre, du début à la fin.',
-          'Chaque table comptée — beau travail.',
+          'Chaque table comptée, beau travail.',
           'Un service de plus, bien mené.',
           'Régulier et solide, c\'est ça le métier.',
         ];
@@ -6206,7 +6206,7 @@
                     '• ' + snap.served + ' tables servies\n' +
                     '• ' + kgNum(snap.revenue) + ' MAD encaissés\n' +
                     '• ' + kgShareLine + '\n' +
-                    '— via Kiwi';
+                    'via Kiwi';
         if (navigator.share) {
           navigator.share({ text: txt }).catch(function () {});
         } else if (navigator.clipboard && navigator.clipboard.writeText) {

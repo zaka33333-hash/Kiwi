@@ -326,7 +326,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
   function whoLabel(o) {
@@ -343,7 +343,7 @@
         <div class="ff-brand">kiwi<i></i></div>
         <div class="ff-venue">
           <div class="ff-venue-name">Snack Chamal</div>
-          <div class="ff-venue-sub">Tanger · Boulevard Pasteur<br>Le même Kiwi — <b>un seul compte.</b></div>
+          <div class="ff-venue-sub">Tanger · Boulevard Pasteur<br>Le même Kiwi, <b>un seul compte.</b></div>
         </div>
         <nav class="ff-nav" id="ff-nav">
           <button class="ff-nav-it on" data-ff-view="vente"><i data-lucide="utensils"></i><span>Vente rapide</span></button>
@@ -360,7 +360,7 @@
       </aside>
       <main class="ff-main">
         <div class="ff-offline-note" id="ff-offline-note" hidden>
-          Hors-ligne — la caisse continue, tout est enregistré sur la tablette et synchronisé au retour du réseau.
+          Hors-ligne, la caisse continue, tout est enregistré sur la tablette et synchronisé au retour du réseau.
           <b id="ff-queue-count"></b>
         </div>
         <section class="ff-view is-on" data-ff-panel="vente">
@@ -368,7 +368,7 @@
             <div class="ff-menu">
               <header class="ff-head">
                 <div><h1>Vente rapide</h1><div class="ff-head-sub" id="ff-today"></div></div>
-                <div class="ff-head-hint">Touchez un plat — taille, menu, et c’est parti en cuisine</div>
+                <div class="ff-head-hint">Touchez un plat, taille, menu, et c’est parti en cuisine</div>
               </header>
               <div class="ff-grid-scroll" id="ff-gridwrap"></div>
             </div>
@@ -420,7 +420,7 @@
   }
   function renderClock() {
     const el = $('#ff-today');
-    if (el) el.textContent = `${fmtDT(new Date())} — service du midi`;
+    if (el) el.textContent = `${fmtDT(new Date())}, service du midi`;
   }
   function refreshOps() {
     renderBadges();
@@ -481,14 +481,14 @@
             </button>`).join('')}
         </div>
         <div class="ff-glovo-row" id="ff-glovo-row" ${t.channel === 'glovo' ? '' : 'hidden'}>
-          <i data-lucide="bike"></i>Commande Glovo — déjà payée en ligne<b>${esc(t.glovoRef || '')}</b>
+          <i data-lucide="bike"></i>Commande Glovo, déjà payée en ligne<b>${esc(t.glovoRef || '')}</b>
         </div>
       </div>
       <div class="ff-tk-lines" id="ff-tk-lines">
         ${t.lines.length ? t.lines.map((l, i) => lineRow(l, i)).join('') : `
           <div class="ff-tk-empty">
             <i data-lucide="utensils"></i>
-            <div>La commande est vide.<br>Touchez la carte — le menu se propose tout seul.</div>
+            <div>La commande est vide.<br>Touchez la carte, le menu se propose tout seul.</div>
           </div>`}
       </div>
       <div class="ff-tk-foot">
@@ -622,7 +622,7 @@
       ${item.combo ? `<div class="ff-f">
         <button class="ff-combo ${sheet.combo ? 'on' : ''}" id="ff-combo" aria-pressed="${sheet.combo}">
           <span class="ic"><i data-lucide="sparkles"></i></span>
-          <span class="l"><b>En menu ?</b><span>+ frites M + boisson 33 cl — le bon réflexe</span></span>
+          <span class="l"><b>En menu ?</b><span>+ frites M + boisson 33 cl, le bon réflexe</span></span>
           <span class="price">+${COMBO_PRICE} MAD</span>
           <span class="tick"><i data-lucide="check"></i></span>
         </button>
@@ -632,7 +632,7 @@
       </div>` : ''}
 
       ${item.sauces ? `<div class="ff-f">
-        <div class="ff-f-lbl">Sauces <span class="opt">· offertes — plusieurs possibles</span></div>
+        <div class="ff-f-lbl">Sauces <span class="opt">· offertes, plusieurs possibles</span></div>
         <div class="ff-chips" id="ff-sauces">
           ${SAUCES.map((s) => `<button class="ff-chip ${sheet.sauces.includes(s) ? 'on' : ''}" data-ff-sauce="${esc(s)}">${esc(s)}</button>`).join('')}
         </div>
@@ -706,7 +706,7 @@
     if (twin) twin.qty += newLine.qty;
     else state.ticket.lines.push(newLine);
     closeVeil('#ff-sheet-veil');
-    toast(`${lineName(newLine)}${newLine.combo ? ' en menu' : ''} × ${newLine.qty} — sur la commande`);
+    toast(`${lineName(newLine)}${newLine.combo ? ' en menu' : ''} × ${newLine.qty}, sur la commande`);
     renderTicket(); icons(); lens();
   }
 
@@ -793,17 +793,17 @@
       if (fresh && order.channel === 'glovo') { stepGlovo(); return; }
       el.innerHTML = `
         <button class="ff-modal-x" data-ff-close aria-label="Fermer"><i data-lucide="x"></i></button>
-        <h3 class="modal-title">${settle ? `Encaisser le solde — #${order.num}` : 'Encaissement'}</h3>
+        <h3 class="modal-title">${settle ? `Encaisser le solde, #${order.num}` : 'Encaissement'}</h3>
         <p class="modal-subtle">${settle ? `${esc(who)} · ${esc(CHANNELS[order.channel].label)}` : `Commande nº ${order.num} · ${esc(CHANNELS[order.channel].label)}`}</p>
         <div class="modal-amount size-md">${fmtMAD(amount)}</div>
         <div class="ff-pay-opts">
           <button class="ff-pay-opt" data-ff-m="especes">
             <span class="ic"><i data-lucide="banknote"></i></span>
-            <span class="l"><b>Espèces</b><span>Flous direct — billets rapides, rendu calculé</span></span>
+            <span class="l"><b>Espèces</b><span>Flous direct, billets rapides, rendu calculé</span></span>
           </button>
           <button class="ff-pay-opt" data-ff-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Lecteur partenaire, V1 sans encaissement Kiwi</span></span>
           </button>
           ${fresh ? `
           <button class="ff-pay-opt" data-ff-m="later">
@@ -829,7 +829,7 @@
       el.innerHTML = `
         <button class="ff-modal-x" data-ff-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Espèces · ${fmtMAD(amount)}</h3>
-        <p class="modal-subtle">${settle ? `#${order.num} · ${esc(who)}` : `Commande nº ${order.num}`} — touchez le billet reçu, le rendu suit</p>
+        <p class="modal-subtle">${settle ? `#${order.num} · ${esc(who)}` : `Commande nº ${order.num}`}, touchez le billet reçu, le rendu suit</p>
         <div class="cash-grid">
           <div class="cash-input-row">
             <label class="cash-input-label" for="ff-cash-in">Flous reçu</label>
@@ -859,11 +859,11 @@
       el.innerHTML = `
         <button class="ff-modal-x" data-ff-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD(amount)}</h3>
-        <p class="modal-subtle">${settle ? `#${order.num} · ${esc(who)}` : `Commande nº ${order.num}`} — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">${settle ? `#${order.num} · ${esc(who)}` : `Commande nº ${order.num}`}, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="ff-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="ff-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons();
       closeBtns();
@@ -884,12 +884,12 @@
       el.innerHTML = `
         <button class="ff-modal-x" data-ff-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Commande Glovo</h3>
-        <p class="modal-subtle">${esc(order.glovoRef || '')} — déjà payée en ligne, rien à encaisser au comptoir</p>
+        <p class="modal-subtle">${esc(order.glovoRef || '')}, déjà payée en ligne, rien à encaisser au comptoir</p>
         <div class="modal-amount size-md">${fmtMAD(total)}</div>
         <div class="ff-pay-opts">
           <button class="ff-pay-opt dark" id="ff-glovo-go">
             <span class="ic"><i data-lucide="bike"></i></span>
-            <span class="l"><b>Envoyer en cuisine</b><span>Glovo verse le total du mois — facture fin de mois</span></span>
+            <span class="l"><b>Envoyer en cuisine</b><span>Glovo verse le total du mois, facture fin de mois</span></span>
           </button>
         </div>
         <div class="ff-foot-note">Le livreur donne la référence · la commande sort flaggée Glovo dans la file</div>`;
@@ -901,7 +901,7 @@
     const stepLater = () => {
       order.pay = { method: null, paid: 0 };
       postOrder(order);
-      success(order, 0, null, `Solde ${fmtMAD(total)} à encaisser au retrait — gardé sur le nº`);
+      success(order, 0, null, `Solde ${fmtMAD(total)} à encaisser au retrait, gardé sur le nº`);
     };
 
     const done = (method, rendu, received) => {
@@ -911,7 +911,7 @@
         tally[method === 'carte' ? 'carte' : 'especes'] += amount;
         closeVeil('#ff-pay-veil');
         queueIfOffline('Encaissement');
-        toast(`Solde encaissé — ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+        toast(`Solde encaissé, ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
         if (ctx && typeof ctx.onDone === 'function') ctx.onDone();
         refreshOps();
         return;
@@ -929,8 +929,8 @@
         <button class="ff-modal-x" data-ff-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <div class="ff-bignum">#${o.num}</div>
         <div class="ff-bignum-sub">${o.channel === 'glovo'
-          ? `Flaggée Glovo — remettez au livreur quand c’est prêt`
-          : 'Annoncez le numéro — la cuisine est dessus'}</div>
+          ? `Flaggée Glovo, remettez au livreur quand c’est prêt`
+          : 'Annoncez le numéro, la cuisine est dessus'}</div>
         ${receiptHTML(o, rendu, received)}
         ${note ? `<div class="ff-foot-note">${esc(note)}</div>` : ''}
         <div class="ff-sheet-foot">
@@ -939,8 +939,8 @@
         </div>`;
       icons();
       closeBtns();
-      toast(`#${o.num} en préparation${rendu ? ` — rendu ${fmtMAD(rendu)}` : ''}`);
-      $('#ff-print', el).onclick = () => toast('Ticket parti — imprimante 80 mm du comptoir');
+      toast(`#${o.num} en préparation${rendu ? `, rendu ${fmtMAD(rendu)}` : ''}`);
+      $('#ff-print', el).onclick = () => toast('Ticket parti, imprimante 80 mm du comptoir');
       $('#ff-next', el).onclick = () => closeVeil('#ff-pay-veil');
     };
 
@@ -1015,7 +1015,7 @@
       <div class="ff-file">
         <header class="ff-head">
           <div><h1>File de préparation</h1><div class="ff-head-sub">${live} commande${live > 1 ? 's' : ''} vivante${live > 1 ? 's' : ''} · prochain nº ${state.seq}</div></div>
-          <div class="ff-head-hint">prep → prêt → remis — Glovo flaggé dans la file</div>
+          <div class="ff-head-hint">prep → prêt → remis, Glovo flaggé dans la file</div>
         </header>
         <div class="ff-callbar">
           <div class="ff-mic">
@@ -1025,13 +1025,13 @@
           <span class="ff-call-hint">le client entend son numéro, pas son nom</span>
           ${target
             ? `<button class="ff-callbtn" id="ff-call-next"><i data-lucide="megaphone"></i>Appeler le ${target.num}</button>`
-            : '<span class="none">Rien à appeler — tout est servi ou en préparation</span>'}
+            : '<span class="none">Rien à appeler, tout est servi ou en préparation</span>'}
         </div>
         <div class="ff-cols">
           ${cols.map(({ f, list }) => `
             <div class="ff-col">
               <div class="ff-col-head"><i style="background:${f.dot}"></i>${f.label} <span class="ct">${list.length}</span></div>
-              ${list.map(orderCard).join('') || `<div class="ff-bempty">${f.id === 'prep' ? 'Rien en cuisine — la grille n’attend que vous.' : f.id === 'pret' ? 'Rien de prêt pour l’instant.' : 'Les remises du service s’affichent ici.'}</div>`}
+              ${list.map(orderCard).join('') || `<div class="ff-bempty">${f.id === 'prep' ? 'Rien en cuisine, la grille n’attend que vous.' : f.id === 'pret' ? 'Rien de prêt pour l’instant.' : 'Les remises du service s’affichent ici.'}</div>`}
             </div>`).join('')}
         </div>
       </div>`;
@@ -1062,15 +1062,15 @@
     o.status = 'pret';
     queueIfOffline(`#${o.num} prêt`);
     toast(o.channel === 'glovo'
-      ? `#${o.num} prêt — le livreur Glovo peut passer`
-      : `#${o.num} prêt — appelez le numéro`);
+      ? `#${o.num} prêt, le livreur Glovo peut passer`
+      : `#${o.num} prêt, appelez le numéro`);
     refreshOps();
   }
 
   function callOrder(o) {
     o.called = true;
     state.lastCalled = o.num;
-    toast(`${o.num} — c’est prêt !`);
+    toast(`${o.num}, c’est prêt !`);
     if (state.view === 'file') {
       renderFile(); icons();
       const mic = $('#ff-mic-num');
@@ -1081,7 +1081,7 @@
   function deliver(o) {
     const due = dueOf(o);
     if (due > 0) {
-      toast(`Solde ${fmtMAD(due)} à encaisser d’abord — khlass puis remise`);
+      toast(`Solde ${fmtMAD(due)} à encaisser d’abord, khlass puis remise`);
       openPay(o, { settle: true, onDone: () => deliver(o) });
       return;
     }
@@ -1089,8 +1089,8 @@
     o.remisAt = new Date();
     queueIfOffline(`#${o.num} remis`);
     toast(o.channel === 'glovo'
-      ? `#${o.num} remis au livreur Glovo — bonne route`
-      : `#${o.num} remis — bsa7a !`);
+      ? `#${o.num} remis au livreur Glovo, bonne route`
+      : `#${o.num} remis, bsa7a !`);
     refreshOps();
   }
 
@@ -1155,7 +1155,7 @@
       deliver(o);
       openDetail(o.num);
     };
-    $('#ff-dt-kds', el).onclick = () => toast(`#${o.num} renvoyé en cuisine — imprimante 80 mm`);
+    $('#ff-dt-kds', el).onclick = () => toast(`#${o.num} renvoyé en cuisine, imprimante 80 mm`);
   }
 
   /* ═══════════════════════ ENCAISSEMENT (vue) ═══════════════════════ */
@@ -1166,7 +1166,7 @@
       <div class="ff-caisse">
         <div class="ff-caisse-inner">
           <header class="ff-head" style="padding:22px 0 0;">
-            <div><h1>Encaissement</h1><div class="ff-head-sub">Le flous du service — espèces, carte, et le compte Glovo</div></div>
+            <div><h1>Encaissement</h1><div class="ff-head-sub">Le flous du service, espèces, carte, et le compte Glovo</div></div>
           </header>
           <div class="ff-till">
             <div class="ff-till-tile">
@@ -1177,12 +1177,12 @@
             <div class="ff-till-tile">
               <span class="lbl"><i data-lucide="credit-card"></i>Carte</span>
               <div class="val">${fmtMAD(tally.carte)}</div>
-              <div class="sub">lecteur partenaire — V1 sans encaissement Kiwi</div>
+              <div class="sub">lecteur partenaire, V1 sans encaissement Kiwi</div>
             </div>
             <div class="ff-till-tile dark">
               <span class="lbl"><i data-lucide="bike"></i>Glovo</span>
               <div class="val">${fmtMAD(tally.glovo)}</div>
-              <div class="sub">versé fin de mois — rien au comptoir</div>
+              <div class="sub">versé fin de mois, rien au comptoir</div>
             </div>
           </div>
           <div class="ff-due-head"><i data-lucide="hand-coins"></i>À encaisser <span class="ct">${dues.length}</span></div>
@@ -1204,9 +1204,9 @@
             </div>`).join('') : `
             <div class="ff-allclear">
               <i data-lucide="check-circle-2"></i>
-              <div>Rien à encaisser — tout est khlass.<br>Les soldes « payer au retrait » atterrissent ici.</div>
+              <div>Rien à encaisser, tout est khlass.<br>Les soldes « payer au retrait » atterrissent ici.</div>
             </div>`}
-          <div class="ff-foot-note">Les commandes Glovo ne passent jamais par la caisse — le compte se fait fin de mois.</div>
+          <div class="ff-foot-note">Les commandes Glovo ne passent jamais par la caisse, le compte se fait fin de mois.</div>
         </div>
       </div>`;
     panel.onclick = (e) => {
@@ -1246,7 +1246,7 @@
                   <span class="ff-bar-t">${esc(h.t)}</span>
                 </div>`).join('')}
             </div>
-            <div class="ff-bars-foot"><i></i>demi-heure en cours — le pic était à 12h30</div>
+            <div class="ff-bars-foot"><i></i>demi-heure en cours, le pic était à 12h30</div>
           </div>
           <div class="ff-rush-side">
             <div class="ff-kpi-row">
@@ -1263,7 +1263,7 @@
               <div class="ff-kpi hero">
                 <span class="ic"><i data-lucide="sparkles"></i></span>
                 <div>
-                  <div class="lbl">Taux de menu — l’upsell qui paie</div>
+                  <div class="lbl">Taux de menu, l’upsell qui paie</div>
                   <div class="val">${menuRate} %</div>
                   <div class="sub">${tally.menus} menus × +${COMBO_PRICE} MAD = +${fmtMAD(tally.menus * COMBO_PRICE)} ce midi</div>
                 </div>
@@ -1294,12 +1294,12 @@
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — la caisse continue, tout est mis en file');
+      toast('Mode hors-ligne, la caisse continue, tout est mis en file');
     } else {
-      toast('Réseau de retour — tout est synchronisé');
+      toast('Réseau de retour, tout est synchronisé');
     }
     renderNet();
   }
@@ -1324,7 +1324,7 @@
     greet: {
       line1: 'Sba7 lkhir Bilal,',
       em: 'marhba.',
-      sub: 'Snack Chamal <em>·</em> coup de feu de midi — 5 commandes en file',
+      sub: 'Snack Chamal <em>·</em> coup de feu de midi, 5 commandes en file',
     },
     mount(rootEl) { mount(rootEl); },
     onShow() {

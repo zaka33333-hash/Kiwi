@@ -74,7 +74,7 @@
 
   /* ── Team access rows offered in the PIN step ─────────────────────────── */
   const ACCESS = [
-    { role: 'owner',   fixed: true,  title: { fr: 'Vous · propriétaire', en: 'You · owner', ar: 'أنت · المالك' },       perm: { fr: 'Accès complet — finances, paie, tout.', en: 'Full access — finances, payroll, everything.', ar: 'وصول كامل.' } },
+    { role: 'owner',   fixed: true,  title: { fr: 'Vous · propriétaire', en: 'You · owner', ar: 'أنت · المالك' },       perm: { fr: 'Accès complet, finances, paie, tout.', en: 'Full access, finances, payroll, everything.', ar: 'وصول كامل.' } },
     { role: 'manager', fixed: false, title: { fr: 'Responsable / gérant', en: 'Manager', ar: 'المسؤول' },                perm: { fr: 'Tout sauf finances, marges & paie.', en: 'Everything except finances, margins & payroll.', ar: 'كل شيء ما عدا المالية.' } },
     { role: 'staff',   fixed: false, title: { fr: 'Équipe / caissier', en: 'Staff / cashier', ar: 'الفريق' },            perm: { fr: 'Caisse, commandes & salle uniquement.', en: 'Register, orders & floor only.', ar: 'الصندوق والطلبات فقط.' } },
     { role: 'staff',   fixed: false, title: { fr: 'Accès supplémentaire', en: 'Extra access', ar: 'وصول إضافي' },        perm: { fr: 'Caisse & commandes.', en: 'Register & orders.', ar: 'الصندوق والطلبات.' }, extra: true },
@@ -254,9 +254,9 @@
           <p class="kob-eyebrow">${tr({ fr: 'Bienvenue sur Kiwi', en: 'Welcome to Kiwi', ar: 'مرحباً بك في كيوي' })}</p>
           <h1 class="kob-h">${tr({ fr: 'On met tout en place <span class="k-sans">ensemble.</span>', en: "Let's set it all up <span class=\"k-sans\">together.</span>", ar: 'لنُهيّئ كل شيء <span class="k-sans">معاً.</span>' })}</h1>
           <p class="kob-sub">${tr({
-            fr: "Quelques questions rapides — moins de 2 minutes — et votre espace est prêt, à votre nom, avec votre équipe. Rien n'est définitif : tout se modifie plus tard.",
-            en: 'A few quick questions — under 2 minutes — and your space is ready, in your name, with your team. Nothing is final: everything can change later.',
-            ar: 'بضعة أسئلة سريعة — أقل من دقيقتين — وتكون مساحتك جاهزة. لا شيء نهائي؛ كل شيء قابل للتعديل لاحقاً.' })}</p>
+            fr: "Quelques questions rapides, moins de 2 minutes, et votre espace est prêt, à votre nom, avec votre équipe. Rien n'est définitif : tout se modifie plus tard.",
+            en: 'A few quick questions, under 2 minutes, and your space is ready, in your name, with your team. Nothing is final: everything can change later.',
+            ar: 'بضعة أسئلة سريعة, أقل من دقيقتين, وتكون مساحتك جاهزة. لا شيء نهائي؛ كل شيء قابل للتعديل لاحقاً.' })}</p>
         </div>`,
       foot: `
         <button class="kob-btn primary" data-go="next">${tr({ fr: 'Commencer', en: 'Get started', ar: 'لنبدأ' })}</button>
@@ -270,7 +270,7 @@
         <div class="kob-anim">
           <p class="kob-eyebrow">${tr({ fr: 'Faisons connaissance', en: "Let's meet", ar: 'لنتعارف' })}</p>
           <h1 class="kob-h">${tr({ fr: 'Comment vous appelez-vous ?', en: 'What should we call you?', ar: 'ما اسمك؟' })}</h1>
-          <p class="kob-sub">${tr({ fr: 'Juste votre prénom — pour vous accueillir par votre nom chaque matin.', en: 'Just your first name — so we can greet you by name every morning.', ar: 'اسمك الأول فقط — لنرحّب بك كل صباح.' })}</p>
+          <p class="kob-sub">${tr({ fr: 'Juste votre prénom, pour vous accueillir par votre nom chaque matin.', en: 'Just your first name, so we can greet you by name every morning.', ar: 'اسمك الأول فقط, لنرحّب بك كل صباح.' })}</p>
           <input class="kob-field" data-f="ownerName" type="text" value="${esc(S.ownerName)}" maxlength="24" placeholder="${tr({ fr: 'Ex. Rachid', en: 'e.g. Rachid', ar: 'مثال: رشيد' })}" autocomplete="given-name"/>
         </div>`,
       foot: footNav({}),
@@ -322,7 +322,7 @@
         <div class="kob-anim">
           <p class="kob-eyebrow">${tr({ fr: 'Votre équipe', en: 'Your team', ar: 'فريقك' })}</p>
           <h1 class="kob-h">${tr({ fr: 'Vous êtes combien à travailler ici ?', en: 'How many of you work here?', ar: 'كم عدد العاملين لديك؟' })}</h1>
-          <p class="kob-sub">${tr({ fr: "Vous compris. On s'en sert pour préparer la paie, le planning et les accès — sans engagement.", en: 'You included. We use it to prepare payroll, scheduling and access — no commitment.', ar: 'أنت من ضمنهم. نستخدمه لتحضير الرواتب والجدولة والوصول.' })}</p>
+          <p class="kob-sub">${tr({ fr: "Vous compris. On s'en sert pour préparer la paie, le planning et les accès, sans engagement.", en: 'You included. We use it to prepare payroll, scheduling and access, no commitment.', ar: 'أنت من ضمنهم. نستخدمه لتحضير الرواتب والجدولة والوصول.' })}</p>
           ${stepper('teamSize', 1, 200)}
         </div>`,
       foot: footNav({ skip: true }),
@@ -335,7 +335,7 @@
         <div class="kob-anim">
           <p class="kob-eyebrow">${tr({ fr: 'Vos priorités', en: 'Your priorities', ar: 'أولوياتك' })}</p>
           <h1 class="kob-h">${tr({ fr: "Qu'est-ce qui compte le plus ?", en: 'What matters most to you?', ar: 'ما الأهم بالنسبة لك؟' })}</h1>
-          <p class="kob-sub">${tr({ fr: "Choisissez ce qui vous parle — on met en avant les bons outils pour vous. Plusieurs choix possibles.", en: "Pick what speaks to you — we'll surface the right tools. Choose as many as you like.", ar: 'اختر ما يناسبك — سنُبرز الأدوات المناسبة. يمكن اختيار أكثر من واحد.' })}</p>
+          <p class="kob-sub">${tr({ fr: "Choisissez ce qui vous parle, on met en avant les bons outils pour vous. Plusieurs choix possibles.", en: "Pick what speaks to you, we'll surface the right tools. Choose as many as you like.", ar: 'اختر ما يناسبك, سنُبرز الأدوات المناسبة. يمكن اختيار أكثر من واحد.' })}</p>
           <div class="kob-chips">
             ${GOALS.map((g) => `<button class="kob-chip${S.goals.includes(g.id) ? ' sel' : ''}" data-goal="${g.id}">${g.icon}<span>${esc(tr(g.label))}</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button>`).join('')}
           </div>
@@ -371,7 +371,7 @@
         <div class="kob-anim">
           <p class="kob-eyebrow">${tr({ fr: "Accès de l'équipe", en: 'Team access', ar: 'وصول الفريق' })}</p>
           <h1 class="kob-h">${tr({ fr: 'Les codes de votre équipe.', en: "Your team's access codes.", ar: 'رموز دخول فريقك.' })}</h1>
-          <p class="kob-sub">${tr({ fr: "Chaque personne entre son code à 4 chiffres pour ouvrir Kiwi — et ne voit que ce qui la concerne. Le vôtre est le seul obligatoire.", en: 'Each person enters their 4-digit code to open Kiwi — and only sees what concerns them. Only yours is required.', ar: 'يُدخل كل شخص رمزه المكوّن من 4 أرقام — ويرى فقط ما يخصه. رمزك وحده إلزامي.' })}</p>
+          <p class="kob-sub">${tr({ fr: "Chaque personne entre son code à 4 chiffres pour ouvrir Kiwi, et ne voit que ce qui la concerne. Le vôtre est le seul obligatoire.", en: 'Each person enters their 4-digit code to open Kiwi, and only sees what concerns them. Only yours is required.', ar: 'يُدخل كل شخص رمزه المكوّن من 4 أرقام, ويرى فقط ما يخصه. رمزك وحده إلزامي.' })}</p>
           <div class="kob-access">
             ${ACCESS.map((a, i) => accessRow(a, i)).join('')}
           </div>
@@ -441,8 +441,8 @@
       for (const p of S.pins) {
         if (!p.code) continue;
         if (!/^\d{4}$/.test(p.code)) return tr({ fr: 'Chaque code doit faire exactement 4 chiffres.', en: 'Each code must be exactly 4 digits.', ar: 'كل رمز يجب أن يكون 4 أرقام.' });
-        if (RESERVED.includes(p.code)) return tr({ fr: 'Le code ' + p.code + ' est réservé à la démo — choisissez-en un autre.', en: 'Code ' + p.code + ' is reserved for the demo — pick another.', ar: 'الرمز ' + p.code + ' محجوز — اختر غيره.' });
-        if (seen[p.code]) return tr({ fr: 'Deux personnes ont le même code — chaque code doit être unique.', en: 'Two people share a code — each must be unique.', ar: 'رمزان متطابقان — يجب أن يكون كل رمز فريداً.' });
+        if (RESERVED.includes(p.code)) return tr({ fr: 'Le code ' + p.code + ' est réservé à la démo, choisissez-en un autre.', en: 'Code ' + p.code + ' is reserved for the demo, pick another.', ar: 'الرمز ' + p.code + ' محجوز, اختر غيره.' });
+        if (seen[p.code]) return tr({ fr: 'Deux personnes ont le même code, chaque code doit être unique.', en: 'Two people share a code, each must be unique.', ar: 'رمزان متطابقان, يجب أن يكون كل رمز فريداً.' });
         seen[p.code] = 1;
       }
     }
@@ -549,7 +549,7 @@
     try {
       if (window.Kiwi && Kiwi.toast) Kiwi.toast(tr({ fr: 'Bienvenue' + (name ? ' ' + name : ''), en: 'Welcome' + (name ? ' ' + name : ''), ar: 'مرحباً' + (name ? ' ' + name : '') }), {
         type: 'success', force: true,
-        desc: tr({ fr: 'Votre espace est prêt — enregistrez votre première vente.', en: 'Your space is ready — record your first sale.', ar: 'مساحتك جاهزة — سجّل أول بيع.' }),
+        desc: tr({ fr: 'Votre espace est prêt, enregistrez votre première vente.', en: 'Your space is ready, record your first sale.', ar: 'مساحتك جاهزة, سجّل أول بيع.' }),
       });
     } catch (_) {}
   }

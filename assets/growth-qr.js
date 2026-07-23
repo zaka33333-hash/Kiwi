@@ -16,27 +16,27 @@
   ];
 
   const STR = {
-    fr: { title: 'Commander à table', sub: 'Le client scanne, commande et paie depuis son téléphone — sans attendre.',
+    fr: { title: 'Commander à table', sub: 'Le client scanne, commande et paie depuis son téléphone, sans attendre.',
       eyebrow: 'EXPÉRIENCE SANS CONTACT', head: 'Sans serveur, sans attente',
-      lede: 'Chaque table porte son QR. Le client parcourt votre carte, commande et règle en quelques secondes — la commande tombe directement en cuisine.',
+      lede: 'Chaque table porte son QR. Le client parcourt votre carte, commande et règle en quelques secondes, la commande tombe directement en cuisine.',
       s1: 'des tables via QR', s2: 'panier QR', s3: 'sur le service',
       preview: 'APERÇU CLIENT', tables: 'TABLES', tablesHint: '1 QR par table',
       menu: 'Carte', add: 'Ajouter', cart: (n, m) => `${n} articles · ${fmt(m)} MAD`, pay: 'Payer',
       free: 'Libre', busy: 'Occupée', ordering: 'Commande',
       print: 'Imprimer les QR', cta: 'Activer la commande à table', close: 'Fermer',
       toastP: 'QR des tables envoyés à l\'impression', toastA: 'Commande à table activée', toastAD: '12 tables · paiement Kiwi · commande en cuisine en direct.' },
-    en: { title: 'Order at the table', sub: 'The guest scans, orders and pays from their phone — no waiting.',
+    en: { title: 'Order at the table', sub: 'The guest scans, orders and pays from their phone, no waiting.',
       eyebrow: 'CONTACTLESS EXPERIENCE', head: 'No waiter, no waiting',
-      lede: 'Every table carries its QR. The guest browses your menu, orders and pays in seconds — the order drops straight into the kitchen.',
+      lede: 'Every table carries its QR. The guest browses your menu, orders and pays in seconds, the order drops straight into the kitchen.',
       s1: 'of tables via QR', s2: 'QR basket', s3: 'on service time',
       preview: 'GUEST PREVIEW', tables: 'TABLES', tablesHint: '1 QR per table',
       menu: 'Menu', add: 'Add', cart: (n, m) => `${n} items · ${fmt(m)} MAD`, pay: 'Pay',
       free: 'Free', busy: 'Seated', ordering: 'Ordering',
       print: 'Print the QR codes', cta: 'Turn on order at the table', close: 'Close',
       toastP: 'Table QR codes sent to print', toastA: 'Order at the table activated', toastAD: '12 tables · Kiwi payment · live kitchen orders.' },
-    ar: { title: 'الطلب من الطاولة', sub: 'الزبون يمسح، يطلب ويدفع من هاتفه — بدون انتظار.',
+    ar: { title: 'الطلب من الطاولة', sub: 'الزبون يمسح، يطلب ويدفع من هاتفه, بدون انتظار.',
       eyebrow: 'تجربة بدون تلامس', head: 'بدون نادل، بدون انتظار',
-      lede: 'كل طاولة تحمل رمزها. يتصفّح الزبون قائمتك، يطلب ويدفع في ثوانٍ — ويصل الطلب مباشرة إلى المطبخ.',
+      lede: 'كل طاولة تحمل رمزها. يتصفّح الزبون قائمتك، يطلب ويدفع في ثوانٍ, ويصل الطلب مباشرة إلى المطبخ.',
       s1: 'من الطاولات عبر QR', s2: 'سلة QR', s3: 'على وقت الخدمة',
       preview: 'معاينة الزبون', tables: 'الطاولات', tablesHint: 'رمز لكل طاولة',
       menu: 'القائمة', add: 'إضافة', cart: (n, m) => `${n} أصناف · ${fmt(m)} درهم`, pay: 'الدفع',
@@ -117,7 +117,7 @@
         <div>
           <div class="qro-col-t"><span>${T.preview}</span></div>
           <div class="qro-phone"><div class="qro-screen">
-            <div class="qro-ph-head"><div class="qro-ph-name">Café Atlas · Maarif</div><div class="qro-ph-tbl">T4 — ${T.menu}</div></div>
+            <div class="qro-ph-head"><div class="qro-ph-name">Café Atlas · Maarif</div><div class="qro-ph-tbl">T4, ${T.menu}</div></div>
             <div class="qro-ph-body">${menuHtml}</div>
             <div class="qro-ph-cart"><span class="c">${T.cart(2, 95)}</span><span class="pay">${T.pay}</span></div>
           </div></div>

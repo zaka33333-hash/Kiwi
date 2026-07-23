@@ -122,7 +122,7 @@
     fr: {
       tag: 'LIENS DE PAIEMENT',
       title: 'Créer un lien Kiwi',
-      desc: 'Pour paiements à distance — WhatsApp, email, SMS. Zéro terminal requis.',
+      desc: 'Pour paiements à distance, WhatsApp, email, SMS. Zéro terminal requis.',
       amountLabel: 'Montant (MAD)',
       amountPlaceholder: 'Ex. 250,00',
       amountHelp: 'Laissez vide pour permettre au client de choisir.',
@@ -163,7 +163,7 @@
     en: {
       tag: 'PAYMENT LINKS',
       title: 'Create a Kiwi Link',
-      desc: 'For remote payments — WhatsApp, email, SMS. No terminal required.',
+      desc: 'For remote payments, WhatsApp, email, SMS. No terminal required.',
       amountLabel: 'Amount (MAD)',
       amountPlaceholder: 'E.g. 250.00',
       amountHelp: 'Leave empty to let the customer choose.',
@@ -204,7 +204,7 @@
     ar: {
       tag: 'روابط الدفع',
       title: 'إنشاء رابط كيوي',
-      desc: 'للمدفوعات عن بعد — واتساب، إيميل، رسائل نصية. لا يتطلب جهاز دفع.',
+      desc: 'للمدفوعات عن بعد, واتساب، إيميل، رسائل نصية. لا يتطلب جهاز دفع.',
       amountLabel: 'المبلغ (درهم)',
       amountPlaceholder: 'مثال: 250,00',
       amountHelp: 'اتركه فارغًا للسماح للعميل بالاختيار.',

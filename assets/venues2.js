@@ -234,13 +234,13 @@
         aiInsights: [
           {
             title: 'Café Atlas génère 58 % du CA · concentration à diversifier',
-            body: 'Sur les 30 derniers jours, Café Atlas (58 %) tire le portefeuille, devant Maison Mansour (24 %) et Spa Bahia (18 %). Les 3 sites partagent 312 clients communs — déjà fidèles à l\'écosystème — qu\'on peut activer en cross-sell.',
+            body: 'Sur les 30 derniers jours, Café Atlas (58 %) tire le portefeuille, devant Maison Mansour (24 %) et Spa Bahia (18 %). Les 3 sites partagent 312 clients communs, déjà fidèles à l\'écosystème, qu\'on peut activer en cross-sell.',
             action: 'Lancer une carte fidélité unifiée Kiwi pour les 312 clients cross-site pourrait lifter le CA global de 4–7 %.',
             type: 'warning',
           },
           {
             title: '312 clients fréquentent plusieurs emplacements',
-            body: 'Ces clients cross-site dépensent en moyenne 2,4× plus que les clients mono-site. Le duo Café Atlas × Spa Bahia est la paire la plus fréquentée — 184 clients communs.',
+            body: 'Ces clients cross-site dépensent en moyenne 2,4× plus que les clients mono-site. Le duo Café Atlas × Spa Bahia est la paire la plus fréquentée, 184 clients communs.',
             action: 'Un forfait "Déjeuner + Soin" couplant Café Atlas et Spa Bahia pourrait convertir 60+ clients mono-site en clients cross-site.',
             type: 'opportunity',
           },
@@ -492,9 +492,9 @@
         productsEmpty: { fr: { title: 'Top fournées', manage: 'Gérer la gamme →', msg: 'Vos pains et viennoiseries les plus vendus s\'afficheront ici dès la première vente.' },
                          en: { title: 'Top bakes', manage: 'Manage range →', msg: 'Your best-selling breads and pastries will appear here after the first sale.' },
                          ar: { title: 'أفضل المخبوزات', manage: 'إدارة التشكيلة ←', msg: 'ستظهر أكثر أنواع الخبز والمعجنات مبيعًا هنا بعد أول عملية بيع.' } },
-        eveningEmpty: { fr: { lbl: 'DEMAIN · PRÉCOMMANDES', head: 'Aucune précommande', msg: 'Vos commandes clients — gâteaux, pièces montées — s\'afficheront ici.' },
-                        en: { lbl: 'TOMORROW · PRE-ORDERS', head: 'No pre-orders', msg: 'Your customer orders — cakes, celebration pieces — will appear here.' },
-                        ar: { lbl: 'غدًا · الطلبات المسبقة', head: 'لا طلبات مسبقة', msg: 'ستظهر طلبات عملائك — الكعك وقطع المناسبات — هنا.' } },
+        eveningEmpty: { fr: { lbl: 'DEMAIN · PRÉCOMMANDES', head: 'Aucune précommande', msg: 'Vos commandes clients, gâteaux, pièces montées, s\'afficheront ici.' },
+                        en: { lbl: 'TOMORROW · PRE-ORDERS', head: 'No pre-orders', msg: 'Your customer orders, cakes, celebration pieces, will appear here.' },
+                        ar: { lbl: 'غدًا · الطلبات المسبقة', head: 'لا طلبات مسبقة', msg: 'ستظهر طلبات عملائك, الكعك وقطع المناسبات, هنا.' } },
         navOrders: { fr: 'Ventes', en: 'Sales', ar: 'المبيعات' },
         askPlaceholder: { fr: 'Posez votre question sur votre boulangerie...', en: 'Ask a question about your bakery...', ar: 'اطرح سؤالاً حول مخبزتك...' },
       } },
@@ -701,9 +701,9 @@
         stockEmpty: { fr: { msg: 'Dès que vous suivez vos titres et fournitures, Kiwi AI estime les réassorts à commander.' },
                       en: { msg: 'Once you track your titles and supplies, Kiwi AI estimates what to restock.' },
                       ar: { msg: 'بمجرد تتبّع عناوينك وقرطاسيتك، يقدّر Kiwi AI ما يجب إعادة طلبه.' } },
-        productsEmpty: { fr: { title: 'Top titres', msg: 'Vos meilleures ventes — livres, presse, fournitures — s\'afficheront ici dès la première vente.' },
-                         en: { title: 'Top titles', msg: 'Your best sellers — books, press, supplies — will appear here after the first sale.' },
-                         ar: { title: 'أفضل العناوين', msg: 'ستظهر أفضل مبيعاتك — كتب وصحافة وقرطاسية — هنا بعد أول عملية بيع.' } },
+        productsEmpty: { fr: { title: 'Top titres', msg: 'Vos meilleures ventes, livres, presse, fournitures, s\'afficheront ici dès la première vente.' },
+                         en: { title: 'Top titles', msg: 'Your best sellers, books, press, supplies, will appear here after the first sale.' },
+                         ar: { title: 'أفضل العناوين', msg: 'ستظهر أفضل مبيعاتك, كتب وصحافة وقرطاسية, هنا بعد أول عملية بيع.' } },
         askPlaceholder: { fr: 'Posez votre question sur votre librairie...', en: 'Ask a question about your bookshop...', ar: 'اطرح سؤالاً حول مكتبتك...' },
       } },
     fleuriste: { base: 'boutique',
@@ -974,12 +974,12 @@
       },
       riadYasmina: {
         title: 'Booking.com vous a prélevé ~56 000 MAD de commissions sur 30 jours',
-        obs: '54 % de vos nuitées passent par Booking.com (commission 17 %), contre 25 % en réservation directe. Pourtant, 22 de vos clients du mois étaient déjà venus — et ont quand même réservé via l’OTA. Chaque séjour rebasculé en direct économise ~1 280 MAD.',
+        obs: '54 % de vos nuitées passent par Booking.com (commission 17 %), contre 25 % en réservation directe. Pourtant, 22 de vos clients du mois étaient déjà venus, et ont quand même réservé via l’OTA. Chaque séjour rebasculé en direct économise ~1 280 MAD.',
         act: '→ Activer la relance WhatsApp « revenez en direct, -10 % » pour les anciens clients : jusqu’à 4 100 MAD de commission économisée par mois.',
       },
       fusion: {
         title: 'Café Atlas génère 58 % du CA · concentration à diversifier',
-        obs: 'Sur les 30 derniers jours, Café Atlas (58 %) tire le portefeuille, devant Maison Mansour (24 %) et Spa Bahia (18 %). Les 3 sites partagent 312 clients communs — déjà fidèles à l\'écosystème — qu\'on peut activer en cross-sell.',
+        obs: 'Sur les 30 derniers jours, Café Atlas (58 %) tire le portefeuille, devant Maison Mansour (24 %) et Spa Bahia (18 %). Les 3 sites partagent 312 clients communs, déjà fidèles à l\'écosystème, qu\'on peut activer en cross-sell.',
         act: '→ Lancer une carte fidélité unifiée Kiwi pour les 312 clients cross-site pourrait lifter le CA global de 4-7 %.',
       },
     },
@@ -1001,12 +1001,12 @@
       },
       riadYasmina: {
         title: 'Booking.com took ~56,000 MAD in commissions over 30 days',
-        obs: '54% of your room nights come through Booking.com (17% commission), versus 25% booked direct. Yet 22 of this month’s guests had stayed before — and still booked through the OTA. Every stay shifted to direct saves ~1,280 MAD.',
+        obs: '54% of your room nights come through Booking.com (17% commission), versus 25% booked direct. Yet 22 of this month’s guests had stayed before, and still booked through the OTA. Every stay shifted to direct saves ~1,280 MAD.',
         act: '→ Enable the WhatsApp win-back « book direct, -10% » for past guests: up to 4,100 MAD of commission saved per month.',
       },
       fusion: {
         title: 'Café Atlas generates 58% of revenue · concentration to diversify',
-        obs: 'Over the last 30 days, Café Atlas (58%) drives the portfolio, ahead of Maison Mansour (24%) and Spa Bahia (18%). The 3 sites share 312 common customers — already loyal to the ecosystem — who can be activated through cross-sell.',
+        obs: 'Over the last 30 days, Café Atlas (58%) drives the portfolio, ahead of Maison Mansour (24%) and Spa Bahia (18%). The 3 sites share 312 common customers, already loyal to the ecosystem, who can be activated through cross-sell.',
         act: '→ Launching a unified Kiwi loyalty card for the 312 cross-site customers could lift overall revenue by 4-7%.',
       },
     },
@@ -1028,12 +1028,12 @@
       },
       riadYasmina: {
         title: 'Booking.com اقتطع ~56 000 درهم من العمولات خلال 30 يومًا',
-        obs: '54٪ من لياليكم تمرّ عبر Booking.com (عمولة 17٪)، مقابل 25٪ حجزًا مباشرًا. ومع ذلك، 22 من نزلاء هذا الشهر سبق أن أقاموا عندكم — وحجزوا مجددًا عبر المنصة. كل إقامة تتحوّل إلى الحجز المباشر توفّر ~1 280 درهمًا.',
+        obs: '54٪ من لياليكم تمرّ عبر Booking.com (عمولة 17٪)، مقابل 25٪ حجزًا مباشرًا. ومع ذلك، 22 من نزلاء هذا الشهر سبق أن أقاموا عندكم, وحجزوا مجددًا عبر المنصة. كل إقامة تتحوّل إلى الحجز المباشر توفّر ~1 280 درهمًا.',
         act: '→ تفعيل رسالة واتساب « احجزوا مباشرة بخصم -10٪ » للنزلاء السابقين: حتى 4 100 درهم من العمولات الموفَّرة شهريًا.',
       },
       fusion: {
         title: 'مقهى أطلس يحقّق 58٪ من المداخيل · تركّز يجب تنويعه',
-        obs: 'خلال الـ30 يومًا الأخيرة، يقود مقهى أطلس (58٪) المحفظة، متقدّمًا على ميزون منصور (24٪) وسبا باهية (18٪). تتقاسم المواقع الثلاثة 312 زبونًا مشتركًا — أوفياء للمنظومة — يمكن تفعيلهم عبر البيع المتقاطع.',
+        obs: 'خلال الـ30 يومًا الأخيرة، يقود مقهى أطلس (58٪) المحفظة، متقدّمًا على ميزون منصور (24٪) وسبا باهية (18٪). تتقاسم المواقع الثلاثة 312 زبونًا مشتركًا, أوفياء للمنظومة, يمكن تفعيلهم عبر البيع المتقاطع.',
         act: '→ إطلاق بطاقة وفاء كيوي موحّدة للزبناء الـ312 المشتركين بين المواقع قد يرفع المداخيل الإجمالية بـ 4-7٪.',
       },
     },
@@ -1058,7 +1058,7 @@
       },
       riadYasmina: {
         title: 'Décaler 3 départs tardifs libérerait vos chambres avant le pic d’arrivées',
-        obs: 'Vos arrivées se concentrent entre 15h et 18h, mais 3 chambres se libèrent en moyenne après 13h — le ménage termine vers 15h40 et 2 clients ont attendu hier dans le patio. Un check-out à 11h strict, ou un late check-out payant à 150 MAD, fluidifie la rotation.',
+        obs: 'Vos arrivées se concentrent entre 15h et 18h, mais 3 chambres se libèrent en moyenne après 13h, le ménage termine vers 15h40 et 2 clients ont attendu hier dans le patio. Un check-out à 11h strict, ou un late check-out payant à 150 MAD, fluidifie la rotation.',
         cta: '→ Activer le late check-out payant',
       },
       fusion: {
@@ -1085,7 +1085,7 @@
       },
       riadYasmina: {
         title: 'Shifting 3 late check-outs would free rooms before the arrival peak',
-        obs: 'Your arrivals cluster between 3pm and 6pm, yet 3 rooms free up after 1pm on average — housekeeping finishes around 3:40pm and 2 guests waited in the patio yesterday. A strict 11am check-out, or a paid 150 MAD late check-out, smooths the turnover.',
+        obs: 'Your arrivals cluster between 3pm and 6pm, yet 3 rooms free up after 1pm on average, housekeeping finishes around 3:40pm and 2 guests waited in the patio yesterday. A strict 11am check-out, or a paid 150 MAD late check-out, smooths the turnover.',
         cta: '→ Enable paid late check-out',
       },
       fusion: {
@@ -1112,7 +1112,7 @@
       },
       riadYasmina: {
         title: 'تقديم 3 مغادرات متأخرة يحرّر الغرف قبل ذروة الوصول',
-        obs: 'تتركّز وصولاتكم بين 15h و18h، بينما تتحرّر 3 غرف في المتوسط بعد 13h — ينتهي التنظيف حوالي 15h40 وانتظر نزيلان أمس في الفناء. مغادرة صارمة في 11h، أو مغادرة متأخرة مدفوعة بـ150 درهمًا، تُسلّس الدوران.',
+        obs: 'تتركّز وصولاتكم بين 15h و18h، بينما تتحرّر 3 غرف في المتوسط بعد 13h, ينتهي التنظيف حوالي 15h40 وانتظر نزيلان أمس في الفناء. مغادرة صارمة في 11h، أو مغادرة متأخرة مدفوعة بـ150 درهمًا، تُسلّس الدوران.',
         cta: '→ تفعيل المغادرة المتأخرة المدفوعة',
       },
       fusion: {
@@ -2072,14 +2072,14 @@
       aiCta: 'Planifier le transfert →',
       amEyebrow: 'ACCOUNT MANAGER DÉDIÉE',
       amRole: 'Connaît vos 3 établissements · Casablanca',
-      amNote: 'Ligne directe 24/7 — réponse médiane 11 min sur les 30 derniers jours. Revue stratégique trimestrielle incluse.',
+      amNote: 'Ligne directe 24/7, réponse médiane 11 min sur les 30 derniers jours. Revue stratégique trimestrielle incluse.',
       amCall: 'Planifier un appel',
       apiEyebrow: 'API ENTERPRISE · TEMPS RÉEL',
       apiKey: 'Clé de production', apiActive: 'actifs',
       apiExport: 'Export comptable', apiDocs: 'Documentation API →',
-      transferToast: 'Transfert planifié — proposé à Hamid J. et Sofia B.',
+      transferToast: 'Transfert planifié, proposé à Hamid J. et Sofia B.',
       transferToastD: 'En attente de leur confirmation WhatsApp. Yasmine est en copie.',
-      callToast: 'Appel demandé — Yasmine vous rappelle',
+      callToast: 'Appel demandé, Yasmine vous rappelle',
       callToastD: 'Créneau confirmé par WhatsApp d\'ici 30 min.',
       apiToast: 'docs.kiwi.ma/api',
       apiToastD: 'Référence complète : endpoints, webhooks, exports SFTP.',
@@ -2093,14 +2093,14 @@
       aiCta: 'Schedule the transfer →',
       amEyebrow: 'DEDICATED ACCOUNT MANAGER',
       amRole: 'Knows your 3 venues · Casablanca',
-      amNote: 'Direct line 24/7 — median response 11 min over the last 30 days. Quarterly strategy review included.',
+      amNote: 'Direct line 24/7, median response 11 min over the last 30 days. Quarterly strategy review included.',
       amCall: 'Schedule a call',
       apiEyebrow: 'ENTERPRISE API · REAL-TIME',
       apiKey: 'Production key', apiActive: 'active',
       apiExport: 'Accounting export', apiDocs: 'API documentation →',
-      transferToast: 'Transfer scheduled — proposed to Hamid J. and Sofia B.',
+      transferToast: 'Transfer scheduled, proposed to Hamid J. and Sofia B.',
       transferToastD: 'Awaiting their WhatsApp confirmation. Yasmine is cc\'d.',
-      callToast: 'Call requested — Yasmine will call you back',
+      callToast: 'Call requested, Yasmine will call you back',
       callToastD: 'Slot confirmed by WhatsApp within 30 min.',
       apiToast: 'docs.kiwi.ma/api',
       apiToastD: 'Full reference: endpoints, webhooks, SFTP exports.',
@@ -2114,14 +2114,14 @@
       aiCta: 'جدولة النقل ←',
       amEyebrow: 'مديرة حساب مخصصة',
       amRole: 'تعرف مؤسساتك الثلاث · الدار البيضاء',
-      amNote: 'خط مباشر 24/7 — متوسط الرد 11 دقيقة خلال آخر 30 يومًا. مراجعة استراتيجية فصلية مشمولة.',
+      amNote: 'خط مباشر 24/7, متوسط الرد 11 دقيقة خلال آخر 30 يومًا. مراجعة استراتيجية فصلية مشمولة.',
       amCall: 'جدولة مكالمة',
       apiEyebrow: 'API للمؤسسات · في الوقت الفعلي',
       apiKey: 'مفتاح الإنتاج', apiActive: 'نشطة',
       apiExport: 'تصدير محاسبي', apiDocs: 'وثائق الـ API ←',
-      transferToast: 'تمت جدولة النقل — اقتُرح على حميد ج. وصوفيا ب.',
+      transferToast: 'تمت جدولة النقل, اقتُرح على حميد ج. وصوفيا ب.',
       transferToastD: 'في انتظار تأكيدهما عبر واتساب. ياسمين في النسخة.',
-      callToast: 'تم طلب المكالمة — ياسمين ستتصل بك',
+      callToast: 'تم طلب المكالمة, ياسمين ستتصل بك',
       callToastD: 'تأكيد الموعد عبر واتساب خلال 30 دقيقة.',
       apiToast: 'docs.kiwi.ma/api',
       apiToastD: 'مرجع كامل: النقاط، الويبهوكس، تصدير SFTP.',
@@ -4107,7 +4107,7 @@
     const parts = [];
     if (subs.length) parts.push('Sous-section' + (subs.length > 1 ? 's' : '') + ' : ' + subs.join(', '));
     if (itemCount) parts.push(itemCount + ' article' + (itemCount > 1 ? 's' : '') + ' individuel' + (itemCount > 1 ? 's' : ''));
-    return parts.length ? parts.join(' · ') : 'Aucune affectation — non visible en caisse';
+    return parts.length ? parts.join(' · ') : 'Aucune affectation, non visible en caisse';
   }
   /* Drop an item from every subsection-scope it inherited from, so the user
    * can override at the per-item level. Returns nothing. */
@@ -4254,7 +4254,7 @@
     H['mi-recipe-expand']= (_el, id) => miOpenRecipeDrawer(id);
     H['mi-rec-edit']     = (_el, id) => miOpenRecipeDrawer(id);
     H['mi-rec-complete'] = (_el, id) => miOpenRecipeDrawer(id);
-    H['mi-rec-ai']       = () => Kiwi.toast('Assistant IA — bientôt', { type: 'info' });
+    H['mi-rec-ai']       = () => Kiwi.toast('Assistant IA, bientôt', { type: 'info' });
   }
 
   /* ═══════════ RENDER ═══════════ */
@@ -4401,7 +4401,7 @@
       </div>`;
 
     const emptyMsg = (miCatFilter !== 'all' && !miSearch.trim())
-      ? 'Sous-section vide — ajoutez un article avec « Nouvel article ».'
+      ? 'Sous-section vide, ajoutez un article avec « Nouvel article ».'
       : 'Aucun article pour cette recherche.';
     const body = list.length
       ? (miView === 'grid'
@@ -4440,7 +4440,7 @@
             <button class="btn-slim danger" data-action="mi-del-group" data-arg="${g.id}">${miSvg('trash', 12)}<span>Supprimer</span></button>
           </div>
         </div>`;
-    }).join('') : `<div style="grid-column:1/-1;text-align:center;color:var(--n-500);padding:24px;font-size:13px;">Aucun groupe d'options — créez-en un avec « Nouveau groupe d'options ».</div>`;
+    }).join('') : `<div style="grid-column:1/-1;text-align:center;color:var(--n-500);padding:24px;font-size:13px;">Aucun groupe d'options, créez-en un avec « Nouveau groupe d'options ».</div>`;
     const groupsApplied = MI_MOD_GROUPS.filter(g => g.isGlobal || (g.scope.subsections || []).length || (g.scope.items || []).length).length;
     const groupsGlobal = MI_MOD_GROUPS.filter(g => g.isGlobal).length;
     const groupsStats = `<div class="mi-section-sub">${MI_MOD_GROUPS.length} groupe${MI_MOD_GROUPS.length > 1 ? 's' : ''} · ${groupsApplied} appliqué${groupsApplied > 1 ? 's' : ''} · ${groupsGlobal} global${groupsGlobal > 1 ? 'aux' : ''}</div>`;
@@ -4553,8 +4553,8 @@
           <div class="mi-ai-t">Plats synchronisés pour servir ensemble (ou pas)</div>
           <div class="mi-ai-b">
             Chaque station a un <b>temps de préparation moyen</b> et un drapeau <b>synchroniser / servir en premier</b>.
-            Quand un ticket arrive avec plusieurs plats, Kiwi calcule le démarrage de chaque poste pour que les plats <b>synchronisés</b> finissent ensemble — la table est servie en une seule fois, plus de plats froids qui attendent.
-            ${fastStations.length ? `Les stations <b>« servir en premier »</b> (${fastStations.map(s => `<i>${eqEsc(s)}</i>`).join(', ')}) démarrent toujours immédiatement — typiquement les boissons, qui arrivent avant le plat.` : ''}
+            Quand un ticket arrive avec plusieurs plats, Kiwi calcule le démarrage de chaque poste pour que les plats <b>synchronisés</b> finissent ensemble, la table est servie en une seule fois, plus de plats froids qui attendent.
+            ${fastStations.length ? `Les stations <b>« servir en premier »</b> (${fastStations.map(s => `<i>${eqEsc(s)}</i>`).join(', ')}) démarrent toujours immédiatement, typiquement les boissons, qui arrivent avant le plat.` : ''}
           </div>
           <div class="mi-ai-a">
             → Exemple : ticket avec un tajine (cuisine-chaude · ${miStationState('cuisine-chaude').avgPrepMin || 18} min) + une salade (cuisine-froide · ${miStationState('cuisine-froide').avgPrepMin || 6} min) + un thé (bar-jus · ${miStationState('bar-jus').avgPrepMin || 3} min).
@@ -4637,13 +4637,13 @@
       <div class="mi-ai warn">
         <div class="mi-ai-eyebrow">Kiwi AI · Action prioritaire</div>
         <div class="mi-ai-t">Retirez ces 3 articles immédiatement</div>
-        <div class="mi-ai-b">Bocadillo merguez (142 unités, marge 67 %), Hot-dog classique (18 unités, marge 63 %), et Smoothie fruits rouges (38 unités, marge 71 %) appartiennent au quadrant DOGS. Ils représentent 198 unités ce mois pour seulement 9 800 MAD de CA — soit 1,2 % du CA total — mais occupent 8 % de votre menu et ralentissent la prise de commande.</div>
+        <div class="mi-ai-b">Bocadillo merguez (142 unités, marge 67 %), Hot-dog classique (18 unités, marge 63 %), et Smoothie fruits rouges (38 unités, marge 71 %) appartiennent au quadrant DOGS. Ils représentent 198 unités ce mois pour seulement 9 800 MAD de CA, soit 1,2 % du CA total, mais occupent 8 % de votre menu et ralentissent la prise de commande.</div>
         <div class="mi-ai-a">→ Les retirer libérerait 2 emplacements pour des Stars potentielles. Économie de complexité menu : ~4 200 MAD/mois en gain de vitesse de service.</div>
       </div>
       <div class="mi-ai">
         <div class="mi-ai-eyebrow">Kiwi AI · Opportunité pricing</div>
         <div class="mi-ai-t">Augmentez le prix du Tajine kefta</div>
-        <div class="mi-ai-b">Le Tajine kefta est votre #1 — 542 unités ce mois, marge unitaire 128 MAD, contribution CA : 12 % du total. Sa popularité dépasse la médiane de 3,2× mais son prix n'a pas évolué depuis 18 mois. Les clients sont insensibles au prix sur leur plat préféré.</div>
+        <div class="mi-ai-b">Le Tajine kefta est votre #1, 542 unités ce mois, marge unitaire 128 MAD, contribution CA : 12 % du total. Sa popularité dépasse la médiane de 3,2× mais son prix n'a pas évolué depuis 18 mois. Les clients sont insensibles au prix sur leur plat préféré.</div>
         <div class="mi-ai-a">→ Passer de 180 à 195 MAD (+8 %) générerait ~8 130 MAD/mois additionnels avec un risque de perte estimé à &lt;3 % des unités.</div>
       </div>
       </div>`;
@@ -4675,7 +4675,7 @@
           <div class="mi-quad-label dog">🐕 DOGS<span class="qls">Retirer</span></div>
           ${dots}
         </div>
-        <div class="mi-axis-x">Popularité — ventes mensuelles →</div>
+        <div class="mi-axis-x">Popularité, ventes mensuelles →</div>
         <div class="mi-matrix-cap"><b>Taille des bulles</b> = chiffre d'affaires mensuel · survolez une carte ci-dessous pour isoler un quadrant</div>
       </div>`;
   }
@@ -4688,7 +4688,7 @@
         title: 'Retirer 3 articles du menu ?',
         desc: 'Bocadillo merguez, Hot-dog classique et Smoothie fruits rouges seront masqués sur tous les terminaux.',
         width: 460,
-        body: '<p style="font-size:13px;color:var(--n-600);line-height:1.55;margin:0;">Cette action est réversible — les articles restent dans votre catalogue et peuvent être réactivés à tout moment.</p>',
+        body: '<p style="font-size:13px;color:var(--n-600);line-height:1.55;margin:0;">Cette action est réversible, les articles restent dans votre catalogue et peuvent être réactivés à tout moment.</p>',
         foot: '<button class="kb ghost" data-mi-cancel>Annuler</button><button class="kb danger" data-mi-confirm>Retirer 3 articles</button>',
       });
       const back = document.querySelector('.kiwi-backdrop:last-child');
@@ -4725,17 +4725,17 @@
       </div>`).join('');
 
     const insights = {
-      matin: { t: 'Le petit-déjeuner est sous-exploité', b: "Entre 08h et 11h, vous générez seulement 14 % du CA quotidien. Vos meilleurs vendeurs matinaux sont café (820 unités), thé (480), café au lait (642) — mais peu d'accompagnement solide.", a: '→ Ajouter 2 articles petit-déjeuner ciblés (msemen+miel à 25 MAD, omelette berbère à 45 MAD) pourrait lifter le CA matin de 25-40 %.' },
-      midi:  { t: 'Le Tajine kefta domine vos déjeuners', b: 'Sur le service du midi, le Tajine kefta totalise 312 unités — soit 18 % de tous les plats principaux vendus entre 11h et 15h. Le Couscous royal suit à 168 unités. Ces 2 plats représentent 28 % du CA du déjeuner.', a: '→ Créer un combo « Tajine kefta + Thé à la menthe + Dessert » à 240 MAD (vs 255 MAD à la carte) pourrait augmenter le ticket moyen de 14 %.' },
+      matin: { t: 'Le petit-déjeuner est sous-exploité', b: "Entre 08h et 11h, vous générez seulement 14 % du CA quotidien. Vos meilleurs vendeurs matinaux sont café (820 unités), thé (480), café au lait (642), mais peu d'accompagnement solide.", a: '→ Ajouter 2 articles petit-déjeuner ciblés (msemen+miel à 25 MAD, omelette berbère à 45 MAD) pourrait lifter le CA matin de 25-40 %.' },
+      midi:  { t: 'Le Tajine kefta domine vos déjeuners', b: 'Sur le service du midi, le Tajine kefta totalise 312 unités, soit 18 % de tous les plats principaux vendus entre 11h et 15h. Le Couscous royal suit à 168 unités. Ces 2 plats représentent 28 % du CA du déjeuner.', a: '→ Créer un combo « Tajine kefta + Thé à la menthe + Dessert » à 240 MAD (vs 255 MAD à la carte) pourrait augmenter le ticket moyen de 14 %.' },
       soir:  { t: 'Vos desserts performent au-dessus de la moyenne le soir', b: 'Entre 19h et 23h, la Crêpe nutella vend 180 unités contre 64 unités le matin et 168 le midi. Le ticket moyen soir est de 138 MAD vs 122 MAD au midi.', a: '→ Mettre en avant un menu dessert sur les tables après 20h via le KDS pourrait pousser ce ratio encore plus haut.' },
     };
     const ins = insights[p];
 
     /* Cross-period notable items (computed share, curated copy). */
     const xrows = [
-      { name: 'Pastilla pigeon', dot: 'desserts', txt: '63 % de ses ventes le soir (vs 35 % moyenne) — c\'est un plat de soirée.' },
-      { name: 'Café noir', dot: 'boissons', txt: '49 % le matin (vs 25 % moyenne) — fonction petit-déjeuner forte.' },
-      { name: 'Crème brûlée', dot: 'desserts', txt: '60 % le soir — dessert exclusivement de dîner.' },
+      { name: 'Pastilla pigeon', dot: 'desserts', txt: '63 % de ses ventes le soir (vs 35 % moyenne), c\'est un plat de soirée.' },
+      { name: 'Café noir', dot: 'boissons', txt: '49 % le matin (vs 25 % moyenne), fonction petit-déjeuner forte.' },
+      { name: 'Crème brûlée', dot: 'desserts', txt: '60 % le soir, dessert exclusivement de dîner.' },
     ].map(r => `<div class="mi-xrow"><span class="mi-xdot" style="background:${miCatColor(r.dot)}"></span><div><b>${r.name}</b> : ${r.txt}</div></div>`).join('');
 
     return `
@@ -4807,7 +4807,7 @@
             <h3 style="font-size:14px;font-weight:600;margin:0;color:var(--ink);">Articles 86 maintenant</h3>
             <span class="mi-tab-badge" data-mi-86-count>${mi86.length} articles</span>
           </div>
-          ${rows || '<div style="padding:18px 0;font-size:13px;color:var(--n-500);">Aucun article 86 actuellement — tout est disponible.</div>'}
+          ${rows || '<div style="padding:18px 0;font-size:13px;color:var(--n-500);">Aucun article 86 actuellement, tout est disponible.</div>'}
         </div>
       </div>
       <div class="mi-section">
@@ -4862,7 +4862,7 @@
       width: 480,
       body: `
         <div style="font-size:13px;color:var(--n-600);line-height:1.6;">
-          <p style="margin:0 0 12px;"><b style="color:var(--ink);font-weight:600;">${f.count} incidents</b> ce mois — cause principale : ${eqEsc(f.reason)}.</p>
+          <p style="margin:0 0 12px;"><b style="color:var(--ink);font-weight:600;">${f.count} incidents</b> ce mois, cause principale : ${eqEsc(f.reason)}.</p>
           <div style="background:var(--paper-soft);border:1px solid var(--n-200);border-radius:10px;padding:12px 14px;font-family:var(--mono);font-size:11.5px;color:var(--n-600);line-height:1.9;">
             Mar 06/05 · 12:10 → 19:30 · rupture<br>
             Ven 09/05 · 13:40 → fermeture · rupture<br>
@@ -4892,11 +4892,11 @@
     const find = (arr, n) => arr.find(x => x.name.toLowerCase().includes(n));
     const common = [
       { label: 'Thé à la menthe', ca: find(ca, 'thé à la menthe'), mm: find(mm, 'thé à la menthe'),
-        ins: 'Pricing varie 30 vs 25 MAD — écart 20 %. Volume Café Atlas 13× supérieur. Recommandation : aligner Maison Mansour à 28 MAD.' },
+        ins: 'Pricing varie 30 vs 25 MAD, écart 20 %. Volume Café Atlas 13× supérieur. Recommandation : aligner Maison Mansour à 28 MAD.' },
       { label: 'Café', ca: find(ca, 'café noir'), mm: find(mm, 'café espresso'),
-        ins: 'Café noir à 15 MAD vs espresso à 18 MAD. Le café est un produit d\'appel — garder Café Atlas agressif sur ce prix.' },
+        ins: 'Café noir à 15 MAD vs espresso à 18 MAD. Le café est un produit d\'appel, garder Café Atlas agressif sur ce prix.' },
       { label: 'Eau minérale', ca: find(ca, 'eau minérale'), mm: find(mm, 'eau minérale'),
-        ins: 'Écart de 3 MAD. Volume Café Atlas presque 10× — la restauration tire la vente d\'eau.' },
+        ins: 'Écart de 3 MAD. Volume Café Atlas presque 10×, la restauration tire la vente d\'eau.' },
     ];
     const cell = it => it ? `${eqFrInt(it.price)} MAD · ${eqFrInt(it.unitsThisMonth)} u` : '<span style="color:var(--n-300);">—</span>';
     const cmpRows = common.map(c => `
@@ -5242,7 +5242,7 @@
    *      autocomplete on every ingredient name input. ─── */
   function miRecDatalistHtml(catalog) {
     const opts = catalog.catalog.map(e => {
-      const label = `${e.name} — ${eqFrInt(e.costPerUnit)} MAD/${e.unit}`;
+      const label = `${e.name}, ${eqFrInt(e.costPerUnit)} MAD/${e.unit}`;
       return `<option value="${eqEsc(e.name)}" label="${eqEsc(label)}"></option>`;
     }).join('');
     return `<datalist id="kw-rec-ing-list">${opts}</datalist>`;
@@ -5289,7 +5289,7 @@
           <input type="text" class="mi-input mi-rec-ing-unit" data-mi-ing-field="unit" value="${eqEsc(disp.unit)}" placeholder="g, ml, u…" />
           <button class="mi-rec-ing-del" data-mi-ing-del="${idx}" aria-label="Supprimer cet ingrédient">${miSvg('x', 13)}</button>
           ${isPlaceholder ? '<div class="mi-rec-ing-foot">coût estimé</div>' : ''}
-          ${noCost ? '<div class="mi-rec-ing-foot mi-rec-ing-foot-warn">non suivi en stock — coût non pris en compte</div>' : ''}
+          ${noCost ? '<div class="mi-rec-ing-foot mi-rec-ing-foot-warn">non suivi en stock, coût non pris en compte</div>' : ''}
         </div>`;
     }).join('');
     return `
@@ -5558,7 +5558,7 @@
     d.el.querySelector('[data-mi-rec-cancel]')?.addEventListener('click', () => d.close());
     d.el.querySelector('[data-mi-rec-save]')?.addEventListener('click', () => {
       miSaveRecipeDraft(itemId, draft);
-      Kiwi.toast('Recette enregistrée — calculs mis à jour', { type: 'success' });
+      Kiwi.toast('Recette enregistrée, calculs mis à jour', { type: 'success' });
       d.close();
       miRenderTab1Body();
     });
@@ -5590,7 +5590,7 @@
       <div class="mi-ai" data-recettes-scripted="contributors">
         <div class="mi-ai-eyebrow">Kiwi AI · Recettes</div>
         <div class="mi-ai-t">${top5.length} ${dishWord} représente${top5.length > 1 ? 'nt' : ''} ${concentration} % de vos pertes ce mois</div>
-        <div class="mi-ai-b">${list} cumulent ${eqFrInt(Math.round(top5Impact))} MAD de coût non expliqué ce mois — argent perdu en cuisine ou en portion.</div>
+        <div class="mi-ai-b">${list} cumulent ${eqFrInt(Math.round(top5Impact))} MAD de coût non expliqué ce mois, argent perdu en cuisine ou en portion.</div>
         <div class="mi-ai-a">→ Calibrer les portions de ces ${top5.length} ${dishWord} avec le chef (30 min par plat, sur 2 semaines) peut récupérer 60–75 % de cet écart.</div>
       </div>`;
   }
@@ -5614,7 +5614,7 @@
       <div class="mi-ai" data-recettes-scripted="margins">
         <div class="mi-ai-eyebrow">Kiwi AI · Marges</div>
         <div class="mi-ai-t">Vos recettes les plus rentables sont les boissons</div>
-        <div class="mi-ai-b">${list} sont vos articles les plus rentables. Leur variance est minimale — votre processus de préparation est bien calibré.</div>
+        <div class="mi-ai-b">${list} sont vos articles les plus rentables. Leur variance est minimale, votre processus de préparation est bien calibré.</div>
         <div class="mi-ai-a">→ Mettre en avant les cafés gourmands (café + dessert combo) sur le menu midi pourrait augmenter ce mix rentable de 15-20 %.</div>
       </div>`;
   }
@@ -5815,7 +5815,7 @@
       title: `Retirer la station « ${st} » ?`,
       width: 460,
       body: `<p style="font-size:13px;color:var(--n-600);line-height:1.55;margin:0;">${routed.length
-        ? `<b style="color:var(--ink);">${routed.length} article${routed.length > 1 ? 's' : ''}</b> y ${routed.length > 1 ? 'sont routés' : 'est routé'} — ${routed.length > 1 ? 'ils seront réassignés' : 'il sera réassigné'} à « ${fallback} ».`
+        ? `<b style="color:var(--ink);">${routed.length} article${routed.length > 1 ? 's' : ''}</b> y ${routed.length > 1 ? 'sont routés' : 'est routé'}, ${routed.length > 1 ? 'ils seront réassignés' : 'il sera réassigné'} à « ${fallback} ».`
         : 'Aucun article n\'est routé vers cette station.'}</p>`,
       foot: '<button class="kb ghost" data-mi-cancel>Annuler</button><button class="kb danger" data-mi-confirm>Retirer la station</button>',
     });
@@ -5903,8 +5903,8 @@
         <div class="kf-group">
           <label class="kf-label">Synchronisation avec les autres stations</label>
           <div class="mi-est-sync">
-            <label class="mi-est-sync-opt"><input type="radio" name="mes-sync" data-mesf="sync" value="on"  ${state.sync ? 'checked' : ''}/><div><b>Synchroniser</b><span>Cette station attend les autres — les plats d'un même ticket arrivent ensemble.</span></div></label>
-            <label class="mi-est-sync-opt"><input type="radio" name="mes-sync" data-mesf="sync" value="off" ${state.sync ? '' : 'checked'}/><div><b>Servir en premier</b><span>Cette station prépare dès réception — idéal pour boissons / amuse-bouche.</span></div></label>
+            <label class="mi-est-sync-opt"><input type="radio" name="mes-sync" data-mesf="sync" value="on"  ${state.sync ? 'checked' : ''}/><div><b>Synchroniser</b><span>Cette station attend les autres, les plats d'un même ticket arrivent ensemble.</span></div></label>
+            <label class="mi-est-sync-opt"><input type="radio" name="mes-sync" data-mesf="sync" value="off" ${state.sync ? '' : 'checked'}/><div><b>Servir en premier</b><span>Cette station prépare dès réception, idéal pour boissons / amuse-bouche.</span></div></label>
           </div>
         </div>
         ${sampleHtml}`,
@@ -6004,7 +6004,7 @@
         const price = (Number(o.price) || 0) > 0 ? ` (+${eqFrInt(Number(o.price))} MAD)` : '';
         return eqEsc(o.name) + price;
       }).join(' · ');
-      const lockedNote = (reason === 'global') ? ' disabled title="Groupe global — décrocher via le bouton Modifier"' : '';
+      const lockedNote = (reason === 'global') ? ' disabled title="Groupe global, décrocher via le bouton Modifier"' : '';
       return `
         <div class="mi-item-group-row">
           <input type="checkbox"${isAttached ? ' checked' : ''}${lockedNote}
@@ -6062,7 +6062,7 @@
            <div class="mi-item-groups-head">
              <div>
                <div style="font-size:13px;font-weight:600;color:var(--ink);">Options &amp; modificateurs</div>
-               <div style="font-size:11.5px;color:var(--n-500);margin-top:3px;">Disponible après création — vous pourrez ensuite associer ou créer des groupes d'options.</div>
+               <div style="font-size:11.5px;color:var(--n-500);margin-top:3px;">Disponible après création, vous pourrez ensuite associer ou créer des groupes d'options.</div>
              </div>
            </div>
          </div>`;
@@ -6159,10 +6159,10 @@
           Chaque article est classé selon deux axes : sa <b style="color:var(--ink);">popularité</b> (ventes mensuelles) et sa <b style="color:var(--ink);">marge unitaire</b> (prix − coût). Les médianes du menu divisent les articles en 4 quadrants :
         </p>
         <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px;color:var(--n-600);line-height:1.5;">
-          <div><b style="color:var(--success);">★ Stars</b> — populaires ET rentables. Votre cœur de menu : à mettre en avant.</div>
-          <div><b style="color:var(--info);">🐴 Plowhorses</b> — populaires mais peu rentables. À optimiser : revoir le prix ou le coût matière.</div>
-          <div><b style="color:var(--warning);">❓ Puzzles</b> — rentables mais peu vendus. À repositionner : meilleure visibilité sur le menu.</div>
-          <div><b style="color:var(--danger);">🐕 Dogs</b> — ni populaires ni rentables. Candidats au retrait pour simplifier le menu.</div>
+          <div><b style="color:var(--success);">★ Stars</b>, populaires ET rentables. Votre cœur de menu : à mettre en avant.</div>
+          <div><b style="color:var(--info);">🐴 Plowhorses</b>, populaires mais peu rentables. À optimiser : revoir le prix ou le coût matière.</div>
+          <div><b style="color:var(--warning);">❓ Puzzles</b>, rentables mais peu vendus. À repositionner : meilleure visibilité sur le menu.</div>
+          <div><b style="color:var(--danger);">🐕 Dogs</b>, ni populaires ni rentables. Candidats au retrait pour simplifier le menu.</div>
         </div>`,
       foot: '<button class="kb ghost" data-mi-cancel>Compris</button>',
     });
@@ -7699,9 +7699,9 @@
       const v = id || currentVenue;
       if (isCustom(v)) {
         const W = {
-          fr: { title: 'Votre tableau de bord est prêt', obs: "Aucune donnée pour l'instant — enregistrez vos ventes et Kiwi AI commencera à repérer vos heures fortes, vos marges et vos opportunités.", act: '→ Enregistrez votre première vente pour démarrer.' },
-          en: { title: 'Your dashboard is ready', obs: 'No data yet — record your sales and Kiwi AI will start spotting your peak hours, margins and opportunities.', act: '→ Record your first sale to get started.' },
-          ar: { title: 'لوحة التحكم جاهزة', obs: 'لا توجد بيانات بعد — سجّل مبيعاتك وسيبدأ Kiwi AI في رصد ساعات الذروة والهوامش والفرص.', act: '→ سجّل أول عملية بيع للبدء.' },
+          fr: { title: 'Votre tableau de bord est prêt', obs: "Aucune donnée pour l'instant, enregistrez vos ventes et Kiwi AI commencera à repérer vos heures fortes, vos marges et vos opportunités.", act: '→ Enregistrez votre première vente pour démarrer.' },
+          en: { title: 'Your dashboard is ready', obs: 'No data yet, record your sales and Kiwi AI will start spotting your peak hours, margins and opportunities.', act: '→ Record your first sale to get started.' },
+          ar: { title: 'لوحة التحكم جاهزة', obs: 'لا توجد بيانات بعد, سجّل مبيعاتك وسيبدأ Kiwi AI في رصد ساعات الذروة والهوامش والفرص.', act: '→ سجّل أول عملية بيع للبدء.' },
         };
         return W[fusionLang()] || W.fr;
       }

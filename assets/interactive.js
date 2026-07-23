@@ -122,24 +122,24 @@
 
   const KPI_LONG_STR = {
     fr: {
-      revenue:    'Le chiffre d\'affaires additionne toutes vos ventes encaissées — espèces, carte et mobile — sur la période choisie. C\'est le point de départ de tous vos calculs de marge et de rentabilité.',
+      revenue:    'Le chiffre d\'affaires additionne toutes vos ventes encaissées, espèces, carte et mobile, sur la période choisie. C\'est le point de départ de tous vos calculs de marge et de rentabilité.',
       revPerDay:  'Le chiffre d\'affaires divisé par le nombre de jours d\'ouverture. Utile pour comparer des périodes de longueurs différentes et repérer vos meilleurs jours.',
-      profit:     'Le bénéfice brut, c\'est le chiffre d\'affaires moins le coût des matières premières. Il ne tient pas encore compte des charges fixes — loyer, salaires, énergie.',
+      profit:     'Le bénéfice brut, c\'est le chiffre d\'affaires moins le coût des matières premières. Il ne tient pas encore compte des charges fixes, loyer, salaires, énergie.',
       cogs:       'Le coût matière regroupe tout ce que vous achetez pour produire vos ventes : ingrédients, boissons, consommables. Le surveiller protège directement votre marge.',
       tips:       'Estimation des pourboires encaissés sur la période, calculée à partir de votre volume de ventes. Ils reviennent à l\'équipe et n\'entrent pas dans votre chiffre d\'affaires.',
-      retention:  'La part de vos ventes réalisées avec des clients déjà venus. Un taux élevé signale une clientèle fidèle — bien moins coûteuse à servir qu\'à conquérir.',
+      retention:  'La part de vos ventes réalisées avec des clients déjà venus. Un taux élevé signale une clientèle fidèle, bien moins coûteuse à servir qu\'à conquérir.',
       newClients: 'Estimation du nombre de premières visites sur la période. C\'est votre rythme d\'acquisition de nouveaux clients.',
-      txPerDay:   'Le nombre de ventes moyen par jour d\'ouverture — un bon indicateur de fréquentation, indépendant du montant dépensé.',
+      txPerDay:   'Le nombre de ventes moyen par jour d\'ouverture, un bon indicateur de fréquentation, indépendant du montant dépensé.',
     },
     en: {
-      revenue:    'Revenue is the sum of all your collected sales — cash, card, and mobile — over the chosen period. It\'s the starting point for all your margin and profitability calculations.',
+      revenue:    'Revenue is the sum of all your collected sales, cash, card, and mobile, over the chosen period. It\'s the starting point for all your margin and profitability calculations.',
       revPerDay:  'Revenue divided by the number of opening days. Useful for comparing periods of different lengths and identifying your best days.',
-      profit:     'Gross profit is revenue minus the cost of raw materials. It does not yet account for fixed costs — rent, salaries, energy.',
+      profit:     'Gross profit is revenue minus the cost of raw materials. It does not yet account for fixed costs, rent, salaries, energy.',
       cogs:       'Cost of goods sold includes everything you buy to produce your sales: ingredients, drinks, consumables. Monitoring it directly protects your margin.',
       tips:       'Estimated tips collected over the period, calculated from your sales volume. They belong to the team and are not included in your revenue.',
-      retention:  'The share of your sales made with returning customers. A high rate signals a loyal customer base — much cheaper to serve than to acquire.',
+      retention:  'The share of your sales made with returning customers. A high rate signals a loyal customer base, much cheaper to serve than to acquire.',
       newClients: 'Estimated number of first visits over the period. This is your new customer acquisition rate.',
-      txPerDay:   'The average number of sales per opening day — a good indicator of footfall, independent of the amount spent.',
+      txPerDay:   'The average number of sales per opening day, a good indicator of footfall, independent of the amount spent.',
     },
     ar: {
       revenue:    'الإيرادات هي مجموع كل مبيعاتك المحصلة - نقدًا، بالبطاقة، وعبر الهاتف المحمول - خلال الفترة المختارة. إنها نقطة الانطلاق لجميع حسابات الهامش والربحية.',
@@ -164,9 +164,9 @@
       business_resto: 'Restaurant / café',
       business_resto_desc: 'Plan de salle, tables, split bill, ticket cuisine inclus.',
       business_retail: 'Commerce de détail',
-      business_retail_desc: 'Épicerie, boutique, pharmacie — caisse rapide avec inventaire.',
+      business_retail_desc: 'Épicerie, boutique, pharmacie, caisse rapide avec inventaire.',
       business_services: 'Services',
-      business_services_desc: 'Salon de coiffure, beauté, VTC — prise de rdv + encaissement.',
+      business_services_desc: 'Salon de coiffure, beauté, VTC, prise de rdv + encaissement.',
       business_other: 'Autre activité',
       business_other_desc: 'Notre équipe vous recommande la meilleure configuration.',
       shop_name_label: 'Nom de la boutique',
@@ -203,9 +203,9 @@
       business_resto: 'Restaurant / café',
       business_resto_desc: 'Floor plan, tables, split bill, kitchen ticket included.',
       business_retail: 'Retail',
-      business_retail_desc: 'Grocery, shop, pharmacy — fast checkout with inventory.',
+      business_retail_desc: 'Grocery, shop, pharmacy, fast checkout with inventory.',
       business_services: 'Services',
-      business_services_desc: 'Hair salon, beauty, ride-hailing — appointments + payment.',
+      business_services_desc: 'Hair salon, beauty, ride-hailing, appointments + payment.',
       business_other: 'Other activity',
       business_other_desc: 'Our team will recommend the best configuration for you.',
       shop_name_label: 'Shop Name',
@@ -983,7 +983,7 @@ ar: {
       kpiDefaultLong: 'Cet indicateur fait partie de votre bande personnalisée. Il se recalcule automatiquement pour chaque période sélectionnée.',
       kpiSubtitle: 'Indicateur personnalisé · période en cours',
       kpiHowToRead: 'COMMENT LIRE CET INDICATEUR',
-      kpiInsight: '<b style="color:var(--mint);">Astuce :</b> demandez à Kiwi AI d\'analyser cet indicateur — il croisera vos chiffres et vous dira quoi en faire.',
+      kpiInsight: '<b style="color:var(--mint);">Astuce :</b> demandez à Kiwi AI d\'analyser cet indicateur, il croisera vos chiffres et vous dira quoi en faire.',
       close: 'Fermer',
       analyzeWithKiwiAI: 'Analyser avec Kiwi AI',
     },
@@ -1009,7 +1009,7 @@ ar: {
       kpiDefaultLong: 'This indicator is part of your custom band. It recalculates automatically for each selected period.',
       kpiSubtitle: 'Custom indicator · current period',
       kpiHowToRead: 'HOW TO READ THIS INDICATOR',
-      kpiInsight: '<b style="color:var(--mint);">Tip:</b> ask Kiwi AI to analyze this indicator — it will cross-reference your numbers and tell you what to do.',
+      kpiInsight: '<b style="color:var(--mint);">Tip:</b> ask Kiwi AI to analyze this indicator, it will cross-reference your numbers and tell you what to do.',
       close: 'Close',
       analyzeWithKiwiAI: 'Analyze with Kiwi AI',
     },
@@ -1562,7 +1562,7 @@ ar: {
         toast(tr({ fr: 'Aperçu du mode sombre · réservé à Kiwi Ultra', en: 'Dark-mode preview · Kiwi Ultra only', ar: 'معاينة الوضع الداكن · حصريًا لـ Kiwi Ultra' }), { type: 'info', force: true });
         setTimeout(() => {
           revert();
-          toast(tr({ fr: 'Aperçu terminé — Ultra pour le garder', en: 'Preview over — go Ultra to keep it', ar: 'انتهت المعاينة — انتقل إلى Ultra للاحتفاظ به' }), { type: 'info', force: true });
+          toast(tr({ fr: 'Aperçu terminé, Ultra pour le garder', en: 'Preview over, go Ultra to keep it', ar: 'انتهت المعاينة, انتقل إلى Ultra للاحتفاظ به' }), { type: 'info', force: true });
         }, 6000);
       };
       const check = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--atlas)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M20 6L9 17l-5-5"/></svg>';
@@ -1573,7 +1573,7 @@ ar: {
         desc: tr({ fr: 'Une interface nuit pensée pour le service du soir et la vue consolidée multi-établissements.', en: 'A night interface built for evening service and the consolidated multi-site view.', ar: 'واجهة ليلية مصمّمة لخدمة المساء والعرض الموحّد متعدد الفروع.' }),
         width: 440,
         body: `<div style="display:flex; flex-direction:column; gap:13px; margin-top:2px;">
-          ${feat(tr({ fr: 'Confort visuel du soir — moins de fatigue en service', en: 'Easy on the eyes at night — less fatigue in service', ar: 'راحة بصرية مساءً — إرهاق أقل أثناء الخدمة' }))}
+          ${feat(tr({ fr: 'Confort visuel du soir, moins de fatigue en service', en: 'Easy on the eyes at night, less fatigue in service', ar: 'راحة بصرية مساءً, إرهاق أقل أثناء الخدمة' }))}
           ${feat(tr({ fr: 'Vue Portefeuille consolidée multi-établissements', en: 'Consolidated multi-site portfolio view', ar: 'عرض محفظة موحّد متعدد الفروع' }))}
           ${feat(tr({ fr: 'Se synchronise sur tous vos appareils Kiwi', en: 'Syncs across all your Kiwi devices', ar: 'يتزامن عبر جميع أجهزة Kiwi لديك' }))}
         </div>`,
@@ -1770,7 +1770,7 @@ ar: {
       const m = modal({
         tag: 'BIENVENUE SUR KIWI',
         title: 'Configurez votre tableau de bord',
-        desc: 'Une minute pour créer le vôtre — vide, prêt à se remplir avec vos vraies ventes.',
+        desc: 'Une minute pour créer le vôtre, vide, prêt à se remplir avec vos vraies ventes.',
         width: 520,
         body: `
           <style>
@@ -1824,7 +1824,7 @@ ar: {
         if (todayPill && !todayPill.classList.contains('on')) todayPill.click();
         confetti();
         toast(tr({fr:'Votre tableau de bord est prêt', en:'Your dashboard is ready', ar:'لوحة التحكم جاهزة'}), { type: 'success', force: true,
-          desc: `${name} — ${answers
+          desc: `${name}, ${answers
             ? tr({fr:'profil complété ✓ · enregistrez votre première vente.', en:'profile completed ✓ · record your first sale.', ar:'اكتمل الملف ✓ · سجّل أول عملية بيع.'})
             : tr({fr:'enregistrez votre première vente pour le voir prendre vie.', en:'record your first sale to see it come alive.', ar:'سجّل أول عملية بيع لتراها تنبض بالحياة.'})}` });
       };
@@ -1866,7 +1866,7 @@ ar: {
             <style>.ob-field:focus{border-color:var(--atlas)!important;}</style>
             <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;color:var(--atlas);margin:2px 0 10px;">${tr({fr:'ÉTAPE 2 / 2 · TOUT EST OPTIONNEL', en:'STEP 2 / 2 · ALL OPTIONAL', ar:'الخطوة 2/2 · كل شيء اختياري'})}</div>
             <div style="font-size:17px;font-weight:600;letter-spacing:-0.01em;">${tr({fr:'Parlez-nous de votre activité', en:'Tell us about your business', ar:'حدثنا عن نشاطك'})} · ${def.label}</div>
-            <p style="font-size:13px;color:var(--n-500);margin:6px 0 2px;line-height:1.5;">${tr({fr:'30 secondes — Kiwi personnalise vos indicateurs et vos modules. Modifiable plus tard dans Paramètres.', en:'30 seconds — Kiwi tailors your indicators and modules. Editable later in Settings.', ar:'30 ثانية — يخصص كيوي مؤشراتك ووحداتك. قابل للتعديل لاحقًا في الإعدادات.'})}</p>
+            <p style="font-size:13px;color:var(--n-500);margin:6px 0 2px;line-height:1.5;">${tr({fr:'30 secondes, Kiwi personnalise vos indicateurs et vos modules. Modifiable plus tard dans Paramètres.', en:'30 seconds, Kiwi tailors your indicators and modules. Editable later in Settings.', ar:'30 ثانية, يخصص كيوي مؤشراتك ووحداتك. قابل للتعديل لاحقًا في الإعدادات.'})}</p>
             ${prof.questions.map((q) => `
               <label style="${lbl}">${tr(q.label)} <span style="color:var(--n-400);font-weight:400;">· ${optWord}</span></label>
               <input class="ob-field" data-ob-q="${q.k}" ${q.type === 'number' ? 'type="number" inputmode="numeric" min="0"' : 'maxlength="60"'} placeholder="${q.ph}" style="${fld}"/>
@@ -1948,9 +1948,9 @@ ar: {
               toast(tr({ fr: 'Votre première vente sur Kiwi', en: 'Your first sale on Kiwi', ar: 'أول عملية بيع لك على كيوي' }), {
                 type: 'success', force: true, duration: 5200,
                 desc: tr({
-                  fr: `${amount} MAD encaissés · c'est parti${owner ? ', ' + owner : ''} — votre tableau de bord est vivant.`,
-                  en: `${amount} MAD in · you're live${owner ? ', ' + owner : ''} — your dashboard is alive.`,
-                  ar: `${amount} درهم · انطلقت${owner ? '، ' + owner : ''} — لوحتك الآن حيّة.`,
+                  fr: `${amount} MAD encaissés · c'est parti${owner ? ', ' + owner : ''}, votre tableau de bord est vivant.`,
+                  en: `${amount} MAD in · you're live${owner ? ', ' + owner : ''}, your dashboard is alive.`,
+                  ar: `${amount} درهم · انطلقت${owner ? '، ' + owner : ''}, لوحتك الآن حيّة.`,
                 }),
               });
             } else {
@@ -2245,7 +2245,7 @@ ar: {
       return modal({
         tag: 'ABONNEMENTS KIWI',
         title: 'Quatre paliers. Le vôtre évolue avec votre activité.',
-        desc: `Du logiciel seul — intégré à votre caisse, avec formation — à l'entreprise sur-mesure. Le matériel et l'accompagnement s'ajoutent palier par palier.`,
+        desc: `Du logiciel seul, intégré à votre caisse, avec formation, à l'entreprise sur-mesure. Le matériel et l'accompagnement s'ajoutent palier par palier.`,
         width: 1040,
         body: `
           <style>
@@ -2278,7 +2278,7 @@ ar: {
           <div class="kup-grid">${PLANS.map(card).join('')}</div>
           <div class="kup-tip">
             <div>💡</div>
-            <div style="flex:1;"><b>Votre recommandation :</b> ce compte gère 3 établissements (Café Atlas · Maison Mansour · Spa Bahia) — au-delà du mono-site de Basic et Pro. <b>Ultra</b> ouvre les établissements illimités, le multi-pays et l'account manager dédié. Le palier exact se précise lors d'un court échange sur vos besoins.</div>
+            <div style="flex:1;"><b>Votre recommandation :</b> ce compte gère 3 établissements (Café Atlas · Maison Mansour · Spa Bahia), au-delà du mono-site de Basic et Pro. <b>Ultra</b> ouvre les établissements illimités, le multi-pays et l'account manager dédié. Le palier exact se précise lors d'un court échange sur vos besoins.</div>
           </div>
         `,
         foot: `<button class="kb ghost" data-dismiss>Plus tard</button>`,
@@ -2389,7 +2389,7 @@ ar: {
       setTimeout(() => {
         typing.classList.remove('ai-msg-typing');
         typing.className = 'msg';
-        typing.innerHTML = aiResponses[txt] || `<b>${(CP_STR[kiwiLang()] || CP_STR.fr).sAi} :</b> ${txt} — ${(CP_STR[kiwiLang()] || CP_STR.fr).executed}. Consultez les détails dans l\'onglet correspondant.`;
+        typing.innerHTML = aiResponses[txt] || `<b>${(CP_STR[kiwiLang()] || CP_STR.fr).sAi} :</b> ${txt}, ${(CP_STR[kiwiLang()] || CP_STR.fr).executed}. Consultez les détails dans l\'onglet correspondant.`;
       }, 1200);
     },
 
@@ -2656,7 +2656,7 @@ ar: {
       marge_watch_juice_sub: 'coût matière en hausse · +6 pts',
       marge_watch_lunch: 'Formule déjeuner',
       marge_watch_lunch_sub: 'marge sous l\'objectif',
-      marge_insight: '<b style="color:var(--mint);">Insight :</b> Les boissons chaudes portent la marge — <b>+3 pts</b> possibles en déplaçant la mise en avant menu des plats vers le café et la pâtisserie.',
+      marge_insight: '<b style="color:var(--mint);">Insight :</b> Les boissons chaudes portent la marge, <b>+3 pts</b> possibles en déplaçant la mise en avant menu des plats vers le café et la pâtisserie.',
       success_title: 'Taux de succès',
       success_subtitle: 'Conformité réseau et passerelle Bank Al-Maghrib',
       success_foot_failures: 'Voir les échecs →',
@@ -2802,7 +2802,7 @@ ar: {
       marge_watch_juice_sub: 'cost of goods rising · +6 pts',
       marge_watch_lunch: 'Lunch special',
       marge_watch_lunch_sub: 'margin below target',
-      marge_insight: '<b style="color:var(--mint);">Insight:</b> Hot drinks are driving the margin — <b>+3 pts</b> possible by shifting menu promotion from dishes to coffee and pastry.',
+      marge_insight: '<b style="color:var(--mint);">Insight:</b> Hot drinks are driving the margin, <b>+3 pts</b> possible by shifting menu promotion from dishes to coffee and pastry.',
       success_title: 'Success Rate',
       success_subtitle: 'Network compliance and Bank Al-Maghrib gateway',
       success_foot_failures: 'View failures →',

@@ -457,8 +457,8 @@ handlers['nav-transactions'] = () => {
           <span style="font-size:11.5px; color:var(--n-500);">${T.model}: Kiwi Sentinel · 30 j ${T.slidingWindow}</span>
         </div>
         ${[
-          { t: 'Visa •• 0043 — 3ᵉ remboursement cette semaine', d: 'Pattern récurrent · 240 MAD à chaque fois · adresse IP changeante', risk: 'Élevé' },
-          { t: 'Kiwi Wallet QR — pic anormal 13:42', d: '7 commandes du même device en 4 minutes · panier moyen 38 MAD', risk: 'Moyen' },
+          { t: 'Visa •• 0043, 3ᵉ remboursement cette semaine', d: 'Pattern récurrent · 240 MAD à chaque fois · adresse IP changeante', risk: 'Élevé' },
+          { t: 'Kiwi Wallet QR, pic anormal 13:42', d: '7 commandes du même device en 4 minutes · panier moyen 38 MAD', risk: 'Moyen' },
         ].map(a => `
           <div class="p-card" style="background:var(--surface);">
             <div class="head">
@@ -594,8 +594,8 @@ const TERMINAUX_STR = {
         deactivatedDesc: 'Le terminal n\'acceptera plus de paiements jusqu\'à réactivation.',
         reactivatedDesc: 'Le terminal est de nouveau prêt à encaisser.',
         diagRunning: 'Diagnostic en cours',
-        diagDesc: 'Réseau, batterie et firmware vérifiés — aucun problème détecté.',
-        testUnavailable: 'Terminal hors-ligne — test impossible',
+        diagDesc: 'Réseau, batterie et firmware vérifiés, aucun problème détecté.',
+        testUnavailable: 'Terminal hors-ligne, test impossible',
         dangerZone: 'Zone sensible',
         removeBtn: 'Retirer du parc',
         removeTitle: 'Retirer ce terminal ?',
@@ -661,8 +661,8 @@ const TERMINAUX_STR = {
         deactivatedDesc: 'The terminal will stop accepting payments until reactivated.',
         reactivatedDesc: 'The terminal is ready to take payments again.',
         diagRunning: 'Running diagnostics',
-        diagDesc: 'Network, battery and firmware checked — no issues found.',
-        testUnavailable: 'Terminal offline — test unavailable',
+        diagDesc: 'Network, battery and firmware checked, no issues found.',
+        testUnavailable: 'Terminal offline, test unavailable',
         dangerZone: 'Danger zone',
         removeBtn: 'Remove from fleet',
         removeTitle: 'Remove this terminal?',
@@ -728,8 +728,8 @@ const TERMINAUX_STR = {
         deactivatedDesc: 'لن يقبل الجهاز المدفوعات حتى إعادة تفعيله.',
         reactivatedDesc: 'الجهاز جاهز لاستقبال المدفوعات من جديد.',
         diagRunning: 'جارٍ التشخيص',
-        diagDesc: 'تم فحص الشبكة والبطارية والبرنامج الثابت — لم يتم العثور على مشاكل.',
-        testUnavailable: 'الجهاز غير متصل — التجربة غير متاحة',
+        diagDesc: 'تم فحص الشبكة والبطارية والبرنامج الثابت, لم يتم العثور على مشاكل.',
+        testUnavailable: 'الجهاز غير متصل, التجربة غير متاحة',
         dangerZone: 'منطقة حساسة',
         removeBtn: 'إزالة من الأسطول',
         removeTitle: 'إزالة هذا الجهاز؟',
@@ -1260,7 +1260,7 @@ const REGLEMENTS_STR = {
         exportCsv: 'Export CSV',
         accountingPackage: 'Pack comptable',
         instantSettlementToast: (amount) => `Règlement instantané · ${amount} MAD viré`,
-        addIbanToast: 'Ajouter un IBAN — flux KYC bientôt',
+        addIbanToast: 'Ajouter un IBAN, flux KYC bientôt',
         ibanDetailsToast: 'Détails du compte',
         pdfExportToast: 'Export PDF généré · téléchargement en cours',
         csvExportToast: (lines) => `Export CSV généré · ${lines} lignes`,
@@ -1304,7 +1304,7 @@ const REGLEMENTS_STR = {
         exportCsv: 'Export CSV',
         accountingPackage: 'Accounting package',
         instantSettlementToast: (amount) => `Instant settlement · ${amount} MAD transferred`,
-        addIbanToast: 'Add an IBAN — KYC flow coming soon',
+        addIbanToast: 'Add an IBAN, KYC flow coming soon',
         ibanDetailsToast: 'Account details',
         pdfExportToast: 'PDF Export generated · download in progress',
         csvExportToast: (lines) => `CSV Export generated · ${lines} lines`,
@@ -1348,7 +1348,7 @@ const REGLEMENTS_STR = {
         exportCsv: 'تصدير CSV',
         accountingPackage: 'حزمة المحاسبة',
         instantSettlementToast: (amount) => `تسوية فورية · ${amount} درهم محوّل`,
-        addIbanToast: 'إضافة IBAN — تدفق KYC قريبًا',
+        addIbanToast: 'إضافة IBAN, تدفق KYC قريبًا',
         ibanDetailsToast: 'تفاصيل الحساب',
         pdfExportToast: 'تم إنشاء تصدير PDF · التنزيل قيد التقدم',
         csvExportToast: (lines) => `تم إنشاء تصدير CSV · ${lines} أسطر`,
@@ -1494,7 +1494,7 @@ handlers['nav-reglements'] = () => {
   });
 
   if (!handlers['settle-now']) handlers['settle-now'] = () => toast('Règlement instantané · 23 091 MAD viré', { type: 'success', duration: 2200 });
-  if (!handlers['add-iban']) handlers['add-iban'] = () => toast('Ajouter un IBAN — flux KYC bientôt', { type: 'info', duration: 1600 });
+  if (!handlers['add-iban']) handlers['add-iban'] = () => toast('Ajouter un IBAN, flux KYC bientôt', { type: 'info', duration: 1600 });
   if (!handlers['iban-detail']) handlers['iban-detail'] = () => toast('Détails du compte', { type: 'info', duration: 1400 });
   if (!handlers['export-pdf']) handlers['export-pdf'] = () => toast('Export PDF généré · téléchargement en cours', { type: 'success', duration: 1800 });
   if (!handlers['export-csv']) handlers['export-csv'] = () => toast('Export CSV généré · 22 lignes', { type: 'success', duration: 1800 });
@@ -2172,7 +2172,7 @@ handlers['nav-equipe'] = () => {
         }).join('')}
       </div>
 
-      <!-- Permissions matrix — 2-col grid of role cards -->
+      <!-- Permissions matrix, 2-col grid of role cards -->
       <div style="margin-bottom:14px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
           <div>
@@ -2468,7 +2468,7 @@ handlers['nav-payroll'] = () => {
       <div class="p-hero">
         <div class="l">SAMEDI 25 AVRIL · MAIN D'ŒUVRE</div>
         <div class="big">4 / 5 <span style="font-size:18px; opacity:0.7;">employés pointés</span></div>
-        <div class="sub">Coût aujourd'hui <b style="color:var(--mint);">1 240 MAD</b> · ratio 16,8 % des ventes — sain</div>
+        <div class="sub">Coût aujourd'hui <b style="color:var(--mint);">1 240 MAD</b> · ratio 16,8 % des ventes, sain</div>
       </div>
 
       <div class="sh-section">
@@ -3033,7 +3033,7 @@ const PDS_SCENES = {
       <circle cx="720" cy="710" r="3" fill="#C9A876"/>
       <circle cx="740" cy="710" r="3" fill="#C9A876"/>
       <text x="700" y="760" text-anchor="middle" font-family="Inter Tight, system-ui" font-size="12" font-weight="500" letter-spacing="6" fill="#E8C88A">COMPTOIR</text>
-      <!-- Escalier — bottom-right corner, compact -->
+      <!-- Escalier, bottom-right corner, compact -->
       <g transform="translate(1340, 700)">
         <rect width="130" height="80" rx="6" fill="#F0E8D6" stroke="#A89770" stroke-width="1.2"/>
         <line x1="10" y1="20" x2="120" y2="20" stroke="#C4B493" stroke-width="1"/>
@@ -3041,7 +3041,7 @@ const PDS_SCENES = {
         <line x1="10" y1="56" x2="120" y2="56" stroke="#C4B493" stroke-width="1"/>
         <path d="M 65 64 L 65 14 M 50 28 L 65 14 L 80 28" stroke="#7D6E45" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </g>
-      <!-- Plante — top-left corner, small -->
+      <!-- Plante, top-left corner, small -->
       <g transform="translate(60, 70)">
         <ellipse cx="0" cy="32" rx="24" ry="5" fill="#000" opacity="0.07"/>
         <path d="M -20 4 L 20 4 L 16 36 L -16 36 Z" fill="#8B6B47"/>
@@ -3052,7 +3052,7 @@ const PDS_SCENES = {
         <path d="M 0 4 Q 26 -36 32 -6"    stroke="#4F7560" stroke-width="3" fill="none" stroke-linecap="round"/>
         <path d="M 0 4 Q 0 -56 0 -28"     stroke="#2F4F3B" stroke-width="3" fill="none" stroke-linecap="round"/>
       </g>
-      <!-- Entrée — left wall door arc -->
+      <!-- Entrée, left wall door arc -->
       <g>
         <rect x="0" y="380" width="6" height="100" fill="#FBF7EE"/>
         <path d="M 6 480 A 80 80 0 0 1 86 400" stroke="#A89770" stroke-width="1" stroke-dasharray="4 4" fill="none"/>
@@ -3115,7 +3115,7 @@ const PDS_SCENES = {
         </pattern>
       </defs>
       <rect width="1600" height="800" fill="url(#pds-terrazzo-bar)"/>
-      <!-- North wall comptoir — long bar -->
+      <!-- North wall comptoir, long bar -->
       <rect x="120" y="60" width="1360" height="80" rx="6" fill="url(#pds-walnut-bar)"/>
       <rect x="120" y="60" width="1360" height="5" rx="2.5" fill="url(#pds-brass-bar)"/>
       <!-- Espresso machine in middle -->
@@ -3227,7 +3227,7 @@ const PDS_STR = {
     modeRotate: 'Rotation',
     modeLayoutDesc: 'Glissez les tables · clic pour éditer · ajoutez murs, portes et plantes pour visualiser le restaurant.',
     modeAssignDesc: 'Glissez un serveur sur une table pour l\'affecter · cliquez une table pour réassigner.',
-    modeRotateDesc: 'Faites tourner les serveurs entre zones et tables pour éviter la lassitude — équité automatique.',
+    modeRotateDesc: 'Faites tourner les serveurs entre zones et tables pour éviter la lassitude, équité automatique.',
     /* Top bar */
     save: 'Sauvegarder',
     saved: 'Plan enregistré',
@@ -3267,9 +3267,9 @@ const PDS_STR = {
     zoneRenamedDesc: (n) => `Zone renommée en "${n}".`,
     /* Add table palette */
     paletteTitle: 'Ajouter une table',
-    paletteHint: 'Cliquez pour ajouter — la table apparaît au centre de la zone.',
+    paletteHint: 'Cliquez pour ajouter, la table apparaît au centre de la zone.',
     structTitle: 'Éléments structurels',
-    structHint: 'Murs, portes, fenêtres et plantes — purement visuels.',
+    structHint: 'Murs, portes, fenêtres et plantes, purement visuels.',
     elWall: 'Mur',
     elDoor: 'Porte',
     elWindow: 'Fenêtre',
@@ -3340,7 +3340,7 @@ const PDS_STR = {
     tplLoadedDesc: 'Disposition initiale prête · personnalisez librement.',
     /* Empty state */
     emptyTitle: 'Commencez par choisir un template',
-    emptyDesc: 'Ou créez votre première table — vous pouvez tout modifier ensuite.',
+    emptyDesc: 'Ou créez votre première table, vous pouvez tout modifier ensuite.',
     emptyChoose: 'Choisir un template',
     emptyBlank: 'Démarrer vierge',
     /* Assignation mode */
@@ -3388,7 +3388,7 @@ const PDS_STR = {
     rotNoneTitle: 'Aucune rotation configurée',
     rotNoneDesc: 'Configurez une rotation pour éviter que vos serveurs restent sur la même table pendant des mois.',
     rotNoneCTA: 'Configurer',
-    fairnessLow: 'a trop fait cette zone — son tour arrive',
+    fairnessLow: 'a trop fait cette zone, son tour arrive',
     fairnessHigh: 'rotation équilibrée',
     /* Status legend */
     legendTitle: 'Statuts',
@@ -3401,7 +3401,7 @@ const PDS_STR = {
     soonAvailable: 'Bientôt disponible',
     /* Scene picker (zone backdrop) */
     sceneLabel: 'Décor de la zone',
-    sceneHint: (n) => `Change l'arrière-plan visuel de${n ? ` « ${n} »` : ' cette zone'} — purement esthétique, n'affecte pas vos tables.`,
+    sceneHint: (n) => `Change l'arrière-plan visuel de${n ? ` « ${n} »` : ' cette zone'}, purement esthétique, n'affecte pas vos tables.`,
     sceneSalle: 'Salle intérieure',
     sceneTerrasse: 'Terrasse extérieure',
     sceneBar: 'Bar / Comptoir',
@@ -3425,7 +3425,7 @@ const PDS_STR = {
     modeRotate: 'Rotation',
     modeLayoutDesc: 'Drag tables · click to edit · add walls, doors and plants to visualize the room.',
     modeAssignDesc: 'Drag a server onto a table to assign · click a table to reassign.',
-    modeRotateDesc: 'Rotate servers across zones and tables so they don\'t burn out — fairness built-in.',
+    modeRotateDesc: 'Rotate servers across zones and tables so they don\'t burn out, fairness built-in.',
     save: 'Save',
     saved: 'Plan saved',
     savedDesc: 'Layout, zones, servers and rotation saved in your browser.',
@@ -3461,9 +3461,9 @@ const PDS_STR = {
     deleteZoneNoLastDesc: 'You must keep at least one active zone.',
     zoneRenamedDesc: (n) => `Zone renamed to "${n}".`,
     paletteTitle: 'Add a table',
-    paletteHint: 'Click to add — the table appears at the center of the zone.',
+    paletteHint: 'Click to add, the table appears at the center of the zone.',
     structTitle: 'Structural elements',
-    structHint: 'Walls, doors, windows and plants — visual only.',
+    structHint: 'Walls, doors, windows and plants, visual only.',
     elWall: 'Wall',
     elDoor: 'Door',
     elWindow: 'Window',
@@ -3529,7 +3529,7 @@ const PDS_STR = {
     tplLoaded: (n) => `${n} loaded`,
     tplLoadedDesc: 'Initial layout ready · customize freely.',
     emptyTitle: 'Start by choosing a template',
-    emptyDesc: 'Or create your first table — you can change everything later.',
+    emptyDesc: 'Or create your first table, you can change everything later.',
     emptyChoose: 'Choose a template',
     emptyBlank: 'Start blank',
     rosterTitle: 'Team on shift',
@@ -3575,7 +3575,7 @@ const PDS_STR = {
     rotNoneTitle: 'No rotation configured',
     rotNoneDesc: 'Set up a rotation so servers don\'t stay on the same table for months.',
     rotNoneCTA: 'Configure',
-    fairnessLow: 'has done this zone too much — turn coming up',
+    fairnessLow: 'has done this zone too much, turn coming up',
     fairnessHigh: 'balanced rotation',
     legendTitle: 'Statuses',
     cancel: 'Cancel',
@@ -3585,7 +3585,7 @@ const PDS_STR = {
     soonAvailable: 'Coming soon',
     /* Scene picker */
     sceneLabel: 'Zone backdrop',
-    sceneHint: (n) => `Change the visual backdrop of${n ? ` "${n}"` : ' this zone'} — purely cosmetic, doesn't affect your tables.`,
+    sceneHint: (n) => `Change the visual backdrop of${n ? ` "${n}"` : ' this zone'}, purely cosmetic, doesn't affect your tables.`,
     sceneSalle: 'Indoor dining',
     sceneTerrasse: 'Outdoor terrace',
     sceneBar: 'Bar / Counter',
@@ -3607,7 +3607,7 @@ const PDS_STR = {
     modeRotate: 'التدوير',
     modeLayoutDesc: 'اسحب الطاولات · انقر للتعديل · أضف الجدران والأبواب والنباتات لتخيل القاعة.',
     modeAssignDesc: 'اسحب نادلًا فوق طاولة لإسنادها · انقر طاولة لإعادة الإسناد.',
-    modeRotateDesc: 'قم بتدوير النوادل بين المناطق والطاولات حتى لا يملّوا — العدالة تلقائية.',
+    modeRotateDesc: 'قم بتدوير النوادل بين المناطق والطاولات حتى لا يملّوا, العدالة تلقائية.',
     save: 'حفظ',
     saved: 'تم حفظ المخطط',
     savedDesc: 'تم حفظ الترتيب والمناطق والنوادل والتدوير في المتصفح.',
@@ -3643,9 +3643,9 @@ const PDS_STR = {
     deleteZoneNoLastDesc: 'يجب الإبقاء على منطقة نشطة واحدة على الأقل.',
     zoneRenamedDesc: (n) => `تمت إعادة تسمية المنطقة إلى "${n}".`,
     paletteTitle: 'إضافة طاولة',
-    paletteHint: 'انقر للإضافة — تظهر الطاولة في وسط المنطقة.',
+    paletteHint: 'انقر للإضافة, تظهر الطاولة في وسط المنطقة.',
     structTitle: 'العناصر الهيكلية',
-    structHint: 'جدران، أبواب، نوافذ ونباتات — للعرض فقط.',
+    structHint: 'جدران، أبواب، نوافذ ونباتات, للعرض فقط.',
     elWall: 'جدار',
     elDoor: 'باب',
     elWindow: 'نافذة',
@@ -3711,7 +3711,7 @@ const PDS_STR = {
     tplLoaded: (n) => `تم تحميل ${n}`,
     tplLoadedDesc: 'الترتيب الأولي جاهز · خصّص بحرية.',
     emptyTitle: 'ابدأ باختيار قالب',
-    emptyDesc: 'أو أنشئ أول طاولة — يمكنك تعديل كل شيء لاحقًا.',
+    emptyDesc: 'أو أنشئ أول طاولة, يمكنك تعديل كل شيء لاحقًا.',
     emptyChoose: 'اختر قالبًا',
     emptyBlank: 'ابدأ فارغًا',
     rosterTitle: 'الفريق في الخدمة',
@@ -3757,7 +3757,7 @@ const PDS_STR = {
     rotNoneTitle: 'لم يتم إعداد تدوير',
     rotNoneDesc: 'اضبط تدويرًا حتى لا يبقى النوادل على نفس الطاولة لأشهر.',
     rotNoneCTA: 'إعداد',
-    fairnessLow: 'عمل هذه المنطقة كثيرًا — جاء دوره',
+    fairnessLow: 'عمل هذه المنطقة كثيرًا, جاء دوره',
     fairnessHigh: 'تدوير متوازن',
     legendTitle: 'الحالات',
     cancel: 'إلغاء',
@@ -3767,7 +3767,7 @@ const PDS_STR = {
     soonAvailable: 'قريبًا',
     /* Scene picker */
     sceneLabel: 'ديكور المنطقة',
-    sceneHint: (n) => `غيّر الخلفية البصرية${n ? ` لمنطقة "${n}"` : ' لهذه المنطقة'} — تجميلي فقط، لا يؤثر على طاولاتك.`,
+    sceneHint: (n) => `غيّر الخلفية البصرية${n ? ` لمنطقة "${n}"` : ' لهذه المنطقة'}, تجميلي فقط، لا يؤثر على طاولاتك.`,
     sceneSalle: 'صالة داخلية',
     sceneTerrasse: 'تراس خارجي',
     sceneBar: 'حانة / كاونتر',
@@ -6509,7 +6509,7 @@ handlers['menu-publish'] = () => {
             </div>
             <div class="kds-notif">
               <div class="kds-notif-ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
-              <div><b>Sofia (salle) demande</b><div class="m">T4 — sans coriandre sur le tajine</div></div>
+              <div><b>Sofia (salle) demande</b><div class="m">T4, sans coriandre sur le tajine</div></div>
             </div>
 
             <div class="kds-side-head" style="margin-top:18px;">
@@ -6574,7 +6574,7 @@ handlers['menu-publish'] = () => {
       width: 460,
       body: `<div style="display:flex; gap:12px; padding:12px 14px; background:var(--paper-soft); border-radius:10px; font-size:13px; color:var(--n-600); line-height:1.5;">
         <span style="color:var(--atlas);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></span>
-        <div>Sofia (salle) sera notifiée pour récupérer les plats au pass. Action irréversible — utilisez « Rappeler » si besoin.</div>
+        <div>Sofia (salle) sera notifiée pour récupérer les plats au pass. Action irréversible, utilisez « Rappeler » si besoin.</div>
       </div>`,
       foot: `<button class="kb ghost" data-dismiss-modal>Annuler</button><button class="kb atlas" data-confirm-bump="${id}">Bump ${id} ✓</button>`,
     });
@@ -7003,7 +7003,7 @@ function _bqxAskCopies(cb, note) {
     width: 440,
     body: `<div class="kf-group"><label class="kf-label">Copies par variante</label>
       <input class="kf-input" type="number" min="1" value="1" data-bqx-copies /></div>
-      <div class="kf-help">L'aperçu d'impression s'ouvre — envoyez-le vers l'imprimante à étiquettes.</div>`,
+      <div class="kf-help">L'aperçu d'impression s'ouvre, envoyez-le vers l'imprimante à étiquettes.</div>`,
     foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-action="bqx-print-go">Imprimer</button>`,
   });
   _bqxPrintCb = cb;
@@ -7019,7 +7019,7 @@ handlers['bqx-print-go'] = () => {
 handlers['bqx-var-reg'] = (_el, arg) => {
   _bqxModal = modal({
     title: 'Enregistrer un code existant', tag: 'ANCIEN CODE-BARRES',
-    desc: 'Scannez ou saisissez le code-barres déjà présent sur l\'article. Il est conservé tel quel — aucune réimpression.',
+    desc: 'Scannez ou saisissez le code-barres déjà présent sur l\'article. Il est conservé tel quel, aucune réimpression.',
     width: 480,
     body: `<div class="kf-group"><label class="kf-label">Code-barres</label>
       <input class="kf-input mono" placeholder="Scannez ou tapez le code…" data-bqx-regcode autocomplete="off" /></div>
@@ -7035,7 +7035,7 @@ handlers['bqx-var-reg-save'] = (_el, arg) => {
   const res = CAT().attachBarcode(arg, raw);
   if (res.ok) {
     if (_bqxModal) _bqxModal.close();
-    toast(res.already ? 'Code déjà rattaché' : 'Code enregistré', { desc: `${raw} rattaché à la variante — scannable en caisse.`, type: 'success', duration: 2600 });
+    toast(res.already ? 'Code déjà rattaché' : 'Code enregistré', { desc: `${raw} rattaché à la variante, scannable en caisse.`, type: 'success', duration: 2600 });
   } else if (res.reason === 'doublon') {
     toast('Code déjà utilisé', { desc: `Ce code est déjà rattaché à ${res.owner.product.name} (${res.owner.variant.colorLabel} · ${res.owner.variant.size}).`, type: 'warn', duration: 3600 });
   } else {
@@ -7187,7 +7187,7 @@ function _renderCategories() {
       </div>
 
       <div class="p-toolbar" style="margin-top:4px;">
-        <div class="p-search" style="flex:1;"><span style="display:inline-flex;align-items:center;">${_ICN.search}</span><span style="margin-left:6px;color:var(--n-500,#77807b);">Organisez vos rayons — couleur, renommage, suppression</span></div>
+        <div class="p-search" style="flex:1;"><span style="display:inline-flex;align-items:center;">${_ICN.search}</span><span style="margin-left:6px;color:var(--n-500,#77807b);">Organisez vos rayons, couleur, renommage, suppression</span></div>
         <button class="kb primary" data-action="bqx-cat-new">${_ICN.plus}Ajouter une catégorie</button>
       </div>
 
@@ -7796,7 +7796,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
               </div>
             `).join('')}
             <div style="margin-top: 12px; padding: 10px 12px; background: rgba(217,154,43,0.08); border: 1px solid rgba(217,154,43,0.22); border-radius: 10px; font-size: 11.5px; color: var(--warn-ink); line-height: 1.5;">
-              <b>Astuce.</b> Bloquer un client n'empêche pas l'achat — uniquement les retours. Notification email envoyée automatiquement.
+              <b>Astuce.</b> Bloquer un client n'empêche pas l'achat, uniquement les retours. Notification email envoyée automatiquement.
             </div>
           </div>
         </div>
@@ -7806,7 +7806,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
             <h4>Émission rapide d'un remboursement</h4>
             <span class="meta">3 OPTIONS</span>
           </div>
-          <div style="font-size: 12.5px; color: var(--n-500); margin-bottom: 12px; line-height: 1.45;">Choisissez le canal — la commande d'origine sera automatiquement liée pour la conformité.</div>
+          <div style="font-size: 12.5px; color: var(--n-500); margin-bottom: 12px; line-height: 1.45;">Choisissez le canal, la commande d'origine sera automatiquement liée pour la conformité.</div>
           <div class="p-grid-3">
             <button class="kb ghost" style="padding: 14px; flex-direction: column; gap: 8px; min-height: 76px; align-items: center; justify-content: center;" data-action="ret-refund-original">
               ${SVG.coin}
@@ -8121,18 +8121,18 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     // Bookings: [day, practitioner, startHour (decimal), durationHours, clientIdx, serviceIdx, risk, status, notes]
     const BOOK = [
       [0,'NH', 9.0, 1.5, 4, 11, 'low', 'ok',   'Cliente fidèle, prefère huile chaude'],
-      [0,'NH',11.0, 1.0, 0,  1, 'low', 'ok',   'VIP — accueil thé à la menthe servi'],
+      [0,'NH',11.0, 1.0, 0,  1, 'low', 'ok',   'VIP, accueil thé à la menthe servi'],
       [0,'SB',10.0, 1.0, 1,  6, 'mid', 'ok',   'Allergie parabènes notée au dossier'],
       [0,'YB',14.0, 1.25, 7, 7, 'low', 'ok',   'Première visite, expliquer le rituel'],
       [1,'NH', 8.5, 1.0, 2,  0, 'low', 'ok',   ''],
       [1,'NH',14.0, 1.5, 5, 11, 'low', 'ok',   'Soin avant gala vendredi soir'],
       [1,'SB',10.0, 1.25, 3, 5, 'low', 'ok',   ''],
-      [1,'YB',11.0, 0.75, 6, 9, 'high','pend', 'No-show 2× sur 6 mois — acompte demandé'],
+      [1,'YB',11.0, 0.75, 6, 9, 'high','pend', 'No-show 2× sur 6 mois, acompte demandé'],
       [1,'YB',16.0, 1.0, 1,  8, 'low', 'ok',   ''],
       // Today (Wednesday)
       [2,'NH', 9.0, 1.0, 4,  0, 'low', 'ok',   'Soins pieds en supplément'],
       [2,'NH',10.5, 1.5, 5, 11, 'low', 'ok',   'Forfait avec hammam puis massage'],
-      [2,'NH',14.0, 1.0, 0,  1, 'low', 'ok',   'VIP — table de massage chauffée'],
+      [2,'NH',14.0, 1.0, 0,  1, 'low', 'ok',   'VIP, table de massage chauffée'],
       [2,'NH',16.0, 1.25, 2, 6, 'mid', 'pend', 'Confirmation WhatsApp en attente'],
       [2,'SB', 9.5, 1.0, 7,  4, 'low', 'ok',   ''],
       [2,'SB',11.5, 1.25, 3, 5, 'low', 'ok',   'Préfère cabine 3 (vue patio)'],
@@ -8153,14 +8153,14 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       [4,'SB',13.0, 1.0, 6,  6, 'mid', 'ok',   ''],
       [4,'YB',14.0, 1.25, 7,10, 'low', 'ok',   ''],
       [4,'YB',17.0, 1.0, 1,  8, 'low', 'ok',   ''],
-      [5,'NH',10.0, 1.0, 0,  0, 'low', 'ok',   'Samedi chargé — buffer 15 min'],
+      [5,'NH',10.0, 1.0, 0,  0, 'low', 'ok',   'Samedi chargé, buffer 15 min'],
       [5,'NH',12.0, 1.0, 4, 11, 'low', 'ok',   ''],
-      [5,'NH',15.0, 1.5, 2,  2, 'low', 'ok',   'Couple — anniversaire mariage'],
+      [5,'NH',15.0, 1.5, 2,  2, 'low', 'ok',   'Couple, anniversaire mariage'],
       [5,'SB',11.0, 1.25, 3, 5, 'low', 'ok',   ''],
       [5,'SB',14.0, 1.0, 5,  6, 'low', 'ok',   ''],
       [5,'YB',13.0, 1.25, 6, 7, 'low', 'ok',   ''],
       [5,'YB',16.0, 1.0, 7,  9, 'low', 'ok',   ''],
-      [6,'SB',11.0, 1.0, 1,  4, 'low', 'ok',   'Dimanche — équipe réduite'],
+      [6,'SB',11.0, 1.0, 1,  4, 'low', 'ok',   'Dimanche, équipe réduite'],
       [6,'YB',14.0, 1.25, 5, 10,'low', 'ok',   ''],
     ];
 
@@ -8209,9 +8209,9 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     /* ─ Waitlist (auto-promote when slot frees) ─ */
     const WAIT = [
       { c: CLIENTS[0], svc: 'Forfait Argan',     pref: 'Mer 14h–17h', auto: true,  ctx: 'Annulation Imane S. → push' },
-      { c: CLIENTS[3], svc: 'Massage relaxant',   pref: 'Jeu 16h+',    auto: true,  ctx: 'Première visite — 2 places dispos' },
+      { c: CLIENTS[3], svc: 'Massage relaxant',   pref: 'Jeu 16h+',    auto: true,  ctx: 'Première visite, 2 places dispos' },
       { c: CLIENTS[6], svc: 'Hammam traditionnel', pref: 'Sam matin',  auto: false, ctx: 'Préférence Yasmine B.' },
-      { c: CLIENTS[2], svc: 'Soin anti-âge',      pref: 'Ven soir',    auto: true,  ctx: 'Avant gala — urgent' },
+      { c: CLIENTS[2], svc: 'Soin anti-âge',      pref: 'Ven soir',    auto: true,  ctx: 'Avant gala, urgent' },
     ];
 
     const r = window.Kiwi.appPage('appointments', {
@@ -8409,7 +8409,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
   };
 
   /* ─── Aux handlers used inside the appointments drawer ─── */
-  handlers['appt-filter']      = () => toast('Filtres', { type: 'info', desc: 'Praticienne, service, statut, risque no-show — choix multi.' });
+  handlers['appt-filter']      = () => toast('Filtres', { type: 'info', desc: 'Praticienne, service, statut, risque no-show, choix multi.' });
   handlers['appt-export']      = () => toast('Planning exporté', { type: 'success', desc: '7 jours en PDF + iCal · envoyé à l\'équipe.' });
   handlers['appt-wait-add']    = () => toast('Ajout liste d\'attente', { type: 'info', desc: 'Saisissez la cliente et la préférence de créneau.' });
   handlers['appt-auto-toggle'] = () => toast('Auto-promotion mise à jour', { type: 'info', desc: 'Les annulations envoient désormais un SMS instantané.' });
@@ -8845,7 +8845,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
 
   /* ─── Aux handlers used inside the services drawer ─── */
   handlers['svc-export']      = () => toast('Catalogue exporté', { type: 'success', desc: 'PDF tarifaire prêt à imprimer + flux Booking.com mis à jour.' });
-  handlers['svc-season']      = () => toast('Programmation saisonnière', { type: 'info', desc: 'Définissez Ramadan, été, fêtes — Kiwi switch automatiquement.' });
+  handlers['svc-season']      = () => toast('Programmation saisonnière', { type: 'info', desc: 'Définissez Ramadan, été, fêtes, Kiwi switch automatiquement.' });
   handlers['svc-season-edit'] = () => toast('Édition programme', { type: 'info', desc: 'Ajustez horaires, services actifs, promotions.' });
   handlers['svc-ai-action']   = () => {
     confetti();
@@ -9434,7 +9434,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     { id: 1, fn: 'Lisa', ln: 'P.', flag: 'us', ltv: 38000, fav: 'Nour', last: "Aujourd'hui", tier: 'platine', bday: true, allergies: ['Allergie aux huiles essentielles d\'agrumes'], iban: 'US •• 8412' },
     { id: 2, fn: 'Anna', ln: 'M.', flag: 'de', ltv: 18200, fav: 'Nour', last: 'Hier', tier: 'or', bday: false, allergies: [] },
     { id: 3, fn: 'Sophie', ln: 'L.', flag: 'fr', ltv: 8400, fav: 'Salma', last: 'Il y a 3j', tier: 'argent', bday: true, allergies: [] },
-    { id: 4, fn: 'Yasmine', ln: 'T.', flag: 'ma', ltv: 22100, fav: 'Yasmine', last: 'Il y a 1 sem', tier: 'or', bday: false, allergies: ['Peau sensible — éviter cire chaude'] },
+    { id: 4, fn: 'Yasmine', ln: 'T.', flag: 'ma', ltv: 22100, fav: 'Yasmine', last: 'Il y a 1 sem', tier: 'or', bday: false, allergies: ['Peau sensible, éviter cire chaude'] },
     { id: 5, fn: 'Imane', ln: 'S.', flag: 'ma', ltv: 16800, fav: 'Nour', last: "Aujourd'hui", tier: 'or', bday: false, allergies: [] },
     { id: 6, fn: 'Karim', ln: 'L.', flag: 'ma', ltv: 6800, fav: 'Yasmine', last: 'Il y a 2 sem', tier: 'argent', bday: false, allergies: [] },
     { id: 7, fn: 'Camille', ln: 'R.', flag: 'fr', ltv: 9200, fav: 'Salma', last: 'Hier', tier: 'argent', bday: false, allergies: [] },
@@ -9444,19 +9444,19 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     { id: 11, fn: 'Manon', ln: 'B.', flag: 'fr', ltv: 5400, fav: 'Imane', last: 'Il y a 1 sem', tier: 'argent', bday: false, allergies: [] },
     { id: 12, fn: 'Hicham', ln: 'R.', flag: 'ma', ltv: 2800, fav: 'Yasmine', last: 'Il y a 3 mois', tier: 'bronze', bday: false, allergies: [] },
     { id: 13, fn: 'Salma', ln: 'O.', flag: 'ma', ltv: 19400, fav: 'Nour', last: 'Hier', tier: 'or', bday: false, allergies: [] },
-    { id: 14, fn: 'Marion', ln: 'K.', flag: 'fr', ltv: 31600, fav: 'Salma', last: "Aujourd'hui", tier: 'platine', bday: true, allergies: ['Cicatrice récente — éviter zone lombaire'], iban: 'FR •• 2207' },
+    { id: 14, fn: 'Marion', ln: 'K.', flag: 'fr', ltv: 31600, fav: 'Salma', last: "Aujourd'hui", tier: 'platine', bday: true, allergies: ['Cicatrice récente, éviter zone lombaire'], iban: 'FR •• 2207' },
     { id: 15, fn: 'Aïcha', ln: 'B.', flag: 'ma', ltv: 8100, fav: 'Imane', last: 'Il y a 1 sem', tier: 'argent', bday: false, allergies: [] },
     { id: 16, fn: 'Mehdi', ln: 'C.', flag: 'ma', ltv: 1400, fav: 'Yasmine', last: 'Il y a 3 mois', tier: 'bronze', bday: false, allergies: [] },
     { id: 17, fn: 'Emma', ln: 'D.', flag: 'fr', ltv: 12700, fav: 'Nour', last: 'Hier', tier: 'argent', bday: false, allergies: [] },
     { id: 18, fn: 'Mariana', ln: 'V.', flag: 'es', ltv: 14800, fav: 'Salma', last: 'Il y a 3j', tier: 'argent', bday: false, allergies: [] },
-    { id: 19, fn: 'Fatima', ln: 'Z.', flag: 'ma', ltv: 24600, fav: 'Nour', last: "Aujourd'hui", tier: 'or', bday: false, allergies: ['Hypertension — pression douce uniquement'] },
+    { id: 19, fn: 'Fatima', ln: 'Z.', flag: 'ma', ltv: 24600, fav: 'Nour', last: "Aujourd'hui", tier: 'or', bday: false, allergies: ['Hypertension, pression douce uniquement'] },
     { id: 20, fn: 'Léa', ln: 'G.', flag: 'fr', ltv: 6200, fav: 'Imane', last: 'Il y a 2 sem', tier: 'argent', bday: false, allergies: [] },
     { id: 21, fn: 'Helga', ln: 'W.', flag: 'de', ltv: 11400, fav: 'Salma', last: 'Il y a 1 sem', tier: 'argent', bday: false, allergies: [] },
     { id: 22, fn: 'Jessica', ln: 'H.', flag: 'us', ltv: 9800, fav: 'Yasmine', last: 'Il y a 3j', tier: 'argent', bday: false, allergies: [] },
     { id: 23, fn: 'Carolina', ln: 'F.', flag: 'es', ltv: 3700, fav: 'Imane', last: 'Il y a 1 mois', tier: 'bronze', bday: false, allergies: [] },
     { id: 24, fn: 'Nawal', ln: 'A.', flag: 'ma', ltv: 28400, fav: 'Nour', last: 'Hier', tier: 'or', bday: false, allergies: [] },
     { id: 25, fn: 'Olivier', ln: 'P.', flag: 'fr', ltv: 4900, fav: 'Yasmine', last: 'Il y a 2 sem', tier: 'bronze', bday: false, allergies: [] },
-    { id: 26, fn: 'Rachel', ln: 'S.', flag: 'us', ltv: 17200, fav: 'Nour', last: "Aujourd'hui", tier: 'or', bday: false, allergies: ['Asthme — éviter huiles fortes'] },
+    { id: 26, fn: 'Rachel', ln: 'S.', flag: 'us', ltv: 17200, fav: 'Nour', last: "Aujourd'hui", tier: 'or', bday: false, allergies: ['Asthme, éviter huiles fortes'] },
     { id: 27, fn: 'Klaus', ln: 'B.', flag: 'de', ltv: 5600, fav: 'Salma', last: 'Il y a 1 sem', tier: 'argent', bday: false, allergies: [] },
     { id: 28, fn: 'Inès', ln: 'M.', flag: 'fr', ltv: 35200, fav: 'Nour', last: 'Hier', tier: 'platine', bday: false, allergies: [], iban: 'FR •• 7180' },
     { id: 29, fn: 'Soukaina', ln: 'E.', flag: 'ma', ltv: 13900, fav: 'Imane', last: 'Il y a 3j', tier: 'argent', bday: false, allergies: [] },
@@ -9591,7 +9591,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     modal({
       title: 'Nouveau client',
       tag: 'CRM SPA BAHIA',
-      desc: 'Fiche client minimale — détails complétés à la première visite.',
+      desc: 'Fiche client minimale, détails complétés à la première visite.',
       width: 560,
       body: `
         <div class="kf-row">
@@ -9651,7 +9651,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       body: `
         <div class="sc-wa-preview">
           <div class="sc-wa-bubble">
-            Joyeux anniversaire ${c.fn} ! Toute l'équipe Bahia Spa vous offre <b>15% de réduction</b> sur votre prochaine séance — code BAHIA-${c.fn.toUpperCase().slice(0, 3)}15, valable 30 jours.
+            Joyeux anniversaire ${c.fn} ! Toute l'équipe Bahia Spa vous offre <b>15% de réduction</b> sur votre prochaine séance, code BAHIA-${c.fn.toUpperCase().slice(0, 3)}15, valable 30 jours.
             <div class="sc-wa-time">15:08 ✓✓</div>
           </div>
         </div>
@@ -9677,7 +9677,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
           ${list.map((c) => `<div style="display:flex; gap:10px; align-items:center; padding:10px 12px; background:var(--paper-soft); border-radius:10px;"><div class="sc-prof-av ${c.tier}" style="width:36px; height:36px; font-size:13px;">${(c.fn[0] + c.ln[0]).toUpperCase()}</div><div style="flex:1;"><div style="font-weight:500; font-size:13.5px;">${c.fn} ${c.ln}</div><div style="font-size:11.5px; color:var(--n-500);">${tierLabel[c.tier]} · ${fmtMAD(c.ltv)} MAD à vie</div></div><span class="chip ok">Prêt</span></div>`).join('')}
         </div>
         <div class="sc-wa-preview">
-          <div class="sc-wa-bubble">Joyeux anniversaire {Prénom} ! L'équipe Bahia Spa vous offre <b>15% de réduction</b> sur votre prochaine séance — code BAHIA-{XXX}15.<div class="sc-wa-time">15:08 ✓✓</div></div>
+          <div class="sc-wa-bubble">Joyeux anniversaire {Prénom} ! L'équipe Bahia Spa vous offre <b>15% de réduction</b> sur votre prochaine séance, code BAHIA-{XXX}15.<div class="sc-wa-time">15:08 ✓✓</div></div>
         </div>
       `,
       foot: `<button class="kb ghost" data-action="dismiss-modal">Annuler</button><button class="kb atlas" data-action="spa-cli-bday-batch-send">Envoyer aux 3 clientes</button>`,
@@ -9704,7 +9704,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
           <div class="sc-amount">2 500</div>
         </div>
         <div class="kf-help">MAD · valable 12 mois · transferable une fois</div>
-        <div class="kf-group" style="margin-top:14px;"><label class="kf-label">Message personnalisé</label><textarea class="kf-input" rows="2" placeholder="De la part de…">Pour ta journée détente — l'équipe Bahia.</textarea></div>
+        <div class="kf-group" style="margin-top:14px;"><label class="kf-label">Message personnalisé</label><textarea class="kf-input" rows="2" placeholder="De la part de…">Pour ta journée détente, l'équipe Bahia.</textarea></div>
       `,
       foot: `<button class="kb ghost" data-action="dismiss-modal">Annuler</button><button class="kb primary" data-action="spa-cli-gift-confirm" data-arg="${c.id}">Émettre · 500 MAD</button>`,
     });
@@ -9779,7 +9779,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
           <div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 19v-3a4 4 0 00-4-4H8a4 4 0 00-4 4v3M12 5v6M9 8h6"/><circle cx="12" cy="3" r="1.5"/></svg></div>
           <div class="body">
             <div class="t">${bdayList.length} anniversaires ce mois</div>
-            <div class="d">${bdayList.map((c) => `${c.fn} ${c.ln}`).join(' · ')} — campagne WhatsApp + 15% prête à partir.</div>
+            <div class="d">${bdayList.map((c) => `${c.fn} ${c.ln}`).join(' · ')}, campagne WhatsApp + 15% prête à partir.</div>
           </div>
           <button class="kb atlas" data-action="spa-cli-bday-batch">Envoyer les vœux groupés</button>
         </div>
@@ -10081,7 +10081,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
             <div class="st-chips" data-st-row="${it.id}">${stationChips}</div>
           </div>
           <div class="price">${it.p.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('.', ',')} MAD<span class="rk">#${it.rank} · ${it.sold} vendus</span></div>
-          <span class="sw ${is86 ? '' : 'on'}" data-row-act="86" data-id="${it.id}" title="${is86 ? '86 (rupture)' : 'En stock — cliquer pour 86'}" role="switch" aria-checked="${!is86}"></span>
+          <span class="sw ${is86 ? '' : 'on'}" data-row-act="86" data-id="${it.id}" title="${is86 ? '86 (rupture)' : 'En stock, cliquer pour 86'}" role="switch" aria-checked="${!is86}"></span>
         </div>`;
     };
 
@@ -11393,7 +11393,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       width: 460,
       body: `<div style="display:flex; gap:12px; padding:12px 14px; background:var(--paper-soft); border-radius:10px; font-size:13px; color:var(--n-600); line-height:1.5;">
         <span style="color:var(--atlas);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></span>
-        <div>Sofia (salle) sera notifiée pour récupérer les plats au pass. Action irréversible — utilisez « Rappeler » si besoin.</div>
+        <div>Sofia (salle) sera notifiée pour récupérer les plats au pass. Action irréversible, utilisez « Rappeler » si besoin.</div>
       </div>`,
       foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-confirm-bump>Bump ${id} ✓</button>`,
     });
@@ -11520,10 +11520,10 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     addMore:   { fr: 'Ajouter', en: 'Add', ar: 'إضافة' },
     done:      { fr: 'Terminé', en: 'Done', ar: 'تم' },
     saved:     { fr: 'Enregistré', en: 'Saved', ar: 'تم الحفظ' },
-    started:   { fr: "Bien joué — c'est un début.", en: "Nice — that's a start.", ar: 'أحسنت — هذه بداية.' },
-    normal:    { fr: "Encore rien ici — et c'est normal.", en: "Nothing here yet — and that's fine.", ar: 'لا شيء هنا بعد — وهذا طبيعي.' },
+    started:   { fr: "Bien joué, c'est un début.", en: "Nice, that's a start.", ar: 'أحسنت, هذه بداية.' },
+    normal:    { fr: "Encore rien ici, et c'est normal.", en: "Nothing here yet, and that's fine.", ar: 'لا شيء هنا بعد, وهذا طبيعي.' },
     nothing:   { fr: 'Rien encore.', en: 'Nothing yet.', ar: 'لا شيء بعد.' },
-    addHint:   { fr: 'Ajoutez-en autant que vous voulez — enregistré pour votre établissement.', en: 'Add as many as you like — saved to your business.', ar: 'أضف ما تشاء — محفوظ لنشاطك.' },
+    addHint:   { fr: 'Ajoutez-en autant que vous voulez, enregistré pour votre établissement.', en: 'Add as many as you like, saved to your business.', ar: 'أضف ما تشاء, محفوظ لنشاطك.' },
     footSale:  { fr: 'Cette page se construit automatiquement avec vos données réelles, dès vos premières ventes sur la caisse.', en: 'This page builds itself from your real data, starting with your first sales on the register.', ar: 'تُبنى هذه الصفحة تلقائياً من بياناتك الحقيقية بمجرد أول عملية بيع.' },
     footAdd:   { fr: 'Ajoutez vos éléments maintenant, ou laissez-les se créer tout seuls dès la première vente.', en: 'Add your items now, or let them create themselves on the first sale.', ar: 'أضف عناصرك الآن، أو دعها تُنشأ تلقائياً عند أول عملية بيع.' },
   };

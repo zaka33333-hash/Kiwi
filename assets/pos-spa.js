@@ -169,7 +169,7 @@
       lastDays: 5, lastWhat: 'Rituel complet · Nour',
       hist: [{ when: 'il y a 5 j', what: 'Rituel complet · Nour' }, { when: 'il y a 12 j', what: 'Hammam simple · Yasmine (cure)' }] },
     { id: 'c2', name: 'Lalla Rkia Alaoui', phone: '0668 90 12 34', visits: 31,
-      allergies: [], prefs: ['Thé sans sucre', 'Cabine 2 — vue patio'],
+      allergies: [], prefs: ['Thé sans sucre', 'Cabine 2, vue patio'],
       lastDays: 12, lastWhat: 'Massage argan · Nour (cure)',
       hist: [{ when: 'il y a 12 j', what: 'Massage argan · Nour (cure)' }, { when: 'il y a 26 j', what: 'Massage argan · Salma (cure)' }] },
     { id: 'c3', name: 'Sofia El Idrissi',  phone: '0650 77 41 26', visits: 9,
@@ -265,7 +265,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -279,7 +279,7 @@
         <div class="sp-brand">kiwi<i></i></div>
         <div class="sp-venue">
           <div class="sp-venue-name">Spa Bahia</div>
-          <div class="sp-venue-sub">Marrakech · Hivernage<br>Le même Kiwi que <b>votre café</b> — un seul compte.</div>
+          <div class="sp-venue-sub">Marrakech · Hivernage<br>Le même Kiwi que <b>votre café</b>, un seul compte.</div>
         </div>
         <nav class="sp-nav" id="sp-nav">
           <button class="sp-nav-it on" data-sp-view="planning"><i data-lucide="calendar-clock"></i><span>Planning</span><b class="sp-nav-badge" id="sp-badge-plan"></b></button>
@@ -297,7 +297,7 @@
       </aside>
       <main class="sp-main">
         <div class="sp-offline-note" id="sp-offline-note" hidden>
-          Hors-ligne — encaissements, réservations et décomptes sont enregistrés sur la tablette et synchronisés au retour du réseau.
+          Hors-ligne, encaissements, réservations et décomptes sont enregistrés sur la tablette et synchronisés au retour du réseau.
           <b id="sp-queue-count"></b>
         </div>
         <section class="sp-view is-on" data-sp-panel="planning"></section>
@@ -305,7 +305,7 @@
           <div class="sp-sell">
             <header class="sp-head">
               <div><h1>Encaissement séance</h1><div class="sp-head-sub" id="sp-today"></div></div>
-              <div class="sp-head-hint">Touchez un soin — la praticienne est attachée à chaque ligne</div>
+              <div class="sp-head-hint">Touchez un soin, la praticienne est attachée à chaque ligne</div>
             </header>
             <div class="sp-cats" id="sp-cats"></div>
             <div class="sp-grid-scroll" id="sp-gridwrap"></div>
@@ -526,7 +526,7 @@
       <p class="modal-subtle">${esc(apptWho(a))}${cl ? ` · ${esc(cl.phone)}` : ''} ${statusChip}</p>
       ${cl && cl.allergies.length ? `
         <div class="sp-callout danger"><i data-lucide="shield-check"></i>
-          <span>Allergie au dossier : <b>${esc(cl.allergies.join(' · '))}</b>${p.oily ? ' — adapter les huiles de ce soin.' : '.'}</span>
+          <span>Allergie au dossier : <b>${esc(cl.allergies.join(' · '))}</b>${p.oily ? ', adapter les huiles de ce soin.' : '.'}</span>
         </div>` : ''}
       <div class="sp-ap-rows">
         <div class="sp-ap-row"><i data-lucide="sparkles"></i><b>${esc(p.name)}</b><span class="r">${p.dur} min · ${fmtMAD(p.price)}</span></div>
@@ -557,14 +557,14 @@
       a.status = 'now';
       closeVeil('#sp-appt-veil');
       queueIfOffline('Début de séance');
-      toast(`Séance lancée — ${apptWho(a)} avec ${pr.short}, cabine prête`);
+      toast(`Séance lancée, ${apptWho(a)} avec ${pr.short}, cabine prête`);
       refreshOps();
     };
     const finish = $('#sp-ap-finish', el);
     if (finish) finish.onclick = () => {
       a.status = 'done';
       queueIfOffline('Fin de séance');
-      toast(`Séance terminée — reste l'encaissement (${fmtMAD(p.price)})`);
+      toast(`Séance terminée, reste l'encaissement (${fmtMAD(p.price)})`);
       refreshOps();
       openAppt(a.id);
     };
@@ -573,7 +573,7 @@
       APPTS.splice(APPTS.indexOf(a), 1);
       closeVeil('#sp-appt-veil');
       queueIfOffline('Annulation RDV');
-      toast(`RDV de ${fmtHM(a.start)} annulé — créneau libéré chez ${pr.short}`);
+      toast(`RDV de ${fmtHM(a.start)} annulé, créneau libéré chez ${pr.short}`);
       refreshOps();
     };
     const payB = $('#sp-ap-pay', el);
@@ -598,7 +598,7 @@
     state.ticket.guest = !a.clientId;
     state.ticket.apptId = a.id;
     switchView('encaisser');
-    toast(`Séance de ${apptWho(a)} chargée sur le ticket — ajoutez la boutique si besoin`);
+    toast(`Séance de ${apptWho(a)} chargée sur le ticket, ajoutez la boutique si besoin`);
   }
 
   /* ---------- réservation walk-in (créneau libre touché) ---------- */
@@ -623,7 +623,7 @@
     el.innerHTML = `
       <button class="sp-modal-x" data-sp-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">Walk-in · réservation</h3>
-      <p class="modal-subtle">Cliente + prestation + praticienne — le créneau part sur le planning.</p>
+      <p class="modal-subtle">Cliente + prestation + praticienne, le créneau part sur le planning.</p>
 
       <div class="sp-f">
         <div class="sp-f-lbl">Praticienne</div>
@@ -633,7 +633,7 @@
       </div>
 
       <div class="sp-f">
-        <div class="sp-f-lbl">Heure <span class="opt">· ouverture 10:00 — 20:00</span></div>
+        <div class="sp-f-lbl">Heure <span class="opt">· ouverture 10:00, 20:00</span></div>
         <div class="sp-time-row">
           <button id="sp-bk-m30">−30</button>
           <div class="sp-time-val">${fmtHM(book.start)}${p ? ` <small>→ ${fmtHM(end)}</small>` : ''}</div>
@@ -653,18 +653,18 @@
       </div>
 
       <div class="sp-f">
-        <div class="sp-f-lbl">Cliente <span class="opt">· optionnel — passage par défaut</span></div>
+        <div class="sp-f-lbl">Cliente <span class="opt">· optionnel, passage par défaut</span></div>
         <button class="sp-tk-row ${cl ? 'is-set' : ''}" id="sp-bk-client">
           <i data-lucide="${cl ? 'user-check' : 'user-plus'}"></i>
           <span class="l"><b>${cl ? esc(cl.name) : 'Cliente de passage'}</b>
-          <span>${cl ? `${esc(cl.phone)} · ${cl.visits} visites` : 'Recherche par téléphone — la fiche garde allergies et cures'}</span></span>
+          <span>${cl ? `${esc(cl.phone)} · ${cl.visits} visites` : 'Recherche par téléphone, la fiche garde allergies et cures'}</span></span>
           ${cl && cl.allergies.length ? '<span class="alg">ALLERGIE</span>' : ''}
           <span class="edit">${cl ? 'Changer' : 'Chercher'}</span>
         </button>
       </div>
       ${cl && cl.allergies.length && p && p.oily ? `
         <div class="sp-callout danger"><i data-lucide="shield-check"></i>
-          <span><b>${esc(cl.allergies.join(' · '))}</b> — prévenez ${esc(PR[book.prId].short)} avant d'huiler.</span>
+          <span><b>${esc(cl.allergies.join(' · '))}</b>, prévenez ${esc(PR[book.prId].short)} avant d'huiler.</span>
         </div>` : ''}
 
       <div class="sp-sheet-foot">
@@ -688,7 +688,7 @@
       book.start -= CELL; renderBook();
     };
     $('#sp-bk-p30', el).onclick = () => {
-      if (book.start + CELL + dur() > CLOSE) { toast('Le spa ferme à 20:00 — dernière séance selon la durée'); return; }
+      if (book.start + CELL + dur() > CLOSE) { toast('Le spa ferme à 20:00, dernière séance selon la durée'); return; }
       book.start += CELL; renderBook();
     };
     $('#sp-bk-prestas', el).onclick = (e) => {
@@ -713,19 +713,19 @@
       if (!book.prestaId) return;
       const pp = PRESTA[book.prestaId];
       if (book.start + pp.dur > CLOSE) {
-        toast(`${pp.name} (${pp.dur} min) dépasse la fermeture — avancez l'heure`);
+        toast(`${pp.name} (${pp.dur} min) dépasse la fermeture, avancez l'heure`);
         return;
       }
       const clash = overlaps(book.prId, book.start, pp.dur);
       if (clash) {
-        toast(`${PR[book.prId].short} est prise ${fmtHM(clash.start)}–${fmtHM(clash.start + clash.dur)} — autre créneau ou autre praticienne`);
+        toast(`${PR[book.prId].short} est prise ${fmtHM(clash.start)}–${fmtHM(clash.start + clash.dur)}, autre créneau ou autre praticienne`);
         return;
       }
       const who = book.clientId || 'Cliente de passage';
       APPTS.push(mkAppt(book.prId, book.start, book.prestaId, who, 'todo'));
       closeVeil('#sp-book-veil');
       queueIfOffline('Réservation');
-      toast(`Réservé — ${fmtHM(book.start)} · ${pp.name} · ${PR[book.prId].short}`);
+      toast(`Réservé, ${fmtHM(book.start)} · ${pp.name} · ${PR[book.prId].short}`);
       if (state.view !== 'planning') switchView('planning');
       refreshOps();
     };
@@ -782,12 +782,12 @@
     const line = state.ticket.lines.find((l) => l.type === 'prod' && l.refId === prodId);
     const inTicket = line ? line.qty : 0;
     if (inTicket + 1 > p.stock) {
-      toast(p.stock ? `Stock insuffisant — il reste ${p.stock} « ${p.name} »` : `« ${p.name} » est épuisé — réassort à commander`);
+      toast(p.stock ? `Stock insuffisant, il reste ${p.stock} « ${p.name} »` : `« ${p.name} » est épuisé, réassort à commander`);
       return;
     }
     if (line) line.qty++;
     else state.ticket.lines.push({ type: 'prod', refId: prodId, qty: 1, price: p.price });
-    toast(`${p.name} — sur le ticket`);
+    toast(`${p.name}, sur le ticket`);
     renderTicket(); icons();
   }
 
@@ -813,7 +813,7 @@
       </div>
       ${cl && cl.allergies.length && p.oily ? `
         <div class="sp-callout danger"><i data-lucide="shield-check"></i>
-          <span><b>${esc(cl.name)}</b> — allergie ${esc(cl.allergies.join(' · '))}. Huile d'argan pure uniquement.</span>
+          <span><b>${esc(cl.name)}</b>, allergie ${esc(cl.allergies.join(' · '))}. Huile d'argan pure uniquement.</span>
         </div>` : ''}
       <div class="sp-f">
         <div class="sp-f-lbl">Praticienne <span class="opt">· le pourboire se répartira sur elle</span></div>
@@ -837,7 +837,7 @@
     $('#sp-svc-add', el).onclick = () => {
       state.ticket.lines.push({ type: 'svc', refId: prestaId, prId: svcSheet.prId, qty: 1, price: p.price });
       closeVeil('#sp-svc-veil');
-      toast(`${p.name} · ${PR[svcSheet.prId].short} — sur le ticket`);
+      toast(`${p.name} · ${PR[svcSheet.prId].short}, sur le ticket`);
       renderTicket(); icons();
     };
   }
@@ -869,7 +869,7 @@
   function clienteRow(t) {
     if (!t.clientId) {
       return `<button class="sp-tk-row" id="sp-tk-client"><i data-lucide="user-plus"></i>
-        <span class="l"><b>Attacher une cliente</b><span>Par téléphone — allergies et cures suivent la fiche</span></span>
+        <span class="l"><b>Attacher une cliente</b><span>Par téléphone, allergies et cures suivent la fiche</span></span>
         <span class="edit">Chercher</span></button>`;
     }
     const c = CL[t.clientId];
@@ -891,7 +891,7 @@
       </div>
       ${due.length && !t.apptId ? `
         <div class="sp-due-strip">
-          <div class="sp-due-lbl">Séances terminées — à encaisser</div>
+          <div class="sp-due-lbl">Séances terminées, à encaisser</div>
           ${due.map((a) => `
             <button class="sp-due-it" data-sp-due="${a.id}">
               <i data-lucide="hand-coins"></i>
@@ -902,7 +902,7 @@
       <div class="sp-tk-meta">
         ${clienteRow(t)}
         ${t.apptId ? `<div class="sp-tk-row is-set" style="cursor:default;"><i data-lucide="calendar-clock"></i>
-          <span class="l"><b>Séance du planning</b><span>${fmtHM(findAppt(t.apptId) ? findAppt(t.apptId).start : 0)} — l'encaissement soldera le RDV</span></span></div>` : ''}
+          <span class="l"><b>Séance du planning</b><span>${fmtHM(findAppt(t.apptId) ? findAppt(t.apptId).start : 0)}, l'encaissement soldera le RDV</span></span></div>` : ''}
       </div>
       <div class="sp-tk-lines" id="sp-tk-lines">
         ${t.lines.length ? t.lines.map((l, i) => lineRow(l, i)).join('') : `
@@ -931,7 +931,7 @@
           state.ticket.guest = !pick.clientId;
           renderTicket(); icons();
           const c = pick.clientId ? CL[pick.clientId] : null;
-          if (c && c.allergies.length) toast(`${c.name} — allergie au dossier : ${c.allergies.join(' · ')}`);
+          if (c && c.allergies.length) toast(`${c.name}, allergie au dossier : ${c.allergies.join(' · ')}`);
         },
       });
     };
@@ -949,7 +949,7 @@
       const l = t.lines[idx];
       if (plus) {
         if (l.type === 'prod' && l.qty + 1 > PROD[l.refId].stock) {
-          toast(`Stock insuffisant — il reste ${PROD[l.refId].stock} « ${PROD[l.refId].name} »`);
+          toast(`Stock insuffisant, il reste ${PROD[l.refId].stock} « ${PROD[l.refId].name} »`);
           return;
         }
         l.qty++;
@@ -1005,7 +1005,7 @@
         <div class="modal-amount size-md" id="sp-pay-amount">${fmtMAD(base + tip)}</div>
         ${hasSvc ? `
         <div class="pay-tip">
-          <div class="pay-tip-label">Pourboire — réparti par praticienne</div>
+          <div class="pay-tip-label">Pourboire, réparti par praticienne</div>
           <div class="pay-tip-chips" id="sp-tip-chips">
             ${[0, 20, 50, 100].map((v) => `<button class="pay-tip-chip ${tip === v ? 'is-active' : ''}" data-sp-tip="${v}">${v === 0 ? 'Sans' : v + ' MAD'}</button>`).join('')}
             <button class="pay-tip-chip" data-sp-tip="autre">Autre</button>
@@ -1022,7 +1022,7 @@
           </button>
           <button class="sp-pay-opt" data-sp-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire, V1 sans encaissement Kiwi</span></span>
           </button>
         </div>`;
       icons();
@@ -1035,7 +1035,7 @@
         const parts = tipSplit(tip, t.lines);
         split.classList.toggle('is-visible', tip > 0);
         split.innerHTML = tip > 0
-          ? `<span class="mono">${tip} MAD</span> pour l'équipe — ${splitText(parts)}`
+          ? `<span class="mono">${tip} MAD</span> pour l'équipe, ${splitText(parts)}`
           : '';
       };
       const chips = $('#sp-tip-chips', el);
@@ -1113,7 +1113,7 @@
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="sp-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="sp-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">Lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">Lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons();
       $$('[data-sp-close]', el).forEach((b) => { b.onclick = () => closeVeil('#sp-pay-veil'); });
@@ -1137,7 +1137,7 @@
         const cu = { id: `CU-${cureSeq}`, clientId: ctx.clientId, familyId: ctx.familyId, size: ctx.size, used: 0, boughtDays: 0, expiresDays: 180 };
         CURES.unshift(cu);
         queueIfOffline('Vente forfait');
-        toast(`Forfait vendu — carte ${cu.id} active · ${ctx.size} séances pour ${CL[ctx.clientId].name}`);
+        toast(`Forfait vendu, carte ${cu.id} active · ${ctx.size} séances pour ${CL[ctx.clientId].name}`);
         toast(`Économie cliente : ${fmtMAD(ffSaving(FORFAIT[ctx.familyId], ctx.size))} vs séances à l'unité`);
         if (state.view !== 'cures') switchView('cures');
         refreshOps();
@@ -1153,8 +1153,8 @@
       if (t.clientId) { const c = CL[t.clientId]; c.visits++; c.lastDays = 0; }
       const parts = tipSplit(tip, t.lines);
       queueIfOffline('Encaissement');
-      toast(`${t.num} encaissé — ${fmtMAD(base + tip)} en ${method}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
-      if (tip > 0) toast(`Pourboire ${fmtMAD(tip)} réparti — ${parts.map((p) => `${PR[p.id].short} ${p.amount}`).join(' · ')}`, 2800);
+      toast(`${t.num} encaissé, ${fmtMAD(base + tip)} en ${method}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+      if (tip > 0) toast(`Pourboire ${fmtMAD(tip)} réparti, ${parts.map((p) => `${PR[p.id].short} ${p.amount}`).join(' · ')}`, 2800);
       ticketSeq++;
       freshTicket();
       refreshOps();
@@ -1196,12 +1196,12 @@
         </div>
         ${punchRow(cu, opts)}
         <div class="sp-cure-foot">
-          <span class="sp-cure-exp">${full ? '<b>Cure terminée</b> — proposez le renouvellement' : `Valable jusqu'au <b>${esc(inDays(cu.expiresDays))}</b>`}</span>
+          <span class="sp-cure-exp">${full ? '<b>Cure terminée</b>, proposez le renouvellement' : `Valable jusqu'au <b>${esc(inDays(cu.expiresDays))}</b>`}</span>
           <span class="sp-cure-bc">${barcode(cu.id, 20)}</span>
         </div>
         <div class="sp-cure-actions">
           ${full
-            ? `<button class="sp-btn primary" data-sp-renew="${cu.id}"><i data-lucide="sparkles"></i>Renouveler — économie ${fmtMAD(ffSaving(f, cu.size))}</button>`
+            ? `<button class="sp-btn primary" data-sp-renew="${cu.id}"><i data-lucide="sparkles"></i>Renouveler, économie ${fmtMAD(ffSaving(f, cu.size))}</button>`
             : `<button class="sp-btn secondary" data-sp-fiche-cl="${c.id}">Fiche</button>
                <button class="sp-btn primary" data-sp-punch="${cu.id}"><i data-lucide="check"></i>Décompter une séance</button>`}
         </div>
@@ -1216,17 +1216,17 @@
     panel.innerHTML = `
       <div class="sp-cures">
         <header class="sp-head">
-          <div><h1>Forfaits &amp; cures</h1><div class="sp-head-sub">La carte de fidélité du spa — poinçonnée à l'écran, plus rien ne se perd</div></div>
-          <div class="sp-head-hint">Un tap décompte une séance — la cliente voit ses cercles se remplir</div>
+          <div><h1>Forfaits &amp; cures</h1><div class="sp-head-sub">La carte de fidélité du spa, poinçonnée à l'écran, plus rien ne se perd</div></div>
+          <div class="sp-head-hint">Un tap décompte une séance, la cliente voit ses cercles se remplir</div>
         </header>
         <div class="sp-cures-scroll">
           <div class="sp-sec-head">Cures en cours · ${actives.length}</div>
           <div class="sp-cure-grid">
             ${actives.map((cu) => cureCard(cu, opts && opts.popCure === cu.id ? { pop: true } : null)).join('') ||
-              '<div class="sp-cl-empty">Aucune cure active — vendez le premier forfait ci-dessous.</div>'}
+              '<div class="sp-cl-empty">Aucune cure active, vendez le premier forfait ci-dessous.</div>'}
           </div>
           ${fulls.length ? `
-            <div class="sp-sec-head">Cures terminées — à renouveler · ${fulls.length}</div>
+            <div class="sp-sec-head">Cures terminées, à renouveler · ${fulls.length}</div>
             <div class="sp-cure-grid">${fulls.map((cu) => cureCard(cu, opts && opts.popCure === cu.id ? { pop: true } : null)).join('')}</div>` : ''}
           <div class="sp-sec-head">Vendre un forfait</div>
           <div class="sp-ff-grid">
@@ -1249,7 +1249,7 @@
                 </div>
               </div>`).join('')}
           </div>
-          <div class="sp-foot-note">Chaque carte porte un code-barres — scannable à l'accueil pour retrouver la cure en un geste.</div>
+          <div class="sp-foot-note">Chaque carte porte un code-barres, scannable à l'accueil pour retrouver la cure en un geste.</div>
         </div>
       </div>`;
 
@@ -1282,8 +1282,8 @@
       <div class="sp-punch-big">${cu.used + 1}<small> / ${cu.size}</small></div>
       <div class="sp-punch-preview">${punchRow(cu)}</div>
       ${cu.used + 1 === cu.size
-        ? '<div class="sp-callout mint" style="margin-top:12px;"><i data-lucide="sparkles"></i><span>C\'est la <b>dernière séance</b> de la cure — l\'offre de renouvellement suivra.</span></div>'
-        : `<p class="sp-foot-note">Après ce poinçon il restera ${cu.size - cu.used - 1} séance${cu.size - cu.used - 1 > 1 ? 's' : ''} — visible sur la fiche et la carte.</p>`}
+        ? '<div class="sp-callout mint" style="margin-top:12px;"><i data-lucide="sparkles"></i><span>C\'est la <b>dernière séance</b> de la cure, l\'offre de renouvellement suivra.</span></div>'
+        : `<p class="sp-foot-note">Après ce poinçon il restera ${cu.size - cu.used - 1} séance${cu.size - cu.used - 1 > 1 ? 's' : ''}, visible sur la fiche et la carte.</p>`}
       <div class="sp-sheet-foot">
         <button class="sp-btn secondary" data-sp-close>Annuler</button>
         <button class="sp-btn primary" id="sp-punch-ok"><i data-lucide="check"></i>Confirmer la séance ${cu.used + 1}/${cu.size}</button>
@@ -1312,7 +1312,7 @@
       return;
     }
     closeVeil('#sp-punch-veil');
-    toast(`Séance ${cu.used}/${cu.size} décomptée pour ${c.name} — il en reste ${cu.size - cu.used}`);
+    toast(`Séance ${cu.used}/${cu.size} décomptée pour ${c.name}, il en reste ${cu.size - cu.used}`);
     renderBadges();
     if (state.view === 'cures') { renderCures({ popCure: cu.id }); icons(); }
     else refreshOps();
@@ -1325,8 +1325,8 @@
     const el = $('#sp-punchm', root);
     el.innerHTML = `
       <button class="sp-modal-x" data-sp-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">Cure terminée — ${cu.used}/${cu.size}</h3>
-      <p class="modal-subtle">${esc(c.name)} a fini sa ${esc(f.name.toLowerCase())} — le bon moment pour renouveler.</p>
+      <h3 class="modal-title">Cure terminée, ${cu.used}/${cu.size}</h3>
+      <p class="modal-subtle">${esc(c.name)} a fini sa ${esc(f.name.toLowerCase())}, le bon moment pour renouveler.</p>
       <div class="sp-punch-preview">${punchRow(cu, { pop: true })}</div>
       <div class="sp-callout mint" style="margin-top:14px;"><i data-lucide="sparkles"></i>
         <span>Sur cette cure, ${esc(c.name.split(' ')[0])} a économisé <b>${fmtMAD(ffSaving(f, cu.size))}</b> vs séances à l'unité.</span>
@@ -1339,7 +1339,7 @@
           </button>`).join('')}
       </div>
       <div class="sp-sheet-foot">
-        <button class="sp-btn ghost" data-sp-close>Plus tard — la carte reste dans l'historique</button>
+        <button class="sp-btn ghost" data-sp-close>Plus tard, la carte reste dans l'historique</button>
       </div>`;
     openVeil('#sp-punch-veil');
     icons();
@@ -1364,7 +1364,7 @@
     const f = FORFAIT[familyId];
     openPickClient({
       title: `${f.name} × ${size}`,
-      sub: `${fmtMAD(f.sizes[size])} — la cure exige une fiche cliente (le poinçon la suit)`,
+      sub: `${fmtMAD(f.sizes[size])}, la cure exige une fiche cliente (le poinçon la suit)`,
       allowGuest: false,
       onPick: (pick) => {
         if (!pick.clientId) return;
@@ -1380,9 +1380,9 @@
     panel.innerHTML = `
       <div class="sp-cures">
         <header class="sp-head">
-          <div><h1>Boutique</h1><div class="sp-head-sub">Le rituel continue à la maison — argan, beldi, ghassoul, kessa</div></div>
+          <div><h1>Boutique</h1><div class="sp-head-sub">Le rituel continue à la maison, argan, beldi, ghassoul, kessa</div></div>
           ${inTicket ? `<button class="sp-btn primary" id="sp-shop-go" style="flex:0 0 auto; padding:11px 16px;"><i data-lucide="banknote"></i>Ticket · ${inTicket} article${inTicket > 1 ? 's' : ''}</button>`
-            : '<div class="sp-head-hint">Touchez un produit — il part sur le ticket de la caisse</div>'}
+            : '<div class="sp-head-hint">Touchez un produit, il part sur le ticket de la caisse</div>'}
         </header>
         <div class="sp-cures-scroll">
           <div class="sp-sec-head">Produits du spa · ${PRODUCTS.length}</div>
@@ -1395,7 +1395,7 @@
                 <span class="sp-card-price">${fmtMAD(p.price)}</span>
               </button>`).join('')}
           </div>
-          <div class="sp-foot-note">Le stock se décompte à l'encaissement — sous 3 unités, la pastille passe en alerte.</div>
+          <div class="sp-foot-note">Le stock se décompte à l'encaissement, sous 3 unités, la pastille passe en alerte.</div>
         </div>
       </div>`;
     panel.onclick = (e) => {
@@ -1425,7 +1425,7 @@
     panel.innerHTML = `
       <div class="sp-clients">
         <header class="sp-head">
-          <div><h1>Clientes</h1><div class="sp-head-sub">La fiche se cherche au téléphone — allergies, préférences, cures actives</div></div>
+          <div><h1>Clientes</h1><div class="sp-head-sub">La fiche se cherche au téléphone, allergies, préférences, cures actives</div></div>
           <div class="sp-search"><i data-lucide="search"></i>
             <input id="sp-cl-q" inputmode="tel" placeholder="06… ou nom de la cliente" value="${esc(q)}" autocomplete="off" /></div>
         </header>
@@ -1446,7 +1446,7 @@
                 </span>
                 <span class="sp-cl-right"><b>${c.visits}</b>visites</span>
               </button>`;
-            }).join('') || `<div class="sp-cl-empty">Aucune fiche pour « ${esc(q)} » — vérifiez le numéro.</div>`}
+            }).join('') || `<div class="sp-cl-empty">Aucune fiche pour « ${esc(q)} », vérifiez le numéro.</div>`}
           </div>
         </div>
       </div>`;
@@ -1503,10 +1503,10 @@
         <div class="sp-f-lbl">Cures actives</div>
         ${cures.length ? cures.map((cu) => `
           <button class="sp-mini-cure" data-sp-gocure>
-            <i data-lucide="tags"></i><span>${esc(cureName(cu))} — prochaine séance offerte par la carte</span>
+            <i data-lucide="tags"></i><span>${esc(cureName(cu))}, prochaine séance offerte par la carte</span>
             <span class="ct">${cu.used}/${cu.size}</span>
           </button>`).join('')
-          : '<div class="sp-chips"><span class="sp-chip none">Aucune cure en cours — un forfait lui ferait gagner jusqu\'à 20 %</span></div>'}
+          : '<div class="sp-chips"><span class="sp-chip none">Aucune cure en cours, un forfait lui ferait gagner jusqu\'à 20 %</span></div>'}
       </div>
 
       <div class="sp-f">
@@ -1538,7 +1538,7 @@
       state.ticket.clientId = c.id;
       state.ticket.guest = false;
       switchView('encaisser');
-      toast(`${c.name} attachée au ticket${c.allergies.length ? ` — allergie : ${c.allergies.join(' · ')}` : ''}`);
+      toast(`${c.name} attachée au ticket${c.allergies.length ? `, allergie : ${c.allergies.join(' · ')}` : ''}`);
     };
   }
 
@@ -1551,7 +1551,7 @@
       el.innerHTML = `
         <button class="sp-modal-x" data-sp-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">${esc(cfg.title || 'Cliente')}</h3>
-        <p class="modal-subtle">${esc(cfg.sub || 'Au spa on cherche par téléphone — la fiche porte allergies et cures.')}</p>
+        <p class="modal-subtle">${esc(cfg.sub || 'Au spa on cherche par téléphone, la fiche porte allergies et cures.')}</p>
         <div class="sp-phone-in"><i data-lucide="phone"></i>
           <input id="sp-pk-q" inputmode="tel" placeholder="06… ou nom de la cliente" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -1570,12 +1570,12 @@
           <button class="sp-cl-new" id="sp-pk-new"><i data-lucide="user-plus"></i>Nouvelle fiche${q && !hits.length ? ` · « ${esc(q)} »` : ''}</button>
           ${cfg.allowGuest ? `
             <div class="sp-sheet-foot" style="margin-top:10px;">
-              <button class="sp-btn ghost" id="sp-pk-guest">Cliente de passage — sans fiche</button>
+              <button class="sp-btn ghost" id="sp-pk-guest">Cliente de passage, sans fiche</button>
             </div>` : ''}` : `
           <div class="sp-cl-form">
             <input class="sp-in" id="sp-pk-name" placeholder="Nom et prénom" value="${esc(/^[\d\s.+-]*$/.test(q || '') ? '' : (q || ''))}" />
             <input class="sp-in" id="sp-pk-tel" inputmode="tel" placeholder="Téléphone" value="${esc(/^[\d\s.+-]+$/.test(q || '') ? q : '')}" />
-            <input class="sp-in" id="sp-pk-alg" placeholder="Allergie connue (optionnel — ex. huile d'amande)" />
+            <input class="sp-in" id="sp-pk-alg" placeholder="Allergie connue (optionnel, ex. huile d'amande)" />
             <div class="sp-sheet-foot" style="margin-top:4px;">
               <button class="sp-btn secondary" id="sp-pk-back">Retour</button>
               <button class="sp-btn primary" id="sp-pk-create"><i data-lucide="check"></i>Créer la fiche</button>
@@ -1615,7 +1615,7 @@
         const c = { id, name, phone: tel || '—', visits: 0, allergies: alg ? [alg] : [], prefs: [], lastDays: 0, lastWhat: '', hist: [], vip: false };
         CLIENTES.unshift(c); CL[id] = c;
         closeVeil('#sp-client-veil');
-        toast(`Fiche créée — ${name}${alg ? ` · allergie notée : ${alg}` : ''}`);
+        toast(`Fiche créée, ${name}${alg ? ` · allergie notée : ${alg}` : ''}`);
         cfg.onPick({ clientId: id });
       };
     };
@@ -1628,12 +1628,12 @@
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — le spa continue, tout est mis en file');
+      toast('Mode hors-ligne, le spa continue, tout est mis en file');
     } else {
-      toast('Réseau de retour — rien en attente, tout est synchronisé');
+      toast('Réseau de retour, rien en attente, tout est synchronisé');
     }
     renderNet();
   }

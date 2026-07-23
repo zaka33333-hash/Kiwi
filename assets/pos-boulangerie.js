@@ -210,7 +210,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -224,7 +224,7 @@
         <div class="bl-brand">kiwi<i></i></div>
         <div class="bl-venue">
           <div class="bl-venue-name">Boulangerie Bab Kasbah</div>
-          <div class="bl-venue-sub">Tanger · Kasbah<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="bl-venue-sub">Tanger · Kasbah<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="bl-nav" id="bl-nav">
           <button class="bl-nav-it on" data-bl-view="comptoir"><i data-lucide="croissant"></i><span>Comptoir</span></button>
@@ -241,14 +241,14 @@
       </aside>
       <main class="bl-main">
         <div class="bl-offline-note" id="bl-offline-note" hidden>
-          Hors-ligne — les ventes restent enregistrées sur la caisse et partent à la synchronisation.
+          Hors-ligne, les ventes restent enregistrées sur la caisse et partent à la synchronisation.
           <b id="bl-queue-count"></b>
         </div>
         <section class="bl-view is-on" data-bl-panel="comptoir">
           <div class="bl-counter">
             <header class="bl-head">
               <div><h1>Comptoir</h1><div class="bl-head-sub" id="bl-today"></div></div>
-              <div class="bl-head-hint" id="bl-counter-hint">Touchez un produit — ×2 ×6 ×12 pour la douzaine</div>
+              <div class="bl-head-hint" id="bl-counter-hint">Touchez un produit, ×2 ×6 ×12 pour la douzaine</div>
             </header>
             <div class="bl-cats" id="bl-cats"></div>
             <div class="bl-grid-scroll" id="bl-gridwrap"></div>
@@ -281,7 +281,7 @@
   function closeVeil(v) { (typeof v === 'string' ? $(v, root) : v).classList.remove('is-open'); }
 
   function renderAll() {
-    $('#bl-today', root).textContent = `${fmtDT(new Date())} — la fournée du matin est sortie`;
+    $('#bl-today', root).textContent = `${fmtDT(new Date())}, la fournée du matin est sortie`;
     renderCats();
     renderGrid();
     renderTicket();
@@ -374,8 +374,8 @@
       </div>`).join('');
     const hint = $('#bl-counter-hint', root);
     hint.innerHTML = state.lastHour
-      ? '<span class="bl-lh-chip"><i data-lucide="percent"></i>Dernière heure — tout à −50 %</span>'
-      : 'Touchez un produit — ×2 ×6 ×12 pour la douzaine';
+      ? '<span class="bl-lh-chip"><i data-lucide="percent"></i>Dernière heure, tout à −50 %</span>'
+      : 'Touchez un produit, ×2 ×6 ×12 pour la douzaine';
     $('#bl-gridwrap', root).onclick = (e) => {
       const m = e.target.closest('[data-bl-mult]');
       if (m) { addToTicket(m.dataset.blOf, +m.dataset.blMult); return; }
@@ -387,9 +387,9 @@
 
   function outOfStockToast(p) {
     const nf = nextFournee(p.id);
-    if (nf && nf.status === 'four') toast(`${p.label} encore au four — sortie d'ici quelques minutes`);
-    else if (nf) toast(`${p.label} — prochaine fournée prévue à ${nf.time}`);
-    else toast(`${p.label} épuisé pour aujourd'hui — prévoyez une fournée à l'écran Fournées`);
+    if (nf && nf.status === 'four') toast(`${p.label} encore au four, sortie d'ici quelques minutes`);
+    else if (nf) toast(`${p.label}, prochaine fournée prévue à ${nf.time}`);
+    else toast(`${p.label} épuisé pour aujourd'hui, prévoyez une fournée à l'écran Fournées`);
   }
 
   function addToTicket(prodId, qty) {
@@ -401,7 +401,7 @@
     const add = Math.min(qty, avail);
     const line = state.ticket.find((l) => l.prodId === prodId);
     if (line) line.qty += add; else state.ticket.push({ prodId, qty: add });
-    if (add < qty) toast(`Plus que ${add} ${p.label} — ajouté${add > 1 ? 's' : ''} au ticket`);
+    if (add < qty) toast(`Plus que ${add} ${p.label}, ajouté${add > 1 ? 's' : ''} au ticket`);
     renderTicket(); icons();
   }
 
@@ -419,7 +419,7 @@
         ${state.ticket.length ? state.ticket.map((l, i) => lineRow(l, i)).join('') : `
           <div class="bl-tk-empty">
             <i data-lucide="wheat"></i>
-            <div>Le ticket est vide.<br>Touchez khobz, msemen ou croissant — la vente part en deux gestes.</div>
+            <div>Le ticket est vide.<br>Touchez khobz, msemen ou croissant, la vente part en deux gestes.</div>
           </div>`}
       </div>
       <div class="bl-tk-foot">
@@ -452,7 +452,7 @@
       if (!state.ticket.length) return;
       payCard({
         title: `Carte · ${fmtMAD(tkTotal())}`,
-        sub: `${tNum()} · lecteur partenaire — V1 sans encaissement Kiwi`,
+        sub: `${tNum()} · lecteur partenaire, V1 sans encaissement Kiwi`,
         amount: tkTotal(),
         onPaid: () => finalizeSale('carte', 0),
       });
@@ -508,7 +508,7 @@
     state.ticket = [];
     closeVeil('#bl-pay-veil');
     queueIfOffline(`Vente ${num}`);
-    toast(`Khlass — ${fmtMAD(total)} encaissé${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+    toast(`Khlass, ${fmtMAD(total)} encaissé${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
     refreshOps();
   }
 
@@ -523,7 +523,7 @@
       <p class="modal-subtle">${o.sub}</p>
       <div class="cash-grid">
         <div class="cash-input-row">
-          <label class="cash-input-label" for="bl-cash-in">Flous reçu — tapez ou comptez avec les pièces</label>
+          <label class="cash-input-label" for="bl-cash-in">Flous reçu, tapez ou comptez avec les pièces</label>
           <input class="cash-input mono" id="bl-cash-in" type="number" inputmode="decimal" min="0" step="0.5" value="${o.amount}" />
         </div>
         <div class="cash-presets" aria-label="Compter billets et pièces">
@@ -569,7 +569,7 @@
       <div class="reader-stage">
         <div class="reader-disc is-pulsing" id="bl-reader-disc"><i data-lucide="credit-card"></i></div>
         <div class="reader-status" id="bl-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-        <div class="reader-method">Lecteur partenaire — V1 sans encaissement Kiwi</div>
+        <div class="reader-method">Lecteur partenaire, V1 sans encaissement Kiwi</div>
       </div>`;
     icons();
     $$('[data-bl-close]', el).forEach((b) => { b.onclick = () => closeVeil('#bl-pay-veil'); });
@@ -598,7 +598,7 @@
       <div class="bl-pay-opts">
         <button class="bl-pay-opt" data-bl-m="especes">
           <span class="ic"><i data-lucide="banknote"></i></span>
-          <span class="l"><b>Espèces</b><span>Rendu calculé — les pièces comptent</span></span>
+          <span class="l"><b>Espèces</b><span>Rendu calculé, les pièces comptent</span></span>
         </button>
         <button class="bl-pay-opt" data-bl-m="carte">
           <span class="ic"><i data-lucide="credit-card"></i></span>
@@ -640,7 +640,7 @@
       <span class="bl-fart">${ART[p.id] || ''}</span>
       <div class="bl-fmid">
         <div class="bl-fname">${esc(p.label)} <b>×${f.qty}</b></div>
-        <div class="bl-fsub">${f.status === 'sortie' ? `${f.qty} pièces créditées au restant` : f.status === 'four' ? 'dans le four — marquez la sortie pour créditer le restant' : 'fournée programmée'}</div>
+        <div class="bl-fsub">${f.status === 'sortie' ? `${f.qty} pièces créditées au restant` : f.status === 'four' ? 'dans le four, marquez la sortie pour créditer le restant' : 'fournée programmée'}</div>
       </div>
       ${right}
     </div>`;
@@ -654,7 +654,7 @@
       ? (nf.status === 'four' ? `fournée ×${nf.qty} au four` : `fournée ×${nf.qty} prévue ${nf.time}`)
       : `${p.sold} vendus aujourd'hui`;
     const hint = (low && !nf)
-      ? `<button class="bl-rhint" data-bl-prevoir="${p.id}"><i data-lucide="flame"></i>Four à prévoir — programmer <b>${nextSlot()} ×${p.batch}</b></button>`
+      ? `<button class="bl-rhint" data-bl-prevoir="${p.id}"><i data-lucide="flame"></i>Four à prévoir, programmer <b>${nextSlot()} ×${p.batch}</b></button>`
       : '';
     return `<div class="bl-rrow ${low ? 'is-low' : ''}">
       <div class="bl-rtop">
@@ -681,7 +681,7 @@
       <div class="bl-bake">
         <header class="bl-head">
           <div><h1>Fournées du jour</h1>
-          <div class="bl-head-sub">${done} sortie${done > 1 ? 's' : ''} · ${FOURNEES.length - done} à venir — le restant vit avec les ventes du comptoir</div></div>
+          <div class="bl-head-sub">${done} sortie${done > 1 ? 's' : ''} · ${FOURNEES.length - done} à venir, le restant vit avec les ventes du comptoir</div></div>
           <div class="bl-head-hint">« Sorti du four » crédite le restant en boutique</div>
         </header>
         <div class="bl-bake-cols">
@@ -689,7 +689,7 @@
             <div class="bl-tl-day">Matin</div>
             ${matin.map(frowHTML).join('')}
             <div class="bl-tl-day">Après-midi</div>
-            ${aprem.map(frowHTML).join('') || '<div class="bl-foot-note">Rien de programmé — le comptoir vous dira quand le four doit repartir.</div>'}
+            ${aprem.map(frowHTML).join('') || '<div class="bl-foot-note">Rien de programmé, le comptoir vous dira quand le four doit repartir.</div>'}
           </div>
           <aside class="bl-restant">
             <div class="bl-restant-head">Restant en boutique <span>ventes déduites en direct</span></div>
@@ -714,14 +714,14 @@
   function sortirFournee(id) {
     const f = findFournee(id);
     if (!f || f.status === 'sortie') return;
-    if (f.status === 'prevue') { toast(`Fournée ${PROD[f.prod].label} pas encore enfournée — touchez « Enfourner » d'abord`); return; }
+    if (f.status === 'prevue') { toast(`Fournée ${PROD[f.prod].label} pas encore enfournée, touchez « Enfourner » d'abord`); return; }
     const p = PROD[f.prod];
     f.status = 'sortie';
     f.out = hhmm(new Date());
     p.stock += f.qty;
     p.baked += f.qty;
     queueIfOffline(`Fournée ${p.label}`);
-    toast(`Fournée sortie — ${p.label} ×${f.qty} crédités au restant, sa7a!`);
+    toast(`Fournée sortie, ${p.label} ×${f.qty} crédités au restant, sa7a!`);
     refreshOps();
   }
 
@@ -731,7 +731,7 @@
     const p = PROD[f.prod];
     f.status = 'four';
     queueIfOffline(`Enfournement ${p.label}`);
-    toast(`${p.label} ×${f.qty} au four — sortie dans ~25 min`);
+    toast(`${p.label} ×${f.qty} au four, sortie dans ~25 min`);
     refreshOps();
   }
 
@@ -740,7 +740,7 @@
     const time = nextSlot();
     FOURNEES.push({ id: `F${fourSeq++}`, time, prod: prodId, qty: p.batch, status: 'prevue' });
     queueIfOffline(`Fournée prévue ${p.label}`);
-    toast(`Fournée ${p.label} ×${p.batch} programmée à ${time} — le four est à vous`);
+    toast(`Fournée ${p.label} ×${p.batch} programmée à ${time}, le four est à vous`);
     refreshOps();
   }
 
@@ -798,13 +798,13 @@
       <div class="bl-cakes">
         <header class="bl-head">
           <div><h1>Gâteaux sur commande</h1>
-          <div class="bl-head-sub">${todayCt ? `${todayCt} retrait${todayCt > 1 ? 's' : ''} aujourd'hui · ` : ''}${open.length} commande${open.length > 1 ? 's' : ''} au carnet — l'inscription s'écrit à la commande, pas au feutre</div></div>
+          <div class="bl-head-sub">${todayCt ? `${todayCt} retrait${todayCt > 1 ? 's' : ''} aujourd'hui · ` : ''}${open.length} commande${open.length > 1 ? 's' : ''} au carnet, l'inscription s'écrit à la commande, pas au feutre</div></div>
           <button class="bl-btn primary" id="bl-cake-new" style="flex:0 0 auto;"><i data-lucide="plus"></i>Nouvelle commande</button>
         </header>
         <div class="bl-cakes-scroll">
           <div class="bl-cakes-list">
-            ${open.map(cakeCard).join('') || '<div class="bl-foot-note">Carnet vide — prenez la première commande du jour.</div>'}
-            ${remisToday.length ? `<div class="bl-remis-note"><i data-lucide="check-circle-2"></i>${remisToday.length} gâteau${remisToday.length > 1 ? 'x' : ''} remis aujourd'hui — ${remisToday.map((c) => esc(firstName(c.name))).join(', ')}</div>` : ''}
+            ${open.map(cakeCard).join('') || '<div class="bl-foot-note">Carnet vide, prenez la première commande du jour.</div>'}
+            ${remisToday.length ? `<div class="bl-remis-note"><i data-lucide="check-circle-2"></i>${remisToday.length} gâteau${remisToday.length > 1 ? 'x' : ''} remis aujourd'hui, ${remisToday.map((c) => esc(firstName(c.name))).join(', ')}</div>` : ''}
           </div>
         </div>
       </div>`;
@@ -829,17 +829,17 @@
     if (!c || c.status !== 'encours') return;
     c.status = 'pret';
     queueIfOffline(`Gâteau ${c.id} prêt`);
-    toast(`${c.id} — gâteau prêt, on prévient ${firstName(c.name)} ?`);
+    toast(`${c.id}, gâteau prêt, on prévient ${firstName(c.name)} ?`);
     refreshOps();
     if (!c.notified) setTimeout(() => openWa(c), 450);
   }
 
   function settleCake(c, after) {
     const due = cakeDue(c);
-    if (due <= 0) { toast(`${c.id} — déjà réglé, il ne reste qu'à le remettre`); return; }
+    if (due <= 0) { toast(`${c.id}, déjà réglé, il ne reste qu'à le remettre`); return; }
     payChoice({
       title: 'Encaisser le solde',
-      sub: `${c.id} · ${esc(c.name)} — acompte ${fmtMAD(c.paid)} déjà versé`,
+      sub: `${c.id} · ${esc(c.name)}, acompte ${fmtMAD(c.paid)} déjà versé`,
       amount: due,
       onPaid: (method, rendu) => {
         c.paid += due;
@@ -847,7 +847,7 @@
         state.day.gateaux += due;
         closeVeil('#bl-pay-veil');
         queueIfOffline(`Solde ${c.id}`);
-        toast(`Solde encaissé — ${fmtMAD(due)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+        toast(`Solde encaissé, ${fmtMAD(due)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
         refreshOps();
         if (typeof after === 'function') after();
       },
@@ -862,7 +862,7 @@
     c.remisAt = new Date();
     closeVeil('#bl-detail-veil');
     queueIfOffline(`Retrait ${c.id}`);
-    toast(`${c.id} remis à ${c.name} — mabrouk!`);
+    toast(`${c.id} remis à ${c.name}, mabrouk!`);
     refreshOps();
   }
 
@@ -884,7 +884,7 @@
     el.innerHTML = `
       <button class="bl-modal-x" data-bl-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">${c.id} · ${esc(firstName(c.name))}</h3>
-      <p class="modal-subtle">${esc(OCC[c.occasion] || 'Autre')} — retrait ${esc(fmtWhen(c.retrait))}</p>
+      <p class="modal-subtle">${esc(OCC[c.occasion] || 'Autre')}, retrait ${esc(fmtWhen(c.retrait))}</p>
       ${cakeStage(c.inscription)}
       <div class="bl-dt-rows">
         <div class="bl-dt-row"><span>Client</span><b>${esc(c.name)} · <span style="font-family:var(--mono);font-size:11px;">${esc(c.phone)}</span></b></div>
@@ -935,7 +935,7 @@
     el.innerHTML = `
       <button class="bl-modal-x" data-bl-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">Commande gâteau</h3>
-      <p class="modal-subtle">L'inscription s'écrit ici et se lit sur le gâteau — zéro malentendu au retrait.</p>
+      <p class="modal-subtle">L'inscription s'écrit ici et se lit sur le gâteau, zéro malentendu au retrait.</p>
       ${cakeStage('')}
       <div class="bl-f">
         <div class="bl-f-lbl">Inscription <span class="opt">· telle qu'elle sera écrite à la poche</span></div>
@@ -1028,8 +1028,8 @@
     $('#bl-ck-name', el).oninput = (e) => { form.name = e.target.value; };
     $('#bl-ck-tel', el).oninput = (e) => { form.phone = e.target.value; };
     $('#bl-ck-save', el).onclick = () => {
-      if (!form.name.trim()) { toast('Le nom du client est requis — le gâteau porte un nom'); return; }
-      if (form.retrait.getTime() < Date.now()) { toast('La date de retrait est déjà passée — choisissez un créneau à venir'); return; }
+      if (!form.name.trim()) { toast('Le nom du client est requis, le gâteau porte un nom'); return; }
+      if (form.retrait.getTime() < Date.now()) { toast('La date de retrait est déjà passée, choisissez un créneau à venir'); return; }
       const cake = {
         id: `G-${cakeSeq++}`,
         name: form.name.trim(), phone: form.phone.trim(),
@@ -1041,7 +1041,7 @@
       CAKES.push(cake);
       closeVeil('#bl-cake-veil');
       queueIfOffline(`Commande ${cake.id}`);
-      toast(`${cake.id} enregistrée — retrait ${fmtWhen(cake.retrait)}`);
+      toast(`${cake.id} enregistrée, retrait ${fmtWhen(cake.retrait)}`);
       refreshOps();
       setTimeout(() => openAcompte(cake), 300);
     };
@@ -1053,8 +1053,8 @@
     let acompte = Math.min(cake.price, Math.max(50, Math.round(cake.price * 0.4 / 10) * 10));
     el.innerHTML = `
       <button class="bl-modal-x" data-bl-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">Acompte — ${cake.id}</h3>
-      <p class="modal-subtle">${esc(cake.name)} · total ${fmtMAD(cake.price)} — l'acompte sécurise la commande</p>
+      <h3 class="modal-title">Acompte, ${cake.id}</h3>
+      <p class="modal-subtle">${esc(cake.name)} · total ${fmtMAD(cake.price)}, l'acompte sécurise la commande</p>
       <div class="modal-amount size-md" id="bl-ac-val">${fmtMAD(acompte)}</div>
       <div class="bl-ac-row">
         <button class="cash-preset" data-bl-ac="100">100</button>
@@ -1077,7 +1077,7 @@
         </button>
       </div>
       <div class="bl-sheet-foot">
-        <button class="bl-btn ghost" id="bl-ac-skip" style="flex:1;">Sans acompte — tout au retrait</button>
+        <button class="bl-btn ghost" id="bl-ac-skip" style="flex:1;">Sans acompte, tout au retrait</button>
       </div>`;
     icons();
     openVeil('#bl-pay-veil');
@@ -1095,7 +1095,7 @@
     };
     $('#bl-ac-skip', el).onclick = () => {
       closeVeil('#bl-pay-veil');
-      toast(`${cake.id} — solde ${fmtMAD(cake.price)} à encaisser au retrait`);
+      toast(`${cake.id}, solde ${fmtMAD(cake.price)} à encaisser au retrait`);
       refreshOps();
     };
     const record = (method, rendu) => {
@@ -1104,12 +1104,12 @@
       state.day.gateaux += acompte;
       closeVeil('#bl-pay-veil');
       queueIfOffline(`Acompte ${cake.id}`);
-      toast(`Acompte ${fmtMAD(acompte)} encaissé — solde ${fmtMAD(cakeDue(cake))} au retrait${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+      toast(`Acompte ${fmtMAD(acompte)} encaissé, solde ${fmtMAD(cakeDue(cake))} au retrait${rendu > 0 ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
       refreshOps();
     };
     $$('[data-bl-acm]', el).forEach((b) => {
       b.onclick = () => {
-        if (acompte <= 0) { toast("Saisissez un montant d'acompte — ou « sans acompte »"); return; }
+        if (acompte <= 0) { toast("Saisissez un montant d'acompte, ou « sans acompte »"); return; }
         const args = {
           title: `${b.dataset.blAcm === 'carte' ? 'Carte' : 'Espèces'} · acompte ${fmtMAD(acompte)}`,
           sub: `${cake.id} · ${esc(cake.name)}`,
@@ -1124,7 +1124,7 @@
   /* ---------- WhatsApp « votre gâteau est prêt » ---------- */
   function waMessage(c) {
     const due = cakeDue(c);
-    return `Sba7 lkhir ${firstName(c.name)} — votre gâteau « ${c.inscription || OCC[c.occasion]} » est prêt chez Boulangerie Bab Kasbah.`
+    return `Sba7 lkhir ${firstName(c.name)}, votre gâteau « ${c.inscription || OCC[c.occasion]} » est prêt chez Boulangerie Bab Kasbah.`
       + `\nRetrait ${fmtWhen(c.retrait)}, on vous le garde au frais.`
       + (due > 0 ? `\nSolde à régler au retrait : ${fmtN(due)} MAD.` : '')
       + '\n— envoyé via Kiwi';
@@ -1136,7 +1136,7 @@
     let withPhoto = true;
     el.innerHTML = `
       <button class="bl-modal-x" data-bl-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">WhatsApp — votre gâteau est prêt</h3>
+      <h3 class="modal-title">WhatsApp, votre gâteau est prêt</h3>
       <p class="modal-subtle">${esc(c.name)} ${c.phone ? `· ${esc(c.phone)}` : '· numéro manquant'}</p>
       <div class="bl-wa-bubblewrap">
         <div class="bl-wa-bubble">
@@ -1146,7 +1146,7 @@
       </div>
       <button class="bl-wa-photo on" id="bl-wa-photo">
         <span class="th">${ART.cake}</span>
-        <span class="l">Joindre la photo du gâteau fini — le client voit l'inscription avant de se déplacer</span>
+        <span class="l">Joindre la photo du gâteau fini, le client voit l'inscription avant de se déplacer</span>
         <span class="tick"><i data-lucide="check"></i></span>
       </button>
       <div class="bl-sheet-foot">
@@ -1189,7 +1189,7 @@
         <div class="bl-day-inner">
           <header class="bl-head" style="padding:22px 0 0;">
             <div><h1>Fin de journée</h1>
-            <div class="bl-head-sub">Recette, dernière heure, invendus — la journée se ferme proprement</div></div>
+            <div class="bl-head-sub">Recette, dernière heure, invendus, la journée se ferme proprement</div></div>
           </header>
           <div class="bl-dgrid">
             <div class="bl-dcard">
@@ -1197,7 +1197,7 @@
               <div class="bl-recette-big">${fmtMAD(total)}</div>
               <div class="bl-recette-rows">
                 <div class="bl-recette-row"><span>Espèces</span><b>${fmtMAD(state.day.especes)}</b></div>
-                <div class="bl-recette-row"><span>Carte — lecteur partenaire</span><b>${fmtMAD(state.day.carte)}</b></div>
+                <div class="bl-recette-row"><span>Carte, lecteur partenaire</span><b>${fmtMAD(state.day.carte)}</b></div>
                 ${state.day.gateaux ? `<div class="bl-recette-row"><span>dont gâteaux (acomptes &amp; soldes)</span><b>${fmtMAD(state.day.gateaux)}</b></div>` : ''}
                 <div class="bl-recette-row"><span>Tickets</span><b>${state.day.tickets}</b></div>
                 <div class="bl-recette-row"><span>Panier moyen</span><b>${fmtMAD(panier)}</b></div>
@@ -1219,7 +1219,7 @@
           <div class="bl-dcard">
             <div class="bl-lhrow">
               <span class="bl-top-art"><i data-lucide="percent"></i></span>
-              <span class="l"><b>Dernière heure · −50 %</b><span>Tout le comptoir à moitié prix avant la fermeture — mieux vendu que jeté.</span></span>
+              <span class="l"><b>Dernière heure · −50 %</b><span>Tout le comptoir à moitié prix avant la fermeture, mieux vendu que jeté.</span></span>
               <button class="bl-switch ${state.lastHour ? 'on' : ''}" id="bl-lh-switch" role="switch" aria-checked="${state.lastHour}" aria-label="Dernière heure moins cinquante pour cent"></button>
             </div>
           </div>
@@ -1229,7 +1229,7 @@
             ${state.don ? `
               <div class="bl-don-done" style="margin-top:12px;">
                 <i data-lucide="check-circle-2"></i>
-                <div><b>${state.don.pieces} pièces</b> données à <b>${esc(state.don.assoc)}</b> à ${hhmm(state.don.at)}.${state.don.note ? `<br>Note : ${esc(state.don.note)}` : ''}<br>Rien ne se jette — sadaqa du soir enregistrée.</div>
+                <div><b>${state.don.pieces} pièces</b> données à <b>${esc(state.don.assoc)}</b> à ${hhmm(state.don.at)}.${state.don.note ? `<br>Note : ${esc(state.don.note)}` : ''}<br>Rien ne se jette, sadaqa du soir enregistrée.</div>
               </div>
               <div class="bl-sheet-foot"><button class="bl-btn ghost" id="bl-don-redo" style="flex:1;">Refaire un comptage</button></div>` : `
               ${invProds.length ? invProds.map((p) => `
@@ -1241,7 +1241,7 @@
                     <b>${invCount(p)}</b>
                     <button data-bl-inv-plus="${p.id}" aria-label="Plus">+</button>
                   </span>
-                </div>`).join('') : '<div class="bl-foot-note" style="margin:14px 0;">Plus rien en boutique — tout est vendu, sa7a!</div>'}
+                </div>`).join('') : '<div class="bl-foot-note" style="margin:14px 0;">Plus rien en boutique, tout est vendu, sa7a!</div>'}
               <div class="bl-don-sec">
                 <div class="bl-f-lbl">Association <span class="opt">· le don part ce soir</span></div>
                 <div class="bl-chips" id="bl-assocs">
@@ -1255,14 +1255,14 @@
                 </div>
               </div>`}
           </div>
-          <div class="bl-foot-note">Clôture Z à la fermeture — le détail complet vit dans le dashboard Kiwi.</div>
+          <div class="bl-foot-note">Clôture Z à la fermeture, le détail complet vit dans le dashboard Kiwi.</div>
         </div>
       </div>`;
 
     $('#bl-lh-switch', panel).onclick = () => {
       state.lastHour = !state.lastHour;
       toast(state.lastHour
-        ? 'Dernière heure — tout le comptoir passe à −50 %'
+        ? 'Dernière heure, tout le comptoir passe à −50 %'
         : 'Prix normaux rétablis sur le comptoir');
       renderJour(); renderGrid(); renderTicket(); icons();
     };
@@ -1273,7 +1273,7 @@
         const id = (minus || plus).dataset.blInvMinus || (minus || plus).dataset.blInvPlus;
         const p = PROD[id];
         const cur = invCount(p);
-        if (plus && cur >= p.stock) { toast(`${p.label} — il n'en reste que ${p.stock} en boutique`); return; }
+        if (plus && cur >= p.stock) { toast(`${p.label}, il n'en reste que ${p.stock} en boutique`); return; }
         state.invAdjust[id] = Math.max(0, cur + (plus ? 1 : -1));
         renderJour(); icons();
         return;
@@ -1297,13 +1297,13 @@
   function confirmDon() {
     const invProds = CATALOG.flatMap((c) => c.items).filter((p) => p.stock > 0);
     const total = invProds.reduce((s, p) => s + invCount(p), 0);
-    if (!total) { toast('Aucune pièce comptée — rien à donner ce soir'); return; }
+    if (!total) { toast('Aucune pièce comptée, rien à donner ce soir'); return; }
     if (!state.donForm.assoc) { toast('Choisissez une association pour le don'); return; }
     invProds.forEach((p) => { p.stock = Math.max(0, p.stock - invCount(p)); });
     state.don = { assoc: state.donForm.assoc, note: state.donForm.note.trim(), pieces: total, at: new Date() };
     state.invAdjust = {};
     queueIfOffline('Don du soir');
-    toast(`${total} pièces pour ${state.don.assoc} — l'lah ijazikom`);
+    toast(`${total} pièces pour ${state.don.assoc}, l'lah ijazikom`);
     refreshOps();
   }
 
@@ -1311,10 +1311,10 @@
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — la caisse continue, tout est mis en file');
+      toast('Mode hors-ligne, la caisse continue, tout est mis en file');
     }
     renderNet();
   }
@@ -1340,7 +1340,7 @@
     greet: {
       line1: 'Sba7 lkhir Abdelkader,',
       em: 'marhba.',
-      sub: 'Boulangerie Bab Kasbah <em>·</em> fournée du matin sortie — le msemen est au four',
+      sub: 'Boulangerie Bab Kasbah <em>·</em> fournée du matin sortie, le msemen est au four',
     },
     mount(rootEl) { mount(rootEl); },
     onShow() { if (root) renderAll(); },

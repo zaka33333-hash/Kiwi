@@ -153,7 +153,7 @@
           <div class="rk"><b>Économie annuelle</b>avec le forfait fixe Kiwi</div>
           <div class="rv">${Math.round(savingsYear).toLocaleString('fr-FR').replace(/,/g,' ')} MAD</div>
         </div>
-        <div class="calc-footnote">Kiwi est un logiciel à prix fixe — jamais un pourcentage de vos ventes. Comparaison avec une solution tout-en-un facturant ~2 % par transaction. Votre encaissement par carte reste géré par votre banque ou acquéreur actuel : Kiwi ne le remplace pas et n'y prélève rien.</div>
+        <div class="calc-footnote">Kiwi est un logiciel à prix fixe, jamais un pourcentage de vos ventes. Comparaison avec une solution tout-en-un facturant ~2 % par transaction. Votre encaissement par carte reste géré par votre banque ou acquéreur actuel : Kiwi ne le remplace pas et n'y prélève rien.</div>
       `;
       // Update persona card
       root.querySelector('.calc-persona').innerHTML = `<b>${persona}.</b> Faites glisser le curseur pour voir l'économie selon votre volume réel.`;

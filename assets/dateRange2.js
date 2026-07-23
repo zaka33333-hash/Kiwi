@@ -205,9 +205,9 @@
   };
 
   const HERO_LABEL = {
-    fr: { aujourdhui: "ENCAISSÉ AUJOURD'HUI", hier: 'ENCAISSÉ HIER', septJours: 'ENCAISSÉ 7 JOURS', trenteJours: 'ENCAISSÉ 30 JOURS', moisDernier: 'ENCAISSÉ — MOIS DERNIER', trimestre: 'ENCAISSÉ — TRIMESTRE', annee: 'ENCAISSÉ — ANNÉE', personnalise: 'ENCAISSÉ — PÉRIODE' },
-    en: { aujourdhui: 'CASHED TODAY', hier: 'CASHED YESTERDAY', septJours: 'CASHED 7 DAYS', trenteJours: 'CASHED 30 DAYS', moisDernier: 'CASHED — LAST MONTH', trimestre: 'CASHED — QUARTER', annee: 'CASHED — YEAR', personnalise: 'CASHED — PERIOD' },
-    ar: { aujourdhui: 'المقبوض اليوم', hier: 'المقبوض أمس', septJours: 'المقبوض في 7 أيام', trenteJours: 'المقبوض في 30 يومًا', moisDernier: 'المقبوض — الشهر الماضي', trimestre: 'المقبوض — الربع', annee: 'المقبوض — السنة', personnalise: 'المقبوض — الفترة' },
+    fr: { aujourdhui: "ENCAISSÉ AUJOURD'HUI", hier: 'ENCAISSÉ HIER', septJours: 'ENCAISSÉ 7 JOURS', trenteJours: 'ENCAISSÉ 30 JOURS', moisDernier: 'ENCAISSÉ, MOIS DERNIER', trimestre: 'ENCAISSÉ, TRIMESTRE', annee: 'ENCAISSÉ, ANNÉE', personnalise: 'ENCAISSÉ, PÉRIODE' },
+    en: { aujourdhui: 'CASHED TODAY', hier: 'CASHED YESTERDAY', septJours: 'CASHED 7 DAYS', trenteJours: 'CASHED 30 DAYS', moisDernier: 'CASHED, LAST MONTH', trimestre: 'CASHED, QUARTER', annee: 'CASHED, YEAR', personnalise: 'CASHED, PERIOD' },
+    ar: { aujourdhui: 'المقبوض اليوم', hier: 'المقبوض أمس', septJours: 'المقبوض في 7 أيام', trenteJours: 'المقبوض في 30 يومًا', moisDernier: 'المقبوض, الشهر الماضي', trimestre: 'المقبوض, الربع', annee: 'المقبوض, السنة', personnalise: 'المقبوض, الفترة' },
   };
 
   const DELTA_LABELS = {
@@ -267,9 +267,9 @@
     // moisDernier/trimestre/annee reuse the 30-day hourly profile (buildHeatmap
     // maps them onto trenteJours), so their labels say "typical profile" rather
     // than claim period-exact data.
-    fr: { aujourdhui: "Intensité horaire aujourd'hui", hier: 'Intensité horaire hier', septJours: 'Intensité horaire moyenne — 7 derniers jours', trenteJours: 'Intensité horaire moyenne — 30 derniers jours', moisDernier: 'Profil horaire type — moyenne longue période', trimestre: 'Profil horaire type — moyenne longue période', annee: 'Profil horaire type — moyenne longue période', personnalise: 'Intensité horaire — période personnalisée' },
-    en: { aujourdhui: 'Hourly intensity today', hier: 'Hourly intensity yesterday', septJours: 'Average hourly intensity — last 7 days', trenteJours: 'Average hourly intensity — last 30 days', moisDernier: 'Typical hourly profile — long-run average', trimestre: 'Typical hourly profile — long-run average', annee: 'Typical hourly profile — long-run average', personnalise: 'Hourly intensity — custom period' },
-    ar: { aujourdhui: 'كثافة الساعات اليوم', hier: 'كثافة الساعات أمس', septJours: 'متوسط الكثافة الساعية — آخر 7 أيام', trenteJours: 'متوسط الكثافة الساعية — آخر 30 يومًا', moisDernier: 'النمط الساعي النموذجي — متوسط طويل المدى', trimestre: 'النمط الساعي النموذجي — متوسط طويل المدى', annee: 'النمط الساعي النموذجي — متوسط طويل المدى', personnalise: 'كثافة الساعات — فترة مخصصة' },
+    fr: { aujourdhui: "Intensité horaire aujourd'hui", hier: 'Intensité horaire hier', septJours: 'Intensité horaire moyenne, 7 derniers jours', trenteJours: 'Intensité horaire moyenne, 30 derniers jours', moisDernier: 'Profil horaire type, moyenne longue période', trimestre: 'Profil horaire type, moyenne longue période', annee: 'Profil horaire type, moyenne longue période', personnalise: 'Intensité horaire, période personnalisée' },
+    en: { aujourdhui: 'Hourly intensity today', hier: 'Hourly intensity yesterday', septJours: 'Average hourly intensity, last 7 days', trenteJours: 'Average hourly intensity, last 30 days', moisDernier: 'Typical hourly profile, long-run average', trimestre: 'Typical hourly profile, long-run average', annee: 'Typical hourly profile, long-run average', personnalise: 'Hourly intensity, custom period' },
+    ar: { aujourdhui: 'كثافة الساعات اليوم', hier: 'كثافة الساعات أمس', septJours: 'متوسط الكثافة الساعية, آخر 7 أيام', trenteJours: 'متوسط الكثافة الساعية, آخر 30 يومًا', moisDernier: 'النمط الساعي النموذجي, متوسط طويل المدى', trimestre: 'النمط الساعي النموذجي, متوسط طويل المدى', annee: 'النمط الساعي النموذجي, متوسط طويل المدى', personnalise: 'كثافة الساعات, فترة مخصصة' },
   };
   const COVERS_LABEL = { fr: 'couverts', en: 'guests', ar: 'زبون' };
 
@@ -1844,8 +1844,8 @@
     const today = new Date();
     if (id === 'aujourdhui')  return fmtDate(today);
     if (id === 'hier')        return fmtDate(offsetDays(-1));
-    if (id === 'septJours')   return `${fmtShort(offsetDays(-6))} — ${fmtDate(today)}`;
-    if (id === 'trenteJours') return `${fmtShort(offsetDays(-30))} — ${fmtDate(today)}`;
+    if (id === 'septJours')   return `${fmtShort(offsetDays(-6))}, ${fmtDate(today)}`;
+    if (id === 'trenteJours') return `${fmtShort(offsetDays(-30))}, ${fmtDate(today)}`;
     return '—';
   }
 
@@ -2806,7 +2806,7 @@
 
     svg.innerHTML = `
       <defs>
-        <!-- 3-stop gradient: punchy near the line, fades fast — Robinhood depth -->
+        <!-- 3-stop gradient: punchy near the line, fades fast, Robinhood depth -->
         <linearGradient id="gfill" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0"    stop-color="#7DF2B0" stop-opacity="0.30"/>
           <stop offset="0.6"  stop-color="#7DF2B0" stop-opacity="0.06"/>
@@ -2831,7 +2831,7 @@
       <line class="rev-cross-line" x1="${PAD.left}" x2="${PAD.left}" y1="${PAD.top}" y2="${(PAD.top + innerH).toFixed(1)}" stroke="rgba(255,255,255,0.32)" stroke-width="1"/>
       ${cmpPath ? `<path class="rev-cmp" d="${cmpPath}" stroke="rgba(247,245,240,0.4)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1" style="opacity:${showCmp ? 1 : 0};"/>` : ''}
       <path class="rev-area" d="${areaPath}" fill="url(#gfill)"/>
-      <!-- Halo: wider, blurred sibling of the line — Apple Stocks soft glow -->
+      <!-- Halo: wider, blurred sibling of the line, Apple Stocks soft glow -->
       <path class="rev-line-halo" d="${linePath}" stroke="#7DF2B0" stroke-width="5" stroke-opacity="0.20" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#rev-line-glow)" pathLength="1"/>
       <path class="rev-line" d="${linePath}" stroke="#7DF2B0" stroke-width="2.25" fill="none" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>
       ${showLive ? `
@@ -3590,9 +3590,9 @@
   };
 
   const HEALTH_EMPTY = {
-    fr: { title: 'Score de santé Kiwi', head: 'Votre score se construit', msg: 'Le score de santé Kiwi s’affiche après vos premières semaines d’activité — succès des paiements, conformité, fidélité.' },
-    en: { title: 'Kiwi health score', head: 'Your score is building', msg: 'Your Kiwi health score appears after your first weeks of activity — payment success, compliance, loyalty.' },
-    ar: { title: 'نقاط صحة Kiwi', head: 'يُبنى مؤشّرك', msg: 'تظهر نقاط صحة Kiwi بعد أسابيعك الأولى من النشاط — نجاح المدفوعات والامتثال والولاء.' },
+    fr: { title: 'Score de santé Kiwi', head: 'Votre score se construit', msg: 'Le score de santé Kiwi s’affiche après vos premières semaines d’activité, succès des paiements, conformité, fidélité.' },
+    en: { title: 'Kiwi health score', head: 'Your score is building', msg: 'Your Kiwi health score appears after your first weeks of activity, payment success, compliance, loyalty.' },
+    ar: { title: 'نقاط صحة Kiwi', head: 'يُبنى مؤشّرك', msg: 'تظهر نقاط صحة Kiwi بعد أسابيعك الأولى من النشاط, نجاح المدفوعات والامتثال والولاء.' },
   };
   const BENCH_EMPTY = {
     fr: { title: 'Vous vs établissements similaires', head: 'Comparaison à venir', msg: 'Dès que vous accumulez de l’activité, comparez vos performances aux établissements similaires près de chez vous.' },

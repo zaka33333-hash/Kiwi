@@ -144,7 +144,7 @@
     </section>
 
     <section id="manage" hidden>
-      <div class="sec-head"><h2>Gestion — <span class="selname" id="sel-name"></span></h2></div>
+      <div class="sec-head"><h2>Gestion, <span class="selname" id="sel-name"></span></h2></div>
       <div class="panel">
         <div class="grid2">
           <div>
@@ -167,13 +167,13 @@
             <p class="sub">Fonctionnalités (autorité opérateur)</p>
             <div id="type-row"></div>
             <div id="feat-list"></div>
-            <p class="hint">Les modules affichés dépendent du type d’activité du client. Désactiver un module le masque dans l’app du client à son prochain chargement. Réservé à l’opérateur — lié à l’offre.</p>
+            <p class="hint">Les modules affichés dépendent du type d’activité du client. Désactiver un module le masque dans l’app du client à son prochain chargement. Réservé à l’opérateur, lié à l’offre.</p>
           </div>
         </div>
 
         <div class="danger-zone" id="danger-zone">
           <p class="sub" style="color:var(--warn); margin-top:0">Zone dangereuse</p>
-          <p class="dz-desc">Supprime définitivement <b id="dz-name"></b> et toutes ses données —
+          <p class="dz-desc">Supprime définitivement <b id="dz-name"></b> et toutes ses données,
             compte de connexion, ventes, PINs du personnel et configuration. Le client repart de zéro.
             <b>Action irréversible.</b></p>
           <div class="addrow">
@@ -486,8 +486,8 @@
       c.status = next;
       await renderClients();
       notify(next === 'suspended'
-        ? 'Compte suspendu — accès coupé à la prochaine requête.'
-        : 'Compte réactivé — accès rétabli.');
+        ? 'Compte suspendu, accès coupé à la prochaine requête.'
+        : 'Compte réactivé, accès rétabli.');
     } catch(e){
       notify('Échec : ' + ((e && e.body && e.body.error) || (e && e.message) || 'erreur'));
     }
@@ -506,7 +506,7 @@
     real.forEach(function(c){ body.appendChild(clientRow(c)); });
     if (!real.length){
       body.appendChild(h('tr', null, h('td', { colspan:'7', style:'padding:20px 12px;color:var(--muted)' },
-        'Aucun client réel pour l’instant — les comptes créés par vos clients apparaîtront ici.')));
+        'Aucun client réel pour l’instant, les comptes créés par vos clients apparaîtront ici.')));
     }
 
     // Demos are hidden by default under one collapsible band, so God-mode shows
@@ -514,7 +514,7 @@
     if (demos.length){
       var head = h('tr', null,
         h('td', { colspan:'7', style:'cursor:pointer;user-select:none;background:rgba(128,128,128,.12);color:var(--muted);font-weight:600;font-size:.8rem;letter-spacing:.02em' },
-          (demosOpen ? '▾' : '▸') + '  Démos · ' + demos.length + '  (données de démonstration — pas des clients)'));
+          (demosOpen ? '▾' : '▸') + '  Démos · ' + demos.length + '  (données de démonstration, pas des clients)'));
       head.firstChild.addEventListener('click', function(){ demosOpen = !demosOpen; renderClients(); });
       body.appendChild(head);
       if (demosOpen){
@@ -581,7 +581,7 @@
   async function renderPins(){
     var wrap = document.getElementById('pin-list'); clear(wrap);
     var pins = await store.pins(selected.merchant);
-    if (!pins.length) { wrap.appendChild(h('p', { class:'empty' }, 'Aucun PIN — l’app utilise ses codes par défaut.')); return; }
+    if (!pins.length) { wrap.appendChild(h('p', { class:'empty' }, 'Aucun PIN, l’app utilise ses codes par défaut.')); return; }
     pins.forEach(function(p){
       wrap.appendChild(h('div', { class:'pin' },
         h('b', null, p.pin),
@@ -599,7 +599,7 @@
   function renderTypeRow(){
     var row = document.getElementById('type-row'); if (!row) return; clear(row);
     var sel = h('select', { class:'type-select', 'aria-label':'Type d’activité' });
-    sel.appendChild(h('option', { value:'' }, '— Type non défini —'));
+    sel.appendChild(h('option', { value:'' }, 'Type non défini,'));
     TYPES.forEach(function(t){ sel.appendChild(h('option', { value:t.id }, t.label)); });
     sel.value = selected.type || '';
     sel.addEventListener('change', async function(){
@@ -609,7 +609,7 @@
         selected.type = v;
         renderClients();          // roster reflects the new type
         await renderFeatures();    // module set switches to the new vertical
-        notify(v ? ('Type : ' + typeLabel(v) + ' — modules adaptés.') : 'Type effacé.');
+        notify(v ? ('Type : ' + typeLabel(v) + ', modules adaptés.') : 'Type effacé.');
       } catch(e){ notify('Échec : ' + ((e && e.body && e.body.error) || (e && e.message) || 'erreur')); }
     });
     row.appendChild(h('label', { class:'type-field' },

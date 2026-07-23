@@ -42,7 +42,7 @@
       document.body.appendChild(s); return s;
     })();
     d.style.background = navigator.onLine ? '#3FB67A' : '#B85245';
-    d.title = navigator.onLine ? 'En ligne' : 'Hors ligne — ventes enregistrées localement';
+    d.title = navigator.onLine ? 'En ligne' : 'Hors ligne, ventes enregistrées localement';
   }
   window.addEventListener('online', status);
   window.addEventListener('offline', status);

@@ -183,7 +183,7 @@
       payrollHeroLabel: (date) => `${date} · MAIN D'ŒUVRE`,
       payrollHeroBig: (present, total) => `${present} / ${total}`,
       payrollHeroBigUnit: "employés pointés",
-      payrollHeroSub: (cost, ratio) => `Coût aujourd'hui <b style="color:var(--mint);">${cost} MAD</b> · ratio ${ratio} % des ventes — sain`,
+      payrollHeroSub: (cost, ratio) => `Coût aujourd'hui <b style="color:var(--mint);">${cost} MAD</b> · ratio ${ratio} % des ventes, sain`,
       payrollLiveClocking: "Pointage en direct · service du soir",
       payrollLiveClockingSub: (present, exited) => `Tap sur la carte Kiwi ou code PIN pour pointer · ${present} actifs · ${exited} sorti`,
       payrollManualClock: "+ Pointage manuel",
@@ -423,7 +423,7 @@
       payrollHeroLabel: (date) => `${date} · LABOR`,
       payrollHeroBig: (present, total) => `${present} / ${total}`,
       payrollHeroBigUnit: "employees clocked in",
-      payrollHeroSub: (cost, ratio) => `Cost today <b style="color:var(--mint);">${cost} MAD</b> · ${ratio}% of sales — healthy`,
+      payrollHeroSub: (cost, ratio) => `Cost today <b style="color:var(--mint);">${cost} MAD</b> · ${ratio}% of sales, healthy`,
       payrollLiveClocking: "Live clock-in · evening service",
       payrollLiveClockingSub: (present, exited) => `Tap Kiwi card or PIN to clock in · ${present} active · ${exited} clocked out`,
       payrollManualClock: "+ Manual clock-in",
@@ -663,7 +663,7 @@
       payrollHeroLabel: (date) => `${date} · اليد العاملة`,
       payrollHeroBig: (present, total) => `${present} / ${total}`,
       payrollHeroBigUnit: "موظفين مسجلين",
-      payrollHeroSub: (cost, ratio) => `التكلفة اليوم <b style="color:var(--mint);">${cost} درهم</b> · نسبة ${ratio}% من المبيعات — صحية`,
+      payrollHeroSub: (cost, ratio) => `التكلفة اليوم <b style="color:var(--mint);">${cost} درهم</b> · نسبة ${ratio}% من المبيعات, صحية`,
       payrollLiveClocking: "تسجيل الحضور المباشر · خدمة المساء",
       payrollLiveClockingSub: (present, exited) => `انقر على بطاقة كيوي أو أدخل رقم التعريف الشخصي لتسجيل الحضور · ${present} نشطين · ${exited} خرج`,
       payrollManualClock: "+ تسجيل يدوي",
@@ -1724,7 +1724,7 @@
             </div>
             <div class="resv-line">
               <div class="t">19:30</div>
-              <div class="info"><div class="n">Anniversaire — Karim B.</div><div class="m">${T.reservationsCovers(8)} · acompte 200 MAD reçu · gâteau prévu 21h</div></div>
+              <div class="info"><div class="n">Anniversaire, Karim B.</div><div class="m">${T.reservationsCovers(8)} · acompte 200 MAD reçu · gâteau prévu 21h</div></div>
               <span class="chip ok">${T.reservationsDepositReceived}</span>
             </div>
             <div class="resv-line">
@@ -1899,12 +1899,12 @@
             <div class="re-tile">
               <div class="re-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22v-2a4 4 0 014-4h8a4 4 0 014 4v2"/></svg></div>
               <h5>Profil client unifié</h5>
-              <p>Anniversaire, préférences, allergies, historique de visites — partagés entre vos différents services et points de vente.</p>
+              <p>Anniversaire, préférences, allergies, historique de visites, partagés entre vos différents services et points de vente.</p>
             </div>
             <div class="re-tile">
               <div class="re-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
               <h5>Rappels WhatsApp</h5>
-              <p>Confirmation 24 h avant, rappel 2 h avant. Le client répond « OK » ou « non » — vous voyez le résultat en direct.</p>
+              <p>Confirmation 24 h avant, rappel 2 h avant. Le client répond « OK » ou « non », vous voyez le résultat en direct.</p>
             </div>
             <div class="re-tile">
               <div class="re-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1015-6.7L21 8M21 3v5h-5"/></svg></div>
@@ -1914,7 +1914,7 @@
             <div class="re-tile">
               <div class="re-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-7-11a5 5 0 019-3 5 5 0 019 3c0 6.5-7 11-7 11z"/></svg></div>
               <h5>« On vous a manqué »</h5>
-              <p>Après 6 semaines sans visite, Kiwi envoie un message contextuel — parfois avec une remise. 1 client sur 3 revient.</p>
+              <p>Après 6 semaines sans visite, Kiwi envoie un message contextuel, parfois avec une remise. 1 client sur 3 revient.</p>
             </div>
           </div>
         </div>

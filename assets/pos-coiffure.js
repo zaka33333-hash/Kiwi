@@ -161,8 +161,8 @@
         { when: dAgo(140), svc: 'Mèches (demi-tête)', by: 'sara', amt: 350 },
       ] },
     { id: 'cl3', name: 'Nadia El Fassi', phone: '0653 88 14 22', visits: 22, last: dAgo(26),
-      prefs: ['Couleur foncée intense', 'Coupe carré net', 'Allergie PPD — test mèche'],
-      formula: { name: 'Brun froid', base: '4.1', tone: 'cendré', ox: 6, pose: 40, brand: 'Majirel', notes: 'Sans PPD — toujours faire le test la veille' },
+      prefs: ['Couleur foncée intense', 'Coupe carré net', 'Allergie PPD, test mèche'],
+      formula: { name: 'Brun froid', base: '4.1', tone: 'cendré', ox: 6, pose: 40, brand: 'Majirel', notes: 'Sans PPD, toujours faire le test la veille' },
       hist: [
         { when: dAgo(26), svc: 'Couleur (complète) + Coupe femme', by: 'yasmine', amt: 440 },
         { when: dAgo(60), svc: 'Coupe femme + Brushing', by: 'yasmine', amt: 200 },
@@ -175,7 +175,7 @@
         { when: dAgo(33), svc: 'Coupe homme + Barbe', by: 'karim', amt: 100 },
       ] },
     { id: 'cl5', name: 'Meriem Saadi', phone: '0668 17 92 34', visits: 5, last: dAgo(70),
-      prefs: ['Cheveux fins — volume racines'],
+      prefs: ['Cheveux fins, volume racines'],
       hist: [{ when: dAgo(70), svc: 'Coupe femme + Brushing mi-long', by: 'yasmine', amt: 220 }] },
     { id: 'cl6', name: 'Yousra Alami', phone: '0677 64 28 11', visits: 7, last: dAgo(45),
       prefs: ['Soin avant événement', 'Chignon mariage en juin'],
@@ -287,7 +287,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — mis en file hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, mis en file hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -302,7 +302,7 @@
         <div class="cf-brand">kiwi<i></i></div>
         <div class="cf-venue">
           <div class="cf-venue-name">Salon Yasmine</div>
-          <div class="cf-venue-sub">Tanger · Iberia<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="cf-venue-sub">Tanger · Iberia<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="cf-nav" id="cf-nav">
           <button class="cf-nav-it on" data-cf-view="file"><i data-lucide="users"></i><span>File &amp; RDV</span><b class="cf-nav-badge" id="cf-badge-file"></b></button>
@@ -319,7 +319,7 @@
       </aside>
       <main class="cf-main">
         <div class="cf-offline-note" id="cf-offline-note" hidden>
-          Hors-ligne — la caisse continue sur la tablette, tout se synchronise au retour du réseau.
+          Hors-ligne, la caisse continue sur la tablette, tout se synchronise au retour du réseau.
           <b id="cf-queue-count"></b>
         </div>
 
@@ -342,7 +342,7 @@
 
         <section class="cf-view" data-cf-panel="presta">
           <header class="cf-head">
-            <div><h1>Prestations</h1><div class="cf-head-sub">Touchez une prestation — elle s'attribue à un·e coiffeur·se sur le passage.</div></div>
+            <div><h1>Prestations</h1><div class="cf-head-sub">Touchez une prestation, elle s'attribue à un·e coiffeur·se sur le passage.</div></div>
             <div class="cf-head-right"><span class="cf-head-hint">Un passage = un ou plusieurs services</span></div>
           </header>
           <div class="cf-cats" id="cf-cats"></div>
@@ -354,7 +354,7 @@
 
         <section class="cf-view" data-cf-panel="fiches">
           <header class="cf-head">
-            <div><h1>Fiches clientes</h1><div class="cf-head-sub">Chaque fiche se souvient de la formule couleur — un tap la pré-remplit.</div></div>
+            <div><h1>Fiches clientes</h1><div class="cf-head-sub">Chaque fiche se souvient de la formule couleur, un tap la pré-remplit.</div></div>
             <div class="cf-head-right"><button class="cf-chip" id="cf-fiches-search"><i data-lucide="search"></i>Chercher</button></div>
           </header>
           <div class="cf-day"><div class="cf-day-inner" id="cf-fiches-body"></div></div>
@@ -363,7 +363,7 @@
         <section class="cf-view" data-cf-panel="journee">
           <header class="cf-head">
             <div><h1>Fin de journée</h1><div class="cf-head-sub" id="cf-journee-sub"></div></div>
-            <div class="cf-head-right"><span class="cf-head-hint">Commission 40 % par coiffeur·se — déjà calculée.</span></div>
+            <div class="cf-head-right"><span class="cf-head-hint">Commission 40 % par coiffeur·se, déjà calculée.</span></div>
           </header>
           <div class="cf-day" id="cf-journee-body"></div>
         </section>
@@ -432,7 +432,7 @@
 
   function renderFile() {
     $('#cf-clock-val', root).textContent = fmtTime(new Date());
-    $('#cf-file-sub', root).textContent = `${fmtDay(new Date())} · le salon tourne — 2 fauteuils occupés, ${PASSAGES.filter((p) => p.state === 'attente').length} en attente`;
+    $('#cf-file-sub', root).textContent = `${fmtDay(new Date())} · le salon tourne, 2 fauteuils occupés, ${PASSAGES.filter((p) => p.state === 'attente').length} en attente`;
     renderQueue();
     renderRdv();
     icons();
@@ -543,7 +543,7 @@
       </div>`;
     $('#cf-rdv', root).onclick = (e) => {
       const add = e.target.closest('[data-cf-rdv-add]');
-      if (add) { toast(`Créneau ouvert chez ${SF[add.dataset.cfRdvAdd].name} — proposez-le à la cliente`); return; }
+      if (add) { toast(`Créneau ouvert chez ${SF[add.dataset.cfRdvAdd].name}, proposez-le à la cliente`); return; }
       const cli = e.target.closest('[data-cf-rdv-cli]');
       if (cli && cli.dataset.cfRdvCli) openFiche(cli.dataset.cfRdvCli);
     };
@@ -597,12 +597,12 @@
   function customerRow(t) {
     if (!t.customer) {
       return `<button class="cf-tk-row" id="cf-tk-client"><i data-lucide="user-plus"></i>
-        <span class="l"><b>Attacher une fiche</b><span>Téléphone — la formule couleur suit la cliente</span></span>
+        <span class="l"><b>Attacher une fiche</b><span>Téléphone, la formule couleur suit la cliente</span></span>
         <span class="edit">Chercher</span></button>`;
     }
     if (t.customer.type === 'guest') {
       return `<button class="cf-tk-row is-set" id="cf-tk-client"><i data-lucide="user"></i>
-        <span class="l"><b>Client de passage</b><span>Sans fiche — pas de mémoire couleur</span></span>
+        <span class="l"><b>Client de passage</b><span>Sans fiche, pas de mémoire couleur</span></span>
         <span class="edit">Changer</span></button>`;
     }
     const c = CUST[t.customer.id];
@@ -627,7 +627,7 @@
         ${t.lines.length ? t.lines.map((ln, i) => lineRow(ln, i)).join('') : `
           <div class="cf-tk-empty">
             <i data-lucide="scissors"></i>
-            <div>Le passage est vide.<br>Touchez une prestation dans la grille — vous l'attribuez à un·e coiffeur·se.</div>
+            <div>Le passage est vide.<br>Touchez une prestation dans la grille, vous l'attribuez à un·e coiffeur·se.</div>
           </div>`}
       </div>
       <div class="cf-tk-foot">
@@ -805,7 +805,7 @@
     if (recall) recall.onclick = () => {
       sheet.formula = Object.assign({}, attachedCust.formula);
       renderSheet(); icons(); rescanLens();
-      toast(`Formule de ${attachedCust.name.split(' ')[0]} reprise — ${fmtFormula(attachedCust.formula)}`);
+      toast(`Formule de ${attachedCust.name.split(' ')[0]} reprise, ${fmtFormula(attachedCust.formula)}`);
     };
     bindFormulaBlock(el);
     $('#cf-sheet-add', el).onclick = addSheetToTicket;
@@ -820,7 +820,7 @@
       <div class="cf-f-lbl"><i data-lucide="sparkles" style="width:11px;height:11px;color:var(--forest)"></i> Formule couleur ${sheet.formula ? '<span class="opt">· mémorisée pour la prochaine fois</span>' : '<span class="opt">· optionnel</span>'}</div>
       <div class="cf-row-2">
         <div class="cf-f" style="margin:0;">
-          <input class="cf-in" id="cf-f-base" placeholder="Base / nuance — ex. 7.3" value="${esc(f.base + (f.tone ? ' ' + f.tone : ''))}" />
+          <input class="cf-in" id="cf-f-base" placeholder="Base / nuance, ex. 7.3" value="${esc(f.base + (f.tone ? ' ' + f.tone : ''))}" />
         </div>
         <div class="cf-f" style="margin:0;flex:0 0 130px;">
           <input class="cf-in" id="cf-f-brand" placeholder="Marque" value="${esc(f.brand || '')}" />
@@ -878,10 +878,10 @@
     const item = ITEMS[sheet.itemId];
     if (sheet.editIdx != null) {
       state.ticket.lines[sheet.editIdx] = line;
-      toast(`${item.label} — mis à jour`);
+      toast(`${item.label}, mis à jour`);
     } else {
       state.ticket.lines.push(line);
-      toast(`${item.label} · ${SF[sheet.staffId].name} — sur le passage`);
+      toast(`${item.label} · ${SF[sheet.staffId].name}, sur le passage`);
     }
     closeVeil('#cf-sheet-veil');
     renderTicket(); renderBadges(); icons();
@@ -893,7 +893,7 @@
     if (!t.lines.length) return;
     const unattributed = t.lines.some((l) => !l.staffId);
     if (unattributed) { toast('Chaque prestation doit être attribuée à un·e coiffeur·se'); return; }
-    if (!t.customer) { state.clTarget = 'ticket'; openClient('search'); toast('Attachez la cliente — ou « passage »'); return; }
+    if (!t.customer) { state.clTarget = 'ticket'; openClient('search'); toast('Attachez la cliente, ou « passage »'); return; }
     /* monter le passage dans la file (en attente). L'id reste numérique —
        advancePass et le markup data-cf-pass le lisent en nombre. */
     const newId = Math.max(...PASSAGES.map((x) => x.id), 1044) + 1;
@@ -909,7 +909,7 @@
     PASSAGES.push(p);
     state.activePass = p.id;
     queueIfOffline(`Passage de ${passCustName(p)}`);
-    toast(`${passCustName(p)} en file — ${ticketDur(t)} min, ${fmtMAD(ticketTotal(t))}`);
+    toast(`${passCustName(p)} en file, ${ticketDur(t)} min, ${fmtMAD(ticketTotal(t))}`);
     freshTicket();
     renderTicket(); renderBadges();
     switchView('file');
@@ -926,11 +926,11 @@
       const hits = !q ? CUSTOMERS : CUSTOMERS.filter((c) =>
         (digits && c.phone.replace(/\D/g, '').includes(digits)) ||
         (!digits && c.name.toLowerCase().includes(ql)));
-      const title = mode === 'browse' ? 'Fiches clientes' : mode === 'walkin' ? 'Walk-in — qui est-ce ?' : 'Attacher une fiche';
+      const title = mode === 'browse' ? 'Fiches clientes' : mode === 'walkin' ? 'Walk-in, qui est-ce ?' : 'Attacher une fiche';
       el.innerHTML = `
         <button class="cf-modal-x" data-cf-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">${title}</h3>
-        <p class="modal-subtle">On cherche par téléphone — la formule couleur et l'historique suivent la cliente.</p>
+        <p class="modal-subtle">On cherche par téléphone, la formule couleur et l'historique suivent la cliente.</p>
         <div class="cf-phone-in"><i data-lucide="phone"></i>
           <input id="cf-cl-q" inputmode="tel" placeholder="06… ou nom de la cliente" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -948,7 +948,7 @@
           </div>
           <button class="cf-cl-new" id="cf-cl-new"><i data-lucide="user-plus"></i>Nouvelle fiche${q && !hits.length ? ` · « ${esc(q)} »` : ''}</button>
           ${mode !== 'browse' ? `<div class="cf-sheet-foot" style="margin-top:10px;">
-            <button class="cf-btn ghost" id="cf-cl-guest">Client de passage — sans fiche</button>
+            <button class="cf-btn ghost" id="cf-cl-guest">Client de passage, sans fiche</button>
           </div>` : ''}` : `
           <div class="cf-cl-form">
             <input class="cf-in" id="cf-cl-name" placeholder="Nom et prénom" value="${esc(/^[\d\s.+-]*$/.test(q || '') ? '' : (q || ''))}" />
@@ -966,7 +966,7 @@
           if (mode === 'browse') { closeVeil('#cf-client-veil'); openFiche(c.id); return; }
           state.ticket.customer = { type: 'known', id: c.id };
           closeVeil('#cf-client-veil');
-          toast(c.formula ? `${c.name} — formule en mémoire : ${fmtFormula(c.formula)}` : `${c.name} — ${c.visits} visites`);
+          toast(c.formula ? `${c.name}, formule en mémoire : ${fmtFormula(c.formula)}` : `${c.name}, ${c.visits} visites`);
           renderTicket(); renderBadges(); icons();
         };
       });
@@ -992,7 +992,7 @@
         else {
           state.ticket.customer = { type: 'known', id };
           closeVeil('#cf-client-veil');
-          toast(`Fiche créée — ${name}`);
+          toast(`Fiche créée, ${name}`);
           renderTicket(); renderBadges(); icons();
         }
       };
@@ -1026,7 +1026,7 @@
       <div class="cf-fiche-body">
         ${c.formula ? `
         <div class="cf-formula-card">
-          <div class="cf-formula-head"><i data-lucide="sparkles"></i>Formule couleur — ${esc(c.formula.name)}<span class="when">dernière : ${esc(fmtDay(c.last))}</span></div>
+          <div class="cf-formula-head"><i data-lucide="sparkles"></i>Formule couleur, ${esc(c.formula.name)}<span class="when">dernière : ${esc(fmtDay(c.last))}</span></div>
           <div class="cf-formula-recipe">
             <span class="mix">${esc(c.formula.base)}${c.formula.tone ? ' ' + esc(c.formula.tone) : ''}</span>
             <span class="ox">+ oxydant ${c.formula.ox} %</span>
@@ -1038,7 +1038,7 @@
           </div>
           <button class="cf-formula-prefill" id="cf-prefill"><i data-lucide="wand-2"></i>Pré-remplir la couleur du jour</button>
         </div>` : `
-        <div class="cf-formula-none"><i data-lucide="sparkles"></i><br>Pas encore de formule mémorisée.<br>Elle se crée à la première couleur — et revient toute seule ensuite.</div>`}
+        <div class="cf-formula-none"><i data-lucide="sparkles"></i><br>Pas encore de formule mémorisée.<br>Elle se crée à la première couleur, et revient toute seule ensuite.</div>`}
 
         ${c.prefs && c.prefs.length ? `<div class="cf-fiche-sec">
           <div class="cf-fiche-sec-lbl"><i data-lucide="heart" style="width:11px;height:11px;color:var(--forest)"></i> Préférences</div>
@@ -1055,7 +1055,7 @@
                 <span class="cf-hist-by">${ava(h.by)}${esc(SF[h.by].name)}</span>
               </span>
               <span class="cf-hist-amt">${fmtMAD(h.amt)}</span>
-            </div>`).join('') || '<div class="cf-fq-empty">Première visite — pas encore d\'historique.</div>'}
+            </div>`).join('') || '<div class="cf-fq-empty">Première visite, pas encore d\'historique.</div>'}
           </div>
         </div>
       </div>
@@ -1074,7 +1074,7 @@
       switchView('presta');
       renderTicket();
       openSheet('couleur');
-      toast(`Couleur pré-remplie pour ${c.name.split(' ')[0]} — ${fmtFormula(c.formula)}`);
+      toast(`Couleur pré-remplie pour ${c.name.split(' ')[0]}, ${fmtFormula(c.formula)}`);
     };
     $('#cf-fiche-photo-btn', el).onclick = () => openPhoto(c);
     $('#cf-fiche-new', el).onclick = () => {
@@ -1083,7 +1083,7 @@
       state.ticket.customer = { type: 'known', id: c.id };
       switchView('presta');
       renderTicket();
-      toast(`Nouveau passage — ${c.name}`);
+      toast(`Nouveau passage, ${c.name}`);
     };
   }
 
@@ -1092,7 +1092,7 @@
     const el = $('#cf-photom', root);
     el.innerHTML = `
       <div class="cf-vf">
-        <div class="cf-vf-hint">Cadrez la coiffure — la référence reste sur la fiche</div>
+        <div class="cf-vf-hint">Cadrez la coiffure, la référence reste sur la fiche</div>
         ${ART.coiffage.replace('class="cf-art"', 'class="cf-art art"')}
         <span class="cf-vf-corner tl"></span><span class="cf-vf-corner tr"></span>
         <span class="cf-vf-corner bl"></span><span class="cf-vf-corner br"></span>
@@ -1109,7 +1109,7 @@
       flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
       setTimeout(() => {
         closeVeil('#cf-photo-veil');
-        toast(`Photo référence enregistrée — fiche ${c.name.split(' ')[0]}`);
+        toast(`Photo référence enregistrée, fiche ${c.name.split(' ')[0]}`);
       }, 420);
     };
     $('#cf-vf-close', el).onclick = () => closeVeil('#cf-photo-veil');
@@ -1171,7 +1171,7 @@
 
         <div class="cf-tip-split" id="cf-tip-split">
           <div class="cf-tip-split-head"><i data-lucide="hand-coins"></i>Pourboire <span class="total" id="cf-tip-total">0 MAD</span></div>
-          <div class="cf-tip-split-sub">Réparti entre ${staffIds.length > 1 ? 'les coiffeur·se·s du passage' : 'le·la coiffeur·se'} — chacun·e voit le sien.</div>
+          <div class="cf-tip-split-sub">Réparti entre ${staffIds.length > 1 ? 'les coiffeur·se·s du passage' : 'le·la coiffeur·se'}, chacun·e voit le sien.</div>
           ${staffIds.map((id) => `
             <div class="cf-tip-row">
               <span class="av" style="background:${SF[id].color}">${esc(SF[id].short[0])}</span>
@@ -1197,7 +1197,7 @@
           </button>
           <button class="cf-pay-opt" data-cf-method="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire, V1 sans encaissement Kiwi</span></span>
             <span class="amt" id="cf-opt-card">${fmtMAD(total)}</span>
           </button>
         </div>`;
@@ -1274,11 +1274,11 @@
       el.innerHTML = `
         <button class="cf-modal-x" data-cf-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD(amount)}</h3>
-        <p class="modal-subtle">${esc(passCustName(p))} · lecteur partenaire — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">${esc(passCustName(p))} · lecteur partenaire, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="cf-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="cf-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">Lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">Lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons();
       $$('[data-cf-close]', el).forEach((b) => { b.onclick = () => closeVeil('#cf-pay-veil'); });
@@ -1328,7 +1328,7 @@
       }
       closeVeil('#cf-pay-veil');
       queueIfOffline('Encaissement');
-      toast(`${passCustName(p)} — ${fmtMAD(total + tt)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}${tt ? ` · pourboire ${fmtMAD(tt)}` : ''}`);
+      toast(`${passCustName(p)}, ${fmtMAD(total + tt)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}${tt ? ` · pourboire ${fmtMAD(tt)}` : ''}`);
       renderQueue(); renderRdv(); renderBadges(); icons();
     };
 
@@ -1394,14 +1394,14 @@
         </div>
       </div>`;
     icons();
-    $('#cf-day-print', root).onclick = () => toast('Clôture envoyée — récap CA + commissions (imprimante thermique)');
+    $('#cf-day-print', root).onclick = () => toast('Clôture envoyée, récap CA + commissions (imprimante thermique)');
     $('#cf-day-close', root).onclick = () => {
       if (PASSAGES.some((p) => p.state !== 'fini')) {
-        toast(`${PASSAGES.filter((p) => p.state !== 'fini').length} passage(s) encore en cours — terminez d'abord la file`);
+        toast(`${PASSAGES.filter((p) => p.state !== 'fini').length} passage(s) encore en cours, terminez d'abord la file`);
         return;
       }
       queueIfOffline('Clôture journée');
-      toast('Journée clôturée — bsahtkom, à demain');
+      toast('Journée clôturée, bsahtkom, à demain');
     };
   }
 
@@ -1410,13 +1410,13 @@
     state.offline = !state.offline;
     if (!state.offline) {
       if (state.queued) {
-        toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+        toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
         state.queued = 0;
       } else {
-        toast('Réseau de retour — tout est synchronisé');
+        toast('Réseau de retour, tout est synchronisé');
       }
     } else {
-      toast('Mode hors-ligne — le salon continue, tout est mis en file');
+      toast('Mode hors-ligne, le salon continue, tout est mis en file');
     }
     renderNet();
   }

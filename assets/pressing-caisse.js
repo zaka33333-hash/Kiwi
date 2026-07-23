@@ -196,7 +196,7 @@
     { id: 'c1', name: 'Amal Berrada',         phone: '0661 23 45 67', orders: 23, prefs: ['Repassage sur cintre', 'Sans amidon'] },
     { id: 'c2', name: 'Youssef El Khattabi',  phone: '0670 11 22 33', orders: 14, prefs: ['Costumes pliés en housse'] },
     { id: 'hb', name: 'Hôtel Bab El Bahr',    phone: '0539 33 44 55', orders: 46, b2b: true, prefs: ['Facture fin de mois', 'Remise –15 % négociée'], contact: 'Gouvernante · Mme Rkia' },
-    { id: 'c3', name: 'Fatima-Zahra Lamrani', phone: '0650 88 77 66', orders: 9,  prefs: ['Caftans — nettoyage main', 'Pas de perchlo (allergie)'] },
+    { id: 'c3', name: 'Fatima-Zahra Lamrani', phone: '0650 88 77 66', orders: 9,  prefs: ['Caftans, nettoyage main', 'Pas de perchlo (allergie)'] },
     { id: 'c4', name: 'Mehdi Bennani',        phone: '0662 09 18 27', orders: 2,  prefs: [] },
     { id: 'c5', name: 'Khadija Tazi',         phone: '0668 54 32 10', orders: 6,  prefs: ['Rideaux par panneau'] },
     { id: 'c6', name: 'Omar Sefrioui',        phone: '0677 65 43 21', orders: 31, prefs: ['10 chemises chaque lundi'] },
@@ -297,10 +297,10 @@
       lines: [['drap', 'lavage', 12, 'blanc'], ['nappe', 'lavage', 6, 'blanc'], ['housse', 'lavage', 4, 'blanc']] }),
     mkOrder({ id: 'P-1039', custId: 'c3', droppedH: 20, readyH: 28, statuses: ['trait', 'pret'],
       pay: { mode: 'acompte', method: 'especes', paid: 100 },
-      lines: [['caftan', 'sec', 1, 'vert', ['Délicat'], 'Sfifa fragile — nettoyage main', 3], ['robe_soiree', 'sec', 1, 'noir', [], '', 1]] }),
+      lines: [['caftan', 'sec', 1, 'vert', ['Délicat'], 'Sfifa fragile, nettoyage main', 3], ['robe_soiree', 'sec', 1, 'noir', [], '', 1]] }),
     mkOrder({ id: 'P-1032', custId: 'c5', droppedH: 50, readyH: -14, status: 'trait',
       pay: { mode: 'pickup', method: null, paid: 0 },
-      lines: [['rideaux', 'sec', 4, 'beige', [], 'Salon — 4 panneaux'], ['couverture', 'lavage', 1, 'marron']] }),
+      lines: [['rideaux', 'sec', 4, 'beige', [], 'Salon, 4 panneaux'], ['couverture', 'lavage', 1, 'marron']] }),
     /* ── prêt ── */
     mkOrder({ id: 'P-1038', custId: 'c1', droppedH: 30, readyH: -2, status: 'pret', rack: 'A-04', notified: true,
       pay: { mode: 'now', method: 'especes', paid: 56 },
@@ -356,7 +356,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -373,7 +373,7 @@
         <div class="px-brand">kiwi<i></i></div>
         <div class="px-venue">
           <div class="px-venue-name">Pressing Marshan</div>
-          <div class="px-venue-sub">Tanger · Marshan<br>Le même Kiwi que <b>votre restaurant</b> — un seul compte.</div>
+          <div class="px-venue-sub">Tanger · Marshan<br>Le même Kiwi que <b>votre restaurant</b>, un seul compte.</div>
         </div>
         <nav class="px-nav" id="px-nav">
           <button class="px-nav-it on" data-px-view="comptoir"><i data-lucide="shirt"></i><span>Comptoir</span></button>
@@ -390,7 +390,7 @@
       </aside>
       <main class="px-main">
         <div class="px-offline-note" id="px-offline-note" hidden>
-          Hors-ligne — les actions sont enregistrées sur la tablette et synchronisées au retour du réseau.
+          Hors-ligne, les actions sont enregistrées sur la tablette et synchronisées au retour du réseau.
           <b id="px-queue-count"></b>
         </div>
         <section class="px-view is-on" data-px-panel="comptoir">
@@ -571,12 +571,12 @@
   function customerRow(t) {
     if (!t.customer) {
       return `<button class="px-tk-row" id="px-tk-client"><i data-lucide="user-plus"></i>
-        <span class="l"><b>Attacher un client</b><span>Recherche par téléphone — jamais par ticket</span></span>
+        <span class="l"><b>Attacher un client</b><span>Recherche par téléphone, jamais par ticket</span></span>
         <span class="edit">Chercher</span></button>`;
     }
     if (t.customer.type === 'guest') {
       return `<button class="px-tk-row is-set" id="px-tk-client"><i data-lucide="user"></i>
-        <span class="l"><b>Client de passage</b><span>Sans fiche — retrouvable par n° de ticket</span></span>
+        <span class="l"><b>Client de passage</b><span>Sans fiche, retrouvable par n° de ticket</span></span>
         <span class="edit">Changer</span></button>`;
     }
     const c = t.customer.type === 'known' ? CUST[t.customer.id] : t.customer;
@@ -600,14 +600,14 @@
       <div class="px-tk-meta">
         ${customerRow(t)}
         <button class="px-tk-row ${t.ready ? 'is-set' : ''}" id="px-tk-date"><i data-lucide="calendar-clock"></i>
-          <span class="l"><b>Prêt le ${esc(fmtDT(t.ready))}</b><span>Date promise — modifiable</span></span>
+          <span class="l"><b>Prêt le ${esc(fmtDT(t.ready))}</b><span>Date promise, modifiable</span></span>
           <span class="edit">Modifier</span></button>
       </div>
       <div class="px-tk-lines" id="px-tk-lines">
         ${t.lines.length ? t.lines.map((ln, i) => lineRow(ln, i)).join('') : `
           <div class="px-tk-empty">
             <i data-lucide="shirt"></i>
-            <div>Le ticket est vide.<br>Touchez un vêtement dans la grille — chaque pièce recevra son étiquette.</div>
+            <div>Le ticket est vide.<br>Touchez un vêtement dans la grille, chaque pièce recevra son étiquette.</div>
           </div>`}
       </div>
       <div class="px-tk-foot">
@@ -706,7 +706,7 @@
       </div>
 
       <div class="px-f">
-        <div class="px-f-lbl">Service <span class="opt">· combinables — ex. lavage + repassage</span></div>
+        <div class="px-f-lbl">Service <span class="opt">· combinables, ex. lavage + repassage</span></div>
         <div class="px-seg is-multi" id="px-svc-seg">
           ${avail.map((s) => `<button class="px-seg-it ${sheet.services.includes(s.id) ? 'on' : ''}" data-px-svc="${s.id}" aria-pressed="${sheet.services.includes(s.id)}">${esc(s.short)}<small>${priceTable(item, sheet.variantId)[s.id]} MAD</small></button>`).join('')}
         </div>
@@ -826,7 +826,7 @@
     });
     closeVeil('#px-sheet-veil');
     const item = ITEMS[sheet.itemId];
-    toast(`${item.label} × ${sheet.qty} · ${svcShorts(sheet.services)} — sur le ticket`);
+    toast(`${item.label} × ${sheet.qty} · ${svcShorts(sheet.services)}, sur le ticket`);
     renderTicket(); icons();
   }
 
@@ -856,7 +856,7 @@
         closeVeil('#px-photo-veil');
         renderSheet(); icons();
         if (window.KiwiLens) KiwiLens.rescan();
-        toast(`Photo état ${sheet.photos} enregistrée — jointe à la pièce`);
+        toast(`Photo état ${sheet.photos} enregistrée, jointe à la pièce`);
       }, 420);
     };
     $('#px-vf-close', el).onclick = () => closeVeil('#px-photo-veil');
@@ -875,7 +875,7 @@
       el.innerHTML = `
         <button class="px-modal-x" data-px-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Client</h3>
-        <p class="modal-subtle">Au pressing on cherche par téléphone — le client n'a jamais son ticket.</p>
+        <p class="modal-subtle">Au pressing on cherche par téléphone, le client n'a jamais son ticket.</p>
         <div class="px-phone-in"><i data-lucide="phone"></i>
           <input id="px-cl-q" inputmode="tel" placeholder="06… ou nom du client" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -894,7 +894,7 @@
           ${hits.length === 1 ? recoPanel(hits[0]) : ''}
           <button class="px-cl-new" id="px-cl-new"><i data-lucide="user-plus"></i>Nouveau client${q && !hits.length ? ` · « ${esc(q)} »` : ''}</button>
           <div class="px-sheet-foot" style="margin-top:10px;">
-            <button class="px-btn ghost" id="px-cl-guest">Client de passage — sans fiche</button>
+            <button class="px-btn ghost" id="px-cl-guest">Client de passage, sans fiche</button>
           </div>` : `
           <div class="px-cl-form">
             <input class="px-in" id="px-cl-name" placeholder="Nom et prénom" value="${esc(/^[\d\s.+-]*$/.test(q || '') ? '' : (q || ''))}" />
@@ -911,7 +911,7 @@
           state.ticket.customer = { type: 'known', id: b.dataset.pxCl };
           closeVeil('#px-client-veil');
           const c = CUST[b.dataset.pxCl];
-          toast(c.b2b ? `${c.name} — compte B2B, remise –15 % appliquée` : `${c.name} — ${c.orders} commandes, bienvenue`);
+          toast(c.b2b ? `${c.name}, compte B2B, remise –15 % appliquée` : `${c.name}, ${c.orders} commandes, bienvenue`);
           renderTicket(); icons();
         };
       });
@@ -935,7 +935,7 @@
         CUSTOMERS.unshift(c); CUST[id] = c;
         state.ticket.customer = { type: 'known', id };
         closeVeil('#px-client-veil');
-        toast(`Fiche créée — ${name}`);
+        toast(`Fiche créée, ${name}`);
         renderTicket(); icons();
       };
     };
@@ -954,7 +954,7 @@
   function recoPanel(c) {
     const hist = ORDERS.filter((o) => o.custId === c.id).slice(0, 2);
     return `<div class="px-reco">
-      <div class="px-reco-head"><i data-lucide="sparkles"></i>${esc(c.name)} — client reconnu</div>
+      <div class="px-reco-head"><i data-lucide="sparkles"></i>${esc(c.name)}, client reconnu</div>
       <div class="px-reco-rows">
         ${(c.prefs || []).map((p) => `<div class="px-reco-row"><i data-lucide="heart"></i>${esc(p)}</div>`).join('')}
         ${c.contact ? `<div class="px-reco-row"><i data-lucide="user"></i>${esc(c.contact)}</div>` : ''}
@@ -973,7 +973,7 @@
     const opts = [
       { label: 'Ce soir · 19:00', sub: 'express', d: (() => { const d = new Date(); d.setHours(19, 0, 0, 0); return d; })() },
       { label: 'Demain · 18:00', sub: 'service standard', d: mk(24, 18) },
-      { label: fmtDay(mk(48, 18)) + ' · 18:00', sub: '48 h — suggéré', d: mk(48, 18) },
+      { label: fmtDay(mk(48, 18)) + ' · 18:00', sub: '48 h, suggéré', d: mk(48, 18) },
       { label: fmtDay(mk(72, 18)) + ' · 18:00', sub: '72 h', d: mk(72, 18) },
     ];
     el.innerHTML = `
@@ -1076,13 +1076,13 @@
     const fresh = ctx && ctx.fresh;
     el.innerHTML = `
       <button class="px-modal-x" data-px-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">Ticket &amp; étiquettes — ${order.id}</h3>
-      <p class="modal-subtle">${order.pieces.length} pièce${order.pieces.length > 1 ? 's' : ''} = ${order.pieces.length} étiquette${order.pieces.length > 1 ? 's' : ''} imperméables. Un costume 3 pièces sort avec 3 étiquettes — rien ne se perd.</p>
+      <h3 class="modal-title">Ticket &amp; étiquettes, ${order.id}</h3>
+      <p class="modal-subtle">${order.pieces.length} pièce${order.pieces.length > 1 ? 's' : ''} = ${order.pieces.length} étiquette${order.pieces.length > 1 ? 's' : ''} imperméables. Un costume 3 pièces sort avec 3 étiquettes, rien ne se perd.</p>
       <div class="px-tags-grid">
         ${receiptHTML(order)}
         <div class="px-tags-list">${order.pieces.map((p) => tagHTML(p, order)).join('')}</div>
       </div>
-      <div class="px-tags-note"><i data-lucide="shield-check"></i>Chaque étiquette porte le n° de commande, la pièce, le client et le service — scannable au rangement et au retrait.</div>
+      <div class="px-tags-note"><i data-lucide="shield-check"></i>Chaque étiquette porte le n° de commande, la pièce, le client et le service, scannable au rangement et au retrait.</div>
       <div class="px-tags-foot">
         <button class="px-btn secondary" id="px-tags-print"><i data-lucide="printer"></i>Imprimer ticket + ${order.pieces.length} étiq.</button>
         ${fresh
@@ -1092,7 +1092,7 @@
     openVeil('#px-tags-veil');
     icons();
     $$('[data-px-close]', el).forEach((b) => { b.onclick = () => closeVeil('#px-tags-veil'); });
-    $('#px-tags-print', el).onclick = () => toast('Envoyé — ticket (80 mm) + étiquettes (imprimante thermique)');
+    $('#px-tags-print', el).onclick = () => toast('Envoyé, ticket (80 mm) + étiquettes (imprimante thermique)');
     const payBtn = $('#px-tags-pay', el);
     if (payBtn) payBtn.onclick = () => { closeVeil('#px-tags-veil'); openPay(order, { fresh: true }); };
   }
@@ -1126,13 +1126,13 @@
           </button>
           <button class="px-pay-opt is-usual" data-px-paymode="pickup">
             <span class="ic"><i data-lucide="hand-coins"></i></span>
-            <span class="l"><b>Payer au retrait</b><span>Le classique du pressing — solde sur le ticket</span></span>
+            <span class="l"><b>Payer au retrait</b><span>Le classique du pressing, solde sur le ticket</span></span>
             <span class="amt">${fmtMAD(total)}</span>
           </button>
           ${cust.b2b ? `
           <button class="px-pay-opt" data-px-paymode="compte">
             <span class="ic"><i data-lucide="building-2"></i></span>
-            <span class="l"><b>Sur compte B2B</b><span>${esc(cust.name)} — facture fin de mois</span></span>
+            <span class="l"><b>Sur compte B2B</b><span>${esc(cust.name)}, facture fin de mois</span></span>
           </button>` : ''}`}
           ${settle ? `
           <button class="px-pay-opt" data-px-method="especes">
@@ -1154,7 +1154,7 @@
             finishFresh(`Solde ${fmtMAD(total)} à encaisser au retrait`);
           } else if (mode === 'compte') {
             order.pay = { mode: 'compte', method: 'compte', paid: 0 };
-            finishFresh('Sur compte B2B — ajouté à la facture du mois');
+            finishFresh('Sur compte B2B, ajouté à la facture du mois');
           } else if (mode === 'acompte') {
             stepAcompte();
           } else {
@@ -1214,7 +1214,7 @@
           </button>
           <button class="px-pay-opt" data-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire, V1 sans encaissement Kiwi</span></span>
           </button>
         </div>`;
       icons();
@@ -1262,7 +1262,7 @@
       el.innerHTML = `
         <button class="px-modal-x" data-px-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD(amount)}</h3>
-        <p class="modal-subtle">${order.id} · lecteur partenaire — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">${order.id} · lecteur partenaire, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="px-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="px-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
@@ -1288,14 +1288,14 @@
         order.pay.paid += amount;
         order.pay.method = method;
         closeVeil('#px-pay-veil');
-        toast(`Solde encaissé — ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+        toast(`Solde encaissé, ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
         if (ctx && typeof ctx.onSettled === 'function') ctx.onSettled();
         return;
       }
       order.pay = { mode, method, paid: amount };
       finishFresh(mode === 'acompte'
-        ? `Acompte ${fmtMAD(amount)} encaissé — solde ${fmtMAD(total - amount)} au retrait`
-        : `Encaissé — ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+        ? `Acompte ${fmtMAD(amount)} encaissé, solde ${fmtMAD(total - amount)} au retrait`
+        : `Encaissé, ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
     };
 
     const finishFresh = (msg) => {
@@ -1307,7 +1307,7 @@
         renderTicket();
         renderBadges();
         queueIfOffline(`Commande ${order.id}`);
-        toast(`${order.id} enregistrée — prête ${fmtDT(order.readyAt)}`);
+        toast(`${order.id} enregistrée, prête ${fmtDT(order.readyAt)}`);
       }
       toast(msg);
       icons();
@@ -1365,7 +1365,7 @@
     panel.innerHTML = `
       <div class="px-board">
         <header class="px-head">
-          <div><h1>Tableau des commandes</h1><div class="px-head-sub">Chaque pièce a son statut — pas seulement le ticket</div></div>
+          <div><h1>Tableau des commandes</h1><div class="px-head-sub">Chaque pièce a son statut, pas seulement le ticket</div></div>
           <div class="px-search"><i data-lucide="search"></i>
             <input id="px-board-q" placeholder="Téléphone, nom ou n° de ticket…" value="${esc(q)}" /></div>
         </header>
@@ -1482,7 +1482,7 @@
     const unrackB = $('#px-dt-unrack', el);
     if (unrackB) unrackB.onclick = () => {
       releaseSlot(o);
-      toast(`${o.id} — cintre libéré`);
+      toast(`${o.id}, cintre libéré`);
       openDetail(o.id); refreshOps();
     };
   }
@@ -1492,7 +1492,7 @@
     openDetail(o.id);
     refreshOps();
     if (nowSt === 'pret' && !wasPret && !o.notified) {
-      toast(`${o.id} est prêt — prévenez ${custOf(o).name.split(' ')[0]} ?`);
+      toast(`${o.id} est prêt, prévenez ${custOf(o).name.split(' ')[0]} ?`);
       setTimeout(() => openWa(o), 450);
     }
   }
@@ -1512,7 +1512,7 @@
     const first = c.b2b ? c.name : c.name.split(' ')[0];
     const { total } = orderTotals(o);
     const due = o.pay.mode === 'compte' ? 0 : Math.max(0, total - o.pay.paid);
-    return `Sba7 lkhir ${first} — votre commande ${o.id} (${o.pieces.length} pièce${o.pieces.length > 1 ? 's' : ''}) est prête chez Pressing Marshan.`
+    return `Sba7 lkhir ${first}, votre commande ${o.id} (${o.pieces.length} pièce${o.pieces.length > 1 ? 's' : ''}) est prête chez Pressing Marshan.`
       + `\nRetrait dès maintenant, jusqu'à 20h00.`
       + (due > 0 ? `\nSolde à régler au retrait : ${due} MAD.` : '')
       + `\n— envoyé via Kiwi`;
@@ -1525,7 +1525,7 @@
     let withPhoto = false;
     el.innerHTML = `
       <button class="px-modal-x" data-px-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">WhatsApp — c'est prêt</h3>
+      <h3 class="modal-title">WhatsApp, c'est prêt</h3>
       <p class="modal-subtle">${esc(c.name)} ${c.phone ? `· ${esc(c.phone)}` : '· numéro manquant (passage)'}</p>
       <div class="px-wa-bubblewrap">
         <div class="px-wa-bubble">
@@ -1535,7 +1535,7 @@
       </div>
       <button class="px-wa-photo" id="px-wa-photo">
         <span class="th">${ART[photoPiece.itemId] || ''}</span>
-        <span class="l">Joindre une photo du vêtement fini — le client voit son linge avant de se déplacer</span>
+        <span class="l">Joindre une photo du vêtement fini, le client voit son linge avant de se déplacer</span>
         <span class="tick"><i data-lucide="check"></i></span>
       </button>
       <div class="px-sheet-foot">
@@ -1569,7 +1569,7 @@
       <div class="px-retrait">
         <div class="px-rt-inner">
           <header class="px-head" style="padding:22px 0 0;">
-            <div><h1>Retrait</h1><div class="px-head-sub">Le client donne son téléphone — ou on scanne son ticket / une étiquette</div></div>
+            <div><h1>Retrait</h1><div class="px-head-sub">Le client donne son téléphone, ou on scanne son ticket / une étiquette</div></div>
           </header>
           <div class="px-rt-search">
             <div class="px-phone-in"><i data-lucide="phone"></i>
@@ -1583,10 +1583,10 @@
               <div class="px-rt-card">
                 <div class="px-rt-top">
                   <div class="px-rt-who"><b>${o.id} · ${esc(custOf(o).name)}</b><span>${o.pieces.length} pièces · ${STATUS[orderStatus(o)].label}</span></div>
-                  <span class="px-pill warn">Pas encore prêt — promis ${fmtDT(o.readyAt)}</span>
+                  <span class="px-pill warn">Pas encore prêt, promis ${fmtDT(o.readyAt)}</span>
                 </div>
               </div>`).join('')}
-            ${q && !hits.length ? `<div class="px-bempty">Rien pour « ${esc(q)} » — vérifiez le numéro, ou cherchez au tableau.</div>` : ''}
+            ${q && !hits.length ? `<div class="px-bempty">Rien pour « ${esc(q)} », vérifiez le numéro, ou cherchez au tableau.</div>` : ''}
           </div>
         </div>
       </div>`;
@@ -1624,7 +1624,7 @@
         ${o.pieces.map((p) => `<div class="px-rt-piece"><i data-lucide="check-circle-2"></i>${esc(p.label)} · ${svcCodes(p.svcs)}<span class="pid">${p.pid}</span></div>`).join('')}
       </div>
       <div class="px-rt-balance ${due > 0 ? '' : 'paid'}">
-        <span>${due > 0 ? 'Solde à encaisser' : o.pay.mode === 'compte' ? 'Sur compte B2B — facture fin de mois' : 'Déjà réglé'}</span>
+        <span>${due > 0 ? 'Solde à encaisser' : o.pay.mode === 'compte' ? 'Sur compte B2B, facture fin de mois' : 'Déjà réglé'}</span>
         <span class="amt">${due > 0 ? fmtMAD(due) : '✓'}</span>
       </div>
       <div class="px-rt-actions">
@@ -1642,7 +1642,7 @@
     o.collectedAt = new Date();
     releaseSlot(o);
     queueIfOffline('Retrait');
-    toast(`${o.id} remis à ${custOf(o).name} — merci envoyé sur WhatsApp`);
+    toast(`${o.id} remis à ${custOf(o).name}, merci envoyé sur WhatsApp`);
     refreshOps();
   }
 
@@ -1664,7 +1664,7 @@
       if (target) {
         state.rtQuery = target.id;
         renderRetrait(); icons();
-        toast(`Étiquette lue — ${target.id}${target.rack ? ' · cintre ' + target.rack : ''}`);
+        toast(`Étiquette lue, ${target.id}${target.rack ? ' · cintre ' + target.rack : ''}`);
       } else {
         toast('Aucune commande prête à scanner (démo)');
       }
@@ -1734,7 +1734,7 @@
         assignSlot(o, slot.dataset.pxSlot);
         state.rackSelect = null;
         queueIfOffline('Rangement');
-        toast(`${o.id} → cintre ${o.rack} — retrouvable en un scan`);
+        toast(`${o.id} → cintre ${o.rack}, retrouvable en un scan`);
         renderRack(); renderBadges(); icons();
         const flash = $(`[data-px-slot-full="${o.id}"]`, panel);
         if (flash) flash.classList.add('flash');
@@ -1747,10 +1747,10 @@
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — la caisse continue, tout est mis en file');
+      toast('Mode hors-ligne, la caisse continue, tout est mis en file');
     }
     renderNet();
   }

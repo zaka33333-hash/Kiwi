@@ -154,7 +154,7 @@
     { id: 'fromages',    label: '4 fromages',     sub: 'mozzarella, edam, chèvre, bleu',       prices: { s: 48, m: 65, l: 85 } },
     { id: 'fdm',         label: 'Fruits de mer',  sub: 'crevettes, calamars, citron',          prices: { s: 55, m: 75, l: 98 }, flag: 'pêche du jour' },
     { id: 'vege',        label: 'Végétarienne',   sub: 'poivron, champignon, olive, tomate',   prices: { s: 40, m: 52, l: 68 } },
-    { id: 'calzone',     label: 'Calzone',        sub: 'pliée — dinde fumée, fromage, oeuf',   prices: { s: 38, m: 50 }, flag: 'pizza fermée', noHalf: true },
+    { id: 'calzone',     label: 'Calzone',        sub: 'pliée, dinde fumée, fromage, oeuf',   prices: { s: 38, m: 50 }, flag: 'pizza fermée', noHalf: true },
   ];
   const PIZZA = Object.fromEntries(PIZZAS.map((p) => [p.id, p]));
   const DRINKS = [
@@ -355,7 +355,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -371,7 +371,7 @@
         <div class="pz-brand">kiwi<i></i></div>
         <div class="pz-venue">
           <div class="pz-venue-name">Pizzeria La Marsa</div>
-          <div class="pz-venue-sub">Tanger · Marina<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="pz-venue-sub">Tanger · Marina<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="pz-nav" id="pz-nav">
           <button class="pz-nav-it on" data-pz-view="carte"><i data-lucide="pizza"></i><span>Carte</span></button>
@@ -387,14 +387,14 @@
       </aside>
       <main class="pz-main">
         <div class="pz-offline-note" id="pz-offline-note" hidden>
-          Hors-ligne — les commandes et le four continuent sur la tablette, tout se synchronise au retour du réseau.
+          Hors-ligne, les commandes et le four continuent sur la tablette, tout se synchronise au retour du réseau.
           <b id="pz-queue-count"></b>
         </div>
         <section class="pz-view is-on" data-pz-panel="carte">
           <div class="pz-carte">
             <header class="pz-head">
               <div><h1>La carte</h1><div class="pz-head-sub" id="pz-stats"></div></div>
-              <div class="pz-head-hint">Touchez une pizza — taille, pâte, suppléments, moitié-moitié</div>
+              <div class="pz-head-hint">Touchez une pizza, taille, pâte, suppléments, moitié-moitié</div>
             </header>
             <div class="pz-grid-scroll" id="pz-gridwrap"></div>
           </div>
@@ -447,7 +447,7 @@
   function renderStats() {
     const paid = ORDERS.reduce((s, o) => s + o.pay.paid, 0);
     $('#pz-stats', root).innerHTML =
-      `Service du soir — <b>${ORDERS.length}</b> commandes · <b>${fmtMAD(paid)}</b> encaissés`;
+      `Service du soir, <b>${ORDERS.length}</b> commandes · <b>${fmtMAD(paid)}</b> encaissés`;
   }
   function refreshOps() {
     renderBadges();
@@ -473,7 +473,7 @@
   function renderGrid() {
     let i = 0;
     $('#pz-gridwrap', root).innerHTML = `
-      <div class="pz-cat-head">Pizzas — four à bois · ${PIZZAS.length}</div>
+      <div class="pz-cat-head">Pizzas, four à bois · ${PIZZAS.length}</div>
       <div class="pz-grid">${PIZZAS.map((p) => `
         <button class="pz-card" data-pz-pizza="${p.id}" style="--i:${i++}">
           <span class="pz-card-art">${ART[p.id] || ''}</span>
@@ -504,7 +504,7 @@
     const ex = t.lines.find((ln) => ln.kind === 'drink' && ln.did === did);
     if (ex) ex.qty++;
     else t.lines.push({ kind: 'drink', did, qty: 1 });
-    toast(`${DRINK[did].label} — sur la commande`);
+    toast(`${DRINK[did].label}, sur la commande`);
     renderTicket(); icons(); lens();
   }
 
@@ -514,7 +514,7 @@
     if (t.mode === 'surplace') {
       rows.push(t.table
         ? `<button class="pz-tk-row is-set" id="pz-tk-table"><i data-lucide="utensils"></i>
-            <span class="l"><b>Table ${esc(t.table)}</b><span>Service en salle — encaissement à table possible</span></span>
+            <span class="l"><b>Table ${esc(t.table)}</b><span>Service en salle, encaissement à table possible</span></span>
             <span class="edit">Changer</span></button>`
         : `<button class="pz-tk-row" id="pz-tk-table"><i data-lucide="utensils"></i>
             <span class="l"><b>Choisir la table</b><span>T1 à T8, ou le comptoir</span></span>
@@ -524,7 +524,7 @@
       if (!t.customer) {
         rows.push(`<button class="pz-tk-row" id="pz-tk-client"><i data-lucide="user-plus"></i>
           <span class="l"><b>${t.mode === 'livraison' ? 'Attacher le client' : 'Client (optionnel)'}</b>
-          <span>${t.mode === 'livraison' ? 'Téléphone + adresse — obligatoire en livraison' : 'Un prénom pour appeler la commande'}</span></span>
+          <span>${t.mode === 'livraison' ? 'Téléphone + adresse, obligatoire en livraison' : 'Un prénom pour appeler la commande'}</span></span>
           <span class="edit">Chercher</span></button>`);
       } else {
         const c = t.customer.type === 'known' ? CUST[t.customer.id] : { name: t.customer.name || 'Client de passage', phone: '' };
@@ -590,7 +590,7 @@
           </div>`).join('') : `
           <div class="pz-tk-empty">
             <i data-lucide="pizza"></i>
-            <div>La commande est vide.<br>Touchez une pizza dans la carte — le four l'attend.</div>
+            <div>La commande est vide.<br>Touchez une pizza dans la carte, le four l'attend.</div>
           </div>`}
       </div>
       <div class="pz-tk-foot">
@@ -704,7 +704,7 @@
       ${p.noHalf ? `
       <div class="pz-f">
         <div class="pz-f-lbl">Moitié-moitié</div>
-        <div class="pz-foot-note" style="text-align:left;margin-top:0;">La calzone est pliée et scellée au four — pas de moitié-moitié sur celle-ci.</div>
+        <div class="pz-foot-note" style="text-align:left;margin-top:0;">La calzone est pliée et scellée au four, pas de moitié-moitié sur celle-ci.</div>
       </div>` : `
       <div class="pz-f">
         <div class="pz-f-lbl">Moitié-moitié <span class="opt">· deux pizzas, un seul plateau</span></div>
@@ -806,7 +806,7 @@
       });
       closeVeil('#pz-sheet-veil');
       const nm = sheet.half && sheet.pidB ? `½ ${PIZZA[sheet.pid].label} · ½ ${PIZZA[sheet.pidB].label}` : PIZZA[sheet.pid].label;
-      toast(`${nm} ${SIZE[sheet.size].label} × ${sheet.qty} — sur la commande`);
+      toast(`${nm} ${SIZE[sheet.size].label} × ${sheet.qty}, sur la commande`);
       renderTicket(); icons(); lens();
     };
   }
@@ -832,7 +832,7 @@
       b.onclick = () => {
         t.table = b.dataset.pzTb;
         closeVeil('#pz-table-veil');
-        toast(`Commande ${t.num} — ${t.table === 'Comptoir' ? 'au comptoir' : 'table ' + t.table}`);
+        toast(`Commande ${t.num}, ${t.table === 'Comptoir' ? 'au comptoir' : 'table ' + t.table}`);
         renderTicket(); icons(); lens();
       };
     });
@@ -858,7 +858,7 @@
       el.innerHTML = `
         <button class="pz-modal-x" data-pz-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Client</h3>
-        <p class="modal-subtle">${forLiv ? 'La livraison part avec un téléphone et une adresse — cherchez par numéro.' : 'Un prénom suffit pour appeler la commande au comptoir.'}</p>
+        <p class="modal-subtle">${forLiv ? 'La livraison part avec un téléphone et une adresse, cherchez par numéro.' : 'Un prénom suffit pour appeler la commande au comptoir.'}</p>
         <div class="pz-phone-in"><i data-lucide="phone"></i>
           <input id="pz-cl-q" inputmode="tel" placeholder="06… ou nom du client" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -875,7 +875,7 @@
               </button>`).join('') || `<div class="pz-bempty">Aucun client pour « ${esc(q)} »</div>`}
           </div>
           <button class="pz-cl-new" id="pz-cl-new"><i data-lucide="user-plus"></i>Nouveau client${q && !hits.length ? ` · « ${esc(q)} »` : ''}</button>
-          ${forLiv ? '' : `<div class="pz-sheet-foot" style="margin-top:10px;"><button class="pz-btn ghost" id="pz-cl-guest">Client de passage — sans fiche</button></div>`}` : `
+          ${forLiv ? '' : `<div class="pz-sheet-foot" style="margin-top:10px;"><button class="pz-btn ghost" id="pz-cl-guest">Client de passage, sans fiche</button></div>`}` : `
           <div class="pz-cl-form">
             <input class="pz-in" id="pz-cl-name" placeholder="Nom et prénom" value="${esc(/^[\d\s.+-]*$/.test(q || '') ? '' : (q || ''))}" />
             <input class="pz-in" id="pz-cl-tel" inputmode="tel" placeholder="Téléphone${forLiv ? '' : ' (optionnel)'}" value="${esc(/^[\d\s.+-]+$/.test(q || '') ? q : '')}" />
@@ -896,7 +896,7 @@
             if (c.address) t.address = c.address;
           }
           closeVeil('#pz-client-veil');
-          toast(`${c.name} — ${c.orders} commandes${forLiv && c.zone ? ` · zone ${ZONE[c.zone].label} pré-remplie` : ''}`);
+          toast(`${c.name}, ${c.orders} commandes${forLiv && c.zone ? ` · zone ${ZONE[c.zone].label} pré-remplie` : ''}`);
           renderTicket(); icons(); lens();
         };
       });
@@ -924,7 +924,7 @@
         t.customer = { type: 'known', id };
         if (forLiv && addr) t.address = addr;
         closeVeil('#pz-client-veil');
-        toast(`Fiche créée — ${name}`);
+        toast(`Fiche créée, ${name}`);
         renderTicket(); icons(); lens();
       };
     };
@@ -966,11 +966,11 @@
         };
       });
       $('#pz-zone-ok', el).onclick = () => {
-        if (!picked) { toast('Choisissez une zone — les frais en dépendent'); return; }
+        if (!picked) { toast('Choisissez une zone, les frais en dépendent'); return; }
         t.zone = picked;
         t.address = $('#pz-zone-addr', el).value.trim();
         closeVeil('#pz-zone-veil');
-        toast(`${ZONE[picked].label} — ${ZONE[picked].fee} MAD de frais, ${ZONE[picked].eta}`);
+        toast(`${ZONE[picked].label}, ${ZONE[picked].fee} MAD de frais, ${ZONE[picked].eta}`);
         renderTicket(); icons(); lens();
       };
     };
@@ -983,8 +983,8 @@
     const t = state.ticket;
     if (!t.lines.length) return;
     if (t.mode === 'surplace' && !t.table) { toast("Choisissez la table d'abord"); openTable(); return; }
-    if (t.mode === 'livraison' && !t.customer) { toast('Attachez le client — une livraison part avec un téléphone'); openClient(); return; }
-    if (t.mode === 'livraison' && !t.zone) { toast('Choisissez la zone — les frais en dépendent'); openZone(); return; }
+    if (t.mode === 'livraison' && !t.customer) { toast('Attachez le client, une livraison part avec un téléphone'); openClient(); return; }
+    if (t.mode === 'livraison' && !t.zone) { toast('Choisissez la zone, les frais en dépendent'); openZone(); return; }
     const draft = {
       id: t.num, mode: t.mode,
       table: t.mode === 'surplace' ? t.table : null,
@@ -1013,8 +1013,8 @@
     queueIfOffline(`Commande ${o.id}`);
     const n = o.jobs.length;
     toast(n
-      ? `${o.id} en cuisine — ${n} pizza${n > 1 ? 's' : ''} en file, le four attend`
-      : `${o.id} enregistrée — boissons prêtes au comptoir`);
+      ? `${o.id} en cuisine, ${n} pizza${n > 1 ? 's' : ''} en file, le four attend`
+      : `${o.id} enregistrée, boissons prêtes au comptoir`);
     icons();
   }
 
@@ -1028,12 +1028,12 @@
     const settle = ctx && ctx.settle;
     const amount = settle ? orderDue(order) : total;
     const deferSpec = {
-      surplace: { icon: 'utensils', b: 'Payer à table', s: 'Encaissement après le repas — le classique du soir', usual: true, msg: (o) => `Solde ${fmtMAD(orderTotal(o).total)} à encaisser à table` },
+      surplace: { icon: 'utensils', b: 'Payer à table', s: 'Encaissement après le repas, le classique du soir', usual: true, msg: (o) => `Solde ${fmtMAD(orderTotal(o).total)} à encaisser à table` },
       emporter: { icon: 'shopping-bag', b: 'Payer au retrait', s: 'Le client règle en récupérant sa commande', usual: false, msg: (o) => `Solde ${fmtMAD(orderTotal(o).total)} au retrait` },
-      livraison: { icon: 'bike', b: 'Payé à la livraison', s: 'Le livreur encaisse à la porte — flous remis au retour', usual: true, msg: (o) => `Le livreur encaissera ${fmtMAD(orderTotal(o).total)} à la porte` },
+      livraison: { icon: 'bike', b: 'Payé à la livraison', s: 'Le livreur encaisse à la porte, flous remis au retour', usual: true, msg: (o) => `Le livreur encaissera ${fmtMAD(orderTotal(o).total)} à la porte` },
     }[order.mode];
 
-    const subtle = `${order.id} · ${destLabel(order)} · ${esc(cust.name)}${ctx && ctx.note ? ` — ${esc(ctx.note)}` : ''}`;
+    const subtle = `${order.id} · ${destLabel(order)} · ${esc(cust.name)}${ctx && ctx.note ? `, ${esc(ctx.note)}` : ''}`;
 
     const step1 = () => {
       el.innerHTML = `
@@ -1044,12 +1044,12 @@
         <div class="pz-pay-opts">
           <button class="pz-pay-opt" data-m="especes">
             <span class="ic"><i data-lucide="banknote"></i></span>
-            <span class="l"><b>Espèces</b><span>Rendu calculé — flous au tiroir</span></span>
+            <span class="l"><b>Espèces</b><span>Rendu calculé, flous au tiroir</span></span>
             <span class="amt">${fmtMAD(amount)}</span>
           </button>
           <button class="pz-pay-opt" data-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Lecteur partenaire, V1 sans encaissement Kiwi</span></span>
             <span class="amt">${fmtMAD(amount)}</span>
           </button>
           ${fresh && deferSpec ? `
@@ -1110,11 +1110,11 @@
       el.innerHTML = `
         <button class="pz-modal-x" data-pz-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD(amount)}</h3>
-        <p class="modal-subtle">${order.id} · lecteur partenaire — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">${order.id} · lecteur partenaire, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="pz-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="pz-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">Lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">Lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons();
       $$('[data-pz-close]', el).forEach((b) => { b.onclick = () => closeVeil('#pz-pay-veil'); });
@@ -1137,7 +1137,7 @@
         order.pay.method = method;
         order.pay.deferred = null;
         closeVeil('#pz-pay-veil');
-        toast(`Solde encaissé — ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+        toast(`Solde encaissé, ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
         renderStats();
         if (ctx && typeof ctx.onSettled === 'function') ctx.onSettled();
         else refreshOps();
@@ -1146,7 +1146,7 @@
       order.pay = { method, paid: amount, deferred: null };
       closeVeil('#pz-pay-veil');
       commitOrder(order);
-      toast(`Encaissé — ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+      toast(`Encaissé, ${fmtMAD(amount)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
     };
 
     step1();
@@ -1177,7 +1177,7 @@
         </svg>
         <span class="pz-slot-art">${jobArt(j)}</span>
       </div>
-      <b class="pz-slot-time" data-pz-time>${isDone ? 'Dorée — sortez-la' : fmtMS(rem)}</b>
+      <b class="pz-slot-time" data-pz-time>${isDone ? 'Dorée, sortez-la' : fmtMS(rem)}</b>
       <div class="pz-slot-meta"><b>${j.orderId}</b> · ${esc(j.label)} · ${j.size.toUpperCase()}</div>
       ${isDone ? `<button class="pz-sortir" data-pz-sortir="${j.jid}"><i data-lucide="check"></i>Sortir du four</button>` : ''}
     </div>`;
@@ -1238,7 +1238,7 @@
     panel.innerHTML = `
       <div class="pz-four">
         <header class="pz-head">
-          <div><h1>Le four</h1><div class="pz-head-sub">Capacité <b>${OVEN_CAP} pizzas</b> · cuisson <b>12 min</b> — sortez-les dès que c'est doré</div></div>
+          <div><h1>Le four</h1><div class="pz-head-sub">Capacité <b>${OVEN_CAP} pizzas</b> · cuisson <b>12 min</b>, sortez-les dès que c'est doré</div></div>
           <div class="pz-head-hint">${freeSlots ? `${freeSlots} place${freeSlots > 1 ? 's' : ''} libre${freeSlots > 1 ? 's' : ''}` : 'Four complet'} · ${queue.length} en file</div>
         </header>
         <div class="pz-four-scroll">
@@ -1250,11 +1250,11 @@
                 <span class="pz-qcard-art">${jobArt(j)}</span>
                 <span class="pz-qcard-mid"><span class="pz-qcard-name">${esc(j.label)}</span><span class="pz-qcard-sub">${j.orderId} · ${j.size.toUpperCase()}</span></span>
                 <button class="pz-enfourner" data-pz-enfourner="${j.jid}" ${freeSlots ? '' : 'disabled'}><i data-lucide="flame"></i>Enfourner</button>
-              </div>`).join('') || '<div class="pz-bempty">File vide — tout est au four ou déjà prêt.</div>'}
+              </div>`).join('') || '<div class="pz-bempty">File vide, tout est au four ou déjà prêt.</div>'}
           </div>
           <div class="pz-cat-head">Commandes en cours · ${lane.length}</div>
           <div class="pz-lane">
-            ${lane.map(laneCard).join('') || '<div class="pz-bempty">Rien en cours — la salle respire, profitez-en pour garnir.</div>'}
+            ${lane.map(laneCard).join('') || '<div class="pz-bempty">Rien en cours, la salle respire, profitez-en pour garnir.</div>'}
           </div>
         </div>
       </div>`;
@@ -1279,29 +1279,29 @@
     const j = JOB[jid];
     if (!j || j.status !== 'file') return;
     const i = oven.indexOf(null);
-    if (i < 0) { toast("Four complet — 4 pizzas max, sortez-en une d'abord"); return; }
+    if (i < 0) { toast("Four complet, 4 pizzas max, sortez-en une d'abord"); return; }
     j.status = 'four'; j.slot = i; j.alerted = false;
     j.startAt = Date.now(); j.endAt = Date.now() + BAKE_MS;
     oven[i] = jid;
     queueIfOffline('Enfournement');
-    toast(`${j.label} (${j.orderId}) au four — place ${i + 1} · 12:00`);
+    toast(`${j.label} (${j.orderId}) au four, place ${i + 1} · 12:00`);
     renderFour(); renderBadges(); icons();
   }
 
   function sortirJob(jid) {
     const j = JOB[jid];
     if (!j || j.status !== 'four') return;
-    if (j.endAt - Date.now() > 0) { toast(`Encore ${fmtMS(j.endAt - Date.now())} — elle n'est pas dorée`); return; }
+    if (j.endAt - Date.now() > 0) { toast(`Encore ${fmtMS(j.endAt - Date.now())}, elle n'est pas dorée`); return; }
     if (j.slot != null) oven[j.slot] = null;
     j.status = 'prete'; j.slot = null;
     const o = findOrder(j.orderId);
     queueIfOffline('Sortie du four');
     if (o && kitchenDone(o)) {
-      if (o.mode === 'livraison') toast(`${o.id} complète — assignez un livreur`);
-      else if (o.mode === 'surplace') toast(`${o.id} complète — servez la table ${o.table}`);
-      else toast(`${o.id} complète — ${custOf(o).name} peut passer au comptoir`);
+      if (o.mode === 'livraison') toast(`${o.id} complète, assignez un livreur`);
+      else if (o.mode === 'surplace') toast(`${o.id} complète, servez la table ${o.table}`);
+      else toast(`${o.id} complète, ${custOf(o).name} peut passer au comptoir`);
     } else {
-      toast(`${j.label} sortie du four — sahha`);
+      toast(`${j.label} sortie du four, sahha`);
     }
     renderFour(); renderBadges(); icons();
   }
@@ -1311,7 +1311,7 @@
     if (!o) return;
     o.served = true;
     queueIfOffline('Service en salle');
-    toast(`Table ${o.table} servie${orderDue(o) > 0 ? ` — solde ${fmtMAD(orderDue(o))} à table` : ''}`);
+    toast(`Table ${o.table} servie${orderDue(o) > 0 ? `, solde ${fmtMAD(orderDue(o))} à table` : ''}`);
     refreshOps();
   }
   function remitOrder(id) {
@@ -1320,7 +1320,7 @@
     const finish = () => {
       o.remis = true;
       queueIfOffline('Remise au comptoir');
-      toast(`${o.id} remise à ${custOf(o).name} — merci, à la prochaine`);
+      toast(`${o.id} remise à ${custOf(o).name}, merci, à la prochaine`);
       refreshOps();
     };
     if (orderDue(o) > 0) openPay(o, { settle: true, onSettled: finish });
@@ -1352,7 +1352,7 @@
     panel.innerHTML = `
       <div class="pz-liv">
         <header class="pz-head">
-          <div><h1>Livraison</h1><div class="pz-head-sub">Zones Tanger — ${ZONES.map((z) => `${esc(z.label)} <b>${z.fee}</b>`).join(' · ')} MAD</div></div>
+          <div><h1>Livraison</h1><div class="pz-head-sub">Zones Tanger, ${ZONES.map((z) => `${esc(z.label)} <b>${z.fee}</b>`).join(' · ')} MAD</div></div>
           <div class="pz-head-hint">${cooking ? `${cooking} commande${cooking > 1 ? 's' : ''} livraison encore au four` : 'Tout ce qui doit partir est prêt'}</div>
         </header>
         <div class="pz-couriers">
@@ -1360,7 +1360,7 @@
             const cur = courierOrder(c.id);
             return `<div class="pz-courier ${cur ? 'is-course' : 'is-libre'}">
               <span class="ava"><i data-lucide="bike"></i></span>
-              <span class="l"><b>${esc(c.name)}</b><span>${cur ? `en course — ${cur.id} · ${esc(ZONE[cur.zone].label)}` : `libre · ${esc(c.sub)}`}</span></span>
+              <span class="l"><b>${esc(c.name)}</b><span>${cur ? `en course, ${cur.id} · ${esc(ZONE[cur.zone].label)}` : `libre · ${esc(c.sub)}`}</span></span>
             </div>`;
           }).join('')}
         </div>
@@ -1381,9 +1381,9 @@
                 <div class="pz-assign">
                   ${COURIERS.map((c) => `<button class="pz-assign-btn" data-pz-assign="${o.id}:${c.id}" ${courierOrder(c.id) ? 'disabled' : ''}><i data-lucide="bike"></i>${esc(c.name)}</button>`).join('')}
                 </div>
-                ${bothBusy ? '<div class="pz-foot-note">Les deux livreurs sont en course — ça revient vite.</div>' : ''}
+                ${bothBusy ? '<div class="pz-foot-note">Les deux livreurs sont en course, ça revient vite.</div>' : ''}
               </div>`;
-            }).join('') || '<div class="pz-bempty">Rien à expédier — le four travaille.</div>'}
+            }).join('') || '<div class="pz-bempty">Rien à expédier, le four travaille.</div>'}
           </div>
           <div class="pz-bcol">
             <div class="pz-bcol-head"><i style="background:var(--pz-warn-dot)"></i>En course <span class="ct">${out.length}</span></div>
@@ -1438,12 +1438,12 @@
   function assignCourier(orderId, cid) {
     const o = findOrder(orderId);
     if (!o) return;
-    if (courierOrder(cid)) { toast(`${COURIER[cid].name} est déjà en course — attendez son retour`); return; }
+    if (courierOrder(cid)) { toast(`${COURIER[cid].name} est déjà en course, attendez son retour`); return; }
     o.delivery.courier = cid;
     o.delivery.departedAt = Date.now();
     queueIfOffline('Départ livreur');
     const due = orderDue(o);
-    toast(`${COURIER[cid].name} parti vers ${ZONE[o.zone].label} — ${o.id}${due > 0 ? ` · il encaisse ${fmtMAD(orderTotal(o).total)}` : ''}`);
+    toast(`${COURIER[cid].name} parti vers ${ZONE[o.zone].label}, ${o.id}${due > 0 ? ` · il encaisse ${fmtMAD(orderTotal(o).total)}` : ''}`);
     refreshOps();
   }
 
@@ -1454,7 +1454,7 @@
     const finish = () => {
       o.delivery.deliveredAt = Date.now();
       queueIfOffline('Livraison');
-      toast(`${o.id} livrée — ${cName} est de retour, dispo pour la suivante`);
+      toast(`${o.id} livrée, ${cName} est de retour, dispo pour la suivante`);
       refreshOps();
     };
     if (orderDue(o) > 0) openPay(o, { settle: true, note: `flous remis par ${cName}`, onSettled: finish });
@@ -1469,7 +1469,7 @@
       if (j.status === 'four' && !j.alerted && j.endAt - Date.now() <= 0) {
         j.alerted = true;
         transition = true;
-        if (visible) toast(`${j.label} (${j.orderId}) — dorée, sortez-la du four`);
+        if (visible) toast(`${j.label} (${j.orderId}), dorée, sortez-la du four`);
       }
     }));
     if (!visible) return;
@@ -1506,11 +1506,11 @@
     state.offline = !state.offline;
     if (!state.offline) {
       toast(state.queued
-        ? `Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`
-        : 'Réseau de retour — tout est déjà synchronisé');
+        ? `Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`
+        : 'Réseau de retour, tout est déjà synchronisé');
       state.queued = 0;
     } else {
-      toast('Mode hors-ligne — la caisse et le four continuent, tout est mis en file');
+      toast('Mode hors-ligne, la caisse et le four continuent, tout est mis en file');
     }
     renderNet();
   }
@@ -1535,7 +1535,7 @@
     greet: {
       line1: 'Sba7 lkhir Reda,',
       em: 'marhba.',
-      sub: 'Pizzeria La Marsa <em>·</em> service du soir — le four est chaud',
+      sub: 'Pizzeria La Marsa <em>·</em> service du soir, le four est chaud',
     },
     mount(rootEl) { mount(rootEl); },
     onShow() { if (root) renderAll(); },

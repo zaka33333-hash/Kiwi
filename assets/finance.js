@@ -41,7 +41,7 @@
       pnlFood: 'Coût ingrédients',
       pnlLabor: 'Coût personnel',
       pnlMargin: 'Marge brute',
-      pnlKeep: (m) => `Soit <b>${m} MAD</b> que vous gardez aujourd'hui — avant loyer, énergie et fournitures.`,
+      pnlKeep: (m) => `Soit <b>${m} MAD</b> que vous gardez aujourd'hui, avant loyer, énergie et fournitures.`,
       pnlOk: 'conforme',
       pnlWatch: 'à surveiller',
       pnlBad: 'élevé',
@@ -65,7 +65,7 @@
       bevDaily: 'Seuil quotidien',
       bevDailySub: (n) => `pour rester rentable (sur ${n} jours ouvrés)`,
       bevAboveBy: (n) => `Aujourd'hui vous êtes <b>${n} %</b> au-dessus du seuil.`,
-      bevBelowBy: (n) => `Aujourd'hui vous êtes <b>${n} %</b> en dessous du seuil — la journée doit être rattrapée.`,
+      bevBelowBy: (n) => `Aujourd'hui vous êtes <b>${n} %</b> en dessous du seuil, la journée doit être rattrapée.`,
       // Service
       serviceTitle: 'Rentabilité par service',
       serviceSub: 'Où se cache vraiment votre marge',
@@ -74,7 +74,7 @@
       serviceWeekend: 'Brunch & week-end',
       serviceMarginCol: 'Marge nette',
       serviceRevCol: 'CA estimé',
-      serviceAi: (best, worst, gap) => `Le service <b>${best}</b> est votre plus rentable. <b>${worst}</b> a une marge inférieure de <b>${gap} pts</b> — examinez le ratio personnel/couverts.`,
+      serviceAi: (best, worst, gap) => `Le service <b>${best}</b> est votre plus rentable. <b>${worst}</b> a une marge inférieure de <b>${gap} pts</b>, examinez le ratio personnel/couverts.`,
       // Pricing
       priceTitle: 'Recommandations de prix',
       priceSub: 'Décisions data-driven plutôt qu\'à l\'intuition',
@@ -131,7 +131,7 @@
       pnlFood: 'Ingredient cost',
       pnlLabor: 'Labour cost',
       pnlMargin: 'Gross margin',
-      pnlKeep: (m) => `That's <b>${m} MAD</b> you keep today — before rent, utilities and supplies.`,
+      pnlKeep: (m) => `That's <b>${m} MAD</b> you keep today, before rent, utilities and supplies.`,
       pnlOk: 'on target',
       pnlWatch: 'watch',
       pnlBad: 'high',
@@ -153,7 +153,7 @@
       bevDaily: 'Daily break-even',
       bevDailySub: (n) => `to stay profitable (over ${n} working days)`,
       bevAboveBy: (n) => `Today you are <b>${n} %</b> above break-even.`,
-      bevBelowBy: (n) => `Today you are <b>${n} %</b> below break-even — the day needs catching up.`,
+      bevBelowBy: (n) => `Today you are <b>${n} %</b> below break-even, the day needs catching up.`,
       serviceTitle: 'Profit per service',
       serviceSub: 'Where your margin actually hides',
       serviceLunch: 'Lunch (12pm–3pm)',
@@ -161,12 +161,12 @@
       serviceWeekend: 'Brunch & weekend',
       serviceMarginCol: 'Net margin',
       serviceRevCol: 'Est. revenue',
-      serviceAi: (best, worst, gap) => `<b>${best}</b> is your most profitable service. <b>${worst}</b> trails by <b>${gap} pts</b> — review labour-to-covers ratio.`,
+      serviceAi: (best, worst, gap) => `<b>${best}</b> is your most profitable service. <b>${worst}</b> trails by <b>${gap} pts</b>, review labour-to-covers ratio.`,
       priceTitle: 'Pricing recommendations',
       priceSub: 'Data-driven price moves, not gut feelings',
       priceAiEyebrow: 'Kiwi AI · pricing',
       priceFoot: 'Suggestions are based on actual food-cost drift + your sales mix over the last 30 days.',
-      priceAbody: (v, m) => `Food cost slipped <b>+${v} %</b> over 30 days — your margin fell to <b>${m} %</b>.`,
+      priceAbody: (v, m) => `Food cost slipped <b>+${v} %</b> over 30 days, your margin fell to <b>${m} %</b>.`,
       priceAaction: (d, nm, imp) => `+${d} MAD restores your margin to <b>${nm} %</b>. Est. revenue impact: <b>+${imp} MAD/mo</b>.`,
       priceBbody: (m) => `Margin at <b>${m} %</b> (the highest on your menu), very stable demand. Best-selling drink in its category.`,
       priceBaction: (d, p, u, imp) => `+${d} MAD = <b>+${p} %</b> on ${u} units/mo. Revenue impact: <b>+${imp} MAD/mo</b>, zero demand risk.`,
@@ -215,7 +215,7 @@
       pnlFood: 'تكلفة المكونات',
       pnlLabor: 'تكلفة العمالة',
       pnlMargin: 'الهامش الإجمالي',
-      pnlKeep: (m) => `أي <b>${m} درهم</b> تحتفظ بها اليوم — قبل الإيجار والطاقة والمستلزمات.`,
+      pnlKeep: (m) => `أي <b>${m} درهم</b> تحتفظ بها اليوم, قبل الإيجار والطاقة والمستلزمات.`,
       pnlOk: 'مطابق',
       pnlWatch: 'يحتاج مراقبة',
       pnlBad: 'مرتفع',
@@ -237,7 +237,7 @@
       bevDaily: 'نقطة التعادل اليومية',
       bevDailySub: (n) => `للحفاظ على الربحية (على ${n} يومًا)`,
       bevAboveBy: (n) => `اليوم أنت أعلى من نقطة التعادل بـ <b>${n} %</b>.`,
-      bevBelowBy: (n) => `اليوم أنت أدنى من نقطة التعادل بـ <b>${n} %</b> — يجب تعويض اليوم.`,
+      bevBelowBy: (n) => `اليوم أنت أدنى من نقطة التعادل بـ <b>${n} %</b>, يجب تعويض اليوم.`,
       serviceTitle: 'الربحية حسب الخدمة',
       serviceSub: 'أين يختبئ هامشك فعلاً',
       serviceLunch: 'خدمة الغداء',
@@ -245,7 +245,7 @@
       serviceWeekend: 'الفطور وعطلة نهاية الأسبوع',
       serviceMarginCol: 'الهامش الصافي',
       serviceRevCol: 'الإيرادات المُقدَّرة',
-      serviceAi: (best, worst, gap) => `<b>${best}</b> هي الأكثر ربحية. <b>${worst}</b> أقل بـ <b>${gap}</b> نقطة — راجع نسبة الموظفين/الزبائن.`,
+      serviceAi: (best, worst, gap) => `<b>${best}</b> هي الأكثر ربحية. <b>${worst}</b> أقل بـ <b>${gap}</b> نقطة, راجع نسبة الموظفين/الزبائن.`,
       priceTitle: 'توصيات التسعير',
       priceSub: 'قرارات مبنية على البيانات لا على الحدس',
       priceAiEyebrow: 'كيوي AI · الأسعار',
@@ -847,8 +847,8 @@
   /* TVA action handlers — wired through the global click delegator. */
   function wireTvaHandlers() {
     if (!window.Kiwi || !window.Kiwi.handlers) return;
-    window.Kiwi.handlers['fin-tva-pdf'] = () => window.Kiwi.toast?.('PDF déclaration prêt — téléchargement simulé', { type: 'info' });
-    window.Kiwi.handlers['fin-tva-xls'] = () => window.Kiwi.toast?.('Excel comptable prêt — téléchargement simulé', { type: 'info' });
+    window.Kiwi.handlers['fin-tva-pdf'] = () => window.Kiwi.toast?.('PDF déclaration prêt, téléchargement simulé', { type: 'info' });
+    window.Kiwi.handlers['fin-tva-xls'] = () => window.Kiwi.toast?.('Excel comptable prêt, téléchargement simulé', { type: 'info' });
     window.Kiwi.handlers['fin-tva-send'] = (el) => {
       const cpa = el?.dataset?.cpa || 'votre comptable';
       window.Kiwi.toast?.(t('tvaSendToast', cpa), { type: 'success', duration: 4000 });

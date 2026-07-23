@@ -124,18 +124,18 @@
       { id: 'martine',  title: 'Martine à l’école', author: 'Marlier · Delahaye', price: 45, isbn: '9782203xxxxx9', art: 'jeunesse', stock: 2 },
     ] },
     { id: 'scolaire', label: 'Scolaire', items: [
-      { id: 'man_math6',  title: 'Mathématiques 6e — manuel',  author: 'Éd. Nathan Maroc',  price: 78, isbn: '9789954xxx100', art: 'scolaire', stock: 14 },
-      { id: 'man_fr_cm2', title: 'Le Français CM2 — manuel',   author: 'Éd. Hachette',      price: 72, isbn: '9782011xxx101', art: 'scolaire', stock: 11 },
-      { id: 'man_svt',    title: 'SVT 6e — manuel',            author: 'Éd. Bordas',        price: 82, isbn: '9782047xxx102', art: 'scolaire', stock: 6 },
+      { id: 'man_math6',  title: 'Mathématiques 6e, manuel',  author: 'Éd. Nathan Maroc',  price: 78, isbn: '9789954xxx100', art: 'scolaire', stock: 14 },
+      { id: 'man_fr_cm2', title: 'Le Français CM2, manuel',   author: 'Éd. Hachette',      price: 72, isbn: '9782011xxx101', art: 'scolaire', stock: 11 },
+      { id: 'man_svt',    title: 'SVT 6e, manuel',            author: 'Éd. Bordas',        price: 82, isbn: '9782047xxx102', art: 'scolaire', stock: 6 },
       { id: 'man_arabe',  title: 'Al-Moufid · Arabe CM2',      author: 'Dar Al-Maarifa',   price: 55, isbn: '9789981xxx103', art: 'scolaire', stock: 9 },
-      { id: 'man_geo',    title: 'Histoire-Géo 6e — manuel',   author: 'Éd. Magnard',       price: 75, isbn: '9782210xxx104', art: 'scolaire', stock: 3 },
+      { id: 'man_geo',    title: 'Histoire-Géo 6e, manuel',   author: 'Éd. Magnard',       price: 75, isbn: '9782210xxx104', art: 'scolaire', stock: 3 },
     ] },
     { id: 'essai', label: 'Essai', items: [
       { id: 'sapiens',  title: 'Sapiens',               author: 'Yuval Noah Harari', price: 120, isbn: '9782226xxx105', art: 'essai', stock: 4 },
       { id: 'maroc',    title: 'Le Maroc en 100 questions', author: 'Pierre Vermeren', price: 98, isbn: '9782849xxx106', art: 'essai', stock: 0 },
     ] },
     { id: 'bd', label: 'BD', items: [
-      { id: 'tintin',   title: 'Tintin — Le Crabe aux pinces d’or', author: 'Hergé', price: 92, isbn: '9782203xxx107', art: 'bd', stock: 8 },
+      { id: 'tintin',   title: 'Tintin, Le Crabe aux pinces d’or', author: 'Hergé', price: 92, isbn: '9782203xxx107', art: 'bd', stock: 8 },
       { id: 'asterix',  title: 'Astérix le Gaulois',    author: 'Goscinny · Uderzo', price: 92, isbn: '9782012xxx108', art: 'bd', stock: 3 },
     ] },
     { id: 'papeterie', label: 'Papeterie', items: [
@@ -162,7 +162,7 @@
 
   /* ───────────────────────── clients (Tanger) ─────────────────────────────── */
   const CUSTOMERS = [
-    { id: 'c1', name: 'Naima El Fassi',     phone: '0661 30 21 14', points: 640, visits: 19, school: false, note: 'Lectrice — romans & essais' },
+    { id: 'c1', name: 'Naima El Fassi',     phone: '0661 30 21 14', points: 640, visits: 19, school: false, note: 'Lectrice, romans & essais' },
     { id: 'c2', name: 'Karim Benani',       phone: '0670 44 18 02', points: 410, visits: 12, school: false, note: 'Deux enfants au collège' },
     { id: 'sc', name: 'G.S. Ibn Khaldoun',  phone: '0539 94 33 18', points: 1280, visits: 31, school: true, note: 'Listes scolaires · facture établissement', contact: 'Intendance · M. Saïdi' },
     { id: 'c3', name: 'Salma Taibi',        phone: '0655 12 90 77', points: 120, visits: 4, school: false, note: '' },
@@ -199,13 +199,13 @@
   }
   const CMDS = [
     /* arrivée, PAS notifiée → le demo moment */
-    mkCmd({ n: 312, title: 'Les Misérables — intégrale', author: 'Victor Hugo', isbn: '9782253xxx201',
+    mkCmd({ n: 312, title: 'Les Misérables, intégrale', author: 'Victor Hugo', isbn: '9782253xxx201',
       custId: 'c1', qty: 1, price: 145, acompte: 50, status: 'arrivee', notified: false, orderedD: 6, arrivedD: 0 }),
     /* arrivée déjà notifiée (attend le retrait) */
-    mkCmd({ n: 309, title: 'Atomic Habits (VF) — Un rien peut tout changer', author: 'James Clear', isbn: '9782035xxx202',
+    mkCmd({ n: 309, title: 'Atomic Habits (VF), Un rien peut tout changer', author: 'James Clear', isbn: '9782035xxx202',
       custId: 'c4', qty: 1, price: 118, acompte: 0, status: 'arrivee', notified: true, orderedD: 9, arrivedD: 2 }),
     /* encore commandées */
-    mkCmd({ n: 315, title: 'Manuel de SVT — Tronc commun (édition 2025)', author: 'Éd. Bordas', isbn: '9782047xxx203',
+    mkCmd({ n: 315, title: 'Manuel de SVT, Tronc commun (édition 2025)', author: 'Éd. Bordas', isbn: '9782047xxx203',
       custId: 'c2', qty: 2, price: 84, acompte: 80, status: 'commande', notified: false, orderedD: 2 }),
     mkCmd({ n: 316, title: "L'Art de la guerre", author: 'Sun Tzu', isbn: '9782081xxx204',
       guest: { name: 'Client de passage', phone: '0661 88 02 19' }, qty: 1, price: 55, acompte: 0, status: 'commande', notified: false, orderedD: 1 }),
@@ -225,7 +225,7 @@
           { label: 'Manuels', lines: [
             { itemId: 'man_fr_cm2', qty: 1 },
             { itemId: 'man_arabe', qty: 1 },
-            { ref: 'man_math_cm2', title: 'Mathématiques CM2 — manuel', author: 'Éd. Nathan Maroc', price: 74, art: 'scolaire', stock: 2 },
+            { ref: 'man_math_cm2', title: 'Mathématiques CM2, manuel', author: 'Éd. Nathan Maroc', price: 74, art: 'scolaire', stock: 2 },
             { ref: 'man_eveil', title: 'Éveil scientifique CM2', author: 'Éd. Hachette', price: 58, art: 'scolaire', stock: 0 },
           ] },
           { label: 'Cahiers', lines: [
@@ -300,7 +300,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -314,7 +314,7 @@
         <div class="lb-brand">kiwi<i></i></div>
         <div class="lb-venue">
           <div class="lb-venue-name">Librairie Al Boughaz</div>
-          <div class="lb-venue-sub">Tanger · Petit Socco<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="lb-venue-sub">Tanger · Petit Socco<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="lb-nav" id="lb-nav">
           <button class="lb-nav-it on" data-lb-view="vente"><i data-lucide="book-open"></i><span>Vente</span></button>
@@ -331,7 +331,7 @@
       </aside>
       <main class="lb-main">
         <div class="lb-offline-note" id="lb-offline-note" hidden>
-          Hors-ligne — les ventes sont enregistrées sur la tablette et synchronisées au retour du réseau.
+          Hors-ligne, les ventes sont enregistrées sur la tablette et synchronisées au retour du réseau.
           <b id="lb-queue-count"></b>
         </div>
         <section class="lb-view is-on" data-lb-panel="vente">
@@ -534,7 +534,7 @@
         ${c.lines.length ? c.lines.map((l, i) => lineHTML(l, i)).join('') : `
           <div class="lb-pn-empty">
             <i data-lucide="book-open"></i>
-            <div>Le panier est vide.<br>Touchez un livre ou une fourniture — ou scannez son ISBN.</div>
+            <div>Le panier est vide.<br>Touchez un livre ou une fourniture, ou scannez son ISBN.</div>
           </div>`}
       </div>
       <div class="lb-pn-foot">
@@ -588,9 +588,9 @@
     const el = $('#lb-sheetm', root);
     const sc = stockClass(it.stock);
     const stockLine = it.stock <= 0
-      ? `<div class="lb-sheet-stockline out"><i data-lucide="truck"></i>Épuisé en rayon — proposez une <b>commande spéciale</b>.</div>`
+      ? `<div class="lb-sheet-stockline out"><i data-lucide="truck"></i>Épuisé en rayon, proposez une <b>commande spéciale</b>.</div>`
       : it.stock <= 3
-        ? `<div class="lb-sheet-stockline low"><i data-lucide="archive"></i>Plus que <b>${it.stock}</b> en rayon — à réassortir.</div>`
+        ? `<div class="lb-sheet-stockline low"><i data-lucide="archive"></i>Plus que <b>${it.stock}</b> en rayon, à réassortir.</div>`
         : `<div class="lb-sheet-stockline ok"><i data-lucide="check-circle-2"></i><b>${it.stock}</b> en rayon.</div>`;
     el.innerHTML = `
       <button class="lb-modal-x" data-lb-close aria-label="Fermer"><i data-lucide="x"></i></button>
@@ -632,7 +632,7 @@
     if (add) add.onclick = () => {
       addToCart(itemId, qty);
       closeVeil('#lb-sheet-veil');
-      toast(`${it.title} × ${qty} — au panier`);
+      toast(`${it.title} × ${qty}, au panier`);
       renderPanier(); icons();
     };
     const order = $('#lb-sheet-order', el);
@@ -660,7 +660,7 @@
       el.innerHTML = `
         <button class="lb-modal-x" data-lb-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Client</h3>
-        <p class="modal-subtle">Cherchez par téléphone ou par nom — la fidélité se cumule à chaque achat.</p>
+        <p class="modal-subtle">Cherchez par téléphone ou par nom, la fidélité se cumule à chaque achat.</p>
         <div class="lb-phone-in"><i data-lucide="phone"></i>
           <input id="lb-cl-q" inputmode="tel" placeholder="06… ou nom du client" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -697,8 +697,8 @@
           closeVeil('#lb-client-veil');
           const c = CUST[b.dataset.lbCl];
           toast(fidTier(c.points)
-            ? `${c.name} — client fidèle, remise −5 % appliquée`
-            : `${c.name} — ${c.points} points fidélité`);
+            ? `${c.name}, client fidèle, remise −5 % appliquée`
+            : `${c.name}, ${c.points} points fidélité`);
           renderPanier(); icons();
         };
       });
@@ -722,7 +722,7 @@
         CUSTOMERS.unshift(c); CUST[id] = c;
         state.cart.client = { type: 'known', id };
         closeVeil('#lb-client-veil');
-        toast(`Fiche créée — ${name}`);
+        toast(`Fiche créée, ${name}`);
         renderPanier(); renderBadges(); icons();
       };
     };
@@ -738,11 +738,11 @@
     const toNext = tier ? 0 : FID_TIER - pts;
     const openCmds = CMDS.filter((x) => x.custId === c.id && x.status !== 'retiree');
     return `<div class="lb-reco">
-      <div class="lb-reco-head"><i data-lucide="sparkles"></i>${esc(c.name)} — ${tier ? 'client fidèle' : 'client reconnu'}</div>
+      <div class="lb-reco-head"><i data-lucide="sparkles"></i>${esc(c.name)}, ${tier ? 'client fidèle' : 'client reconnu'}</div>
       <div class="lb-reco-rows">
         ${c.note ? `<div class="lb-reco-row"><i data-lucide="heart"></i>${esc(c.note)}</div>` : ''}
         ${c.contact ? `<div class="lb-reco-row"><i data-lucide="user"></i>${esc(c.contact)}</div>` : ''}
-        ${openCmds.map((x) => `<div class="lb-reco-row"><i data-lucide="truck"></i><b>${x.id}</b> · ${esc(x.title)} — ${CMD_STATUS[x.status].label}</div>`).join('')}
+        ${openCmds.map((x) => `<div class="lb-reco-row"><i data-lucide="truck"></i><b>${x.id}</b> · ${esc(x.title)}, ${CMD_STATUS[x.status].label}</div>`).join('')}
         <div class="lb-reco-row"><i data-lucide="star"></i><b>${pts} points</b> · ${c.visits} achats</div>
       </div>
       <div class="lb-fid-gauge">
@@ -794,7 +794,7 @@
     const el = $('#lb-recmm', root);
     el.innerHTML = `
       <button class="lb-modal-x" data-lb-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">Ticket — ${c.num}</h3>
+      <h3 class="modal-title">Ticket, ${c.num}</h3>
       <p class="modal-subtle">${cartCount(c)} article${cartCount(c) > 1 ? 's' : ''} · aperçu avant encaissement.</p>
       ${receiptHTML(c)}
       <div class="lb-foot">
@@ -804,7 +804,7 @@
     openVeil('#lb-rec-veil');
     icons();
     $$('[data-lb-close]', el).forEach((b) => { b.onclick = () => closeVeil('#lb-rec-veil'); });
-    $('#lb-rec-print', el).onclick = () => toast('Envoyé — ticket 80 mm (imprimante thermique)');
+    $('#lb-rec-print', el).onclick = () => toast('Envoyé, ticket 80 mm (imprimante thermique)');
     $('#lb-rec-pay', el).onclick = () => { closeVeil('#lb-rec-veil'); openPay(); };
   }
 
@@ -828,7 +828,7 @@
           </button>
           <button class="lb-pay-opt" data-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire, V1 sans encaissement Kiwi</span></span>
             <span class="amt">${fmtMAD(total)}</span>
           </button>
         </div>`;
@@ -877,7 +877,7 @@
       el.innerHTML = `
         <button class="lb-modal-x" data-lb-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD(total)}</h3>
-        <p class="modal-subtle">${c.num} · lecteur partenaire — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">${c.num} · lecteur partenaire, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="lb-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="lb-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
@@ -911,7 +911,7 @@
       saleSeq++;
       freshCart();
       renderPanier(); renderBadges(); icons();
-      toast(`Encaissé — ${fmtMAD(total)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}${earnMsg}`);
+      toast(`Encaissé, ${fmtMAD(total)} en ${method === 'carte' ? 'carte' : 'espèces'}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}${earnMsg}`);
     };
 
     step1();
@@ -966,7 +966,7 @@
     panel.innerHTML = `
       <div class="lb-cmd">
         <header class="lb-head">
-          <div><h1>Commandes spéciales</h1><div class="lb-head-sub">« Je vous le fais venir » — du distributeur au client, sans rien perdre</div></div>
+          <div><h1>Commandes spéciales</h1><div class="lb-head-sub">« Je vous le fais venir », du distributeur au client, sans rien perdre</div></div>
           <button class="lb-btn primary" id="lb-cmd-new" style="flex:0 0 auto;"><i data-lucide="plus"></i>Nouvelle commande</button>
         </header>
         <div class="lb-cmd-bar">
@@ -1059,7 +1059,7 @@
       if (i >= 0) CMDS.splice(i, 1);
       closeVeil('#lb-detail-veil');
       queueIfOffline('Annulation commande');
-      toast(`${c.id} annulée${c.acompte ? ` — acompte ${c.acompte} MAD à rembourser` : ''}`);
+      toast(`${c.id} annulée${c.acompte ? `, acompte ${c.acompte} MAD à rembourser` : ''}`);
       renderCmd(); renderBadges(); icons();
     };
   }
@@ -1074,14 +1074,14 @@
     if (s === 'retiree') {
       const due = cmdDue(c);
       closeVeil('#lb-detail-veil');
-      toast(`${c.id} remis à ${cmdCust(c).name.split(' ')[0]}${due > 0 ? ` — solde ${due} MAD encaissé` : ''}`);
+      toast(`${c.id} remis à ${cmdCust(c).name.split(' ')[0]}${due > 0 ? `, solde ${due} MAD encaissé` : ''}`);
       renderCmd(); renderBadges(); icons();
       return;
     }
     openCmdDetail(c.id);
     renderBadges();
     if (s === 'arrivee' && !wasArrived && !c.notified) {
-      toast(`${c.id} est arrivé — prévenez ${cmdCust(c).name.split(' ')[0]} ?`);
+      toast(`${c.id} est arrivé, prévenez ${cmdCust(c).name.split(' ')[0]} ?`);
       setTimeout(() => openWa(c), 450);
     }
   }
@@ -1103,7 +1103,7 @@
       el.innerHTML = `
         <button class="lb-modal-x" data-lb-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Nouvelle commande spéciale</h3>
-        <p class="modal-subtle">Le titre absent du rayon — on le fait venir, et on prévient le client à l'arrivée.</p>
+        <p class="modal-subtle">Le titre absent du rayon, on le fait venir, et on prévient le client à l'arrivée.</p>
         <div class="lb-f">
           <div class="lb-f-lbl">Titre</div>
           <input class="lb-in" id="lb-nc-title" placeholder="Titre du livre" value="${esc(draft.title)}" />
@@ -1125,7 +1125,7 @@
           </button>
         </div>
         <div class="lb-f">
-          <div class="lb-f-lbl">Acompte <span class="opt">· optionnel — sécurise la commande</span></div>
+          <div class="lb-f-lbl">Acompte <span class="opt">· optionnel, sécurise la commande</span></div>
           <div class="modal-amount size-md" id="lb-nc-acval" style="font-size:30px;padding:2px 0 8px;">${fmtMAD(draft.acompte)}</div>
           <div class="lb-acompte-row">
             <button class="cash-preset" data-ac="0">Aucun</button>
@@ -1172,7 +1172,7 @@
         CMDS.unshift(cmd);
         closeVeil('#lb-newcmd-veil');
         queueIfOffline(`Commande ${cmd.id}`);
-        toast(`${cmd.id} passée — ${cmd.title}${cmd.acompte ? ` · acompte ${cmd.acompte} MAD encaissé` : ''}`);
+        toast(`${cmd.id} passée, ${cmd.title}${cmd.acompte ? ` · acompte ${cmd.acompte} MAD encaissé` : ''}`);
         if (state.view !== 'commandes') switchView('commandes'); else renderCmd();
         renderBadges(); icons();
       };
@@ -1234,9 +1234,9 @@
     const cu = cmdCust(c);
     const first = cu.school ? cu.name : cu.name.split(' ')[0];
     const due = cmdDue(c);
-    return `Sba7 lkhir ${first} — bonne nouvelle, votre commande « ${c.title} » est arrivée à la Librairie Al Boughaz.`
+    return `Sba7 lkhir ${first}, bonne nouvelle, votre commande « ${c.title} » est arrivée à la Librairie Al Boughaz.`
       + `\nJe vous la garde au comptoir. Passez quand vous voulez, du lundi au samedi jusqu'à 20h00.`
-      + (due > 0 ? `\nSolde à régler au retrait : ${due} MAD.` : (c.acompte ? `\nDéjà réglée — il ne reste rien à payer.` : ''))
+      + (due > 0 ? `\nSolde à régler au retrait : ${due} MAD.` : (c.acompte ? `\nDéjà réglée, il ne reste rien à payer.` : ''))
       + `\n— envoyé via Kiwi`;
   }
 
@@ -1246,7 +1246,7 @@
     let withCover = false;
     el.innerHTML = `
       <button class="lb-modal-x" data-lb-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">WhatsApp — il est arrivé</h3>
+      <h3 class="modal-title">WhatsApp, il est arrivé</h3>
       <p class="modal-subtle">${esc(cu.name)} ${cu.phone ? `· ${esc(cu.phone)}` : '· numéro manquant'}</p>
       <div class="lb-wa-bubblewrap">
         <div class="lb-wa-bubble">
@@ -1256,7 +1256,7 @@
       </div>
       <button class="lb-wa-cover" id="lb-wa-cover">
         <span class="th">${ART.roman}</span>
-        <span class="l">Joindre la photo de couverture — le client confirme que c'est bien le bon livre</span>
+        <span class="l">Joindre la photo de couverture, le client confirme que c'est bien le bon livre</span>
         <span class="tick"><i data-lucide="check"></i></span>
       </button>
       <div class="lb-foot">
@@ -1374,7 +1374,7 @@
     if (a && !a.niveau) {
       return `<div class="lb-li-empty"><i data-lucide="graduation-cap"></i><div>${esc(a.school.name)}<br>Choisissez un niveau dans la colonne de gauche.</div></div>`;
     }
-    return `<div class="lb-li-empty"><i data-lucide="graduation-cap"></i><div>Sélectionnez une école et un niveau —<br>tout le cartable se déplie, prêt à ajouter.</div></div>`;
+    return `<div class="lb-li-empty"><i data-lucide="graduation-cap"></i><div>Sélectionnez une école et un niveau,<br>tout le cartable se déplie, prêt à ajouter.</div></div>`;
   }
 
   function listBodyHTML(a) {
@@ -1410,7 +1410,7 @@
       <div class="lb-li-foot">
         <div class="lb-li-foot-info">
           <b>${checkedCount}/${inStockCount} en stock cochés · ${fmtMAD(total)}</b>
-          <span>${missing.length ? `${missing.length} épuisé${missing.length > 1 ? 's' : ''} — à commander à part` : 'tout est en rayon'}</span>
+          <span>${missing.length ? `${missing.length} épuisé${missing.length > 1 ? 's' : ''}, à commander à part` : 'tout est en rayon'}</span>
         </div>
         <button class="lb-li-addall" id="lb-li-addall" ${checkedCount ? '' : 'disabled'}><i data-lucide="plus"></i>Tout ajouter au panier</button>
       </div>`;
@@ -1444,8 +1444,8 @@
       addToCart(r.itemId, r.qty);
       added += r.qty; items++;
     });
-    if (!added) { toast('Rien à ajouter — tout est décoché ou épuisé'); return; }
-    toast(`Cartable ${a.school.name} · ${a.niveau.label} — ${added} article${added > 1 ? 's' : ''} (${items} référence${items > 1 ? 's' : ''}) au panier`);
+    if (!added) { toast('Rien à ajouter, tout est décoché ou épuisé'); return; }
+    toast(`Cartable ${a.school.name} · ${a.niveau.label}, ${added} article${added > 1 ? 's' : ''} (${items} référence${items > 1 ? 's' : ''}) au panier`);
     switchView('vente');
     renderPanier(); icons();
   }
@@ -1462,7 +1462,7 @@
     panel.innerHTML = `
       <div class="lb-clients">
         <header class="lb-head">
-          <div><h1>Clients</h1><div class="lb-head-sub">Fidélité — 1 MAD dépensé = 1 point · palier −5 % dès ${FID_TIER} points · ${fideles} fidèle${fideles > 1 ? 's' : ''}</div></div>
+          <div><h1>Clients</h1><div class="lb-head-sub">Fidélité, 1 MAD dépensé = 1 point · palier −5 % dès ${FID_TIER} points · ${fideles} fidèle${fideles > 1 ? 's' : ''}</div></div>
         </header>
         <div class="lb-clients-bar">
           <div class="lb-search" style="max-width:340px;"><i data-lucide="search"></i>
@@ -1485,7 +1485,7 @@
         const c = CUST[b.dataset.lbCwa];
         const cmd = CMDS.find((x) => x.custId === c.id && x.status === 'arrivee');
         if (cmd) openWa(cmd);
-        else toast(`${c.name} — aucune commande à notifier`);
+        else toast(`${c.name}, aucune commande à notifier`);
       };
     });
     icons();
@@ -1515,7 +1515,7 @@
         <span class="lb-ccard-stat"><i data-lucide="shopping-bag"></i>${c.visits} achats</span>
         ${openCmds ? `<span class="lb-ccard-stat"><i data-lucide="truck"></i>${openCmds} commande${openCmds > 1 ? 's' : ''}</span>` : ''}
         ${c.note ? `<span class="lb-ccard-stat"><i data-lucide="heart"></i>${esc(c.note)}</span>` : ''}
-        ${arrived ? `<button class="lb-pill wa" data-lb-cwa="${c.id}" style="cursor:pointer;"><i data-lucide="message-circle"></i>prévenir — arrivé</button>` : ''}
+        ${arrived ? `<button class="lb-pill wa" data-lb-cwa="${c.id}" style="cursor:pointer;"><i data-lucide="message-circle"></i>prévenir, arrivé</button>` : ''}
       </div>
     </div>`;
   }
@@ -1540,7 +1540,7 @@
       closeVeil('#lb-scan-veil');
       if (target) {
         openSheet(target.id);
-        toast(`ISBN lu — ${target.title}`);
+        toast(`ISBN lu, ${target.title}`);
       } else {
         toast('Code non reconnu (démo)');
       }
@@ -1552,13 +1552,13 @@
     state.offline = !state.offline;
     if (!state.offline) {
       if (state.queued) {
-        toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+        toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
         state.queued = 0;
       } else {
-        toast('Réseau de retour — tout est synchronisé');
+        toast('Réseau de retour, tout est synchronisé');
       }
     } else {
-      toast('Mode hors-ligne — la librairie continue de vendre, tout est mis en file');
+      toast('Mode hors-ligne, la librairie continue de vendre, tout est mis en file');
     }
     renderNet();
   }

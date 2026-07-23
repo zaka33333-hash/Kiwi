@@ -157,37 +157,37 @@
   mkStay(1, { guest: 'Hind & Omar Bennani', src: 'booking', pax: 2, nights: 3, day: 2,
     charges: [['minibar', 2, 'hier 21h10'], ['diner', 2, 'hier 20h30']], payments: [] });
 
-  setRoom(2, 'depart', 'Départ 12h00 — en retard · Lucía Marín arrive 18h30');
+  setRoom(2, 'depart', 'Départ 12h00, en retard · Lucía Marín arrive 18h30');
   mkStay(2, { guest: 'Karim Bennis', src: 'booking', pax: 1, nights: 2, day: 3,
     charges: [['minibar', 1, 'hier 22h05'], ['the', 1, 'ce matin 09h20']], payments: [] });
 
-  setRoom(3, 'libre', 'Réservée ce soir — Marta & Diego Gómez · 16h00');
+  setRoom(3, 'libre', 'Réservée ce soir, Marta & Diego Gómez · 16h00');
 
   setRoom(4, 'occ');
   mkStay(4, { guest: 'Ahmed & Leila El Fassi', src: 'direct', pax: 2, nights: 4, day: 3,
-    prefs: 'Allergie arachide — cuisine prévenue',
+    prefs: 'Allergie arachide, cuisine prévenue',
     charges: [['hammam', 2, 'hier 17h30'], ['diner', 2, 'j2 20h45'], ['diner', 2, 'hier 20h40'], ['lessive', 1, 'hier 10h15']],
     payments: [['carte', 2000, 'Acompte à la réservation']] });
 
-  setRoom(5, 'menage', 'Ménage en cours — Famille Rossi arrive 15h30');
+  setRoom(5, 'menage', 'Ménage en cours, Famille Rossi arrive 15h30');
 
   setRoom(6, 'occ');
   mkStay(6, { guest: 'Awa Diallo', src: 'airbnb', pax: 1, nights: 4, day: 3,
     charges: [['transfert', 1, 'j1 14h50'], ['minibar', 1, 'j2 23h10']],
-    payments: [['online', 3800, 'Prépayé en ligne · Airbnb — nuitées']] });
+    payments: [['online', 3800, 'Prépayé en ligne · Airbnb, nuitées']] });
 
   setRoom(7, 'occ');
   mkStay(7, { guest: 'Sophie Marceau', src: 'direct', pax: 1, nights: 4, day: 2,
-    prefs: 'Étage terrasse — petit-déjeuner 8h30',
+    prefs: 'Étage terrasse, petit-déjeuner 8h30',
     charges: [['hammam', 1, 'hier 18h00'], ['diner', 1, 'hier 20h45']],
     payments: [['carte', 2800, 'Acompte à la réservation']] });
 
-  setRoom(8, 'hs', 'Fuite SDB — plombier vendredi');
+  setRoom(8, 'hs', 'Fuite SDB, plombier vendredi');
 
   /* ───────────────────────── arrivées / départs du jour ───────────────────────── */
   const ARRIVALS = [
     { id: 'a1', t: '15h30', guest: 'Famille Rossi', room: 5, src: 'booking', nights: 4, pax: 4, adults: 2,
-      note: 'Lit bébé demandé — 2 adultes, 2 enfants', done: false },
+      note: 'Lit bébé demandé, 2 adultes, 2 enfants', done: false },
     { id: 'a2', t: '16h00', guest: 'Marta & Diego Gómez', room: 3, src: 'direct', nights: 3, pax: 2, adults: 2,
       note: 'Client fidèle ×2 · thé sans sucre', repeat: true, acompte: 1180, done: false },
     { id: 'a3', t: '18h30', guest: 'Lucía Marín', room: 2, src: 'booking', nights: 2, pax: 1, adults: 1,
@@ -222,7 +222,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -235,7 +235,7 @@
         <div class="ht-brand">kiwi<i></i></div>
         <div class="ht-venue">
           <div class="ht-venue-name">Riad Yasmina</div>
-          <div class="ht-venue-sub">Tanger · Kasbah<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="ht-venue-sub">Tanger · Kasbah<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="ht-nav" id="ht-nav">
           <button class="ht-nav-it on" data-ht-view="reception"><i data-lucide="layout-dashboard"></i><span>Réception</span><b class="ht-nav-badge" id="ht-badge-rec"></b></button>
@@ -251,7 +251,7 @@
       </aside>
       <main class="ht-main">
         <div class="ht-offline-note" id="ht-offline-note" hidden>
-          Hors-ligne — la réception continue, tout est enregistré sur la tablette et synchronisé au retour du réseau.
+          Hors-ligne, la réception continue, tout est enregistré sur la tablette et synchronisé au retour du réseau.
           <b id="ht-queue-count"></b>
         </div>
         <section class="ht-view is-on" data-ht-panel="reception"></section>
@@ -382,9 +382,9 @@
     const r = ROOMS[n];
     if (r.status === 'depart') {
       const st = STAYS[n];
-      return `Ch. ${n} encore occupée — départ de ${st ? st.guest : 'l’occupant'} à encaisser`;
+      return `Ch. ${n} encore occupée, départ de ${st ? st.guest : 'l’occupant'} à encaisser`;
     }
-    if (r.status === 'menage') return `Ch. ${n} en remise — ménage en cours`;
+    if (r.status === 'menage') return `Ch. ${n} en remise, ménage en cours`;
     if (r.status === 'occ') return `Ch. ${n} occupée`;
     if (r.status === 'hs') return `Ch. ${n} hors service`;
     return '';
@@ -444,13 +444,13 @@
       guest = st.guest;
       meta = `${SRC[st.src].label} · ${st.nights} nuit${st.nights > 1 ? 's' : ''} · j${st.day}`;
     } else if (r.status === 'menage') {
-      guest = `Ménage — ${HOUSEKEEPERS[n % HOUSEKEEPERS.length]}`;
+      guest = `Ménage, ${HOUSEKEEPERS[n % HOUSEKEEPERS.length]}`;
       meta = r.note;
     } else if (r.status === 'hs') {
       guest = 'Hors service';
       meta = r.note;
     } else {
-      guest = arr ? `Réservée — ${arr.guest}` : 'Libre ce soir';
+      guest = arr ? `Réservée, ${arr.guest}` : 'Libre ce soir';
       meta = arr ? `Arrivée ${arr.t} · ${SRC[arr.src].label}` : 'Propre · prête à vendre';
     }
     return `<button class="ht-room st-${r.status}" data-ht-room="${n}" style="--i:${i}">
@@ -474,7 +474,7 @@
     let i = 0;
     panel.innerHTML = `
       <header class="ht-head">
-        <div><h1>Plan des chambres</h1><div class="ht-head-sub">Touchez une chambre — occupée ouvre son folio</div></div>
+        <div><h1>Plan des chambres</h1><div class="ht-head-sub">Touchez une chambre, occupée ouvre son folio</div></div>
       </header>
       <div class="ht-legend">
         ${Object.entries(ST_META).map(([s, m]) => `<span class="ht-leg"><i style="background:${m.dot}"></i>${m.label} <b>${counts[s] || 0}</b></span>`).join('')}
@@ -503,19 +503,19 @@
     const el = $('#ht-roomm', root);
     let info = '', actions = '';
     if (r.status === 'menage') {
-      info = `<div class="ht-rs-info warn"><b>Ménage en cours</b> — ${esc(HOUSEKEEPERS[n % HOUSEKEEPERS.length])}.${arr ? `<br>${esc(arr.guest)} attendu·e à ${arr.t}.` : ''}</div>`;
+      info = `<div class="ht-rs-info warn"><b>Ménage en cours</b>, ${esc(HOUSEKEEPERS[n % HOUSEKEEPERS.length])}.${arr ? `<br>${esc(arr.guest)} attendu·e à ${arr.t}.` : ''}</div>`;
       actions = `
-        <button class="ht-btn primary" data-ht-rs="clean"><i data-lucide="sparkles"></i>Ménage terminé — chambre propre</button>
+        <button class="ht-btn primary" data-ht-rs="clean"><i data-lucide="sparkles"></i>Ménage terminé, chambre propre</button>
         <button class="ht-btn ghost" data-ht-rs="hs">Signaler hors service</button>`;
     } else if (r.status === 'hs') {
       info = `<div class="ht-rs-info warn"><b>Hors service.</b> ${esc(r.note || 'Maintenance en cours.')}</div>`;
       actions = `<button class="ht-btn primary" data-ht-rs="enable"><i data-lucide="check"></i>Remettre en service</button>`;
     } else { /* libre */
       info = arr
-        ? `<div class="ht-rs-info mint"><b>Réservée ce soir</b> — ${esc(arr.guest)} · arrivée ${arr.t} · ${SRC[arr.src].label} · ${arr.nights} nuit${arr.nights > 1 ? 's' : ''}.</div>`
-        : `<div class="ht-rs-info">Libre ce soir — propre, prête à vendre. ${fmtMAD(roomRate(n))} / nuit.</div>`;
+        ? `<div class="ht-rs-info mint"><b>Réservée ce soir</b>, ${esc(arr.guest)} · arrivée ${arr.t} · ${SRC[arr.src].label} · ${arr.nights} nuit${arr.nights > 1 ? 's' : ''}.</div>`
+        : `<div class="ht-rs-info">Libre ce soir, propre, prête à vendre. ${fmtMAD(roomRate(n))} / nuit.</div>`;
       actions = `
-        ${arr ? `<button class="ht-btn primary" data-ht-rs="checkin"><i data-lucide="user-check"></i>Check-in maintenant — ${esc(arr.guest.split(' ')[0])}</button>` : ''}
+        ${arr ? `<button class="ht-btn primary" data-ht-rs="checkin"><i data-lucide="user-check"></i>Check-in maintenant, ${esc(arr.guest.split(' ')[0])}</button>` : ''}
         <button class="ht-btn secondary" data-ht-rs="menage"><i data-lucide="sparkles"></i>Passer en ménage</button>
         <button class="ht-btn ghost" data-ht-rs="hs">Hors service</button>`;
     }
@@ -535,21 +535,21 @@
         const act = b.dataset.htRs;
         closeVeil('#ht-room-veil');
         if (act === 'clean') {
-          setRoom(n, 'libre', arr ? `Réservée — ${arr.guest} · ${arr.t}` : 'Libre ce soir');
+          setRoom(n, 'libre', arr ? `Réservée, ${arr.guest} · ${arr.t}` : 'Libre ce soir');
           queueIfOffline(`Ménage Ch. ${n}`);
-          toast(arr ? `Ch. ${n} propre — prête pour ${arr.guest} (${arr.t})` : `Ch. ${n} propre — prête à vendre`);
+          toast(arr ? `Ch. ${n} propre, prête pour ${arr.guest} (${arr.t})` : `Ch. ${n} propre, prête à vendre`);
         } else if (act === 'menage') {
           setRoom(n, 'menage', 'Remise demandée par la réception');
           queueIfOffline(`Ménage Ch. ${n}`);
-          toast(`Ch. ${n} passée en ménage — ${HOUSEKEEPERS[n % HOUSEKEEPERS.length]} prévenue`);
+          toast(`Ch. ${n} passée en ménage, ${HOUSEKEEPERS[n % HOUSEKEEPERS.length]} prévenue`);
         } else if (act === 'hs') {
           setRoom(n, 'hs', 'Signalée par la réception');
           queueIfOffline(`Hors service Ch. ${n}`);
-          toast(`Ch. ${n} hors service — retirée de la vente`);
+          toast(`Ch. ${n} hors service, retirée de la vente`);
         } else if (act === 'enable') {
           setRoom(n, 'libre', 'Libre ce soir');
           queueIfOffline(`Remise en service Ch. ${n}`);
-          toast(`Ch. ${n} remise en service — prête à vendre`);
+          toast(`Ch. ${n} remise en service, prête à vendre`);
         } else if (act === 'checkin' && arr) {
           openCheckin(arr.id);
           return;
@@ -569,8 +569,8 @@
     if (!a || a.done) return;
     const r = ROOMS[a.room];
     if (r.status !== 'libre') {
-      if (r.status === 'depart') toast(`${blockReason(a.room)} — passez par Départs`);
-      else if (r.status === 'menage') toast(`${blockReason(a.room)} — marquez le ménage terminé (Chambres)`);
+      if (r.status === 'depart') toast(`${blockReason(a.room)}, passez par Départs`);
+      else if (r.status === 'menage') toast(`${blockReason(a.room)}, marquez le ménage terminé (Chambres)`);
       else toast(blockReason(a.room));
       return;
     }
@@ -596,8 +596,8 @@
     const step1 = () => {
       el.innerHTML = `
         <button class="ht-modal-x" data-ht-close aria-label="Fermer"><i data-lucide="x"></i></button>
-        <h3 class="modal-title">Check-in — Ch. ${a.room}</h3>
-        <p class="modal-subtle">Arrivée ${a.t} · ${SRC[a.src].label} · la fiche de police est obligatoire — le scan la pré-remplit.</p>
+        <h3 class="modal-title">Check-in, Ch. ${a.room}</h3>
+        <p class="modal-subtle">Arrivée ${a.t} · ${SRC[a.src].label} · la fiche de police est obligatoire, le scan la pré-remplit.</p>
         ${steps(1)}
         ${guestCard()}
         ${a.note ? `<div class="ht-arr-note" style="margin:-4px 0 10px;"><i data-lucide="sticky-note"></i>${esc(a.note)}</div>` : ''}
@@ -615,7 +615,7 @@
         </div>
         <div class="ht-ci-foot">
           <button class="ht-btn secondary" data-ht-close>Plus tard</button>
-          <button class="ht-btn primary" id="ht-ci-next" disabled><i data-lucide="shield-check"></i>Continuer — caution</button>
+          <button class="ht-btn primary" id="ht-ci-next" disabled><i data-lucide="shield-check"></i>Continuer, caution</button>
         </div>`;
       icons();
       $$('[data-ht-close]', el).forEach((b) => { b.onclick = () => closeVeil('#ht-checkin-veil'); });
@@ -634,10 +634,10 @@
           ci.police = `FP-2026-${policeSeq++}`;
           $('#ht-scan-hint', el).textContent = 'Pièce lue';
           $('#ht-scan-result', el).innerHTML = `
-            <div class="ht-scan-ok"><i data-lucide="check-circle-2"></i>Fiche de police pré-remplie — n° ${ci.police}<span>envoyée à la DGSN ce soir</span></div>`;
+            <div class="ht-scan-ok"><i data-lucide="check-circle-2"></i>Fiche de police pré-remplie, n° ${ci.police}<span>envoyée à la DGSN ce soir</span></div>`;
           icons();
           refreshNext();
-          toast(`Pièce lue — fiche de police ${ci.police} pré-remplie`);
+          toast(`Pièce lue, fiche de police ${ci.police} pré-remplie`);
         }, 1600);
       };
       $('#ht-ci-next', el).onclick = () => { if (ci.scanned) step2(); };
@@ -659,7 +659,7 @@
             <button class="ht-seg-it ${ci.caution === 'sans' ? 'on' : ''}" data-lens-item data-ht-caution="sans">Sans<small>client fidèle</small></button>
           </div>
         </div>
-        <div class="ht-welcome"><i data-lucide="sparkles"></i><span><b>Accueil Yasmina</b> — thé à la menthe offert au salon, plateau envoyé à l'arrivée.${a.note && a.note.includes('thé') ? ' Sans sucre pour ce client.' : ''}</span></div>
+        <div class="ht-welcome"><i data-lucide="sparkles"></i><span><b>Accueil Yasmina</b>, thé à la menthe offert au salon, plateau envoyé à l'arrivée.${a.note && a.note.includes('thé') ? ' Sans sucre pour ce client.' : ''}</span></div>
         <div class="ht-ci-foot">
           <button class="ht-btn secondary" id="ht-ci-back">Retour</button>
           <button class="ht-btn primary" id="ht-ci-done"><i data-lucide="check"></i>Terminer le check-in</button>
@@ -685,7 +685,7 @@
       el.innerHTML = `
         <button class="ht-modal-x" data-ht-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Empreinte carte · ${fmtMAD(1000)}</h3>
-        <p class="modal-subtle">Caution — pré-autorisation, rien n'est débité</p>
+        <p class="modal-subtle">Caution, pré-autorisation, rien n'est débité</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="ht-caution-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="ht-caution-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
@@ -719,9 +719,9 @@
       });
       st.police = ci.police;
       queueIfOffline(`Check-in Ch. ${a.room}`);
-      toast(`Check-in Ch. ${a.room} — ${a.guest} · marhba`);
-      if (ci.caution === 'especes') toast('Caution 1 000 MAD espèces — au coffre, reçu remis');
-      setTimeout(() => toast('Thé à la menthe envoyé au salon — accueil Yasmina'), 700);
+      toast(`Check-in Ch. ${a.room}, ${a.guest} · marhba`);
+      if (ci.caution === 'especes') toast('Caution 1 000 MAD espèces, au coffre, reçu remis');
+      setTimeout(() => toast('Thé à la menthe envoyé au salon, accueil Yasmina'), 700);
       refreshOps();
     };
 
@@ -737,7 +737,7 @@
     const list = Object.values(STAYS).sort((x, y) => x.room - y.room);
     panel.innerHTML = `
       <header class="ht-head">
-        <div><h1>Folios ouverts</h1><div class="ht-head-sub">Une note par séjour — nuitées, extras et taxe de séjour sur la même ligne de vie</div></div>
+        <div><h1>Folios ouverts</h1><div class="ht-head-sub">Une note par séjour, nuitées, extras et taxe de séjour sur la même ligne de vie</div></div>
         <div class="ht-day-stats"><span class="ht-day-stat"><b>${list.length}</b>séjour${list.length > 1 ? 's' : ''} en maison</span></div>
       </header>
       <div class="ht-folist">
@@ -758,7 +758,7 @@
               ${t.due > 0 ? `<span class="ht-pill due">solde ${fmtMAD(t.due)}</span>` : '<span class="ht-pill ok">soldé</span>'}
             </div>
           </button>`;
-        }).join('') || '<div class="ht-empty">Aucun folio ouvert — la maison est vide ce soir.</div>'}
+        }).join('') || '<div class="ht-empty">Aucun folio ouvert, la maison est vide ce soir.</div>'}
       </div>`;
     panel.onclick = (e) => {
       const b = e.target.closest('[data-ht-fo]');
@@ -768,7 +768,7 @@
   }
 
   function openFolioDetail(n) {
-    if (!STAYS[n]) { toast(`Ch. ${n} — aucun folio ouvert`); return; }
+    if (!STAYS[n]) { toast(`Ch. ${n}, aucun folio ouvert`); return; }
     state.folioRoom = n;
     switchView('folios');
   }
@@ -804,7 +804,7 @@
             </div>
           </header>
           <div class="ht-charges-scroll">
-            <div class="ht-charges-hint">Extras — postés sur la chambre</div>
+            <div class="ht-charges-hint">Extras, postés sur la chambre</div>
             <div class="ht-charges">
               ${CHARGES.map((c) => `
                 <button class="ht-charge" data-ht-charge="${c.id}" style="--i:${i++}">
@@ -813,7 +813,7 @@
                   <span class="ht-charge-price">${c.unit} MAD · ${esc(c.per)}</span>
                 </button>`).join('')}
             </div>
-            <div class="ht-foot-note">Restaurant et hammam postent ici automatiquement quand leurs caisses Kiwi sont liées — un seul compte.</div>
+            <div class="ht-foot-note">Restaurant et hammam postent ici automatiquement quand leurs caisses Kiwi sont liées, un seul compte.</div>
           </div>
         </div>
         <aside class="ht-folio-panel">
@@ -861,7 +861,7 @@
             <div class="ht-fp-tot"><span>Extras</span><span class="v">${fmtMAD(t.extras)}</span></div>
             ${t.paid > 0 ? `<div class="ht-fp-tot"><span>Déjà réglé${st.payments.length === 1 ? ` · ${esc(st.payments[0].label)}` : ''}</span><span class="v" style="color:var(--forest);">−${fmtMAD(t.paid)}</span></div>` : ''}
             <div class="ht-fp-total">
-              <span class="lbl">${t.due > 0 ? 'Solde à régler' : 'Total — soldé'}</span>
+              <span class="lbl">${t.due > 0 ? 'Solde à régler' : 'Total, soldé'}</span>
               <span class="val ${t.due > 0 ? 'due' : 'ok'}">${fmtMAD(t.due > 0 ? t.due : t.total)}</span>
             </div>
             <div class="ht-fp-actions">
@@ -921,7 +921,7 @@
         </div>
       </div>
       <div class="ht-ci-f">
-        <div class="ht-ci-lbl">Note <span class="opt">· optionnel — visible sur la facture</span></div>
+        <div class="ht-ci-lbl">Note <span class="opt">· optionnel, visible sur la facture</span></div>
         <input class="ht-note-free" id="ht-ch-note" placeholder="ex. « sans sucre », « chambre à 19h »…" />
       </div>
       <div class="ht-ci-foot">
@@ -944,7 +944,7 @@
       st.charges.push({ uid: `c${chargeUid++}`, cid, qty: sheet.qty, at: `auj. ${nowHM()}`, note: sheet.note.trim() });
       closeVeil('#ht-charge-veil');
       queueIfOffline(`Charge ${def.label}`);
-      toast(`${def.label} × ${sheet.qty} — posté sur le folio Ch. ${roomN} (+${fmtMAD(def.unit * sheet.qty)})`);
+      toast(`${def.label} × ${sheet.qty}, posté sur le folio Ch. ${roomN} (+${fmtMAD(def.unit * sheet.qty)})`);
       refreshOps();
       if (state.view === 'folios' && state.folioRoom === roomN) { renderFolioDetail(); icons(); }
     };
@@ -953,7 +953,7 @@
   /* ═══════════════════════ CHECK-OUT ═══════════════════════ */
   function openCheckout(n) {
     const st = STAYS[n];
-    if (!st) { toast(`Ch. ${n} — aucun séjour à clôturer`); return; }
+    if (!st) { toast(`Ch. ${n}, aucun séjour à clôturer`); return; }
     const el = $('#ht-checkoutm', root);
     const t = stayTotals(st);
     const online = ONLINE_SRC[st.src];
@@ -970,7 +970,7 @@
     const step1 = () => {
       el.innerHTML = `
         <button class="ht-modal-x" data-ht-close aria-label="Fermer"><i data-lucide="x"></i></button>
-        <h3 class="modal-title">Check-out — Ch. ${n}</h3>
+        <h3 class="modal-title">Check-out, Ch. ${n}</h3>
         <p class="modal-subtle">${esc(st.guest)} · ${fmtDay(st.inAt)} → ${fmtDay(st.outAt)} · ${st.nights} nuit${st.nights > 1 ? 's' : ''}</p>
         ${recapRows()}
         ${t.due > 0 ? `
@@ -978,7 +978,7 @@
           <div class="ht-pay-opts">
             <button class="ht-pay-opt" data-ht-pm="carte">
               <span class="ic"><i data-lucide="credit-card"></i></span>
-              <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+              <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire, V1 sans encaissement Kiwi</span></span>
               <span class="amt">${fmtMAD(t.due)}</span>
             </button>
             <button class="ht-pay-opt" data-ht-pm="especes">
@@ -989,13 +989,13 @@
             ${online ? `
             <button class="ht-pay-opt" data-ht-pm="online">
               <span class="ic"><i data-lucide="check-check"></i></span>
-              <span class="l"><b>Déjà payé en ligne</b><span>Solde collecté par ${online} — versement OTA</span></span>
+              <span class="l"><b>Déjà payé en ligne</b><span>Solde collecté par ${online}, versement OTA</span></span>
             </button>` : ''}
           </div>` : `
           <div class="ht-pay-opts">
             <button class="ht-pay-opt" data-ht-pm="zero">
               <span class="ic"><i data-lucide="check"></i></span>
-              <span class="l"><b>Folio soldé — confirmer le départ</b><span>Facture imprimée, chambre en ménage</span></span>
+              <span class="l"><b>Folio soldé, confirmer le départ</b><span>Facture imprimée, chambre en ménage</span></span>
             </button>
           </div>`}
         <div class="ht-foot-note">${st.caution === 'carte' ? 'Empreinte carte 1 000 MAD libérée au départ.' : st.caution === 'especes' ? 'Caution espèces 1 000 MAD rendue au départ.' : 'Sans caution sur ce séjour.'}</div>`;
@@ -1054,7 +1054,7 @@
       el.innerHTML = `
         <button class="ht-modal-x" data-ht-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Carte · ${fmtMAD(t.due)}</h3>
-        <p class="modal-subtle">Ch. ${n} · lecteur partenaire — Kiwi affiche, le lecteur encaisse</p>
+        <p class="modal-subtle">Ch. ${n} · lecteur partenaire, Kiwi affiche, le lecteur encaisse</p>
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="ht-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="ht-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
@@ -1085,19 +1085,19 @@
       const closed = st;
       delete STAYS[n];
       const arr = arrivalForRoom(n);
-      setRoom(n, 'menage', arr ? `Ménage en cours — ${arr.guest} arrive ${arr.t}` : 'Remise après départ');
+      setRoom(n, 'menage', arr ? `Ménage en cours, ${arr.guest} arrive ${arr.t}` : 'Remise après départ');
       const dep = DEPARTURES.find((d) => d.room === n && !d.done);
       if (dep) { dep.done = true; dep.doneAt = nowHM(); dep.total = stayTotals(closed).total; }
       if (state.folioRoom === n) state.folioRoom = null;
 
       queueIfOffline(`Check-out Ch. ${n}`);
-      if (method === 'especes') toast(`Encaissé — ${fmtMAD(amount)} en espèces${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
-      else if (method === 'carte') toast(`Encaissé — ${fmtMAD(amount)} en carte`);
-      else if (method === 'online') toast(`Solde marqué réglé via ${online} — versement OTA`);
-      else toast('Départ confirmé — folio déjà soldé');
-      if (closed.caution === 'carte') setTimeout(() => toast('Empreinte carte libérée — pré-autorisation annulée'), 650);
-      else if (closed.caution === 'especes') setTimeout(() => toast('Caution espèces rendue — 1 000 MAD'), 650);
-      setTimeout(() => toast(`Ch. ${n} → ménage${arr ? ` — ${arr.guest} arrive ${arr.t}` : ''}`), 1250);
+      if (method === 'especes') toast(`Encaissé, ${fmtMAD(amount)} en espèces${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+      else if (method === 'carte') toast(`Encaissé, ${fmtMAD(amount)} en carte`);
+      else if (method === 'online') toast(`Solde marqué réglé via ${online}, versement OTA`);
+      else toast('Départ confirmé, folio déjà soldé');
+      if (closed.caution === 'carte') setTimeout(() => toast('Empreinte carte libérée, pré-autorisation annulée'), 650);
+      else if (closed.caution === 'especes') setTimeout(() => toast('Caution espèces rendue, 1 000 MAD'), 650);
+      setTimeout(() => toast(`Ch. ${n} → ménage${arr ? `, ${arr.guest} arrive ${arr.t}` : ''}`), 1250);
 
       refreshOps();
       openFacture(closed, { provisional: false });
@@ -1131,10 +1131,10 @@
       ${st.payments.map((p) => `<div class="row"><span class="nm">${esc(p.label)}</span><span>−${p.amount}</span></div>`).join('')}
       ${t.due > 0
         ? `<div class="row due"><span>SOLDE À RÉGLER</span><span>${t.due} MAD</span></div>`
-        : '<div class="row b"><span>SOLDE</span><span>0 MAD — réglé</span></div>'}
+        : '<div class="row b"><span>SOLDE</span><span>0 MAD, réglé</span></div>'}
       <hr>
       <div class="c">${barcode(`RY-${st.room}-${num}`, 26)}</div>
-      <div class="c mut">${num} · Ch. ${st.room} · merci, b'slama — l'lah ikhellik</div>
+      <div class="c mut">${num} · Ch. ${st.room} · merci, b'slama, l'lah ikhellik</div>
     </div>`;
   }
 
@@ -1143,8 +1143,8 @@
     const el = $('#ht-facturem', root);
     el.innerHTML = `
       <button class="ht-modal-x" data-ht-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">${provisional ? 'Note provisoire' : 'Facture'} — Ch. ${st.room}</h3>
-      <p class="modal-subtle">${provisional ? 'Le séjour est encore ouvert — la note suit le folio en direct.' : 'Séjour clôturé — la chambre est passée en ménage.'}</p>
+      <h3 class="modal-title">${provisional ? 'Note provisoire' : 'Facture'}, Ch. ${st.room}</h3>
+      <p class="modal-subtle">${provisional ? 'Le séjour est encore ouvert, la note suit le folio en direct.' : 'Séjour clôturé, la chambre est passée en ménage.'}</p>
       ${factureHTML(st, provisional)}
       <div class="ht-facture-foot">
         <button class="ht-btn secondary" id="ht-fact-print"><i data-lucide="printer"></i>Imprimer (80 mm)</button>
@@ -1154,17 +1154,17 @@
     openVeil('#ht-facture-veil');
     icons();
     $$('[data-ht-close]', el).forEach((b) => { b.onclick = () => closeVeil('#ht-facture-veil'); });
-    $('#ht-fact-print', el).onclick = () => toast('Facture envoyée à l’imprimante — 80 mm');
+    $('#ht-fact-print', el).onclick = () => toast('Facture envoyée à l’imprimante, 80 mm');
   }
 
   /* ═══════════════════════ OFFLINE (file simulée) ═══════════════════════ */
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — la réception continue, tout est mis en file');
+      toast('Mode hors-ligne, la réception continue, tout est mis en file');
     } else {
       toast('De retour en ligne');
     }

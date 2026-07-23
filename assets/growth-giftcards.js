@@ -17,7 +17,7 @@
   ];
 
   const STR = {
-    fr: { title: 'Cartes cadeaux', sub: 'Émettez une carte en quelques secondes — encaissée d\'avance, dépensée chez vous.',
+    fr: { title: 'Cartes cadeaux', sub: 'Émettez une carte en quelques secondes, encaissée d\'avance, dépensée chez vous.',
       issue: 'ÉMETTRE UNE CARTE', amount: 'Montant', free: 'Libre', recipient: 'Destinataire',
       namePh: 'Nom', phonePh: 'Téléphone (WhatsApp)', send: 'Envoyer par WhatsApp',
       statsEm: 'Émises ce mois', statsCirc: 'En circulation', statsUse: 'Taux d\'utilisation',
@@ -26,7 +26,7 @@
       redeem: 'Vérifier un solde', redeemPh: 'Saisir un code cadeau', check: 'Vérifier',
       sent: 'Carte cadeau envoyée', sentD: (a) => `${fmt(a)} MAD · lien WhatsApp prêt à partager.`,
       bal: (b) => `Solde : ${fmt(b)} MAD · valable jusqu'au 31/12/2026`, close: 'Fermer' },
-    en: { title: 'Gift cards', sub: 'Issue a card in seconds — paid upfront, spent with you.',
+    en: { title: 'Gift cards', sub: 'Issue a card in seconds, paid upfront, spent with you.',
       issue: 'ISSUE A CARD', amount: 'Amount', free: 'Custom', recipient: 'Recipient',
       namePh: 'Name', phonePh: 'Phone (WhatsApp)', send: 'Send via WhatsApp',
       statsEm: 'Issued this month', statsCirc: 'In circulation', statsUse: 'Redemption rate',
@@ -35,7 +35,7 @@
       redeem: 'Check a balance', redeemPh: 'Enter a gift code', check: 'Check',
       sent: 'Gift card sent', sentD: (a) => `${fmt(a)} MAD · WhatsApp link ready to share.`,
       bal: (b) => `Balance: ${fmt(b)} MAD · valid until 31/12/2026`, close: 'Close' },
-    ar: { title: 'بطاقات الهدايا', sub: 'أصدر بطاقة في ثوانٍ — مدفوعة مسبقًا، تُنفق عندك.',
+    ar: { title: 'بطاقات الهدايا', sub: 'أصدر بطاقة في ثوانٍ, مدفوعة مسبقًا، تُنفق عندك.',
       issue: 'إصدار بطاقة', amount: 'المبلغ', free: 'مبلغ حر', recipient: 'المستفيد',
       namePh: 'الاسم', phonePh: 'الهاتف (واتساب)', send: 'إرسال عبر واتساب',
       statsEm: 'صادرة هذا الشهر', statsCirc: 'قيد التداول', statsUse: 'معدل الاستخدام',

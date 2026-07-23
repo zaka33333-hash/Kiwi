@@ -56,7 +56,7 @@
     el = document.createElement('div');
     el.id = 'kiwi-offline';
     el.setAttribute('role', 'status');
-    el.textContent = 'Hors ligne — données de la dernière synchronisation';
+    el.textContent = 'Hors ligne, données de la dernière synchronisation';
     document.body.appendChild(el);
   }
   window.addEventListener('online', banner);

@@ -189,9 +189,9 @@
   }
 
   function buildChecklist(ev) {
-    const items = ev.menu.map((id) => ({ label: `${DISH[id].label} — ${DISH[id].pack(ev.guests)}`, done: false }));
-    if (ev.extras.includes('nappage')) items.push({ label: `Nappage & déco — ${Math.ceil(ev.guests / 8)} tables`, done: false });
-    if (ev.extras.includes('vaisselle')) items.push({ label: `Vaisselle & verrerie — ${fmtN(ev.guests)} couverts`, done: false });
+    const items = ev.menu.map((id) => ({ label: `${DISH[id].label}, ${DISH[id].pack(ev.guests)}`, done: false }));
+    if (ev.extras.includes('nappage')) items.push({ label: `Nappage & déco, ${Math.ceil(ev.guests / 8)} tables`, done: false });
+    if (ev.extras.includes('vaisselle')) items.push({ label: `Vaisselle & verrerie, ${fmtN(ev.guests)} couverts`, done: false });
     items.push({ label: 'Réchauds & bonbonnes de gaz', done: false });
     items.push({ label: 'Thermobox chauds & glacières', done: false });
     return items;
@@ -322,7 +322,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -336,7 +336,7 @@
         <div class="tr-brand">kiwi<i></i></div>
         <div class="tr-venue">
           <div class="tr-venue-name">Traiteur Dar Zellij</div>
-          <div class="tr-venue-sub">Tanger · Mesnana<br>Le même Kiwi — <b>un seul compte.</b></div>
+          <div class="tr-venue-sub">Tanger · Mesnana<br>Le même Kiwi, <b>un seul compte.</b></div>
         </div>
         <nav class="tr-nav" id="tr-nav">
           <button class="tr-nav-it on" data-tr-view="events"><i data-lucide="calendar"></i><span>Événements</span><b class="tr-nav-badge" id="tr-badge-ev"></b></button>
@@ -353,7 +353,7 @@
       </aside>
       <main class="tr-main">
         <div class="tr-offline-note" id="tr-offline-note" hidden>
-          Hors-ligne — les encaissements et statuts sont gardés sur la tablette, synchronisés au retour du réseau.
+          Hors-ligne, les encaissements et statuts sont gardés sur la tablette, synchronisés au retour du réseau.
           <b id="tr-queue-count"></b>
         </div>
         <section class="tr-view is-on" data-tr-panel="events"></section>
@@ -481,7 +481,7 @@
       ${due.length ? `
       <div class="tr-duebar">
         <i data-lucide="hand-coins"></i>
-        <div class="tr-duebar-txt">${due.length > 1 ? `<b>${due.length} échéances</b> à encaisser — la prochaine : ` : 'À encaisser aujourd’hui — '}
+        <div class="tr-duebar-txt">${due.length > 1 ? `<b>${due.length} échéances</b> à encaisser, la prochaine : ` : 'À encaisser aujourd’hui, '}
           <b>${esc(due[0].ev.name)}</b> · tranche ${due[0].t.pct} % · <span class="amt">${fmtMAD(due[0].t.amount)}</span>${due[0].st === 'late' ? ' · en retard' : ''}</div>
         <button class="tr-btn primary" id="tr-due-pay"><i data-lucide="banknote"></i>Encaisser</button>
         <button class="tr-btn secondary" id="tr-due-all">Échéanciers</button>
@@ -491,7 +491,7 @@
         ${STATUS_ORDER.map((s) => `<button class="tr-cat ${state.evFilter === s ? 'on' : ''}" data-tr-f="${s}">${STATUSES[s].label} <span class="tr-cat-ct">${counts[s]}</span></button>`).join('')}
       </div>
       <div class="tr-evscroll"><div class="tr-evlist">
-        ${list.map((ev, i) => evCard(ev, i)).join('') || `<div class="tr-empty">Aucun événement pour « ${esc(state.evQuery)} » — vérifiez le nom ou le filtre.</div>`}
+        ${list.map((ev, i) => evCard(ev, i)).join('') || `<div class="tr-empty">Aucun événement pour « ${esc(state.evQuery)} », vérifiez le nom ou le filtre.</div>`}
       </div></div>`;
 
     $('#tr-ev-q', panel).oninput = (e) => {
@@ -565,7 +565,7 @@
       </div>
       <div class="tr-dt-body">
         <div>
-          <div class="tr-dt-sec"><i data-lucide="utensils"></i>Menu — ${pp} MAD / personne</div>
+          <div class="tr-dt-sec"><i data-lucide="utensils"></i>Menu, ${pp} MAD / personne</div>
           <div class="tr-dt-menu">
             ${ev.menu.map((id) => `<div class="tr-dt-line"><span class="art">${ART[id] || ''}</span><span class="nm">${esc(DISH[id].label)}</span><span class="vl">${DISH[id].price} MAD</span></div>`).join('')}
           </div>
@@ -594,7 +594,7 @@
           <button class="tr-btn primary" id="tr-dt-confirm"><i data-lucide="check"></i>Marquer confirmé</button>` : ''}
         ${ev.status === 'confirme' || ev.status === 'acompte' ? `
           ${nt ? `<button class="tr-btn primary ${trancheState(ev, nt) !== 'next' ? 'is-urgent' : ''}" id="tr-dt-pay"><i data-lucide="banknote"></i>Encaisser ${nt.pct} % · ${fmtMAD(nt.amount)}</button>` : ''}
-          ${nt ? `<button class="tr-btn secondary" id="tr-dt-rappel"><i data-lucide="message-circle"></i>Rappel WhatsApp</button>` : '<span class="tr-pill ok" style="align-self:center;">Soldé — khlass</span>'}
+          ${nt ? `<button class="tr-btn secondary" id="tr-dt-rappel"><i data-lucide="message-circle"></i>Rappel WhatsApp</button>` : '<span class="tr-pill ok" style="align-self:center;">Soldé, khlass</span>'}
           <button class="tr-btn secondary" id="tr-dt-doc"><i data-lucide="file-text"></i>Devis</button>
           ${isToday(ev.date) ? `<button class="tr-btn secondary" id="tr-dt-bon"><i data-lucide="truck"></i>Bon de livraison</button>` : ''}` : ''}
         ${ev.status === 'livre' ? `
@@ -614,7 +614,7 @@
       ev.confirmedAt = new Date();
       ev.tranches[0].due = new Date();
       queueIfOffline('Confirmation événement');
-      toast(`${ev.name} confirmé — tranche 1 (30 %) à encaisser`);
+      toast(`${ev.name} confirmé, tranche 1 (30 %) à encaisser`);
       openDetail(ev.id);
       refreshAll();
     };
@@ -633,7 +633,7 @@
   function echRow(ev, t) {
     const st = trancheState(ev, t);
     const when = t.paid
-      ? `payé ${fmtDay(t.paid.at)} · ${METHODS[t.paid.method]}${t.paid.note ? ` — ${t.paid.note}` : ''}`
+      ? `payé ${fmtDay(t.paid.at)} · ${METHODS[t.paid.method]}${t.paid.note ? `, ${t.paid.note}` : ''}`
       : st === 'today' ? 'à encaisser aujourd’hui'
       : st === 'late' ? `en retard de ${-calDiff(t.due)} j`
       : t.due ? `prévu ${fmtDay(t.due)}` : 'à la confirmation';
@@ -650,7 +650,7 @@
     panel.innerHTML = `
       <div class="tr-build">
         <header class="tr-head">
-          <div><h1>Nouveau devis</h1><div class="tr-head-sub">Composez le menu par personne — le total suit le nombre d’invités</div></div>
+          <div><h1>Nouveau devis</h1><div class="tr-head-sub">Composez le menu par personne, le total suit le nombre d’invités</div></div>
           <div class="tr-head-sub" style="padding-bottom:2px;">Touchez un plat pour l’ajouter au menu</div>
         </header>
         <div class="tr-build-scroll" id="tr-build-scroll">
@@ -735,7 +735,7 @@
     $('#tr-q-reset', panel).onclick = () => {
       draft = blankDraft();
       renderDevis(); icons();
-      toast('Devis vidé — nouvelle feuille');
+      toast('Devis vidé, nouvelle feuille');
     };
     $('#tr-q-client', panel).oninput = (e) => { draft.client = e.target.value; };
     $('#tr-q-phone', panel).oninput = (e) => { draft.phone = e.target.value; };
@@ -789,7 +789,7 @@
         ${draft.menu.length ? `
           ${byCourse.map((x) => x.items.map((id) => `<div class="tr-q-line"><span class="nm">${esc(DISH[id].label)}</span><span class="vl">${DISH[id].price} MAD</span></div>`).join('')).join('')}
           <div class="tr-q-line is-pp"><span class="nm">Menu / personne</span><span class="vl">${pp} MAD</span></div>`
-        : `<div class="tr-q-empty">Le menu est vide.<br>Touchez les plats à gauche — le prix par personne se construit tout seul.</div>`}
+        : `<div class="tr-q-empty">Le menu est vide.<br>Touchez les plats à gauche, le prix par personne se construit tout seul.</div>`}
         ${draft.extras.map((id) => `<div class="tr-q-line"><span class="nm">${esc(EXTRA[id].label)}</span><span class="vl">${fmtMAD(extraCost(id, draft.guests))}</span></div>`).join('')}
       </div>
       ${total > 0 ? `
@@ -844,7 +844,7 @@
     evSeq++; dvSeq++;
     draft = blankDraft();
     queueIfOffline(`Devis ${ev.devisRef}`);
-    toast(`Devis ${ev.devisRef} envoyé à ${ev.client || 'client'} — suivi dans Événements`);
+    toast(`Devis ${ev.devisRef} envoyé à ${ev.client || 'client'}, suivi dans Événements`);
     state.evFilter = 'tous';
     switchView('events');
     renderBadges();
@@ -880,17 +880,17 @@
 
     panel.innerHTML = `
       <header class="tr-head">
-        <div><h1>Acomptes & échéanciers</h1><div class="tr-head-sub">La règle de la maison — 30 % à la confirmation · 50 % à J−7 · solde le jour J</div></div>
+        <div><h1>Acomptes & échéanciers</h1><div class="tr-head-sub">La règle de la maison, 30 % à la confirmation · 50 % à J−7 · solde le jour J</div></div>
       </header>
       <div class="tr-payscroll">
         <div class="tr-stats">
           <div class="tr-stat is-ok"><div class="tr-stat-lbl"><i data-lucide="coins"></i>Encaissé</div><div class="tr-stat-val">${fmtMAD(encaisse)}</div><div class="tr-stat-sub">toutes échéances confondues</div></div>
           <div class="tr-stat"><div class="tr-stat-lbl"><i data-lucide="calendar-clock"></i>À encaisser sous 7 jours</div><div class="tr-stat-val">${fmtMAD(sous7)}</div><div class="tr-stat-sub">échéances d’aujourd’hui comprises</div></div>
-          <div class="tr-stat is-due"><div class="tr-stat-lbl"><i data-lucide="clock"></i>En retard</div><div class="tr-stat-val">${fmtMAD(retard)}</div><div class="tr-stat-sub">${retard ? 'à relancer sans attendre' : 'rien — tout est propre'}</div></div>
+          <div class="tr-stat is-due"><div class="tr-stat-lbl"><i data-lucide="clock"></i>En retard</div><div class="tr-stat-val">${fmtMAD(retard)}</div><div class="tr-stat-sub">${retard ? 'à relancer sans attendre' : 'rien, tout est propre'}</div></div>
         </div>
         <div class="tr-paylist">
-          ${active.map((ev) => paycCard(ev)).join('') || '<div class="tr-empty">Aucun échéancier actif — confirmez un devis pour démarrer le 30 / 50 / 20.</div>'}
-          ${devisCt ? `<div class="tr-payc-note" style="padding:0 4px;"><i data-lucide="clipboard-list"></i>${devisCt} devis envoyé${devisCt > 1 ? 's' : ''} — l’échéancier s’activera à la confirmation.</div>` : ''}
+          ${active.map((ev) => paycCard(ev)).join('') || '<div class="tr-empty">Aucun échéancier actif, confirmez un devis pour démarrer le 30 / 50 / 20.</div>'}
+          ${devisCt ? `<div class="tr-payc-note" style="padding:0 4px;"><i data-lucide="clipboard-list"></i>${devisCt} devis envoyé${devisCt > 1 ? 's' : ''}, l’échéancier s’activera à la confirmation.</div>` : ''}
           ${settled.map((ev) => `
             <div class="tr-payc is-settled">
               <div class="tr-payc-who"><b>${esc(ev.name)}</b> <span>· ${ev.guests} pers · livré ${ev.deliveredAt ? esc(fmtDay(ev.deliveredAt)) : ''}</span></div>
@@ -951,7 +951,7 @@
       ${nt ? `<div class="tr-payc-actions">
         <button class="tr-btn primary ${hot ? 'is-urgent' : ''}" data-tr-paytr="${ev.id}"><i data-lucide="banknote"></i>Encaisser la tranche ${nt.pct} % · ${fmtMAD(nt.amount)}</button>
         <button class="tr-btn secondary" data-tr-watr="${ev.id}"><i data-lucide="message-circle"></i>Rappel WhatsApp</button>
-      </div>` : `<div class="tr-payc-note"><i data-lucide="check-check"></i>Soldé — l’événement est entièrement payé, khlass.</div>`}
+      </div>` : `<div class="tr-payc-note"><i data-lucide="check-check"></i>Soldé, l’événement est entièrement payé, khlass.</div>`}
     </div>`;
   }
 
@@ -964,7 +964,7 @@
 
     panel.innerHTML = `
       <header class="tr-head">
-        <div><h1>Jour J — livraisons</h1><div class="tr-head-sub">${esc(fmtDay(new Date()))} · quantités, équipe et chargement du service</div></div>
+        <div><h1>Jour J, livraisons</h1><div class="tr-head-sub">${esc(fmtDay(new Date()))} · quantités, équipe et chargement du service</div></div>
       </header>
       <div class="tr-blscroll">
         ${todays.map((ev) => blCard(ev)).join('') || `<div class="tr-empty">Aucune livraison aujourd’hui.<br>Le bon de livraison du jour apparaît ici, avec sa checklist de chargement.</div>`}
@@ -981,7 +981,7 @@
       if (chk) {
         const [evId, idx] = chk.dataset.trChk.split('|');
         const ev = findEvent(evId);
-        if (ev.loaded || ev.status === 'livre') { toast('Camion déjà parti — le bon est signé'); return; }
+        if (ev.loaded || ev.status === 'livre') { toast('Camion déjà parti, le bon est signé'); return; }
         ev.checklist[+idx].done = !ev.checklist[+idx].done;
         queueIfOffline('Checklist chargement');
         renderJourJ(); icons();
@@ -990,11 +990,11 @@
       const depart = e.target.closest('[data-tr-depart]');
       if (depart) {
         const ev = findEvent(depart.dataset.trDepart);
-        if (!ev.checklist.every((c) => c.done)) { toast('Chargement incomplet — cochez toute la checklist d’abord'); return; }
+        if (!ev.checklist.every((c) => c.done)) { toast('Chargement incomplet, cochez toute la checklist d’abord'); return; }
         ev.loaded = true;
         ev.departedAt = new Date();
         queueIfOffline('Départ camion');
-        toast(`Camion parti pour ${ev.lieu} — bon de livraison signé`);
+        toast(`Camion parti pour ${ev.lieu}, bon de livraison signé`);
         renderJourJ(); icons();
         setTimeout(() => openWa(ev, 'route'), 450);
         return;
@@ -1026,7 +1026,7 @@
     ev.status = 'livre';
     ev.deliveredAt = new Date();
     queueIfOffline('Livraison');
-    toast(`${ev.name} livré — choukran l’équipe`);
+    toast(`${ev.name} livré, choukran l’équipe`);
     refreshAll();
   }
 
@@ -1046,7 +1046,7 @@
             <i data-lucide="map-pin"></i>${esc(ev.lieu)}
             <span class="sep">·</span><i data-lucide="phone"></i>${esc(ev.client)} · ${esc(ev.phone)}
             <span class="sep">·</span><i data-lucide="users"></i>${ev.guests} invités
-            <span class="sep">·</span>${due > 0 ? `<span class="tr-pill due">solde ${fmtMAD(due)}</span>` : '<span class="tr-pill ok">réglé — khlass</span>'}
+            <span class="sep">·</span>${due > 0 ? `<span class="tr-pill due">solde ${fmtMAD(due)}</span>` : '<span class="tr-pill ok">réglé, khlass</span>'}
           </div>
         </div>
         <div class="tr-bl-headactions">
@@ -1082,15 +1082,15 @@
         </div>
       </div>
       ${delivered
-        ? `<div class="tr-bl-done"><i data-lucide="check-circle-2"></i>Livré à ${ev.deliveredAt ? timeOf(ev.deliveredAt) : timeOf(new Date())} — bon signé, événement soldé.</div>`
+        ? `<div class="tr-bl-done"><i data-lucide="check-circle-2"></i>Livré à ${ev.deliveredAt ? timeOf(ev.deliveredAt) : timeOf(new Date())}, bon signé, événement soldé.</div>`
         : ev.loaded
           ? `<div class="tr-bl-cta">
-              <button class="tr-btn secondary" data-tr-waroute="${ev.id}"><i data-lucide="message-circle"></i>Prévenir le client — en route</button>
+              <button class="tr-btn secondary" data-tr-waroute="${ev.id}"><i data-lucide="message-circle"></i>Prévenir le client, en route</button>
               <button class="tr-btn primary" data-tr-deliver="${ev.id}"><i data-lucide="check-check"></i>Marquer livré${due > 0 ? ` · solde ${fmtMAD(due)}` : ''}</button>
             </div>`
           : `<div class="tr-bl-cta">
               <button class="tr-btn primary ${allDone ? 'is-urgent' : ''}" data-tr-depart="${ev.id}" ${allDone ? '' : 'disabled'}>
-                <i data-lucide="truck"></i>${allDone ? 'Départ camion — bon signé' : `Chargement en cours · ${doneCt}/${ev.checklist.length}`}
+                <i data-lucide="truck"></i>${allDone ? 'Départ camion, bon signé' : `Chargement en cours · ${doneCt}/${ev.checklist.length}`}
               </button>
             </div>`}
     </div>`;
@@ -1102,30 +1102,30 @@
     const { pp, total } = evTotals(ev);
     const t1 = Math.round(total * 0.3), t2 = Math.round(total * 0.5);
     if (kind === 'devis') {
-      return `Sba7 lkhir ${first} — voici votre devis Dar Zellij (${ev.devisRef}) :`
+      return `Sba7 lkhir ${first}, voici votre devis Dar Zellij (${ev.devisRef}) :`
         + `\n${TYPES[ev.type].label} · ${ev.guests} invités · ${fmtDay(ev.date)} · ${ev.lieu}`
         + `\nMenu ${pp} MAD / personne : ${ev.menu.map((id) => DISH[id].label.toLowerCase()).join(', ')}.`
         + (ev.extras.length ? `\nExtras : ${ev.extras.map((id) => EXTRA[id].label.toLowerCase()).join(', ')}.` : '')
-        + `\nTotal : ${fmtMAD(total)} — 30 % à la confirmation (${fmtMAD(t1)}), 50 % à J-7 (${fmtMAD(t2)}), solde le jour J.`
-        + `\nRépondez OUI pour confirmer — la date reste bloquée 7 jours.`
+        + `\nTotal : ${fmtMAD(total)}, 30 % à la confirmation (${fmtMAD(t1)}), 50 % à J-7 (${fmtMAD(t2)}), solde le jour J.`
+        + `\nRépondez OUI pour confirmer, la date reste bloquée 7 jours.`
         + `\n— Traiteur Dar Zellij · envoyé via Kiwi`;
     }
     if (kind === 'relance') {
-      return `Sba7 lkhir ${first} — petit rappel de Dar Zellij : votre devis ${ev.devisRef}`
+      return `Sba7 lkhir ${first}, petit rappel de Dar Zellij : votre devis ${ev.devisRef}`
         + ` (${TYPES[ev.type].label.toLowerCase()} · ${ev.guests} invités · ${fmtDay(ev.date)}) est toujours réservé.`
-        + `\nLa date du ${fmtDay(ev.date)} part vite en saison — répondez OUI pour la bloquer définitivement.`
+        + `\nLa date du ${fmtDay(ev.date)} part vite en saison, répondez OUI pour la bloquer définitivement.`
         + `\n— Traiteur Dar Zellij · envoyé via Kiwi`;
     }
     if (kind === 'route') {
       const arr = new Date(ev.date.getTime() - 45 * 60000);
-      return `Sba7 lkhir ${first} — l’équipe Dar Zellij est en route pour ${ev.lieu}.`
+      return `Sba7 lkhir ${first}, l’équipe Dar Zellij est en route pour ${ev.lieu}.`
         + `\nArrivée prévue vers ${timeOf(arr)}, installation puis service à ${timeOf(ev.date)}.`
         + `\nTout est chargé et contrôlé. À tout de suite !`
         + `\n— Traiteur Dar Zellij · envoyé via Kiwi`;
     }
     /* rappel d'échéance */
     const t = nextTranche(ev);
-    return `Sba7 lkhir ${first} — rappel de Dar Zellij pour ${ev.name} du ${fmtDay(ev.date)} :`
+    return `Sba7 lkhir ${first}, rappel de Dar Zellij pour ${ev.name} du ${fmtDay(ev.date)} :`
       + `\nla tranche « ${t ? t.label : 'solde'} » de ${t ? fmtMAD(t.amount) : ''} arrive à échéance.`
       + `\nVous pouvez régler en espèces au labo, par carte ou par virement.`
       + `\nChoukran, l’lah ikhellik.`
@@ -1137,10 +1137,10 @@
     const isDevis = kind === 'devis';
     let attach = isDevis;
     const titles = {
-      devis: 'WhatsApp — envoyer le devis',
-      relance: 'WhatsApp — relance du devis',
-      rappel: 'WhatsApp — rappel d’échéance',
-      route: 'WhatsApp — équipe en route',
+      devis: 'WhatsApp, envoyer le devis',
+      relance: 'WhatsApp, relance du devis',
+      rappel: 'WhatsApp, rappel d’échéance',
+      route: 'WhatsApp, équipe en route',
     };
     el.innerHTML = `
       <button class="tr-modal-x" data-tr-close aria-label="Fermer"><i data-lucide="x"></i></button>
@@ -1155,7 +1155,7 @@
       ${isDevis ? `
       <button class="tr-wa-attach ${attach ? 'on' : ''}" id="tr-wa-attach">
         <span class="th"><i data-lucide="file-text"></i></span>
-        <span class="l">Joindre le devis PDF (${esc(ev.devisRef)}) — mis en page par Kiwi, prêt à signer</span>
+        <span class="l">Joindre le devis PDF (${esc(ev.devisRef)}), mis en page par Kiwi, prêt à signer</span>
         <span class="tick"><i data-lucide="check"></i></span>
       </button>` : ''}
       <div class="tr-wa-foot">
@@ -1177,7 +1177,7 @@
       }
       ev.lastWa = new Date();
       queueIfOffline('Message WhatsApp');
-      toast(`WhatsApp envoyé à ${ev.client}${kind === 'rappel' ? ' — rappel d’échéance' : kind === 'route' ? ' — équipe en route' : ''}`);
+      toast(`WhatsApp envoyé à ${ev.client}${kind === 'rappel' ? ', rappel d’échéance' : kind === 'route' ? ', équipe en route' : ''}`);
       refreshAll();
     };
   }
@@ -1222,7 +1222,7 @@
         <hr>
         ${ev.tranches.map((t) => `<div class="row"><span>${t.pct} % · ${esc(t.label)}</span><span>${t.paid ? `${fmtN(t.amount)} · ${METHODS[t.paid.method]} · ${fmtDay(t.paid.at)}` : 'non payé'}</span></div>`).join('')}
         <hr>
-        <div class="c mut">Soldé — merci, l’lah ikhellik.</div>
+        <div class="c mut">Soldé, merci, l’lah ikhellik.</div>
       </div>`;
     }
     /* devis */
@@ -1253,11 +1253,11 @@
 
   function openDoc(kind, ev) {
     const el = $('#tr-docm', root);
-    const titles = { devis: `Devis ${ev.devisRef}`, bon: `Bon de livraison — ${ev.name}`, recap: `Récapitulatif — ${ev.name}` };
+    const titles = { devis: `Devis ${ev.devisRef}`, bon: `Bon de livraison, ${ev.name}`, recap: `Récapitulatif, ${ev.name}` };
     el.innerHTML = `
       <button class="tr-modal-x" data-tr-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">${esc(titles[kind] || 'Document')}</h3>
-      <p class="modal-subtle">Aperçu avant impression — format A4, papier à en-tête Dar Zellij.</p>
+      <p class="modal-subtle">Aperçu avant impression, format A4, papier à en-tête Dar Zellij.</p>
       <div class="tr-doc-wrap">${docHTML(kind, ev)}</div>
       <div class="tr-doc-foot">
         <button class="tr-btn secondary" data-tr-close>Fermer</button>
@@ -1268,7 +1268,7 @@
     $$('[data-tr-close]', el).forEach((b) => { b.onclick = () => closeVeil('#tr-veil-doc'); });
     $('#tr-doc-print', el).onclick = () => {
       queueIfOffline('Impression document');
-      toast(kind === 'bon' ? 'Bon de livraison envoyé à l’imprimante — 2 exemplaires (équipe + client)' : `${kind === 'recap' ? 'Récapitulatif' : 'Devis'} envoyé à l’imprimante A4`);
+      toast(kind === 'bon' ? 'Bon de livraison envoyé à l’imprimante, 2 exemplaires (équipe + client)' : `${kind === 'recap' ? 'Récapitulatif' : 'Devis'} envoyé à l’imprimante A4`);
     };
   }
 
@@ -1290,15 +1290,15 @@
         <div class="tr-pay-opts">
           <button class="tr-pay-opt" data-tr-m="especes">
             <span class="ic"><i data-lucide="banknote"></i></span>
-            <span class="l"><b>Espèces</b><span>Rendu calculé — flous comptés devant le client</span></span>
+            <span class="l"><b>Espèces</b><span>Rendu calculé, flous comptés devant le client</span></span>
           </button>
           <button class="tr-pay-opt" data-tr-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Montant envoyé au lecteur partenaire, V1 sans encaissement Kiwi</span></span>
           </button>
           <button class="tr-pay-opt is-usual" data-tr-m="virement">
             <span class="ic"><i data-lucide="wallet"></i></span>
-            <span class="l"><b>Virement reçu</b><span>Le classique des gros montants — référence notée pour la compta</span></span>
+            <span class="l"><b>Virement reçu</b><span>Le classique des gros montants, référence notée pour la compta</span></span>
           </button>
         </div>`;
       icons();
@@ -1355,7 +1355,7 @@
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="tr-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="tr-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons();
       $$('[data-tr-close]', el).forEach((b) => { b.onclick = () => closeVeil('#tr-veil-pay'); });
@@ -1376,15 +1376,15 @@
       el.innerHTML = `
         <button class="tr-modal-x" data-tr-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Virement reçu · ${fmtMAD(amount)}</h3>
-        <p class="modal-subtle">${esc(ev.name)} · tranche ${t.pct} % — confirmez la réception sur le compte</p>
+        <p class="modal-subtle">${esc(ev.name)} · tranche ${t.pct} %, confirmez la réception sur le compte</p>
         <div class="cash-grid">
           <div class="cash-input-row">
             <label class="cash-input-label" for="tr-vir-ref">Référence du virement <span style="color:var(--ink-4);">(optionnel)</span></label>
             <input class="cash-input mono" id="tr-vir-ref" style="font-size:16px;" placeholder="Ex. VIR-88214" />
           </div>
-          <button class="cash-confirm" id="tr-vir-ok">Virement bien reçu — pointer la tranche</button>
+          <button class="cash-confirm" id="tr-vir-ok">Virement bien reçu, pointer la tranche</button>
         </div>
-        <div class="tr-foot-note" style="margin-top:10px;">Rapprochement bancaire automatique côté dashboard — rien à ressaisir.</div>`;
+        <div class="tr-foot-note" style="margin-top:10px;">Rapprochement bancaire automatique côté dashboard, rien à ressaisir.</div>`;
       icons();
       $$('[data-tr-close]', el).forEach((b) => { b.onclick = () => closeVeil('#tr-veil-pay'); });
       $('#tr-vir-ok', el).onclick = () => {
@@ -1399,9 +1399,9 @@
       if (wasConfirme) ev.status = 'acompte';
       closeVeil('#tr-veil-pay');
       queueIfOffline('Encaissement tranche');
-      toast(`Tranche ${t.pct} % encaissée — ${fmtMAD(amount)} en ${METHODS[method]}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
-      if (wasConfirme) toast(`${ev.name} passe en « Acompte reçu » — la date est verrouillée`);
-      if (dueTotal(ev) <= 0) toast(`${ev.name} est soldé — khlass, rien à encaisser le jour J`);
+      toast(`Tranche ${t.pct} % encaissée, ${fmtMAD(amount)} en ${METHODS[method]}${rendu ? ` · rendu ${fmtMAD(rendu)}` : ''}`);
+      if (wasConfirme) toast(`${ev.name} passe en « Acompte reçu », la date est verrouillée`);
+      if (dueTotal(ev) <= 0) toast(`${ev.name} est soldé, khlass, rien à encaisser le jour J`);
       refreshAll();
       if (ctx && typeof ctx.onDone === 'function') ctx.onDone();
     };
@@ -1414,10 +1414,10 @@
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — la caisse continue, tout est mis en file');
+      toast('Mode hors-ligne, la caisse continue, tout est mis en file');
     }
     renderNet();
   }

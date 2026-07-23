@@ -171,13 +171,13 @@
 
   const CLIENTES = [
     { id: 'c1', name: 'Lalla Khadija El Fassi', phone: '0661 42 18 30', points: 1240, taille: 'M',  achats: 9,  spent: 18400, vip: true,
-      prefs: ['Caftans brodés main — jamais de machine', 'Retouches chez Maalem Hassan'],
+      prefs: ['Caftans brodés main, jamais de machine', 'Retouches chez Maalem Hassan'],
       history: [{ when: '24 mai', what: 'Caftan Velours · M · bordeaux', amt: 1850 }, { when: '12 avr.', what: 'Takchita Zellige · M · émeraude', amt: 2800 }, { when: '2 mars', what: 'Mdamma dorée', amt: 650 }] },
     { id: 'c2', name: 'Salma Bennis', phone: '0664 77 02 19', points: 480, taille: 'S', achats: 4, spent: 3160,
-      prefs: ['Pointure 39 — le 38 taille petit'],
+      prefs: ['Pointure 39, le 38 taille petit'],
       history: [{ when: '10 juin', what: 'Cherbil perlé · 37 · argent (retour avoir)', amt: 450 }, { when: '18 mai', what: 'Caftan Coton Été · S · safran', amt: 1200 }] },
     { id: 'c3', name: 'Yasmina Alaoui', phone: '0667 31 55 08', points: 2130, taille: 'L', achats: 14, spent: 31200, vip: true,
-      prefs: ['Takchitas de cérémonie — appeler dès les nouveautés'],
+      prefs: ['Takchitas de cérémonie, appeler dès les nouveautés'],
       history: [{ when: '28 mai', what: 'Takchita Mariage · L · ivoire', amt: 4500 }, { when: '6 mai', what: 'Caftan Signature Mansour · L · doré', amt: 3500 }] },
     { id: 'c4', name: 'Imane Cherkaoui', phone: '0650 09 64 12', points: 310, taille: 'S', achats: 3, spent: 2240,
       prefs: [],
@@ -259,7 +259,7 @@
     if (!state.offline) return false;
     state.queued++;
     renderNet();
-    toast(`${label} — enregistré hors-ligne (${state.queued} en attente)`);
+    toast(`${label}, enregistré hors-ligne (${state.queued} en attente)`);
     return true;
   }
 
@@ -273,7 +273,7 @@
         <div class="bq-brand">kiwi<i></i></div>
         <div class="bq-venue">
           <div class="bq-venue-name">Maison Mansour</div>
-          <div class="bq-venue-sub">Casablanca · Maarif<br>Le même Kiwi — <b>un seul compte</b>.</div>
+          <div class="bq-venue-sub">Casablanca · Maarif<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="bq-nav" id="bq-nav">
           <button class="bq-nav-it on" data-bq-view="vente"><i data-lucide="shopping-bag"></i><span>Vente</span><b class="bq-nav-badge" id="bq-badge-vente"></b></button>
@@ -291,14 +291,14 @@
       </aside>
       <main class="bq-main">
         <div class="bq-offline-note" id="bq-offline-note" hidden>
-          Hors-ligne — les ventes sont enregistrées sur la tablette et synchronisées au retour du réseau.
+          Hors-ligne, les ventes sont enregistrées sur la tablette et synchronisées au retour du réseau.
           <b id="bq-queue-count"></b>
         </div>
         <section class="bq-view is-on" data-bq-panel="vente">
           <div class="bq-sell">
             <header class="bq-head">
               <div><h1>Vente</h1><div class="bq-head-sub" id="bq-today"></div></div>
-              <div class="bq-head-hint">Touchez un article — taille, couleur et remise ensuite</div>
+              <div class="bq-head-hint">Touchez un article, taille, couleur et remise ensuite</div>
             </header>
             <div id="bq-exch-slot"></div>
             <div class="bq-cats" id="bq-cats"></div>
@@ -488,14 +488,14 @@
     slot.innerHTML = `
       <div class="bq-exch-note">
         <i data-lucide="arrow-left-right"></i>
-        <span class="l">Échange <b>${sale.id}</b> — retour <b>${esc(P[ln.pid].name)} · ${esc(ln.size)}</b> (${fmtMAD(ln.unit)}).
+        <span class="l">Échange <b>${sale.id}</b>, retour <b>${esc(P[ln.pid].name)} · ${esc(ln.size)}</b> (${fmtMAD(ln.unit)}).
         Touchez l'article de remplacement dans la grille.</span>
         <button class="bq-exch-cancel" id="bq-exch-cancel">Annuler l'échange</button>
       </div>`;
     $('#bq-exch-cancel', slot).onclick = () => {
       state.exchange = null;
       renderExchNote();
-      toast('Échange annulé — rien n\'a bougé');
+      toast('Échange annulé, rien n\'a bougé');
       icons();
     };
     icons();
@@ -505,12 +505,12 @@
   function clientRow(t) {
     if (!t.client) {
       return `<button class="bq-tk-row" id="bq-tk-client"><i data-lucide="user-plus"></i>
-        <span class="l"><b>Attacher une cliente</b><span>Téléphone d'abord — points et taille suivent</span></span>
+        <span class="l"><b>Attacher une cliente</b><span>Téléphone d'abord, points et taille suivent</span></span>
         <span class="edit">Chercher</span></button>`;
     }
     if (t.client === 'passage') {
       return `<button class="bq-tk-row is-set" id="bq-tk-client"><i data-lucide="user"></i>
-        <span class="l"><b>Cliente de passage</b><span>Sans fiche — retrouvable par n° de ticket</span></span>
+        <span class="l"><b>Cliente de passage</b><span>Sans fiche, retrouvable par n° de ticket</span></span>
         <span class="edit">Changer</span></button>`;
     }
     const c = CL[t.client];
@@ -554,7 +554,7 @@
       freshTicket();
       state.ticket.client = t.client;     /* la cliente reste au comptoir */
       renderTicket(); renderGrid(); renderBadges(); icons();
-      toast('Ticket vidé — articles remis en stock');
+      toast('Ticket vidé, articles remis en stock');
     };
     $('#bq-tk-client', el).onclick = openClientModal;
     $('#bq-validate', el).onclick = checkout;
@@ -566,7 +566,7 @@
       const ln = t.lines[idx];
       if (plus) {
         if ((P[ln.pid].sizes[ln.size] || 0) <= 0) {
-          toast(`${P[ln.pid].name} · ${ln.size} — plus de stock, dernière pièce déjà sur le ticket`);
+          toast(`${P[ln.pid].name} · ${ln.size}, plus de stock, dernière pièce déjà sur le ticket`);
           return;
         }
         stockAdd(ln.pid, ln.size, -1);
@@ -607,7 +607,7 @@
   function addToTicket(pid, cfg, opts) {
     const p = P[pid];
     if ((p.sizes[cfg.size] || 0) < cfg.qty) {
-      toast(`${p.name} · ${cfg.size} — stock insuffisant`);
+      toast(`${p.name} · ${cfg.size}, stock insuffisant`);
       return false;
     }
     stockAdd(pid, cfg.size, -cfg.qty);
@@ -615,7 +615,7 @@
     if (same) same.qty += cfg.qty;
     else state.ticket.lines.push({ pid, size: cfg.size, color: cfg.color, qty: cfg.qty, remise: cfg.remise });
     renderTicket(); renderGrid(); renderBadges(); icons();
-    if (!opts || !opts.quiet) toast(`${p.name} · ${cfg.size} — sur le ticket`);
+    if (!opts || !opts.quiet) toast(`${p.name} · ${cfg.size}, sur le ticket`);
     return true;
   }
 
@@ -732,7 +732,7 @@
     if (qMinus) qMinus.onclick = () => { if (sheet.qty > 1) { sheet.qty--; refreshPrice(); } };
     const qPlus = $('#bq-qty-plus', el);
     if (qPlus) qPlus.onclick = () => {
-      if (sheet.qty >= (p.sizes[sheet.size] || 0)) { toast(`${p.name} · ${sheet.size} — ${p.sizes[sheet.size]} en stock, pas plus`); return; }
+      if (sheet.qty >= (p.sizes[sheet.size] || 0)) { toast(`${p.name} · ${sheet.size}, ${p.sizes[sheet.size]} en stock, pas plus`); return; }
       sheet.qty++; refreshPrice();
     };
     const remRow = $('#bq-remise', el);
@@ -766,10 +766,10 @@
     el.innerHTML = `
       <button class="bq-modal-x" data-bq-close aria-label="Fermer"><i data-lucide="x"></i></button>
       <h3 class="modal-title">Remise −${pct} %</h3>
-      <p class="modal-subtle">Une remise s'applique avec l'accord de la gérante — qui valide ?</p>
+      <p class="modal-subtle">Une remise s'applique avec l'accord de la gérante, qui valide ?</p>
       <button class="bq-staff-row" id="bq-app-ok">
         <span class="bq-staff-ava">${initials(STAFF.gerante.name)}</span>
-        <span class="l"><b>${esc(STAFF.gerante.name)}</b><span>${esc(STAFF.gerante.role)} — peut approuver</span></span>
+        <span class="l"><b>${esc(STAFF.gerante.name)}</b><span>${esc(STAFF.gerante.role)}, peut approuver</span></span>
         <span class="ok">Approuver</span>
       </button>
       <button class="bq-staff-row is-no" id="bq-app-no">
@@ -777,17 +777,17 @@
         <span class="l"><b>${esc(STAFF.conseil.name)}</b><span>${esc(STAFF.conseil.role)}</span></span>
         <span class="ok">Non habilitée</span>
       </button>
-      <div class="bq-foot-note">L'accord vaut pour tout le ticket ${state.ticket.num} — tracé dans le journal.</div>`;
+      <div class="bq-foot-note">L'accord vaut pour tout le ticket ${state.ticket.num}, tracé dans le journal.</div>`;
     openVeil('#bq-approve-veil');
     icons();
     $$('[data-bq-close]', el).forEach((b) => { b.onclick = () => closeVeil('#bq-approve-veil'); });
     $('#bq-app-ok', el).onclick = () => {
       state.ticket.remiseAuth = true;
       closeVeil('#bq-approve-veil');
-      toast(`Remise −${pct} % — accord ${STAFF.gerante.name}`);
+      toast(`Remise −${pct} %, accord ${STAFF.gerante.name}`);
       onOk();
     };
-    $('#bq-app-no', el).onclick = () => toast(`${STAFF.conseil.name} n'est pas habilitée — seule la gérante approuve une remise`);
+    $('#bq-app-no', el).onclick = () => toast(`${STAFF.conseil.name} n'est pas habilitée, seule la gérante approuve une remise`);
   }
 
   /* ═══════════════════════ CLIENTE — phone-first (modal du ticket) ═══════ */
@@ -810,7 +810,7 @@
       el.innerHTML = `
         <button class="bq-modal-x" data-bq-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Cliente</h3>
-        <p class="modal-subtle">En boutique on cherche par téléphone — la fiche porte les points et la taille.</p>
+        <p class="modal-subtle">En boutique on cherche par téléphone, la fiche porte les points et la taille.</p>
         <div class="bq-phone-in"><i data-lucide="phone"></i>
           <input id="bq-cl-q" inputmode="tel" placeholder="06… ou nom de la cliente" value="${esc(q || '')}" autocomplete="off" />
         </div>
@@ -830,7 +830,7 @@
           </div>
           <button class="bq-cl-new" id="bq-cl-new"><i data-lucide="user-plus"></i>Nouvelle cliente${q && !hits.length ? ` · « ${esc(q)} »` : ''}</button>
           <div class="bq-sheet-foot" style="margin-top:10px;">
-            <button class="bq-btn ghost" id="bq-cl-guest">Cliente de passage — sans fiche</button>
+            <button class="bq-btn ghost" id="bq-cl-guest">Cliente de passage, sans fiche</button>
           </div>` : `
           <div class="bq-cl-form">
             <input class="bq-in" id="bq-cl-name" placeholder="Nom et prénom" value="${esc(/^[\d\s.+-]*$/.test(q || '') ? '' : (q || ''))}" />
@@ -847,7 +847,7 @@
           const c = CL[b.dataset.bqCl];
           state.ticket.client = c.id;
           closeVeil('#bq-client-veil');
-          toast(`${c.name} — taille ${c.taille}, ${c.points} pts${clAvoirOf(c) ? ', un avoir actif' : ''}`);
+          toast(`${c.name}, taille ${c.taille}, ${c.points} pts${clAvoirOf(c) ? ', un avoir actif' : ''}`);
           renderTicket(); icons();
         };
       });
@@ -872,7 +872,7 @@
         state.ticket.client = id;
         closeVeil('#bq-client-veil');
         queueIfOffline('Fiche cliente');
-        toast(`Fiche créée — ${name}`);
+        toast(`Fiche créée, ${name}`);
         renderTicket(); renderBadges(); icons();
       };
     };
@@ -891,7 +891,7 @@
     panel.innerHTML = `
       <div class="bq-clients">
         <header class="bq-head">
-          <div><h1>Clientes</h1><div class="bq-head-sub">Le téléphone d'abord — la fiche suit la cliente, pas le ticket</div></div>
+          <div><h1>Clientes</h1><div class="bq-head-sub">Le téléphone d'abord, la fiche suit la cliente, pas le ticket</div></div>
           <div class="bq-search"><i data-lucide="search"></i>
             <input id="bq-clv-q" inputmode="tel" placeholder="06… ou nom" value="${esc(q)}" /></div>
         </header>
@@ -957,7 +957,7 @@
         <div class="bq-fstat"><b>${fmtMAD(spent)}</b><span>dépensé</span></div>
       </div>
       ${(c.prefs || []).length ? `<div class="bq-fnotes">${c.prefs.map((p) => `<div class="bq-fnote"><i data-lucide="heart"></i>${esc(p)}</div>`).join('')}</div>` : ''}
-      ${av ? `<button class="bq-favoir" id="bq-fiche-av"><i data-lucide="ticket"></i>Avoir actif <b>${av.code}</b> · ${fmtMAD(av.balance)} — utilisable en caisse<span class="see">Voir</span></button>` : ''}
+      ${av ? `<button class="bq-favoir" id="bq-fiche-av"><i data-lucide="ticket"></i>Avoir actif <b>${av.code}</b> · ${fmtMAD(av.balance)}, utilisable en caisse<span class="see">Voir</span></button>` : ''}
       <div class="bq-f-lbl" style="margin-bottom:6px;">Historique</div>
       <div class="bq-fhist">
         ${hist.length ? hist.map((h) => `<div class="bq-fhist-row"><span class="when">${esc(h.when)}</span><span class="what">${esc(h.what)}</span><span class="amt">${fmtMAD(h.amt)}</span></div>`).join('') : '<div class="bq-empty">Aucun achat enregistré.</div>'}
@@ -975,7 +975,7 @@
       state.ticket.client = c.id;
       closeVeil('#bq-fiche-veil');
       switchView('vente');
-      toast(`${firstName(c.name)} au comptoir — taille ${c.taille} pré-sélectionnée`);
+      toast(`${firstName(c.name)} au comptoir, taille ${c.taille} pré-sélectionnée`);
     };
   }
 
@@ -995,7 +995,7 @@
       <div class="bq-scan">
         <div class="bq-scan-inner">
           <header class="bq-head" style="padding:22px 0 0;">
-            <div><h1>Scan douchette</h1><div class="bq-head-sub">Le champ écoute la douchette en continu — Entrée valide, l'article file sur le ticket</div></div>
+            <div><h1>Scan douchette</h1><div class="bq-head-sub">Le champ écoute la douchette en continu, Entrée valide, l'article file sur le ticket</div></div>
           </header>
           <div class="bq-ean-in"><i data-lucide="scan-line"></i>
             <input id="bq-ean" placeholder="Scannez ou tapez un code-barres…" autocomplete="off" />
@@ -1018,7 +1018,7 @@
                 <span>${esc(l.label)}</span>
                 <span class="ean">${esc(l.ean)}</span>
               </div>`).join('')}
-          </div>` : `<div class="bq-empty">Aucun scan pour l'instant — la douchette USB tape ici toute seule.</div>`}
+          </div>` : `<div class="bq-empty">Aucun scan pour l'instant, la douchette USB tape ici toute seule.</div>`}
           ${ticketCount(state.ticket) ? `
           <div class="bq-sheet-foot">
             <button class="bq-btn secondary" id="bq-scan-goticket" style="flex:1;"><i data-lucide="shopping-bag"></i>Voir le ticket · ${ticketCount(state.ticket)} article${ticketCount(state.ticket) > 1 ? 's' : ''}</button>
@@ -1052,8 +1052,8 @@
     const hit = window.KiwiBoutiqueCatalog ? window.KiwiBoutiqueCatalog.resolveScan(code) : null;
     const pid = hit ? hit.pid : BY_EAN[code];
     if (!pid || !P[pid]) {
-      state.scanLog.unshift({ at: new Date(), ok: false, label: 'Code inconnu — non référencé', ean: code, pid: null, size: '' });
-      toast(`Code ${code} inconnu — enregistrez-le sur un article`);
+      state.scanLog.unshift({ at: new Date(), ok: false, label: 'Code inconnu, non référencé', ean: code, pid: null, size: '' });
+      toast(`Code ${code} inconnu, enregistrez-le sur un article`);
       if (state.view === 'scan') renderScan();
       renderBadges();
       offerRegister(code);
@@ -1065,16 +1065,16 @@
              : (c && p.kind === 'taille' && (p.sizes[c.taille] || 0) > 0) ? c.taille
              : firstFree(p);
     if (!size) {
-      state.scanLog.unshift({ at: new Date(), ok: false, label: `${p.name} — épuisé, rien à vendre`, ean: code, pid: null, size: '' });
-      toast(`${p.name} — épuisé dans toutes les tailles`);
+      state.scanLog.unshift({ at: new Date(), ok: false, label: `${p.name}, épuisé, rien à vendre`, ean: code, pid: null, size: '' });
+      toast(`${p.name}, épuisé dans toutes les tailles`);
       if (state.view === 'scan') renderScan();
       renderBadges();
       return;
     }
     const color = (hit && hit.colorId && p.colors.includes(hit.colorId)) ? hit.colorId : p.colors[0];
     addToTicket(pid, { size, color, qty: 1, remise: 0 }, { quiet: true });
-    state.scanLog.unshift({ at: new Date(), ok: true, label: `${p.name} · ${size} — ajouté au ticket`, ean: code, pid, size });
-    toast(`Bip — ${p.name} · ${size} sur le ticket (${fmtMAD(p.price)})`);
+    state.scanLog.unshift({ at: new Date(), ok: true, label: `${p.name} · ${size}, ajouté au ticket`, ean: code, pid, size });
+    toast(`Bip, ${p.name} · ${size} sur le ticket (${fmtMAD(p.price)})`);
     if (state.view === 'scan') renderScan();
     if (state.view === 'vente') renderTicket();
     renderBadges();
@@ -1116,7 +1116,7 @@
     panel.innerHTML = `
       <div class="bq-ret">
         <header class="bq-head">
-          <div><h1>Échanges &amp; avoirs</h1><div class="bq-head-sub">Retour sous 7 jours avec ticket — échange ou avoir, jamais de remboursement espèces</div></div>
+          <div><h1>Échanges &amp; avoirs</h1><div class="bq-head-sub">Retour sous 7 jours avec ticket, échange ou avoir, jamais de remboursement espèces</div></div>
           <div class="bq-search"><i data-lucide="search"></i>
             <input id="bq-ret-q" placeholder="N° de ticket ou téléphone…" value="${esc(q)}" /></div>
         </header>
@@ -1126,10 +1126,10 @@
               <div class="bq-ret-bar-lbl">Avoirs actifs · ${activeAvoirs().length}</div>
               ${activeAvoirs().map((a) => `
                 <button class="bq-favoir" data-bq-av="${a.code}" style="margin-bottom:6px;">
-                  <i data-lucide="ticket"></i><b>${a.code}</b> · ${fmtMAD(a.balance)} — ${esc(a.holderName)}<span class="see">Voir</span>
+                  <i data-lucide="ticket"></i><b>${a.code}</b> · ${fmtMAD(a.balance)}, ${esc(a.holderName)}<span class="see">Voir</span>
                 </button>`).join('')}
             </div>` : ''}
-          ${hits.map((s) => saleCard(s, ret)).join('') || `<div class="bq-empty">Rien pour « ${esc(q)} » — vérifiez le n° de ticket ou le téléphone.</div>`}
+          ${hits.map((s) => saleCard(s, ret)).join('') || `<div class="bq-empty">Rien pour « ${esc(q)} », vérifiez le n° de ticket ou le téléphone.</div>`}
         </div></div>
       </div>`;
     $('#bq-ret-q', panel).oninput = (e) => {
@@ -1143,7 +1143,7 @@
       const lnB = e.target.closest('[data-bq-pick]');
       if (lnB) { togglePick(lnB.dataset.bqPick); return; }
       const lockB = e.target.closest('[data-bq-locked]');
-      if (lockB) { toast('Pièce déjà retournée — rien à reprendre dessus'); return; }
+      if (lockB) { toast('Pièce déjà retournée, rien à reprendre dessus'); return; }
       const motif = e.target.closest('[data-bq-motif]');
       if (motif && state.ret) { state.ret.motif = motif.dataset.bqMotif; renderEchanges(); icons(); return; }
       const exch = e.target.closest('[data-bq-do-exch]');
@@ -1220,15 +1220,15 @@
   function doExchange() {
     const ret = state.ret;
     if (!ret) return;
-    if (ret.picks.size !== 1) { toast('L\'échange se fait pièce par pièce — gardez une seule ligne cochée'); return; }
+    if (ret.picks.size !== 1) { toast('L\'échange se fait pièce par pièce, gardez une seule ligne cochée'); return; }
     const idx = ret.picks.values().next().value;
     const sale = findSale(ret.saleId);
     const ln = sale.lines[idx];
-    if (ln.qty > 1) { toast('Ligne multiple — passez par un avoir, ou retournez pièce par pièce'); return; }
+    if (ln.qty > 1) { toast('Ligne multiple, passez par un avoir, ou retournez pièce par pièce'); return; }
     state.exchange = { saleId: ret.saleId, idx };
     state.ret = null;
     switchView('vente');
-    toast(`Échange ${sale.id} — choisissez l'article de remplacement dans la grille`);
+    toast(`Échange ${sale.id}, choisissez l'article de remplacement dans la grille`);
   }
 
   function doAvoir() {
@@ -1240,7 +1240,7 @@
     if (!amount) return;
     restoreLines(sale, idxs, `avoir (${ret.motif.toLowerCase()})`);
     const c = saleClient(sale);
-    const av = issueAvoir(amount, c, `${ret.motif} — retour ${sale.id}`, sale.id);
+    const av = issueAvoir(amount, c, `${ret.motif}, retour ${sale.id}`, sale.id);
     state.ret = null;
     refreshOps();
     openVoucher(av, { mode: 'fresh' });
@@ -1267,7 +1267,7 @@
     };
     AVOIRS.unshift(av);
     queueIfOffline(`Avoir ${av.code}`);
-    toast(`${av.code} émis — ${fmtMAD(amount)}, pièces remises en stock`);
+    toast(`${av.code} émis, ${fmtMAD(amount)}, pièces remises en stock`);
     renderBadges();
     return av;
   }
@@ -1276,11 +1276,11 @@
   function voucherHTML(av) {
     return `<div class="bq-avoir">
       <div class="c b lg">MAISON MANSOUR</div>
-      <div class="c mut">12 rue Aïn Harrouda, Maarif — Casablanca<br>05 22 25 XX XX · propulsé par Kiwi</div>
+      <div class="c mut">12 rue Aïn Harrouda, Maarif, Casablanca<br>05 22 25 XX XX · propulsé par Kiwi</div>
       <hr>
       <div class="c b">BON D'AVOIR</div>
       <div class="bq-avoir-amt">${fmtMAD(av.balance)}</div>
-      ${av.balance !== av.amount ? `<div class="c mut">émis pour ${fmtMAD(av.amount)} — solde restant</div>` : ''}
+      ${av.balance !== av.amount ? `<div class="c mut">émis pour ${fmtMAD(av.amount)}, solde restant</div>` : ''}
       <hr>
       <div class="row"><span>Code</span><span class="b">${av.code}</span></div>
       <div class="row"><span>Cliente</span><span>${esc(av.holderName)}</span></div>
@@ -1301,10 +1301,10 @@
     const el = $('#bq-avoirmm', root);
     el.innerHTML = `
       <button class="bq-modal-x" data-bq-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">${fresh ? `Avoir émis — ${av.code}` : `Avoir ${av.code}`}</h3>
-      <p class="modal-subtle">${esc(av.holderName)} · ${fmtMAD(av.balance)} ${av.balance > 0 ? 'disponibles' : '— consommé'}</p>
+      <h3 class="modal-title">${fresh ? `Avoir émis, ${av.code}` : `Avoir ${av.code}`}</h3>
+      <p class="modal-subtle">${esc(av.holderName)} · ${fmtMAD(av.balance)} ${av.balance > 0 ? 'disponibles' : 'consommé'}</p>
       ${voucherHTML(av)}
-      <div class="bq-avoir-note"><i data-lucide="shield-check"></i>Le code-barres revient en caisse comme moyen de paiement — il se déduit tout seul à l'encaissement.</div>
+      <div class="bq-avoir-note"><i data-lucide="shield-check"></i>Le code-barres revient en caisse comme moyen de paiement, il se déduit tout seul à l'encaissement.</div>
       <div class="bq-sheet-foot">
         <button class="bq-btn secondary" id="bq-av-print"><i data-lucide="printer"></i>Imprimer l'avoir</button>
         <button class="bq-btn primary" data-bq-close><i data-lucide="check"></i>${fresh ? 'Terminer' : 'Fermer'}</button>
@@ -1312,7 +1312,7 @@
     openVeil('#bq-avoir-veil');
     icons();
     $$('[data-bq-close]', el).forEach((b) => { b.onclick = () => closeVeil('#bq-avoir-veil'); });
-    $('#bq-av-print', el).onclick = () => toast(`${av.code} envoyé — imprimante 80 mm`);
+    $('#bq-av-print', el).onclick = () => toast(`${av.code} envoyé, imprimante 80 mm`);
   }
 
   /* ---------- exchange summary ---------- */
@@ -1328,7 +1328,7 @@
     const el = $('#bq-exchm', root);
     el.innerHTML = `
       <button class="bq-modal-x" data-bq-close aria-label="Fermer"><i data-lucide="x"></i></button>
-      <h3 class="modal-title">Échange — ${sale.id}</h3>
+      <h3 class="modal-title">Échange, ${sale.id}</h3>
       <p class="modal-subtle">${c ? esc(c.name) : 'Cliente de passage'} · la pièce rendue repart en stock</p>
       <div class="bq-exch-row is-ret">
         <span class="bq-line-art">${artOf(oldP.art)}</span>
@@ -1341,7 +1341,7 @@
         <span class="amt">+${fmtMAD(newP.price)}</span>
       </div>
       <div class="bq-exch-diff ${diff > 0 ? 'pos' : diff < 0 ? 'neg' : 'zero'}">
-        <span>${diff > 0 ? 'Différence à encaisser' : diff < 0 ? 'Différence en faveur de la cliente — part en avoir' : 'Aucun écart — échange direct'}</span>
+        <span>${diff > 0 ? 'Différence à encaisser' : diff < 0 ? 'Différence en faveur de la cliente, part en avoir' : 'Aucun écart, échange direct'}</span>
         <span class="amt">${diff === 0 ? '0 MAD' : fmtMAD(Math.abs(diff))}</span>
       </div>
       <div class="bq-sheet-foot">
@@ -1386,7 +1386,7 @@
             SALES.unshift(rec);
             $('#bq-today', root).textContent = headSubVente();
             refreshOps();
-            return { ref: rec.id, line: `Échange ${sale.id} réglé — différence ${fmtMAD(diff)}` };
+            return { ref: rec.id, line: `Échange ${sale.id} réglé, différence ${fmtMAD(diff)}` };
           },
         });
       } else if (diff < 0) {
@@ -1397,7 +1397,7 @@
       } else {
         apply();
         refreshOps();
-        toast(`Échange ${sale.id} — ${oldP.name} ${ln.size} contre ${newP.name} ${newSize}, khlass`);
+        toast(`Échange ${sale.id}, ${oldP.name} ${ln.size} contre ${newP.name} ${newSize}, khlass`);
       }
     };
   }
@@ -1450,7 +1450,7 @@
         freshTicket();
         $('#bq-today', root).textContent = headSubVente();
         renderTicket(); renderGrid(); renderBadges(); icons();
-        return { ref: sale.id, line: `Vente ${sale.id} encaissée — ${fmtMAD(total)}${ptsLine}` };
+        return { ref: sale.id, line: `Vente ${sale.id} encaissée, ${fmtMAD(total)}${ptsLine}` };
       },
     });
   }
@@ -1463,7 +1463,7 @@
 
     const appliedBanner = () => avoirPart ? `
       <div class="bq-pay-applied"><i data-lucide="ticket"></i>
-        Avoir <b>${avoirPart.code}</b> appliqué — −${fmtMAD(avoirPart.amount)}
+        Avoir <b>${avoirPart.code}</b> appliqué, −${fmtMAD(avoirPart.amount)}
       </div>` : '';
 
     const stepMethods = () => {
@@ -1477,18 +1477,18 @@
         <div class="bq-pay-opts">
           <button class="bq-pay-opt" data-bq-m="especes">
             <span class="ic"><i data-lucide="banknote"></i></span>
-            <span class="l"><b>Espèces</b><span>Rendu calculé — flous comptés une fois</span></span>
+            <span class="l"><b>Espèces</b><span>Rendu calculé, flous comptés une fois</span></span>
             <span class="amt">${fmtMAD(due())}</span>
           </button>
           <button class="bq-pay-opt" data-bq-m="carte">
             <span class="ic"><i data-lucide="credit-card"></i></span>
-            <span class="l"><b>Carte</b><span>Lecteur partenaire — V1 sans encaissement Kiwi</span></span>
+            <span class="l"><b>Carte</b><span>Lecteur partenaire, V1 sans encaissement Kiwi</span></span>
             <span class="amt">${fmtMAD(due())}</span>
           </button>
           ${avoirPart ? '' : avs.length ? `
           <button class="bq-pay-opt" data-bq-m="avoir">
             <span class="ic"><i data-lucide="ticket"></i></span>
-            <span class="l"><b>Avoir</b><span>${avs.length === 1 ? `${avs[0].code} · ${fmtMAD(avs[0].balance)} — ${esc(avs[0].holderName)}` : `${avs.length} avoirs actifs — scanner ou choisir`}</span></span>
+            <span class="l"><b>Avoir</b><span>${avs.length === 1 ? `${avs[0].code} · ${fmtMAD(avs[0].balance)}, ${esc(avs[0].holderName)}` : `${avs.length} avoirs actifs, scanner ou choisir`}</span></span>
             <span class="amt">−${fmtMAD(Math.min(avs[0].balance, due()))}</span>
           </button>` : `
           <button class="bq-pay-opt is-mute" data-bq-m="avoir-none">
@@ -1503,7 +1503,7 @@
           if (m === 'especes') stepCash();
           else if (m === 'carte') stepCard();
           else if (m === 'avoir') stepAvoir();
-          else toast('Aucun avoir actif — émettez-en un depuis Échanges & avoirs');
+          else toast('Aucun avoir actif, émettez-en un depuis Échanges & avoirs');
         };
       });
     };
@@ -1513,7 +1513,7 @@
       el.innerHTML = `
         <button class="bq-modal-x" data-bq-close aria-label="Fermer"><i data-lucide="x"></i></button>
         <h3 class="modal-title">Avoir en paiement</h3>
-        <p class="modal-subtle">Scannez le bon, ou choisissez-le — il se déduit du total</p>
+        <p class="modal-subtle">Scannez le bon, ou choisissez-le, il se déduit du total</p>
         <div class="bq-pay-opts">
           ${avs.map((a) => `
             <button class="bq-pay-opt" data-bq-av-use="${a.code}">
@@ -1531,7 +1531,7 @@
           const applied = Math.min(av.balance, due());
           avoirPart = { m: 'avoir', amount: applied, code: av.code };
           if (due() <= 0) commit([avoirPart]);
-          else { toast(`${av.code} appliqué — reste ${fmtMAD(due())} à payer`); stepMethods(); }
+          else { toast(`${av.code} appliqué, reste ${fmtMAD(due())} à payer`); stepMethods(); }
         };
       });
     };
@@ -1585,7 +1585,7 @@
         <div class="reader-stage">
           <div class="reader-disc is-pulsing" id="bq-reader-disc"><i data-lucide="credit-card"></i></div>
           <div class="reader-status" id="bq-reader-status">Montant envoyé au lecteur<span class="ellipsis"></span></div>
-          <div class="reader-method">Lecteur partenaire — V1 sans encaissement Kiwi</div>
+          <div class="reader-method">Lecteur partenaire, V1 sans encaissement Kiwi</div>
         </div>`;
       icons(); closeBtns();
       setTimeout(() => {
@@ -1611,7 +1611,7 @@
       if (avp) {
         const av = AVOIRS.find((a) => a.code === avp.code);
         av.balance -= avp.amount;
-        toast(av.balance > 0 ? `${av.code} — reste ${fmtMAD(av.balance)} dessus` : `${av.code} consommé en totalité`);
+        toast(av.balance > 0 ? `${av.code}, reste ${fmtMAD(av.balance)} dessus` : `${av.code} consommé en totalité`);
       }
       const res = opts.onPaid(parts) || {};
       stepSuccess(parts, res);
@@ -1628,7 +1628,7 @@
           <div class="cash-success-label">rendu à la cliente</div>` : `
           <div class="modal-amount size-md">${fmtMAD(opts.amount)}</div>`}
         <div class="bq-pay-break">
-          ${parts.map((x) => `<div class="row"><span>${x.m === 'avoir' ? `Avoir ${x.code}` : x.m === 'carte' ? 'Carte — lecteur partenaire' : 'Espèces'}</span><b>${fmtMAD(x.amount)}</b></div>`).join('')}
+          ${parts.map((x) => `<div class="row"><span>${x.m === 'avoir' ? `Avoir ${x.code}` : x.m === 'carte' ? 'Carte, lecteur partenaire' : 'Espèces'}</span><b>${fmtMAD(x.amount)}</b></div>`).join('')}
         </div>
         <div class="modal-actions is-visible">
           <button class="ma-btn secondary" id="bq-pay-print"><i data-lucide="printer"></i>Reçu 80 mm</button>
@@ -1638,10 +1638,10 @@
           <button class="ma-btn primary" id="bq-pay-done"><i data-lucide="check"></i>${esc(opts.doneLabel || 'Nouvelle vente')}</button>
         </div>`;
       icons(); closeBtns();
-      $('#bq-pay-print', el).onclick = () => toast('Envoyé — reçu 80 mm sur l\'imprimante caisse');
+      $('#bq-pay-print', el).onclick = () => toast('Envoyé, reçu 80 mm sur l\'imprimante caisse');
       $('#bq-pay-wa', el).onclick = () => toast(opts.waPhone
         ? `Reçu envoyé sur WhatsApp à ${opts.waName} (${opts.waPhone})`
-        : 'Cliente de passage — pas de numéro WhatsApp sur le ticket');
+        : 'Cliente de passage, pas de numéro WhatsApp sur le ticket');
       $('#bq-pay-done', el).onclick = () => closeVeil('#bq-pay-veil');
     };
 
@@ -1653,10 +1653,10 @@
   function toggleOffline() {
     state.offline = !state.offline;
     if (!state.offline && state.queued) {
-      toast(`Réseau de retour — ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
+      toast(`Réseau de retour, ${state.queued} action${state.queued > 1 ? 's' : ''} synchronisée${state.queued > 1 ? 's' : ''}`);
       state.queued = 0;
     } else if (state.offline) {
-      toast('Mode hors-ligne — la boutique continue, tout est mis en file');
+      toast('Mode hors-ligne, la boutique continue, tout est mis en file');
     }
     renderNet();
   }
@@ -1782,7 +1782,7 @@
     const cat = catDB(); if (!cat) return;
     const hit = cat.findByBarcode(code);
     if (hit) { toast(`${hit.product.name} · ${hit.variant.colorLabel} ${hit.variant.size}`); openInvProduct(hit.product.id); }
-    else { toast(`Code ${code} inconnu — à enregistrer`); offerRegister(code); }
+    else { toast(`Code ${code} inconnu, à enregistrer`); offerRegister(code); }
   }
 
   /* ─── the inventory panel ─── */
@@ -1797,7 +1797,7 @@
     panel.innerHTML = `
       <div class="bqi">
         <header class="bq-head" style="padding:22px 22px 0;">
-          <div><h1>Inventaire</h1><div class="bq-head-sub">Douchette + imprimante étiquettes · ${st.products} produits · ${st.variants} variantes — base partagée avec le dashboard</div></div>
+          <div><h1>Inventaire</h1><div class="bq-head-sub">Douchette + imprimante étiquettes · ${st.products} produits · ${st.variants} variantes, base partagée avec le dashboard</div></div>
         </header>
         <div class="bqi-tools">
           <div class="bqi-scan"><i data-lucide="scan-line"></i><input id="bqi-scan" placeholder="Scannez un article, ou tapez un code…" autocomplete="off" /></div>
@@ -1856,7 +1856,7 @@
     const p = d.product;
     const rows = d.variants.length
       ? d.variants.map((v) => invVarRow(v)).join('')
-      : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#99a;">Aucune variante — ajoutez une couleur × taille.</td></tr>';
+      : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#99a;">Aucune variante, ajoutez une couleur × taille.</td></tr>';
     const html = `
       <button class="bq-modal-x" data-inv-x aria-label="Fermer"><i data-lucide="x"></i></button>
       <div class="bqi-modh">
@@ -1942,7 +1942,7 @@
         const newCat = $('#bqi-n-newcat', el).value.trim();
         if (newCat) catId = cat.addCategory(newCat).id;
         const p = cat.addProduct({ name, categoryId: catId, kind: $('#bqi-n-kind', el).value, art: icon, priceMAD: parseInt($('#bqi-n-price', el).value, 10) || 0, cost: parseInt($('#bqi-n-cost', el).value, 10) || 0 });
-        toast(`${name} créé — ajoutez ses variantes`);
+        toast(`${name} créé, ajoutez ses variantes`);
         openInvProduct(p.id);
       });
       setTimeout(() => { const i = $('#bqi-n-name', el); if (i) i.focus(); }, 40);
@@ -2000,7 +2000,7 @@
     const presets = cat.sizePresets(d.product.kind);
     const html = `
       <button class="bq-modal-x" data-inv-x aria-label="Fermer"><i data-lucide="x"></i></button>
-      <div class="bqi-modh"><div><h3>Ajouter une variante</h3><span>${esc(d.product.name)} — couleur × taille</span></div></div>
+      <div class="bqi-modh"><div><h3>Ajouter une variante</h3><span>${esc(d.product.name)}, couleur × taille</span></div></div>
       <div class="bqi-form">
         <div class="bqi-fg"><label>Couleur</label><div class="bqi-swrow" id="bqi-av-sw">${colorSwatches()}</div></div>
         <div class="bqi-frow">
@@ -2029,10 +2029,10 @@
   function openRegisterOnVariant(vid, pid) {
     const html = `
       <button class="bq-modal-x" data-inv-x aria-label="Fermer"><i data-lucide="x"></i></button>
-      <div class="bqi-modh"><div><h3>Enregistrer un code existant</h3><span>Scannez ou tapez le code déjà présent sur l'article — conservé tel quel.</span></div></div>
+      <div class="bqi-modh"><div><h3>Enregistrer un code existant</h3><span>Scannez ou tapez le code déjà présent sur l'article, conservé tel quel.</span></div></div>
       <div class="bqi-form">
         <div class="bqi-fg"><label>Code-barres</label><input id="bqi-reg-code" placeholder="Scannez ou tapez le code…" autocomplete="off" /></div>
-        <div class="bqi-help">EAN-13, UPC ou tout code de l'ancien système. Aucune réimpression — le code est rattaché à cette variante.</div>
+        <div class="bqi-help">EAN-13, UPC ou tout code de l'ancien système. Aucune réimpression, le code est rattaché à cette variante.</div>
       </div>
       <div class="bqi-modfoot"><button class="bq-btn secondary" data-inv-back>Retour</button><button class="bq-btn" id="bqi-reg-save">Enregistrer le code</button></div>`;
     invSetModal(html, (el) => {
@@ -2059,7 +2059,7 @@
     const varOptions = (pid) => cat.listVariants(pid).map((v) => `<option value="${v.id}">${esc(v.colorLabel)} · ${esc(v.size)}</option>`).join('');
     const html = `
       <button class="bq-modal-x" data-inv-x aria-label="Fermer"><i data-lucide="x"></i></button>
-      <div class="bqi-modh"><div><h3>Code existant à enregistrer</h3><span>Code scanné : <b>${esc(code)}</b> — rattachez-le à un article (sans réimprimer).</span></div></div>
+      <div class="bqi-modh"><div><h3>Code existant à enregistrer</h3><span>Code scanné : <b>${esc(code)}</b>, rattachez-le à un article (sans réimprimer).</span></div></div>
       <div class="bqi-form">
         <div class="bqi-fg"><label>Article</label><select id="bqi-or-prod">${products.map((p) => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
         <div class="bqi-fg"><label>Variante (couleur · taille)</label><select id="bqi-or-var">${products.length ? varOptions(products[0].id) : ''}</select></div>
@@ -2100,7 +2100,7 @@
   function printProductLabels(pid) {
     const cat = catDB(); const d = cat.getProduct(pid); if (!d) return;
     const labels = d.variants.map((v) => labelForVariant(pid, v)).filter(Boolean);
-    if (!labels.length) { toast('Aucun code à imprimer — générez au moins un EAN-13'); return; }
+    if (!labels.length) { toast('Aucun code à imprimer, générez au moins un EAN-13'); return; }
     window.KiwiBarcode.printLabels(labels, { copies: 1 });
     toast(`${labels.length} étiquette(s) envoyée(s) à l'imprimante`);
   }

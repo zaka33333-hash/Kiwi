@@ -173,7 +173,7 @@
     const ready = ensureLoaded(entry).catch((err) => {
       /* module missing (not built yet / bad path): be honest, reset the PIN */
       setTimeout(() => {
-        toast(`${entry.label} — module indisponible (${err.message})`);
+        toast(`${entry.label}, module indisponible (${err.message})`);
         if (typeof window.__kiwiPinReset === 'function') window.__kiwiPinReset();
         document.querySelectorAll('#pin-dots .pin-dot').forEach((d) => d.classList.remove('is-success'));
       }, 500);
@@ -216,7 +216,7 @@
     if (!mounted[id]) {
       mounted[id] = true;
       try { spec.mount(root); }
-      catch (e) { toast(`${id}: erreur au montage — ${e.message}`); }
+      catch (e) { toast(`${id}: erreur au montage, ${e.message}`); }
     } else if (typeof spec.onShow === 'function') {
       try { spec.onShow(); } catch (e) {}
     }
@@ -253,7 +253,7 @@
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', 'Codes de la démo');
     panel.innerHTML = `
-      <div class="vx-codes-title">Codes de la démo — un métier par code</div>
+      <div class="vx-codes-title">Codes de la démo, un métier par code</div>
       <div class="vx-code-row"><b>0000</b><span>Pressing · Pressing Marshan</span></div>
       <div class="vx-code-row"><b>0001</b><span>Écran cuisine (station KDS)</span></div>
       ${Object.entries(REGISTRY).map(([pin, e]) => `<div class="vx-code-row"><b>${pin}</b><span>${e.label}</span></div>`).join('')}
