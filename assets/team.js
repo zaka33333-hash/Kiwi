@@ -1693,4 +1693,54 @@
     .kt-tag-neutral { background: var(--paper-soft); color: var(--n-600); border: 1px solid var(--n-200); }
     .kt-langchip { background: var(--paper-soft); border: 1px solid var(--n-200); padding: 2px 7px; border-radius: 5px; font-size: 10.5px; color: var(--n-700); }
   `;
+
+  /* ═══════════════ PUBLIC · seed the roster from onboarding ═══════════════
+     The first-run wizard (assets/onboarding.js) collects staff on its access
+     step but historically wrote them only to `kiwiPins` (the login lock), so
+     they never appeared on the Équipe page and "vanished" on reload. This
+     bridges those people into the REAL per-venue roster the page reads
+     (byVenue[venue.id] → 'kiwiTeamV2:custom'), so they persist and are editable.
+     Idempotent: dedupes by PIN code / full name so a re-run can't duplicate. */
+  const ONB_ROLE_FN = {
+    owner:   { fn: 'Propriétaire', dept: 'Direction' },
+    manager: { fn: 'Manager',      dept: 'Management' },
+    staff:   { fn: 'Équipier',     dept: 'Service' },
+  };
+  function importMembers(venue, people) {
+    if (!venue || !Array.isArray(people) || !people.length) return 0;
+    ensureVenueData(venue);
+    const key = teamKey(venue);
+    const list = window.__kiwiTeamV2.byVenue[key] || (window.__kiwiTeamV2.byVenue[key] = []);
+    const hours = window.__kiwiTeamV2.hoursByVenue[key] || (window.__kiwiTeamV2.hoursByVenue[key] = {});
+    let added = 0;
+    people.forEach((p) => {
+      const name = String((p && p.name) || '').trim();
+      if (!name) return;
+      const code = /^\d{4}$/.test((p && p.code) || '') ? p.code : '';
+      const dupe = list.some((m) =>
+        (code && m.pinCode === code) ||
+        `${m.firstName || ''} ${m.lastName || ''}`.trim().toLowerCase() === name.toLowerCase());
+      if (dupe) return;
+      const sp = name.indexOf(' ');
+      const role = (p && p.role) || 'staff';
+      const rm = ONB_ROLE_FN[role] || ONB_ROLE_FN.staff;
+      const id = 'mem-' + Math.random().toString(36).slice(2, 10);
+      list.push({
+        id,
+        firstName: sp >= 0 ? name.slice(0, sp) : name,
+        lastName: sp >= 0 ? name.slice(sp + 1).trim() : '',
+        email: '', phone: '', password: makePwd(), pinCode: code,
+        function: rm.fn, department: rm.dept, contract: 'CDI',
+        startDate: '', endDate: '', baseSalary: 0, hourlyRate: 0,
+        languages: [], address: '', cin: '', emergencyName: '', emergencyPhone: '', notes: '',
+        avatarTone: AVATAR_TONES[list.length % AVATAR_TONES.length],
+        role, venueType: key, createdAt: Date.now(),
+      });
+      hours[id] = {};
+      added++;
+    });
+    if (added) { saveCustomTeams(); if (pageActive) { try { render(); } catch (_) {} } }
+    return added;
+  }
+  window.KiwiTeam = Object.assign(window.KiwiTeam || {}, { importMembers });
 })();
