@@ -1490,12 +1490,15 @@
       return;
     }
     const v = VENUES[currentVenue];
-    let sect = VERTICAL_SECTIONS[v.type];
+    let sect = VERTICAL_SECTIONS[typeOverride || v.type];
     /* Subtype profile override — a custom venue created as e.g. a pharmacy
      * gets ITS trade's section labels (nav keys stay on the base family's
      * real modules). No data-i18n keys here: labels resolve per-language at
-     * render time and the section re-renders on kiwi:langchange. */
-    const prof = v.custom && v.subtype && SUBTYPE_PROFILES[v.subtype];
+     * render time and the section re-renders on kiwi:langchange.
+     * Skipped when a server typeOverride is in force: that means "render this
+     * base's standard section" for a scoped view, so the LOCAL venue's own
+     * subtype must not relabel it into a different trade. */
+    const prof = !typeOverride && v.custom && v.subtype && SUBTYPE_PROFILES[v.subtype];
     if (prof && prof.items && sect) {
       const baseItems = sect.items;
       sect = {
@@ -7688,6 +7691,7 @@
     getVenueData,
     getCurrentVenueData,
     getVenueType,
+    applyServerType,
     getKpiSpec: type => {
       /* Subtype profile first: a custom venue's KPI band speaks its trade's
        * language (labels resolve per-language; dateRange re-renders the band

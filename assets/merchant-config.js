@@ -78,6 +78,14 @@
     });
   }
 
+  // Push the server-stored business type into the dashboard's venue engine so the
+  // sidebar's vertical section reflects the real trade. Fail-safe: no type, or a
+  // page without KiwiVenue (caisse/serveur), just does nothing.
+  function applyServerType() {
+    if (!cfg.type) return;
+    try { if (window.KiwiVenue && window.KiwiVenue.applyServerType) window.KiwiVenue.applyServerType(cfg.type); } catch (_) {}
+  }
+
   function fetchConfig() {
     fetch('/api/config?merchant=' + encodeURIComponent(merchant()), { headers: { Accept: 'application/json' } })
       .then(function (r) { return (r && r.ok) ? r.json() : null; })
@@ -85,8 +93,15 @@
         if (!data) return;                     // no backend → keep defaults
         cfg.features = data.features || {};
         cfg.pins = Array.isArray(data.pins) ? data.pins : [];
+        cfg.type = data.type || '';
         cfg.loaded = true;
         applyFeatures();
+        // Make the server-stored business type authoritative for the dashboard's
+        // vertical section (a boutique shows boutique modules, never restaurant),
+        // incl. the operator's scoped God-mode view. No-op without a type or when
+        // KiwiVenue isn't present (caisse/serveur). Retried once for async nav.
+        applyServerType();
+        setTimeout(applyServerType, 500);
         // Re-apply shortly after, in case the app built its nav asynchronously.
         setTimeout(applyFeatures, 400);
         try { document.dispatchEvent(new CustomEvent('kiwi-config', { detail: cfg })); } catch (_) {}
