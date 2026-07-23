@@ -173,6 +173,14 @@
     .kob-name{flex:1.3;}
     .kob-code{flex:1;font-family:var(--mono);letter-spacing:.42em;text-align:center;font-size:17px;padding-right:8px;}
     .kob-code::placeholder{letter-spacing:.28em;}
+    .kob-role{flex:1;padding:10px 34px 10px 13px;font-size:14px;appearance:none;-webkit-appearance:none;cursor:pointer;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9efe9' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+    .kob-role option{color:#0A0F0D;}
+    .kob-acc-rm{background:none;border:0;cursor:pointer;color:rgba(233,239,233,.5);font-size:24px;line-height:1;width:34px;height:34px;border-radius:9px;flex:none;margin-left:8px;transition:color .14s,background .14s;}
+    .kob-acc-rm:hover{color:#ffb3a3;background:rgba(255,255,255,.07);}
+    .kob-acc-add{margin-top:11px;width:100%;padding:12px;cursor:pointer;background:transparent;border:1.5px dashed rgba(255,255,255,.2);
+      border-radius:13px;font-family:var(--sans);font-size:13.5px;font-weight:500;color:rgba(233,239,233,.72);transition:border-color .14s,color .14s;}
+    .kob-acc-add:hover{border-color:var(--mint);color:var(--mint);}
     .kob-foot{display:flex;gap:10px;align-items:center;margin-top:20px;flex-wrap:wrap;}
     .kob-btn{font-family:var(--sans);font-weight:600;font-size:15px;cursor:pointer;border:0;border-radius:14px;padding:15px 22px;
       transition:transform .12s,box-shadow .2s,background .16s;display:inline-flex;align-items:center;justify-content:center;gap:7px;}
@@ -346,21 +354,33 @@
     };
   }
 
-  function accessRow(a, i) {
-    const p = S.pins[i] || { name: '', code: '' };
-    const nameVal = p.name || (a.role === 'owner' ? S.ownerName.trim() : '');
+  /* Role → label/permission metadata, reused for dynamically-added rows. */
+  function roleMeta(role) {
+    return role === 'owner' ? ACCESS[0] : (role === 'manager' ? ACCESS[1] : ACCESS[2]);
+  }
+  function accessRow(i) {
+    const p = S.pins[i] || { role: 'staff', name: '', code: '' };
+    const isOwner = i === 0 || p.role === 'owner';
+    const a = roleMeta(isOwner ? 'owner' : p.role);
+    const nameVal = p.name || (isOwner ? S.ownerName.trim() : '');
     const filled = /^\d{4}$/.test(p.code);
-    return `
-      <div class="kob-acc${filled ? ' filled' : ''}" data-acc="${i}">
-        <div class="kob-acc-hd">
-          <div>
+    const head = isOwner
+      ? `<div>
             <div class="kob-acc-ttl">${esc(tr(a.title))}</div>
             <div class="kob-acc-perm">${esc(tr(a.perm))}</div>
-          </div>
-          <span class="kob-acc-tag${a.role === 'owner' ? ' req' : ''}">${a.role === 'owner' ? tr({ fr: 'Requis', en: 'Required', ar: 'إلزامي' }) : tr({ fr: 'Optionnel', en: 'Optional', ar: 'اختياري' })}</span>
-        </div>
+         </div>
+         <span class="kob-acc-tag req">${tr({ fr: 'Requis', en: 'Required', ar: 'إلزامي' })}</span>`
+      : `<select class="kob-field kob-role" data-pin-role="${i}" aria-label="${tr({ fr: 'Rôle', en: 'Role', ar: 'الدور' })}">
+            <option value="manager"${p.role === 'manager' ? ' selected' : ''}>${tr({ fr: 'Responsable / gérant', en: 'Manager', ar: 'المسؤول' })}</option>
+            <option value="staff"${p.role !== 'manager' ? ' selected' : ''}>${tr({ fr: 'Équipe / caissier', en: 'Staff / cashier', ar: 'الفريق' })}</option>
+         </select>
+         <button type="button" class="kob-acc-rm" data-pin-remove="${i}" aria-label="${tr({ fr: 'Retirer', en: 'Remove', ar: 'حذف' })}">&times;</button>`;
+    return `
+      <div class="kob-acc${filled ? ' filled' : ''}" data-acc="${i}">
+        <div class="kob-acc-hd">${head}</div>
+        ${isOwner ? '' : `<div class="kob-acc-perm" style="margin:-4px 0 10px;">${esc(tr(a.perm))}</div>`}
         <div class="kob-acc-row">
-          <input class="kob-field kob-name" type="text" data-pin-name="${i}" value="${esc(nameVal)}" maxlength="20" placeholder="${a.role === 'owner' ? tr({ fr: 'Votre prénom', en: 'Your name', ar: 'اسمك' }) : tr({ fr: 'Prénom (ex. Salma)', en: 'Name (e.g. Salma)', ar: 'الاسم' })}"/>
+          <input class="kob-field kob-name" type="text" data-pin-name="${i}" value="${esc(nameVal)}" maxlength="20" placeholder="${isOwner ? tr({ fr: 'Votre prénom', en: 'Your name', ar: 'اسمك' }) : tr({ fr: 'Prénom (ex. Salma)', en: 'Name (e.g. Salma)', ar: 'الاسم' })}"/>
           <input class="kob-field kob-code" data-pin-code="${i}" value="${esc(p.code)}" inputmode="numeric" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" aria-label="Code"/>
         </div>
       </div>`;
@@ -373,8 +393,9 @@
           <h1 class="kob-h">${tr({ fr: 'Les codes de votre équipe.', en: "Your team's access codes.", ar: 'رموز دخول فريقك.' })}</h1>
           <p class="kob-sub">${tr({ fr: "Chaque personne entre son code à 4 chiffres pour ouvrir Kiwi — et ne voit que ce qui la concerne. Le vôtre est le seul obligatoire.", en: 'Each person enters their 4-digit code to open Kiwi — and only sees what concerns them. Only yours is required.', ar: 'يُدخل كل شخص رمزه المكوّن من 4 أرقام — ويرى فقط ما يخصه. رمزك وحده إلزامي.' })}</p>
           <div class="kob-access">
-            ${ACCESS.map((a, i) => accessRow(a, i)).join('')}
+            ${S.pins.map((p, i) => accessRow(i)).join('')}
           </div>
+          <button type="button" class="kob-acc-add" data-pin-add>${tr({ fr: '+ Ajouter un membre', en: '+ Add a member', ar: '+ إضافة عضو' })}</button>
           <div class="kob-err" data-acc-err></div>
         </div>`,
       foot: footNav({ nextLabel: tr({ fr: 'Presque fini →', en: 'Almost done →', ar: 'اقتربنا →' }) }),
@@ -429,6 +450,7 @@
     root.querySelectorAll('[data-f]').forEach((i) => { S[i.dataset.f] = i.value; });
     root.querySelectorAll('[data-pin-name]').forEach((i) => { const n = +i.dataset.pinName; if (S.pins[n]) S.pins[n].name = i.value.trim(); });
     root.querySelectorAll('[data-pin-code]').forEach((i) => { const n = +i.dataset.pinCode; if (S.pins[n]) S.pins[n].code = i.value.replace(/\D/g, '').slice(0, 4); });
+    root.querySelectorAll('[data-pin-role]').forEach((i) => { const n = +i.dataset.pinRole; if (S.pins[n]) S.pins[n].role = i.value; });
   }
 
   /* ── Validate before advancing (returns error string or null) ────────── */
@@ -507,6 +529,18 @@
       if (vid && KiwiVenue.setVenue) KiwiVenue.setVenue(vid);
     } catch (_) {}
 
+    /* Seed the entered staff into the REAL per-venue roster (team.js) so they
+     * persist and show on the Équipe page — not just the login-lock's kiwiPins. */
+    try {
+      const teamPeople = S.pins.map((p) => ({
+        role: p.role,
+        code: /^\d{4}$/.test(p.code) ? p.code : '',
+        name: (p.name || '').trim() || (p.role === 'owner' ? (S.ownerName || '').trim() : ''),
+      })).filter((p) => p.name);
+      const venue = window.KiwiVenue && KiwiVenue.getCurrentVenueData && KiwiVenue.getCurrentVenueData();
+      if (venue && window.KiwiTeam && KiwiTeam.importMembers) KiwiTeam.importMembers(venue, teamPeople);
+    } catch (_) {}
+
     try {
       window.__kiwiRole = 'owner';
       document.body.classList.remove('role-manager', 'role-staff');
@@ -583,6 +617,15 @@
         root.querySelectorAll('.kob-xtra').forEach((x) => x.classList.remove('hide'));
         const b = e.target.closest('[data-more]'); if (b) b.style.display = 'none';
         return;
+      }
+      if (e.target.closest('[data-pin-add]')) {
+        capture(); S.pins.push({ role: 'staff', name: '', code: '' }); render(); return;
+      }
+      const rmBtn = e.target.closest('[data-pin-remove]');
+      if (rmBtn) {
+        capture(); const n = +rmBtn.dataset.pinRemove;
+        if (n > 0 && S.pins.length > 1) S.pins.splice(n, 1);
+        render(); return;
       }
       const tc = e.target.closest('[data-type]');
       if (tc) {
