@@ -351,7 +351,8 @@
       h('td', null, h('span', { class:'online' + (live?' live':'') }, h('span', { class:'d' }), ago(c.last_ts))),
       h('td', null, h('div', { class:'row-actions' },
         h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); openDashboard(c.merchant); } }, 'Ouvrir dashboard'),
-        h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); select(c); } }, 'Gérer')))
+        h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); select(c); } }, 'Gérer'),
+        h('button', { class:'mini danger', onClick:function(e){ e.stopPropagation(); select(c).then(revealDanger); } }, 'Supprimer')))
     );
     tr.addEventListener('click', function(){ select(c); });
     return tr;
@@ -402,6 +403,15 @@
   // the établissement name (or its merchant key), so a stray click can't wipe a
   // client. Handlers are assigned (not addEventListener) so re-selecting a
   // different client rewires the same nodes without stacking listeners.
+  // Jump to the delete confirm from the roster's "Supprimer" button: scroll the
+  // danger zone into view and focus the type-the-name input so it's obvious.
+  function revealDanger(){
+    var dz = document.getElementById('danger-zone');
+    var input = document.getElementById('del-confirm');
+    if (dz) dz.scrollIntoView({ behavior:'smooth', block:'center' });
+    if (input) setTimeout(function(){ input.focus(); }, 260);
+  }
+
   function renderDanger(){
     if (!selected) return;
     var name = selected.business || selected.merchant;
