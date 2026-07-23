@@ -84,3 +84,25 @@ CREATE TABLE IF NOT EXISTS merchant_config (
 -- Mirrored up from the client at onboarding (assets/onboarding.js → KiwiConfig
 -- .syncType → POST /api/config); the console reads it to show boutique modules
 -- for a boutique, restaurant modules for a restaurant, etc.
+
+-- ── Caisse pairing (dashboard ⇄ caisse, cross-device) ───────────────────────
+-- One row per 6-digit pairing code the dashboard issues (functions/api/pair/
+-- create.js). A caisse on any device redeems it (functions/api/pair/redeem.js) to
+-- become that merchant's store, of the right trade. Single-use: redeem stamps
+-- used_ts in one atomic UPDATE. The partial unique index guarantees at most one
+-- LIVE (unused) code per value at a time; expired/used rows keep the code free
+-- for reuse. Codes carry the store's type/subtype/name so the caisse boots the
+-- matching vertical with no extra lookup.
+CREATE TABLE IF NOT EXISTS pairings (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  code        TEXT NOT NULL,
+  merchant    TEXT NOT NULL,
+  type        TEXT,
+  subtype     TEXT,
+  name        TEXT,
+  account_id  TEXT,
+  created_ts  INTEGER NOT NULL,
+  expires_ts  INTEGER NOT NULL,
+  used_ts     INTEGER
+);
+CREATE UNIQUE INDEX IF NOT EXISTS pairings_code_live ON pairings(code) WHERE used_ts IS NULL;
