@@ -868,10 +868,34 @@
    * Page renderer + tabs
    * ═══════════════════════════════════════════════════════════════════════ */
 
+  // The Z-report, HACCP and equipment tabs are seeded with Café Atlas demo staff
+  // (Sofia Belkadi, Hamid Jelloul, Mohammed K.…) and demo figures with no per-venue
+  // gate. For a REAL session (hosted / signed-in / operator-scoped / custom venue)
+  // they must show empty registers. (The Documents tab is already per-venue empty.)
+  function cfShowReal(v) {
+    try {
+      if (window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) return true;
+      if (window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom(v)) return true;
+    } catch (_) {}
+    return false;
+  }
+  function cfEmpty() {
+    const c = ({
+      fr: { h: 'Rien à afficher pour l’instant', p: 'Vos clôtures de caisse, votre registre HACCP et vos équipements apparaîtront ici au fil de votre activité.' },
+      en: { h: 'Nothing to show yet', p: 'Your Z-reports, HACCP log and equipment register will appear here as you operate.' },
+      ar: { h: 'لا شيء لعرضه بعد', p: 'ستظهر هنا إغلاقات الصندوق وسجل HACCP والمعدّات مع نشاطك.' },
+    })[lang()] || { h: 'Nothing to show yet', p: '' };
+    return `<div class="cf-empty" style="padding:48px 24px;text-align:center;max-width:520px;margin:0 auto;">
+      <div style="font-size:16px;font-weight:640;letter-spacing:-.01em;margin-bottom:8px;">${esc(c.h)}</div>
+      <div style="font-size:13.5px;color:var(--n-500);line-height:1.6;">${esc(c.p)}</div>
+    </div>`;
+  }
+
   function render() {
     const root = document.querySelector('[data-conformite-root]');
     if (!root) return;
     const v = currentVenueId();
+    const real = cfShowReal(v);
     const tabs = [
       { k: 'z',   label: t('tabZ') },
       { k: 'hyg', label: t('tabHyg') },
@@ -882,9 +906,9 @@
       `<button class="cf-tab${currentTab === tb.k ? ' on' : ''}" data-action="cf-tab" data-tab="${tb.k}">${esc(tb.label)}</button>`
     ).join('');
     const tabBody =
-      currentTab === 'z'   ? zHtml() :
-      currentTab === 'hyg' ? hygHtml() :
-      currentTab === 'eq'  ? eqHtml() :
+      currentTab === 'z'   ? (real ? cfEmpty() : zHtml()) :
+      currentTab === 'hyg' ? (real ? cfEmpty() : hygHtml()) :
+      currentTab === 'eq'  ? (real ? cfEmpty() : eqHtml()) :
       currentTab === 'doc' ? docHtml() : '';
     root.innerHTML = `
       <div class="cf-page">

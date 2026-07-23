@@ -858,10 +858,33 @@
   /* ═══════════════════════════════════════════════════════════════════════
    * Top-level page render
    * ═══════════════════════════════════════════════════════════════════════ */
+  // Every figure in this page is Café Atlas demo data (P&L, fixed costs, service
+  // split, VAT history, the accountant email). A REAL session — hosted, a signed-in
+  // merchant, an operator-scoped client, or a custom venue — must see none of it.
+  function finShowReal(v) {
+    try {
+      if (window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) return true;
+      if (window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom(v)) return true;
+    } catch (_) {}
+    return false;
+  }
+  function finEmpty() {
+    const c = ({
+      fr: { h: 'Vos finances apparaîtront ici', p: 'Dès vos premières ventes et dépenses, Kiwi calcule votre compte de résultat, votre point mort, vos marges par service et votre TVA, automatiquement.' },
+      en: { h: 'Your finances will show here', p: 'As soon as you record sales and expenses, Kiwi computes your P&L, break-even, per-service margins and VAT, automatically.' },
+      ar: { h: 'ستظهر أموالك هنا', p: 'بمجرد تسجيل مبيعاتك ومصاريفك، يحسب Kiwi حساب النتائج ونقطة التعادل والهوامش والضريبة على القيمة المضافة تلقائيًا.' },
+    })[lang()] || { h: 'Your finances will show here', p: '' };
+    return `<div class="fin-page"><div class="fin-empty" style="padding:56px 24px;text-align:center;max-width:520px;margin:0 auto;">
+      <div style="font-size:17px;font-weight:640;letter-spacing:-.01em;margin-bottom:8px;">${esc(c.h)}</div>
+      <div style="font-size:13.5px;color:var(--n-500);line-height:1.6;">${esc(c.p)}</div>
+    </div></div>`;
+  }
+
   function render() {
     const root = document.querySelector('[data-finance-root]');
     if (!root) return;
     const v = currentVenueId();
+    if (finShowReal(v)) { root.innerHTML = finEmpty(); return; }
     root.innerHTML = `
       <div class="fin-page">
         <div class="fin-head">

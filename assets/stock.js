@@ -708,6 +708,16 @@
   function currentVenueId() {
     return window.KiwiVenue?.getVenue?.() || 'cafeAtlas';
   }
+  // The "Kiwi AI" insight cards are hardcoded demo prose naming demo suppliers
+  // (Coopérative Taliouine, Marché Central…) and demo dishes. For a REAL session
+  // (hosted / signed-in / operator-scoped / custom venue) they must not render.
+  function stShowReal() {
+    try {
+      if (window.KiwiEnv?.isReal?.()) return true;
+      if (window.KiwiVenue?.isCustom?.(currentVenueId())) return true;
+    } catch (_) {}
+    return false;
+  }
   function applyItemOverlay(items) {
     const filtered = items.filter(it => !stDeletedItems.has(it.id));
     return filtered.map(it => (stItemOverrides[it.id] ? { ...it, ...stItemOverrides[it.id] } : it));
@@ -957,13 +967,13 @@
         </div>
       </div>
 
-      <div class="st-section">
+      ${stShowReal() ? '' : `<div class="st-section">
         <div class="st-section-head">
           <h3>Kiwi AI · ${isFusion() ? 'analyses portfolio' : 'analyses cuisine'}</h3>
         </div>
         ${renderAiCard(t('aiVarianceT'), t('aiVarianceB'), t('aiVarianceA'))}
         ${renderAiCard(t('aiPriceT'), t('aiPriceB'), t('aiPriceA'))}
-      </div>
+      </div>`}
 
       <div class="st-section">
         <div class="st-section-head">
@@ -1371,7 +1381,7 @@
         </div>
       </div>
 
-      ${renderAiCard(t('aiPriceUpT'), t('aiPriceUpB'), t('aiPriceUpA'))}
+      ${stShowReal() ? '' : renderAiCard(t('aiPriceUpT'), t('aiPriceUpB'), t('aiPriceUpA'))}
     `;
   }
 
@@ -1600,6 +1610,19 @@
           </div>
         </div>
       `;
+    }
+
+    // Unlocked but real → the demo forecast (chart, shortfalls, seasonality) is
+    // all Café Atlas data; show an honest empty state instead.
+    if (stShowReal()) {
+      const c = ({
+        fr: { h: 'Vos prévisions apparaîtront ici', p: 'Dès que Kiwi AI dispose de votre historique de ventes, il anticipe vos ruptures de stock, la saisonnalité et les pics d’événements.' },
+        en: { h: 'Your forecasts will show here', p: 'Once Kiwi AI has your sales history, it anticipates stockouts, seasonality and event peaks.' },
+        ar: { h: 'ستظهر توقعاتك هنا', p: 'بمجرد توفّر سجل مبيعاتك، يتوقّع Kiwi AI نفاد المخزون والموسمية وذروات المناسبات.' },
+      })[(window.KiwiI18n && window.KiwiI18n.getLang && window.KiwiI18n.getLang()) || 'fr'] || { h: 'Your forecasts will show here', p: '' };
+      return `<div class="st-section"><div style="padding:44px 24px;text-align:center;max-width:520px;margin:0 auto;">
+        <div style="font-size:16px;font-weight:640;letter-spacing:-.01em;margin-bottom:8px;">${c.h}</div>
+        <div style="font-size:13.5px;color:var(--n-500);line-height:1.6;">${c.p}</div></div></div>`;
     }
 
     return `

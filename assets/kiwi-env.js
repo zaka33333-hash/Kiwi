@@ -42,5 +42,16 @@
     local: local,
     demosAllowed: demosAllowed,
     hosted: !demosAllowed,
+    /* THE gate for demo-data leaks. True whenever the app must show REAL data,
+     * never the built-in demo (Rachid / Café Atlas / fabricated legal IDs):
+     *   · any hosted domain (demos are a localhost-only affordance), OR
+     *   · a real signed-in merchant / operator-scoped client — both set
+     *     window.KiwiMe (see assets/identity.js), which may be populated AFTER
+     *     this file loads, so this is evaluated lazily at call time.
+     * Every surface that renders identity/legal/named demo data should gate on
+     * window.KiwiEnv.isReal() so the demo is preserved locally and never leaks. */
+    isReal: function () {
+      try { return !demosAllowed || !!window.KiwiMe; } catch (_) { return !demosAllowed; }
+    },
   };
 })();

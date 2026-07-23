@@ -3523,7 +3523,10 @@
           clockedInAt: '09:00', shiftsThisMonth: 0, hoursThisMonth: 0,
           tipsThisMonth: 0, salesThisMonth: 0, voids: 0, rating: null,
         };
-        (STAFF[venue] || STAFF.cafeAtlas).push(member);
+        // Add to THIS venue's own roster (create it if empty) — never fall back
+        // to the Café Atlas demo array, or a real venue's new hire would land in
+        // (and expose) demo data.
+        (STAFF[venue] || (STAFF[venue] = [])).push(member);
         m.close();
         Kiwi.toast(`Membre ajouté · ${name}`, { type: 'success', desc: member.role });
       }
@@ -4015,6 +4018,9 @@
   /* ── Helpers ──────────────────────────────────────────────────────────── */
   function miMenuVenue() {
     if (currentVenue === 'fusion') return (miVenueFilter && miVenueFilter !== 'all') ? miVenueFilter : 'cafeAtlas';
+    // A custom / operator-scoped venue keeps its OWN (empty) carte — never the
+    // Café Atlas demo menu. Only a genuine demo venue falls back to cafeAtlas.
+    if (isCustom(currentVenue)) return currentVenue;
     return REAL_VENUES.includes(currentVenue) ? currentVenue : 'cafeAtlas';
   }
   function miItems(venue) { return MENU[venue || miMenuVenue()] || []; }
@@ -6164,7 +6170,8 @@
         Kiwi.toast('Article mis à jour', { type: 'success', desc: name });
       } else {
         const venue = miMenuVenue();
-        (MENU[venue] || MENU.cafeAtlas).push({
+        // Add to THIS venue's own carte (create it if empty) — never the demo array.
+        (MENU[venue] || (MENU[venue] = [])).push({
           id: 'mix' + (++miIdCounter), name, category: cat, price, cost,
           unitsThisMonth: 0, station: val('station').value, tags,
           times: { matin: 0, midi: 0, soir: 0 },
@@ -7032,7 +7039,7 @@
    * questions (best/worst sellers, prices, margins) from data instead of
    * inventing dishes. */
   window.KiwiMenu = {
-    items: () => (MENU[miMenuVenue()] || MENU.cafeAtlas || []).map(it => ({
+    items: () => (MENU[miMenuVenue()] || []).map(it => ({
       name: it.name, category: it.category, price: it.price, cost: it.cost, units: it.unitsThisMonth,
     })),
   };
@@ -7752,7 +7759,7 @@
     getVocab,
     /* Stock & approvisionnement page data — see assets/stock.js */
     getInventory: id => INVENTORY[id || currentVenue] || [],
-    getSuppliers: () => SUPPLIERS,
+    getSuppliers: () => isCustom(currentVenue) ? [] : SUPPLIERS,
     /* Kitchen station state — used by the KDS to compute fire schedules
      * so multi-station tickets finish together (avgPrepMin + sync flag,
      * configured from Menu › Stations cuisine). */
@@ -7788,8 +7795,10 @@
       }
       const L = HEATMAP_AI_REC[fusionLang()] || HEATMAP_AI_REC.fr; return L[v] || L.cafeAtlas;
     },
-    getMixCmiSavings: id => { const L = MIX_CMI_SAVINGS[fusionLang()] || MIX_CMI_SAVINGS.fr; return L[id || currentVenue] || L.cafeAtlas; },
-    getBenchLabels: id => { const L = BENCH_LABELS[fusionLang()] || BENCH_LABELS.fr; return L[id || currentVenue] || L.cafeAtlas; },
+    // Custom / scoped venues have no benchmark cohort — return empty so callers
+    // show a neutral label (dateRange falls back), never Café Atlas's figures.
+    getMixCmiSavings: id => { const v = id || currentVenue; if (isCustom(v)) return ''; const L = MIX_CMI_SAVINGS[fusionLang()] || MIX_CMI_SAVINGS.fr; return L[v] || L.cafeAtlas; },
+    getBenchLabels: id => { const v = id || currentVenue; if (isCustom(v)) return undefined; const L = BENCH_LABELS[fusionLang()] || BENCH_LABELS.fr; return L[v] || L.cafeAtlas; },
     isFusion: () => currentVenue === 'fusion',
     isCustom,
     createVenue,

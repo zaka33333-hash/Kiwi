@@ -850,16 +850,42 @@
     if (openState) openState.tab = id;
   }
 
+  /* This whole module is the Café Atlas demo book (no per-venue data). For a REAL
+   * session — a hosted domain, a signed-in merchant, an operator scoped into a
+   * client, or a custom venue — none of these fabricated figures / staff /
+   * suppliers may show. Render an honest "your books start empty" state instead.
+   * The local pitch demo (localhost + a demo venue, no KiwiMe) is untouched. */
+  function showReal() {
+    try {
+      if (window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) return true;
+      if (window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom()) return true;
+    } catch (_) {}
+    return false;
+  }
+  function buildEmpty() {
+    const c = ({
+      fr: { h: 'Votre comptabilité est prête', p: 'Dès vos premières ventes et dépenses, Kiwi tient vos livres, prépare vos déclarations TVA et vos fiches de paie, automatiquement.' },
+      en: { h: 'Your accounting is ready', p: 'As soon as you record sales and expenses, Kiwi keeps your books and prepares your VAT returns and payslips, automatically.' },
+      ar: { h: 'محاسبتك جاهزة', p: 'بمجرد تسجيل مبيعاتك ومصاريفك، يمسك Kiwi دفاترك ويُعدّ تصاريح الضريبة وكشوف الأجور تلقائيًا.' },
+    })[lang] || null;
+    const v = c || { h: 'Your accounting is ready', p: '' };
+    return `<div class="ac" style="padding:52px 24px;text-align:center;max-width:520px;margin:0 auto;">
+      <div style="font-size:17px;font-weight:640;letter-spacing:-.01em;margin-bottom:8px;">${v.h}</div>
+      <div style="font-size:13.5px;color:var(--n-500);line-height:1.6;">${v.p}</div>
+    </div>`;
+  }
+
   function open(tab) {
     const Kiwi = window.Kiwi;
     if (!Kiwi || !Kiwi.drawer) return;
     injectCss();
     lang = getLang();   /* always render in the current language */
+    const real = showReal();
 
     const res = Kiwi.drawer({
       title: t('drawerTitle'),
       subtitle: t('drawerSub'),
-      body: buildAc(),
+      body: real ? buildEmpty() : buildAc(),
       fullpage: true,
     });
     res.el.classList.add('ac-drawer');
@@ -900,7 +926,7 @@
     if (ac && ac.parentNode) {
       const parent = ac.parentNode;
       ac.remove();
-      parent.insertAdjacentHTML('beforeend', buildAc());
+      parent.insertAdjacentHTML('beforeend', showReal() ? buildEmpty() : buildAc());
       activate(root, keepTab);
     }
   }
