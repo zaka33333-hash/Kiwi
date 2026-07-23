@@ -251,7 +251,7 @@ html[data-mode="simple"] .mode-tg { top: 14px; right: 14px; }
 /* Large readable chip */
 .simple-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; }
 .simple-chip.ok { background: #E3F7EC; color: var(--success); }
-.simple-chip.wait { background: #FFF4DD; color: #8A6210; }
+.simple-chip.wait { background: var(--warn-soft); color: var(--warn-ink); }
 
 /* Screen transitions (150ms fade only — no bounce, no slide) */
 .simple-screen { animation: fade-simple 150ms ease-out; }

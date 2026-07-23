@@ -4115,7 +4115,7 @@
       'ka-yaklo':     'Ka-yaklo',
       'bgha-ykhlass': 'Addition demandée',
       'ka-tkhdam':    'Paiement…',
-      'khlass':       'Khlass ✓',
+      'khlass':       'Khlass',
     };
 
     function updateFilterCounts() {
@@ -4146,7 +4146,7 @@
       if (split) {
         line2 = `Split en cours · ${split.paidCount}/${split.parts.length} réglées`;
       } else if (t.status === 'khawya')      line2 = 'Disponible';
-      else if (t.status === 'khlass')        line2 = 'Réglée ✓';
+      else if (t.status === 'khlass')        line2 = 'Réglée';
       else                                    line2 = `${statusTxt} · ${t.elapsed} mn`;
 
       const showAmount = total > 0;
@@ -4259,7 +4259,7 @@
         const s = servers[sid];
         const isMe = sid === currentUser;
         const isOnPause = s.status === 'on-pause';
-        const statusText = isOnPause ? '☕ En pause · à couvrir' : 'En service';
+        const statusText = isOnPause ? 'En pause · à couvrir' : 'En service';
         return `
           <div class="zone-block">
             <div class="colleague-header">
@@ -6202,7 +6202,7 @@
       /* --- share the shift card --- */
       function shareShiftCard() {
         const snap = kgSnapshot();
-        const txt = 'Mon service ce soir au Café Atlas 🍃\n' +
+        const txt = 'Mon service ce soir au Café Atlas\n' +
                     '• ' + snap.served + ' tables servies\n' +
                     '• ' + kgNum(snap.revenue) + ' MAD encaissés\n' +
                     '• ' + kgShareLine + '\n' +

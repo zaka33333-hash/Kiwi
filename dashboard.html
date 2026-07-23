@@ -398,9 +398,7 @@
   /* Moroccan merchant icon — black PNG recoloured to mint via filter chain */
   .ai-btn-ico {
     width: 17px; height: 17px; flex-shrink: 0;
-    filter: brightness(0) saturate(100%)
-      invert(85%) sepia(31%) saturate(469%)
-      hue-rotate(70deg) brightness(102%) contrast(91%);
+    color: var(--mint);
   }
 
   .container { padding: 28px 32px 80px; }
@@ -1810,14 +1808,6 @@
   body.fusion-mode .sidebar .brand { color: #EAF3EE !important; }
   body.fusion-mode .sidebar .brand i { background: #7DF2B0 !important; box-shadow: 0 0 8px rgba(125,242,176,0.6); }
   body.fusion-mode .sidebar .merchant { border-color: rgba(255,255,255,0.06) !important; }
-  body.fusion-mode .sidebar nav a .tag {
-    background: rgba(125,242,176,0.12) !important;
-    color: #7DF2B0 !important;
-  }
-  body.fusion-mode .sidebar nav a .count {
-    background: rgba(255,255,255,0.06) !important;
-    color: #A6B6AC !important;
-  }
   body.fusion-mode .sidebar nav a:hover { background: rgba(125,242,176,0.06) !important; color: var(--ink) !important; }
   body.fusion-mode .sidebar nav a.active::before { background: #7DF2B0 !important; }
   body.fusion-mode .sidebar .sect { color: #5C7268 !important; }
@@ -5151,7 +5141,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
       <button class="ai-btn" data-action="open-assistant">
-        <img class="ai-btn-ico" src="assets/landing/icons/merchant.png" alt="" width="17" height="17" decoding="async"/>
+        <svg class="ai-btn-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="currentColor"/></svg>
         <span data-i18n="dash.agent">Kiwi AI · Agent</span>
       </button>
     </div></div>

@@ -1468,7 +1468,7 @@
 
         <div class="menu-cat">
           <div class="menu-cat-head">
-            <h4>🍽️ ${T.menuCategoryPlats} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 14 ${T.menuItems}</span></h4>
+            <h4>${T.menuCategoryPlats} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 14 ${T.menuItems}</span></h4>
             <div class="count">${T.menuAvg} : 82 MAD</div>
           </div>
           ${[[`Tajine kefta œuf`, `Viande hachée, œuf, tomate, épices`, '85,00', 'ok', T.menuModifiers(3)],[`Couscous royal vendredi`, `Boeuf, poulet, merguez, légumes`, '120,00', 'ok', T.menuFridayOnly],[`Pastilla au poulet`, `Feuille fine, amandes, cannelle, sucre`, '95,00', 'low', T.menuPortions(3)],[`Tajine agneau pruneaux`, `Agneau mijoté, pruneaux, amandes`, '110,00', 'out', T.menuOutOfStock],[`Poulet méchoui`, `Poulet rôti, épices, citron confit`, '98,00', 'ok', T.menuModifiers(2)]].map(([n, d, p, st, stock]) => `
@@ -1483,7 +1483,7 @@
 
         <div class="menu-cat">
           <div class="menu-cat-head">
-            <h4>☕ ${T.menuCategoryBoissons} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 18 ${T.menuItems}</span></h4>
+            <h4>${T.menuCategoryBoissons} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 18 ${T.menuItems}</span></h4>
             <div class="count">${T.menuAvg} : 18 MAD</div>
           </div>
           ${[[`Thé à la menthe`, `Gunpowder + menthe fraîche + sucre`, '12,00', 'ok', T.menuUnlimited],[`Café noir double`, `Expresso double · grain Algeria`, '14,00', 'ok', T.menuMilkModifiers],[`Orange pressée`, `Pressée minute sur demande`, '18,00', 'ok', '45 oranges'],[`Limonade traditionnelle`, `Citron vert + eau de fleur d'oranger`, '16,00', 'ok', T.menuUnlimited],[`Smoothie dattes-lait`, `Dattes Majhoul, lait, cannelle`, '24,00', 'low', T.menuPortions(8)]].map(([n, d, p, st, stock]) => `
@@ -1498,7 +1498,7 @@
 
         <div class="menu-cat">
           <div class="menu-cat-head">
-            <h4>🍮 ${T.menuCategoryDesserts} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 8 ${T.menuItems}</span></h4>
+            <h4>${T.menuCategoryDesserts} <span style="color:var(--n-500); font-weight: 400; font-size: 13px;">· 8 ${T.menuItems}</span></h4>
             <div class="count">${T.menuAvg} : 32 MAD</div>
           </div>
           ${[[`Sellou`, `Graines de sésame, amandes, miel`, '30,00', 'ok', T.menuArtisanal],[`Cornes de gazelle`, `Pâte d'amande, fleur d'oranger`, '28,00', 'low', T.menuPieces(12)],[`Msemen beurre miel`, `Crêpe feuilletée, beurre, miel`, '22,00', 'ok', T.menuUnlimited],[`Chebakia`, `Gâteaux de miel frit · Ramadan`, '24,00', 'out', T.menuSeasonal]].map(([n, d, p, st, stock]) => `
@@ -1526,7 +1526,7 @@
       body: `
         <div class="kds-grid">
           <div>
-            <div class="kds-col-head">❄ ${T.kdsColCold} <span class="count">3</span></div>
+            <div class="kds-col-head">${T.kdsColCold} <span class="count">3</span></div>
             <div class="kds-col-body">
               <div class="kds-ticket">
                 <div class="thead"><span>T1 · Fatima</span><span class="timer">04:22</span></div>
@@ -1544,7 +1544,7 @@
           </div>
 
           <div>
-            <div class="kds-col-head">🔥 ${T.kdsColHot} <span class="count">4</span></div>
+            <div class="kds-col-head">${T.kdsColHot} <span class="count">4</span></div>
             <div class="kds-col-body">
               <div class="kds-ticket">
                 <div class="thead"><span>T1 · Fatima</span><span class="timer">04:22</span></div>
@@ -1566,7 +1566,7 @@
           </div>
 
           <div>
-            <div class="kds-col-head">☕ ${T.kdsColBar} <span class="count">1</span></div>
+            <div class="kds-col-head">${T.kdsColBar} <span class="count">1</span></div>
             <div class="kds-col-body">
               <div class="kds-ticket">
                 <div class="thead"><span>Comptoir · Sofia</span><span class="timer">00:42</span></div>
@@ -1578,7 +1578,7 @@
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--n-200);">
           <div style="font-size: 13px; color: var(--n-500);">${T.kdsAvgPrep} : <b style="color: var(--ink);">8 min 14 s</b> · ${T.kdsSlaMet} <b style="color: var(--success);">87 %</b></div>
-          <button class="kb atlas">📲 ${T.kdsFullscreen}</button>
+          <button class="kb atlas">${T.kdsFullscreen}</button>
         </div>
       `,
     });
@@ -1599,7 +1599,7 @@
           <div class="sub">${T.stockHeroSub}</div>
         </div>
 
-        <div style="font-size: 11px; color: var(--danger); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin-bottom: 10px;">🔴 ${T.stockAlertOutOfStock}</div>
+        <div style="font-size: 11px; color: var(--danger); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin-bottom: 10px;"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-inline-end:7px;vertical-align:baseline;"></span>${T.stockAlertOutOfStock}</div>
         <div class="stock-row">
           <div class="icn">🥬</div>
           <div><div class="name">Feuilles de brick</div><div class="sup">Fournisseur · Feuilletier Derb Omar</div></div>
@@ -1615,7 +1615,7 @@
           <button class="kb atlas" style="padding:6px 10px; font-size:11px;">${T.stockOrder}</button>
         </div>
 
-        <div style="font-size: 11px; color: var(--warning); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin: 20px 0 10px;">🟡 ${T.stockAlertLowStock}</div>
+        <div style="font-size: 11px; color: var(--warning); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin: 20px 0 10px;"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-inline-end:7px;vertical-align:baseline;"></span>${T.stockAlertLowStock}</div>
         <div class="stock-row">
           <div class="icn">🍅</div>
           <div><div class="name">Tomates fraîches</div><div class="sup">Marché central · livraison quotidienne</div></div>
@@ -1638,7 +1638,7 @@
           <button class="kb ghost" style="padding:6px 10px; font-size:11px;">${T.stockAdjust}</button>
         </div>
 
-        <div style="font-size: 11px; color: var(--success); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin: 20px 0 10px;">🟢 ${T.stockAlertStockOk}</div>
+        <div style="font-size: 11px; color: var(--success); letter-spacing: 0.1em; font-family: var(--mono); text-transform: uppercase; margin: 20px 0 10px;"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-inline-end:7px;vertical-align:baseline;"></span>${T.stockAlertStockOk}</div>
         <div class="stock-row">
           <div class="icn">🍋</div>
           <div><div class="name">Citrons jaunes</div><div class="sup">Marché central</div></div>
@@ -1669,8 +1669,8 @@
         </div>
       `,
       foot: `
-        <button class="kb ghost" style="flex:1; justify-content:center;">📦 ${T.stockHistory}</button>
-        <button class="kb atlas" style="flex:1; justify-content:center;">✓ ${T.stockOrderAll}</button>
+        <button class="kb ghost" style="flex:1; justify-content:center;">${T.stockHistory}</button>
+        <button class="kb atlas" style="flex:1; justify-content:center;">${T.stockOrderAll}</button>
       `
     });
   };

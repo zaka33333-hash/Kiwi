@@ -3360,8 +3360,8 @@
       const numLabel = rank === 1 ? '★' : rank;
       const pct = topSales > 0 ? Math.round(s.salesThisMonth / topSales * 100) : 0;
       let badge;
-      if (rank === 1) badge = '<span class="eq-rank-badge gold">🏆 Top du mois</span>';
-      else if (rank <= 3) badge = '<span class="eq-rank-badge green">⭐ Excellent</span>';
+      if (rank === 1) badge = '<span class="eq-rank-badge gold">Top du mois</span>';
+      else if (rank <= 3) badge = '<span class="eq-rank-badge green">Excellent</span>';
       else badge = `<span class="eq-rank-badge neutral">${s.voids === 0 ? '0 annulation' : '★ ' + s.rating.toFixed(1)}</span>`;
       return `
         <div class="eq-rank${rank === 1 ? ' r1' : ''}">
@@ -3952,10 +3952,10 @@
     { name: 'Smoothie fruits rouges', count: 3, reason: 'rupture fruits' },
   ];
   const MI_QUAD = {
-    star:   { icon: '★',  label: 'Stars',      tag: 'Promouvoir' },
-    plow:   { icon: '🐴', label: 'Plowhorses', tag: 'Optimiser' },
-    puzzle: { icon: '❓', label: 'Puzzles',    tag: 'Repositionner' },
-    dog:    { icon: '🐕', label: 'Dogs',       tag: 'Retirer' },
+    star:   { label: 'Stars',      tag: 'Promouvoir' },
+    plow:   { label: 'Plowhorses', tag: 'Optimiser' },
+    puzzle: { label: 'Puzzles',    tag: 'Repositionner' },
+    dog:    { label: 'Dogs',       tag: 'Retirer' },
   };
   const MI_PERIODS = { matin: 'Matin (08h-11h)', midi: 'Midi (11h-15h)', soir: 'Soir (19h-23h)' };
 
@@ -4638,7 +4638,7 @@
       const top3 = list.slice(0, 3).map(i => i.name).join(' · ') || '—';
       return `
         <div class="mi-qcard ${q}">
-          <div class="mi-qcard-h">${MI_QUAD[q].icon} ${MI_QUAD[q].label.toUpperCase()}</div>
+          <div class="mi-qcard-h">${MI_QUAD[q].label.toUpperCase()}</div>
           <div class="mi-qcard-count">${list.length} article${list.length > 1 ? 's' : ''}</div>
           <div class="mi-qcard-top3"><span class="l">Top 3</span><br>${eqEsc(top3)}</div>
           <div class="mi-qcard-metric">${metricHtml}</div>
@@ -6193,10 +6193,10 @@
           Chaque article est classé selon deux axes : sa <b style="color:var(--ink);">popularité</b> (ventes mensuelles) et sa <b style="color:var(--ink);">marge unitaire</b> (prix − coût). Les médianes du menu divisent les articles en 4 quadrants :
         </p>
         <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px;color:var(--n-600);line-height:1.5;">
-          <div><b style="color:var(--success);">★ Stars</b>, populaires ET rentables. Votre cœur de menu : à mettre en avant.</div>
-          <div><b style="color:var(--info);">🐴 Plowhorses</b>, populaires mais peu rentables. À optimiser : revoir le prix ou le coût matière.</div>
-          <div><b style="color:var(--warning);">❓ Puzzles</b>, rentables mais peu vendus. À repositionner : meilleure visibilité sur le menu.</div>
-          <div><b style="color:var(--danger);">🐕 Dogs</b>, ni populaires ni rentables. Candidats au retrait pour simplifier le menu.</div>
+          <div><b style="color:var(--success);">Stars</b>, populaires ET rentables. Votre cœur de menu : à mettre en avant.</div>
+          <div><b style="color:var(--info);">Plowhorses</b>, populaires mais peu rentables. À optimiser : revoir le prix ou le coût matière.</div>
+          <div><b style="color:var(--warning);">Puzzles</b>, rentables mais peu vendus. À repositionner : meilleure visibilité sur le menu.</div>
+          <div><b style="color:var(--danger);">Dogs</b>, ni populaires ni rentables. Candidats au retrait pour simplifier le menu.</div>
         </div>`,
       foot: '<button class="kb ghost" data-mi-cancel>Compris</button>',
     });

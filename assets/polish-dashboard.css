@@ -22,7 +22,7 @@
  * pill must stay readable in both themes. */
 .skip-link {
   position: fixed; top: 10px; left: 10px; z-index: 10001;
-  background: #0B6E4F; color: #fff;
+  background: var(--atlas); color: var(--paper);
   padding: 10px 16px; border-radius: 10px;
   font: 500 13.5px/1 var(--sans); letter-spacing: -0.005em;
   text-decoration: none;
