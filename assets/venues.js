@@ -6584,18 +6584,28 @@
     soin:       { s: '10:00', e: '18:00' },
     vente:      { s: '10:00', e: '19:00' },
   };
+  /* A staff member's default week: two staggered rest days + their dept shift. */
+  function paySeedWeek(s, idx) {
+    let base = PAY_SHIFT_BY_DEPT[s.department] || { s: '09:00', e: '17:00' };
+    if (s.department === 'salle' && /senior/i.test(s.role)) base = { s: '16:00', e: '24:00' };
+    const off1 = idx % 7;                 // two rest days, staggered so coverage rotates
+    const off2 = (idx + 3) % 7;
+    return PAY_DOW.map((_, d) => (d === off1 || d === off2) ? null : { s: base.s, e: base.e });
+  }
   function payBuildSchedule() {
     paySchedule = {};
-    payStaffAll().forEach((s, idx) => {
-      let base = PAY_SHIFT_BY_DEPT[s.department] || { s: '09:00', e: '17:00' };
-      if (s.department === 'salle' && /senior/i.test(s.role)) base = { s: '16:00', e: '24:00' };
-      const off1 = idx % 7;                 // two rest days, staggered so coverage rotates
-      const off2 = (idx + 3) % 7;
-      paySchedule[s.id] = PAY_DOW.map((_, d) =>
-        (d === off1 || d === off2) ? null : { s: base.s, e: base.e });
-    });
+    payStaffAll().forEach((s, idx) => { paySchedule[s.id] = paySeedWeek(s, idx); });
   }
   function paySched() { if (!paySchedule) payBuildSchedule(); return paySchedule; }
+  /* Ensure a week exists for every member in `staff`. Custom/onboarded staff are
+     NOT in payStaffAll() (which is demo-only), so their schedule is seeded lazily
+     on first render — otherwise the planning shows all-Repos and the edit modal
+     can't find them, i.e. "it doesn't let me edit the planning of the week". */
+  function payEnsureSched(staff) {
+    const sched = paySched();
+    (staff || []).forEach((s, idx) => { if (!sched[s.id]) sched[s.id] = paySeedWeek(s, idx); });
+    return sched;
+  }
   function payShiftHours(sh) {
     if (!sh) return 0;
     const a = +sh.s.slice(0, 2) + (+sh.s.slice(3)) / 60;
@@ -6766,7 +6776,7 @@
   }
 
   function payPlanningHtml(staff) {
-    const sched = paySched();
+    const sched = payEnsureSched(staff);
     const cover = PAY_DOW.map(() => 0);
     const body = staff.map(s => {
       const week = sched[s.id] || PAY_DOW.map(() => null);
@@ -6806,9 +6816,13 @@
   /* ═══════════ EDIT-SHIFT MODAL ═══════════ */
 
   function payOpenShiftModal(id, day) {
-    const member = payStaffAll().find(s => s.id === id);
+    /* Look up in the ACTIVE venue's staff first (includes custom/onboarded
+       employees), falling back to the demo union for fusion/legacy ids. */
+    const staff = payStaff();
+    const member = staff.find(s => s.id === id) || payStaffAll().find(s => s.id === id);
     if (!member || !window.Kiwi || !window.Kiwi.modal) return;
-    const sched = paySched();
+    const sched = payEnsureSched(staff);
+    if (!sched[id]) sched[id] = PAY_DOW.map(() => null);
     const cur = sched[id] && sched[id][day];
     const handle = window.Kiwi.modal({
       title: 'Modifier le service',
