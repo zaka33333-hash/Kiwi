@@ -101,9 +101,16 @@
   })();
 
   const getSet = (k, def) => { try { return localStorage.getItem('kiwiSet:' + k) || def; } catch (_) { return def; } };
-  const ownerName = () => getSet('ownerName', OWNER.name);
-  const ownerEmail = () => getSet('ownerEmail', OWNER.email);
-  const ownerPhone = () => getSet('ownerPhone', OWNER.phone);
+  // A REAL session = a signed-in merchant (or the operator scoped into one), both
+  // of which set window.KiwiMe, OR any hosted domain (never a demo). In a real
+  // session the demo owner "Rachid Benhima" / "Café Atlas" and its fabricated
+  // legal registration must NEVER appear — the account shows itself, with legal
+  // fields blank ("à compléter") because the client hasn't entered them.
+  const meVal = (k) => { try { return (window.KiwiMe && window.KiwiMe[k]) || ''; } catch (_) { return ''; } };
+  const isReal = () => !!(window.KiwiMe) || !!(window.KiwiEnv && window.KiwiEnv.demosAllowed === false);
+  const ownerName = () => meVal('name') || getSet('ownerName', OWNER.name);
+  const ownerEmail = () => meVal('email') || getSet('ownerEmail', OWNER.email);
+  const ownerPhone = () => getSet('ownerPhone', isReal() ? '' : OWNER.phone);
   const ownerLang = () => pick({ fr: 'Français', en: 'English', ar: 'العربية' });
   const fmtMAD = (n) => Number(n).toLocaleString('fr-FR').replace(/[  ,]/g, ' ');
 
@@ -140,7 +147,20 @@
   const extraBiz = () => { try { return JSON.parse(localStorage.getItem('kiwiBizExtra') || '[]'); } catch (_) { return []; } };
   const setExtraBiz = (a) => { try { localStorage.setItem('kiwiBizExtra', JSON.stringify(a)); } catch (_) {} };
   const bizField = (b, f) => getSet('biz:' + b.id + ':' + f, b[f] != null ? b[f] : '');
-  const allBiz = () => [...BIZ_DEFAULTS, ...extraBiz()].map((b) => { const o = { ...b }; BIZ_FIELDS.forEach((f) => { o[f.k] = bizField(b, f.k); }); return o; });
+  // Map an onboarding business type (base or subtype) to a human label.
+  const TYPE_LABEL = { restaurant: 'Restaurant', cafe: 'Café · Restaurant', fastfood: 'Restauration rapide', bakery: 'Boulangerie', pizzeria: 'Pizzeria', boutique: 'Boutique', epicerie: 'Épicerie', pharmacie: 'Pharmacie', fleuriste: 'Fleuriste', spa: 'Spa', coiffure: 'Salon de coiffure', sport: 'Sport & bien-être', hotel: 'Hôtel' };
+  const bizTypeLabel = (t) => TYPE_LABEL[t] || (t ? String(t) : pick({ fr: 'Établissement', en: 'Business', ar: 'مؤسسة' }));
+  // A real account's single establishment: its own name + business type, and
+  // BLANK legal fields (the client hasn't entered ICE/RC/etc). Never the demo's.
+  const primaryRealBiz = () => ({
+    id: 'primary', primary: true,
+    name: (meVal('business') || getSet('bizName', '') || '').trim() || pick({ fr: 'Mon établissement', en: 'My business', ar: 'مؤسستي' }),
+    type: bizTypeLabel(meVal('type')), city: '', address: '',
+    ice: '', fiscal: '', rc: '', patente: '', cnss: '', phone: '', hours: '',
+    /* no revenue/orders/team → the stat row is omitted (no fabricated numbers). */
+  });
+  const allBiz = () => (isReal() ? [primaryRealBiz(), ...extraBiz()] : [...BIZ_DEFAULTS, ...extraBiz()])
+    .map((b) => { const o = { ...b }; BIZ_FIELDS.forEach((f) => { o[f.k] = bizField(b, f.k); }); return o; });
   const initialsOf = (s) => (String(s).replace(/\s*·.*$/, '').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('') || 'K').toUpperCase();
 
   /* ════════════════════════════ MON PROFIL ════════════════════════════ */
@@ -213,8 +233,8 @@
       title: T.title, subtitle: T.sub,
       body: `
         <div class="acc-hero">
-          <div class="acc-avatar">${esc(OWNER.initials)}</div>
-          <div style="flex:1; min-width:0;"><div class="acc-hero-name">${esc(ownerName())}</div><div class="acc-hero-role">${esc(T.role)}</div></div>
+          <div class="acc-avatar">${esc(initialsOf(ownerName()))}</div>
+          <div style="flex:1; min-width:0;"><div class="acc-hero-name">${esc(ownerName())}</div><div class="acc-hero-role">${esc(isReal() ? pick({ fr: 'Propriétaire · admin', en: 'Owner · admin', ar: 'مالك · مشرف' }) : T.role)}</div></div>
           <button class="acc-cta light" data-action="account-edit-profile">${esc(T.edit)}</button>
         </div>
         <div class="acc-grid">
@@ -227,8 +247,10 @@
           </div>
           <div class="acc-card">
             <div class="acc-eyebrow">${esc(T.security)}</div>
-            ${row(T.twofa, '', `<b class="ok">${esc(T.smsOn)}</b>`)}
-            ${row(T.lastLogin, esc(T.today))}
+            ${row(T.twofa, '', isReal()
+              ? `<b>${esc(pick({ fr: 'Non configurée', en: 'Not set up', ar: 'غير مُفعّلة' }))}</b>`
+              : `<b class="ok">${esc(T.smsOn)}</b>`)}
+            ${isReal() ? '' : row(T.lastLogin, esc(T.today))}
             ${row(T.password, '', `<a data-action="account-change-pw">${esc(T.change)}</a>`)}
           </div>
         </div>

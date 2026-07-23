@@ -121,6 +121,7 @@
           name: (me.name || '').trim() || label,
           business: (me.business || '').trim() || label,
           email: (me.email || '').trim(),
+          type: (me.type || '').trim(),
         };
         window.KiwiMe = opId;
         run(opId, true, label, (me.type || '').trim());
