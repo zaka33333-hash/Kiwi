@@ -155,10 +155,16 @@ body.design-2026 .hero-today {
 }
 body.design-2026 .hero-today::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
+  /* Specular highlight, PLAIN blend. This was mix-blend-mode:screen, but a
+     screen-blended overlay samples the card's sibling GPU layers and paints
+     their backing store back through it. The count-up money number promotes
+     its own compositor layer during its scale-pulse, so screen surfaced that
+     layer as a hard lighter rectangle behind the amount — the "white ghost".
+     Normal blend samples nothing underneath; the stops are softened a touch
+     (0.12→0.07 white, 20→14 % mint) so the sheen reads the same without it. */
   background:
-    radial-gradient(110% 70% at 0% 0%, rgba(255, 255, 255, 0.12), transparent 44%),
-    radial-gradient(80% 70% at 100% 115%, color-mix(in srgb, var(--mint) 20%, transparent), transparent 56%);
-  mix-blend-mode: screen;
+    radial-gradient(110% 70% at 0% 0%, rgba(255, 255, 255, 0.07), transparent 46%),
+    radial-gradient(80% 70% at 100% 115%, color-mix(in srgb, var(--mint) 14%, transparent), transparent 56%);
 }
 
 /* ── 8c · Date-range pill + AI input — frosted controls ── */
