@@ -1386,6 +1386,19 @@
     line-height: 1.5;
   }
   .kiwi-lock-help b { color: var(--mint); font-family: var(--mono); font-weight: 400; }
+  /* Wrong-code feedback — a real login rejects a bad PIN (hosted app). */
+  .kiwi-lock-pin.is-wrong { animation: kw-pin-shake 440ms cubic-bezier(0.36,0.07,0.19,0.97) both; }
+  @keyframes kw-pin-shake {
+    10%,90% { transform: translateX(-1px); }
+    20%,80% { transform: translateX(2px); }
+    30%,50%,70% { transform: translateX(-7px); }
+    40%,60% { transform: translateX(7px); }
+  }
+  .kiwi-lock-pin.is-wrong .kiwi-pin-cell {
+    border-color: rgba(255,107,107,0.7);
+    box-shadow: 0 0 0 4px rgba(255,107,107,0.14);
+  }
+  .kiwi-lock-help.is-error { color: #ff9d9d; }
   /* Skip control — collapses the lock + greeting intro for repeat viewers */
   .kiwi-lock-skip {
     margin-top: 20px; background: none; border: 0; cursor: pointer;
@@ -5884,6 +5897,45 @@
   const skipBtn  = document.querySelector('[data-kiwi-skip]');
   if (!lock || !greet || !pinInput || !cells.length) return;
 
+  /* ── Product gate ────────────────────────────────────────────────────
+   * The hosted app is a real merchant login, not a demo reel. On any real
+   * domain (window.KiwiEnv.demosAllowed === false) the dashboard opens ONLY
+   * for the client's own configured PINs — the legacy demo/magic codes
+   * (0000 · 0505 · 0909 · 1111) and the no-code "Entrer dans la démo" bypass
+   * are all dead, and a wrong code is simply wrong. Demos live on localhost.
+   * KiwiEnv is a DEFERRED script, so it may not have run yet when this inline
+   * script initialises — always read it at call time, never capture it now. */
+  function demosOn() { return !(window.KiwiEnv && window.KiwiEnv.demosAllowed === false); }
+  const pinRow   = document.querySelector('[data-kiwi-pin]');
+  const helpEl   = document.querySelector('.kiwi-lock-help');
+  const helpHTML = helpEl ? helpEl.innerHTML : '';
+  function configuredPins() {
+    try {
+      const p = JSON.parse(localStorage.getItem('kiwiPins') || '[]');
+      return Array.isArray(p) ? p.filter((x) => x && /^\d{4}$/.test(x.code)) : [];
+    } catch (_) { return []; }
+  }
+  function clearPinError() {
+    if (pinRow) pinRow.classList.remove('is-wrong');
+    if (helpEl && helpEl.classList.contains('is-error')) {
+      helpEl.classList.remove('is-error');
+      helpEl.innerHTML = helpHTML;
+    }
+  }
+  function rejectPin() {
+    pinInput.value = '';
+    cells.forEach((c) => { c.classList.remove('is-filled'); c.textContent = ''; });
+    if (pinRow) { pinRow.classList.remove('is-wrong'); void pinRow.offsetWidth; pinRow.classList.add('is-wrong'); }
+    if (helpEl) {
+      let lang = 'fr';
+      try { lang = localStorage.getItem('kiwiLang') || 'fr'; } catch (_) {}
+      const msg = { fr: 'Code incorrect — réessayez.', en: 'Wrong code — try again.', ar: 'رمز غير صحيح — أعد المحاولة.' };
+      helpEl.textContent = msg[lang] || msg.fr;
+      helpEl.classList.add('is-error');
+    }
+    try { pinInput.focus(); } catch (_) {}
+  }
+
   /* ── Personalization + a small control surface for the onboarding wizard
    *    (assets/onboarding.js). Once a client has completed setup we know
    *    their name, business and team codes — so the entry stops being
@@ -5933,7 +5985,7 @@
     /* While the onboarding wizard is up, the lock is hidden — let it own the keyboard. */
     if (lock.style.display === 'none') return;
     /* Escape collapses the intro from either the lock or the greeting. */
-    if (e.key === 'Escape') { skipToApp(); return; }
+    if (e.key === 'Escape') { if (demosOn()) skipToApp(); return; }
     if (!lock.isConnected) return;
     /* Don't steal focus while the user Tabs to / rests on the Skip
      * button — otherwise it is unreachable from the keyboard. */
@@ -5945,12 +5997,22 @@
   function paintCells() {
     const val = pinInput.value.replace(/\D/g, '').slice(0, 4);
     if (val !== pinInput.value) pinInput.value = val;
+    if (val.length < 4) clearPinError();
     cells.forEach((c, i) => {
       const filled = i < val.length;
       c.classList.toggle('is-filled', filled);
       c.textContent = filled ? '•' : '';
     });
     if (val.length === 4) {
+      /* Hosted product gate — reject any code that isn't one of the client's
+       * own configured PINs. A fresh, never-configured session (no kiwiPins)
+       * is never rejected: it still has to reach setup. Only an already-
+       * configured client typing a non-matching code (e.g. 0000) is turned
+       * away — no demo, no magic codes, no Café Atlas. */
+      if (!demosOn()) {
+        const pins = configuredPins();
+        if (pins.length && !pins.some((p) => p.code === val)) { rejectPin(); return; }
+      }
       /* PIN 0000 is the doorway to "your own dashboard" — any other
        * 4-digit PIN unlocks the Café Atlas demo. */
       if (val === '0000') window.__kiwiOnboard = true;
@@ -6181,7 +6243,15 @@
       setTimeout(() => { if (greet.parentNode) greet.remove(); }, 280);
     }
   }
-  if (skipBtn) skipBtn.addEventListener('click', skipToApp);
+  /* The no-code "Entrer dans la démo" bypass is a demo affordance — kill it on
+   * the hosted app so the PIN can never be skipped. Gate the click at event
+   * time (KiwiEnv is guaranteed ready by then) AND hide the button once the
+   * deferred env has loaded. Note: skipToApp() itself stays reachable via the
+   * programmatic reveal() API — the authorised operator/God-mode flow uses it. */
+  if (skipBtn) skipBtn.addEventListener('click', () => { if (demosOn()) skipToApp(); });
+  function hideDemoBypass() { if (!demosOn() && skipBtn) skipBtn.style.display = 'none'; }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hideDemoBypass);
+  else hideDemoBypass();
   /* Once the greeting is on screen, a click anywhere on it skips ahead. */
   greet.addEventListener('click', () => {
     if (greet.classList.contains('is-visible')) skipToApp();

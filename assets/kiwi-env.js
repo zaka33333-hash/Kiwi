@@ -11,10 +11,12 @@
  * caisse demo verticals are hidden — a real signed-up merchant only ever sees
  * their own store. Locally, everything demos exactly as before.
  *
- * Escape hatch: localStorage.kiwiDemos = '1' forces demos ON (e.g. to demo on a
- * real domain), '0' forces them OFF (e.g. to preview the hosted experience on
- * localhost). Later this tightens to the authenticated session (a real account
- * vs a staff/demo session) once /api/me exists.
+ * Airtight rule: a HOSTED domain can NEVER show a demo — not even with a forced
+ * flag. Demos are a localhost-only affordance for pitching. The only override
+ * that works is localStorage.kiwiDemos = '0', which forces demos OFF even on
+ * localhost (to preview the real hosted experience locally). kiwiDemos = '1' is
+ * honoured only when already local; it can never turn a real domain into a demo.
+ * Later this tightens to the authenticated session once /api/me exists.
  * ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -32,7 +34,9 @@
     else if (f === '0') forced = false;
   } catch (_) {}
 
-  var demosAllowed = (forced != null) ? forced : local;
+  /* Hosted is never a demo, whatever the flag says. Local is a demo by default,
+   * and only an explicit kiwiDemos='0' can turn it off. */
+  var demosAllowed = local && (forced !== false);
 
   window.KiwiEnv = {
     local: local,
