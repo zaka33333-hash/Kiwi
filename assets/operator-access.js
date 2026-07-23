@@ -71,9 +71,12 @@
     input.type = 'password'; input.setAttribute('inputmode', 'numeric');
     input.setAttribute('autocomplete', 'off'); input.placeholder = 'Code opérateur';
     input.setAttribute('aria-label', 'Code opérateur');
+    // The field keeps a light background in both themes, so pin the text to a
+    // dark ink explicitly — `color:inherit` would pick up the card's near-white
+    // text in dark mode and render the typed characters invisible on the light field.
     input.setAttribute('style',
       'width:100%;font:inherit;text-align:center;letter-spacing:.24em;padding:12px 14px;border:1.5px solid #d9ddd6;' +
-      'border-radius:11px;background:#f7f5f0;color:inherit;margin:0 0 10px');
+      'border-radius:11px;background:#f7f5f0;color:#0A0F0D;caret-color:#0B6E4F;margin:0 0 10px');
 
     var err = el('div', null, '');
     err.setAttribute('style', 'color:#b0402f;font-size:.8rem;min-height:1em;margin:0 0 8px');
