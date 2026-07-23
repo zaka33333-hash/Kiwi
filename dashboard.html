@@ -6064,11 +6064,16 @@
     if (done || unlocked) return;
     unlocked = true;
     if (window.__kiwiOnboard) { unlockOnboard(); return; }
-    /* Any non-0000 PIN is the Café Atlas demo — never a leftover
-     * user-created (zeroed) venue from a previous 0000 session. */
+    /* A REAL onboarded merchant keeps THEIR own venue — they must never be
+     * forced into the Café Atlas restaurant demo (that's the "my boutique shows
+     * a restaurant" bug). Only a local demo session that never onboarded, with a
+     * leftover custom venue from a previous 0000 poke, is bounced back to the
+     * demo. `kiwiOnboarded` = completed the setup wizard = a real client. */
     try {
+      const persistedClient = localStorage.getItem('kiwiOnboarded') === '1';
+      const demosOff = !!(window.KiwiEnv && window.KiwiEnv.demosAllowed === false);
       const KV = window.KiwiVenue;
-      if (KV && KV.isCustom && KV.isCustom() && KV.setVenue) KV.setVenue('cafeAtlas');
+      if (!persistedClient && !demosOff && KV && KV.isCustom && KV.isCustom() && KV.setVenue) KV.setVenue('cafeAtlas');
     } catch (_) {}
     /* Stagger the success pop on each cell (left -> right). */
     cells.forEach((c, i) => {
