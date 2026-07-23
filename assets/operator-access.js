@@ -11,9 +11,13 @@
 (function () {
   'use strict';
 
-  // Kiwi brand marks across the apps. NOT `.logo` (that's partner logos).
-  var LOGO_SEL = '[data-kiwi-logo], .kiwi-lock-brand, .brand, .pin-brand, ' +
-    '.clockin-brand, .brand-mark, .brand-row, .ci-brand, .wordmark, .sidebar .brand';
+  // Every Kiwi brand mark across every app and screen. The apps use a family of
+  // per-screen wordmark classes — `.brand`, `.kob-brand` (onboarding), `.pin-brand`,
+  // `.ht-brand`, `.tr-brand`, `.kw-topbar-brand`, … — all ending in "brand", so we
+  // match the whole family by substring instead of enumerating (future screens are
+  // covered automatically). Plus the plain `.wordmark` and the onboarding egg mark.
+  // Deliberately NOT `.logo` (that class is for partner/integration logos).
+  var LOGO_SEL = '[data-kiwi-logo], [class*="brand"], .wordmark, .kob-hero-mark';
 
   var HOLD_MS = 1400;
   var hold = null, startXY = null, open = false;
