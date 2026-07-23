@@ -79,10 +79,19 @@
   }
 
   // Push the server-stored business type into the dashboard's venue engine so the
-  // sidebar's vertical section reflects the real trade. Fail-safe: no type, or a
-  // page without KiwiVenue (caisse/serveur), just does nothing.
+  // sidebar's vertical section reflects the real trade. Gated to an EXPLICITLY
+  // scoped context — the operator's God-mode view (?op=1) or a pinned ?merchant —
+  // which is the only place that needs it. A plain demo session (default
+  // cafe-atlas slug) is deliberately left alone, so a stray config row can never
+  // hijack the multi-venue demo; a real client's own venue is already the right
+  // trade from onboarding. Fail-safe: no type, not scoped, or a page without
+  // KiwiVenue (caisse/serveur) → does nothing.
+  function isScoped() {
+    try { var p = new URLSearchParams(location.search); return p.has('op') || p.has('merchant'); }
+    catch (_) { return false; }
+  }
   function applyServerType() {
-    if (!cfg.type) return;
+    if (!cfg.type || !isScoped()) return;
     try { if (window.KiwiVenue && window.KiwiVenue.applyServerType) window.KiwiVenue.applyServerType(cfg.type); } catch (_) {}
   }
 
