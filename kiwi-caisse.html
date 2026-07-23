@@ -15,6 +15,8 @@
   <!-- Lucide icons — self-hosted so missing/blocked CDN never strips the UI of icons.
        Version pinned at download (v1.17.0). To upgrade, re-download from
        https://unpkg.com/lucide@latest/dist/umd/lucide.min.js into assets/. -->
+  <!-- ENV first: separates the owner's local demo copy from the hosted app. -->
+  <script src="assets/kiwi-env.js" defer></script>
   <script src="assets/lucide.min.js" defer></script>
 
   <!-- Pressing mode (PIN 0000 — assets/pressing-caisse.js injects its own DOM,
@@ -3824,6 +3826,8 @@
   <script src="assets/pwa-update.js" defer></script>
   <script src="assets/caisse-pwa.js" defer></script>
   <script src="assets/live-link.js" defer></script>
+  <!-- Hosted: 6-digit pairing pad binds this caisse to its store (no demo PINs). -->
+  <script src="assets/caisse-pairing.js" defer></script>
   <!-- Operator feature flags + managed PINs. Fail-safe: no backend ⇒ no change. -->
   <script src="assets/merchant-config.js" defer></script>
   <!-- Global operator access — long-press any Kiwi logo to open the console. -->
@@ -7536,6 +7540,9 @@
        PIN LOGIN
        =========================================================== */
     const pinScreen = $('#pin-screen');
+    /* Expose the restaurant-caisse boot for the pairing module (caisse-pairing.js),
+       which boots a paired store into its matching vertical (restaurant → here). */
+    try { window.__kiwiUnlockApp = function () { return unlockApp(); }; } catch (_) {}
     let pinBuffer = '';
 
     function renderPinDots() {

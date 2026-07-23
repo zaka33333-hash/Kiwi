@@ -268,12 +268,18 @@
 
   function mount(rootEl) {
     root = rootEl;
+    /* A PAIRED caisse shows the real store's name/city (from onboarding); the
+       unpaired demo (PIN 0002) keeps the Maison Mansour identity. */
+    const _pv = (function () { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } })();
+    const _esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const _vName = (_pv && _pv.name) ? _esc(_pv.name) : 'Maison Mansour';
+    const _vSub = (_pv && _pv.location) ? _esc(_pv.location) : (_pv ? '' : 'Casablanca · Maarif');
     root.innerHTML = `
       <aside class="bq-rail">
         <div class="bq-brand">kiwi<i></i></div>
         <div class="bq-venue">
-          <div class="bq-venue-name">Maison Mansour</div>
-          <div class="bq-venue-sub">Casablanca · Maarif<br>Le même Kiwi, <b>un seul compte</b>.</div>
+          <div class="bq-venue-name">${_vName}</div>
+          <div class="bq-venue-sub">${_vSub}${_vSub ? '<br>' : ''}Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="bq-nav" id="bq-nav">
           <button class="bq-nav-it on" data-bq-view="vente"><i data-lucide="shopping-bag"></i><span>Vente</span><b class="bq-nav-badge" id="bq-badge-vente"></b></button>
@@ -331,10 +337,11 @@
     });
 
     /* live catalogue → the sale grid, the sheet and the douchette track the DB.
-       PIN 0002 IS Maison Mansour, so pin this store's catalogue (the dashboard
-       follows its active venue; both agree on 'maisonMansour' → they stay synced).
-       When the dashboard (or another caisse tab) edits the inventory, rebuild. */
-    if (window.KiwiBoutiqueCatalog) window.KiwiBoutiqueCatalog.use('maisonMansour');
+       A PAIRED caisse (assets/caisse-pairing.js sets __kiwiPairedBoutiqueVenue)
+       uses the real store's own catalogue — the same per-venue key the dashboard
+       writes — so a real boutique shows its real stock. Unpaired demo (PIN 0002)
+       stays Maison Mansour. When either side edits the inventory, rebuild. */
+    if (window.KiwiBoutiqueCatalog) window.KiwiBoutiqueCatalog.use(window.__kiwiPairedBoutiqueVenue || 'maisonMansour');
     rebuildCatalog();
     injectInvCss();
     if (window.KiwiBoutiqueCatalog && !mount._subbed) {

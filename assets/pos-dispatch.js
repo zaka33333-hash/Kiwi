@@ -245,6 +245,9 @@
 
   /* ---------- PIN-screen legend (tap the foot note for all codes) ---------- */
   function initLegend() {
+    // On the hosted app (demos off) never advertise the demo code list — a real
+    // merchant only ever pairs their own store. Local keeps the full legend.
+    if (window.KiwiEnv && window.KiwiEnv.demosAllowed === false) return;
     const pinScreen = document.getElementById('pin-screen');
     const foot = pinScreen && pinScreen.querySelector('.pin-foot');
     if (!foot) return;
@@ -269,9 +272,16 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
+  // Boot a vertical by its id (e.g. 'boutique', 'spa', 'gym') rather than its demo
+  // PIN — used by the pairing module to open a paired store's matching register.
+  function unlockById(id) {
+    for (const pin in REGISTRY) { if (REGISTRY[pin].id === id) return unlock(pin); }
+  }
+
   window.KiwiPosDispatch = {
     has: (pin) => !!REGISTRY[pin],
     unlock,
+    unlockById,
     lock,
     register(spec) {
       if (!spec || !spec.id || typeof spec.mount !== 'function') {
