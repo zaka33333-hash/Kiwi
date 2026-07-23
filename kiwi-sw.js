@@ -3,19 +3,20 @@
  * only way two root-level app pages both load offline: one SW owns the scope
  * and serves whichever shell the navigation asks for.
  *
- * Update strategy — STALE-WHILE-REVALIDATE for the whole shell (HTML documents,
- * CSS, JS, images, fonts, icons, manifests). Every request is answered from the
- * cache instantly — so the app opens fast and works offline / on a flaky café
- * connection — while a fresh copy is fetched in the background and stored for
- * next time. A Cloudflare deploy therefore reaches every device automatically on
- * its NEXT load, with no cache bump, no "Rafraîchir" banner and no manual
- * eviction. (Network-first was tried but made every load block on the network
- * for all JS/CSS, which is the wrong trade for a till.) The worker also
- * skipWaiting()s so a new version takes over promptly instead of waiting for
- * every tab to close; it does NOT force a reload, so a caisse sale in progress
- * is never interrupted — the fresh assets are simply served on the next load. */
+ * Update strategy — split by request type:
+ *  • NAVIGATIONS (HTML documents) are NETWORK-FIRST: always fetch the live page,
+ *    fall back to the cached shell only when the network fails. A cached HTML doc
+ *    must never be replayed to a navigation while online — a redirected/opaque
+ *    cached response is rejected by the browser and hard-fails the page
+ *    (ERR_FAILED). Documents change on deploy anyway, so fresh is also correct.
+ *  • ASSETS (JS, CSS, images, fonts, icons, manifests) are STALE-WHILE-REVALIDATE:
+ *    served from cache instantly (fast + offline), refreshed in the background so
+ *    a deploy still lands on the next load with no manual refresh.
+ * The worker skipWaiting()s so a new version takes over promptly instead of
+ * waiting for every tab to close; it does NOT force a reload, so a caisse sale in
+ * progress is never interrupted — fresh assets are simply served on the next load. */
 'use strict';
-var CACHE = 'kiwi-app-v18';
+var CACHE = 'kiwi-app-v19';
 var SHELL = [
   '/dashboard.html',
   '/kiwi-caisse.html',
@@ -93,9 +94,11 @@ self.addEventListener('message', function (e) {
 });
 
 // Store a fresh copy in the cache without blocking the response. Only good,
-// same-origin (non-opaque) 200s are cached — never an error page or a redirect.
+// same-origin (non-opaque), NON-redirected 200s are cached — a redirected
+// response cannot be replayed to a navigation (the browser hard-fails it with
+// ERR_FAILED), and we never want to cache an error page or a redirect.
 function put(req, res) {
-  if (res && res.status === 200 && res.type === 'basic') {
+  if (res && res.status === 200 && res.type === 'basic' && !res.redirected) {
     var copy = res.clone();
     caches.open(CACHE).then(function (c) { c.put(req, copy); });
   }
@@ -111,22 +114,30 @@ self.addEventListener('fetch', function (e) {
   // stale sales. Let /api/* fall straight through to the network.
   if (url.pathname.indexOf('/api/') === 0) return;
 
-  // STALE-WHILE-REVALIDATE for the whole shell (documents, JS, CSS, images,
-  // fonts, icons, manifests). Answer from cache instantly — fast, and offline /
-  // flaky-network safe — while a fresh copy is fetched in the background and
-  // stored (see put) for next time. A deploy therefore lands on the NEXT load
-  // with no cache bump and no manual refresh.
+  // NAVIGATIONS: NETWORK-FIRST. Always fetch the live document; fall back to the
+  // cached shell only when the network fails. A cached HTML document must never be
+  // served to a navigation while online — a redirected/opaque cached response is
+  // rejected by the browser for navigations and hard-fails the page (ERR_FAILED),
+  // which is exactly what a cache-first strategy here caused. Documents change on
+  // deploy anyway, so fetching fresh is also the correct freshness behaviour.
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req).then(function (res) { return put(req, res); }).catch(function () {
+        return caches.match(req).then(function (hit) {
+          return hit || caches.match(url.pathname.indexOf('/kiwi-caisse') === 0
+            ? '/kiwi-caisse.html' : '/dashboard.html');
+        });
+      })
+    );
+    return;
+  }
+
+  // ASSETS (JS, CSS, images, fonts, icons, manifests): STALE-WHILE-REVALIDATE —
+  // serve the cached copy instantly (fast + offline), and refresh it in the
+  // background so a deploy still lands on the next load with no manual refresh.
   e.respondWith(
     caches.match(req).then(function (hit) {
-      var net = fetch(req).then(function (res) { return put(req, res); }).catch(function () {
-        if (hit) return hit;
-        // Offline with nothing cached for this exact URL → serve the matching app
-        // shell for a navigation (Cloudflare clean URLs drop the .html).
-        if (req.mode === 'navigate') {
-          return caches.match(url.pathname.indexOf('/kiwi-caisse') === 0
-            ? '/kiwi-caisse.html' : '/dashboard.html');
-        }
-      });
+      var net = fetch(req).then(function (res) { return put(req, res); }).catch(function () { return hit; });
       return hit || net;
     })
   );
