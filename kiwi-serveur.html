@@ -20,6 +20,16 @@
        Same brand system as Kiwi Caisse.
        ========================================================= */
 
+    /* Icon normalization — round caps/joins on icon-sized inline SVGs so any
+       hand-rolled glyphs match the Lucide set (which rounds both). Scoped to
+       icon widths; charts/logos untouched. Mirrors the rule in tokens.css,
+       which this single-file app does not load. */
+    svg[width="14"], svg[width="15"], svg[width="16"], svg[width="17"],
+    svg[width="18"], svg[width="19"], svg[width="20"], svg[width="21"],
+    svg[width="22"], svg[width="23"], svg[width="24"] {
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
     :root {
       --forest:        #1F5D3C;
       --forest-deep:   #164A2F;

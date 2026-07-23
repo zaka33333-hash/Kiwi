@@ -148,3 +148,19 @@ section.loose { padding: 128px 0; }
 table.tab { width: 100%; border-collapse: collapse; }
 table.tab th, table.tab td { text-align: left; padding: 14px 12px; border-bottom: 1px solid var(--n-200); font-size: 14px; }
 table.tab th { font-weight: 500; color: var(--n-500); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* ── Icon normalization ──────────────────────────────────────────────────
+   Many hand-rolled inline SVG icons across the app were drawn WITHOUT round
+   line caps/joins (and at assorted stroke-widths), so their tips and corners
+   came out sharp/crude next to the Lucide set — which rounds both. Rounding
+   caps + joins snaps that whole long tail to the same clean silhouette in one
+   place, no per-icon rewrite. Scoped to icon-sized SVGs (explicit width 14–24)
+   so charts, sparklines, illustrations and logos — which set larger widths or
+   size via CSS — are left untouched. Round→round is idempotent, so Lucide
+   icons (already rounded) are unaffected. */
+svg[width="14"], svg[width="15"], svg[width="16"], svg[width="17"],
+svg[width="18"], svg[width="19"], svg[width="20"], svg[width="21"],
+svg[width="22"], svg[width="23"], svg[width="24"] {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
