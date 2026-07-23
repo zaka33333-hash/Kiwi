@@ -97,6 +97,38 @@
     sac_main:   art(`<path d="M22 26c0-10 20-10 20 0"/><path class="fill" d="M16 26h32l-3 22H19z"/><path d="M16 26h32l-3 22H19z"/><path class="thin" d="M32 32a4 4 0 010 8"/>`),
     tag:        art(`<path class="fill" d="M14 14h16l22 22-16 16-22-22z"/><path d="M14 14h16l22 22-16 16-22-22z"/><circle class="thin" cx="21" cy="21" r="2.6"/>`),
     cintre:     art(`<path class="fill" d="M13 44 32 29l19 15z"/><path d="M13 44 32 29l19 15z"/><path d="M32 29v-4a3 3 0 10-3-3"/><path d="M12 44h40"/>`),
+    /* ── extended apparel ── */
+    debardeur:  art(`<path class="fill" d="M26 15v5c-2 1-4 3-4 6v22h20V26c0-3-2-5-4-6v-5c0 3-3 5-6 5s-6-2-6-5z"/><path d="M26 15v5c-2 1-4 3-4 6v22h20V26c0-3-2-5-4-6v-5"/><path d="M26 15c0 3 3 5 6 5s6-2 6-5"/>`),
+    sweat:      art(`<path class="fill" d="M23 17 12 23l3 16 5-2v13h24V37l5 2 3-16-11-6c-2 5-10 5-12 0z"/><path d="M23 17 12 23l3 16 5-2v13h24V37l5 2 3-16-11-6"/><path class="fill" d="M27 16c1 5 9 5 10 0l-2-2c-2 2-4 2-6 0z"/><path d="M27 16c1 5 9 5 10 0"/><path class="thin" d="M31 20v6M33 20v6"/><path class="thin" d="M23 42h18"/>`),
+    short:      art(`<path class="fill" d="M22 17h20l-2 20h-7l-1-12-1 12h-7z"/><path d="M22 17h20l-2 20h-7l-1-12-1 12h-7z"/><path d="M22 23h20"/>`),
+    combinaison:art(`<path class="fill" d="M23 15 13 21l4 8 5-3v10l-2 18h7l1-12 1 12h7l-2-18v-10l5 3 4-8-10-6c-2 4-8 4-10 0z"/><path d="M23 15 13 21l4 8 5-3v10l-2 18h7l1-12 1 12h7l-2-18v-10l5 3 4-8-10-6"/><path d="M23 15c2 4 8 4 10 0"/><path class="thin" d="M22 33h20"/>`),
+    cravate:    art(`<path class="fill" d="M27 15h10l-2 7 3 21-6 7-6-7 3-21z"/><path d="M27 15h10l-2 7 3 21-6 7-6-7 3-21z"/><path d="M29 22h6"/>`),
+    echarpe:    art(`<path class="fill" d="M23 16c3 4 15 4 18 0v5c0 2-1 3-3 4l1 23h-6l-1-20-1 20h-6l1-23c-2-1-3-2-3-4z"/><path d="M23 16c3 4 15 4 18 0v5c0 2-1 3-3 4l1 23h-6l-1-20-1 20h-6l1-23c-2-1-3-2-3-4z"/><path class="thin" d="M27 47v4M31 47v4M35 47v4M39 47v4"/>`),
+    gants:      art(`<path class="fill" d="M25 24c0-3 2-5 5-5h6c3 0 5 2 5 5v6c3 0 5 2 5 5s-2 5-5 5v3c0 2-1 3-3 3H28c-2 0-3-1-3-3z"/><path d="M25 24c0-3 2-5 5-5h6c3 0 5 2 5 5v6c3 0 5 2 5 5s-2 5-5 5v3c0 2-1 3-3 3H28c-2 0-3-1-3-3z"/><path class="thin" d="M25 44h16"/>`),
+    chaussettes:art(`<path class="fill" d="M27 14h9v16c0 2 1 3 3 4l5 4c2 2 3 3 3 6 0 3-2 5-5 5s-4-1-6-3l-8-7c-2-2-3-3-3-6V14z"/><path d="M27 14h9v16c0 2 1 3 3 4l5 4c2 2 3 3 3 6 0 3-2 5-5 5s-4-1-6-3l-8-7c-2-2-3-3-3-6V14z"/><path class="thin" d="M27 20h9"/>`),
+    /* ── footwear ── */
+    basket:     art(`<path class="fill" d="M11 41c0-3 1-5 3-7l6-6c1-1 2-1 3 0l3 4 5 3 14 2c3 0 5 2 5 5v3H11z"/><path d="M11 41c0-3 1-5 3-7l6-6c1-1 2-1 3 0l3 4 5 3 14 2c3 0 5 2 5 5v3H11z"/><path class="thin" d="M27 34l3-3M30 37l3-3M33 39l3-3"/><path class="thin" d="M11 46h39"/>`),
+    botte:      art(`<path class="fill" d="M25 14h10v18c0 2 1 4 3 5l8 4c3 1 4 3 4 6v3H25V14z"/><path d="M25 14h10v18c0 2 1 4 3 5l8 4c3 1 4 3 4 6v3H25V14z"/><path class="thin" d="M25 20h10"/><path class="thin" d="M25 44h25"/>`),
+    sandale:    art(`<path class="fill" d="M13 40c0-2 1-3 3-3h31c3 0 5 1 5 3s-2 3-5 3H16c-2 0-3-1-3-3z"/><path d="M13 40c0-2 1-3 3-3h31c3 0 5 1 5 3s-2 3-5 3H16c-2 0-3-1-3-3z"/><path class="thin" d="M22 37l8-8M30 37l6-8M38 37l4-6"/>`),
+    /* ── headwear ── */
+    casquette:  art(`<path class="fill" d="M17 37c0-9 7-16 15-16s15 6 15 15v1H17z"/><path d="M17 37c0-9 7-16 15-16s15 6 15 15"/><path class="fill" d="M46 37c6 0 11 1 12 3 1 1 0 2-1 2l-11 1z"/><path d="M46 37c6 0 11 1 12 3 1 1 0 2-1 2l-11 1"/><path d="M17 38h30"/><path class="thin" d="M32 21v16"/>`),
+    bonnet:     art(`<path class="fill" d="M18 40c0-12 6-20 14-20s14 8 14 20z"/><path d="M18 40c0-12 6-20 14-20s14 8 14 20"/><path class="fill" d="M16 40h32v5H16z"/><path d="M16 40h32v5H16z"/><path class="thin" d="M25 22v18M32 20v20M39 22v18"/>`),
+    /* ── jewellery & accessories ── */
+    collier:    art(`<path d="M19 16c0 15 6 25 13 25s13-10 13-25"/><path class="fill" d="M32 41l-4 6 4 5 4-5z"/><path d="M32 41l-4 6 4 5 4-5z"/><path class="thin" d="M23 27v1M27 33v1M41 27v1M37 33v1"/>`),
+    bracelet:   art(`<path class="fill" fill-rule="evenodd" d="M32 17a16 16 0 100 32 16 16 0 000-32zm0 7a9 9 0 110 18 9 9 0 010-18z"/><circle cx="32" cy="33" r="16"/><circle cx="32" cy="33" r="9"/><path class="fill" d="M32 12l5 6-5 6-5-6z"/><path d="M32 12l5 6-5 6-5-6z"/>`),
+    bague:      art(`<path class="fill" fill-rule="evenodd" d="M32 30a11 11 0 100 22 11 11 0 000-22zm0 6a5 5 0 110 10 5 5 0 010-10z"/><circle cx="32" cy="41" r="11"/><circle cx="32" cy="41" r="5"/><path class="fill" d="M32 12l6 9-6 8-6-8z"/><path d="M32 12l6 9-6 8-6-8z"/><path d="M26 21l6 6 6-6"/>`),
+    boucles:    art(`<path d="M24 16c-3 0-5 2-5 5"/><circle class="fill" cx="24" cy="30" r="6"/><circle cx="24" cy="30" r="6"/><path d="M40 18c-3 0-5 2-5 5"/><circle class="fill" cx="40" cy="34" r="6"/><circle cx="40" cy="34" r="6"/>`),
+    /* ── bags & leather ── */
+    sac_dos:    art(`<path class="fill" d="M19 26c0-7 6-12 13-12s13 5 13 12v22c0 2-1 3-3 3H22c-2 0-3-1-3-3z"/><path d="M19 26c0-7 6-12 13-12s13 5 13 12v22c0 2-1 3-3 3H22c-2 0-3-1-3-3z"/><path class="fill" d="M26 34h12v15H26z"/><path d="M26 34h12v15H26z"/><path class="thin" d="M28 26h8"/><path d="M27 15c2-3 8-3 10 0"/>`),
+    portefeuille:art(`<rect class="fill" x="12" y="22" width="40" height="22" rx="3"/><rect x="12" y="22" width="40" height="22" rx="3"/><path class="fill" d="M40 30h13v8H40a4 4 0 010-8z"/><path d="M40 30h13v8H40a4 4 0 010-8z"/><circle class="thin" cx="44" cy="34" r="1.6"/>`),
+    valise:     art(`<rect class="fill" x="16" y="24" width="32" height="26" rx="3"/><rect x="16" y="24" width="32" height="26" rx="3"/><path d="M26 24v-4c0-2 1-3 3-3h6c2 0 3 1 3 3v4"/><path class="thin" d="M24 24v26M40 24v26"/>`),
+    parapluie:  art(`<path class="fill" d="M11 35c0-12 9-21 21-21s21 9 21 21c-3 4-7 4-10 0-3 4-7 4-10 0-3 4-7 4-10 0-3 4-9 4-12 0z"/><path d="M11 35c0-12 9-21 21-21s21 9 21 21"/><path d="M11 35c3 4 7 4 10 0 3 4 7 4 10 0 3 4 7 4 10 0 3 4 9 4 12 0"/><path d="M32 35v13a4 4 0 01-8 0"/>`),
+    /* ── Moroccan traditional (extended) ── */
+    djellaba:   art(`<path class="fill" d="M26 14 13 20l4 8 5-3-4 25h28l-4-25 5 3 4-8-13-6c-2 3-6 3-8 0z"/><path d="M26 14 13 20l4 8 5-3-4 25h28l-4-25 5 3 4-8-13-6"/><path class="fill" d="M30 6l5 8-3 4-3-4z"/><path d="M30 6l5 8-3 4-3-4z"/><path d="M26 14c2 3 6 3 8 0"/><path d="M32 18v37"/><path class="thin" d="M22 32h20"/>`),
+    gandoura:   art(`<path class="fill" d="M22 16 12 22l4 7 4-2v27h24V27l4 2 4-7-10-6c-3 3-9 3-12 0z"/><path d="M22 16 12 22l4 7 4-2v27h24V27l4 2 4-7-10-6"/><path d="M26 16c1 3 11 3 12 0"/><path class="thin" d="M28 16v6h8v-6"/><path class="thin" d="M30 24v22M34 24v22"/>`),
+    jabador:    art(`<path class="fill" d="M23 15 13 21l4 8 5-3v24h22V26l5 3 4-8-10-6c-2 3-8 3-11 0z"/><path d="M23 15 13 21l4 8 5-3v24h22V26l5 3 4-8-10-6"/><path d="M27 15l5 3 6-3"/><path class="thin" d="M32 18v27"/><path class="thin" d="M29 24h6M29 30h6M29 36h6"/>`),
+    selham:     art(`<path class="fill" d="M32 14c-10 0-20 10-22 36h44c-2-26-12-36-22-36z"/><path d="M32 14c-10 0-20 10-22 36h44c-2-26-12-36-22-36z"/><path class="fill" d="M32 14l-4 8h8z"/><path d="M32 14l-4 8h8z"/><path class="thin" d="M32 22v28"/>`),
+    tarbouche:  art(`<path class="fill" d="M23 24c0-2 4-3 9-3s9 1 9 3l-1 20H24z"/><path d="M23 24c0-2 4-3 9-3s9 1 9 3l-1 20H24z"/><path class="thin" d="M23 24c0 2 4 3 9 3s9-1 9-3"/><path d="M32 21v-4"/><circle class="thin" cx="32" cy="15" r="2"/>`),
   };
 
   /* Product-icon "database" for the create/edit picker — ordered + labelled.
@@ -104,14 +136,39 @@
   const DEFAULT_ICON = 'cintre';
   const artOf = (k) => ART[k] || ART[DEFAULT_ICON];
   const ICON_LABELS = {
-    tshirt: 'T-shirt / Haut', chemise: 'Chemise', pull: 'Pull / Sweat', robe: 'Robe', jupe: 'Jupe',
-    pantalon: 'Pantalon / Jean', veste: 'Veste / Manteau', chaussures: 'Chaussures', chapeau: 'Chapeau',
-    ceinture: 'Ceinture', lunettes: 'Lunettes', montre: 'Montre', parfum: 'Parfum', sac_main: 'Sac à main',
-    tag: 'Étiquette', cintre: 'Cintre', caftan: 'Caftan', takchita: 'Takchita', foulard: 'Foulard',
-    chale: 'Châle', broche: 'Broche / Bijou', mdamma: 'Mdamma', babouche: 'Babouche', cabas: 'Cabas',
-    sac: 'Sac', pochette: 'Pochette',
+    tshirt: 'T-shirt / Haut', chemise: 'Chemise', debardeur: 'Débardeur', pull: 'Pull', sweat: 'Sweat / Hoodie',
+    pantalon: 'Pantalon / Jean', short: 'Short', jupe: 'Jupe', robe: 'Robe', combinaison: 'Combinaison',
+    veste: 'Veste / Manteau', chaussures: 'Chaussures', basket: 'Basket', botte: 'Bottes', sandale: 'Sandales',
+    chapeau: 'Chapeau', casquette: 'Casquette', bonnet: 'Bonnet', ceinture: 'Ceinture', cravate: 'Cravate',
+    echarpe: 'Écharpe', gants: 'Gants', chaussettes: 'Chaussettes', lunettes: 'Lunettes', montre: 'Montre',
+    bracelet: 'Bracelet', bague: 'Bague', collier: 'Collier', boucles: 'Boucles d’oreille', broche: 'Broche / Bijou',
+    parfum: 'Parfum', sac_main: 'Sac à main', sac: 'Sac', sac_dos: 'Sac à dos', cabas: 'Cabas',
+    pochette: 'Pochette', portefeuille: 'Portefeuille', valise: 'Valise', parapluie: 'Parapluie', tag: 'Étiquette',
+    cintre: 'Cintre', caftan: 'Caftan', takchita: 'Takchita', djellaba: 'Djellaba', gandoura: 'Gandoura',
+    jabador: 'Jabador', selham: 'Selham', tarbouche: 'Tarbouche', foulard: 'Foulard', chale: 'Châle',
+    mdamma: 'Mdamma', babouche: 'Babouche',
   };
-  const ICON_KEYS = ['tshirt', 'chemise', 'pull', 'robe', 'jupe', 'pantalon', 'veste', 'chaussures', 'chapeau', 'ceinture', 'lunettes', 'montre', 'parfum', 'sac_main', 'tag', 'cintre', 'caftan', 'takchita', 'foulard', 'chale', 'broche', 'mdamma', 'babouche', 'cabas', 'sac', 'pochette'];
+  const ICON_KEYS = [
+    // Hauts
+    'tshirt', 'chemise', 'debardeur', 'pull', 'sweat',
+    // Bas
+    'pantalon', 'short', 'jupe',
+    // Pièces entières
+    'robe', 'combinaison', 'veste',
+    // Traditionnel marocain
+    'caftan', 'takchita', 'djellaba', 'gandoura', 'jabador', 'selham',
+    // Chaussures
+    'chaussures', 'basket', 'botte', 'sandale', 'babouche',
+    // Couvre-chef
+    'chapeau', 'casquette', 'bonnet', 'tarbouche',
+    // Accessoires & bijoux
+    'ceinture', 'cravate', 'echarpe', 'foulard', 'chale', 'gants', 'chaussettes',
+    'lunettes', 'montre', 'bracelet', 'bague', 'collier', 'boucles', 'broche', 'mdamma', 'parfum',
+    // Sacs & maroquinerie
+    'sac_main', 'sac', 'sac_dos', 'cabas', 'pochette', 'portefeuille', 'valise',
+    // Divers
+    'parapluie', 'tag', 'cintre',
+  ];
   function iconPickerHtml(sel) {
     return `<div class="bqi-iconpick">${ICON_KEYS.map((k) => `<button type="button" class="bqi-icon${k === sel ? ' on' : ''}" data-icon="${k}" title="${esc(ICON_LABELS[k] || k)}">${ART[k]}</button>`).join('')}</div>`;
   }
@@ -328,7 +385,14 @@
 
     $('#bq-nav', root).addEventListener('click', (e) => {
       const b = e.target.closest('[data-bq-view]');
-      if (b) switchView(b.dataset.bqView);
+      if (!b) return;
+      // Clients → the unified Kiwi Fidélité carnet (assets/clients-book.js): one
+      // client book shared with the owner's dashboard, replacing the old local list.
+      if (b.dataset.bqView === 'clientes' && window.KiwiClientsBook) {
+        window.KiwiClientsBook.open();
+        return;
+      }
+      switchView(b.dataset.bqView);
     });
     $('#bq-lock', root).addEventListener('click', () => window.KiwiPosDispatch.lock());
     $('#bq-net', root).addEventListener('click', toggleOffline);
