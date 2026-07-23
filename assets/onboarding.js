@@ -586,6 +586,9 @@
         desc: tr({ fr: 'Votre espace est prêt, enregistrez votre première vente.', en: 'Your space is ready, record your first sale.', ar: 'مساحتك جاهزة, سجّل أول بيع.' }),
       });
     } catch (_) {}
+    /* Brand-new business: surface the "Connectez votre caisse" panel so the owner
+     * pairs their till immediately (once the entry choreography has settled). */
+    try { setTimeout(function () { if (window.KiwiCaisseLink && KiwiCaisseLink.promptNewMerchant) KiwiCaisseLink.promptNewMerchant(); }, 1300); } catch (_) {}
   }
 
   /* ── Explore the demo instead (bail to the PIN lock) ─────────────────── */

@@ -38,6 +38,15 @@
   function isPaired() { return ls('kiwiPaired') === '1'; }
   function pairedVenue() { try { return JSON.parse(ls('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
 
+  // Same-device hand-off: the dashboard opens kiwi-caisse.html?pair=1 in this
+  // browser, where its freshly-issued code is already sitting in kiwiPairings.
+  function wantsPair() { try { return /[?&]pair=1\b/.test(location.search || ''); } catch (_) { return false; } }
+  function newestPending() {
+    var m = readMap(), now = Date.now(), best = null, bestT = -1;
+    for (var c in m) { var e = m[c]; if (e && e.status === 'pending' && (!e.exp || e.exp > now)) { var t = e.createdAt || 0; if (t >= bestT) { bestT = t; best = c; } } }
+    return best;
+  }
+
   /* ── type/subtype → caisse vertical ─────────────────────────────────────
    * The onboarding trade id (subtype) maps 1:1 to a dispatcher vertical for
    * most trades; a couple are aliased; the four base types are the fallback.
@@ -144,8 +153,8 @@
     document.head.appendChild(s);
   }
 
-  function showPad() {
-    if (!hosted()) return;
+  function showPad(force) {
+    if (!hosted() && !force) return;
     injectCss();
     hideNativePin();
     buf = '';
@@ -222,18 +231,35 @@
    * Hosted + paired: boot straight into the bound store.
    * Hosted + unpaired: show the pairing pad. */
   function boot() {
-    if (!hosted()) return;
-    // A hosted terminal that locks its store returns to the pairing pad (which
-    // offers a one-tap "reprendre" when still bound).
+    // A terminal that locks its store returns to the pairing pad (which offers a
+    // one-tap "reprendre" when still bound). Hosted always; local only once bound.
     try {
       if (window.KiwiPosDispatch && window.KiwiPosDispatch.lock && !window.KiwiPosDispatch.__cpWrapped) {
         var origLock = window.KiwiPosDispatch.lock;
-        window.KiwiPosDispatch.lock = function () { try { origLock.apply(this, arguments); } catch (_) {} if (hosted()) setTimeout(showPad, 60); };
+        window.KiwiPosDispatch.lock = function () {
+          try { origLock.apply(this, arguments); } catch (_) {}
+          if (hosted()) setTimeout(function () { showPad(); }, 60);
+          else if (isPaired()) setTimeout(function () { showPad(true); }, 60);
+        };
         window.KiwiPosDispatch.__cpWrapped = true;
       }
     } catch (_) {}
-    if (isPaired()) bootVertical(pairedVenue());
-    else showPad();
+
+    // Once a device is bound to a store, it stays that store — on ANY environment,
+    // so the owner's real caisse works when they test on their Mac too.
+    if (isPaired()) { bootVertical(pairedVenue()); return; }
+
+    // Explicit same-device hand-off from the dashboard ("Ouvrir la caisse sur cet
+    // appareil"): redeem the freshly-issued code with no typing, on any env.
+    if (wantsPair()) {
+      var code = newestPending();
+      if (code) redeem(code).then(function (res) { if (res && res.ok) bootVertical(res.venue); else showPad(true); });
+      else showPad(true);
+      return;
+    }
+
+    if (!hosted()) return;   // local + unpaired + no hand-off → native demo pad, unchanged
+    showPad();               // hosted + unpaired → pairing pad
   }
 
   window.KiwiCaissePairing = { isPaired: isPaired, pairedVenue: pairedVenue, showPad: showPad, redeem: redeem, unpair: unpair, bootVertical: bootVertical };

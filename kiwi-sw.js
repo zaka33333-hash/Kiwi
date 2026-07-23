@@ -54,6 +54,7 @@ var SHELL = [
   '/assets/live-link.js',
   '/assets/merchant-config.js',
   '/assets/identity.js',
+  '/assets/caisse-link.js',
   '/assets/operator-access.js',
   '/assets/caisse-hardware.js',
   '/assets/barcode.js',
