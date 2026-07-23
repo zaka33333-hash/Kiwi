@@ -18,16 +18,24 @@
 
   var LS = 'kiwiLive';
 
-  function urlFlag() { try { return /[?&]live=1(?:&|$)/.test(location.search); } catch (_) { return false; } }
+  // ?live=1 or ?op=1 (operator view) both turn the live feed on.
+  function urlFlag() { try { return /[?&](?:live=1|op=1)(?:&|$)/.test(location.search); } catch (_) { return false; } }
+  function opMode() { try { return /[?&]op=1(?:&|$)/.test(location.search); } catch (_) { return false; } }
   function on() {
     try {
       if (urlFlag()) { localStorage.setItem(LS, '1'); return true; }
       return localStorage.getItem(LS) === '1';
     } catch (_) { return urlFlag(); }
   }
-  // One demo tenant for this pilot. Real multi-tenant = a merchant key + auth later.
+  // Which tenant this dashboard is showing. A ?merchant= in the URL is
+  // authoritative (the operator's "Ouvrir dashboard" opens the client this way)
+  // and is pinned to localStorage; otherwise the last pick, else the demo tenant.
   function merchant() {
-    try { return localStorage.getItem('kiwiLiveMerchant') || 'cafe-atlas'; } catch (_) { return 'cafe-atlas'; }
+    try {
+      var q = new URLSearchParams(location.search).get('merchant');
+      if (q) { try { localStorage.setItem('kiwiLiveMerchant', q); } catch (_) {} return q; }
+      return localStorage.getItem('kiwiLiveMerchant') || 'cafe-atlas';
+    } catch (_) { return 'cafe-atlas'; }
   }
 
   var METHOD_LABEL = { cash: 'Espèces', card: 'Carte', tap: 'Kiwi Tap', qr: 'QR', wallet: 'Kiwi Wallet', split: 'Partagée' };
@@ -174,8 +182,54 @@
     });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initDashboard);
-  else initDashboard();
+  /* ─── operator view banner ─── */
+  // When the console opens a client with ?op=1, make it unmistakable that this is
+  // the operator looking at THAT client (not the operator's own account), and
+  // give a one-click way back. Read-only affordance; no client data is altered.
+  function initOperatorBanner() {
+    if (!opMode() || document.getElementById('kiwi-op-banner')) return;
+    var bar = el('div');
+    bar.id = 'kiwi-op-banner';
+    bar.setAttribute('style', 'position:fixed;top:0;left:0;right:0;z-index:2147482000;display:flex;align-items:center;' +
+      'justify-content:center;gap:10px;padding:7px 14px;background:linear-gradient(90deg,#053B2C,#0B6E4F);color:#eafff4;' +
+      'font:600 12.5px/1.35 -apple-system,BlinkMacSystemFont,"Inter Tight",Inter,sans-serif;letter-spacing:.02em;' +
+      'box-shadow:0 2px 14px -5px rgba(0,0,0,.55)');
+    var dot = el('span');
+    dot.setAttribute('style', 'width:7px;height:7px;border-radius:50%;background:#7DF2B0');
+    bar.appendChild(dot);
+    bar.appendChild(document.createTextNode('Vue opérateur · ' + merchant() + ' · données du client'));
+    var back = el('a', null, 'Retour console ›');
+    back.setAttribute('href', '/kiwi-admin.html');
+    back.setAttribute('style', 'margin-inline-start:14px;color:#7DF2B0;text-decoration:none;font-weight:700');
+    bar.appendChild(back);
+    document.body.appendChild(bar);
+    try {
+      var pt = parseFloat(getComputedStyle(document.body).paddingTop) || 0;
+      document.body.style.paddingTop = (pt + 34) + 'px';
+    } catch (_) {}
+  }
+
+  // In operator view, skip the client's PIN lock — the operator is not the staff
+  // and should land straight on the dashboard. Uses the app's own skip control so
+  // the normal reveal (card entrance, etc.) still runs.
+  function opSkipLock() {
+    if (!opMode()) return;
+    var tries = 0;
+    (function attempt() {
+      var lock = document.querySelector('[data-kiwi-lock]');
+      // Done once the lock is gone or already unlocking. The skip button exists in
+      // the static HTML before its click handler is wired, so keep clicking until
+      // the lock actually reacts rather than clicking once into the void.
+      if (!lock || lock.classList.contains('is-unlocking')) return;
+      var skip = document.querySelector('[data-kiwi-skip]');
+      if (skip) { try { skip.click(); } catch (_) {} }
+      if (tries++ < 30) setTimeout(attempt, 120);
+    })();
+  }
+
+  function boot() { initDashboard(); initOperatorBanner(); opSkipLock(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 
   window.KiwiLive = { isOn: on, merchant: merchant, postSale: postSale, watchFeed: watchFeed };
 })();

@@ -20,8 +20,14 @@
   'use strict';
 
   function merchant() {
-    try { return localStorage.getItem('kiwiLiveMerchant') || 'cafe-atlas'; }
-    catch (_) { return 'cafe-atlas'; }
+    try {
+      // A ?merchant= in the URL is authoritative (operator "Ouvrir dashboard"
+      // opens the client scoped this way) and is pinned to localStorage so the
+      // rest of the session stays on that client. Falls back to the last pick.
+      var q = new URLSearchParams(location.search).get('merchant');
+      if (q) { try { localStorage.setItem('kiwiLiveMerchant', q); } catch (_) {} return q; }
+      return localStorage.getItem('kiwiLiveMerchant') || 'cafe-atlas';
+    } catch (_) { return 'cafe-atlas'; }
   }
 
   var cfg = { features: {}, pins: [], loaded: false, apply: applyFeatures };
