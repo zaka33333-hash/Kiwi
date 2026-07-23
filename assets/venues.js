@@ -262,9 +262,12 @@
   const ICONS = {
     // restaurant
     tables: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
-    menu: '<path d="M4 6h16M4 12h16M4 18h10"/>',
-    kds: '<path d="M5 12h14M12 5v14"/>',
-    stock: '<path d="M3 6h18M6 10h12M9 14h6"/>',
+    // Lucide clipboard-list — a menu is an itemised list, not a hamburger bar.
+    menu: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/>',
+    // Lucide monitor — the KDS is a kitchen *screen* (was a bare "+" placeholder).
+    kds: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    // Lucide package — stock is a box on a shelf (was funnel-like shrinking lines).
+    stock: '<path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.3 7L12 12l8.7-5"/><path d="M12 22V12"/>',
     finance: '<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
     // boutique
     inventory: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a4 4 0 018 0v2"/>',
