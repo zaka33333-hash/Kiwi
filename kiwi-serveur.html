@@ -3387,6 +3387,8 @@
   <!-- Live Link — optional $0 backend bridge. OFF by default; ?live=1 turns it on,
        then each settled table POSTs to /api/sale and shows on the owner's dashboard. -->
   <script src="assets/live-link.js" defer></script>
+  <!-- Operator feature flags + managed PINs. Fail-safe: no backend ⇒ no change. -->
+  <script src="assets/merchant-config.js" defer></script>
 
   <script>
     /* =========================================================
@@ -3706,9 +3708,9 @@
           pinInput = '';
           // Clear both filled + success states for next login cycle
           dots.forEach(d => d.classList.remove('is-success', 'is-filled'));
-          // 0000 → non-server employee (plongeur in the demo).
-          // Any other code → serveur. Same UI either way.
-          activeRole = (entered === '0000') ? ROLES.plongeur : ROLES.serveur;
+          // Resolve the role: an operator-managed PIN (if any) wins, otherwise the
+          // demo rule — 0000 → non-server employee (plongeur), any other → serveur.
+          activeRole = resolveRole(entered);
           applyRoleToClockin();
           resetNfc();
           showScreen('screen-clockin');
@@ -3751,6 +3753,29 @@
       },
     };
     let activeRole = ROLES.serveur;
+
+    // Managed PINs (from the operator console via /api/config) win over the demo
+    // rule, additively — if none match, behavior is exactly as before. A managed
+    // PIN's role picks plongeur vs serveur, and its name personalizes the greeting.
+    function resolveRole(entered) {
+      try {
+        const pins = (window.KiwiConfig && window.KiwiConfig.pins) || [];
+        for (let i = 0; i < pins.length; i++) {
+          if (String(pins[i].pin) === entered) {
+            const base = (pins[i].role === 'plongeur') ? ROLES.plongeur : ROLES.serveur;
+            const nm = (pins[i].name || '').trim();
+            if (!nm) return base;
+            const parts = nm.split(/\s+/);
+            return Object.assign({}, base, {
+              name: parts[0],
+              fullName: nm,
+              initials: parts.map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+            });
+          }
+        }
+      } catch (_) { /* fall through to the demo rule */ }
+      return (entered === '0000') ? ROLES.plongeur : ROLES.serveur;
+    }
 
     function applyRoleToClockin() {
       const r = activeRole;

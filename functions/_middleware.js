@@ -21,10 +21,14 @@
 // With NEITHER AUTH_SECRET nor SITE_PASSWORD set, the site serves openly (dev).
 // Changing a variable requires a fresh deployment (not "Retry") to take effect.
 
-import { readSession, readCookie, SESS_COOKIE } from './auth/_lib.js';
+import {
+  readSession, readCookie, SESS_COOKIE,
+  operatorToken, OP_COOKIE, verifyPassword,
+} from './auth/_lib.js';
 
 const GATE_COOKIE = 'kiwi_gate';
 const UNLOCK_PATH = '/__unlock';
+const OPERATOR_PATH = '/__operator';
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 // Staff cookie value = HMAC-SHA256("kiwi-gate-v1", passcode). Unforgeable without
@@ -61,6 +65,12 @@ export async function onRequest(context) {
     if (readCookie(request, GATE_COOKIE) === staff) return next();
   }
 
+  // 3. Valid operator cookie? (Kiwi's own back-office — reaches kiwi-admin.html.)
+  if (authSecret) {
+    const op = await operatorToken(authSecret);
+    if (readCookie(request, OP_COOKIE) === op) return next();
+  }
+
   // Not authorized. The /auth/* endpoints must still run so the screen works.
   if (path.startsWith('/auth/')) return next();
 
@@ -81,6 +91,33 @@ export async function onRequest(context) {
     return htmlResponse(authPage({ staffError: true, allowStaff: true }));
   }
 
+  // Operator unlock attempt — a code from the `operators` table, revealed by the
+  // hidden long-press gesture on the logo. Lands on the operator console.
+  if (authSecret && request.method === 'POST' && path === OPERATOR_PATH) {
+    const form = await request.formData();
+    const tried = (form.get('code') || '').toString();
+    let ok = false;
+    if (env.DB && tried) {
+      try {
+        const rows = await env.DB.prepare('SELECT salt, hash FROM operators').all();
+        for (const r of (rows.results || [])) {
+          if (await verifyPassword(tried, r.salt, r.hash)) { ok = true; break; }
+        }
+      } catch (_) { /* table missing / db error → treated as no match */ }
+    }
+    if (ok) {
+      const op = await operatorToken(authSecret);
+      return new Response(null, {
+        status: 303,
+        headers: {
+          Location: '/kiwi-admin.html',
+          'Set-Cookie': `${OP_COOKIE}=${op}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${MAX_AGE}`,
+        },
+      });
+    }
+    return htmlResponse(authPage({ allowStaff: !!sitePassword, operatorError: true }));
+  }
+
   // Locked → show the account screen.
   return htmlResponse(authPage({ allowStaff: !!sitePassword }));
 }
@@ -99,6 +136,17 @@ function htmlResponse(body) {
 function authPage(opts) {
   const staffError = opts && opts.staffError;
   const allowStaff = opts && opts.allowStaff;
+  const operatorError = opts && opts.operatorError;
+  // Operator prompt — no visible affordance. Revealed only by a long-press on the
+  // logo (see the script below), or shown pre-open when a code was rejected.
+  const operatorBlock = `
+    <form class="staff op" id="op-form" method="POST" action="${OPERATOR_PATH}"${operatorError ? '' : ' hidden'}>
+      ${operatorError ? `<p class="err staff-err" role="alert">Code opérateur incorrect.</p>` : ''}
+      <div class="staff-row">
+        <input name="code" type="password" inputmode="numeric" autocomplete="off" placeholder="Code opérateur" aria-label="Code opérateur" />
+        <button type="submit">Entrer</button>
+      </div>
+    </form>`;
   const staffBlock = allowStaff ? `
     <button type="button" class="staff-link" id="staff-toggle">Accès équipe</button>
     <form class="staff" id="staff-form" method="POST" action="${UNLOCK_PATH}"${staffError ? '' : ' hidden'}>
@@ -142,7 +190,9 @@ function authPage(opts) {
     background:linear-gradient(140deg,var(--atlas),var(--riad));
     display:flex; align-items:center; justify-content:center;
     box-shadow:0 8px 22px -10px rgba(11,110,79,.7);
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
   }
+  .op{margin-top:12px}
   .mark svg{width:27px;height:27px}
   h1{font-size:1.34rem; letter-spacing:-.02em; margin:0 0 4px}
   .sub{margin:0 auto 22px; max-width:32ch; font-size:.92rem; color:var(--muted)}
@@ -236,6 +286,7 @@ function authPage(opts) {
       <button class="go" type="submit">Créer mon compte</button>
     </form>
     ${staffBlock}
+    ${operatorBlock}
     <p class="foot">Kiwi · espace commerçant</p>
   </main>
 <script>
@@ -298,6 +349,20 @@ function authPage(opts) {
       staffForm.hidden = !staffForm.hidden;
       if (!staffForm.hidden){ var i = staffForm.querySelector('input'); if (i) i.focus(); }
     });
+  }
+
+  // Hidden operator entry — long-press (~1.4s) the logo to reveal the code prompt.
+  // No visible affordance; clients never stumble onto it.
+  var mark = document.querySelector('.mark');
+  var opForm = document.getElementById('op-form');
+  if (mark && opForm){
+    var hold = null;
+    var reveal = function(){ opForm.hidden = false; var i = opForm.querySelector('input'); if (i) i.focus(); };
+    var start = function(){ cancel(); hold = setTimeout(reveal, 1400); };
+    var cancel = function(){ if (hold){ clearTimeout(hold); hold = null; } };
+    mark.addEventListener('mousedown', start);
+    mark.addEventListener('touchstart', start, { passive: true });
+    ['mouseup','mouseleave','touchend','touchcancel'].forEach(function(ev){ mark.addEventListener(ev, cancel); });
   }
 })();
 </script>

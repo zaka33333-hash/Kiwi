@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Kiwi · Console opérateur</title>
+<style>
+  :root{
+    --atlas:#0B6E4F; --riad:#053B2C; --mint:#7DF2B0;
+    --paper:#F7F5F0; --ink:#0A0F0D; --line:#e4e0d7; --muted:#5d6b63; --surface:#fff;
+    --warn:#b0402f; --ok:#0B6E4F;
+    --mono:ui-monospace,"JetBrains Mono",SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper); color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Inter Tight",Inter,"Segoe UI",sans-serif;
+    padding:0 0 60px;
+  }
+  a{color:var(--atlas)}
+  .top{
+    position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:14px;
+    padding:14px 22px; background:var(--riad); color:#eafff4;
+    box-shadow:0 2px 12px -4px rgba(5,59,44,.5);
+  }
+  .top h1{font-size:1.02rem; margin:0; font-weight:640; letter-spacing:-.01em}
+  .top .dot{width:8px;height:8px;border-radius:50%;background:#7DF2B0;box-shadow:0 0 0 0 rgba(125,242,176,.5);animation:pulse 2.2s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(125,242,176,0)}100%{box-shadow:0 0 0 0 rgba(125,242,176,0)}}
+  .badge{font:600 11px/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; padding:5px 9px; border-radius:999px; background:rgba(255,255,255,.14)}
+  .badge.mock{background:rgba(255,196,120,.22); color:#ffd9a1}
+  .spacer{margin-left:auto}
+  .top button{font:inherit; font-size:.82rem; font-weight:600; border:0; border-radius:9px; padding:8px 13px; cursor:pointer; background:rgba(255,255,255,.16); color:#eafff4}
+  .top button:hover{background:rgba(255,255,255,.26)}
+  .wrap{max-width:1120px; margin:0 auto; padding:22px}
+  section{background:var(--surface); border:1px solid var(--line); border-radius:14px; margin:0 0 20px; overflow:hidden}
+  .sec-head{padding:13px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px}
+  .sec-head h2{font-size:.86rem; margin:0; text-transform:uppercase; letter-spacing:.06em; color:var(--riad)}
+  .sec-head .count{font:600 11px/1 var(--mono); color:var(--muted)}
+  table{width:100%; border-collapse:collapse; font-size:.9rem}
+  th,td{text-align:left; padding:11px 18px; border-bottom:1px solid var(--line)}
+  th{font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:640}
+  tr:last-child td{border-bottom:0}
+  tbody tr{cursor:pointer; transition:background .12s}
+  tbody tr:hover{background:#f4f1ea}
+  tbody tr.sel{background:#eef7f1}
+  td.num{font-family:var(--mono); text-align:right; white-space:nowrap}
+  .plan{font:600 10.5px/1 var(--mono); text-transform:uppercase; letter-spacing:.04em; padding:3px 7px; border-radius:6px; background:#eef2ee; color:var(--riad)}
+  .plan.basic{background:#eef2ee} .plan.pro{background:#e3f3ea} .plan.ultra{background:#053B2C; color:#bff5d6} .plan.ultimate{background:#0B6E4F; color:#eafff4}
+  .online{display:inline-flex; align-items:center; gap:6px; font-size:.8rem; color:var(--muted)}
+  .online .d{width:7px;height:7px;border-radius:50%;background:#c7cec9}
+  .online.live .d{background:#28c76f}
+  .mini{font:inherit; font-size:.78rem; font-weight:600; border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; background:var(--surface); color:var(--riad)}
+  .mini:hover{border-color:var(--atlas)}
+  .mini.ghost{border-style:dashed}
+  .mini.danger{color:var(--warn); border-color:#e7ccc6}
+  .mini.danger:hover{background:#fbeeeb}
+  .row-actions{display:flex; gap:8px; justify-content:flex-end}
+  .panel{padding:18px}
+  .panel .grid2{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+  @media(max-width:720px){.panel .grid2{grid-template-columns:1fr}}
+  .sub{font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:0 0 10px; font-weight:640}
+  .pin-list, .op-list{display:flex; flex-direction:column; gap:8px; margin:0 0 12px}
+  .pin, .op-item{display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--line); border-radius:10px; background:#faf8f3}
+  .pin b, .op-item b{font-family:var(--mono); font-size:.92rem}
+  .pin .role{font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); background:#eef2ee; padding:2px 7px; border-radius:5px}
+  .pin .nm, .op-item .nm{color:var(--muted); font-size:.85rem}
+  .pin .spacer, .op-item .spacer{margin-left:auto}
+  .addrow{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  .addrow input, .addrow select{font:inherit; font-size:.86rem; padding:9px 11px; border:1.5px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink)}
+  .addrow input:focus, .addrow select:focus{outline:none; border-color:var(--atlas)}
+  .addrow input.pin{width:88px; font-family:var(--mono); letter-spacing:.14em}
+  .addrow input.nm{width:130px}
+  .add{font:inherit; font-size:.84rem; font-weight:640; border:0; border-radius:9px; padding:9px 15px; cursor:pointer; background:linear-gradient(135deg,var(--atlas),var(--riad)); color:#eafff4}
+  .add:disabled{opacity:.5;cursor:default}
+  .feat{display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line)}
+  .feat:last-child{border-bottom:0}
+  .feat .fl{font-size:.9rem}
+  .sw{position:relative; width:44px; height:26px; border-radius:999px; background:#cfd6d1; border:0; cursor:pointer; transition:background .2s; flex:none}
+  .sw::after{content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .sw[aria-checked="true"]{background:var(--atlas)}
+  .sw[aria-checked="true"]::after{transform:translateX(18px)}
+  .empty{color:var(--muted); font-size:.85rem; padding:6px 0}
+  .err{color:var(--warn); font-size:.8rem; min-height:1em; margin:4px 0 0}
+  .hint{color:var(--muted); font-size:.78rem; margin:10px 0 0}
+  .selname{font-weight:640; color:var(--riad)}
+  @media (prefers-color-scheme:dark){
+    :root{--paper:#0d1411; --ink:#e8efe9; --surface:#151b18; --line:#26302b; --muted:#93a89c}
+    tbody tr:hover{background:#1a221e} tbody tr.sel{background:#17241d}
+    .pin,.op-item{background:#111713}
+    .plan.basic,.plan.pro{background:#1c2420;color:#bfe8cf}
+    .mini{background:#151b18;color:#cfeeda} .plan{background:#1c2420;color:#bfe8cf}
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <span class="dot" aria-hidden="true"></span>
+    <h1>Kiwi · Console opérateur</h1>
+    <span class="badge" id="mode-badge">…</span>
+    <span class="spacer"></span>
+    <button type="button" id="refresh">Rafraîchir</button>
+    <button type="button" id="quit">Quitter</button>
+  </header>
+
+  <div class="wrap">
+    <section>
+      <div class="sec-head"><h2>Clients</h2><span class="count" id="cli-count"></span></div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Établissement</th><th>Clé</th><th>Plan</th>
+            <th style="text-align:right">CA du jour</th><th style="text-align:right">Ventes</th>
+            <th>Dernière vente</th><th></th>
+          </tr></thead>
+          <tbody id="cli-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="manage" hidden>
+      <div class="sec-head"><h2>Gestion — <span class="selname" id="sel-name"></span></h2></div>
+      <div class="panel">
+        <div class="grid2">
+          <div>
+            <p class="sub">PINs du personnel</p>
+            <div class="pin-list" id="pin-list"></div>
+            <div class="addrow">
+              <input class="pin" id="pin-new" inputmode="numeric" maxlength="4" placeholder="0000" aria-label="Nouveau PIN" />
+              <input class="nm" id="pin-name" placeholder="Nom" aria-label="Nom" />
+              <select id="pin-role" aria-label="Rôle">
+                <option value="serveur">Serveur</option>
+                <option value="plongeur">Plongeur</option>
+                <option value="caisse">Caisse</option>
+                <option value="manager">Manager</option>
+              </select>
+              <button class="add" id="pin-add">Ajouter</button>
+            </div>
+            <p class="err" id="pin-err"></p>
+          </div>
+          <div>
+            <p class="sub">Fonctionnalités (autorité opérateur)</p>
+            <div id="feat-list"></div>
+            <p class="hint">Désactiver un module le masque dans l’app du client à son prochain chargement. Réservé à l’opérateur — lié à l’offre.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>Opérateurs</h2><span class="count" id="op-count"></span></div>
+      <div class="panel">
+        <div class="op-list" id="op-list"></div>
+        <div class="addrow">
+          <input class="nm" id="op-label" placeholder="Nom (ex. Badr)" aria-label="Nom opérateur" />
+          <input class="pin" id="op-code" type="password" inputmode="numeric" placeholder="Code" aria-label="Code opérateur" style="width:120px" />
+          <button class="add" id="op-add">Ajouter</button>
+        </div>
+        <p class="err" id="op-err"></p>
+        <p class="hint">Ces codes ouvrent la console via l’appui long sur le logo de l’écran de connexion. Le premier code se crée depuis l’accès équipe.</p>
+      </div>
+    </section>
+  </div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ── tiny hyperscript (no innerHTML anywhere) ───────────────────────────────
+  function h(tag, props){
+    var n = document.createElement(tag);
+    if (props){
+      for (var k in props){
+        if (k === 'text') n.textContent = props[k];
+        else if (k === 'class') n.className = props[k];
+        else if (k.slice(0,2) === 'on') n.addEventListener(k.slice(2).toLowerCase(), props[k]);
+        else if (props[k] != null && props[k] !== false) n.setAttribute(k, props[k]);
+      }
+    }
+    for (var i = 2; i < arguments.length; i++){
+      var c = arguments[i];
+      if (c == null || c === false) continue;
+      n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
+    return n;
+  }
+  function clear(el){ while (el.firstChild) el.removeChild(el.firstChild); }
+  function fmt(n){ try { return (Math.round(n)||0).toLocaleString('fr-FR'); } catch(_) { return String(Math.round(n)||0); } }
+  function ago(ts){
+    if (!ts) return '—';
+    var s = Math.max(0, Math.round((Date.now()-ts)/1000));
+    if (s < 60) return 'à l’instant';
+    var m = Math.round(s/60); if (m < 60) return 'il y a ' + m + ' min';
+    var hh = Math.round(m/60); if (hh < 24) return 'il y a ' + hh + ' h';
+    return 'il y a ' + Math.round(hh/24) + ' j';
+  }
+
+  var MODULES = [
+    { key:'tables', label:'Tables / plan de salle' },
+    { key:'stock', label:'Stock' },
+    { key:'reservations', label:'Réservations' },
+    { key:'kds', label:'Cuisine (KDS)' },
+    { key:'menu', label:'Menu' },
+    { key:'payroll', label:'Paie' },
+    { key:'loyalty', label:'Fidélité' },
+    { key:'depenses', label:'Dépenses' },
+  ];
+
+  // ── store: real /api/admin/* when reachable, else seeded mock + localStorage ─
+  var LIVE = null; // null=unknown, true/false once probed
+  var MOCK_KEY = 'kiwiAdminMock';
+
+  function seedMock(){
+    var now = Date.now();
+    return {
+      clients: [
+        { merchant:'cafe-atlas', business:'Café Atlas', email:'contact@cafeatlas.ma', name:'Yassine', plan:'pro', today_amount:4820, today_count:63, last_ts:now-1000*60*4 },
+        { merchant:'snack-medina', business:'Snack Medina', email:'medina@snack.ma', name:'Karim', plan:'basic', today_amount:1240, today_count:22, last_ts:now-1000*60*38 },
+        { merchant:'riad-noor', business:'Riad Noor', email:'noor@riad.ma', name:'Salma', plan:'ultra', today_amount:9630, today_count:12, last_ts:now-1000*60*2 },
+        { merchant:'boulangerie-zitoun', business:'Boulangerie Zitoun', email:'zitoun@pain.ma', name:'Omar', plan:'basic', today_amount:2075, today_count:88, last_ts:now-1000*60*71 },
+      ],
+      pins: {
+        'cafe-atlas': [ { id:'m1', pin:'0000', name:'Plongeur', role:'plongeur' }, { id:'m2', pin:'1234', name:'Yassine', role:'serveur' } ],
+        'snack-medina': [ { id:'m3', pin:'0000', name:'Aide', role:'plongeur' } ],
+      },
+      features: {
+        'snack-medina': { stock:false, reservations:false, kds:false, tables:false, payroll:false },
+        'riad-noor': { depenses:false },
+      },
+      operators: [ { id:'o1', label:'Badr (démo)', created_ts:now-1000*60*60*24*30 } ],
+    };
+  }
+  function mock(){
+    try { var m = JSON.parse(localStorage.getItem(MOCK_KEY)); if (m && m.clients) return m; } catch(_){}
+    var s = seedMock(); try { localStorage.setItem(MOCK_KEY, JSON.stringify(s)); } catch(_){}
+    return s;
+  }
+  function saveMock(m){ try { localStorage.setItem(MOCK_KEY, JSON.stringify(m)); } catch(_){} }
+
+  async function api(path, opts){
+    var r = await fetch('/api/admin' + path, Object.assign({ headers:{ 'Content-Type':'application/json' } }, opts||{}));
+    if (!r.ok) { var e = new Error('http'); e.status = r.status; try { e.body = await r.json(); } catch(_){} throw e; }
+    return r.json();
+  }
+
+  var store = {
+    async clients(){
+      if (LIVE) { return (await api('/clients')).clients; }
+      return mock().clients;
+    },
+    async pins(merchant){
+      if (LIVE) { return (await api('/pins?merchant=' + encodeURIComponent(merchant))).pins; }
+      return (mock().pins[merchant] || []);
+    },
+    async addPin(merchant, pin, name, role){
+      if (LIVE) { return (await api('/pins', { method:'POST', body:JSON.stringify({ merchant:merchant, pin:pin, name:name, role:role }) })).pin; }
+      var m = mock(); (m.pins[merchant] = m.pins[merchant] || []);
+      if (m.pins[merchant].some(function(p){ return p.pin === pin; })) { var e=new Error('dupe'); e.body={error:'pin-exists'}; throw e; }
+      var rec = { id:'mk'+Date.now(), pin:pin, name:name, role:role }; m.pins[merchant].push(rec); saveMock(m); return rec;
+    },
+    async delPin(merchant, id){
+      if (LIVE) { return api('/pins?id=' + encodeURIComponent(id), { method:'DELETE' }); }
+      var m = mock(); m.pins[merchant] = (m.pins[merchant]||[]).filter(function(p){ return p.id !== id; }); saveMock(m);
+    },
+    async config(merchant){
+      if (LIVE) { return (await api('/config?merchant=' + encodeURIComponent(merchant))).features; }
+      return (mock().features[merchant] || {});
+    },
+    async setConfig(merchant, features, plan){
+      if (LIVE) { return api('/config', { method:'PUT', body:JSON.stringify({ merchant:merchant, features:features, plan:plan }) }); }
+      var m = mock(); m.features[merchant] = features; saveMock(m);
+    },
+    async operators(){
+      if (LIVE) { return (await api('/operators')).operators; }
+      return mock().operators;
+    },
+    async addOperator(label, code){
+      if (LIVE) { return (await api('/operators', { method:'POST', body:JSON.stringify({ label:label, code:code }) })).operator; }
+      var m = mock(); var rec = { id:'mo'+Date.now(), label:label, created_ts:Date.now() }; m.operators.push(rec); saveMock(m); return rec;
+    },
+    async delOperator(id){
+      if (LIVE) { return api('/operators?id=' + encodeURIComponent(id), { method:'DELETE' }); }
+      var m = mock(); m.operators = m.operators.filter(function(o){ return o.id !== id; }); saveMock(m);
+    },
+  };
+
+  // ── render ─────────────────────────────────────────────────────────────────
+  var selected = null;
+
+  function renderMode(){
+    var b = document.getElementById('mode-badge');
+    b.textContent = LIVE ? 'Live · D1' : 'Démo';
+    b.className = 'badge' + (LIVE ? '' : ' mock');
+  }
+
+  function openDashboard(merchant){
+    try { localStorage.setItem('kiwiLiveMerchant', merchant); } catch(_){}
+    window.open('/dashboard.html?live=1', '_blank');
+  }
+
+  async function renderClients(){
+    var body = document.getElementById('cli-body');
+    clear(body);
+    var list = await store.clients();
+    document.getElementById('cli-count').textContent = list.length + ' client' + (list.length>1?'s':'');
+    list.forEach(function(c){
+      var live = c.last_ts && (Date.now() - c.last_ts < 1000*60*15);
+      var tr = h('tr', { class: (selected && selected.merchant === c.merchant) ? 'sel' : '' },
+        h('td', null, h('div', { style:'font-weight:600' }, c.business || c.merchant),
+                      c.name ? h('div', { class:'nm', style:'color:var(--muted);font-size:.78rem' }, c.name + (c.email ? ' · ' + c.email : '')) : null),
+        h('td', null, h('code', { style:'font-family:var(--mono);font-size:.82rem;color:var(--muted)' }, c.merchant)),
+        h('td', null, c.plan ? h('span', { class:'plan ' + c.plan }, c.plan) : h('span', { class:'plan' }, '—')),
+        h('td', { class:'num' }, fmt(c.today_amount) + ' MAD'),
+        h('td', { class:'num' }, String(c.today_count || 0)),
+        h('td', null, h('span', { class:'online' + (live?' live':'') }, h('span', { class:'d' }), ago(c.last_ts))),
+        h('td', null, h('div', { class:'row-actions' },
+          h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); openDashboard(c.merchant); } }, 'Ouvrir dashboard'),
+          h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); select(c); } }, 'Gérer')))
+      );
+      tr.addEventListener('click', function(){ select(c); });
+      body.appendChild(tr);
+    });
+  }
+
+  async function select(c){
+    selected = c;
+    document.getElementById('sel-name').textContent = c.business || c.merchant;
+    document.getElementById('manage').hidden = false;
+    renderClients();
+    await Promise.all([renderPins(), renderFeatures()]);
+    document.getElementById('manage').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  async function renderPins(){
+    var wrap = document.getElementById('pin-list'); clear(wrap);
+    var pins = await store.pins(selected.merchant);
+    if (!pins.length) { wrap.appendChild(h('p', { class:'empty' }, 'Aucun PIN — l’app utilise ses codes par défaut.')); return; }
+    pins.forEach(function(p){
+      wrap.appendChild(h('div', { class:'pin' },
+        h('b', null, p.pin),
+        h('span', { class:'role' }, p.role || 'serveur'),
+        p.name ? h('span', { class:'nm' }, p.name) : null,
+        h('span', { class:'spacer' }),
+        h('button', { class:'mini danger', onClick:async function(){ await store.delPin(selected.merchant, p.id); renderPins(); } }, 'Supprimer')
+      ));
+    });
+  }
+
+  async function renderFeatures(){
+    var wrap = document.getElementById('feat-list'); clear(wrap);
+    var feats = await store.config(selected.merchant);
+    MODULES.forEach(function(mod){
+      var on = feats[mod.key] !== false; // absent ⇒ ON
+      var sw = h('button', { class:'sw', role:'switch', 'aria-checked': on ? 'true':'false', 'aria-label':mod.label });
+      sw.addEventListener('click', async function(){
+        var cur = await store.config(selected.merchant);
+        var isOn = cur[mod.key] !== false;   // current state
+        cur[mod.key] = !isOn;                 // flip
+        sw.setAttribute('aria-checked', (!isOn) ? 'true':'false');
+        await store.setConfig(selected.merchant, cur, selected.plan || '');
+      });
+      wrap.appendChild(h('div', { class:'feat' }, h('span', { class:'fl' }, mod.label), sw));
+    });
+  }
+
+  async function renderOperators(){
+    var wrap = document.getElementById('op-list'); clear(wrap);
+    var ops = await store.operators();
+    document.getElementById('op-count').textContent = ops.length + ' code' + (ops.length>1?'s':'');
+    if (!ops.length) { wrap.appendChild(h('p', { class:'empty' }, 'Aucun opérateur. Ajoutez le premier code ci-dessous.')); return; }
+    ops.forEach(function(o){
+      wrap.appendChild(h('div', { class:'op-item' },
+        h('b', null, '••••'),
+        o.label ? h('span', { class:'nm' }, o.label) : null,
+        h('span', { class:'spacer' }),
+        h('button', { class:'mini danger', onClick:async function(){ await store.delOperator(o.id); renderOperators(); } }, 'Supprimer')
+      ));
+    });
+  }
+
+  // ── wire controls ───────────────────────────────────────────────────────────
+  document.getElementById('pin-add').addEventListener('click', async function(){
+    if (!selected) return;
+    var err = document.getElementById('pin-err'); err.textContent = '';
+    var pin = document.getElementById('pin-new').value.trim();
+    var name = document.getElementById('pin-name').value.trim();
+    var role = document.getElementById('pin-role').value;
+    if (!/^\d{4}$/.test(pin)) { err.textContent = 'PIN à 4 chiffres.'; return; }
+    try {
+      await store.addPin(selected.merchant, pin, name, role);
+      document.getElementById('pin-new').value = ''; document.getElementById('pin-name').value = '';
+      renderPins();
+    } catch(e){ err.textContent = (e.body && e.body.error === 'pin-exists') ? 'Ce PIN existe déjà.' : 'Échec de l’ajout.'; }
+  });
+
+  document.getElementById('op-add').addEventListener('click', async function(){
+    var err = document.getElementById('op-err'); err.textContent = '';
+    var label = document.getElementById('op-label').value.trim();
+    var code = document.getElementById('op-code').value.trim();
+    if (code.length < 4) { err.textContent = 'Code trop court (4 caractères min.).'; return; }
+    try {
+      await store.addOperator(label, code);
+      document.getElementById('op-label').value = ''; document.getElementById('op-code').value = '';
+      renderOperators();
+    } catch(e){ err.textContent = 'Échec de l’ajout.'; }
+  });
+
+  document.getElementById('refresh').addEventListener('click', function(){ boot(true); });
+  document.getElementById('quit').addEventListener('click', function(){ location.href = '/'; });
+
+  // ── boot: probe live vs mock, then render ────────────────────────────────────
+  async function boot(isRefresh){
+    if (LIVE === null || isRefresh){
+      try { await api('/clients'); LIVE = true; }
+      catch(e){ LIVE = false; }
+    }
+    renderMode();
+    await renderClients();
+    await renderOperators();
+    if (selected){ await Promise.all([renderPins(), renderFeatures()]); }
+  }
+  boot(false);
+})();
+</script>
+</body>
+</html>

@@ -74,6 +74,40 @@ async function hmacHex(secret, message) {
   return toHex(sig);
 }
 
+// ── Gate tokens (staff bypass + operator console) ───────────────────────────
+// Both are unforgeable HMACs. The staff token is keyed by the shared SITE_PASSWORD
+// (so it matches the "Accès équipe" cookie in _middleware.js). The operator token
+// is keyed by AUTH_SECRET and is constant — it only proves "operator-authenticated"
+// (a specific code was accepted at /__operator), not which code, so deleting a code
+// leaves live sessions intact. Both cookie names live here so the middleware and the
+// /api/admin/* handlers verify identically.
+export const GATE_COOKIE = 'kiwi_gate';
+export const OP_COOKIE = 'kiwi_op';
+
+export async function staffToken(sitePassword) {
+  return hmacHex(sitePassword, 'kiwi-gate-v1');
+}
+export async function operatorToken(authSecret) {
+  return hmacHex(authSecret, 'kiwi-operator-v1');
+}
+
+// True if the request carries a valid operator cookie, or a valid staff-bypass
+// cookie (owner/partner = operator-equivalent). A plain merchant session is NOT
+// enough — the admin surface is cross-merchant and privileged.
+export async function isOperator(request, env) {
+  const authSecret = env && env.AUTH_SECRET;
+  const sitePassword = env && env.SITE_PASSWORD;
+  if (authSecret) {
+    const want = await operatorToken(authSecret);
+    if (timingSafeEqualHex(readCookie(request, OP_COOKIE) || '', want)) return true;
+  }
+  if (sitePassword) {
+    const want = await staffToken(sitePassword);
+    if (timingSafeEqualHex(readCookie(request, GATE_COOKIE) || '', want)) return true;
+  }
+  return false;
+}
+
 // Session token = base64url(JSON{aid,exp}) + "." + HMAC(secret, payload).
 export async function makeSession(accountId, secret) {
   const exp = Date.now() + SESS_DAYS * 86400 * 1000;
@@ -121,6 +155,18 @@ export function json(obj, status) {
 
 export function normEmail(e) {
   return String(e || '').trim().toLowerCase();
+}
+
+// Merchant slug convention: slugify(business name). "Café Atlas" → "cafe-atlas",
+// which is also the Live Link default merchant key, so the roster lines an account
+// up with its sales without a stored mapping. Strips accents, lowercases, and
+// collapses non-alphanumerics to single hyphens.
+export function slugMerchant(s) {
+  return String(s || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')  // drop accents
+    .toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'client';
 }
 
 // Fire-and-forget lead mirror to a Google Apps Script webhook (set as

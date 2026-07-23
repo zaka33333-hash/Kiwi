@@ -33,3 +33,41 @@ CREATE TABLE IF NOT EXISTS accounts (
   hash       TEXT NOT NULL,          -- PBKDF2 derived key (hex)
   created_ts INTEGER NOT NULL        -- epoch ms of signup
 );
+
+-- ── Operator console (Kiwi's own back-office) ───────────────────────────────
+-- Operator access codes for kiwi-admin.html. Hashed exactly like account
+-- passwords (PBKDF2-SHA256, per-code salt); plaintext is never stored. Add/delete
+-- from the console's "Opérateurs" panel. Bootstrap the first code via the staff
+-- bypass (owner/partner). See ADMIN.md.
+CREATE TABLE IF NOT EXISTS operators (
+  id         TEXT PRIMARY KEY,       -- "op-<uuid>"
+  label      TEXT,                   -- human name for the code ("Badr", "Partner")
+  salt       TEXT NOT NULL,
+  hash       TEXT NOT NULL,
+  created_ts INTEGER NOT NULL
+);
+
+-- Staff PINs per merchant — what the caisse/serveur PIN pad resolves to a role.
+-- Managed remotely from the console so an owner never has to. role is free text
+-- (serveur | plongeur | caisse | manager | …). pin is 4 digits, unique per
+-- merchant. Absent for a merchant ⇒ the app falls back to its hardcoded defaults.
+CREATE TABLE IF NOT EXISTS staff_pins (
+  id         TEXT PRIMARY KEY,       -- "pin-<uuid>"
+  merchant   TEXT NOT NULL,
+  pin        TEXT NOT NULL,          -- 4-digit
+  name       TEXT,                   -- staff member name
+  role       TEXT NOT NULL,
+  created_ts INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_pins_merchant ON staff_pins (merchant);
+
+-- Per-merchant feature flags — operator-only (maps to pricing tiers). `features`
+-- is a JSON object of module→bool; a missing key means the module is ON (current
+-- behavior), so an absent row = the full interface. Toggling a module OFF hides
+-- it in that merchant's real app on next load.
+CREATE TABLE IF NOT EXISTS merchant_config (
+  merchant   TEXT PRIMARY KEY,
+  features   TEXT NOT NULL,          -- JSON: {"stock":false,"reservations":false,…}
+  plan       TEXT,                   -- basic | pro | ultra | ultimate (optional)
+  updated_ts INTEGER NOT NULL
+);
