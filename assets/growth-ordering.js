@@ -128,10 +128,22 @@
   `;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
 
+  const ordReal = () => { try { return !!(window.KiwiEnv?.isReal?.() || window.KiwiVenue?.isCustom?.()); } catch (_) { return false; } };
+  const ordBiz = () => {
+    try {
+      const b = (window.KiwiMe && window.KiwiMe.business || '').trim();
+      if (b) return b;
+      if (window.KiwiVenue?.isCustom?.()) { const vd = window.KiwiVenue.getCurrentVenueData?.(); if (vd) return vd.fullDisplay || vd.name || ''; }
+    } catch (_) {}
+    return 'Café Atlas · Maarif';
+  };
+  const ordSlug = () => String(ordBiz()).split('·')[0].normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'boutique';
+
   window.Kiwi.handlers['growth-ordering'] = () => {
     const T = STR[lang()] || STR.fr;
     const items = (window.KiwiVenue?.getMenuItems?.() || []).filter(i => i.price > 0);
-    const pick = (i) => (items[i % items.length] || {}).name || 'Tajine kefta';
+    const pick = (i) => (items[i % items.length] || {}).name || (T.st ? '' : '');
     const KIT = window.KiwiKit;
 
     const bar = (rate, label) => {
@@ -143,7 +155,9 @@
       </div>`;
     };
 
-    const orders = [
+    // No demo orders / demo customer names for a real merchant — their live feed
+    // starts empty and fills from real online orders.
+    const orders = ordReal() ? [] : [
       { ch: 'kiwi', who: 'Nawal K.', it: [0, 8], amt: 176, st: 'new' },
       { ch: 'glovo', who: 'Karim B.', it: [6], amt: 95, st: 'prep' },
       { ch: 'kiwi', who: 'Salma F.', it: [2, 9], amt: 142, st: 'prep' },
@@ -160,9 +174,9 @@
         <div class="gk-hero ord-hero">
           <div class="ord-hero-l">
             <div class="ord-eyebrow">${T.eyebrow}</div>
-            <div class="ord-name gk-serif">Café Atlas · Maarif</div>
+            <div class="ord-name gk-serif">${ordBiz()}</div>
             <div class="ord-tag">${T.tagline}</div>
-            <div class="ord-link"><span class="u">kiwi.shop/cafe-atlas</span><button class="cp" data-ord-copy>${T.copy}</button></div>
+            <div class="ord-link"><span class="u">kiwi.shop/${ordSlug()}</span><button class="cp" data-ord-copy>${T.copy}</button></div>
             <div class="ord-statusrow"><span class="ord-status"><span class="dot"></span>${T.online}</span><button class="gk-tg on" data-ord-tg></button></div>
           </div>
           <div class="ord-hero-r">${KIT ? KIT.qr(116) : ''}<div class="ord-scan">${T.scan}</div></div>
@@ -201,7 +215,7 @@
       else if (e.target.closest('[data-ord-tg]')) { e.target.closest('[data-ord-tg]').classList.toggle('on'); }
       else if (cn) { cn.outerHTML = `<span class="ord-pill">${T.linked}</span><button class="gk-tg on" data-ord-tg></button>`; toast(T.linked, { type: 'success' }); }
       else if (e.target.closest('[data-ord-order]')) { toast(T.sent, { type: 'info' }); }
-      else if (e.target.closest('[data-ord-cta]')) { confetti && confetti(); toast(T.toastT, { type: 'success', desc: T.toastD }); }
+      else if (e.target.closest('[data-ord-cta]')) { confetti && confetti(); toast(T.toastT, { type: 'success', desc: T.toastD.replace('cafe-atlas', ordSlug()) }); }
     });
   };
 })();

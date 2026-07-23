@@ -6448,7 +6448,7 @@ handlers['menu-publish'] = () => {
           <span class="kds-tk-cook">Affecté : <b>${t.cook === 'MM' ? 'Mehdi M.' : 'Ayoub Y.'}</b></span>
           <span class="kds-tk-acts">
             <button class="kb ghost xs" data-action="kds-recall" data-id="${t.id}">Rappeler</button>
-            <button class="kb atlas xs" data-action="kds-bump" data-id="${t.id}">Bump ✓</button>
+            <button class="kb atlas xs" data-action="kds-bump" data-id="${t.id}">Bump</button>
           </span>
         </div>
       </div>`;
@@ -6576,7 +6576,7 @@ handlers['menu-publish'] = () => {
         <span style="color:var(--atlas);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></span>
         <div>Sofia (salle) sera notifiée pour récupérer les plats au pass. Action irréversible, utilisez « Rappeler » si besoin.</div>
       </div>`,
-      foot: `<button class="kb ghost" data-dismiss-modal>Annuler</button><button class="kb atlas" data-confirm-bump="${id}">Bump ${id} ✓</button>`,
+      foot: `<button class="kb ghost" data-dismiss-modal>Annuler</button><button class="kb atlas" data-confirm-bump="${id}">Bump ${id}</button>`,
     });
     document.querySelector('[data-confirm-bump]')?.addEventListener('click', () => {
       document.querySelector('.kiwi-backdrop')?.remove();
@@ -6843,7 +6843,10 @@ handlers['bqx-export'] = () => {
     const csv = CAT().exportCsv();
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'inventaire-maison-mansour.csv';
+    const _vd = (window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && window.KiwiVenue.getCurrentVenueData()) || {};
+    const _slug = String(_vd.name || (window.KiwiVenue && window.KiwiVenue.getVenue && window.KiwiVenue.getVenue()) || 'inventaire')
+      .normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'inventaire';
+    a.href = URL.createObjectURL(blob); a.download = `inventaire-${_slug}.csv`;
     document.body.appendChild(a); a.click(); a.remove();
     toast('Inventaire exporté', { desc: 'Fichier CSV téléchargé (produit, couleur, taille, stock, code-barres).', type: 'success' });
   } catch (e) { toast('Export impossible', { type: 'warn' }); }
@@ -11395,7 +11398,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
         <span style="color:var(--atlas);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></span>
         <div>Sofia (salle) sera notifiée pour récupérer les plats au pass. Action irréversible, utilisez « Rappeler » si besoin.</div>
       </div>`,
-      foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-confirm-bump>Bump ${id} ✓</button>`,
+      foot: `<button class="kb ghost" data-dismiss>Annuler</button><button class="kb atlas" data-confirm-bump>Bump ${id}</button>`,
     });
     wireDismiss(m);
     setTimeout(() => {
@@ -11462,6 +11465,8 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
   const STARTERS = {
     transactions:  { t: 'Ventes',             d: 'L\'historique complet de vos encaissements, en temps réel.',
                      b: ['Chaque vente apparaît ici à la seconde où elle est encaissée', 'Filtres par moyen de paiement, remboursements inclus', 'Rapprochement bancaire et exports comptables'] },
+    reglements:    { t: 'Règlements',          d: 'Vos virements et rapprochements bancaires, au même endroit.',
+                     b: ['Chaque encaissement rapproché de votre compte', 'Virements Kiwi suivis jusqu\'au crédit', 'Historique de règlements prêt pour votre comptable'] },
     terminaux:     { t: 'Terminaux',          d: 'Vos appareils d\'encaissement, leur état et leurs affectations.',
                      b: ['Statut, batterie et version de chaque appareil', 'Kiwi fonctionne aussi sur votre matériel existant', 'Affectation par employé et par zone'] },
     conformite:    { t: 'Conformité',         d: 'Vos registres et obligations, tenus à jour automatiquement.',
@@ -11503,7 +11508,10 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
   /* Destinations that now have a REAL per-venue, persistent UI — they render
      their functional page for custom (onboarded) venues too, NOT a starter
      placeholder. This set grows as more pages become per-venue functional. */
-  const REAL_FOR_CUSTOM = new Set(['inventory', 'categories', 'equipe', 'practitioners', 'payroll']);
+  // NOTE: payroll & practitioners were removed — their handlers still hardcode
+  // demo staff (Fatima/Sofia… / Spa Bahia's PRACS), so a custom venue must get the
+  // zeroed starter, not the demo roster, until they become genuinely per-venue.
+  const REAL_FOR_CUSTOM = new Set(['inventory', 'categories', 'equipe']);
 
   /* ── Actionable layer: let the client add their OWN data right here ──────
    * Config-type destinations (menu, team, devices…) get an "Add {noun}" button

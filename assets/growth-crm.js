@@ -107,9 +107,25 @@
   `;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
 
+  const crmReal = () => { try { return !!(window.KiwiEnv?.isReal?.() || window.KiwiVenue?.isCustom?.()); } catch (_) { return false; } };
+
   window.Kiwi.handlers['growth-crm'] = () => {
     const T = STR[lang()] || STR.fr;
     const KIT = window.KiwiKit;
+    // A real / custom-venue merchant has no CRM yet — never show the demo guests
+    // (Salma F., Nawal K.…), demo segments or the "Café Atlas" WhatsApp template.
+    if (crmReal()) {
+      const c = ({
+        fr: { h: 'Vos clients apparaîtront ici', p: 'À chaque vente, Kiwi crée la fiche du client, le segmente (réguliers, VIP, à reconquérir) et prépare la bonne relance WhatsApp au bon moment.' },
+        en: { h: 'Your customers will show here', p: 'On every sale, Kiwi builds the customer\'s profile, segments them (regulars, VIP, win-back) and prepares the right WhatsApp nudge at the right time.' },
+        ar: { h: 'سيظهر عملاؤك هنا', p: 'مع كل عملية بيع، ينشئ Kiwi بطاقة العميل ويقسّمهم (دائمون، كبار، لاستعادتهم) ويجهّز رسالة واتساب المناسبة في الوقت المناسب.' },
+      })[lang()] || { h: 'Your customers will show here', p: '' };
+      drawer({ title: T.title, subtitle: T.sub, fullpage: true,
+        body: `<div style="padding:56px 24px;text-align:center;max-width:520px;margin:0 auto;">
+          <div style="font-size:17px;font-weight:640;letter-spacing:-.01em;margin-bottom:8px;">${c.h}</div>
+          <div style="font-size:13.5px;color:var(--n-500);line-height:1.6;">${c.p}</div></div>` });
+      return;
+    }
     let sel = 'win';
     const segData = (id) => SEG.find(s => s.id === id);
 

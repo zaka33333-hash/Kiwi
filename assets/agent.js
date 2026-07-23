@@ -945,8 +945,14 @@
   }
 
   function sHelp() {
+    // A real / custom-venue merchant must NOT get the demo greeting that names
+    // "Rachid" and "Café Atlas". Mirror the rest of the agent (gated on B.partial):
+    // use the neutral, business-derived intro instead.
+    const text = B.partial
+      ? (nv().heroGreet + ' ' + nv().heroLead(escHtml(B.name)))
+      : tr().help.text;
     return {
-      text: tr().help.text,
+      text,
       follow: [tr().chips.hire, tr().chips.price5, tr().chips.breakeven, tr().chips.forecast, tr().chips.invest80],
       open: [{ label: acctLabel('open'), handler: 'open-comptabilite' }],
     };

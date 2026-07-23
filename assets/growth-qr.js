@@ -89,6 +89,15 @@
   `;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
 
+  const bizLabel = () => {
+    try {
+      const b = (window.KiwiMe && window.KiwiMe.business || '').trim();
+      if (b) return b;
+      if (window.KiwiVenue?.isCustom?.()) { const vd = window.KiwiVenue.getCurrentVenueData?.(); if (vd) return vd.fullDisplay || vd.name || ''; }
+    } catch (_) {}
+    return 'Café Atlas · Maarif';
+  };
+
   window.Kiwi.handlers['growth-qr'] = () => {
     const T = STR[lang()] || STR.fr;
     const KIT = window.KiwiKit;
@@ -117,7 +126,7 @@
         <div>
           <div class="qro-col-t"><span>${T.preview}</span></div>
           <div class="qro-phone"><div class="qro-screen">
-            <div class="qro-ph-head"><div class="qro-ph-name">Café Atlas · Maarif</div><div class="qro-ph-tbl">T4, ${T.menu}</div></div>
+            <div class="qro-ph-head"><div class="qro-ph-name">${bizLabel()}</div><div class="qro-ph-tbl">T4, ${T.menu}</div></div>
             <div class="qro-ph-body">${menuHtml}</div>
             <div class="qro-ph-cart"><span class="c">${T.cart(2, 95)}</span><span class="pay">${T.pay}</span></div>
           </div></div>

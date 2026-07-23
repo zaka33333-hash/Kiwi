@@ -19,10 +19,10 @@
     <div class="simple-screen">
       <div class="simple-top">
         <div class="merchant">
-          <div class="av">RB</div>
+          <div class="av">${(() => { const n = (window.KiwiMe && window.KiwiMe.name) || ''; if (!n) return 'RB'; const p = n.trim().split(/\s+/); return ((p[0] || '')[0] + ((p[1] || '')[0] || '')).toUpperCase(); })()}</div>
           <div>
-            <div class="n">Salam Rachid</div>
-            <div class="shop">Café Atlas · Maarif</div>
+            <div class="n">Salam ${((window.KiwiMe && window.KiwiMe.name) || 'Rachid').trim().split(/\s+/)[0]}</div>
+            <div class="shop">${(window.KiwiMe && window.KiwiMe.business) || (window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && (window.KiwiVenue.getCurrentVenueData() || {}).fullDisplay) || 'Café Atlas · Maarif'}</div>
           </div>
         </div>
         <button class="icon-btn-s" data-simple-tab="3awn" aria-label="Aide">

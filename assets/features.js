@@ -349,7 +349,8 @@
   /* ═══════════════════ PAYMENT LINK ═══════════════════ */
   handlers['payment-link'] = () => {
     let step = 'form';
-    let data = { amount: '', desc: 'Commande Café Atlas', expiry: '7j', method: 'all' };
+    const _plBiz = (window.KiwiMe && window.KiwiMe.business || '').trim();
+    let data = { amount: '', desc: _plBiz ? `Commande ${_plBiz}` : 'Commande Café Atlas', expiry: '7j', method: 'all' };
     const T = PL_STR[trLang()] || PL_STR.fr;
 
     const m = modal({
@@ -848,6 +849,24 @@
   };
   handlers['kiwi-compte'] = () => {
     const T = KC_STR[trLang()] || KC_STR.fr;
+    // Kiwi Compte (banking) is a Phase 2 surface — the card, IBAN, balance and
+    // transactions here are all demo. A real merchant must never see a fabricated
+    // account; show an honest "coming soon" instead.
+    if (window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) {
+      const c = ({
+        fr: { h: 'Kiwi Compte arrive bientôt', p: 'Votre compte professionnel Kiwi, votre carte et vos virements seront disponibles ici. Nous vous préviendrons dès l’ouverture.' },
+        en: { h: 'Kiwi Compte is coming soon', p: 'Your Kiwi business account, card and transfers will live here. We\'ll let you know the moment it opens.' },
+        ar: { h: 'حساب Kiwi قريبًا', p: 'سيتوفّر هنا حسابك المهني وبطاقتك وتحويلاتك مع Kiwi. سنخبرك فور فتحه.' },
+      })[trLang()] || { h: 'Kiwi Compte is coming soon', p: '' };
+      drawer({
+        title: T.title, subtitle: T.subtitle, width: 480,
+        body: `<div style="padding:36px 12px;text-align:center;">
+          <div style="font-size:15.5px;font-weight:640;letter-spacing:-.01em;">${c.h}</div>
+          <div style="font-size:12.5px;color:var(--n-500);margin-top:8px;line-height:1.55;max-width:360px;margin-inline:auto;">${c.p}</div>
+        </div>`,
+      });
+      return;
+    }
     const transactions = [
       [T.txKiwi, T.txToday, '+23 091,50', 'success'],
       [T.txSupplier, T.txYesterday, '−4 280,00', ''],
@@ -1238,6 +1257,10 @@
   };
   handlers['loyalty'] = () => {
     const T = LOYALTY_STR[trLang()] || LOYALTY_STR.fr;
+    // The preview card names the demo venue ("· CAFÉ ATLAS"). For a real merchant,
+    // swap in their own business name so the illustration is theirs, not the demo's.
+    const _biz = (window.KiwiMe && window.KiwiMe.business || '').trim();
+    const _prog = _biz ? T.previewProgram.replace(/·.*$/, '· ' + _biz.toUpperCase()) : T.previewProgram;
     const m = modal({
       tag: T.tag,
       title: T.title,
@@ -1245,7 +1268,7 @@
       width: 540,
       body: `
         <div class="loy-preview">
-          <div style="font-size:11px; letter-spacing:0.1em; font-family:var(--mono); color:var(--mint);">${T.previewProgram}</div>
+          <div style="font-size:11px; letter-spacing:0.1em; font-family:var(--mono); color:var(--mint);">${_prog}</div>
           <div style="font-size:22px; font-weight:600; margin-top:6px; letter-spacing:-0.02em;">${T.previewReward}</div>
           <div class="loy-dots">
             <i class="active">✓</i><i class="active">✓</i><i class="active">✓</i><i class="active">✓</i><i class="current">5</i><i>6</i><i>7</i><i>8</i><i>9</i><i>🎁</i>

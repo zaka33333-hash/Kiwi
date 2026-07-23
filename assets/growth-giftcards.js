@@ -92,9 +92,15 @@
   `;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
 
+  const gcReal = () => { try { return !!(window.KiwiEnv?.isReal?.() || window.KiwiVenue?.isCustom?.()); } catch (_) { return false; } };
+
   window.Kiwi.handlers['growth-giftcards'] = () => {
     const T = STR[lang()] || STR.fr;
     let amt = 200;
+    // A real merchant hasn't issued any cards yet — empty table + zeroed stats,
+    // never the demo cardholders (Yasmine Benali, Karim Tazi…).
+    const cards = gcReal() ? [] : CARDS;
+    const stEm = gcReal() ? '0' : '38', stCirc = gcReal() ? '0' : '7 250', stUse = gcReal() ? '—' : '71 %';
 
     const body = `<div class="gk-reveal-root">
       <div class="gft-grid">
@@ -118,13 +124,13 @@
 
         <div>
           <div class="gft-stats">
-            <div class="gft-stat"><div class="v">38</div><div class="l">${T.statsEm}</div></div>
-            <div class="gft-stat"><div class="v">7 250</div><div class="l">${T.statsCirc} (MAD)</div></div>
-            <div class="gft-stat"><div class="v">71 %</div><div class="l">${T.statsUse}</div></div>
+            <div class="gft-stat"><div class="v">${stEm}</div><div class="l">${T.statsEm}</div></div>
+            <div class="gft-stat"><div class="v">${stCirc}</div><div class="l">${T.statsCirc} (MAD)</div></div>
+            <div class="gft-stat"><div class="v">${stUse}</div><div class="l">${T.statsUse}</div></div>
           </div>
           <div class="gft-colt" style="margin-top:20px;">${T.active}</div>
           <table class="gft-tbl"><thead><tr><th>${T.th.code}</th><th>${T.th.to}</th><th>${T.th.bal}</th><th>${T.th.exp}</th><th>${T.th.st}</th></tr></thead>
-          <tbody>${CARDS.map(c => `<tr>
+          <tbody>${cards.map(c => `<tr>
             <td class="mono">···· ${c.code}</td><td style="font-weight:500">${c.to}</td>
             <td><div class="gft-bal"><span class="track"><span class="fill" style="width:${Math.round(c.bal / c.tot * 100)}%"></span></span><span class="mono" style="font-size:11.5px">${fmt(c.bal)}/${fmt(c.tot)}</span></div></td>
             <td class="mono" style="color:var(--n-500)">${c.exp}</td><td><span class="gft-stt ${c.st}">${T.stL[c.st]}</span></td></tr>`).join('')}</tbody></table>
