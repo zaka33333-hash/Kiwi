@@ -87,8 +87,18 @@
     goBtn.setAttribute('type', 'button');
     goBtn.setAttribute('style', 'flex:1;font:inherit;font-weight:640;border:0;border-radius:10px;padding:11px;cursor:pointer;color:#eafff4;background:linear-gradient(135deg,#0B6E4F,#053B2C)');
 
-    function close() { open = false; if (veil.parentNode) veil.parentNode.removeChild(veil); document.removeEventListener('keydown', onKey); }
-    function onKey(ev) { if (ev.key === 'Escape') close(); else if (ev.key === 'Enter') submit(); }
+    function close() { open = false; if (veil.parentNode) veil.parentNode.removeChild(veil); }
+    // Shield our field from the apps' global key handlers. The dashboard/caisse
+    // PIN lock refocuses its own hidden input on every keydown (so the PIN can be
+    // typed without a visible field) — which otherwise steals focus from us and
+    // swallows every character. Stop key events at our input so they never bubble
+    // to those document-level listeners; ordinary text still enters because we
+    // only preventDefault on Enter/Escape.
+    function onKeyGuard(ev) {
+      ev.stopPropagation();
+      if (ev.key === 'Escape') { ev.preventDefault(); close(); }
+      else if (ev.key === 'Enter') { ev.preventDefault(); submit(); }
+    }
     function submit() {
       var code = input.value.trim();
       if (code.length < 4) { err.textContent = 'Code trop court.'; return; }
@@ -105,7 +115,7 @@
     cancelBtn.addEventListener('click', close);
     goBtn.addEventListener('click', submit);
     veil.addEventListener('click', function (e) { if (e.target === veil) close(); });
-    document.addEventListener('keydown', onKey);
+    ['keydown', 'keypress', 'keyup'].forEach(function (t) { input.addEventListener(t, onKeyGuard); });
 
     row.appendChild(cancelBtn); row.appendChild(goBtn);
     card.appendChild(title); card.appendChild(input); card.appendChild(err); card.appendChild(row);
