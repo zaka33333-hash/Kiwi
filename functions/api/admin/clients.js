@@ -24,7 +24,9 @@ export async function onRequestGet(context) {
   const map = new Map(); // merchant slug → row
   function row(m) {
     let r = map.get(m);
-    if (!r) { r = { merchant: m, business: '', email: '', name: '', plan: '', today_amount: 0, today_count: 0, last_ts: 0 }; map.set(m, r); }
+    // demo:true until an account claims this merchant (see the accounts loop).
+    // A merchant that only ever appears via demo sales / config is a demo.
+    if (!r) { r = { merchant: m, business: '', email: '', name: '', plan: '', today_amount: 0, today_count: 0, last_ts: 0, demo: true }; map.set(m, r); }
     return r;
   }
 
@@ -56,6 +58,7 @@ export async function onRequestGet(context) {
       r.business = a.business || r.business;
       r.email = a.email || r.email;
       r.name = a.name || r.name;
+      r.demo = false; // real email+password signup → a real client
     }
   } catch (e) {
     return json({ error: 'query-failed', detail: String(e) }, 500);

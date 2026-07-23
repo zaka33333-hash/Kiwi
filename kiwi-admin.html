@@ -215,7 +215,7 @@
     var now = Date.now();
     return {
       clients: [
-        { merchant:'cafe-atlas', business:'Café Atlas', email:'contact@cafeatlas.ma', name:'Yassine', plan:'pro', today_amount:4820, today_count:63, last_ts:now-1000*60*4 },
+        { merchant:'cafe-atlas', business:'Café Atlas', email:'contact@cafeatlas.ma', name:'Yassine', plan:'pro', today_amount:4820, today_count:63, last_ts:now-1000*60*4, demo:true },
         { merchant:'snack-medina', business:'Snack Medina', email:'medina@snack.ma', name:'Karim', plan:'basic', today_amount:1240, today_count:22, last_ts:now-1000*60*38 },
         { merchant:'riad-noor', business:'Riad Noor', email:'noor@riad.ma', name:'Salma', plan:'ultra', today_amount:9630, today_count:12, last_ts:now-1000*60*2 },
         { merchant:'boulangerie-zitoun', business:'Boulangerie Zitoun', email:'zitoun@pain.ma', name:'Omar', plan:'basic', today_amount:2075, today_count:88, last_ts:now-1000*60*71 },
@@ -299,28 +299,58 @@
     window.open('/dashboard.html?live=1', '_blank');
   }
 
+  // A client is a demo unless it came from a real signup. The server tags rows
+  // with `demo`; if that field is ever absent we fall back to "no contact email
+  // ⇒ demo", since the roster only ever fills email from the accounts table.
+  function isDemoClient(c){ return (c.demo != null) ? !!c.demo : !c.email; }
+  var demosOpen = false;
+
+  function clientRow(c){
+    var live = c.last_ts && (Date.now() - c.last_ts < 1000*60*15);
+    var tr = h('tr', { class: (selected && selected.merchant === c.merchant) ? 'sel' : '' },
+      h('td', null, h('div', { style:'font-weight:600' }, c.business || c.merchant),
+                    c.name ? h('div', { class:'nm', style:'color:var(--muted);font-size:.78rem' }, c.name + (c.email ? ' · ' + c.email : '')) : null),
+      h('td', null, h('code', { style:'font-family:var(--mono);font-size:.82rem;color:var(--muted)' }, c.merchant)),
+      h('td', null, c.plan ? h('span', { class:'plan ' + c.plan }, c.plan) : h('span', { class:'plan' }, '—')),
+      h('td', { class:'num' }, fmt(c.today_amount) + ' MAD'),
+      h('td', { class:'num' }, String(c.today_count || 0)),
+      h('td', null, h('span', { class:'online' + (live?' live':'') }, h('span', { class:'d' }), ago(c.last_ts))),
+      h('td', null, h('div', { class:'row-actions' },
+        h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); openDashboard(c.merchant); } }, 'Ouvrir dashboard'),
+        h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); select(c); } }, 'Gérer')))
+    );
+    tr.addEventListener('click', function(){ select(c); });
+    return tr;
+  }
+
   async function renderClients(){
     var body = document.getElementById('cli-body');
     clear(body);
     var list = await store.clients();
-    document.getElementById('cli-count').textContent = list.length + ' client' + (list.length>1?'s':'');
-    list.forEach(function(c){
-      var live = c.last_ts && (Date.now() - c.last_ts < 1000*60*15);
-      var tr = h('tr', { class: (selected && selected.merchant === c.merchant) ? 'sel' : '' },
-        h('td', null, h('div', { style:'font-weight:600' }, c.business || c.merchant),
-                      c.name ? h('div', { class:'nm', style:'color:var(--muted);font-size:.78rem' }, c.name + (c.email ? ' · ' + c.email : '')) : null),
-        h('td', null, h('code', { style:'font-family:var(--mono);font-size:.82rem;color:var(--muted)' }, c.merchant)),
-        h('td', null, c.plan ? h('span', { class:'plan ' + c.plan }, c.plan) : h('span', { class:'plan' }, '—')),
-        h('td', { class:'num' }, fmt(c.today_amount) + ' MAD'),
-        h('td', { class:'num' }, String(c.today_count || 0)),
-        h('td', null, h('span', { class:'online' + (live?' live':'') }, h('span', { class:'d' }), ago(c.last_ts))),
-        h('td', null, h('div', { class:'row-actions' },
-          h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); openDashboard(c.merchant); } }, 'Ouvrir dashboard'),
-          h('button', { class:'mini', onClick:function(e){ e.stopPropagation(); select(c); } }, 'Gérer')))
-      );
-      tr.addEventListener('click', function(){ select(c); });
-      body.appendChild(tr);
-    });
+    var real = list.filter(function(c){ return !isDemoClient(c); });
+    var demos = list.filter(isDemoClient);
+    document.getElementById('cli-count').textContent =
+      real.length + ' client' + (real.length === 1 ? '' : 's') +
+      (demos.length ? ' · ' + demos.length + ' démo' + (demos.length === 1 ? '' : 's') : '');
+
+    real.forEach(function(c){ body.appendChild(clientRow(c)); });
+    if (!real.length){
+      body.appendChild(h('tr', null, h('td', { colspan:'7', style:'padding:20px 12px;color:var(--muted)' },
+        'Aucun client réel pour l’instant — les comptes créés par vos clients apparaîtront ici.')));
+    }
+
+    // Demos are hidden by default under one collapsible band, so God-mode shows
+    // only real clients unless you deliberately open the demo data.
+    if (demos.length){
+      var head = h('tr', null,
+        h('td', { colspan:'7', style:'cursor:pointer;user-select:none;background:rgba(128,128,128,.12);color:var(--muted);font-weight:600;font-size:.8rem;letter-spacing:.02em' },
+          (demosOpen ? '▾' : '▸') + '  Démos · ' + demos.length + '  (données de démonstration — pas des clients)'));
+      head.firstChild.addEventListener('click', function(){ demosOpen = !demosOpen; renderClients(); });
+      body.appendChild(head);
+      if (demosOpen){
+        demos.forEach(function(c){ var tr = clientRow(c); tr.style.opacity = '.68'; body.appendChild(tr); });
+      }
+    }
   }
 
   async function select(c){
