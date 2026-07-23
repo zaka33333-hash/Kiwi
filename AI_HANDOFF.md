@@ -125,7 +125,8 @@ The owner's command center, fully editable, trilingual, light+dark correct:
 - **Two collaborators.** "Us" work on branch **`dashboard-motion`** (agent/growth/dark-mode/
   design/account/pricing). The **partner (badro)** built the **"cafe-atlas" track** on
   `main` (split-bill, video tiles, and the modules `finance.js`, `stock.js`, `team.js`,
-  `conformite.js`, `marketing-suite-tease.js`, plus `cafe-atlas.html`/`kiwi-caisse.html`/
+  `conformite.js`, `marketing-suite-tease.js`, plus `kiwi-order.html` (the white-label
+  self-order app, ex-`cafe-atlas.html` — now **Kiwi Order**)/`kiwi-caisse.html`/
   `kiwi-serveur.html`). The two tracks were **merged** this session (`f0a312c`) — both fully
   preserved. Safety backups exist locally: `backup/dashboard-motion-pre-merge`,
   `refs/backup/origin-main-pre-merge`.
@@ -421,7 +422,7 @@ the ceiling, not negligence). Scorecard (Jun 9 night): design 10, feature breadt
 honesty 10, docs 10, i18n 9.5, dark mode 9.5, a11y 9, security 8.5, git hygiene 9.5
 (tools/push-both.sh), architecture 7 (first safety net exists now), perf 7.5, production
 readiness 3.5 (no backend — deliberate). Open items, all small:
-- **EN home-page accent scan returns zero leaks.** Standalone partner pages (cafe-atlas,
+- **EN home-page accent scan returns zero leaks.** Standalone partner pages (kiwi-order,
   kiwi-caisse, kiwi-serveur) have their own inline dicts — out of i18n.js scope by design.
 - **`background:var(--ink)` debt:** ~55 instances inventoried by tools/check.js as a
   warning (runtime-patched today by theme.css overrides + dark-fixes). Don't add more.
