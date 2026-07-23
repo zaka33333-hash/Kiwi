@@ -26,7 +26,7 @@ export async function onRequestGet(context) {
     let r = map.get(m);
     // demo:true until an account claims this merchant (see the accounts loop).
     // A merchant that only ever appears via demo sales / config is a demo.
-    if (!r) { r = { merchant: m, business: '', email: '', name: '', plan: '', today_amount: 0, today_count: 0, last_ts: 0, demo: true, status: 'active' }; map.set(m, r); }
+    if (!r) { r = { merchant: m, business: '', email: '', name: '', plan: '', type: '', today_amount: 0, today_count: 0, last_ts: 0, demo: true, status: 'active' }; map.set(m, r); }
     return r;
   }
 
@@ -46,9 +46,9 @@ export async function onRequestGet(context) {
       r.last_ts = s.last_ts || 0;
     }
 
-    // Plans / config.
-    const cfg = await env.DB.prepare(`SELECT merchant, plan FROM merchant_config`).all();
-    for (const c of (cfg.results || [])) { row(c.merchant).plan = c.plan || ''; }
+    // Plans / config (incl. business type → drives the console's module set).
+    const cfg = await env.DB.prepare(`SELECT merchant, plan, type FROM merchant_config`).all();
+    for (const c of (cfg.results || [])) { const r = row(c.merchant); r.plan = c.plan || ''; r.type = c.type || ''; }
 
     // Accounts → contact + ensure a row exists even with zero sales.
     const accts = await env.DB.prepare(`SELECT email, name, business, status FROM accounts`).all();

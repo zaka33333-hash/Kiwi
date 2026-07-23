@@ -1,7 +1,7 @@
 // /api/admin/config — per-merchant feature flags (operator-only; maps to pricing).
 //
-//   GET ?merchant=slug                     → { features:{…}, plan }
-//   PUT {merchant, features:{…}, plan?}     → upsert
+//   GET ?merchant=slug                          → { features:{…}, plan, type }
+//   PUT {merchant, features:{…}, plan?, type?}   → upsert (type omitted ⇒ kept)
 //
 // `features` is a JSON object of module→bool. A missing key means ON (the current
 // full interface), so an absent row = everything on. Turning a module OFF here
@@ -22,11 +22,11 @@ export async function onRequestGet(context) {
   const merchant = (url.searchParams.get('merchant') || '').trim();
   if (!merchant) return json({ error: 'merchant-required' }, 400);
   const row = await context.env.DB.prepare(
-    `SELECT features, plan FROM merchant_config WHERE merchant = ?`
+    `SELECT features, plan, type FROM merchant_config WHERE merchant = ?`
   ).bind(merchant).first();
   let features = {};
   if (row && row.features) { try { features = JSON.parse(row.features) || {}; } catch (_) { features = {}; } }
-  return json({ features, plan: (row && row.plan) || '' });
+  return json({ features, plan: (row && row.plan) || '', type: (row && row.type) || '' });
 }
 
 export async function onRequestPut(context) {
@@ -41,9 +41,18 @@ export async function onRequestPut(context) {
   const clean = {};
   for (const k of Object.keys(features)) clean[String(k).slice(0, 40)] = !!features[k];
 
+  // type is optional: bind NULL when the caller didn't send it, and COALESCE on
+  // conflict so a features/plan-only save never clears a merchant's set type.
+  const hasType = Object.prototype.hasOwnProperty.call(body, 'type');
+  const type = hasType ? (body.type || '').toString().trim().slice(0, 24) : null;
+
   await context.env.DB.prepare(
-    `INSERT INTO merchant_config (merchant, features, plan, updated_ts) VALUES (?,?,?,?)
-     ON CONFLICT(merchant) DO UPDATE SET features = excluded.features, plan = excluded.plan, updated_ts = excluded.updated_ts`
-  ).bind(merchant, JSON.stringify(clean), plan, Date.now()).run();
-  return json({ ok: true, features: clean, plan });
+    `INSERT INTO merchant_config (merchant, features, plan, type, updated_ts) VALUES (?,?,?,?,?)
+     ON CONFLICT(merchant) DO UPDATE SET
+       features = excluded.features,
+       plan = excluded.plan,
+       type = COALESCE(excluded.type, merchant_config.type),
+       updated_ts = excluded.updated_ts`
+  ).bind(merchant, JSON.stringify(clean), plan, type, Date.now()).run();
+  return json({ ok: true, features: clean, plan, type: type });
 }

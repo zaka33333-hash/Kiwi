@@ -74,5 +74,13 @@ CREATE TABLE IF NOT EXISTS merchant_config (
   merchant   TEXT PRIMARY KEY,
   features   TEXT NOT NULL,          -- JSON: {"stock":false,"reservations":false,…}
   plan       TEXT,                   -- basic | pro | ultra | ultimate (optional)
+  type       TEXT,                   -- business subtype from onboarding kiwiBizType
+                                     -- (restaurant|cafe|boutique|pharmacie|spa|coiffure|…);
+                                     -- decides which module set the operator console shows
   updated_ts INTEGER NOT NULL
 );
+-- Existing databases (table already created): add the column once —
+--   ALTER TABLE merchant_config ADD COLUMN type TEXT;
+-- Mirrored up from the client at onboarding (assets/onboarding.js → KiwiConfig
+-- .syncType → POST /api/config); the console reads it to show boutique modules
+-- for a boutique, restaurant modules for a restaurant, etc.

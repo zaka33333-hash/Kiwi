@@ -62,6 +62,11 @@
   tr.suspended{background:rgba(180,140,0,.06)}
   .op-toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(8px); background:var(--riad); color:#eafff4; padding:11px 18px; border-radius:11px; font-size:.86rem; font-weight:560; box-shadow:0 10px 30px rgba(5,59,44,.35); z-index:60; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s}
   .op-toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  .type-field{display:flex; align-items:center; gap:10px; margin:0 0 14px; padding:0 0 14px; border-bottom:1px dashed var(--line)}
+  .type-lbl{font:600 .72rem/1 var(--mono); text-transform:uppercase; letter-spacing:.05em; color:var(--muted); white-space:nowrap}
+  .type-select{flex:1; font:inherit; font-size:.86rem; font-weight:560; padding:8px 11px; border:1.5px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); cursor:pointer}
+  .type-select:focus{outline:none; border-color:var(--atlas)}
+  .type-chip{display:inline-block; margin-top:2px; font:600 9.5px/1 var(--mono); text-transform:uppercase; letter-spacing:.04em; color:var(--riad); background:#e3f3ea; border-radius:5px; padding:3px 6px}
   .mini:disabled{opacity:.45; cursor:default}
   .mini:disabled:hover{background:var(--surface); border-color:var(--line)}
   .danger-zone{margin-top:22px; padding-top:18px; border-top:1px solid var(--line)}
@@ -108,6 +113,8 @@
     .mini.warn:hover{background:#2b2513}
     .sus-badge{color:#f0cf8a; background:#241f10; border-color:#3a3320}
     tr.suspended{background:rgba(200,160,40,.08)}
+    .type-select{background:#151b18; color:#cfeeda}
+    .type-chip{color:#bfe8cf; background:#1c2420}
   }
 </style>
 </head>
@@ -158,8 +165,9 @@
           </div>
           <div>
             <p class="sub">Fonctionnalités (autorité opérateur)</p>
+            <div id="type-row"></div>
             <div id="feat-list"></div>
-            <p class="hint">Désactiver un module le masque dans l’app du client à son prochain chargement. Réservé à l’opérateur — lié à l’offre.</p>
+            <p class="hint">Les modules affichés dépendent du type d’activité du client. Désactiver un module le masque dans l’app du client à son prochain chargement. Réservé à l’opérateur — lié à l’offre.</p>
           </div>
         </div>
 
@@ -235,16 +243,73 @@
     return 'il y a ' + Math.round(hh/24) + ' j';
   }
 
-  var MODULES = [
-    { key:'tables', label:'Tables / plan de salle' },
-    { key:'stock', label:'Stock' },
-    { key:'reservations', label:'Réservations' },
-    { key:'kds', label:'Cuisine (KDS)' },
-    { key:'menu', label:'Menu' },
-    { key:'payroll', label:'Paie' },
-    { key:'loyalty', label:'Fidélité' },
+  // Business subtype (onboarding kiwiBizType) → its label + base vertical. The
+  // base decides which module set the operator sees. Mirrors assets/onboarding.js
+  // TYPES and assets/venues.js VERTICAL_SECTIONS — a boutique is NOT a relabeled
+  // restaurant, so it shows boutique modules, never Plan de salle / KDS.
+  var TYPES = [
+    { id:'restaurant', base:'restaurant', label:'Restaurant' },
+    { id:'cafe',       base:'restaurant', label:'Café / Salon de thé' },
+    { id:'fastfood',   base:'restaurant', label:'Fast-food / Snack' },
+    { id:'bakery',     base:'restaurant', label:'Boulangerie / Pâtisserie' },
+    { id:'pizzeria',   base:'restaurant', label:'Pizzeria' },
+    { id:'foodtruck',  base:'restaurant', label:'Food truck' },
+    { id:'boutique',   base:'boutique',   label:'Boutique' },
+    { id:'epicerie',   base:'boutique',   label:'Épicerie / Superette' },
+    { id:'pharmacie',  base:'boutique',   label:'Pharmacie' },
+    { id:'fleuriste',  base:'boutique',   label:'Fleuriste' },
+    { id:'spa',        base:'spa',        label:'Spa / Bien-être' },
+    { id:'coiffure',   base:'spa',        label:'Salon de coiffure' },
+    { id:'sport',      base:'spa',        label:'Salle de sport' },
+    { id:'hotel',      base:'hotel',      label:'Hôtel / Riad' },
+    { id:'autre',      base:'boutique',   label:'Autre activité' },
+  ];
+  function typeMeta(id){ for (var i=0;i<TYPES.length;i++) if (TYPES[i].id===id) return TYPES[i]; return null; }
+  function typeLabel(id){ var t=typeMeta(id); return t ? t.label : ''; }
+
+  // Modules per base vertical (the sidebar sections in venues.js) + the universal
+  // trio every business shares. A missing type ⇒ restaurant (the historic default).
+  var VERTICAL_MODULES = {
+    restaurant: [
+      { key:'tables',       label:'Plan de salle' },
+      { key:'menu',         label:'Menu & modificateurs' },
+      { key:'kds',          label:'Écran cuisine (KDS)' },
+      { key:'stock',        label:'Stock & approvisionnement' },
+      { key:'finance',      label:'Marges & budget' },
+      { key:'reservations', label:'Réservations' },
+    ],
+    boutique: [
+      { key:'inventory',    label:'Inventaire produits' },
+      { key:'categories',   label:'Catégories' },
+      { key:'promos',       label:'Promotions & offres' },
+      { key:'returns',      label:'Retours & échanges' },
+    ],
+    spa: [
+      { key:'appointments', label:'Calendrier rendez-vous' },
+      { key:'services',     label:'Services & forfaits' },
+      { key:'practitioners',label:'Praticien·ne·s' },
+      { key:'clients',      label:'Fiches clients' },
+    ],
+    hotel: [
+      { key:'reception',    label:'Réception' },
+      { key:'chambres',     label:'Plan des chambres' },
+      { key:'sejours',      label:'Réservations & séjours' },
+      { key:'menage',       label:'Ménage' },
+      { key:'tarifs',       label:'Tarifs & occupation' },
+      { key:'folios',       label:'Notes clients · folios' },
+      { key:'canaux',       label:'Canaux & OTA' },
+    ],
+  };
+  var UNIVERSAL_MODULES = [
+    { key:'payroll',  label:'Paie' },
+    { key:'loyalty',  label:'Fidélité' },
     { key:'depenses', label:'Dépenses' },
   ];
+  function modulesForType(typeId){
+    var meta = typeMeta(typeId);
+    var base = (meta && meta.base) || 'restaurant';
+    return (VERTICAL_MODULES[base] || VERTICAL_MODULES.restaurant).concat(UNIVERSAL_MODULES);
+  }
 
   // ── store: real /api/admin/* when reachable, else seeded mock + localStorage ─
   var LIVE = null; // null=unknown, true/false once probed
@@ -309,6 +374,18 @@
     async setConfig(merchant, features, plan){
       if (LIVE) { return api('/config', { method:'PUT', body:JSON.stringify({ merchant:merchant, features:features, plan:plan }) }); }
       var m = mock(); m.features[merchant] = features; saveMock(m);
+    },
+    // Set the business type. In LIVE we resend the current features + plan so the
+    // PUT (which overwrites them) doesn't clear existing toggles — only the type
+    // changes. In mock we stamp the type onto the roster row.
+    async setType(merchant, type){
+      if (LIVE) {
+        var features = await store.config(merchant);
+        var plan = (selected && selected.merchant === merchant && selected.plan) || '';
+        return api('/config', { method:'PUT', body:JSON.stringify({ merchant:merchant, features:features, plan:plan, type:type }) });
+      }
+      var m = mock(); (m.clients || []).forEach(function(c){ if (c.merchant === merchant) c.type = type; }); saveMock(m);
+      return { ok:true };
     },
     async operators(){
       if (LIVE) { return (await api('/operators')).operators; }
@@ -387,6 +464,7 @@
     var tr = h('tr', { class: cls },
       h('td', null, h('div', { style:'font-weight:600' }, c.business || c.merchant,
                       suspended ? h('span', { class:'sus-badge' }, 'suspendu') : null),
+                    c.type ? h('div', null, h('span', { class:'type-chip' }, typeLabel(c.type) || c.type)) : null,
                     c.name ? h('div', { class:'nm', style:'color:var(--muted);font-size:.78rem' }, c.name + (c.email ? ' · ' + c.email : '')) : null),
       h('td', null, h('code', { style:'font-family:var(--mono);font-size:.82rem;color:var(--muted)' }, c.merchant)),
       h('td', null, c.plan ? h('span', { class:'plan ' + c.plan }, c.plan) : h('span', { class:'plan' }, '—')),
@@ -515,10 +593,34 @@
     });
   }
 
+  // Business-type selector — sourced from the client's onboarding, overridable by
+  // the operator (God mode). Changing it swaps the module list below to the right
+  // vertical, so a boutique never shows restaurant modules.
+  function renderTypeRow(){
+    var row = document.getElementById('type-row'); if (!row) return; clear(row);
+    var sel = h('select', { class:'type-select', 'aria-label':'Type d’activité' });
+    sel.appendChild(h('option', { value:'' }, '— Type non défini —'));
+    TYPES.forEach(function(t){ sel.appendChild(h('option', { value:t.id }, t.label)); });
+    sel.value = selected.type || '';
+    sel.addEventListener('change', async function(){
+      var v = sel.value;
+      try {
+        await store.setType(selected.merchant, v);
+        selected.type = v;
+        renderClients();          // roster reflects the new type
+        await renderFeatures();    // module set switches to the new vertical
+        notify(v ? ('Type : ' + typeLabel(v) + ' — modules adaptés.') : 'Type effacé.');
+      } catch(e){ notify('Échec : ' + ((e && e.body && e.body.error) || (e && e.message) || 'erreur')); }
+    });
+    row.appendChild(h('label', { class:'type-field' },
+      h('span', { class:'type-lbl' }, 'Type d’activité'), sel));
+  }
+
   async function renderFeatures(){
+    renderTypeRow();
     var wrap = document.getElementById('feat-list'); clear(wrap);
     var feats = await store.config(selected.merchant);
-    MODULES.forEach(function(mod){
+    modulesForType(selected.type).forEach(function(mod){
       var on = feats[mod.key] !== false; // absent ⇒ ON
       var sw = h('button', { class:'sw', role:'switch', 'aria-checked': on ? 'true':'false', 'aria-label':mod.label });
       sw.addEventListener('click', async function(){

@@ -487,6 +487,9 @@
      * and manage them (God mode). Fire-and-forget + fail-safe — a static host or
      * offline session just keeps the local copy, nothing breaks. */
     try { if (window.KiwiConfig && window.KiwiConfig.syncPins) window.KiwiConfig.syncPins(validPins); } catch (_) {}
+    /* Mirror the business type too, so the operator console shows this merchant's
+     * real modules (boutique ≠ restaurant). Same fire-and-forget contract. */
+    try { if (window.KiwiConfig && window.KiwiConfig.syncType) window.KiwiConfig.syncType(S.typeId); } catch (_) {}
     LS.set('kiwiRole', 'owner');
     LS.set('kiwiOnboarded', '1');
     LS.del('kiwiSkipOnboard');

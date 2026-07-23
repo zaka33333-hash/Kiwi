@@ -30,8 +30,21 @@
     } catch (_) { return 'cafe-atlas'; }
   }
 
-  var cfg = { features: {}, pins: [], loaded: false, apply: applyFeatures, syncPins: syncPins };
+  var cfg = { features: {}, pins: [], type: '', loaded: false, apply: applyFeatures, syncPins: syncPins, syncType: syncType };
   window.KiwiConfig = cfg;
+
+  /* Push this merchant's business type (onboarding kiwiBizType) up to the server
+   * so the operator console shows the RIGHT module set (a boutique gets boutique
+   * modules, not restaurant ones). Same contract as syncPins: server derives the
+   * merchant from the session, we only send the type. Fire-and-forget + fail-safe. */
+  function syncType(type) {
+    if (!type) return Promise.resolve(false);
+    return fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ type: String(type) }),
+    }).then(function (r) { return !!(r && r.ok); }).catch(function () { return false; });
+  }
 
   /* Push this merchant's own staff PINs up to the server so the operator console
    * (God mode) can see and manage them. The server derives the merchant from the

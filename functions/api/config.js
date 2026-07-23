@@ -21,11 +21,13 @@ export async function onRequestGet(context) {
 
   let features = {};
   let pins = [];
+  let type = '';
   try {
     const cfg = await env.DB.prepare(
-      `SELECT features FROM merchant_config WHERE merchant = ?`
+      `SELECT features, type FROM merchant_config WHERE merchant = ?`
     ).bind(merchant).first();
     if (cfg && cfg.features) { try { features = JSON.parse(cfg.features) || {}; } catch (_) {} }
+    if (cfg && cfg.type) type = cfg.type;
 
     const rows = await env.DB.prepare(
       `SELECT pin, name, role FROM staff_pins WHERE merchant = ? ORDER BY created_ts`
@@ -33,17 +35,20 @@ export async function onRequestGet(context) {
     pins = rows.results || [];
   } catch (_) { /* table missing / db error → neutral config */ }
 
-  return json({ features, pins });
+  return json({ features, pins, type });
 }
 
-// POST /api/config — a merchant syncs ITS OWN staff PINs up to the server so the
-// operator console (God mode) can see and manage them. The merchant is derived
-// from the authenticated session, NEVER from the request body — a client can only
-// ever write its own slug. Body JSON: { pins: [{ code|pin, name, role }] }.
+// POST /api/config — a merchant syncs ITS OWN state up to the server so the
+// operator console (God mode) can see it. The merchant is derived from the
+// authenticated session, NEVER from the request body — a client can only ever
+// write its own slug. Body JSON (both fields optional, sent independently):
+//   { pins: [{ code|pin, name, role }] }   — full replace of this merchant's PINs
+//   { type: "boutique" }                   — the onboarding business subtype
 //
-// Semantics: a full replace of this merchant's staff_pins with the submitted set
-// (the client always sends its complete, current list). Invalid/duplicate codes
-// are dropped. No session / no DB ⇒ neutral no-op so static hosts are unaffected.
+// Each field is applied ONLY when present: a type-only sync never touches PINs,
+// and a pins-only sync never touches the type. (Before, an absent `pins` was read
+// as an empty list and wiped every PIN — so a type sync would have deleted them.)
+// No session / no DB ⇒ neutral no-op so static hosts are unaffected.
 export async function onRequestPost(context) {
   const { request, env } = context;
   if (!env.DB || !env.AUTH_SECRET) return json({ error: 'not-configured' }, 503);
@@ -57,35 +62,51 @@ export async function onRequestPost(context) {
 
   let body;
   try { body = await request.json(); } catch (_) { return json({ error: 'bad-json' }, 400); }
-  const input = Array.isArray(body && body.pins) ? body.pins : [];
 
-  // Normalise, validate (4-digit), de-dupe by code, cap the list.
-  const seen = new Set();
-  const clean = [];
-  for (const p of input) {
-    if (!p) continue;
-    const code = String(p.code || p.pin || '').trim();
-    if (!VALID_PIN.test(code) || seen.has(code)) continue;
-    seen.add(code);
-    clean.push({
-      code,
-      name: String(p.name || '').trim().slice(0, 60),
-      role: String(p.role || '').trim().slice(0, 24) || 'staff',
+  const result = { ok: true, merchant };
+
+  // ── PINs (only when the client actually sent a list) ───────────────────────
+  if (Array.isArray(body && body.pins)) {
+    const seen = new Set();
+    const clean = [];
+    for (const p of body.pins) {
+      if (!p) continue;
+      const code = String(p.code || p.pin || '').trim();
+      if (!VALID_PIN.test(code) || seen.has(code)) continue;
+      seen.add(code);
+      clean.push({
+        code,
+        name: String(p.name || '').trim().slice(0, 60),
+        role: String(p.role || '').trim().slice(0, 24) || 'staff',
+      });
+      if (clean.length >= 20) break;
+    }
+    // Atomic replace. created_ts is offset per index so the GET's ORDER BY
+    // created_ts preserves the submitted order.
+    const base = Date.now();
+    const stmts = [env.DB.prepare('DELETE FROM staff_pins WHERE merchant = ?').bind(merchant)];
+    clean.forEach((p, i) => {
+      stmts.push(env.DB.prepare(
+        'INSERT INTO staff_pins (id, merchant, pin, name, role, created_ts) VALUES (?,?,?,?,?,?)'
+      ).bind('pin-' + crypto.randomUUID(), merchant, p.code, p.name, p.role, base + i));
     });
-    if (clean.length >= 20) break;
+    try { await env.DB.batch(stmts); }
+    catch (_) { return json({ error: 'write-failed' }, 500); }
+    result.pins = clean.length;
   }
 
-  // Atomic replace of this merchant's rows. created_ts is offset per index so the
-  // GET's `ORDER BY created_ts` preserves the submitted order.
-  const base = Date.now();
-  const stmts = [context.env.DB.prepare('DELETE FROM staff_pins WHERE merchant = ?').bind(merchant)];
-  clean.forEach((p, i) => {
-    stmts.push(context.env.DB.prepare(
-      'INSERT INTO staff_pins (id, merchant, pin, name, role, created_ts) VALUES (?,?,?,?,?,?)'
-    ).bind('pin-' + crypto.randomUUID(), merchant, p.code, p.name, p.role, base + i));
-  });
-  try { await context.env.DB.batch(stmts); }
-  catch (_) { return json({ error: 'write-failed' }, 500); }
+  // ── Business type (only when sent) — upsert without disturbing features/plan ─
+  if (typeof (body && body.type) === 'string' && body.type.trim()) {
+    const type = body.type.trim().slice(0, 24);
+    try {
+      await env.DB.prepare(
+        `INSERT INTO merchant_config (merchant, features, plan, type, updated_ts)
+         VALUES (?, '{}', NULL, ?, ?)
+         ON CONFLICT(merchant) DO UPDATE SET type = excluded.type, updated_ts = excluded.updated_ts`
+      ).bind(merchant, type, Date.now()).run();
+      result.type = type;
+    } catch (_) { return json({ error: 'write-failed' }, 500); }
+  }
 
-  return json({ ok: true, merchant, count: clean.length });
+  return json(result);
 }
