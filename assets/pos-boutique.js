@@ -290,7 +290,10 @@
     });
 
     /* live catalogue → the sale grid, the sheet and the douchette track the DB.
+       PIN 0002 IS Maison Mansour, so pin this store's catalogue (the dashboard
+       follows its active venue; both agree on 'maisonMansour' → they stay synced).
        When the dashboard (or another caisse tab) edits the inventory, rebuild. */
+    if (window.KiwiBoutiqueCatalog) window.KiwiBoutiqueCatalog.use('maisonMansour');
     rebuildCatalog();
     injectInvCss();
     if (window.KiwiBoutiqueCatalog && !mount._subbed) {
