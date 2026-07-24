@@ -51,7 +51,7 @@
     // real. Fail-soft: if no printer is configured, or the bridge is down / errors,
     // fall back to the on-screen preview so the caisse never blocks on hardware.
     print: function (ticket) {
-      if (window.KiwiPrinter && KiwiPrinter.isConfigured()) {
+      if (window.KiwiPrinter && (KiwiPrinter.isConnected ? KiwiPrinter.isConnected() : KiwiPrinter.isConfigured())) {
         var o = {
           shop: ticket && ticket.title, lines: (ticket && ticket.lines) || [],
           total: ticket && ticket.total, method: ticket && ticket.method,
@@ -65,7 +65,7 @@
     // Open the cash drawer (ESC/POS kick). Real via the bridge when configured; the
     // mock resolves immediately otherwise.
     openDrawer: function () {
-      if (window.KiwiPrinter && KiwiPrinter.isConfigured() && window.KiwiEscPos) {
+      if (window.KiwiPrinter && (KiwiPrinter.isConnected ? KiwiPrinter.isConnected() : KiwiPrinter.isConfigured()) && window.KiwiEscPos) {
         return KiwiPrinter.printBytes(window.KiwiEscPos.builder().init().drawer().bytes())
           .then(function (res) { return (res && res.ok) ? { ok: true } : { ok: true, mock: true }; });
       }

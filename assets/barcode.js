@@ -268,19 +268,16 @@
     if (!flat.length) return Promise.resolve({ ok: false, reason: 'no-labels' });
 
     const KP = window.KiwiPrinter;
-    if (KP && KP.isConfigured() && window.KiwiEscPos) {
+    // Native print is the DEFAULT — zero install, prints to whatever printer the
+    // machine already has (USB / driver / AirPrint) through the browser dialog.
+    // Only when a printer is actively CONNECTED (Bluetooth one-tap, or the network
+    // bridge) do we send ESC/POS straight to it, failing soft back to native print.
+    if (KP && KP.isConnected && KP.isConnected() && window.KiwiEscPos) {
       return KP.printLabels(flat).then((res) => {
         if (res && res.ok) return res;
-        browserPrint(flat);                       // bridge down → fail soft
+        browserPrint(flat);                       // connected printer failed → native
         return res || { ok: false };
       }, () => { browserPrint(flat); return { ok: false }; });
-    }
-    // No printer paired: guide the owner to connect one (real product flow), but
-    // keep a browser/PDF escape inside the modal so a label still comes out for a
-    // merchant who prints label sheets on an ordinary printer.
-    if (KP && typeof KP.openSetup === 'function') {
-      KP.openSetup({ onBrowserPrint: () => browserPrint(flat) });
-      return Promise.resolve({ ok: false, reason: 'not-configured' });
     }
     browserPrint(flat);
     return Promise.resolve({ ok: true, browser: true });
