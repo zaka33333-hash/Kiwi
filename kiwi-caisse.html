@@ -3918,7 +3918,7 @@
   <div class="topbar" role="banner" aria-label="Status bar">
     <div class="topbar-left">
       <span class="live-dot" aria-hidden="true"></span>
-      <span>DÉMO LIVE · Café Atlas · Maarif</span>
+      <span id="topbar-store">DÉMO LIVE · Café Atlas · Maarif</span>
     </div>
     <div class="topbar-center">Kiwi Caisse, Version Commerçant</div>
     <div class="topbar-right">
@@ -7617,7 +7617,7 @@
       const subEl    = document.getElementById('greet-sub');
       if (line1El) line1El.textContent = 'L-cuisine,';
       if (emEl)    emEl.textContent    = 'service bda.';
-      if (subEl)   subEl.innerHTML     = `Café Atlas <em>·</em> file de préparation`;
+      if (subEl)   subEl.innerHTML     = `${storeName()} <em>·</em> file de préparation`;
 
       // Wrap <em> in .em-clip and measure natural width (same as cashier path).
       let emClip = null;
@@ -7796,9 +7796,34 @@
     }
 
     /* ============ REÇU / TICKET — receipt preview ============ */
-    /* Faux but plausible Moroccan establishment identifiers. */
-    const RECEIPT_ICE   = '002176548000071';   /* 15-digit ICE */
-    const RECEIPT_PHONE = '+212 522 27 84 19'; /* Casablanca landline */
+    /* Faux but plausible Moroccan establishment identifiers — DEMO ONLY. */
+    const RECEIPT_ICE   = '002176548000071';   /* 15-digit ICE (demo) */
+    const RECEIPT_PHONE = '+212 522 27 84 19'; /* Casablanca landline (demo) */
+
+    /* Real store identity, resolved from the 6-digit pairing (kiwiPairedVenue =
+     * {name,location,…}) or a hosted session. A real store prints ITS OWN name +
+     * city and NO legal ICE/phone (we don't hold them) — never the "Café Atlas"
+     * demo. The local demo (unpaired localhost) is unchanged. */
+    function storePaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+    function storeIsReal() { try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) || !!storePaired(); } catch (_) { return !!storePaired(); } }
+    function storeName()   { const p = storePaired(); return (p && p.name) || (storeIsReal() ? '' : 'Café Atlas'); }
+    function storeCity()   { const p = storePaired(); return (p && p.location) || (storeIsReal() ? '' : 'Maarif · Casablanca'); }
+    /* Patch the static header labels (top bar, clock-in card, floor-plan) so a real
+     * paired store shows ITS name/city — never "Café Atlas · Maarif" or "DÉMO LIVE".
+     * No-op for the local demo. Runs on load; re-run after clock-in if needed. */
+    function applyStoreIdentity() {
+      if (!storeIsReal()) return;
+      const nm = storeName(), city = storeCity();
+      const top = document.getElementById('topbar-store'); if (top) top.textContent = [nm, city].filter(Boolean).join(' · ');
+      const sub = document.getElementById('greet-sub');    if (sub && nm) sub.textContent = nm + ' · service ouvert';
+      const role = document.querySelector('.clockin-role'); if (role && nm) role.textContent = 'Caissier · ' + nm;
+      const foot = document.querySelector('.clockin-foot'); if (foot && city) foot.textContent = city;
+      document.querySelectorAll('.plan-room-label').forEach((el) => {
+        if (!nm) return; const em = el.querySelector('em'); el.textContent = nm + ' '; if (em) el.appendChild(em);
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyStoreIdentity);
+    else applyStoreIdentity();
 
     /* Render a journal entry as a printed thermal ticket. */
     function renderReceipt(entry) {
@@ -7872,10 +7897,10 @@
 
       body.innerHTML =
           `<div class="rct-head">`
-        +   `<div class="rct-logo">Café Atlas<i aria-hidden="true"></i></div>`
-        +   `<div class="rct-sub">Maarif · Casablanca</div>`
-        +   `<div class="rct-sub rct-tiny">ICE ${RECEIPT_ICE}</div>`
-        +   `<div class="rct-sub rct-tiny">${RECEIPT_PHONE}</div>`
+        +   `<div class="rct-logo">${storeName()}<i aria-hidden="true"></i></div>`
+        +   (storeCity() ? `<div class="rct-sub">${storeCity()}</div>` : '')
+        +   (storeIsReal() ? '' : `<div class="rct-sub rct-tiny">ICE ${RECEIPT_ICE}</div>`)
+        +   (storeIsReal() ? '' : `<div class="rct-sub rct-tiny">${RECEIPT_PHONE}</div>`)
         + `</div>`
         + (isRefund ? `<div class="rct-refund-banner">REMBOURSEMENT</div>` : '')
         + `<hr class="rct-rule" />`
@@ -7898,7 +7923,7 @@
         + `<div class="rct-thanks">`
         +   (isRefund
               ? `Sma7 lina · merci d'votre compréhension`
-              : `Bsa7tkom · à bientôt chez <b>Café Atlas</b>`)
+              : `Bsa7tkom · à bientôt chez <b>${storeName()}</b>`)
         + `</div>`
         + `<div class="rct-barcode" aria-hidden="true">${bars}</div>`
         + `<div class="rct-barcode-num">${entry.ref}</div>`;
@@ -8046,7 +8071,7 @@
       const pad2     = n => String(n).padStart(2, '0');
 
       $('#clo-meta').textContent =
-        `Café Atlas · ${currentCashier.name} · ${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
+        `${storeName()} · ${currentCashier.name} · ${dafrDays[now.getDay()]} ${now.getDate()} ${monthsEn[now.getMonth()]}`;
 
       const tot = journalTotals();
       const rows = [
@@ -9338,7 +9363,7 @@
       $('#ho-slip').innerHTML =
           `<div class="ho-slip-head">`
         +   `<div class="ho-slip-title">Bon de passation</div>`
-        +   `<div class="ho-slip-date">Café Atlas · ${pad2HO(d.getDate())}/${pad2HO(d.getMonth()+1)}/${d.getFullYear()} · ${pad2HO(d.getHours())}:${pad2HO(d.getMinutes())}</div>`
+        +   `<div class="ho-slip-date">${storeName()} · ${pad2HO(d.getDate())}/${pad2HO(d.getMonth()+1)}/${d.getFullYear()} · ${pad2HO(d.getHours())}:${pad2HO(d.getMinutes())}</div>`
         + `</div>`
         + `<div class="ho-slip-row"><span class="k">Poste ouvert à</span><span class="v mono">${pad2HO(opened.getHours())}:${pad2HO(opened.getMinutes())}</span></div>`
         + `<div class="ho-slip-row"><span class="k">Attendu en caisse</span><span class="v mono">${fmtMAD(rec.expected)}</span></div>`

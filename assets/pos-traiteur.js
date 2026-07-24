@@ -335,8 +335,8 @@
       <aside class="tr-rail">
         <div class="tr-brand">kiwi<i></i></div>
         <div class="tr-venue">
-          <div class="tr-venue-name">Traiteur Dar Zellij</div>
-          <div class="tr-venue-sub">Tanger · Mesnana<br>Le même Kiwi, <b>un seul compte.</b></div>
+          <div class="tr-venue-name">${pvName('Traiteur Dar Zellij') || 'Traiteur'}</div>
+          <div class="tr-venue-sub">${pvReal() ? (pvCity('') || '') : 'Tanger · Mesnana'}<br>Le même Kiwi, <b>un seul compte.</b></div>
         </div>
         <nav class="tr-nav" id="tr-nav">
           <button class="tr-nav-it on" data-tr-view="events"><i data-lucide="calendar"></i><span>Événements</span><b class="tr-nav-badge" id="tr-badge-ev"></b></button>
@@ -1108,20 +1108,20 @@
         + (ev.extras.length ? `\nExtras : ${ev.extras.map((id) => EXTRA[id].label.toLowerCase()).join(', ')}.` : '')
         + `\nTotal : ${fmtMAD(total)}, 30 % à la confirmation (${fmtMAD(t1)}), 50 % à J-7 (${fmtMAD(t2)}), solde le jour J.`
         + `\nRépondez OUI pour confirmer, la date reste bloquée 7 jours.`
-        + `\n— Traiteur Dar Zellij · envoyé via Kiwi`;
+        + `\n— ${pvName('Traiteur Dar Zellij') || 'Traiteur'} · envoyé via Kiwi`;
     }
     if (kind === 'relance') {
       return `Sba7 lkhir ${first}, petit rappel de Dar Zellij : votre devis ${ev.devisRef}`
         + ` (${TYPES[ev.type].label.toLowerCase()} · ${ev.guests} invités · ${fmtDay(ev.date)}) est toujours réservé.`
         + `\nLa date du ${fmtDay(ev.date)} part vite en saison, répondez OUI pour la bloquer définitivement.`
-        + `\n— Traiteur Dar Zellij · envoyé via Kiwi`;
+        + `\n— ${pvName('Traiteur Dar Zellij') || 'Traiteur'} · envoyé via Kiwi`;
     }
     if (kind === 'route') {
       const arr = new Date(ev.date.getTime() - 45 * 60000);
       return `Sba7 lkhir ${first}, l’équipe Dar Zellij est en route pour ${ev.lieu}.`
         + `\nArrivée prévue vers ${timeOf(arr)}, installation puis service à ${timeOf(ev.date)}.`
         + `\nTout est chargé et contrôlé. À tout de suite !`
-        + `\n— Traiteur Dar Zellij · envoyé via Kiwi`;
+        + `\n— ${pvName('Traiteur Dar Zellij') || 'Traiteur'} · envoyé via Kiwi`;
     }
     /* rappel d'échéance */
     const t = nextTranche(ev);
@@ -1183,11 +1183,18 @@
   }
 
   /* ═══════════════════════ DOCUMENTS (devis · bon · récap) ═══════════════════════ */
+  // Real caterer identity from the pairing / hosted session — devis & bons print
+  // the real business name+city, never the demo "Traiteur Dar Zellij". Demo unchanged.
+  function pvPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+  function pvReal()   { try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) || !!pvPaired(); } catch (_) { return !!pvPaired(); } }
+  function pvName(demo) { const p = pvPaired(); return (p && p.name) || (pvReal() ? '' : demo); }
+  function pvCity(demo) { const p = pvPaired(); return (p && p.location) || (pvReal() ? '' : demo); }
+
   function docHTML(kind, ev) {
     const { pp, menuTotal, extrasTotal, total } = evTotals(ev);
     const head = `
-      <div class="c b lg">TRAITEUR DAR ZELLIJ</div>
-      <div class="c mut">Mesnana, Tanger · 05 39 95 XX XX<br>propulsé par Kiwi</div>
+      <div class="c b lg">${(pvName('Traiteur Dar Zellij') || 'Traiteur').toUpperCase()}</div>
+      <div class="c mut">${pvReal() ? (pvCity('') ? pvCity('') + ' · ' : '') + 'propulsé par Kiwi' : 'Mesnana, Tanger · 05 39 95 XX XX<br>propulsé par Kiwi'}</div>
       <hr>`;
     if (kind === 'bon') {
       const due = dueTotal(ev);

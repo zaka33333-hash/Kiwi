@@ -313,8 +313,8 @@
       <aside class="lb-rail">
         <div class="lb-brand">kiwi<i></i></div>
         <div class="lb-venue">
-          <div class="lb-venue-name">Librairie Al Boughaz</div>
-          <div class="lb-venue-sub">Tanger · Petit Socco<br>Le même Kiwi, <b>un seul compte</b>.</div>
+          <div class="lb-venue-name">${esc(pvName('Librairie Al Boughaz') || 'Librairie')}</div>
+          <div class="lb-venue-sub">${pvReal() ? (esc(pvCity('')) || '') : 'Tanger · Petit Socco'}<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="lb-nav" id="lb-nav">
           <button class="lb-nav-it on" data-lb-view="vente"><i data-lucide="book-open"></i><span>Vente</span></button>
@@ -760,13 +760,20 @@
     openReceipt();
   }
 
+  // Real store identity from the pairing / hosted session — a real bookshop prints
+  // its own name+city, never the demo "Librairie Al Boughaz". Demo unchanged.
+  function pvPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+  function pvReal()   { try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) || !!pvPaired(); } catch (_) { return !!pvPaired(); } }
+  function pvName(demo) { const p = pvPaired(); return (p && p.name) || (pvReal() ? '' : demo); }
+  function pvCity(demo) { const p = pvPaired(); return (p && p.location) || (pvReal() ? '' : demo); }
+
   function receiptHTML(c) {
     const sub = cartSub(c), remise = cartRemise(c), total = cartTotal(c);
     const cu = c.client && c.client.type === 'known' ? CUST[c.client.id] : null;
     const earned = total;          /* 1 MAD payé = 1 point */
     return `<div class="lb-receipt">
-      <div class="c b lg">LIBRAIRIE AL BOUGHAZ</div>
-      <div class="c mut">Petit Socco, Tanger<br>05 39 93 XX XX · propulsé par Kiwi</div>
+      <div class="c b lg">${esc((pvName('Librairie Al Boughaz') || 'Librairie').toUpperCase())}</div>
+      <div class="c mut">${pvReal() ? (pvCity('') ? esc(pvCity('')) + ' · ' : '') + 'propulsé par Kiwi' : 'Petit Socco, Tanger<br>05 39 93 XX XX · propulsé par Kiwi'}</div>
       <hr>
       <div class="row"><span>Ticket</span><span class="b">${c.num}</span></div>
       ${cu ? `<div class="row"><span>Client</span><span>${esc(cu.name)}</span></div>` : ''}

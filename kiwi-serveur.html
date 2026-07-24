@@ -3408,6 +3408,28 @@
        Single-file. No build, no framework.
        ========================================================= */
 
+    /* Real venue identity for the waiter app. Serveur has no env/identity layer,
+       so derive from the 6-digit pairing (kiwiPairedVenue) or, on a hosted domain,
+       the pinned merchant slug. A real venue shows ITS name — never the demo
+       "Café Atlas · Maarif". Local demo (unpaired localhost) is unchanged. */
+    function svPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+    function svHosted() { try { var h = (location.hostname || '').toLowerCase(); return !(h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '' || /\.local$/.test(h)); } catch (_) { return false; } }
+    function svReal()   { return !!svPaired() || svHosted(); }
+    function svName(demo) {
+      var p = svPaired(); if (p && p.name) return p.name;
+      if (svReal()) { try { var m = localStorage.getItem('kiwiLiveMerchant'); if (m) return m.split('-').filter(Boolean).map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' '); } catch (_) {} return ''; }
+      return demo;
+    }
+    function svCity(demo) { var p = svPaired(); if (p && p.location) return p.location; return svReal() ? '' : demo; }
+    function svApplyIdentity() {
+      if (!svReal()) return;
+      var nm = svName('Café Atlas'), city = svCity('Maarif · Casablanca');
+      document.querySelectorAll('.ci-role, .profil-role').forEach(function (el) { var t = el.textContent.split('·')[0].trim(); el.textContent = nm ? (t + ' · ' + nm) : t; });
+      var rest = document.querySelector('.ci-restaurant'); if (rest && city) rest.textContent = city;
+      var sc = document.getElementById('kg-sc-meta'); if (sc && nm) sc.textContent = nm;
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', svApplyIdentity); else svApplyIdentity();
+
     /* ---------- Helpers ---------- */
     const $ = (sel, root = document) => root.querySelector(sel);
     const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -3794,7 +3816,7 @@
       const greetEl = $('.ci-greeting');
       const roleEl  = $('.ci-role');
       if (greetEl) greetEl.innerHTML = `Slm <em>${r.name}</em>`;
-      if (roleEl)  roleEl.textContent = `${r.role} · Café Atlas`;
+      if (roleEl)  roleEl.textContent = svName('Café Atlas') ? `${r.role} · ${svName('Café Atlas')}` : `${r.role}`;
     }
 
     function applyRoleToMain() {
@@ -3808,7 +3830,7 @@
       if (nm)  nm.textContent  = r.fullName;
       if (pAv) pAv.textContent = r.initials;
       if (pNm) pNm.textContent = r.fullName;
-      if (pRl) pRl.textContent = `${r.role} · Café Atlas`;
+      if (pRl) pRl.textContent = svName('Café Atlas') ? `${r.role} · ${svName('Café Atlas')}` : `${r.role}`;
       document.body.classList.toggle('is-role-restricted', r.restricted);
       $$('.bt-btn').forEach(btn => {
         btn.hidden = !r.tabs.includes(btn.dataset.tab);
@@ -3968,7 +3990,7 @@
       if (subEl) {
         if (activeRole.restricted) {
           // Non-server staff — generic welcome, no table-counting.
-          subEl.textContent = `Café Atlas · ${activeRole.role.toLowerCase()} · bon service`;
+          subEl.textContent = `${svName('Café Atlas') || 'Service'} · ${activeRole.role.toLowerCase()} · bon service`;
         } else {
           const myCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
           const tod = (typeof timeOfDay === 'function') ? timeOfDay() : 'ce soir';
@@ -6144,7 +6166,7 @@
 
         const now = new Date();
         const metaEl = document.getElementById('kg-sc-meta');
-        if (metaEl) metaEl.textContent = 'Café Atlas · ' +
+        if (metaEl) metaEl.textContent = (svName('Café Atlas') ? svName('Café Atlas') + ' · ' : '') +
           dafrDays[now.getDay()] + ' ' + now.getDate() + ' ' + monthsEn[now.getMonth()];
 
         const rows = [
@@ -6202,7 +6224,7 @@
       /* --- share the shift card --- */
       function shareShiftCard() {
         const snap = kgSnapshot();
-        const txt = 'Mon service ce soir au Café Atlas\n' +
+        const txt = ('Mon service ce soir' + (svName('Café Atlas') ? ' au ' + svName('Café Atlas') : '')) + '\n' +
                     '• ' + snap.served + ' tables servies\n' +
                     '• ' + kgNum(snap.revenue) + ' MAD encaissés\n' +
                     '• ' + kgShareLine + '\n' +

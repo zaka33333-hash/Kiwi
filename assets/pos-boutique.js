@@ -1344,10 +1344,18 @@
   }
 
   /* ---------- voucher print preview (modeled on the pressing tags) ------- */
+  // Real boutique identity from the pairing / hosted session — the printed credit
+  // note (BON D'AVOIR) shows the real store name+city, never the demo "Maison
+  // Mansour" / its street address. Local demo (unpaired) unchanged.
+  function bqPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+  function bqReal()   { try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) || !!bqPaired(); } catch (_) { return !!bqPaired(); } }
+  function bqName(demo) { const p = bqPaired(); return (p && p.name) || (bqReal() ? '' : demo); }
+  function bqCity(demo) { const p = bqPaired(); return (p && p.location) || (bqReal() ? '' : demo); }
+
   function voucherHTML(av) {
     return `<div class="bq-avoir">
-      <div class="c b lg">MAISON MANSOUR</div>
-      <div class="c mut">12 rue Aïn Harrouda, Maarif, Casablanca<br>05 22 25 XX XX · propulsé par Kiwi</div>
+      <div class="c b lg">${esc((bqName('Maison Mansour') || 'Boutique').toUpperCase())}</div>
+      <div class="c mut">${bqReal() ? (bqCity('') ? esc(bqCity('')) + ' · ' : '') + 'propulsé par Kiwi' : '12 rue Aïn Harrouda, Maarif, Casablanca<br>05 22 25 XX XX · propulsé par Kiwi'}</div>
       <hr>
       <div class="c b">BON D'AVOIR</div>
       <div class="bq-avoir-amt">${fmtMAD(av.balance)}</div>
@@ -1361,7 +1369,7 @@
       <div class="row b"><span>VALABLE JUSQU'AU</span><span>${fmtDay(av.until)}</span></div>
       <hr>
       <div class="c">${barcode(av.code + '-MM', 26)}</div>
-      <div class="bq-avoir-code">${av.code} · MAISON MANSOUR</div>
+      <div class="bq-avoir-code">${av.code} · ${esc((bqName('Maison Mansour') || 'Boutique').toUpperCase())}</div>
       <div class="c mut" style="margin-top:6px;">Utilisable en caisse, en une ou plusieurs fois.<br>Ni repris, ni remboursé en espèces.</div>
     </div>`;
   }

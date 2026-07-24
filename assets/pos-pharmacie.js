@@ -278,10 +278,10 @@
       <aside class="ph-rail">
         <div class="ph-brand">kiwi<i></i></div>
         <div class="ph-venue">
-          <div class="ph-venue-name">Pharmacie Ibn Batouta
+          <div class="ph-venue-name">${esc(pvName('Pharmacie Ibn Batouta') || 'Pharmacie')}
             <span class="ph-venue-night"><i data-lucide="moon"></i>Garde</span>
           </div>
-          <div class="ph-venue-sub">Tanger · Centre<br>Le même Kiwi, <b>un seul compte</b>.</div>
+          <div class="ph-venue-sub">${pvReal() ? (esc(pvCity('')) || '') : 'Tanger · Centre'}<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="ph-nav" id="ph-nav">
           <button class="ph-nav-it on" data-ph-view="vente"><i data-lucide="pill"></i><span>Vente</span><b class="ph-nav-badge" id="ph-badge-cart"></b></button>
@@ -914,17 +914,25 @@
     openReceipt(t);
   }
 
+  // Real store identity from the 6-digit pairing / hosted session. A real pharmacy
+  // prints ITS OWN name + city (no demo "Pharmacie Ibn Batouta" / Bd Pasteur / the
+  // demo pharmacist). Local demo (unpaired localhost) unchanged.
+  function pvPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+  function pvReal()   { try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) || !!pvPaired(); } catch (_) { return !!pvPaired(); } }
+  function pvName(demo) { const p = pvPaired(); return (p && p.name) || (pvReal() ? '' : demo); }
+  function pvCity(demo) { const p = pvPaired(); return (p && p.location) || (pvReal() ? '' : demo); }
+
   function receiptHTML(t) {
     const split = ticketSplit();
     const p = t.patient;
     const m = ticketMut();
     const num = t.num;
     return `<div class="ph-receipt">
-      <div class="c b lg">PHARMACIE IBN BATOUTA</div>
-      <div class="c mut">Bd Pasteur, Tanger Centre<br>05 39 94 XX XX · propulsé par Kiwi</div>
+      <div class="c b lg">${esc((pvName('Pharmacie Ibn Batouta') || 'Pharmacie').toUpperCase())}</div>
+      <div class="c mut">${pvReal() ? (pvCity('') ? esc(pvCity('')) + ' · ' : '') + 'propulsé par Kiwi' : 'Bd Pasteur, Tanger Centre<br>05 39 94 XX XX · propulsé par Kiwi'}</div>
       <hr>
       <div class="row"><span>Ticket</span><span class="b">${num}</span></div>
-      <div class="row"><span>${fmtDT(new Date())}</span><span>Dr Wafae</span></div>
+      <div class="row"><span>${fmtDT(new Date())}</span><span>${pvReal() ? '' : 'Dr Wafae'}</span></div>
       ${p ? `<div class="row"><span>Patient</span><span>${esc(p.name)}</span></div>` : `<div class="row"><span>Client</span><span>Passage</span></div>`}
       ${p && p.mut !== 'sans' ? `<div class="row"><span>Mutuelle</span><span>${esc(m.label)}${p.aff ? ' · ' + esc(p.aff) : ''}</span></div>` : ''}
       ${t.medecin ? `<div class="row"><span>Prescripteur</span><span>${esc((MED[t.medecin] || {}).name || t.medecin)}</span></div>` : ''}

@@ -271,6 +271,13 @@
 
   let root = null;
 
+  // Real spa identity from the pairing / hosted session — a real spa shows its own
+  // name+city, never the demo "Spa Bahia". Local demo (unpaired) unchanged.
+  function pvPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+  function pvReal()   { try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) || !!pvPaired(); } catch (_) { return !!pvPaired(); } }
+  function pvName(demo) { const p = pvPaired(); return (p && p.name) || (pvReal() ? '' : demo); }
+  function pvCity(demo) { const p = pvPaired(); return (p && p.location) || (pvReal() ? '' : demo); }
+
   /* ═══════════════════════ MOUNT (appelé par le dispatcher) ═══════════════ */
   function mount(rootEl) {
     root = rootEl;
@@ -278,8 +285,8 @@
       <aside class="sp-rail">
         <div class="sp-brand">kiwi<i></i></div>
         <div class="sp-venue">
-          <div class="sp-venue-name">Spa Bahia</div>
-          <div class="sp-venue-sub">Marrakech · Hivernage<br>Le même Kiwi que <b>votre café</b>, un seul compte.</div>
+          <div class="sp-venue-name">${pvName('Spa Bahia') || 'Spa'}</div>
+          <div class="sp-venue-sub">${pvReal() ? (pvCity('') || '') : 'Marrakech · Hivernage'}<br>Le même Kiwi, un seul compte.</div>
         </div>
         <nav class="sp-nav" id="sp-nav">
           <button class="sp-nav-it on" data-sp-view="planning"><i data-lucide="calendar-clock"></i><span>Planning</span><b class="sp-nav-badge" id="sp-badge-plan"></b></button>
