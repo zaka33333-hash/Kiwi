@@ -2173,15 +2173,23 @@
     if (!v) return;
     const label = labelForVariant(pid, v);
     if (!label) { toast('Générez d\'abord un EAN-13'); return; }
-    window.KiwiBarcode.printLabels([label], { copies: 1 });
-    toast('Étiquette envoyée à l\'imprimante');
+    labelToast(window.KiwiBarcode.printLabels([label], { copies: 1 }), 'Étiquette');
   }
   function printProductLabels(pid) {
     const cat = catDB(); const d = cat.getProduct(pid); if (!d) return;
     const labels = d.variants.map((v) => labelForVariant(pid, v)).filter(Boolean);
     if (!labels.length) { toast('Aucun code à imprimer, générez au moins un EAN-13'); return; }
-    window.KiwiBarcode.printLabels(labels, { copies: 1 });
-    toast(`${labels.length} étiquette(s) envoyée(s) à l'imprimante`);
+    labelToast(window.KiwiBarcode.printLabels(labels, { copies: 1 }), `${labels.length} étiquette(s)`);
+  }
+  // Toast the true outcome of a print (thermal / browser / connect-a-printer),
+  // never a blanket "sent" — printLabels resolves with { ok, browser?, reason? }.
+  function labelToast(p, what) {
+    if (!p || !p.then) return;
+    p.then((res) => {
+      if (res && res.ok && !res.browser) toast(`${what} envoyée à l'imprimante`);
+      else if (res && res.browser) toast(`${what} prête à imprimer`);
+      // reason 'not-configured' → the connect-printer modal is open; stay silent.
+    });
   }
 
   window.KiwiPosDispatch.register({

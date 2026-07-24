@@ -223,21 +223,46 @@
            `<div class="kbl-bc">${svg}</div></div>`;
   }
 
-  // labels: [{ title, sub, price, code, format }]. opts: { copies }
-  function printLabels(labels, opts) {
-    opts = opts || {};
-    const copies = Math.max(1, opts.copies || 1);
-    const list = Array.isArray(labels) ? labels : [labels];
-    const items = [];
-    list.forEach((l) => { for (let i = 0; i < copies; i++) items.push(labelHTML(l)); });
+  // Browser fallback: paint a hidden print root and open the OS print sheet.
+  // Only reached when no thermal printer is paired, or a paired bridge is down.
+  function browserPrint(flat) {
     let root = document.getElementById('kbl-print-root');
     if (root) root.remove();
     root = document.createElement('div');
     root.id = 'kbl-print-root';
-    root.innerHTML = `<div class="kbl-sheet">${items.join('')}</div>`;
+    root.innerHTML = `<div class="kbl-sheet">${flat.map(labelHTML).join('')}</div>`;
     document.body.appendChild(root);
     ensurePrintCss();
     setTimeout(() => { try { window.print(); } catch (e) {} setTimeout(() => root.remove(), 600); }, 60);
+  }
+
+  // labels: [{ title, sub, price, code, format }]. opts: { copies }
+  // REAL path: when a thermal printer is paired (KiwiPrinter + KiwiEscPos), relay
+  // the ESC/POS label bytes to the Kiwi Printer Bridge — the same routing receipts
+  // use in assets/caisse-hardware.js. If that bridge is unreachable, fall soft to
+  // the browser print sheet so a label still comes out. When NO printer is paired,
+  // open the connect-a-printer modal instead of dumping the owner into the OS
+  // Save-as-PDF dialog (a 48 mm label on a Letter page reads as an empty sheet).
+  function printLabels(labels, opts) {
+    opts = opts || {};
+    const copies = Math.max(1, opts.copies || 1);
+    const list = (Array.isArray(labels) ? labels : [labels]).filter(Boolean);
+    const flat = [];
+    list.forEach((l) => { for (let i = 0; i < copies; i++) flat.push(l); });
+    if (!flat.length) return Promise.resolve({ ok: false, reason: 'no-labels' });
+
+    const KP = window.KiwiPrinter;
+    if (KP && KP.isConfigured() && window.KiwiEscPos) {
+      return KP.printLabels(flat).then((res) => {
+        if (res && res.ok) return res;
+        browserPrint(flat);                       // bridge down → fail soft
+        return res || { ok: false };
+      }, () => { browserPrint(flat); return { ok: false }; });
+    }
+    // No printer paired: guide the owner to connect one (real product flow).
+    if (KP && typeof KP.openSetup === 'function') { KP.openSetup(); return Promise.resolve({ ok: false, reason: 'not-configured' }); }
+    browserPrint(flat);
+    return Promise.resolve({ ok: true, browser: true });
   }
 
   const api = {
