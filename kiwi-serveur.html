@@ -3425,8 +3425,18 @@
       if (!svReal()) return;
       var nm = svName('Café Atlas'), city = svCity('Maarif · Casablanca');
       document.querySelectorAll('.ci-role, .profil-role').forEach(function (el) { var t = el.textContent.split('·')[0].trim(); el.textContent = nm ? (t + ' · ' + nm) : t; });
-      var rest = document.querySelector('.ci-restaurant'); if (rest && city) rest.textContent = city;
-      var sc = document.getElementById('kg-sc-meta'); if (sc && nm) sc.textContent = nm;
+      // Blank the demo city / store name even when we have no replacement — a real
+      // store with no paired location must NOT keep "Maarif · Casablanca" / "Café Atlas".
+      var rest = document.querySelector('.ci-restaurant'); if (rest) rest.textContent = city || '';
+      var sc = document.getElementById('kg-sc-meta'); if (sc) sc.textContent = nm || '';
+      // Static demo staff-name nodes rendered before the role/clock-in JS runs.
+      var g1 = document.getElementById('greet-line1'); if (g1) g1.textContent = 'Slm,';
+      document.querySelectorAll('.pin-greeting').forEach(function (el) { el.textContent = 'Slm'; });
+      var cg = document.querySelector('.ci-greeting'); if (cg) cg.innerHTML = 'Slm <em>bon service</em>';
+      var tb = document.querySelector('.tb-name'); if (tb) tb.textContent = 'Serveur';
+      var pn = document.querySelector('.profil-name'); if (pn) pn.textContent = 'Serveur';
+      var tbAv = document.querySelector('.tb-avatar'); if (tbAv) tbAv.textContent = 'S';
+      var pAv = document.querySelector('.profil-avatar'); if (pAv) pAv.textContent = 'S';
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', svApplyIdentity); else svApplyIdentity();
 
@@ -3788,6 +3798,31 @@
     };
     let activeRole = ROLES.serveur;
 
+    /* ── Real / paired store → neutralize ALL demo staff + floor state ──────────
+       Mirrors the caisse's applyStoreIdentity: a real store's waiter app opens
+       with an empty floor and generic staff, never the Café Atlas demo roster
+       (Yassir / Mehdi / Karim / Sofia) or pre-seeded tables/orders. Local demo
+       (unpaired localhost) is untouched — svReal() is false there. */
+    if (svReal()) {
+      // Floor: keep the table layout but clear every occupancy (empty register).
+      Object.keys(tables).forEach(function (id) { tables[id].status = 'khawya'; tables[id].elapsed = 0; });
+      // No pre-seeded orders on a clean floor.
+      Object.keys(seedOrders).forEach(function (id) { delete seedOrders[id]; });
+      // Roster: generic, all on-duty (drops the "en pause" colleague alert too).
+      var _svGen = { yassir: 'Serveur', mehdi: 'Serveur 2', karim: 'Serveur 3', sofia: 'Serveur 4' };
+      Object.keys(servers).forEach(function (k) {
+        servers[k].name = _svGen[k] || 'Serveur';
+        servers[k].initials = 'S';
+        servers[k].status = 'on-duty';
+      });
+      // Role identity: generic when no operator-managed PIN personalizes it. A
+      // managed PIN still wins via resolveRole()'s Object.assign.
+      ROLES.serveur.id = 'serveur'; ROLES.serveur.name = 'Serveur';
+      ROLES.serveur.fullName = 'Serveur'; ROLES.serveur.initials = 'S';
+      ROLES.plongeur.name = 'Plongeur'; ROLES.plongeur.fullName = 'Plongeur';
+      ROLES.plongeur.initials = 'P';
+    }
+
     // Managed PINs (from the operator console via /api/config) win over the demo
     // rule, additively — if none match, behavior is exactly as before. A managed
     // PIN's role picks plongeur vs serveur, and its name personalizes the greeting.
@@ -4050,7 +4085,7 @@
     function showWelcomeBanner() {
       const myCount = Object.keys(tables).filter(id => tables[id].server === currentUser).length;
       const paused = Object.entries(servers).filter(([id, s]) => id !== currentUser && s.status === 'on-pause');
-      $('#wb-line1').textContent = `Bonjour Yassir!`;
+      $('#wb-line1').textContent = `Bonjour ${activeRole.name}!`;
       const tod = timeOfDay();
       let line2 = `${myCount} tables ${tod} · bon service`;
       if (paused.length > 0) {

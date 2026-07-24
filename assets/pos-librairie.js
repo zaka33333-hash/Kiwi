@@ -1241,7 +1241,7 @@
     const cu = cmdCust(c);
     const first = cu.school ? cu.name : cu.name.split(' ')[0];
     const due = cmdDue(c);
-    return `Sba7 lkhir ${first}, bonne nouvelle, votre commande « ${c.title} » est arrivée à la Librairie Al Boughaz.`
+    return `Sba7 lkhir ${first}, bonne nouvelle, votre commande « ${c.title} » est arrivée à ${pvName('la Librairie Al Boughaz') || 'la librairie'}.`
       + `\nJe vous la garde au comptoir. Passez quand vous voulez, du lundi au samedi jusqu'à 20h00.`
       + (due > 0 ? `\nSolde à régler au retrait : ${due} MAD.` : (c.acompte ? `\nDéjà réglée, il ne reste rien à payer.` : ''))
       + `\n— envoyé via Kiwi`;

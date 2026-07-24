@@ -109,6 +109,7 @@
       // Tab 4
       ordTitle: 'Commandes en cours',
       ordNew: '+ Nouvelle commande',
+      ordEmpty: 'Aucune commande pour le moment · créez votre première commande fournisseur.',
       ordStatActive: 'COMMANDES EN COURS',
       ordStatPending: 'EN ATTENTE LIVRAISON CETTE SEMAINE',
       ordStatMonth: 'COMMANDES CE MOIS',
@@ -303,6 +304,7 @@
       aiPriceUpB: 'Coopérative Taliouine (saffron +12.4%), Marché Central Port (fish +8.4%), and Fruits Premium (avocados +6.8%) raised their rates. Total estimated margin impact: −0.8% of revenue, around 6,600 MAD/month.',
       aiPriceUpA: '→ Negotiating a guaranteed volume with Marché Central could stabilize the fish price. Diversify with Marché El Joutia as a secondary supplier for fruits.',
       ordTitle: 'Active orders', ordNew: '+ New order',
+      ordEmpty: 'No orders yet · create your first supplier order.',
       ordStatActive: 'ACTIVE ORDERS', ordStatPending: 'PENDING DELIVERY THIS WEEK', ordStatMonth: 'ORDERS THIS MONTH',
       ordHistory: 'Order history',
       stConfirmed: 'Confirmed', stPending: 'Awaiting confirmation', stRecurring: 'Recurring · auto',
@@ -477,6 +479,7 @@
       aiPriceUpB: 'تعاونية تاليوين (زعفران +12,4%)، المرسى المركزي · الميناء (أسماك +8,4%)، وفروت بريميوم (أفوكا +6,8%) رفعوا أسعارهم. التأثير الكلي المقدر على هامشك: −0,8% من رقم الأعمال، أي حوالي 6 600 درهم/شهر.',
       aiPriceUpA: '→ التفاوض على حجم مضمون مع المرسى المركزي قد يثبت سعر السمك. التنويع مع سوق الجوطية كمورد ثانوي للفواكه.',
       ordTitle: 'الطلبيات الجارية', ordNew: '+ طلبية جديدة',
+      ordEmpty: 'لا توجد طلبيات بعد · أنشئ أول طلبية مورّد.',
       ordStatActive: 'الطلبيات الجارية', ordStatPending: 'في انتظار التسليم هذا الأسبوع', ordStatMonth: 'الطلبيات هذا الشهر',
       ordHistory: 'سجل الطلبيات',
       stConfirmed: 'مؤكدة', stPending: 'في انتظار التأكيد', stRecurring: 'متكررة · تلقائية',
@@ -1095,6 +1098,9 @@
 
   /* Day-of-week → suppliers delivering. Demo data — Sun=0..Sat=6 */
   function computeDeliveriesForDay(dow) {
+    // Real / custom store → no demo supplier deliveries (this is the single
+    // source for both the delivery strip and the "next delivery" KPI).
+    if (stShowReal()) return [];
     const wkdayMap = {
       0: [], // Sun — most closed
       1: [{ name: 'Centrale Danone', time: '07h', cost: 1240 }, { name: 'Avicole Atlas', time: '08h', cost: 480 }, { name: 'Marché Inezgane', time: '06h', cost: 1840 }], // Mon
@@ -1425,6 +1431,21 @@
    * TAB 4 · Commandes
    * ═══════════════════════════════════════════════════════════════════════ */
   function renderOrders() {
+    /* Real / custom store → the demo purchase-orders (Boucherie Errazi, Centrale
+       Danone, "47 orders this month"…) are venue-independent hardcoded data, so
+       gate the whole tab to a clean empty state. Local demo keeps the fixtures. */
+    if (stShowReal()) {
+      return `
+      <div class="st-section">
+        <div class="st-section-head" style="justify-content:space-between;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <h3>${esc(t('ordTitle'))}</h3>
+          </div>
+          <button class="st-btn primary" type="button" data-action="stock-new-order">${esc(t('ordNew'))}</button>
+        </div>
+        <div style="color:var(--n-500); font-size:13px; padding:14px 2px;">${esc(t('ordEmpty'))}</div>
+      </div>`;
+    }
     return `
       <div class="st-section">
         <div class="st-section-head" style="justify-content:space-between;">

@@ -195,14 +195,25 @@
     }, 940);
   }
 
+  function pvPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+  function escGreet(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
   function entryFlash(spec, done) {
     const g = document.createElement('div');
     g.className = 'kiwi-greet';
     g.setAttribute('aria-hidden', 'true');
     const greet = spec.greet || {};
+    /* Real / paired store → the 2s unlock flash must not name a demo employee
+       ("Sba7 lkhir Salma / Reda") or a demo venue ("Maison Mansour · …"). Show
+       a neutral greeting, subtitled with the real store name when we have it.
+       Local demo (unpaired localhost) keeps the full flavoured greeting. */
+    const p = pvPaired();
+    const real = !!p || (window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal());
+    const line1 = real ? 'Sba7 lkhir,' : (greet.line1 || 'Sba7 lkhir,');
+    const sub   = real ? (p && p.name ? escGreet(p.name) : '') : (greet.sub || '');
     g.innerHTML = `<div class="kiwi-greet-inner">
-      <h1>${greet.line1 || 'Sba7 lkhir,'} <em>${greet.em || 'marhba.'}</em></h1>
-      <div class="kiwi-greet-sub">${greet.sub || ''}</div>
+      <h1>${line1} <em>${greet.em || 'marhba.'}</em></h1>
+      <div class="kiwi-greet-sub">${sub}</div>
     </div>`;
     document.body.appendChild(g);
     requestAnimationFrame(() => { g.classList.add('is-visible'); g.setAttribute('aria-hidden', 'false'); });

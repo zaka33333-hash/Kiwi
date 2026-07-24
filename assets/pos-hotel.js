@@ -28,6 +28,14 @@
   const DAYS    = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
   const MONTHS  = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   const pad2    = (n) => String(n).padStart(2, '0');
+
+  /* Real / paired-store identity. On a real store (hosted OR paired to a venue)
+   * the demo name/address/phone ("Riad Yasmina", "7 Rue de la Kasbah…") must
+   * NEVER print or render. Local demo (unpaired localhost) keeps the demo. */
+  function pvPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+  function pvReal()   { try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) || !!pvPaired(); } catch (_) { return !!pvPaired(); } }
+  function pvName(demo) { const p = pvPaired(); return (p && p.name) || (pvReal() ? '' : demo); }
+  function pvCity(demo) { const p = pvPaired(); return (p && p.location) || (pvReal() ? '' : demo); }
   const fmtDay  = (d) => `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
   const nowHM   = () => { const d = new Date(); return `${pad2(d.getHours())}h${pad2(d.getMinutes())}`; };
   const fmtDT   = (d) => `${fmtDay(d)} · ${pad2(d.getHours())}h${pad2(d.getMinutes())}`;
@@ -234,8 +242,8 @@
       <aside class="ht-rail">
         <div class="ht-brand">kiwi<i></i></div>
         <div class="ht-venue">
-          <div class="ht-venue-name">Riad Yasmina</div>
-          <div class="ht-venue-sub">Tanger · Kasbah<br>Le même Kiwi, <b>un seul compte</b>.</div>
+          <div class="ht-venue-name">${esc(pvName('Riad Yasmina') || 'Hôtel')}</div>
+          <div class="ht-venue-sub">${pvReal() ? (esc(pvCity('')) || '') : 'Tanger · Kasbah'}<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="ht-nav" id="ht-nav">
           <button class="ht-nav-it on" data-ht-view="reception"><i data-lucide="layout-dashboard"></i><span>Réception</span><b class="ht-nav-badge" id="ht-badge-rec"></b></button>
@@ -1112,8 +1120,8 @@
     const t = stayTotals(st);
     const num = provisional ? `PRO-${st.room}-${pad2(new Date().getDate())}` : `F-${factureSeq}`;
     return `<div class="ht-facture">
-      <div class="c b lg">RIAD YASMINA</div>
-      <div class="c mut">7, Rue de la Kasbah, Tanger<br>05 39 94 XX XX · propulsé par Kiwi</div>
+      <div class="c b lg">${esc((pvName('Riad Yasmina') || 'Hôtel').toUpperCase())}</div>
+      <div class="c mut">${pvReal() ? (pvCity('') ? esc(pvCity('')) + ' · ' : '') + 'propulsé par Kiwi' : '7, Rue de la Kasbah, Tanger<br>05 39 94 XX XX · propulsé par Kiwi'}</div>
       <hr>
       <div class="row"><span>${provisional ? 'Note provisoire' : 'Facture'}</span><span class="b">${num}</span></div>
       <div class="row"><span>Chambre</span><span>Ch. ${st.room} · ${esc(roomName(st.room))}</span></div>

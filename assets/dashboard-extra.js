@@ -297,7 +297,7 @@
 
     /* A merchant-created venue has no sales yet — show what this drawer
      * WILL compute instead of leaking Café Atlas's product margins. */
-    if (window.KiwiVenue?.isCustom?.()) {
+    if (window.KiwiVenue?.isCustom?.() || window.KiwiEnv?.isReal?.()) {
       const T = ({
         fr: { s: 'Compte en démarrage', h: 'Vos marges se calculent toutes seules', d: 'Dès vos premières ventes, Kiwi croise prix et coûts pour afficher la marge réelle de chaque produit, et signaler ceux dont le prix ou le coût est à revoir.' },
         en: { s: 'Account starting up', h: 'Your margins compute themselves', d: 'From your first sales, Kiwi crosses prices and costs to show each product\'s real margin, and flags the ones whose price or cost needs a second look.' },
@@ -499,7 +499,8 @@
     /* Client (custom) venue: NEVER surface another business's connected tools,
      * sync times or IBAN (Café Atlas'). Present everything as available-to-
      * connect, with a generic hero and a safe bank description. */
-    const isCustom = !!(window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom());
+    const isCustom = !!(window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom())
+      || !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal());
     if (isCustom) {
       const heroT = ({ fr: 'Connecteurs', en: 'Connectors', ar: 'الموصلات' })[lang] || 'Connecteurs';
       const safeBank = ({ fr: 'Rapprochement bancaire automatique', en: 'Automatic bank reconciliation', ar: 'تسوية بنكية تلقائية' })[lang];

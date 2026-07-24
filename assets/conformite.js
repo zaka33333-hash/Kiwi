@@ -275,7 +275,7 @@
   let hygChecked = {};   // id -> { by, at }
   /* Conformité venue helpers. */
   const currentVenueId = () => (window.KiwiVenue && window.KiwiVenue.getVenue && window.KiwiVenue.getVenue()) || 'cafeAtlas';
-  const venueName = (v) => (window.KiwiVenue && window.KiwiVenue.getVenueData?.(v))?.name || 'Café Atlas';
+  const venueName = (v) => (window.KiwiVenue && window.KiwiVenue.getVenueData?.(v))?.name || (cfShowReal(v) ? '' : 'Café Atlas');
 
   /* ═══════════════════════════════════════════════════════════════════════
    * TAB 1 · CLÔTURE (Z) — end-of-day cash reconciliation
@@ -909,7 +909,7 @@
       currentTab === 'z'   ? (real ? cfEmpty() : zHtml()) :
       currentTab === 'hyg' ? (real ? cfEmpty() : hygHtml()) :
       currentTab === 'eq'  ? (real ? cfEmpty() : eqHtml()) :
-      currentTab === 'doc' ? docHtml() : '';
+      currentTab === 'doc' ? (real ? cfEmpty() : docHtml()) : '';
     root.innerHTML = `
       <div class="cf-page">
         <div class="cf-head">

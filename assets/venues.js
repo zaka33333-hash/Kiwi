@@ -1277,6 +1277,35 @@
     return true;
   }
 
+  /* Synthesize a single EMPTY "own" venue for a real merchant who is signed in /
+   * onboarded but has NONE of their own venues cached in this browser (fresh
+   * device, cleared storage, or a stale kiwiOnboarded='1' with no kiwiVenue).
+   * Without this, init() used to fall through to DEFAULT_VENUE = 'cafeAtlas' and
+   * the whole dashboard rendered the Café Atlas demo (its KPIs, ICE footer,
+   * suppliers, benchmarks…). An 'own' custom venue makes isCustom() true, so
+   * every demo surface zeroes out. Unlike applyScopedVenue this is NOT operator
+   * God-mode — scopedActive stays false so the onboarding CTA can still show.
+   * The name comes from the real session (KiwiMe) when known; identity.js /
+   * onboarding overwrite it once the store is set up. Returns the venue id. */
+  function ensureOwnEmptyVenue() {
+    const me = window.KiwiMe || {};
+    const name = String(me.business || me.name || '').trim() || 'Mon établissement';
+    const base = SUBTYPE_BASE[me.type] ||
+      (TYPE_BASES.indexOf(me.type) >= 0 ? me.type : 'restaurant');
+    const TYPE_LABELS = { restaurant: 'Restaurant', boutique: 'Boutique', spa: 'Spa', hotel: 'Hôtel' };
+    VENUES.own = {
+      id: 'own', name, location: '',
+      fullDisplay: name,
+      type: base, typeLabel: TYPE_LABELS[base] || 'Restaurant',
+      subtype: '', profileInfo: null,
+      siblings: '', status: 'En service', ice: '—',
+      txCount: 0, staffCount: 0, custom: true,
+      hours: '', methods: '', goal: 0,
+    };
+    customIds.add('own');   // zeroed-data custom path (never persisted)
+    return 'own';
+  }
+
   function setVenue(id) {
     if (!VALID.includes(id) && !customIds.has(id)) return;
     if (id === currentVenue) return;
@@ -2803,8 +2832,18 @@
          kiwiVenue=cafeAtlas persisted by an earlier (broken) session; heal it so
          "my boutique opens as Café Atlas with demo numbers" can't happen. */
       const firstCustom = [...customIds][0] || null;
-      currentVenue = customIds.has(stored) ? stored : (firstCustom || DEFAULT_VENUE);
-      if (currentVenue !== stored) { try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {} }
+      if (customIds.has(stored)) {
+        currentVenue = stored;
+      } else if (firstCustom) {
+        currentVenue = firstCustom;
+        try { localStorage.setItem(STORAGE_KEY, currentVenue); } catch (_) {}
+      } else {
+        /* No own venue cached → synthesize an EMPTY one. NEVER DEFAULT_VENUE
+           (Café Atlas): that was the root leak — a real merchant on a fresh
+           device saw the full demo. Transient, like the scoped path; not
+           persisted so a later real venue cleanly takes over. */
+        currentVenue = ensureOwnEmptyVenue();
+      }
     } else {
       currentVenue = (REAL_VENUES.includes(stored) || customIds.has(stored)) ? stored : DEFAULT_VENUE;
     }

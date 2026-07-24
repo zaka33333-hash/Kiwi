@@ -1278,11 +1278,17 @@
               <span class="ct">cette semaine</span>
             </div>
             <div class="ph-degarde">
-              ${PHARMA_GARDE.map((ph) => `<div class="ph-degarde-row ${ph.me ? 'is-me' : ''}">
+              ${PHARMA_GARDE.map((ph) => {
+                /* The "VOUS" row is the store's own identity — on a real store it
+                   must be the paired pharmacy, never the demo "Ibn Batouta". */
+                const nm = (ph.me && pvReal()) ? (pvName('') || 'Votre pharmacie') : ph.name;
+                const zn = (ph.me && pvReal()) ? (pvCity('') || '') : ph.zone;
+                return `<div class="ph-degarde-row ${ph.me ? 'is-me' : ''}">
                 <span class="ic"><i data-lucide="cross"></i></span>
-                <span class="l"><b>${esc(ph.name)} ${ph.me ? '<span class="ph-me-chip">VOUS</span>' : ''}</b><span>${esc(ph.zone)}</span></span>
+                <span class="l"><b>${esc(nm)} ${ph.me ? '<span class="ph-me-chip">VOUS</span>' : ''}</b><span>${esc(zn)}</span></span>
                 <span class="zone">${ph.me ? 'nuit' : '—'}</span>
-              </div>`).join('')}
+              </div>`;
+              }).join('')}
             </div>
           </div>
         </div>

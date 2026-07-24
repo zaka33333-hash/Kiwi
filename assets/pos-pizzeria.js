@@ -26,6 +26,14 @@
   const icons  = () => { if (window.lucide) try { lucide.createIcons(); } catch (e) {} };
   const lens   = () => { if (window.KiwiLens) try { KiwiLens.rescan(); } catch (e) {} };
   const pad2   = (n) => String(n).padStart(2, '0');
+
+  /* Real / paired-store identity — a real store never shows the demo name
+   * ("Pizzeria La Marsa"). Local demo (unpaired localhost) keeps it. */
+  function pvPaired() { try { return JSON.parse(localStorage.getItem('kiwiPairedVenue') || 'null'); } catch (_) { return null; } }
+  function pvReal()   { try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) || !!pvPaired(); } catch (_) { return !!pvPaired(); } }
+  function pvName(demo) { const p = pvPaired(); return (p && p.name) || (pvReal() ? '' : demo); }
+  function pvCity(demo) { const p = pvPaired(); return (p && p.location) || (pvReal() ? '' : demo); }
+
   const MIN    = 60 * 1000;
   const fmtMS  = (ms) => { const t = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(t / 60)}:${pad2(t % 60)}`; };
   const fmtClock = (ts) => { const d = new Date(ts); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
@@ -370,8 +378,8 @@
       <aside class="pz-rail">
         <div class="pz-brand">kiwi<i></i></div>
         <div class="pz-venue">
-          <div class="pz-venue-name">Pizzeria La Marsa</div>
-          <div class="pz-venue-sub">Tanger · Marina<br>Le même Kiwi, <b>un seul compte</b>.</div>
+          <div class="pz-venue-name">${esc(pvName('Pizzeria La Marsa') || 'Pizzeria')}</div>
+          <div class="pz-venue-sub">${pvReal() ? (esc(pvCity('')) || '') : 'Tanger · Marina'}<br>Le même Kiwi, <b>un seul compte</b>.</div>
         </div>
         <nav class="pz-nav" id="pz-nav">
           <button class="pz-nav-it on" data-pz-view="carte"><i data-lucide="pizza"></i><span>Carte</span></button>
