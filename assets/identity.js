@@ -56,6 +56,39 @@
     }
   }
 
+  function isRealSession() {
+    try { return !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()); } catch (_) { return false; }
+  }
+  function venueLabel() {
+    try {
+      var vd = window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && window.KiwiVenue.getCurrentVenueData();
+      if (vd && (vd.fullDisplay || vd.name)) return vd.fullDisplay || vd.name;
+    } catch (_) {}
+    return '';
+  }
+
+  /* A real (hosted) session with NO signed-in account still must never show the
+   * demo identity ("Rachid Benhima" / "Café Atlas"). Drop the demo name from the
+   * greetings (hero + entry flash) and show the venue label ("Mon établissement")
+   * in the sidebar/subtext instead. Never runs on the local demo (isReal false). */
+  function neutralize() {
+    var biz = venueLabel();
+    var greets = document.querySelectorAll('[data-i18n="dash.hello"], .greet-text, .kiwi-greet h1 > span:not(.em-clip)');
+    for (var i = 0; i < greets.length; i++) { greets[i].textContent = 'Bonjour,'; if (greets[i].removeAttribute) greets[i].removeAttribute('data-i18n'); }
+    var subs = document.querySelectorAll('[data-kiwi-greet-sub], .kiwi-greet-sub');
+    for (var s = 0; s < subs.length; s++) subs[s].textContent = biz ? (biz + ' · service ouvert') : 'service ouvert';
+    var nameEl = document.querySelector('.merchant .n');
+    if (nameEl) nameEl.textContent = biz || 'Mon établissement';
+    var av = document.querySelector('.merchant .avatar');
+    if (av) av.textContent = initialsOf(biz) || '·';
+  }
+  function runNeutral() {
+    var go = function () { if (isRealSession()) neutralize(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+    else go();
+    setTimeout(go, 700);   // re-apply after the venue engine + entry-flash render
+  }
+
   // Drive the venue engine so the switcher/header show the scoped client, not the
   // operator's own local venues. Retried alongside the DOM patch for async nav.
   function applyScopedVenue(label, type) {
@@ -104,10 +137,17 @@
   var slug = scopedMerchant();
   var meUrl = '/api/me' + (slug ? '?merchant=' + encodeURIComponent(slug) : '');
 
+  // Neutralize the demo identity up front on any REAL session — this must not
+  // depend on /api/me resolving (offline, missing endpoint, or a service worker
+  // that stalls the request would otherwise leave "Rachid / Café Atlas" showing).
+  // Idempotent: if a real account or operator scope resolves below, apply()
+  // overwrites these with the real identity. Local demo → isReal false → no-op.
+  runNeutral();
+
   fetch(meUrl, { headers: { Accept: 'application/json' } })
     .then(function (r) { return (r && r.ok) ? r.json() : null; })
     .then(function (me) {
-      if (!me) return;
+      if (!me) { runNeutral(); return; }
 
       // Operator (God mode) scoped into a client. Show that client — its real
       // identity if an account exists, else the slug as a readable label — and
@@ -129,7 +169,7 @@
       }
 
       // A real merchant on their own device.
-      if (!me.authenticated) return;   // demo / staff → leave demo identity
+      if (!me.authenticated) { runNeutral(); return; }   // hosted-no-account → neutral, not demo; local demo → isReal false, untouched
       var id = {
         name: (me.name || '').trim(),
         business: (me.business || '').trim(),
@@ -143,5 +183,5 @@
       window.KiwiMe = id;
       run(id, false);
     })
-    .catch(function () { /* offline / missing endpoint → keep whatever is shown */ });
+    .catch(function () { /* offline / missing endpoint → keep the demo locally, but a real (hosted) session still gets neutralized */ runNeutral(); });
 })();
