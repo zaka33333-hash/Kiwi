@@ -1,20 +1,26 @@
 # AI_HANDOFF.md — current-state brief for the next agent
 
 > Read this after `CLAUDE.md` (operating rules) and `HANDOFF.md` (deep history/architecture).
-> This file is the **"what's true right now and what hurts"** brief — written so a fresh
-> session has the same working context as the one that just ended (June 2026).
+> This file is the **"what's true right now and what hurts"** brief. **Kiwi is now a REAL,
+> working product with a LIVE backend — not a mock/pitch artifact** (updated Jul 2026). The
+> long changelog in §8 predates the backend; where §1/§3/§7/§9 below conflict with older
+> prose, the updated sections are the current truth.
 
 ---
 
 ## 1. What Kiwi is (in one paragraph)
 
-Kiwi is a **Moroccan merchant operating system**, POS-first. This repo is a **pitch/demo
-artifact** — vanilla HTML/CSS/JS, **no build step, no framework, no backend** (all data is
-mocked client-side and persisted in `localStorage`). It's **trilingual: FR / EN / AR with
-real RTL**. The flagship surface is `dashboard.html` (the merchant dashboard for a demo
-café group, "Café Atlas"). The public site is `index.html`. Treat it as something that has
-to **look and demo flawlessly to investors and pilot cafés** — design and polish are part
-of the sale.
+Kiwi is a **Moroccan merchant operating system**, POS-first, and it is now a **real,
+working product** — no longer a pitch/demo artifact. The **frontend** is vanilla
+HTML/CSS/JS (no build step, no framework) served as a static site, but a **real backend is
+LIVE**: **Cloudflare Pages Functions + D1** (`functions/`, `schema.sql`) power real
+accounts/auth, the passcode + operator gates, Live Link sales, the operator console, and
+caisse↔dashboard pairing — plus a real native **Kiwi Printer Bridge** (`bridge/`) for ESC/POS
+thermal printing. Client state still lives in `localStorage`; server-authoritative data lives
+in D1. It's **trilingual: FR / EN / AR with real RTL**. The flagship surface is
+`dashboard.html`; **"Café Atlas" is only the DEMO tenant** (shown to a session with no real
+account — never leak it to a real merchant). The public site is `index.html`. It must still
+**demo flawlessly to investors and pilot cafés** — and now also **work for real merchants**.
 
 ## 2. Business model (Phase 1 — POS SaaS, four tiers)
 
@@ -36,8 +42,10 @@ hero KPI, the editorial pricing manifesto, JSON-LD offers, FAQ, meta, priceRange
 
 ## 3. Stack & conventions (the stuff that bites you)
 
-- **Vanilla, locked.** No React/Next/bundler. Don't migrate. IIFE modules registering into
-  `window.Kiwi.handlers`.
+- **Vanilla frontend (by choice, not because it's a mock).** No React/Next/bundler for the
+  UI — keep it that way unless a real need forces otherwise (raise it first). IIFE modules
+  registering into `window.Kiwi.handlers`. Real server/native code lives in `functions/`
+  (Cloudflare Pages Functions + D1) and `bridge/` (the printer bridge) — see CLAUDE.md §2.
 - **Global click delegation** (`interactive.js`): `[data-action="x"]` `[data-arg="y"]` →
   `handlers['x'](element, 'y')`.
 - **i18n**: `data-i18n="key"` on DOM (FR captured from DOM, EN/AR in a `T` dict in
@@ -63,6 +71,12 @@ hero KPI, the editorial pricing manifesto, JSON-LD offers, FAQ, meta, priceRange
   `Workflow` scripts).
 
 ## 4. Passcodes (the lock screen on every load)
+
+> **Hosted vs local:** on the LIVE site a real **server-side account gate** now sits in
+> FRONT of everything (`functions/_middleware.js`: email/password accounts, the staff
+> passcode bypass, and the operator console) — see `AUTH.md`/`ADMIN.md`. The client-side
+> 4-digit PIN below is the *demo/local* layer; on the hosted site a real merchant reaches
+> their OWN store, and **"any 4-digit → Café Atlas" must never leak to a real account.**
 
 `dashboard.html` shows a 4-digit PIN gate every session (`paintCells()` ~line 5622). Codes:
 `0000`→onboard, `0505`→marketing tease, `0909`→manager role (restricted sidebar), `1111`→
@@ -120,25 +134,27 @@ The owner's command center, fully editable, trilingual, light+dark correct:
   self-serve cancellation**, per policy).
 - Also: `openBilling()` and `openHelp()` are real pages (commit `83045b7`).
 
-## 7. The two dev tracks + git workflow (READ THIS)
+## 7. Git workflow + deploy (READ THIS)
 
-- **Two collaborators.** "Us" work on branch **`dashboard-motion`** (agent/growth/dark-mode/
-  design/account/pricing). The **partner (badro)** built the **"cafe-atlas" track** on
-  `main` (split-bill, video tiles, and the modules `finance.js`, `stock.js`, `team.js`,
-  `conformite.js`, `marketing-suite-tease.js`, plus `kiwi-order.html` (the white-label
-  self-order app, ex-`cafe-atlas.html` — now **Kiwi Order**)/`kiwi-caisse.html`/
-  `kiwi-serveur.html`). The two tracks were **merged** this session (`f0a312c`) — both fully
-  preserved. Safety backups exist locally: `backup/dashboard-motion-pre-merge`,
-  `refs/backup/origin-main-pre-merge`.
-- **Remotes:** `origin` = `github.com/badro99/Kiwi` (shared, the one that matters);
-  `fork` = `github.com/zaka33333-hash/Kiwi`.
-- **Commit rule (from CLAUDE.md):** commit + push after **every** edit, no asking. Stage
-  **specific paths** (never `git add -A`). Message format `<scope> · <what changed>` + footer
-  `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`. **Land every commit
-  on BOTH `origin/dashboard-motion` AND `origin/main`** (fast-forward main to the new commit;
-  the in-session pattern is `git push origin <sha>:main`). The local mirror
-  `/Users/badrosonair/Documents/kiwi` referenced in CLAUDE.md **does NOT exist on this
-  machine — skip it.** Don't commit secrets.
+- **Everyone works on `main` now.** The old `dashboard-motion` vs `cafe-atlas` two-track
+  split is history (long since merged). A partner and/or a second agent often push to `main`
+  **in parallel, in this same working copy**, sometimes leaving **uncommitted WIP** in the
+  tree. So: stage **specific paths, never `git add -A`**, and **read `git diff --cached`
+  before committing** so you never sweep up their in-progress edits. If a file you edited also
+  carries their unstaged changes, isolate your hunk (`git restore --staged <f>` then
+  `git apply --cached` a patch of only your hunk).
+- **Two GitHub remotes — every `main` commit must land on BOTH. Their remote NAMES reshuffle
+  each session, so match by URL, not name:**
+  - `github.com/zaka33333-hash/Kiwi` → **Cloudflare Pages `kiwi-maroc`** →
+    kiwi-maroc.pages.dev / app.kiwi.ma. **Auto-deploys on push** — this is where the live
+    product AND the demo run. (This is the one that must never go stale.)
+  - `github.com/badro99/Kiwi` → **GitHub Pages + the business partner's copy.**
+  Push `main` to both by URL. If a push is rejected: `git fetch`, inspect `HEAD..<remote>/main`,
+  integrate (**never force**), re-run `tools/check.js`, push both.
+- **No `/Users/badrosonair/Documents/kiwi` mirror exists on this machine** — ignore any
+  instruction (incl. older CLAUDE.md prose) to push there.
+- **Commit rule:** commit + push after every edit, no asking. Message `<scope> · <what
+  changed>` + `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`. Never commit secrets.
 
 ## 8. What this session shipped (newest first)
 
@@ -448,12 +464,12 @@ helper**, stock scroll-lock-leak fix.
 
 ## 9. Honest quality state & what's left
 
-**As a demo: ~9.5/10. As a production foundation: ~7** after the push-to-10 session
-(locked vanilla stack and monolith files remain by design until a backend lands — that's
-the ceiling, not negligence). Scorecard (Jun 9 night): design 10, feature breadth 9.5,
-honesty 10, docs 10, i18n 9.5, dark mode 9.5, a11y 9, security 8.5, git hygiene 9.5
-(tools/push-both.sh), architecture 7 (first safety net exists now), perf 7.5, production
-readiness 3.5 (no backend — deliberate). Open items, all small:
+**As a demo: ~9.5/10. As a production foundation: improving.** The backend has since landed
+(Cloudflare D1 + Pages Functions: real accounts/auth, Live Link sales, operator console,
+caisse↔dashboard pairing; plus the Kiwi Printer Bridge for real thermal printing). The old
+"no backend — deliberate, that's the ceiling" framing is **obsolete** — production-readiness
+is now an active work item, not an accepted 3.5. The vanilla **frontend** stays by choice.
+Open items:
 - **EN home-page accent scan returns zero leaks.** Standalone partner pages (kiwi-order,
   kiwi-caisse, kiwi-serveur) have their own inline dicts — out of i18n.js scope by design.
 - **`background:var(--ink)` debt:** ~55 instances inventoried by tools/check.js as a
