@@ -107,30 +107,52 @@
   `;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
 
-  const crmReal = () => { try { return !!(window.KiwiEnv?.isReal?.() || window.KiwiVenue?.isCustom?.()); } catch (_) { return false; } };
+  /* Live client book (assets/clients-store.js) — real, segmented data for THIS
+   * merchant when a store has been paired and clients captured on the caisse.
+   * Falls back to the demo SEG/GUESTS above so the Café Atlas pitch stays intact. */
+  const SEG_COLORS = { reg: 'var(--atlas)', vip: '#C99A2E', new: '#3E78C9', win: '#C0492F' };
+  // A genuinely real tenant: paired to a store, or a custom (onboarding-created)
+  // venue. Demo venues (Café Atlas & co.) are NOT real → they keep the sample book.
+  function isRealTenant() {
+    try { if (window.KiwiEnv && KiwiEnv.isReal && KiwiEnv.isReal()) return true; } catch (_) {} // hosted / signed-in → always real
+    try { if (localStorage.getItem('kiwiPaired') === '1' && localStorage.getItem('kiwiLiveMerchant')) return true; } catch (_) {}
+    try { if (window.KiwiVenue && KiwiVenue.isCustom && KiwiVenue.isCustom()) return true; } catch (_) {}
+    return false;
+  }
+  function realData() {
+    const KCl = window.KiwiClients;
+    if (!KCl || !KCl.hasBook || !KCl.hasBook()) return null; // no book at all → demo
+    const clients = KCl.list();
+    // Keep the pitch demo intact: a demo venue with no captured clients shows the
+    // sample book. A real/paired store shows its own data — even when still empty.
+    if (!clients.length && !isRealTenant()) return null;
+    const bySeg = { reg: [], vip: [], new: [], win: [] };
+    clients.forEach((c) => { (bySeg[KCl.segment(c)] || bySeg.reg).push(c); });
+    const SEGr = ['reg', 'vip', 'new', 'win'].map((id) => {
+      const arr = bySeg[id] || [];
+      // est. revenue if each targeted client returns once, at their own avg basket.
+      const lift = arr.reduce((t, c) => t + Math.round((c.spend || 0) / Math.max(c.visits || 1, 1)), 0);
+      return { id, n: arr.length, c: SEG_COLORS[id], reach: arr.length, lift };
+    });
+    const GUESTSr = clients.slice().sort((a, b) => (b.spend || 0) - (a.spend || 0)).slice(0, 12).map((c) => ({
+      nm: c.name || c.phone || 'Client', v: c.visits || 0, sp: c.spend || 0,
+      last: KCl.daysSince(c.lastSeen) === Infinity ? 0 : KCl.daysSince(c.lastSeen),
+      seg: KCl.segment(c),
+    }));
+    return { SEG: SEGr, GUESTS: GUESTSr };
+  }
 
   window.Kiwi.handlers['growth-crm'] = () => {
     const T = STR[lang()] || STR.fr;
     const KIT = window.KiwiKit;
-    // A real / custom-venue merchant has no CRM yet — never show the demo guests
-    // (Salma F., Nawal K.…), demo segments or the "Café Atlas" WhatsApp template.
-    if (crmReal()) {
-      const c = ({
-        fr: { h: 'Vos clients apparaîtront ici', p: 'À chaque vente, Kiwi crée la fiche du client, le segmente (réguliers, VIP, à reconquérir) et prépare la bonne relance WhatsApp au bon moment.' },
-        en: { h: 'Your customers will show here', p: 'On every sale, Kiwi builds the customer\'s profile, segments them (regulars, VIP, win-back) and prepares the right WhatsApp nudge at the right time.' },
-        ar: { h: 'سيظهر عملاؤك هنا', p: 'مع كل عملية بيع، ينشئ Kiwi بطاقة العميل ويقسّمهم (دائمون، كبار، لاستعادتهم) ويجهّز رسالة واتساب المناسبة في الوقت المناسب.' },
-      })[lang()] || { h: 'Your customers will show here', p: '' };
-      drawer({ title: T.title, subtitle: T.sub, fullpage: true,
-        body: `<div style="padding:56px 24px;text-align:center;max-width:520px;margin:0 auto;">
-          <div style="font-size:17px;font-weight:640;letter-spacing:-.01em;margin-bottom:8px;">${c.h}</div>
-          <div style="font-size:13.5px;color:var(--n-500);line-height:1.6;">${c.p}</div></div>` });
-      return;
-    }
-    let sel = 'win';
-    const segData = (id) => SEG.find(s => s.id === id);
+    const RD = realData();
+    const SEG_ = RD ? RD.SEG : SEG;
+    const GUESTS_ = RD ? RD.GUESTS : GUESTS;
+    let sel = (SEG_.find((s) => s.reach > 0) || SEG_[0] || { id: 'win' }).id;
+    const segData = (id) => SEG_.find((s) => s.id === id) || { id, n: 0, reach: 0, lift: 0, c: 'var(--atlas)' };
 
     const body = `<div class="gk-reveal-root">
-      <div class="crm-segs">${SEG.map(s => `<div class="crm-seg ${s.id === sel ? 'sel' : ''}" data-crm-seg="${s.id}">
+      <div class="crm-segs">${SEG_.map(s => `<div class="crm-seg ${s.id === sel ? 'sel' : ''}" data-crm-seg="${s.id}">
         <span class="dot" style="background:${s.c}"></span>
         <div class="n">${fmt(s.n)}</div><div class="l">${T.segLabel[s.id]}</div><div class="s">${T.segSub[s.id]}</div></div>`).join('')}</div>
 
@@ -138,7 +160,7 @@
         <div>
           <div class="crm-colt">${T.clients}</div>
           <table class="crm-tbl"><thead><tr><th>${T.th.c}</th><th>${T.th.v}</th><th>${T.th.s}</th><th>${T.th.l}</th><th>${T.th.g}</th></tr></thead>
-          <tbody>${GUESTS.map(g => `<tr><td style="font-weight:500">${g.nm}</td><td class="mono">${g.v}</td><td class="mono">${fmt(g.sp)} MAD</td><td style="color:var(--n-500)">${T.ago(g.last)}</td><td><span class="crm-tag ${g.seg}">${T.segTag[g.seg]}</span></td></tr>`).join('')}</tbody></table>
+          <tbody>${GUESTS_.length ? GUESTS_.map(g => `<tr><td style="font-weight:500">${g.nm}</td><td class="mono">${g.v}</td><td class="mono">${fmt(g.sp)} MAD</td><td style="color:var(--n-500)">${T.ago(g.last)}</td><td><span class="crm-tag ${g.seg}">${T.segTag[g.seg]}</span></td></tr>`).join('') : `<tr><td colspan="5" style="text-align:center;color:var(--n-500);padding:28px 14px">${lang() === 'en' ? 'No customers yet — add them from the till.' : lang() === 'ar' ? 'لا يوجد عملاء بعد — أضِفهم من الصندوق.' : 'Aucun client — ajoutez-en depuis la caisse.'}</td></tr>`}</tbody></table>
         </div>
 
         <div class="crm-comp">
@@ -173,8 +195,35 @@
       } else if (ch) {
         root.querySelectorAll('[data-crm-chan]').forEach(x => x.classList.toggle('on', x === ch));
       } else if (e.target.closest('[data-crm-send]')) {
-        confetti && confetti(); toast(T.toastT, { type: 'success', desc: T.toastD(fmt(segData(sel).reach)) });
+        confetti && confetti();
+        if (RD && segData(sel).reach > 0) {
+          const n = exportAudience(sel);
+          toast(T.toastT, { type: 'success', desc: `${fmt(n)} ${lang() === 'en' ? 'contacts · WhatsApp list exported (CSV).' : lang() === 'ar' ? 'جهة اتصال · تم تصدير القائمة (CSV).' : 'contacts · liste WhatsApp exportée (CSV).'}` });
+        } else {
+          toast(T.toastT, { type: 'success', desc: T.toastD(fmt(segData(sel).reach)) });
+        }
       }
     });
   };
+
+  /* Export the targeted segment as a WhatsApp-ready CSV (name, phone, message) so
+   * the owner can run the campaign today — real bulk sending is a later phase. */
+  function exportAudience(segId) {
+    const KCl = window.KiwiClients; if (!KCl) return 0;
+    const T = STR[lang()] || STR.fr;
+    const rows = KCl.list().filter((c) => KCl.segment(c) === segId && c.consent && c.phone);
+    const msg = T.msg(segId).replace(/\{[^}]+\}/g, '');
+    const head = ['Nom', 'Téléphone', 'Segment', 'Message'];
+    const csv = [head].concat(rows.map((c) => [c.name || '', c.phone || '', segId, msg]))
+      .map((r) => r.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+    try {
+      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'kiwi-campagne-' + segId + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    } catch (_) {}
+    return rows.length;
+  }
 })();

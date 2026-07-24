@@ -1277,9 +1277,9 @@
         </div>
         <div style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); font-family:var(--mono); margin-top:18px; margin-bottom:10px;">${T.modelTitle}</div>
         <div style="display:flex; flex-direction:column; gap:8px;">
-          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--atlas); background: var(--mint-soft); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" checked /><div><b>${T.byVisit}</b><div style="font-size:12px; color:var(--n-600); margin-top:2px;">${T.byVisitDesc}</div></div></label>
-          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--n-200); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" /><div><b>${T.byAmount}</b><div style="font-size:12px; color:var(--n-500); margin-top:2px;">${T.byAmountDesc}</div></div></label>
-          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--n-200); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" /><div><b>${T.byProduct}</b><div style="font-size:12px; color:var(--n-500); margin-top:2px;">${T.byProductDesc}</div></div></label>
+          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--atlas); background: var(--mint-soft); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" value="visit" checked /><div><b>${T.byVisit}</b><div style="font-size:12px; color:var(--n-600); margin-top:2px;">${T.byVisitDesc}</div></div></label>
+          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--n-200); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" value="amount" /><div><b>${T.byAmount}</b><div style="font-size:12px; color:var(--n-500); margin-top:2px;">${T.byAmountDesc}</div></div></label>
+          <label style="display:flex; gap:12px; padding:12px 14px; border:1px solid var(--n-200); border-radius: 10px; cursor:pointer;"><input type="radio" name="m" value="product" /><div><b>${T.byProduct}</b><div style="font-size:12px; color:var(--n-500); margin-top:2px;">${T.byProductDesc}</div></div></label>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
           <button class="kb ghost" data-close>${T.close}</button>
@@ -1289,7 +1289,14 @@
     });
     m.el.addEventListener('click', (e) => {
       if (e.target.closest('[data-close]')) m.close();
-      if (e.target.closest('[data-activate]')) { m.close(); toast(T.toastTitle, {type:'success', desc: T.toastDesc}); }
+      if (e.target.closest('[data-activate]')) {
+        // Persist the chosen mechanic to the store's fidelity config (clients-store.js),
+        // so the caisse Carnet clients + the CRM segments use it. No-op without a real book.
+        const picked = m.el.querySelector('input[name="m"]:checked');
+        const model = (picked && picked.value) || 'visit';
+        try { if (window.KiwiClients && KiwiClients.hasBook && KiwiClients.hasBook()) KiwiClients.setConfig({ model }); } catch (_) {}
+        m.close(); toast(T.toastTitle, {type:'success', desc: T.toastDesc});
+      }
     });
   };
 
