@@ -7842,6 +7842,17 @@
         const m = document.createElement(tag || 'b'); m.textContent = first; el.appendChild(m);
       });
       setGreet('.pin-greet', ''); setGreet('.clockin-greet', 'em');
+      // Floor team (Équipe drawer) — never the demo servers (Yassir A., Karim B.,
+      // Sofia L., Mehdi K., Hamza T.). Use operator staff (KiwiConfig.pins) when
+      // present, else a plain "Serveur N". Keep ids/colors so the floor plan holds.
+      try {
+        const pins = (staff && staff.length) ? staff : ((window.KiwiConfig && Array.isArray(window.KiwiConfig.pins)) ? window.KiwiConfig.pins : []);
+        if (typeof servers === 'object' && servers) {
+          Object.keys(servers).forEach((k, i) => {
+            if (servers[k]) servers[k].name = (pins[i] && pins[i].name) || ('Serveur ' + (i + 1));
+          });
+        }
+      } catch (_) {}
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyStoreIdentity);
     else applyStoreIdentity();
