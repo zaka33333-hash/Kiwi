@@ -2971,6 +2971,11 @@ function wireDismiss(m) {
  *   Resetting wipes back to the venue's default template.
  * ═══════════════════════════════════════════════════════════════════════════ */
 const PDS_LS_KEY = 'kiwiPlanDeSalle';
+/* Per-store floor plan: every store keeps its own layout under its own key. */
+function pdsKey() {
+  const v = (window.KiwiVenue && window.KiwiVenue.getVenue && window.KiwiVenue.getVenue()) || 'default';
+  return PDS_LS_KEY + ':' + v;
+}
 const PDS_GRID = 16;          /* snap-to-grid unit (px) */
 const PDS_CANVAS_W = 880;
 const PDS_CANVAS_H = 540;
@@ -3822,7 +3827,7 @@ const PDS_EL_TYPES = {
 /* ─── State manager · loaded from localStorage on demand ──────────────── */
 function pdsLoad() {
   try {
-    const raw = localStorage.getItem(PDS_LS_KEY);
+    const raw = localStorage.getItem(pdsKey());
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && parsed.zones && parsed.tables && parsed.staff) return parsed;
@@ -3831,10 +3836,12 @@ function pdsLoad() {
   return pdsDefaultState();
 }
 function pdsSave(state) {
-  try { localStorage.setItem(PDS_LS_KEY, JSON.stringify(state)); } catch (e) {}
+  try { localStorage.setItem(pdsKey(), JSON.stringify(state)); } catch (e) {}
 }
 function pdsDefaultState() {
-  /* Default — Café Atlas layout — 24 tables across 3 zones (caisse parity) */
+  /* A merchant-created store starts with an empty floor to design (one zone,
+     no tables, no staff). The pre-seeded stores keep their full layout. */
+  if (window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom()) return pdsTemplate('blank');
   const zones = [
     { id: 'z1', name: 'Salle principale', scene: 'salle' },
     { id: 'z2', name: 'Terrasse',         scene: 'terrasse' },
@@ -3896,7 +3903,8 @@ function pdsTemplate(key) {
   const blank = {
     zones: [{ id: 'z1', name: 'Salle', scene: 'salle' }],
     activeZone: 'z1', tables: [], elements: [],
-    staff: PDS_DEFAULT_STAFF.slice(),
+    /* A real store fills its own roster; only pre-seeded stores get sample servers. */
+    staff: (window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom()) ? [] : PDS_DEFAULT_STAFF.slice(),
     rotation: { period: 'shift', strategy: 'zones', enabled: false },
     history: [],
     snap: true,
@@ -4023,6 +4031,7 @@ handlers['nav-tables'] = () => {
   window.Kiwi?.setActivePage?.('tables');
   const prevClose = dr.close;
   dr.close = () => {
+    try { pdsSave(state); } catch (_) {} /* auto-save the floor so a design is never lost on close */
     window.Kiwi?.setActivePage?.('accueil');
     prevClose();
   };
@@ -4644,6 +4653,7 @@ function pdsAttach(root, state, T, dr) {
     if (body) body.innerHTML = pdsRenderBody(state, T);
     if (foot) foot.innerHTML = pdsRenderFoot(state, T);
     bind();
+    try { pdsSave(state); } catch (_) {} /* auto-save every change per store — a design is never lost */
   };
 
   /* ── Selection store ──────────────────────────────────────────── */
@@ -11513,7 +11523,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
      'payroll' & 'practitioners' stay OUT: their handlers still hardcode demo
      staff (Fatima/Sofia… / Spa Bahia's PRACS), so a custom venue must get the
      zeroed starter, not the demo roster, until they become genuinely per-venue. */
-  const REAL_FOR_CUSTOM = new Set(['inventory', 'categories', 'equipe', 'menu']);
+  const REAL_FOR_CUSTOM = new Set(['inventory', 'categories', 'equipe', 'menu', 'tables']);
 
   /* ── Actionable layer: let the client add their OWN data right here ──────
    * Config-type destinations (menu, team, devices…) get an "Add {noun}" button
