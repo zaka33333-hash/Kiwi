@@ -291,7 +291,8 @@
     ret: null,                   /* { saleId, picks:Set, motif } sur la vue échanges */
     retQuery: '',
     clQuery: '',
-    scanLog: [],
+    scanLog: [],                 /* journal des articles VÉRIFIÉS (onglet Scan) */
+    lookup: null,                /* { pid, size, color, ean, at } — dernière vérif affichée */
     scanIdx: 0,
     scanBusy: false,
     offline: false, queued: 0,
@@ -361,9 +362,14 @@
           <div class="bq-sell">
             <header class="bq-head">
               <div><h1>Vente</h1><div class="bq-head-sub" id="bq-today"></div></div>
-              <div class="bq-head-hint">Touchez un article, taille, couleur et remise ensuite</div>
+              <div class="bq-head-hint">Scannez un code-barres, ou touchez un article</div>
             </header>
             <div id="bq-exch-slot"></div>
+            <div class="bq-sell-scan">
+              <i data-lucide="scan-line"></i>
+              <input id="bq-sell-ean" placeholder="Scannez un code-barres pour l'ajouter au ticket…" autocomplete="off" />
+              <span class="bq-sell-scan-tag">Entrée</span>
+            </div>
             <div class="bq-cats" id="bq-cats"></div>
             <div class="bq-grid-scroll" id="bq-gridwrap"></div>
           </div>
@@ -391,6 +397,17 @@
     $('#bq-net', root).addEventListener('click', toggleOffline);
     $$('.modal-veil', root).forEach((v) => {
       v.addEventListener('click', (e) => { if (e.target === v) closeVeil(v); });
+    });
+
+    /* Vente — scan-to-sell bar : a code scanned or typed here drops the article
+       straight onto the ticket, supermarket-style. Commit on Enter only (the USB
+       douchette ends every scan with Enter) so a scan is never counted twice. */
+    const sellEan = $('#bq-sell-ean', root);
+    if (sellEan) sellEan.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const v = sellEan.value.trim();
+      sellEan.value = '';
+      if (v) commitEan(v);
     });
 
     /* live catalogue → the sale grid, the sheet and the douchette track the DB.
@@ -1052,14 +1069,65 @@
     return out.length ? out : Object.keys(P);
   }
 
+  /* Rayon (catégorie) auquel appartient un article, pour la fiche de vérif. */
+  function rayonOf(pid) {
+    const r = RAYONS.find((ry) => ry.items.some((it) => it.id === pid));
+    return r ? r.label : '';
+  }
+
+  /* La fiche « disponibilité » d'un article vérifié : prix, tailles, stock,
+     couleurs — lecture seule, aucun impact sur le ticket. */
+  function lookupCardHtml() {
+    const lk = state.lookup;
+    if (!lk || !P[lk.pid]) return '';
+    const p = P[lk.pid];
+    const tot = stockOf(p);
+    const status = tot === 0 ? { cls: 'out', label: 'Épuisé' }
+                 : tot <= 3 ? { cls: 'low', label: 'Stock bas' }
+                 : { cls: 'ok', label: 'Disponible' };
+    const sizes = sizesOf(p).map((s) => {
+      const q = p.sizes[s] || 0;
+      const cls = q === 0 ? 'out' : q <= 2 ? 'low' : '';
+      const on = s === lk.size ? ' is-on' : '';
+      return `<span class="bq-look-size ${cls}${on}"><b>${esc(s)}</b><i>${q}</i></span>`;
+    }).join('');
+    const colors = (p.colors || []).map((cid) => {
+      const c = COLOR[cid] || { label: cid, hex: '#ccc' };
+      const on = cid === lk.color ? ' is-on' : '';
+      return `<span class="bq-look-color${on}"><i style="background:${c.hex}"></i>${esc(c.label)}</span>`;
+    }).join('');
+    const ray = rayonOf(lk.pid);
+    return `
+      <div class="bq-look">
+        <div class="bq-look-top">
+          <span class="bq-look-art">${artOf(p.art)}</span>
+          <div class="bq-look-id">
+            <b>${esc(p.name)}</b>
+            <span>${ray ? esc(ray) + ' · ' : ''}EAN ${esc(lk.ean)} · ${fmtHM(lk.at)}</span>
+          </div>
+          <span class="bq-look-price">${fmtMAD(p.price)}</span>
+        </div>
+        <div class="bq-look-avail">
+          <div class="bq-look-avail-head">
+            <span class="bq-look-status ${status.cls}">${status.label}</span>
+            <span class="bq-look-tot">${tot} pièce${tot > 1 ? 's' : ''} en stock</span>
+          </div>
+          <div class="bq-look-sizes">${sizes || '<span class="bq-look-empty">Taille unique</span>'}</div>
+          ${colors ? `<div class="bq-look-colors">${colors}</div>` : ''}
+        </div>
+        <button class="bq-btn secondary bq-look-sell" id="bq-look-sell" ${tot === 0 ? 'disabled' : ''}>
+          <i data-lucide="shopping-bag"></i>Envoyer vers la vente
+        </button>
+      </div>`;
+  }
+
   function renderScan() {
     const panel = $('[data-bq-panel="scan"]', root);
-    const last = state.scanLog.find((l) => l.ok);
     panel.innerHTML = `
       <div class="bq-scan">
         <div class="bq-scan-inner">
           <header class="bq-head" style="padding:22px 0 0;">
-            <div><h1>Scan douchette</h1><div class="bq-head-sub">Le champ écoute la douchette en continu, Entrée valide, l'article file sur le ticket</div></div>
+            <div><h1>Scan produit</h1><div class="bq-head-sub">Scannez un article pour voir son prix, ses tailles et son stock. Rien n'est ajouté au ticket.</div></div>
           </header>
           <div class="bq-ean-in"><i data-lucide="scan-line"></i>
             <input id="bq-ean" placeholder="Scannez ou tapez un code-barres…" autocomplete="off" />
@@ -1067,13 +1135,9 @@
           <div class="bq-scan-or">ou</div>
           <button class="bq-scan-mock" id="bq-scan-mock"><i data-lucide="scan-line"></i>Scanner un article (douchette démo)</button>
           <div class="bq-scan-stage" id="bq-scan-stage"><span id="bq-scan-stage-ean"></span><div class="bq-scan-laser"></div></div>
-          ${last ? `
-          <div class="bq-scan-last">
-            <span class="bq-line-art">${artOf(P[last.pid].art)}</span>
-            <span class="l"><b>${esc(P[last.pid].name)} · ${esc(last.size)}</b><span>EAN ${last.ean} · ${fmtHM(last.at)}</span></span>
-            <span class="amt">${fmtMAD(P[last.pid].price)}</span>
-          </div>` : ''}
+          ${lookupCardHtml()}
           ${state.scanLog.length ? `
+          <div class="bq-scan-log-h">Derniers articles vérifiés</div>
           <div class="bq-scan-log">
             ${state.scanLog.slice(0, 6).map((l) => `
               <div class="bq-scan-log-row ${l.ok ? '' : 'is-err'}">
@@ -1082,16 +1146,12 @@
                 <span>${esc(l.label)}</span>
                 <span class="ean">${esc(l.ean)}</span>
               </div>`).join('')}
-          </div>` : `<div class="bq-empty">Aucun scan pour l'instant, la douchette USB tape ici toute seule.</div>`}
-          ${ticketCount(state.ticket) ? `
-          <div class="bq-sheet-foot">
-            <button class="bq-btn secondary" id="bq-scan-goticket" style="flex:1;"><i data-lucide="shopping-bag"></i>Voir le ticket · ${ticketCount(state.ticket)} article${ticketCount(state.ticket) > 1 ? 's' : ''}</button>
-          </div>` : ''}
+          </div>` : (state.lookup ? '' : `<div class="bq-empty">Aucun article vérifié pour l'instant, la douchette USB tape ici toute seule.</div>`)}
         </div>
       </div>`;
     const input = $('#bq-ean', panel);
-    input.onkeydown = (e) => { if (e.key === 'Enter') commitEan(input.value); };
-    input.oninput = () => { if (input.value.replace(/\D/g, '').length >= 13) commitEan(input.value); };
+    input.onkeydown = (e) => { if (e.key === 'Enter') { const v = input.value; input.value = ''; lookupScan(v); } };
+    input.oninput = () => { if (input.value.replace(/\D/g, '').length >= 13) { const v = input.value; input.value = ''; lookupScan(v); } };
     input.onblur = () => {
       setTimeout(() => {
         if (state.view !== 'scan') return;
@@ -1101,25 +1161,31 @@
       }, 120);
     };
     $('#bq-scan-mock', panel).onclick = mockScan;
-    const goT = $('#bq-scan-goticket', panel);
-    if (goT) goT.onclick = () => switchView('vente');
+    const sell = $('#bq-look-sell', panel);
+    if (sell) sell.onclick = () => {
+      const lk = state.lookup;
+      if (!lk || !P[lk.pid]) return;
+      const p = P[lk.pid];
+      const size = (p.sizes[lk.size] || 0) > 0 ? lk.size : firstFree(p);
+      if (!size) { toast(`${p.name}, épuisé dans toutes les tailles`); return; }
+      switchView('vente');
+      addToTicket(lk.pid, { size, color: lk.color || p.colors[0], qty: 1, remise: 0 });
+    };
     icons();
     setTimeout(() => { const i = $('#bq-ean', panel); if (i) i.focus(); }, 60);
   }
 
-  /* A code from the douchette. Resolves the EXACT variant (colour + size) from
-     the shared catalogue — EAN-13 or any old/alphanumeric code registered on an
-     article. Unknown → offer to register it on a product (no reprint). */
+  /* SELL path — a code scanned/typed in Vente (the scan bar or the USB douchette)
+     drops the EXACT variant (colour + size) straight onto the ticket, like a
+     supermarket lane. Resolves EAN-13 or any old/alphanumeric code registered on
+     an article. Unknown → offer to register it on a product (no reprint). */
   function commitEan(raw) {
     const code = String(raw || '').trim();
     if (!code) return;
     const hit = window.KiwiBoutiqueCatalog ? window.KiwiBoutiqueCatalog.resolveScan(code) : null;
     const pid = hit ? hit.pid : BY_EAN[code];
     if (!pid || !P[pid]) {
-      state.scanLog.unshift({ at: new Date(), ok: false, label: 'Code inconnu, non référencé', ean: code, pid: null, size: '' });
       toast(`Code ${code} inconnu, enregistrez-le sur un article`);
-      if (state.view === 'scan') renderScan();
-      renderBadges();
       offerRegister(code);
       return;
     }
@@ -1129,18 +1195,42 @@
              : (c && p.kind === 'taille' && (p.sizes[c.taille] || 0) > 0) ? c.taille
              : firstFree(p);
     if (!size) {
-      state.scanLog.unshift({ at: new Date(), ok: false, label: `${p.name}, épuisé, rien à vendre`, ean: code, pid: null, size: '' });
       toast(`${p.name}, épuisé dans toutes les tailles`);
-      if (state.view === 'scan') renderScan();
-      renderBadges();
       return;
     }
     const color = (hit && hit.colorId && p.colors.includes(hit.colorId)) ? hit.colorId : p.colors[0];
     addToTicket(pid, { size, color, qty: 1, remise: 0 }, { quiet: true });
-    state.scanLog.unshift({ at: new Date(), ok: true, label: `${p.name} · ${size}, ajouté au ticket`, ean: code, pid, size });
     toast(`Bip, ${p.name} · ${size} sur le ticket (${fmtMAD(p.price)})`);
-    if (state.view === 'scan') renderScan();
     if (state.view === 'vente') renderTicket();
+    renderBadges();
+  }
+
+  /* LOOKUP path — the Scan tab: an employee scans/types a code to SEE the article
+     (price, sizes, live stock, colours). Read-only — nothing touches the ticket. */
+  function lookupScan(raw) {
+    const code = String(raw || '').trim();
+    if (!code) return;
+    const hit = window.KiwiBoutiqueCatalog ? window.KiwiBoutiqueCatalog.resolveScan(code) : null;
+    const pid = hit ? hit.pid : BY_EAN[code];
+    if (!pid || !P[pid]) {
+      state.lookup = null;
+      state.scanLog.unshift({ at: new Date(), ok: false, label: 'Code inconnu, non référencé', ean: code, pid: null, size: '' });
+      toast(`Code ${code} inconnu, aucun article ne le porte`);
+      if (state.view === 'scan') renderScan();
+      renderBadges();
+      offerRegister(code);
+      return;
+    }
+    const p = P[pid];
+    /* on affiche la variante scannée même si elle est à zéro — c'est justement le
+       stock qu'on vient vérifier. À défaut de taille scannée, la 1re taille. */
+    const size = (hit && hit.size && p.sizes[hit.size] != null) ? hit.size : (firstFree(p) || sizesOf(p)[0] || '');
+    const color = (hit && hit.colorId && p.colors.includes(hit.colorId)) ? hit.colorId : p.colors[0];
+    state.lookup = { pid, size, color, ean: code, at: new Date() };
+    state.scanLog.unshift({ at: new Date(), ok: true, label: `${p.name}${size ? ' · ' + size : ''}, vérifié`, ean: code, pid, size });
+    const tot = stockOf(p);
+    toast(tot > 0 ? `${p.name} · ${tot} en stock` : `${p.name}, épuisé`);
+    if (state.view === 'scan') renderScan();
     renderBadges();
   }
 
@@ -1157,7 +1247,7 @@
     if (stage) { stage.classList.add('is-on'); if (lbl) lbl.textContent = code; }
     setTimeout(() => {
       state.scanBusy = false;
-      commitEan(code);
+      lookupScan(code);
     }, 620);
   }
 
@@ -1847,8 +1937,9 @@
     }, true);
   }
   function handleWedge(code) {
-    if (state.view === 'inventaire') { invScanHandle(code); return; }
-    commitEan(code);
+    if (state.view === 'inventaire') { invScanHandle(code); return; }   /* fiche stock */
+    if (state.view === 'scan') { lookupScan(code); return; }            /* vérif prix/stock */
+    commitEan(code);                                                     /* vente → ticket */
   }
   function invScanHandle(code) {
     const cat = catDB(); if (!cat) return;
