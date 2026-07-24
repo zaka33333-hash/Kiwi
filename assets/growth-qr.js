@@ -95,7 +95,7 @@
       if (b) return b;
       if (window.KiwiVenue?.isCustom?.()) { const vd = window.KiwiVenue.getCurrentVenueData?.(); if (vd) return vd.fullDisplay || vd.name || ''; }
     } catch (_) {}
-    return 'Café Atlas · Maarif';
+    return (window.KiwiEnv?.isReal?.() ? 'Votre établissement' : 'Café Atlas · Maarif');
   };
 
   window.Kiwi.handlers['growth-qr'] = () => {

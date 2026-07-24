@@ -11608,7 +11608,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       if (e.target.closest('[data-add-done]')) {
         setItems(nav, draft);
         m.close();
-        if (window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom()) renderStarter(nav, STARTERS[nav]);
+        if ((window.KiwiVenue && window.KiwiVenue.isCustom && window.KiwiVenue.isCustom()) || window.KiwiEnv?.isReal?.()) renderStarter(nav, STARTERS[nav]);
         if (toast) toast(T(UI.saved), { type: 'success', force: true, desc: draft.length + ' · ' + T(cfg.plural) });
         try { if (draft.length && window.Kiwi.confetti) window.Kiwi.confetti(); } catch (_) {}
         return;
@@ -11705,7 +11705,8 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       const orig = H[key];
       if (orig && orig.__kiwiStarter) return;
       const wrapped = function () {
-        if (window.KiwiVenue?.isCustom?.() && !REAL_FOR_CUSTOM.has(nav)) return renderStarter(nav, meta);
+        const realOrCustom = window.KiwiVenue?.isCustom?.() || window.KiwiEnv?.isReal?.();
+        if (realOrCustom && !REAL_FOR_CUSTOM.has(nav)) return renderStarter(nav, meta);
         /* Direct invocations (mobile nav, palette, agent) bypass the sidebar
          * router's genpage cleanup — clear a leftover starter page so it
          * can't mask the destination's own body-class view. */

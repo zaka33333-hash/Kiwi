@@ -68,12 +68,20 @@
 
   function buildProfile() {
     const KV = window.KiwiVenue;
-    if (!KV || typeof KV.isCustom !== 'function' || !KV.isCustom()) return ATLAS;
-    const vd = (KV.getCurrentVenueData && KV.getCurrentVenueData()) || {};
-    const vid = KV.getVenue ? KV.getVenue() : null;
+    const real = !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal());
+    const custom = !!(KV && typeof KV.isCustom === 'function' && KV.isCustom());
+    // Only the pure local demo (not real, not a custom venue) gets the full
+    // Café Atlas ATLAS model. Any real session degrades to the honest partial.
+    if (!real && !custom) return ATLAS;
+    const vd = (KV && KV.getCurrentVenueData && KV.getCurrentVenueData()) || {};
+    const vid = KV && KV.getVenue ? KV.getVenue() : null;
     const tot = (window.KiwiSales && window.KiwiSales.totals)
       ? window.KiwiSales.totals(vid) : { revenue: 0, count: 0, basket: 0 };
-    const nm = vd.fullDisplay || [vd.name, vd.location].filter(Boolean).join(' · ') || 'Votre établissement';
+    let nm = vd.fullDisplay || [vd.name, vd.location].filter(Boolean).join(' · ');
+    // Real-but-not-custom (defensive): vd may still be a demo venue — never quote
+    // "Café Atlas"; prefer the real session name, else neutral.
+    if (real && !custom) nm = (window.KiwiMe && (window.KiwiMe.business || window.KiwiMe.name)) || 'Votre établissement';
+    if (!nm) nm = 'Votre établissement';
     return {
       partial: true,
       name: nm,

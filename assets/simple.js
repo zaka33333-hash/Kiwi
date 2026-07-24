@@ -15,14 +15,31 @@
   const SUPPORT_WA = '212522123456';
 
   /* ═══ LYOUM (Today) ═══ */
-  SIMPLE_PAGES.lyoum = () => `
+  SIMPLE_PAGES.lyoum = () => {
+    /* Real session → never surface the demo identity ("Rachid" / "Café Atlas"),
+       the demo revenue (24 380 · 182) or the demo payout (Bank of Africa ••3291).
+       Figures come from the merchant's own sales when we have them, else zero.
+       Local demo (no real session) keeps the full pitch screen. */
+    const me = window.KiwiMe || {};
+    const real = !!(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal());
+    const nm = (me.name || '').trim();
+    const first = nm ? nm.split(/\s+/)[0] : (real ? '' : 'Rachid');
+    const av = nm ? ((nm.split(/\s+/)[0] || '')[0] + ((nm.split(/\s+/)[1] || '')[0] || '')).toUpperCase() : (real ? '·' : 'RB');
+    const shop = me.business || (window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && (window.KiwiVenue.getCurrentVenueData() || {}).fullDisplay) || (real ? '' : 'Café Atlas · Maarif');
+    const vid = window.KiwiVenue && window.KiwiVenue.getVenue && window.KiwiVenue.getVenue();
+    const tot = real && window.KiwiSales && window.KiwiSales.totals ? (window.KiwiSales.totals(vid) || {}) : null;
+    const heroAmt = real ? Number(tot && tot.revenue || 0).toLocaleString('fr-FR').replace(/,/g, ' ') : '24 380';
+    const heroCount = real ? Number(tot && tot.count || 0) : 182;
+    const payoutMeta = real ? 'Après tes premières ventes' : '23 091 MAD sur Bank of Africa •• 3291';
+    const payoutWhen = real ? 'À venir' : 'Demain matin, 9h';
+    return `
     <div class="simple-screen">
       <div class="simple-top">
         <div class="merchant">
-          <div class="av">${(() => { const n = (window.KiwiMe && window.KiwiMe.name) || ''; if (!n) return 'RB'; const p = n.trim().split(/\s+/); return ((p[0] || '')[0] + ((p[1] || '')[0] || '')).toUpperCase(); })()}</div>
+          <div class="av">${av}</div>
           <div>
-            <div class="n">Salam ${((window.KiwiMe && window.KiwiMe.name) || 'Rachid').trim().split(/\s+/)[0]}</div>
-            <div class="shop">${(window.KiwiMe && window.KiwiMe.business) || (window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && (window.KiwiVenue.getCurrentVenueData() || {}).fullDisplay) || 'Café Atlas · Maarif'}</div>
+            <div class="n">Salam ${first}</div>
+            <div class="shop">${shop}</div>
           </div>
         </div>
         <button class="icon-btn-s" data-simple-tab="3awn" aria-label="Aide">
@@ -32,8 +49,8 @@
 
       <div class="lyoum-hero">
         <div class="eyebrow">AUJOURD'HUI</div>
-        <div class="amount">24 380<span class="unit">MAD</span></div>
-        <div class="count">182 paiements · 14:38</div>
+        <div class="amount">${heroAmt}<span class="unit">MAD</span></div>
+        <div class="count">${heroCount} paiements</div>
       </div>
 
       <div class="lyoum-payout">
@@ -42,8 +59,8 @@
         </div>
         <div class="body">
           <div class="label">Ton argent arrive</div>
-          <div class="when">Demain matin, 9h</div>
-          <div class="meta">23 091 MAD sur Bank of Africa •• 3291</div>
+          <div class="when">${payoutWhen}</div>
+          <div class="meta">${payoutMeta}</div>
         </div>
       </div>
 
@@ -78,7 +95,7 @@
           <div class="h">Derniers paiements</div>
           <button class="link-atlas" data-simple-tab="flousi">Tout voir</button>
         </div>
-        ${[
+        ${real ? `<div class="simple-tx-empty" style="color:var(--n-500); font-size:13.5px; padding:14px 4px;">Aucun paiement pour le moment.</div>` : [
           ['Karim B.', 240, 'Visa · il y a 5 min', '+24 pourboire'],
           ['Sara L.', 85.5, 'Mastercard · 22 min', ''],
           ['Youssef A.', 312, 'Visa · 40 min', '+30 pourboire'],
@@ -97,6 +114,7 @@
       </div>
     </div>
   `;
+  };
 
   /* ═══ FLOUSI (My money) ═══ */
   SIMPLE_PAGES.flousi = () => {

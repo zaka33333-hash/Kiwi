@@ -1493,7 +1493,7 @@ ar: {
             ${settingsRow('🎯', tr({ fr: 'Objectif journalier', en: 'Daily goal', ar: 'الهدف اليومي' }), vd.goal ? fmtN(vd.goal) + ' MAD' : tr({ fr: 'À définir', en: 'To set', ar: 'غير محدد' }), { action: 'settings-edit-venue' })}
             ${settingsRow('💳', tr({ fr: 'Méthodes acceptées', en: 'Accepted methods', ar: 'وسائل الدفع المقبولة' }), escape(vd.methods || tr({ fr: 'Toutes acceptées', en: 'All accepted', ar: 'الكل مقبول' })), { action: 'settings-edit-venue' })}
             ` : `
-            ${settingsRow('🏪', escape(getSet('venueName', ((window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && (window.KiwiVenue.getCurrentVenueData() || {}).fullDisplay) || (window.KiwiMe && window.KiwiMe.business) || 'Café Atlas · Maarif'))), escape(getSet('venueLoc', tr({ fr: 'Emplacement principal', en: 'Main location', ar: 'الموقع الرئيسي' }))), { action: 'settings-edit-store', arg: 'venue' })}
+            ${settingsRow('🏪', escape(getSet('venueName', ((window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && (window.KiwiVenue.getCurrentVenueData() || {}).fullDisplay) || (window.KiwiMe && window.KiwiMe.business) || (window.KiwiEnv?.isReal?.() ? '' : 'Café Atlas · Maarif')))), escape(getSet('venueLoc', tr({ fr: 'Emplacement principal', en: 'Main location', ar: 'الموقع الرئيسي' }))), { action: 'settings-edit-store', arg: 'venue' })}
             ${settingsRow('⏰', tr({ fr: 'Heures d\'ouverture', en: 'Opening hours', ar: 'ساعات العمل' }), escape(getSet('hours', tr({ fr: '07:00 - 23:00 · tous les jours', en: '07:00 - 23:00 · every day', ar: '07:00 - 23:00 · كل يوم' }))), { action: 'settings-edit-store', arg: 'hours' })}
             ${settingsRow('💳', tr({ fr: 'Méthodes acceptées', en: 'Accepted methods', ar: 'وسائل الدفع المقبولة' }), escape(getSet('methods', 'Visa · MC · Kiwi Tap · QR')), { action: 'settings-methods' })}
             ${settingsRow('🎯', tr({ fr: 'Objectif journalier', en: 'Daily goal', ar: 'الهدف اليومي' }), escape(getSet('goal', '28 000')) + ' MAD', { action: 'settings-edit-store', arg: 'goal' })}
@@ -1512,10 +1512,12 @@ ar: {
         <div>
           ${sec(tr({ fr: 'INTÉGRATIONS', en: 'INTEGRATIONS', ar: 'التكاملات' }))}
           <div class="kset-card">
+            ${cv ? settingsRow('🔌', tr({ fr: 'Aucun canal connecté', en: 'No channel connected', ar: 'لا قناة متصلة' }), tr({ fr: 'Connectez Glovo, votre banque et votre compta', en: 'Connect Glovo, your bank and accounting', ar: 'اربط Glovo وبنكك ومحاسبتك' }), { action: 'add-integration' }) : `
             ${settingsRow('🟠', 'Glovo', tr({ fr: 'Connecté · 1 420 MAD aujourd\'hui', en: 'Connected · 1,420 MAD today', ar: 'متصل · 1 420 درهم اليوم' }), { toggle: true, on: setOn('glovo'), action: 'settings-toggle', arg: 'glovo' })}
             ${settingsRow('🔴', 'Jumia Food', tr({ fr: 'Connecté · 24 commandes', en: 'Connected · 24 orders', ar: 'متصل · 24 طلبًا' }), { toggle: true, on: setOn('jumia'), action: 'settings-toggle', arg: 'jumia' })}
             ${settingsRow('📊', tr({ fr: 'Comptabilité', en: 'Accounting', ar: 'المحاسبة' }), tr({ fr: 'Export quotidien OCP', en: 'Daily OCP export', ar: 'تصدير يومي OCP' }), { toggle: true, on: setOn('compta'), action: 'settings-toggle', arg: 'compta' })}
             ${settingsRow('🏦', 'Bank of Africa', tr({ fr: 'IBAN vérifié ••3291', en: 'IBAN verified ••3291', ar: 'IBAN موثق ••3291' }), { toggle: true, on: setOn('bmce'), action: 'settings-toggle', arg: 'bmce' })}
+            `}
           </div>
         </div>
       `,
@@ -1624,7 +1626,7 @@ ar: {
       const lbl = 'display:block;font-size:12px;font-weight:500;color:var(--n-600);margin:16px 0 6px;';
       const CFG = {
         venue: { tag: 'MA BOUTIQUE', title: tr({ fr: 'Nom & emplacement', en: 'Name & location', ar: 'الاسم والموقع' }), fields: [
-          { k: 'venueName', label: tr({ fr: 'Nom de la boutique', en: 'Shop name', ar: 'اسم المتجر' }), def: ((window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && (window.KiwiVenue.getCurrentVenueData() || {}).fullDisplay) || (window.KiwiMe && window.KiwiMe.business) || 'Café Atlas · Maarif'), max: 40 },
+          { k: 'venueName', label: tr({ fr: 'Nom de la boutique', en: 'Shop name', ar: 'اسم المتجر' }), def: ((window.KiwiVenue && window.KiwiVenue.getCurrentVenueData && (window.KiwiVenue.getCurrentVenueData() || {}).fullDisplay) || (window.KiwiMe && window.KiwiMe.business) || (window.KiwiEnv?.isReal?.() ? '' : 'Café Atlas · Maarif')), max: 40 },
           { k: 'venueLoc',  label: tr({ fr: 'Emplacement', en: 'Location', ar: 'الموقع' }), def: 'Emplacement principal', max: 40 } ] },
         hours: { tag: tr({ fr: 'HORAIRES', en: 'HOURS', ar: 'التوقيت' }), title: tr({ fr: 'Heures d\'ouverture', en: 'Opening hours', ar: 'ساعات العمل' }), fields: [
           { k: 'hours', label: tr({ fr: 'Heures d\'ouverture', en: 'Opening hours', ar: 'ساعات العمل' }), def: '07:00 - 23:00 · tous les jours', max: 44 } ] },
@@ -1968,6 +1970,13 @@ ar: {
     },
 
     'instant-settle': () => {
+      /* Demo Pay flow (fabricated 23 091 MAD → Bank of Africa ••3291). A real
+         merchant has no settlement pipeline wired yet — show a neutral state
+         instead of the demo payout. Local demo keeps the full flow. */
+      if (window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) {
+        toast(tr({ fr: 'Aucun règlement instantané en attente', en: 'No instant settlement pending', ar: 'لا تسوية فورية معلّقة' }), { type: 'info', desc: tr({ fr: 'Vos virements apparaîtront ici après vos premières ventes.', en: 'Your transfers will appear here after your first sales.', ar: 'ستظهر تحويلاتك هنا بعد مبيعاتك الأولى.' }) });
+        return;
+      }
       const m = modal({
         tag: 'RÈGLEMENT INSTANTANÉ',
         title: 'Recevoir 23 091 MAD en ~10 secondes',
@@ -2000,6 +2009,13 @@ ar: {
     },
 
     'tx-detail': (el, arg) => {
+      /* Static demo transaction (Café Atlas customer/staff/card, Bank of Africa
+         ••3291 batch). No real per-transaction backend yet, so a real merchant
+         gets a neutral state rather than the demo record. Local demo unchanged. */
+      if (window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) {
+        toast(tr({ fr: 'Détail de transaction indisponible', en: 'Transaction detail unavailable', ar: 'تفاصيل المعاملة غير متوفرة' }), { type: 'info' });
+        return;
+      }
       const data = txData[arg] || txData['default'];
       modal({
         tag: 'TRANSACTION · ' + data.id,
@@ -2329,7 +2345,7 @@ ar: {
     ]),
 
     'profile-menu': (el) => menu(el, [
-      { head: ((window.KiwiMe && window.KiwiMe.name) || 'Rachid Benhima').toUpperCase() },
+      { head: ((window.KiwiMe && window.KiwiMe.name) || (window.KiwiEnv?.isReal?.() ? '' : 'Rachid Benhima')).toUpperCase() },
       { label: tr({fr:'Mon profil', en:'My profile', ar:'ملفي الشخصي'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/></svg>', onClick: () => handlers['account-profile'] && handlers['account-profile']() },
       { label: 'Paramètres', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>', onClick: () => handlers.settings() },
       { label: tr({fr:'Facturation', en:'Billing', ar:'الفواتير'}), icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>', onClick: () => handlers['account-billing'] && handlers['account-billing']() },

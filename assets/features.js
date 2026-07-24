@@ -350,7 +350,7 @@
   handlers['payment-link'] = () => {
     let step = 'form';
     const _plBiz = (window.KiwiMe && window.KiwiMe.business || '').trim();
-    let data = { amount: '', desc: _plBiz ? `Commande ${_plBiz}` : 'Commande Café Atlas', expiry: '7j', method: 'all' };
+    let data = { amount: '', desc: _plBiz ? `Commande ${_plBiz}` : (window.KiwiEnv?.isReal?.() ? 'Nouvelle commande' : 'Commande Café Atlas'), expiry: '7j', method: 'all' };
     const T = PL_STR[trLang()] || PL_STR.fr;
 
     const m = modal({
@@ -1260,7 +1260,8 @@
     // The preview card names the demo venue ("· CAFÉ ATLAS"). For a real merchant,
     // swap in their own business name so the illustration is theirs, not the demo's.
     const _biz = (window.KiwiMe && window.KiwiMe.business || '').trim();
-    const _prog = _biz ? T.previewProgram.replace(/·.*$/, '· ' + _biz.toUpperCase()) : T.previewProgram;
+    const _prog = _biz ? T.previewProgram.replace(/·.*$/, '· ' + _biz.toUpperCase())
+      : (window.KiwiEnv?.isReal?.() ? T.previewProgram.replace(/·.*$/, '').trim() : T.previewProgram);
     const m = modal({
       tag: T.tag,
       title: T.title,

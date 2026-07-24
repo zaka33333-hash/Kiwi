@@ -135,7 +135,7 @@
       if (b) return b;
       if (window.KiwiVenue?.isCustom?.()) { const vd = window.KiwiVenue.getCurrentVenueData?.(); if (vd) return vd.fullDisplay || vd.name || ''; }
     } catch (_) {}
-    return 'Café Atlas · Maarif';
+    return ordReal() ? 'Votre établissement' : 'Café Atlas · Maarif';
   };
   const ordSlug = () => String(ordBiz()).split('·')[0].normalize('NFD').replace(/[̀-ͯ]/g, '')
     .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'boutique';

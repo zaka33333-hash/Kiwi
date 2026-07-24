@@ -119,6 +119,19 @@
     try { if (window.KiwiVenue && KiwiVenue.isCustom && KiwiVenue.isCustom()) return true; } catch (_) {}
     return false;
   }
+  /* The campaign template names the demo venue ("chez Café Atlas"). For a real
+     tenant, swap in their own business name (or a neutral phrase) so a merchant
+     never sends a message signed "Café Atlas". Local demo keeps the demo name. */
+  function crmMsg(T, seg) {
+    const raw = T.msg(seg);
+    let biz = '';
+    try {
+      biz = (window.KiwiMe && window.KiwiMe.business || '').trim();
+      if (!biz && window.KiwiVenue?.isCustom?.()) { const vd = window.KiwiVenue.getCurrentVenueData?.(); biz = (vd && (vd.fullDisplay || vd.name)) || ''; }
+    } catch (_) {}
+    if (!biz && isRealTenant()) biz = 'votre établissement';
+    return biz ? raw.replace(/Café Atlas|مقهى أطلس/g, biz) : raw;
+  }
   function realData() {
     const KCl = window.KiwiClients;
     if (!KCl || !KCl.hasBook || !KCl.hasBook()) return null; // no book at all → demo
@@ -169,7 +182,7 @@
           <div class="crm-f"><div class="fl">${T.cChan}</div><div class="crm-chips">
             <button class="crm-chip on" data-crm-chan>WhatsApp</button><button class="crm-chip" data-crm-chan>SMS</button><button class="crm-chip" data-crm-chan>Email</button></div></div>
           <div class="crm-f"><div class="fl">${T.cTpl}</div><select class="crm-sel">${T.tpls.map(t => `<option>${t}</option>`).join('')}</select></div>
-          <div class="crm-f"><div class="crm-wa"><i></i>${T.preview} · WhatsApp</div><div class="crm-bubble">${T.msg(sel)}</div></div>
+          <div class="crm-f"><div class="crm-wa"><i></i>${T.preview} · WhatsApp</div><div class="crm-bubble">${crmMsg(T, sel)}</div></div>
           <div class="crm-kpis">
             <div class="crm-kpi"><div class="v" data-crm-reach2>${fmt(segData(sel).reach)}</div><div class="l">${T.reach}</div></div>
             <div class="crm-kpi"><div class="v" data-crm-lift>≈ ${fmt(segData(sel).lift)}</div><div class="l">${T.lift} (MAD)</div></div>
@@ -212,7 +225,7 @@
     const KCl = window.KiwiClients; if (!KCl) return 0;
     const T = STR[lang()] || STR.fr;
     const rows = KCl.list().filter((c) => KCl.segment(c) === segId && c.consent && c.phone);
-    const msg = T.msg(segId).replace(/\{[^}]+\}/g, '');
+    const msg = crmMsg(T, segId).replace(/\{[^}]+\}/g, '');
     const head = ['Nom', 'Téléphone', 'Segment', 'Message'];
     const csv = [head].concat(rows.map((c) => [c.name || '', c.phone || '', segId, msg]))
       .map((r) => r.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
