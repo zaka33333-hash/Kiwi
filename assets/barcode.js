@@ -259,8 +259,13 @@
         return res || { ok: false };
       }, () => { browserPrint(flat); return { ok: false }; });
     }
-    // No printer paired: guide the owner to connect one (real product flow).
-    if (KP && typeof KP.openSetup === 'function') { KP.openSetup(); return Promise.resolve({ ok: false, reason: 'not-configured' }); }
+    // No printer paired: guide the owner to connect one (real product flow), but
+    // keep a browser/PDF escape inside the modal so a label still comes out for a
+    // merchant who prints label sheets on an ordinary printer.
+    if (KP && typeof KP.openSetup === 'function') {
+      KP.openSetup({ onBrowserPrint: () => browserPrint(flat) });
+      return Promise.resolve({ ok: false, reason: 'not-configured' });
+    }
     browserPrint(flat);
     return Promise.resolve({ ok: true, browser: true });
   }

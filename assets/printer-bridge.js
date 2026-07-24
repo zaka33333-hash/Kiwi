@@ -127,12 +127,18 @@
       '.kpr-test:disabled{opacity:.45;cursor:default;}' +
       '.kpr-save{background:var(--atlas,#0B6E4F);color:#fff;}' +
       '.kpr-save:hover{filter:brightness(1.06);}' +
+      '.kpr-browser{width:100%;margin-top:10px;background:none;border:1.5px solid rgba(0,0,0,.14);color:var(--ink,#0A0F0D);opacity:.85;}' +
+      '.kpr-browser:hover{opacity:1;border-color:rgba(0,0,0,.28);}' +
       '.kpr-x{float:right;background:none;border:0;font-size:1.3rem;line-height:1;cursor:pointer;color:var(--ink,#0A0F0D);opacity:.5;}' +
       '.kpr-note{margin:14px 0 0;font-size:.78rem;opacity:.6;line-height:1.5;}';
     document.head.appendChild(s);
   }
 
-  function openSetup() {
+  // context (optional): { onBrowserPrint } — when the modal is opened from a print
+  // attempt on a machine with no bridge, we surface a "print via browser/PDF"
+  // escape so a label still comes out without the Kiwi Printer Bridge.
+  function openSetup(context) {
+    context = context || {};
     injectCss();
     var cfg = getConfig();
     var ov = document.createElement('div'); ov.id = 'kpr-ov';
@@ -154,6 +160,7 @@
           '<button class="kpr-btn kpr-test" type="button" id="kpr-test" disabled>Imprimer un ticket test</button>' +
           '<button class="kpr-btn kpr-save" type="button" id="kpr-save">Enregistrer</button>' +
         '</div>' +
+        (context.onBrowserPrint ? '<button class="kpr-btn kpr-browser" type="button" id="kpr-browser">Imprimer en PDF (navigateur)</button>' : '') +
         '<p class="kpr-note">Le pont tourne sur l’ordinateur de la caisse et ne communique qu’avec votre imprimante locale.</p>' +
       '</div>';
     document.body.appendChild(ov);
@@ -188,6 +195,10 @@
     $('#kpr-close').addEventListener('click', close);
     ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
     $('#kpr-save').addEventListener('click', function () { setConfig(readForm()); toast('Imprimante enregistrée'); close(); });
+    if (context.onBrowserPrint) {
+      var bp = $('#kpr-browser');
+      if (bp) bp.addEventListener('click', function () { close(); try { context.onBrowserPrint(); } catch (_) {} });
+    }
     $('#kpr-test').addEventListener('click', function () {
       setConfig(readForm());
       var cfg2 = getConfig();
