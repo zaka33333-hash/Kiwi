@@ -427,9 +427,9 @@
     }
     installWedgeScanner();
 
-    /* mi-journée : une vente est déjà en cours au comptoir */
+    /* mi-journée : une vente est déjà en cours au comptoir. Aucune cliente n'est
+       pré-attachée — la caissière l'attache à la demande via « Chercher ». */
     freshTicket();
-    state.ticket.client = 'c1';
     seedDemoTicket();
 
     renderAll();
@@ -632,8 +632,7 @@
     const reset = $('#bq-tk-reset', el);
     if (reset) reset.onclick = () => {
       t.lines.forEach((ln) => stockAdd(ln.pid, ln.size, ln.qty));
-      freshTicket();
-      state.ticket.client = t.client;     /* la cliente reste au comptoir */
+      freshTicket();                       /* ticket ET cliente remis à zéro — pas d'attache auto */
       renderTicket(); renderGrid(); renderBadges(); icons();
       toast('Ticket vidé, articles remis en stock');
     };
