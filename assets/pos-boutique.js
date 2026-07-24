@@ -250,6 +250,33 @@
   const initials = (name) => name.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
   const firstName = (name) => name.replace(/^Lalla\s+|^Mme\s+/i, '').split(/\s+/)[0];
 
+  /* ── clients: real store = the shared KiwiClients book (assets/clients-store.js) ──
+     A REAL/paired boutique reads its picker, ticket and « Nouvelle cliente » from
+     KiwiClients — so it shows its OWN clients (empty until captured on the till) and
+     any client added in the dashboard « Clients » appears here too. The pitch demo
+     (unpaired PIN 0002) keeps the rich hard-coded CLIENTES above. */
+  function isDemoStore() { try { return !bqReal(); } catch (_) { return true; } }   // pitch demo = local, unpaired, not signed-in
+  function useKiwiCl() { return !isDemoStore() && !!window.KiwiClients; }
+  function fromKiwi(c) {
+    if (!c) return null;
+    return { id: c.id, name: c.name || 'Sans nom', phone: c.phone || '', points: c.points || 0,
+      taille: '', achats: c.visits || 0, spent: c.spend || 0,
+      vip: !!(window.KiwiClients && KiwiClients.segment(c) === 'vip'), prefs: c.notes ? [c.notes] : [], history: [] };
+  }
+  // A REAL store shows ONLY its own KiwiClients book (empty until captured) — NEVER
+  // the demo CLIENTES. The pitch demo keeps the rich hard-coded set.
+  function clientList() {
+    if (isDemoStore()) return CLIENTES;
+    return window.KiwiClients ? window.KiwiClients.list().map(fromKiwi) : [];
+  }
+  function clById(id) {
+    if (!id || id === 'passage') return null;
+    if (isDemoStore()) return CL[id] || null;
+    const c = window.KiwiClients && window.KiwiClients.get(id);
+    return c ? fromKiwi(c) : null;
+  }
+  const IS_DEMO = isDemoStore();   // frozen for this session — gates the seeded demo sales/avoirs/ticket
+
   /* ───────────────────────── ventes du jour (seed, mi-journée) ──────────── */
   const NOW = Date.now();
   const mkLine = (pid, size, color, qty, remise) => {
@@ -257,7 +284,7 @@
     const rem = remise || 0;
     return { pid, size, color, qty, remise: rem, unit: Math.round(p.price * (100 - rem) / 100), returned: false, note: '' };
   };
-  const SALES = [
+  const SALES = IS_DEMO ? [
     { id: 'MM-1207', at: new Date(NOW - 24 * MIN),  clientId: 'c4', by: 'Rania', kind: 'vente', methods: 'espèces',
       lines: [mkLine('caftan_ete', 'S', 'ivoire', 1), mkLine('broche_perles', 'TU', 'argent', 1)] },
     { id: 'MM-1206', at: new Date(NOW - 57 * MIN),  clientId: 'c3', by: 'Aicha', kind: 'vente', methods: 'carte',
@@ -268,16 +295,16 @@
       lines: [mkLine('babouche_brodee', '38', 'rose', 1), mkLine('foulard_soie', 'TU', 'safran', 1)] },
     { id: 'MM-1203', at: new Date(NOW - 170 * MIN), clientId: null, by: 'Rania', kind: 'vente', methods: 'espèces',
       lines: [mkLine('babouche_homme', '42', 'camel', 1)] },
-  ];
+  ] : [];
   SALES.forEach((s) => { s.total = s.lines.reduce((t, l) => t + l.unit * l.qty, 0); });
   const findSale = (id) => SALES.find((s) => s.id === id);
   const saleClient = (s) => (s.clientId ? CL[s.clientId] : null);
 
   /* avoirs actifs — store credit. AV-2031 vient du retour cherbil d'hier. */
-  const AVOIRS = [
+  const AVOIRS = IS_DEMO ? [
     { code: 'AV-2031', amount: 350, balance: 350, holderId: 'c2', holderName: 'Salma Bennis',
       motif: 'Retour cherbil perlé · 37', at: new Date(NOW - 26 * 3600 * 1000), until: new Date(NOW + 182 * 24 * 3600 * 1000), from: 'MM-1188' },
-  ];
+  ] : [];
   let avSeq = 2032;
   const activeAvoirs = () => AVOIRS.filter((a) => a.balance > 0);
 
@@ -302,7 +329,7 @@
   }
   function ticketClient() {
     const t = state.ticket;
-    return t.client && t.client !== 'passage' ? CL[t.client] : null;
+    return t.client && t.client !== 'passage' ? clById(t.client) : null;
   }
   const lineUnit  = (ln) => Math.round(P[ln.pid].price * (100 - ln.remise) / 100);
   const lineTotal = (ln) => lineUnit(ln) * ln.qty;
@@ -427,10 +454,10 @@
     }
     installWedgeScanner();
 
-    /* mi-journée : une vente est déjà en cours au comptoir. Aucune cliente n'est
-       pré-attachée — la caissière l'attache à la demande via « Chercher ». */
+    /* Pitch demo only: a mid-day sale already in progress. A REAL store starts with
+       a truly empty ticket and NO client (attached on demand via « Chercher »). */
     freshTicket();
-    seedDemoTicket();
+    if (IS_DEMO) seedDemoTicket();
 
     renderAll();
   }
@@ -594,9 +621,13 @@
         <span class="l"><b>Cliente de passage</b><span>Sans fiche, retrouvable par n° de ticket</span></span>
         <span class="edit">Changer</span></button>`;
     }
-    const c = CL[t.client];
+    const c = clById(t.client);
+    if (!c) return `<button class="bq-tk-row" id="bq-tk-client"><i data-lucide="user-plus"></i>
+        <span class="l"><b>Attacher une cliente</b><span>Téléphone d'abord, points et taille suivent</span></span>
+        <span class="edit">Chercher</span></button>`;
+    const sub = [esc(c.phone) || '—', c.points + ' pts', c.taille ? 'taille ' + esc(c.taille) : ''].filter(Boolean).join(' · ');
     return `<button class="bq-tk-row is-set" id="bq-tk-client"><i data-lucide="user-check"></i>
-      <span class="l"><b>${esc(c.name)}</b><span>${esc(c.phone)} · ${c.points} pts · taille ${esc(c.taille)}</span></span>
+      <span class="l"><b>${esc(c.name)}</b><span>${sub}</span></span>
       ${c.vip ? '<span class="bq-vip-chip">VIP</span>' : ''}
       <span class="edit">Changer</span></button>`;
   }
@@ -874,8 +905,9 @@
   function clienteHits(q) {
     const digits = (q || '').replace(/\D/g, '');
     const ql = (q || '').toLowerCase();
-    return !q ? CLIENTES : CLIENTES.filter((c) =>
-      (digits && c.phone.replace(/\D/g, '').includes(digits)) ||
+    const src = clientList();
+    return !q ? src : src.filter((c) =>
+      (digits && (c.phone || '').replace(/\D/g, '').includes(digits)) ||
       (!digits && c.name.toLowerCase().includes(ql)));
   }
   function clAvoirOf(c) {
@@ -902,7 +934,7 @@
                 <span class="bq-cl-ava">${esc(initials(c.name))}</span>
                 <span class="bq-cl-mid">
                   <span class="bq-cl-name">${esc(c.name)} ${c.vip ? '<span class="bq-vip-chip">VIP</span>' : ''}</span>
-                  <span class="bq-cl-sub">${esc(c.phone)} · taille ${esc(c.taille)}</span>
+                  <span class="bq-cl-sub">${esc(c.phone) || '—'}${c.taille ? ' · taille ' + esc(c.taille) : ''}</span>
                 </span>
                 <span class="bq-cl-right"><b>${c.points} pts</b>${av ? `<span class="av">avoir ${fmtMAD(av.balance)}</span>` : `${c.achats} achats`}</span>
               </button>`;
@@ -924,10 +956,12 @@
       $$('[data-bq-close]', el).forEach((b) => { b.onclick = () => closeVeil('#bq-client-veil'); });
       $$('[data-bq-cl]', el).forEach((b) => {
         b.onclick = () => {
-          const c = CL[b.dataset.bqCl];
+          const c = clById(b.dataset.bqCl);
+          if (!c) return;
           state.ticket.client = c.id;
           closeVeil('#bq-client-veil');
-          toast(`${c.name}, taille ${c.taille}, ${c.points} pts${clAvoirOf(c) ? ', un avoir actif' : ''}`);
+          const tt = [c.taille ? 'taille ' + c.taille : '', c.points + ' pts'].filter(Boolean).join(', ');
+          toast(`${c.name}${tt ? ' · ' + tt : ''}${clAvoirOf(c) ? ', un avoir actif' : ''}`);
           renderTicket(); icons();
         };
       });
@@ -946,10 +980,16 @@
         const name = $('#bq-cl-name', el).value.trim();
         const tel = $('#bq-cl-tel', el).value.trim();
         if (!name) { toast('Le nom est requis pour la fiche'); return; }
-        const id = 'cx' + Date.now().toString(36);
-        const c = { id, name, phone: tel, points: 0, taille: 'M', achats: 0, spent: 0, prefs: [], history: [] };
-        CLIENTES.unshift(c); CL[id] = c;
-        state.ticket.client = id;
+        let cid;
+        if (useKiwiCl()) {
+          const rec = window.KiwiClients.upsert({ name, phone: tel, consent: true, source: 'caisse' });
+          cid = rec.id;                                    // unified — appears in the dashboard « Clients » too
+        } else {
+          cid = 'cx' + Date.now().toString(36);
+          const c = { id: cid, name, phone: tel, points: 0, taille: '', achats: 0, spent: 0, prefs: [], history: [] };
+          CLIENTES.unshift(c); CL[cid] = c;
+        }
+        state.ticket.client = cid;
         closeVeil('#bq-client-veil');
         queueIfOffline('Fiche cliente');
         toast(`Fiche créée, ${name}`);
