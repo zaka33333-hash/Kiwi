@@ -191,25 +191,36 @@
     if (document.getElementById('kbl-print-css')) return;
     const st = document.createElement('style');
     st.id = 'kbl-print-css';
+    // ONE label per page, the page sized to the label itself (50 × 30 mm — the
+    // common retail barcode-label size). This is what makes a browser/PDF print
+    // look like a real étiquette instead of a 48 mm sticker lost on an A4 sheet
+    // (the "empty page" problem). Each label force-breaks to its own page, so
+    // "print all" yields a tidy multi-page PDF, one label per page.
     st.textContent = `
       #kbl-print-root { display: none; }
       @media print {
-        html, body { background: #fff !important; }
+        html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
         body > *:not(#kbl-print-root) { display: none !important; }
         #kbl-print-root { display: block !important; position: static; }
-        .kbl-sheet { display: flex; flex-wrap: wrap; gap: 4mm; align-content: flex-start; }
+        .kbl-sheet { display: block; }
         .kbl {
-          width: 48mm; min-height: 28mm; box-sizing: border-box;
-          border: 0.2mm solid #ddd; border-radius: 1.5mm; padding: 2mm 2.5mm;
-          display: flex; flex-direction: column; justify-content: space-between;
-          page-break-inside: avoid; font-family: 'Inter Tight', system-ui, sans-serif; color: #0A0F0D;
+          width: 50mm; height: 30mm; box-sizing: border-box; overflow: hidden;
+          padding: 2mm 2.5mm 1.5mm;
+          display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+          page-break-after: always; break-after: page; text-align: center;
+          font-family: 'Inter Tight', system-ui, sans-serif; color: #0A0F0D;
         }
-        .kbl-t { font-size: 8.5pt; font-weight: 600; line-height: 1.1; }
-        .kbl-m { font-size: 7pt; color: #444; margin-top: 0.5mm; }
-        .kbl-m b { color: #0A0F0D; font-size: 8pt; }
-        .kbl-bc { margin-top: 1mm; text-align: center; }
-        .kbl-bc svg { max-width: 100%; height: auto; }
-        @page { size: auto; margin: 8mm; }
+        .kbl:last-child { page-break-after: auto; break-after: auto; }
+        .kbl-head { width: 100%; }
+        .kbl-t {
+          font-size: 8.5pt; font-weight: 700; line-height: 1.12;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .kbl-m { font-size: 7pt; color: #444; margin-top: 0.6mm; }
+        .kbl-m b { color: #0A0F0D; font-size: 8.5pt; }
+        .kbl-bc { width: 100%; line-height: 0; margin-top: 0.5mm; }
+        .kbl-bc svg { width: 100%; height: auto; max-height: 15mm; }
+        @page { size: 50mm 30mm; margin: 0; }
       }`;
     document.head.appendChild(st);
   }
@@ -217,10 +228,15 @@
   function labelHTML(l) {
     l = l || {};
     const svg = api.svg(l.code, { format: l.format, height: 40, module: 1.5, showText: true, textSize: 9 });
-    const priceStr = (l.price != null && l.price !== '') ? ` · <b>${escapeXml(String(l.price))} MAD</b>` : '';
-    return `<div class="kbl"><div class="kbl-t">${escapeXml(l.title || '')}</div>` +
-           `<div class="kbl-m">${escapeXml(l.sub || '')}${priceStr}</div>` +
-           `<div class="kbl-bc">${svg}</div></div>`;
+    // Show a price only when it's a real, positive amount — a "0 MAD" on a shelf
+    // label is noise, and it's exactly what read as broken on the empty sheet.
+    const hasPrice = l.price != null && String(l.price).trim() !== '' && parseFloat(String(l.price).replace(',', '.')) > 0;
+    const priceStr = hasPrice ? ` · <b>${escapeXml(String(l.price))} MAD</b>` : '';
+    const meta = (l.sub || hasPrice) ? `<div class="kbl-m">${escapeXml(l.sub || '')}${priceStr}</div>` : '';
+    return `<div class="kbl">` +
+             `<div class="kbl-head"><div class="kbl-t">${escapeXml(l.title || '')}</div>${meta}</div>` +
+             `<div class="kbl-bc">${svg}</div>` +
+           `</div>`;
   }
 
   // Browser fallback: paint a hidden print root and open the OS print sheet.
