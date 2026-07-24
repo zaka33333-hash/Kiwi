@@ -11641,7 +11641,80 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     return meta.t;
   }
 
+  /* Styles for the real per-venue Ventes list — injected once. */
+  function ensureRtxStyles() {
+    if (document.getElementById('kiwi-rtx-style')) return;
+    const s = document.createElement('style');
+    s.id = 'kiwi-rtx-style';
+    s.textContent =
+      '.rtx-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--n-200)}' +
+      '.rtx-count{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--n-500)}' +
+      '.rtx-total{font-size:14px;color:var(--ink)}.rtx-total b{font-family:var(--mono)}' +
+      '.rtx-list{display:flex;flex-direction:column}' +
+      '.rtx-row{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:14px;padding:12px 2px;border-bottom:1px solid var(--n-100)}' +
+      '.rtx-row.is-new{animation:rtx-in .45s cubic-bezier(.32,.72,0,1)}' +
+      '@keyframes rtx-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}' +
+      '.rtx-t{font-family:var(--mono);font-size:12.5px;color:var(--n-500)}' +
+      '.rtx-m{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--atlas) 12%,transparent);color:var(--atlas);white-space:nowrap}' +
+      '.rtx-l{font-size:14px;color:var(--ink)}' +
+      '.rtx-a{font-family:var(--mono);font-size:14.5px;font-weight:600;color:var(--ink);white-space:nowrap}' +
+      '.rtx-cur{font-size:10px;color:var(--n-500)}';
+    document.head.appendChild(s);
+  }
+
+  /* A custom/real venue's Ventes page shows the merchant's ACTUAL sales from
+   * window.KiwiSales — which now includes Live-Link sales bridged from the caisse
+   * (see live-link.js). Newest first, with a running total. Falls back to the
+   * starter (below) when there are no sales yet. */
+  function renderRealTransactions(nav, meta) {
+    ensureRtxStyles();
+    const KV = window.KiwiVenue;
+    const vd = KV?.getCurrentVenueData?.() || {};
+    const lang = window.KiwiI18n?.getLang?.() || 'fr';
+    const sales = (window.KiwiSales?.list?.() || []).slice();
+    const ML = {
+      fr: { cash: 'Espèces', card: 'Carte', tap: 'Kiwi Tap', qr: 'QR Wallet', wallet: 'Kiwi Wallet', link: 'Lien', split: 'Partagée', vente: 'Vente' },
+      en: { cash: 'Cash', card: 'Card', tap: 'Kiwi Tap', qr: 'QR Wallet', wallet: 'Kiwi Wallet', link: 'Link', split: 'Split', vente: 'Sale' },
+      ar: { cash: 'نقدًا', card: 'بطاقة', tap: 'Kiwi Tap', qr: 'QR Wallet', wallet: 'Kiwi Wallet', link: 'رابط', split: 'مقسّمة', vente: 'بيع' },
+    };
+    const L = ML[lang] || ML.fr;
+    const SUM = { fr: { n: 'ventes', one: 'vente', total: 'Total' }, en: { n: 'sales', one: 'sale', total: 'Total' }, ar: { n: 'مبيعات', one: 'بيع', total: 'المجموع' } }[lang] || { n: 'ventes', one: 'vente', total: 'Total' };
+    const fmt = n => { try { return (Math.round(n) || 0).toLocaleString(lang === 'ar' ? 'ar-MA' : 'fr-FR'); } catch (_) { return String(Math.round(n) || 0); } };
+    const total = sales.reduce((a, s) => a + (s.amount || 0), 0);
+    const count = sales.length;
+    const rows = sales.slice().reverse().map((s, i) => {
+      const d = new Date(s.ts || Date.now());
+      const hh = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      const m = L[s.method] || L.vente;
+      return `<div class="rtx-row${i === 0 ? ' is-new' : ''}">` +
+        `<span class="rtx-t">${hh}</span>` +
+        `<span class="rtx-m">${escS(m)}</span>` +
+        `<span class="rtx-l">${escS(L.vente)}</span>` +
+        `<span class="rtx-a">${fmt(s.amount)}<span class="rtx-cur"> MAD</span></span>` +
+        `</div>`;
+    }).join('');
+    const startingUp = T({ fr: 'compte en démarrage', en: 'account getting started', ar: 'حساب قيد الإعداد' });
+    window.Kiwi.appPage('transactions', {
+      title: starterTitle(nav, meta),
+      subtitle: `${vd.name || 'Votre établissement'} · ${startingUp}`,
+      body: `
+        <div data-real-tx class="rtx">
+          <div class="rtx-head">
+            <div class="rtx-count">${count} ${escS(count === 1 ? SUM.one : SUM.n)}</div>
+            <div class="rtx-total">${escS(SUM.total)} · <b>${fmt(total)} MAD</b></div>
+          </div>
+          <div class="rtx-list">${rows}</div>
+        </div>
+      `,
+    });
+  }
+
   function renderStarter(nav, meta) {
+    /* Ventes: once the merchant has real sales (rung locally OR bridged from a
+     * Live-Link caisse), show the actual list, not the "nothing yet" placeholder. */
+    if (nav === 'transactions' && window.KiwiSales?.list && window.KiwiSales.list().length) {
+      return renderRealTransactions(nav, meta);
+    }
     const KV = window.KiwiVenue;
     const vd = KV?.getCurrentVenueData?.() || {};
     const cfg = ADD[nav];
@@ -11677,7 +11750,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       title: starterTitle(nav, meta),
       subtitle: `${vd.name || 'Votre établissement'} · ${startingUp}`,
       body: `
-        <div class="gp-starter">
+        <div class="gp-starter" data-starter-nav="${nav}">
           <div class="gp-starter-ic">${SPARK}</div>
           <h3>${h3}</h3>
           <p>${meta.d}</p>
@@ -11720,5 +11793,14 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
   window.addEventListener('load', () => {
     setTimeout(installStarters, 150);
     if (window.KiwiVenue?.subscribe) window.KiwiVenue.subscribe(() => installStarters());
+    /* Live-refresh the Ventes page when a sale lands (local ring-up OR a
+     * Live-Link sale bridged from the caisse). Only re-renders when that page is
+     * the one on screen — the real list, or the empty starter that a first sale
+     * should flip into the list. */
+    if (window.KiwiSales?.subscribe) window.KiwiSales.subscribe(() => {
+      if (!document.querySelector('[data-real-tx], [data-starter-nav="transactions"]')) return;
+      const H = window.Kiwi && window.Kiwi.handlers;
+      try { if (H && H['nav-transactions']) H['nav-transactions'](); } catch (_) {}
+    });
   });
 })();
