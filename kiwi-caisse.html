@@ -16,7 +16,8 @@
        Version pinned at download (v1.17.0). To upgrade, re-download from
        https://unpkg.com/lucide@latest/dist/umd/lucide.min.js into assets/. -->
   <!-- ENV first: separates the owner's local demo copy from the hosted app. -->
-  <script src="assets/kiwi-env.js" defer></script>
+  <script src="assets/kiwi-env.js"></script><!-- must run FIRST (before the inline app script), so KiwiEnv.isReal() is ready when demo data is seeded -->
+
   <script src="assets/lucide.min.js" defer></script>
 
   <!-- Pressing mode (PIN 0000 — assets/pressing-caisse.js injects its own DOM,
@@ -5339,6 +5340,11 @@
       T23: { floor: 1, zone: 'etage', shape: 'round', covers: 6, size: 6, x: 73, y: 71, w: 14, h: 22, anchor: 'banquette-ronde', status: 'khawya', elapsed: 0,  server: 'SO' },
     };
 
+    // A REAL / paired store opens with an EMPTY floor — every table free (khawya),
+    // no demo occupancy or timers. KiwiEnv loads before this script, so isReal() is
+    // ready here; the local demo (unpaired localhost) keeps its mid-service floor.
+    try { if (storeIsReal()) Object.keys(tables).forEach((k) => { tables[k].status = 'khawya'; tables[k].elapsed = 0; }); } catch (_) {}
+
     /* ---------- Mock orders per table ---------- */
     /* T2 hand-spec'd. Others generated from a small menu so the demo doesn't break. */
     const orders = {
@@ -7858,6 +7864,13 @@
           });
         }
       } catch (_) {}
+      // Welcome-screen demo stats (static "53 transactions", "11 tables ka-yaklo")
+      // → a real store opens empty. Recompute from the (empty) ledger + blank the
+      // mid-service subtitle. The demo path never reaches here (storeIsReal false).
+      const wb2 = document.getElementById('wb-line2'); if (wb2) wb2.textContent = 'Ouverture de service';
+      const tx = document.getElementById('stat-txns'); if (tx) tx.textContent = '0';
+      const txd = document.getElementById('stat-txns-delta'); if (txd) txd.textContent = 'Carte 0% · Cash 0%';
+      try { if (typeof renderShiftStats === 'function') renderShiftStats(); } catch (_) {}
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyStoreIdentity);
     else applyStoreIdentity();
@@ -8008,11 +8021,14 @@
       if (btn) btn.classList.add('is-confirmed');
       if (window.lucide) lucide.createIcons();
 
-      // Open the cashier's shift — seeded to feel mid-service.
-      shiftOpenedAt = new Date(Date.now() - 128 * 60 * 1000);  // ~2h08 ago
+      // Open the cashier's shift. The DEMO opens mid-service (~2h of seeded sales);
+      // a REAL / paired store opens a fresh shift with an EMPTY ledger (0 sales,
+      // 0 transactions) that fills from real encaissements.
+      const _realStore = storeIsReal();
+      shiftOpenedAt = _realStore ? new Date() : new Date(Date.now() - 128 * 60 * 1000);
       posteOpenedAt = shiftOpenedAt;         // first cashier's poste = whole shift
       posteOpeningFloat = openingFloat;
-      seedJournal();
+      if (!_realStore) seedJournal();
       renderShiftStats();
 
       setTimeout(() => runEntrySequence(clockinEl), 540);
@@ -9721,6 +9737,9 @@
     const kdsEl = $('#kds-screen');
 
     function kdsSeed() {
+      // A REAL / paired store opens with an EMPTY order board — no demo orders
+      // (Méchoui, Pastilla poulet, Thé à la menthe…). They arrive from real sales.
+      if (storeIsReal()) return;
       const seed = [
         { num: 38, type: 'dineIn', table: '3', status: 'ready', ago: 1880, readyAt: '13:46', items: [
           { q: 2, n: 'Couscous royal', stations: ['cuisson'] }, { q: 2, n: 'Thé à la menthe', stations: ['boissons'] } ] },
@@ -10699,6 +10718,17 @@
     (function () {
       const saved = loadPersistedShift();
       if (!saved) return;
+      // A REAL / paired store must never restore a DEMO shift — a device that once
+      // ran the pitch demo (or dev residue) persists a shift whose journal is all
+      // seeded 'seed-*' entries. On a real store, discard it so the caisse opens
+      // clean (0 transactions). A genuine real shift has 'sale-*' ids and restores.
+      try {
+        if (storeIsReal() && (!saved.journal || !saved.journal.length ||
+            saved.journal.every((e) => String(e && e.id || '').indexOf('seed-') === 0))) {
+          localStorage.removeItem('kiwi-caisse-shift');
+          return;
+        }
+      } catch (_) {}
       restoreShift(saved);
       enterShellDirectly();
       setTimeout(() => toast('Service restauré · ' + journal.length + ' transactions'), 500);
