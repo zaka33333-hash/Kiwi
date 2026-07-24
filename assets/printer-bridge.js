@@ -27,9 +27,18 @@
   var BRIDGE_URL = 'http://127.0.0.1:9110';
   var BRIDGE_DOWNLOAD = 'https://github.com/badro99/Kiwi/releases/latest';
   var CFG_KEY = 'kiwiPrinterCfg';
+  // Thermal-printer brands common with Moroccan merchants. All are ESC/POS-
+  // compatible, so they share the generic encoder — the choice is for the owner's
+  // confidence (and future per-brand tuning). "Générique" stays the safe default.
   var MODELS = [
     { id: 'escpos', label: 'Générique (ESC/POS)' },
     { id: 'epson', label: 'Epson' },
+    { id: 'xprinter', label: 'Xprinter' },
+    { id: 'sunmi', label: 'Sunmi' },
+    { id: 'rongta', label: 'Rongta' },
+    { id: 'bixolon', label: 'Bixolon' },
+    { id: 'hprt', label: 'HPRT' },
+    { id: 'citizen', label: 'Citizen' },
     { id: 'star', label: 'Star' },
   ];
 
