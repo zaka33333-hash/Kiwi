@@ -385,14 +385,7 @@
 
     $('#bq-nav', root).addEventListener('click', (e) => {
       const b = e.target.closest('[data-bq-view]');
-      if (!b) return;
-      // Clients → the unified Kiwi Fidélité carnet (assets/clients-book.js): one
-      // client book shared with the owner's dashboard, replacing the old local list.
-      if (b.dataset.bqView === 'clientes' && window.KiwiClientsBook) {
-        window.KiwiClientsBook.open();
-        return;
-      }
-      switchView(b.dataset.bqView);
+      if (b) switchView(b.dataset.bqView);
     });
     $('#bq-lock', root).addEventListener('click', () => window.KiwiPosDispatch.lock());
     $('#bq-net', root).addEventListener('click', toggleOffline);
@@ -485,7 +478,7 @@
     set('#bq-badge-vente', items);
     set('#bq-badge-scan', state.scanLog.length);
     set('#bq-badge-ret', avs);
-    set('#bq-badge-cl', CLIENTES.length);
+    set('#bq-badge-cl', (window.KiwiClients && KiwiClients.count && KiwiClients.count()) || CLIENTES.length);
     const invBadge = $('#bq-badge-inv', root);
     if (invBadge) { const st = window.KiwiBoutiqueCatalog ? window.KiwiBoutiqueCatalog.stats() : null; const n = st ? st.ruptures + st.low : 0; invBadge.textContent = n || ''; invBadge.style.display = n ? '' : 'none'; }
   }
