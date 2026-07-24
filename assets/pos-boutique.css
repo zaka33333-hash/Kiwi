@@ -672,6 +672,75 @@
 .bq-scan-log-row.is-err svg { color: var(--danger-mute); }
 .bq-scan-log-row .when { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
 .bq-scan-log-row .ean { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--ink-4); }
+.bq-scan-log-h { margin: 18px 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ═══════════════ VENTE — barre scan (ajout au ticket) ═══════════════ */
+.bq-sell-scan {
+  display: flex; align-items: center; gap: 11px;
+  margin: 0 0 12px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line); border-radius: 13px;
+  background: var(--paper-elev);
+  transition: border-color 140ms, box-shadow 140ms;
+}
+.bq-sell-scan:focus-within { border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(63,182,122,0.12); }
+.bq-sell-scan > svg { width: 18px; height: 18px; color: var(--ink-3); flex-shrink: 0; }
+.bq-sell-scan input {
+  flex: 1; min-width: 0; border: 0; outline: none; background: none;
+  font-family: var(--mono); font-size: 16px; letter-spacing: 0.06em; color: var(--ink);
+}
+.bq-sell-scan input::placeholder { font-family: var(--sans); font-size: 13px; letter-spacing: 0; color: var(--ink-4); }
+.bq-sell-scan-tag {
+  flex-shrink: 0; font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-4); border: 1px solid var(--line); border-radius: 6px; padding: 3px 7px;
+}
+
+/* ═══════════════ SCAN — fiche disponibilité (lecture seule) ═══════════════ */
+.bq-look {
+  margin-top: 16px;
+  border: 1px solid var(--mint-edge); border-radius: 16px;
+  background: var(--paper-elev); overflow: hidden;
+  animation: bq-card-in 300ms ease-out both;
+}
+.bq-look-top {
+  display: flex; align-items: center; gap: 13px;
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.bq-look-art { width: 52px; height: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.bq-look-art svg { width: 40px; height: 40px; }
+.bq-look-id { flex: 1; min-width: 0; }
+.bq-look-id b { display: block; font-size: 16px; font-weight: 600; color: var(--ink); }
+.bq-look-id span { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); margin-top: 3px; }
+.bq-look-price { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--forest); flex-shrink: 0; }
+.bq-look-avail { padding: 14px 16px; }
+.bq-look-avail-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.bq-look-status { font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 4px 9px; border-radius: 7px; }
+.bq-look-status.ok  { color: var(--forest); background: var(--mint-tint); }
+.bq-look-status.low { color: var(--bq-warn); background: var(--bq-warn-bg); }
+.bq-look-status.out { color: var(--danger-mute); background: rgba(184,82,69,0.10); }
+.bq-look-tot { font-size: 12.5px; color: var(--ink-2); }
+.bq-look-sizes { display: flex; flex-wrap: wrap; gap: 7px; }
+.bq-look-size {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  padding: 7px 11px; border-radius: 9px;
+  border: 1px solid var(--line); background: var(--paper);
+  font-size: 13px; color: var(--ink);
+}
+.bq-look-size b { font-weight: 600; }
+.bq-look-size i { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.bq-look-size.is-on { border-color: var(--emerald); box-shadow: 0 0 0 2px rgba(63,182,122,0.14); }
+.bq-look-size.low { border-color: rgba(217,154,43,0.4); }
+.bq-look-size.low i { color: var(--bq-warn); }
+.bq-look-size.out { opacity: 0.5; }
+.bq-look-size.out b { text-decoration: line-through; }
+.bq-look-size.out i { color: var(--danger-mute); }
+.bq-look-empty { font-size: 12.5px; color: var(--ink-3); }
+.bq-look-colors { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.bq-look-color { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+.bq-look-color i { width: 13px; height: 13px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12); display: inline-block; }
+.bq-look-color.is-on { font-weight: 600; color: var(--ink); }
+.bq-look-sell { margin: 2px 16px 16px; width: calc(100% - 32px); justify-content: center; }
 
 /* ═══════════════ ÉCHANGES & AVOIRS ═══════════════ */
 .bq-ret { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
