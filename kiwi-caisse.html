@@ -7813,14 +7813,35 @@
      * No-op for the local demo. Runs on load; re-run after clock-in if needed. */
     function applyStoreIdentity() {
       if (!storeIsReal()) return;
-      const nm = storeName(), city = storeCity();
+      const nm = storeName() || 'Ma caisse', city = storeCity();
       const top = document.getElementById('topbar-store'); if (top) top.textContent = [nm, city].filter(Boolean).join(' · ');
-      const sub = document.getElementById('greet-sub');    if (sub && nm) sub.textContent = nm + ' · service ouvert';
-      const role = document.querySelector('.clockin-role'); if (role && nm) role.textContent = 'Caissier · ' + nm;
-      const foot = document.querySelector('.clockin-foot'); if (foot && city) foot.textContent = city;
+      const sub = document.getElementById('greet-sub');    if (sub) sub.textContent = nm + ' · service ouvert';
+      const role = document.querySelector('.clockin-role'); if (role) role.textContent = 'Caissier · ' + nm;
+      const foot = document.querySelector('.clockin-foot'); if (foot) foot.textContent = city || nm;
       document.querySelectorAll('.plan-room-label').forEach((el) => {
-        if (!nm) return; const em = el.querySelector('em'); el.textContent = nm + ' '; if (em) el.appendChild(em);
+        const em = el.querySelector('em'); el.textContent = nm + ' '; if (em) el.appendChild(em);
       });
+      // STAFF — never show the demo cashiers (Othmane N., Yassine M.…) on a real
+      // store. Use operator-set staff (KiwiConfig.pins) when present, else a plain
+      // "Caissier". Also drops the demo roster so handover only lists real staff.
+      let staff = null;
+      try { const p = window.KiwiConfig && window.KiwiConfig.pins; if (Array.isArray(p) && p.length) staff = p; } catch (_) {}
+      const cashName = (staff && staff[0] && staff[0].name) || 'Caissier';
+      const cashRole = (staff && staff[0] && staff[0].role) || 'Caissier';
+      currentCashier = { id: 'me', name: cashName, role: cashRole };
+      if (Array.isArray(CASHIER_ROSTER)) {
+        CASHIER_ROSTER.length = 0;
+        (staff || []).forEach((s, i) => CASHIER_ROSTER.push({ id: 'staff' + i, name: s.name || 'Caissier', role: s.role || 'Caissier' }));
+      }
+      const first = String(cashName).trim().split(/\s+/)[0] || 'Caissier';
+      const g1 = document.getElementById('greet-line1'); if (g1) g1.textContent = 'Sba7 lkhir ' + first + ',';
+      const wb = document.getElementById('wb-line1');     if (wb) wb.textContent = 'Sba7 lkhir ' + first;
+      const cn = document.querySelector('.cashier-name'); if (cn) cn.textContent = cashName;
+      const setGreet = (sel, tag) => document.querySelectorAll(sel).forEach((el) => {
+        el.textContent = 'Sba7 lkhir' + (tag ? ' ' : ', ');
+        const m = document.createElement(tag || 'b'); m.textContent = first; el.appendChild(m);
+      });
+      setGreet('.pin-greet', ''); setGreet('.clockin-greet', 'em');
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyStoreIdentity);
     else applyStoreIdentity();
@@ -7996,7 +8017,7 @@
       const greetWord = hour < 11 ? 'Sba7 lkhir' : (hour < 17 ? 'Salam' : 'Msa lkhir');
       const line1El = document.getElementById('greet-line1');
       const subEl   = document.getElementById('greet-sub');
-      if (line1El) line1El.textContent = `${greetWord} Othmane,`;
+      if (line1El) line1El.textContent = `${greetWord} ${String(currentCashier.name || '').trim().split(/\s+/)[0] || 'Caissier'},`;
       if (subEl)   subEl.innerHTML = `${onCount} serveur${onCount > 1 ? 's' : ''} 3la khidma <em>·</em> ${eatCount} table${eatCount > 1 ? 's' : ''} ka-yaklo`;
 
       // --- Wrap <em> in .em-clip and measure its natural width ---
@@ -8148,7 +8169,7 @@
       $('#cloture-modal').classList.remove('is-open');
       registerClosing = true;
       clearPersistedShift();
-      toast('Caisse fermée · à bientôt Othmane');
+      toast(`Caisse fermée · à bientôt ${String(currentCashier.name || '').trim().split(/\s+/)[0] || ''}`.trim());
       setTimeout(() => location.reload(), 720);
     }
 
