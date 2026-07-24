@@ -46,10 +46,31 @@
 
   window.KiwiHardware = {
     capabilities: { serial: hasSerial, usb: hasUSB, bluetooth: hasBT },
-    // Print a receipt. Real path (Web Serial ESC/POS) stubbed; mock shows a preview.
-    print: function (ticket) { return mockPrint(ticket); },
-    // Open the cash drawer (ESC/POS kick). Mock resolves immediately.
-    openDrawer: function () { return Promise.resolve({ ok: true, mock: true }); },
+    // Print a receipt. REAL path: when a thermal printer is paired (KiwiPrinter +
+    // the Kiwi Printer Bridge), the receipt is encoded to ESC/POS and printed for
+    // real. Fail-soft: if no printer is configured, or the bridge is down / errors,
+    // fall back to the on-screen preview so the caisse never blocks on hardware.
+    print: function (ticket) {
+      if (window.KiwiPrinter && KiwiPrinter.isConfigured()) {
+        var o = {
+          shop: ticket && ticket.title, lines: (ticket && ticket.lines) || [],
+          total: ticket && ticket.total, method: ticket && ticket.method,
+        };
+        return KiwiPrinter.printReceipt(o).then(function (res) {
+          return (res && res.ok) ? { ok: true, printed: true } : mockPrint(ticket);
+        });
+      }
+      return mockPrint(ticket);
+    },
+    // Open the cash drawer (ESC/POS kick). Real via the bridge when configured; the
+    // mock resolves immediately otherwise.
+    openDrawer: function () {
+      if (window.KiwiPrinter && KiwiPrinter.isConfigured() && window.KiwiEscPos) {
+        return KiwiPrinter.printBytes(window.KiwiEscPos.builder().init().drawer().bytes())
+          .then(function (res) { return (res && res.ok) ? { ok: true } : { ok: true, mock: true }; });
+      }
+      return Promise.resolve({ ok: true, mock: true });
+    },
     // Barcode scan. Mock resolves a simulated code after a tick.
     scan: function (cb) { setTimeout(function () { cb && cb({ code: '000000000000', mock: true }); }, 250); return Promise.resolve(); },
     // Card read. Mock resolves approved; NO certified EMV in round one.

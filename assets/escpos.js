@@ -1,0 +1,181 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Kiwi · ESC/POS ENCODER — window.KiwiEscPos
+ * ---------------------------------------------------------------------------
+ * Builds real ESC/POS byte streams for thermal printers (receipts, kitchen
+ * tickets, barcode labels). Dependency-free, offline. The bytes are handed to
+ * the Kiwi Printer Bridge (assets/printer-bridge.js → bridge/server.js), which
+ * relays them to the printer over TCP.
+ *
+ * Text is encoded as Windows-1252 (CP1252) and the printer is set to code page
+ * 16 (WPC1252) so French accents (é è à ç ù …) print correctly.
+ *
+ * API
+ *   KiwiEscPos.builder()                      → chainable Builder (see below)
+ *   KiwiEscPos.toB64(bytes)                   → base64 string for the bridge
+ *   KiwiEscPos.receipt(o)                     → Uint8Array (sales receipt)
+ *   KiwiEscPos.kitchenTicket(o)               → Uint8Array (kitchen/prep ticket)
+ *   KiwiEscPos.label(o)                       → Uint8Array (barcode étiquette)
+ *   KiwiEscPos.testSlip(o)                    → Uint8Array (printer test)
+ *   o.paper: '58' | '80'  (mm; default '80')
+ * ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var ESC = 0x1B, GS = 0x1D;
+
+  // Windows-1252 upper-range specials (0x80–0x9F) that differ from Latin-1.
+  var CP1252 = {
+    '€': 0x80, '‚': 0x82, 'ƒ': 0x83, '„': 0x84, '…': 0x85,
+    '†': 0x86, '‡': 0x87, 'ˆ': 0x88, '‰': 0x89, 'Š': 0x8A,
+    '‹': 0x8B, 'Œ': 0x8C, 'Ž': 0x8E, '‘': 0x91, '’': 0x92,
+    '“': 0x93, '”': 0x94, '•': 0x95, '–': 0x96, '—': 0x97,
+    '˜': 0x98, '™': 0x99, 'š': 0x9A, '›': 0x9B, 'œ': 0x9C,
+    'ž': 0x9E, 'Ÿ': 0x9F,
+  };
+
+  function encodeCp1252(str) {
+    var out = [];
+    str = String(str == null ? '' : str);
+    for (var i = 0; i < str.length; i++) {
+      var ch = str[i], cc = str.charCodeAt(i);
+      if (cc <= 0xFF) out.push(cc);            // ASCII + Latin-1 map 1:1
+      else if (CP1252[ch] != null) out.push(CP1252[ch]);
+      else out.push(0x3F);                     // '?' for anything unmappable
+    }
+    return out;
+  }
+
+  function Builder() { this._ = []; }
+  Builder.prototype.raw = function (arr) { for (var i = 0; i < arr.length; i++) this._.push(arr[i] & 0xFF); return this; };
+  Builder.prototype.init = function () { return this.raw([ESC, 0x40]).raw([ESC, 0x74, 16]); }; // reset + CP1252
+  Builder.prototype.text = function (s) { return this.raw(encodeCp1252(s)); };
+  Builder.prototype.line = function (s) { return this.text(s == null ? '' : s).raw([0x0A]); };
+  Builder.prototype.feed = function (n) { return this.raw([ESC, 0x64, Math.max(0, n | 0)]); };   // ESC d n
+  Builder.prototype.align = function (a) { var m = a === 'center' ? 1 : a === 'right' ? 2 : 0; return this.raw([ESC, 0x61, m]); };
+  Builder.prototype.bold = function (on) { return this.raw([ESC, 0x45, on ? 1 : 0]); };
+  // GS ! n — width multiplier in high nibble, height in low nibble (1–8 → 0–7).
+  Builder.prototype.size = function (w, h) {
+    var wm = Math.min(8, Math.max(1, w || 1)) - 1, hm = Math.min(8, Math.max(1, h || 1)) - 1;
+    return this.raw([GS, 0x21, (wm << 4) | hm]);
+  };
+  Builder.prototype.drawer = function () { return this.raw([ESC, 0x70, 0x00, 0x19, 0xFA]); };    // kick pin 2
+  Builder.prototype.cut = function () { return this.feed(3).raw([GS, 0x56, 0x00]); };            // feed + full cut
+
+  // Barcode via GS k format 2 (length-prefixed). HRI text below.
+  //   ean13: 12 or 13 ASCII digits (m=67).   code128: "{B"+data (m=73).
+  Builder.prototype.barcode = function (value, opts) {
+    opts = opts || {};
+    var height = opts.height || 70, hri = opts.hri === false ? 0 : 2; // 2 = below
+    this.raw([GS, 0x68, height]);          // GS h — height
+    this.raw([GS, 0x77, opts.module || 2]); // GS w — module width
+    this.raw([GS, 0x48, hri]);             // GS H — HRI position
+    this.raw([ESC, 0x61, 1]);              // center
+    var fmt = opts.format || 'ean13';
+    if (fmt === 'ean13') {
+      var digits = String(value).replace(/\D/g, '');
+      var bytes = encodeCp1252(digits);
+      this.raw([GS, 0x6B, 67, bytes.length]).raw(bytes);
+    } else {
+      var data = '{B' + String(value);
+      var b = encodeCp1252(data);
+      this.raw([GS, 0x6B, 73, b.length]).raw(b);
+    }
+    return this.raw([ESC, 0x61, 0]); // back to left
+  };
+
+  Builder.prototype.bytes = function () { return new Uint8Array(this._); };
+
+  // ── helpers ────────────────────────────────────────────────────────────────
+  function cols(paper) { return String(paper) === '58' ? 32 : 48; }
+  // "name .......... price" padded to the paper width.
+  function row(left, right, paper) {
+    var w = cols(paper);
+    left = String(left == null ? '' : left);
+    right = String(right == null ? '' : right);
+    if (left.length + right.length + 1 > w) left = left.slice(0, w - right.length - 1);
+    var gap = Math.max(1, w - left.length - right.length);
+    return left + new Array(gap + 1).join(' ') + right;
+  }
+  function rule(paper) { return new Array(cols(paper) + 1).join('-'); }
+  function toB64(bytes) {
+    var s = '';
+    for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+    try { return btoa(s); } catch (_) { return ''; }
+  }
+
+  // ── high-level tickets ───────────────────────────────────────────────────
+  function receipt(o) {
+    o = o || {}; var paper = o.paper || '80';
+    var b = new Builder().init();
+    b.align('center').bold(true).size(2, 2).line(o.shop || 'Kiwi').size(1, 1).bold(false);
+    if (o.address) b.line(o.address);
+    if (o.phone) b.line(o.phone);
+    if (o.ref || o.date) b.line([o.ref, o.date].filter(Boolean).join('  '));
+    b.align('left').line(rule(paper));
+    (o.lines || []).forEach(function (l) {
+      var name = (l.qty ? l.qty + '× ' : '') + (l.name || '');
+      b.line(row(name, l.price != null ? String(l.price) : '', paper));
+    });
+    b.line(rule(paper));
+    b.bold(true).size(1, 2).line(row('TOTAL', (o.total != null ? o.total : '') + '', paper)).size(1, 1).bold(false);
+    if (o.method) b.line(row('Paiement', o.method, paper));
+    if (o.footer) b.feed(1).align('center').line(o.footer);
+    b.align('center').feed(1).line('Merci · Kiwi');
+    b.cut();
+    if (o.openDrawer) b.drawer();
+    return b.bytes();
+  }
+
+  function kitchenTicket(o) {
+    o = o || {}; var paper = o.paper || '80';
+    var b = new Builder().init();
+    b.align('center').bold(true).size(2, 2).line(o.title || 'CUISINE').size(1, 1).bold(false);
+    if (o.table || o.order) b.line([o.table, o.order].filter(Boolean).join('  ·  '));
+    if (o.time) b.line(o.time);
+    b.align('left').line(rule(paper));
+    (o.items || []).forEach(function (it) {
+      b.bold(true).size(1, 2).line((it.qty ? it.qty + '× ' : '') + (it.name || '')).size(1, 1).bold(false);
+      if (it.note) b.line('   > ' + it.note);
+    });
+    b.line(rule(paper)).cut();
+    return b.bytes();
+  }
+
+  function label(o) {
+    o = o || {}; var paper = o.paper || '80';
+    var b = new Builder().init().align('center');
+    if (o.title) b.bold(true).line(o.title).bold(false);
+    if (o.sub) b.line(o.sub);
+    if (o.price != null && o.price !== '') b.bold(true).size(1, 2).line(String(o.price) + ' MAD').size(1, 1).bold(false);
+    b.feed(1).barcode(o.code, { format: o.format || 'ean13', height: 60 });
+    b.feed(1).cut();
+    return b.bytes();
+  }
+
+  function testSlip(o) {
+    o = o || {}; var paper = o.paper || '80';
+    var b = new Builder().init();
+    b.align('center').bold(true).size(2, 2).line('Kiwi').size(1, 1).bold(false);
+    b.line('Test d’impression').line(rule(paper));
+    b.align('left');
+    b.line(row('Imprimante', o.ip || '', paper));
+    b.line(row('Largeur', paper + ' mm', paper));
+    b.line(rule(paper));
+    b.line('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    b.line('0123456789  éèàçùâêîôû €');
+    b.feed(1).align('center').barcode('2000000000015', { format: 'ean13', height: 60 });
+    b.feed(1).line('Imprimante connectée ✓');
+    b.cut();
+    return b.bytes();
+  }
+
+  window.KiwiEscPos = {
+    builder: function () { return new Builder(); },
+    encodeCp1252: encodeCp1252,
+    toB64: toB64,
+    receipt: receipt,
+    kitchenTicket: kitchenTicket,
+    label: label,
+    testSlip: testSlip,
+  };
+})();

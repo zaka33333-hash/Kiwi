@@ -1138,6 +1138,10 @@
           <div class="sub">${T.terminalsHeroSub(71, 94.2)}</div>
         </div>
 
+        <button class="kb" data-action="printer-connect" style="width:100%; margin:14px 0 4px; justify-content:center; display:flex; align-items:center; gap:8px;">
+          Connecter une imprimante thermique
+        </button>
+
         <div class="term">
           <div class="icn"></div>
           <div class="info">

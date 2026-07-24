@@ -51,16 +51,31 @@ should be appended to commit messages per the standard convention.
 
 ---
 
-## 2. Tech stack — vanilla, deliberately
+## 2. Tech stack — real product, vanilla frontend
 
-- Vanilla HTML + CSS + JS. **No React, no build step, no framework, no bundler.**
-- All interactions mocked client-side via toasts, modals, drawers (`assets/interactive.js`).
-- `localStorage` for persistence (`kiwiLang`, `kiwiTheme`, `kiwiMode`, `kiwiDateRange`,
-  `kiwiRevCompare`).
-- Fonts: Inter Tight, Instrument Serif, IBM Plex Sans Arabic, JetBrains Mono.
+**This is a real, working product now — not a mock/pitch demo.** Build features to
+actually work, backed by real infrastructure. Where a surface is still placeholder
+data, that's tech debt to replace, not the intended end state.
 
-Resist the urge to migrate to Next.js / a framework / a build pipeline.
-The vanilla decision is locked until a real backend lands.
+- **Frontend:** vanilla HTML + CSS + JS. No React, no build step, no framework, no
+  bundler. This is a pragmatic choice (fast, zero-toolchain, trivially hostable on
+  static CDNs) — NOT because the app is fake. Keep it vanilla unless a real need
+  forces otherwise; if you think a framework is warranted, raise it first.
+- **Real backend (live):** Cloudflare Pages Functions + D1 (`functions/`, `schema.sql`)
+  — accounts/auth, Live Link sales, operator console, caisse↔dashboard pairing. See
+  `LIVE_LINK.md` / `ADMIN.md`.
+- **Real native components:** the Kiwi Printer Bridge (`bridge/`) — a local helper
+  that relays ESC/POS jobs to networked thermal printers. Real hardware I/O lives
+  behind `window.KiwiHardware` / `window.KiwiPrinter` (`assets/caisse-hardware.js`,
+  `assets/printer-bridge.js`, `assets/escpos.js`).
+- **Persistence:** `localStorage` for client state (`kiwiLang`, `kiwiTheme`,
+  `kiwiMode`, `kiwiDateRange`, `kiwiRevCompare`, `kiwiPrinterCfg`, …); D1 for
+  server-authoritative data.
+- **Fonts:** Inter Tight, Instrument Serif, IBM Plex Sans Arabic, JetBrains Mono.
+
+When you add a new capability, prefer a real implementation with a fail-soft path
+(works degraded when the backend/hardware isn't reachable) over a pure mock — the
+caisse pairing and printer bridge both follow this pattern.
 
 ---
 
