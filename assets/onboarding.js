@@ -268,7 +268,7 @@
         </div>`,
       foot: `
         <button class="kob-btn primary" data-go="next">${tr({ fr: 'Commencer', en: 'Get started', ar: 'لنبدأ' })}</button>
-        <div class="kob-explore" style="flex-basis:100%;"><button class="kob-skip" data-explore>${tr({ fr: "Explorer la démo d'abord", en: 'Explore the demo first', ar: 'استكشاف العرض أولاً' })}</button></div>`,
+        ${(window.KiwiEnv && window.KiwiEnv.isReal && window.KiwiEnv.isReal()) ? '' : `<div class="kob-explore" style="flex-basis:100%;"><button class="kob-skip" data-explore>${tr({ fr: "Explorer la démo d'abord", en: 'Explore the demo first', ar: 'استكشاف العرض أولاً' })}</button></div>`}`,
     };
   }
 

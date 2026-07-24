@@ -688,7 +688,7 @@
     document.querySelector('.sidebar nav a[data-nav="equipe"]')?.classList.add('active');
     window.scrollTo({ top: 0 });
 
-    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
+    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Votre établissement', type: 'restaurant' };
     ensureVenueData(venue);
 
     /* Re-render when the venue or language changes. */
@@ -723,7 +723,7 @@
     if (!root) return;
     root.removeAttribute('hidden');
     const T = t();
-    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
+    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Votre établissement', type: 'restaurant' };
     const venueType = teamKey(venue);
     const members = getMembers(venueType);
     root.innerHTML = `
@@ -747,7 +747,7 @@
     const root = document.querySelector('[data-equipe-root]');
     if (!root) return;
     const T = t();
-    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Café Atlas', type: 'restaurant' };
+    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { name: 'Votre établissement', type: 'restaurant' };
     const venueType = teamKey(venue);
     const members = getMembers(venueType);
     const target = root.querySelector('[data-kt-grid-host]');
@@ -1067,7 +1067,7 @@
   /* ═══════════════ ADD / EDIT MEMBER MODAL (UNCHANGED) ═══════════════ */
   function openMemberModal(memberId) {
     const T = t();
-    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant', name: 'Café Atlas' };
+    const venue = window.KiwiVenue?.getCurrentVenueData?.() || { type: 'restaurant', name: 'Votre établissement' };
     const venueType = teamKey(venue);
     const cat = catalogFor(venueType);
     const editing = !!memberId;
