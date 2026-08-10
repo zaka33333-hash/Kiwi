@@ -29,6 +29,7 @@
   .card{width:100%; max-width:420px; background:var(--surface); border:1px solid var(--line);
         border-radius:18px; padding:30px 28px; box-shadow:0 18px 50px -30px rgba(5,59,44,.5)}
   .mark{font-weight:660; letter-spacing:-.02em; color:var(--riad); font-size:1.32rem; margin:0 0 4px}
+  .mark .vx-entry-logo{display:none}
   h1{font-size:1.04rem; font-weight:620; margin:0 0 6px; letter-spacing:-.01em}
   p{margin:0 0 18px; color:var(--muted); font-size:.9rem}
   label{display:block; font-size:.78rem; font-weight:640; text-transform:uppercase;
@@ -50,10 +51,19 @@
     .mark{color:#cfeeda}
   }
 </style>
+<link rel="stylesheet" href="/assets/design-vexel.css" />
+<script src="/assets/design-vexel.js"></script>
 </head>
-<body>
-  <main class="card">
-    <p class="mark">kiwi</p>
+<body class="vx-auth-page vx-reset-page">
+  <script>window.KiwiDesignVexel && window.KiwiDesignVexel.prime();</script>
+  <main class="card vx-auth-card">
+    <p class="mark" aria-label="Kiwi">
+      <span class="reset-brand-legacy">kiwi</span>
+      <span class="vx-entry-logo" aria-hidden="true">
+        <img class="brand-logo-light" src="/assets/kiwi-logo.svg" width="846" height="446" alt="" />
+        <img class="brand-logo-dark" src="/assets/kiwi-logo-dark.svg" width="846" height="446" alt="" />
+      </span>
+    </p>
     <div id="view"></div>
   </main>
 <script>

@@ -95,8 +95,58 @@
     goals: [], dailyGoal: '',
     pins: [ { role: 'owner', name: '', code: '' }, { role: 'manager', name: '', code: '' }, { role: 'staff', name: '', code: '' }, { role: 'staff', name: '', code: '' } ],
   };
+  const DRAFT_KEY = 'kiwiOnboardingDraft:v1';
+  function saveDraft() {
+    /* Access codes are credentials. Never put them in persistent browser
+       storage merely to make the wizard resumable. Names/roles may resume;
+       every PIN must be entered again after a reload. */
+    const safe = {
+      step: Math.max(0, Math.min(6, Number(S.step) || 0)),
+      ownerName: S.ownerName, bizName: S.bizName, typeId: S.typeId,
+      venueCount: S.venueCount, city: S.city, teamSize: S.teamSize,
+      goals: Array.isArray(S.goals) ? S.goals.slice(0, GOALS.length) : [],
+      dailyGoal: S.dailyGoal,
+      pins: (Array.isArray(S.pins) ? S.pins : []).slice(0, 20).map((p) => ({
+        role: p && p.role === 'manager' ? 'manager' : (p && p.role === 'owner' ? 'owner' : 'staff'),
+        name: String((p && p.name) || '').slice(0, 20), code: '',
+      })),
+    };
+    LS.set(DRAFT_KEY, JSON.stringify(safe));
+  }
+  function restoreDraft() {
+    let d = null;
+    try { d = JSON.parse(LS.get(DRAFT_KEY) || 'null'); } catch (_) {}
+    if (!d || typeof d !== 'object') return;
+    const knownType = TYPES.some((t) => t.id === d.typeId);
+    S.step = Math.max(0, Math.min(6, Number(d.step) || 0));
+    S.ownerName = String(d.ownerName || '').slice(0, 40);
+    S.bizName = String(d.bizName || '').slice(0, 60);
+    S.typeId = knownType ? d.typeId : S.typeId;
+    S.venueCount = Math.max(1, Math.min(60, Number(d.venueCount) || 1));
+    S.city = String(d.city || '').slice(0, 30);
+    S.teamSize = Math.max(1, Math.min(200, Number(d.teamSize) || 1));
+    S.goals = Array.isArray(d.goals) ? d.goals.filter((g) => GOALS.some((x) => x.id === g)).slice(0, GOALS.length) : [];
+    S.dailyGoal = String(d.dailyGoal || '').slice(0, 24);
+    if (Array.isArray(d.pins) && d.pins.length) {
+      S.pins = d.pins.slice(0, 20).map((p, i) => ({
+        role: i === 0 ? 'owner' : (p && p.role === 'manager' ? 'manager' : 'staff'),
+        name: String((p && p.name) || '').slice(0, 20), code: '',
+      }));
+    }
+  }
+  restoreDraft();
   const TOTAL = 6; // counted steps (welcome + finish are bookends)
   let root = null, injected = false, opened = false;
+
+  function entryBrand() {
+    return `<span class="kob-brand" aria-label="Kiwi">
+      <span class="kob-brand-legacy">kiwi<i></i></span>
+      <span class="vx-entry-logo" aria-hidden="true">
+        <img class="brand-logo-light" src="assets/kiwi-logo.svg" width="846" height="446" alt="" />
+        <img class="brand-logo-dark" src="assets/kiwi-logo-dark.svg" width="846" height="446" alt="" />
+      </span>
+    </span>`;
+  }
 
   /* ── Styles (scoped .kob-) ───────────────────────────────────────────── */
   function inject() {
@@ -120,6 +170,8 @@
     .kob-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;min-height:24px;}
     .kob-brand{font-family:var(--sans);font-weight:600;font-size:19px;letter-spacing:-.03em;display:inline-flex;align-items:center;}
     .kob-brand i{width:6px;height:6px;border-radius:50%;background:var(--mint);display:inline-block;margin-left:3px;transform:translateY(1px);}
+    .kob-brand .vx-entry-logo{display:none;}
+    .kob-config-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:rgba(233,239,233,.4);text-transform:uppercase;}
     .kob-rail{display:flex;gap:6px;align-items:center;}
     .kob-rail b{width:20px;height:4px;border-radius:2px;background:rgba(255,255,255,.16);transition:background .3s,width .3s;display:block;}
     .kob-rail b.on{background:var(--mint);width:30px;}
@@ -268,7 +320,7 @@
     return {
       body: `
         <div class="kob-anim">
-          <div class="kob-hero-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C7 5 5 9 5 13a7 7 0 0 0 14 0c0-4-2-8-7-10Z" fill="#7DF2B0"/><path d="M12 6.5c-2.6 1.3-3.8 3.8-3.8 6.5" stroke="#053B2C" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <div class="kob-hero-mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3C7 5 5 9 5 13a7 7 0 0 0 14 0c0-4-2-8-7-10Z" fill="#7DF2B0"/><path d="M12 6.5c-2.6 1.3-3.8 3.8-3.8 6.5" stroke="#053B2C" stroke-width="1.5" stroke-linecap="round"/></svg></div>
           <p class="kob-eyebrow">${tr({ fr: 'Bienvenue sur Kiwi', en: 'Welcome to Kiwi', ar: 'مرحباً بك في كيوي' })}</p>
           <h1 class="kob-h">${tr({ fr: 'On met tout en place <span class="k-sans">ensemble.</span>', en: "Let's set it all up <span class=\"k-sans\">together.</span>", ar: 'لنُهيّئ كل شيء <span class="k-sans">معاً.</span>' })}</h1>
           <p class="kob-sub">${tr({
@@ -355,10 +407,10 @@
           <h1 class="kob-h">${tr({ fr: "Qu'est-ce qui compte le plus ?", en: 'What matters most to you?', ar: 'ما الأهم بالنسبة لك؟' })}</h1>
           <p class="kob-sub">${tr({ fr: "Choisissez ce qui vous parle, on met en avant les bons outils pour vous. Plusieurs choix possibles.", en: "Pick what speaks to you, we'll surface the right tools. Choose as many as you like.", ar: 'اختر ما يناسبك, سنُبرز الأدوات المناسبة. يمكن اختيار أكثر من واحد.' })}</p>
           <div class="kob-chips">
-            ${GOALS.map((g) => `<button class="kob-chip${S.goals.includes(g.id) ? ' sel' : ''}" data-goal="${g.id}">${g.icon}<span>${esc(tr(g.label))}</span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button>`).join('')}
+            ${GOALS.map((g) => `<button class="kob-chip${S.goals.includes(g.id) ? ' sel' : ''}" data-goal="${g.id}">${g.icon}<span>${esc(tr(g.label))}</span><svg class="tick" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></button>`).join('')}
           </div>
           <label class="kob-lbl">${tr({ fr: "Objectif de chiffre d'affaires par jour", en: 'Daily revenue target', ar: 'هدف الإيرادات اليومية' })} <span class="opt">· ${tr({ fr: 'optionnel', en: 'optional', ar: 'اختياري' })}</span></label>
-          <input class="kob-field" data-f="dailyGoal" type="number" inputmode="numeric" min="0" value="${esc(S.dailyGoal)}" placeholder="${tr({ fr: 'Ex. 5000 MAD', en: 'e.g. 5000 MAD', ar: 'مثال: 5000 درهم' })}"/>
+          <input class="kob-field" data-f="dailyGoal" type="number" inputmode="decimal" min="0" step="0.01" value="${esc(S.dailyGoal)}" placeholder="${tr({ fr: 'Ex. 5000 MAD', en: 'e.g. 5000 MAD', ar: 'مثال: 5000 درهم' })}"/>
         </div>`,
       foot: footNav({ skip: true }),
     };
@@ -442,12 +494,13 @@
 
   /* ── Render current step ─────────────────────────────────────────────── */
   function render() {
+    saveDraft();
     const def = STEPS[S.step]();
     const showRail = S.step >= 1 && S.step <= TOTAL;
     root.querySelector('.kob-card').innerHTML = `
       <div class="kob-top">
-        <span class="kob-brand">kiwi<i></i></span>
-        ${showRail ? rail() : `<span style="font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:rgba(233,239,233,.4);text-transform:uppercase;">${tr({ fr: 'Configuration', en: 'Setup', ar: 'الإعداد' })}</span>`}
+        ${entryBrand()}
+        ${showRail ? rail() : `<span class="kob-config-label">${tr({ fr: 'Configuration', en: 'Setup', ar: 'الإعداد' })}</span>`}
       </div>
       <div class="kob-body">${def.body}</div>
       <div class="kob-foot">${def.foot}</div>`;
@@ -461,12 +514,24 @@
     root.querySelectorAll('[data-pin-name]').forEach((i) => { const n = +i.dataset.pinName; if (S.pins[n]) S.pins[n].name = i.value.trim(); });
     root.querySelectorAll('[data-pin-code]').forEach((i) => { const n = +i.dataset.pinCode; if (S.pins[n]) S.pins[n].code = i.value.replace(/\D/g, '').slice(0, 4); });
     root.querySelectorAll('[data-pin-role]').forEach((i) => { const n = +i.dataset.pinRole; if (S.pins[n]) S.pins[n].role = i.value; });
+    saveDraft();
+  }
+
+  function parsedDailyGoal() {
+    const raw = String(S.dailyGoal == null ? '' : S.dailyGoal).trim();
+    if (!raw) return 0;
+    if (!/^\d+(?:[.,]\d{1,2})?$/.test(raw)) return null;
+    const amount = Number(raw.replace(',', '.'));
+    if (!Number.isFinite(amount) || amount < 0 || amount > 1000000000) return null;
+    return Math.round(amount * 100) / 100;
   }
 
   /* ── Validate before advancing (returns error string or null) ────────── */
   function validate() {
-    if (S.step === 2 && !S.bizName.trim()) return tr({ fr: 'Donnez un nom à votre établissement.', en: 'Give your business a name.', ar: 'أدخل اسم نشاطك.' });
-    if (S.step === 6) {
+    if ((S.step === 1 || S.step === 7) && !S.ownerName.trim()) return tr({ fr: 'Indiquez votre prénom.', en: 'Enter your first name.', ar: 'أدخل اسمك.' });
+    if ((S.step === 2 || S.step === 7) && !S.bizName.trim()) return tr({ fr: 'Donnez un nom à votre établissement.', en: 'Give your business a name.', ar: 'أدخل اسم نشاطك.' });
+    if (S.step === 5 && parsedDailyGoal() === null) return tr({ fr: 'Saisissez un objectif positif, avec au maximum deux décimales.', en: 'Enter a positive target with at most two decimal places.', ar: 'أدخل هدفاً موجباً بمنزلتين عشريتين كحد أقصى.' });
+    if (S.step === 6 || S.step === 7) {
       const owner = S.pins[0];
       if (!/^\d{4}$/.test(owner.code)) return tr({ fr: 'Choisissez votre code à 4 chiffres (le vôtre est obligatoire).', en: 'Choose your 4-digit code (yours is required).', ar: 'اختر رمزك المكوّن من 4 أرقام.' });
       const seen = {};
@@ -502,6 +567,8 @@
   /* ── Finish · persist + create venue + celebrate ─────────────────────── */
   function finish() {
     capture();
+    const finishErr = validate();
+    if (finishErr) { flashErr(finishErr); return; }
     const t = TYPES.find((x) => x.id === S.typeId) || TYPES[0];
     const validPins = S.pins.filter((p) => /^\d{4}$/.test(p.code)).map((p) => ({
       role: p.role, code: p.code,
@@ -532,7 +599,7 @@
         type: t.base, subtype: t.id,
         name: S.bizName.trim() || tr({ fr: 'Mon activité', en: 'My business', ar: 'نشاطي' }),
         location: S.city.trim(),
-        goal: +String(S.dailyGoal).replace(/[^\d]/g, '') || 0,
+        goal: parsedDailyGoal() || 0,
         staffCount: S.teamSize,
         profile: { goals: S.goals, venueCount: S.venueCount, owner: S.ownerName.trim() },
       });
@@ -557,6 +624,7 @@
       document.body.classList.add('role-owner');
     } catch (_) {}
 
+    LS.del(DRAFT_KEY);
     celebrate(vid);
   }
 
@@ -564,14 +632,13 @@
   function celebrate() {
     const name = S.ownerName.trim();
     root.querySelector('.kob-card').innerHTML = `
-      <div class="kob-top"><span class="kob-brand">kiwi<i></i></span></div>
+      <div class="kob-top">${entryBrand()}</div>
       <div class="kob-body"><div class="kob-celebrate">
-        <div class="kob-hero-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#7DF2B0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <div class="kob-hero-mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7DF2B0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
         <h1 class="kob-h" style="text-align:center;">${name ? esc(name) + ', ' : ''}<span class="k-sans">${tr({ fr: 'votre espace est prêt.', en: 'your space is ready.', ar: 'مساحتك جاهزة.' })}</span></h1>
         <p class="kob-sub" style="margin:0 auto;text-align:center;">${tr({ fr: 'Enregistrez votre première vente et regardez votre tableau de bord prendre vie.', en: 'Record your first sale and watch your dashboard come alive.', ar: 'سجّل أول عملية بيع وشاهد لوحتك تنبض بالحياة.' })}</p>
       </div></div>
       <div class="kob-foot"><button class="kob-btn primary" data-enter>${tr({ fr: 'Entrer dans mon espace →', en: 'Enter my space →', ar: 'ادخل مساحتي ←' })}</button></div>`;
-    try { if (window.Kiwi && Kiwi.confetti) Kiwi.confetti(); } catch (_) {}
     autoEnter = setTimeout(enterApp, 2800);
   }
 
@@ -604,6 +671,7 @@
   /* ── Explore the demo instead (bail to the PIN lock) ─────────────────── */
   function exploreDemo() {
     LS.set('kiwiSkipOnboard', '1');
+    LS.del(DRAFT_KEY);
     close();
     try { if (window.__kiwiLock && window.__kiwiLock.show) window.__kiwiLock.show(); } catch (_) {}
   }
@@ -643,6 +711,7 @@
       const tc = e.target.closest('[data-type]');
       if (tc) {
         S.typeId = tc.dataset.type;
+        saveDraft();
         root.querySelectorAll('[data-type]').forEach((x) => x.classList.toggle('sel', x === tc));
         return;
       }
@@ -651,6 +720,7 @@
         const id = gc.dataset.goal;
         const at = S.goals.indexOf(id);
         if (at >= 0) S.goals.splice(at, 1); else S.goals.push(id);
+        saveDraft();
         gc.classList.toggle('sel');
         return;
       }
@@ -659,6 +729,7 @@
         const wrap = inc.closest('[data-stepper]');
         const f = wrap.dataset.stepper, min = +wrap.dataset.min, max = +wrap.dataset.max;
         S[f] = Math.max(min, Math.min(max, (+S[f] || min) + (+inc.dataset.inc)));
+        saveDraft();
         const numEl = wrap.querySelector('[data-stepval]');
         numEl.innerHTML = `${S[f]}<small>${unitFor(f)}</small>`;
         return;
@@ -709,7 +780,7 @@
 
   function isComplete() { return LS.get('kiwiOnboarded') === '1'; }
   function reset() {
-    ['kiwiOnboarded', 'kiwiOwnerName', 'kiwiBizName', 'kiwiBizType', 'kiwiCity', 'kiwiVenueCount', 'kiwiTeamSize', 'kiwiGoals', 'kiwiPins', 'kiwiSkipOnboard'].forEach(LS.del);
+    ['kiwiOnboarded', 'kiwiOwnerName', 'kiwiBizName', 'kiwiBizType', 'kiwiCity', 'kiwiVenueCount', 'kiwiTeamSize', 'kiwiGoals', 'kiwiPins', 'kiwiSkipOnboard', DRAFT_KEY].forEach(LS.del);
   }
 
   /* ── Auto-launch decision ────────────────────────────────────────────── */

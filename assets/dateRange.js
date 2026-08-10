@@ -3414,7 +3414,7 @@
       by[k] = (by[k] || 0) + amt;
       total += amt;
     });
-    if (!total) return { rows: [], total: 0 };
+    if (!total) return { rows: [], total: 0, cardTotal: 0 };
     return {
       total,
       cardTotal: by.card || 0,
@@ -3437,7 +3437,8 @@
       { key: 'card', color: '#0B6E4F', label: REAL_MIX[0][lang] || REAL_MIX[0].fr, pct: data.card },
       { key: 'cash', color: '#C9D2CE', label: REAL_MIX[1][lang] || REAL_MIX[1].fr, pct: data.cash },
     ];
-    const centerMad = custom ? real.cardTotal : data.centerMad;
+    const rawCenterMad = custom ? real.cardTotal : data.centerMad;
+    const centerMad = Number.isFinite(Number(rawCenterMad)) ? Number(rawCenterMad) : 0;
 
     const donut = document.querySelector('[data-mix-donut]');
     if (donut) {

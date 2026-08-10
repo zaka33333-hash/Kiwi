@@ -8,10 +8,10 @@
  *
  * Rather than hand-theme dozens of inconsistent surfaces, this does a computed
  * pass when a surface renders in dark mode: it tags genuinely near-white card
- * backgrounds and the neutral-dark text sitting on a dark background. The tags
- * only take effect under html[data-theme="dark"] (see CSS below), so switching
- * back to light auto-reverts with zero cleanup. Colored chips/badges (yellow,
- * mint, etc.) and the branded QR tiles are deliberately left untouched.
+ * backgrounds and the neutral-dark text sitting on a dark background. Every
+ * pass first removes earlier tags, so a theme change can never leave decisions
+ * made against a stale computed background on the nodes. Colored chips/badges
+ * (yellow, mint, etc.) and the branded QR tiles are deliberately left untouched.
  * ─────────────────────────────────────────────────────────────────────────── */
 (() => {
   'use strict';
@@ -44,6 +44,15 @@
    * Sa couleur EST son intérêt : repeint en couleur de texte ordinaire, le
    * surlignage disparaît et la ligne redevient un pavé illisible. */
   const SKIP = '.gk-qr, .btn-slim, .kc-sw, mark';
+  const MARKS = ['dkfix-card', 'dkfix-bd', 'dkfix-text'];
+
+  function clear(root) {
+    if (!root || root.nodeType !== 1) return;
+    const marked = root.matches('.dkfix-card, .dkfix-bd, .dkfix-text')
+      ? [root, ...root.querySelectorAll('.dkfix-card, .dkfix-bd, .dkfix-text')]
+      : root.querySelectorAll('.dkfix-card, .dkfix-bd, .dkfix-text');
+    marked.forEach((el) => el.classList.remove(...MARKS));
+  }
 
   function fix(root) {
     if (!root || document.documentElement.getAttribute('data-theme') !== 'dark') return;
@@ -64,9 +73,14 @@
     });
   }
 
-  // Run twice: pass-2 depends on pass-1's freshly-applied backgrounds, and some
-  // surfaces render their inner content a frame late. A second rAF pass settles both.
-  function run(root) { fix(root); requestAnimationFrame(() => fix(root)); }
+  // Start from untagged computed styles on every theme transition. Run the dark
+  // pass twice because inner content can render one frame after its surface.
+  function run(root) {
+    clear(root);
+    if (document.documentElement.getAttribute('data-theme') !== 'dark') return;
+    fix(root);
+    requestAnimationFrame(() => fix(root));
+  }
 
   // Re-theme each surface as it opens (overlays + the live order drawer), and the
   // whole page when dark mode is switched on with surfaces already open.
@@ -78,7 +92,7 @@
   }).observe(document.body, { childList: true });
 
   new MutationObserver(() => {
-    if (document.documentElement.getAttribute('data-theme') === 'dark') setTimeout(() => run(document.body), 30);
+    setTimeout(() => run(document.body), 30);
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   // The fullpage destination views (Menu, Stock, KDS, Tables, Conformité, …)
