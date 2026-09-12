@@ -2113,6 +2113,7 @@
       animation: fade-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
     }
     .modal-veil.is-open { display: flex; }
+    #caisse-void-modal .modal { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; }
     @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
     .modal {
@@ -5567,7 +5568,7 @@
   <meta name="apple-mobile-web-app-title" content="Caisse" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/kiwi-employee-180.png?v=2" />
   <script src="assets/pwa-update.js?v=359" defer></script>
-  <script src="assets/caisse-pwa.js?v=514" defer></script>
+  <script src="assets/caisse-pwa.js?v=515" defer></script>
   <script src="assets/live-link.js?v=35" defer></script>
   <!-- The staff-role catalogue · says which roles may open the register. Loaded
        before the pad that asks the question. Missing ⇒ every valid code opens. -->
@@ -6506,7 +6507,7 @@
     <div class="modal modal-void" style="max-width:440px;">
       <div class="split-badge">Cuisine &amp; Pertes</div>
       <h3 class="modal-title" id="cvoi-title" style="margin-bottom:6px;">Annuler <span id="cvoi-dish-name">1× Plat</span></h3>
-      <p class="modal-subtle" style="margin-bottom:12px;">Ce plat a été transmis en cuisine. Motif de l'annulation :</p>
+      <p class="modal-subtle" style="margin-bottom:12px;">Retirer un exemplaire de l'addition, même après envoi en cuisine. Un code caisse sera demandé. Motif :</p>
       <div class="void-reasons-grid" id="cvoi-reasons-chips">
         <button class="void-reason-chip is-active" data-cvoi-reason="client_change" data-is-waste="0">
           <i data-lucide="user-round-x"></i>
@@ -6537,6 +6538,9 @@
           </div>
         </button>
       </div>
+      <label for="cvoi-note">Précision (facultatif)</label>
+      <input id="cvoi-note" type="text" maxlength="160" autocomplete="off" placeholder="Ex. le client ne souhaite plus ce plat" style="width:100%;box-sizing:border-box;min-height:44px;margin:6px 0 10px;">
+      <p id="cvoi-status" role="status" aria-live="polite" class="modal-subtle"></p>
       <div class="nt-actions">
         <button class="ma-btn secondary" id="cvoi-cancel" style="flex:1;">Conserver</button>
         <button class="ma-btn primary" id="cvoi-confirm" style="flex:2;background:var(--danger-mute);border-color:var(--danger-mute);">
@@ -8714,7 +8718,7 @@
       let itemsHTML = lines.map(l => `
         <div class="rp-item">
           <span class="rp-item-qty">${l.qty}×${l.sent && l.kind !== 'formula-part' && l.uid
-            ? `<button type="button" class="qty-btn" data-table-void="${kdsEsc(l.uid)}" aria-label="Annuler un ${kdsEsc(l.name)} envoyé en cuisine" ${l.voidPending ? 'disabled title="En attente de la cuisine"' : ''}>−</button>` : ''}</span>
+            ? `<button type="button" class="qty-btn" data-table-void="${kdsEsc(l.uid)}" aria-label="Annuler un ${kdsEsc(l.name)} envoyé en cuisine">−</button>` : ''}</span>
           <span class="rp-item-name">${lineName(l)}</span>
           <span class="rp-item-price mono">${fmtMAD(l.total)}</span>
           ${l.note && l.note.trim() ? `<span class="rp-item-noteline">Note cuisine · ${kdsEsc(l.note)}</span>` : ''}
@@ -10194,7 +10198,7 @@
       const tableVoidBtn = e.target.closest('[data-table-void]');
       if (tableVoidBtn && selectedId) {
         const line = (tableOrders[selectedId] || []).find(l => l.uid === tableVoidBtn.dataset.tableVoid);
-        if (line && line.sent && !line.voidPending) openCaisseVoidModal(selectedId, line);
+        if (line && line.sent) openCaisseVoidModal(selectedId, line);
         return;
       }
 
@@ -11935,12 +11939,14 @@
      * Le motif, l'alerte cuisine et la trace `kitchen_voids` sont les mêmes
      * dans les deux cas : c'est la même annulation, pas un remboursement. */
     function openCaisseVoidModal(tableId, line, scope) {
-      if (line.voidPending) { toast('Annulation déjà en attente de la cuisine'); return; }
+      if ($('#cvoi-confirm')?.disabled) return;
       caisseVoidTarget = { tableId, line, scope: scope || { tableId } };
       caisseSelectedVoidReason = 'client_change';
       caisseSelectedVoidIsWaste = 0;
       const dName = $('#cvoi-dish-name');
       if (dName) dName.textContent = `1× ${line.name}`;
+      $('#cvoi-note').value = '';
+      $('#cvoi-status').textContent = line.voidPending ? 'Une demande cuisine est en attente. La caisse peut confirmer le retrait.' : '';
       const chips = document.querySelectorAll('#cvoi-reasons-chips .void-reason-chip');
       chips.forEach(c => c.classList.toggle('is-active', c.dataset.cvoiReason === 'client_change'));
       const modal = $('#caisse-void-modal');
@@ -11949,32 +11955,51 @@
     }
 
     async function confirmCaisseVoid() {
-      if (!caisseVoidTarget) return;
+      if (!caisseVoidTarget || $('#cvoi-confirm')?.disabled) return;
+      const target = caisseVoidTarget;
+      if (storeIsReal() && !target.who?.actorProof) {
+        requireTillOperator(`Annuler un ${target.line.name}`, (who) => {
+          if (caisseVoidTarget !== target) return;
+          target.who = who;
+          if (!who?.actorProof) { $('#cvoi-status').textContent = 'Identité caisse non vérifiée. Réessayez avec votre code.'; return; }
+          confirmCaisseVoid();
+        });
+        return;
+      }
       const { tableId, line } = caisseVoidTarget;
       const scope = caisseVoidTarget.scope || { tableId };
       const confirmBtn = $('#cvoi-confirm');
       if (confirmBtn) confirmBtn.disabled = true;
+      $('#cvoi-status').textContent = 'Annulation en cours…';
 
       const slug = (window.KiwiCaissePairing && KiwiCaissePairing.merchant && KiwiCaissePairing.merchant()) || ls('kiwiLiveMerchant') || '';
       if (storeIsReal() && !slug) {
         toast('Annulation impossible · caisse non appairée, article conservé');
+        $('#cvoi-status').textContent = 'Caisse non appairée. Article conservé.';
         if (confirmBtn) confirmBtn.disabled = false;
         return;
       }
       if (slug) {
         try {
+          // Keep the operation identity across a lost response / retry.
+          line.cancelRequestId ||= 'voi-' + crypto.randomUUID();
+          const owner = tableId && canonicalOrdersForTable(tableId).find(entry =>
+            (entry.order.relayLines || []).some(item => item.uid === line.uid));
           const data = await postCaisseCancellation({
               merchant: slug,
+              actorProof: target.who?.actorProof || '',
               voidLine: {
                 /* Une commande à emporter n'a pas de table : elle se désigne
                  * par son identifiant de file, que `voidLine` accepte déjà
                  * (functions/api/order/queue.js · `if (b.voidLine.orderId)`). */
-                ...(scope.orderId || line.canonicalOrderId ? { orderId: scope.orderId || line.canonicalOrderId } : {}),
+                ...(scope.orderId || line.canonicalOrderId || owner?.id ? { orderId: scope.orderId || line.canonicalOrderId || owner.id } : {}),
                 ...(tableId ? { table: tableId } : {}),
+                immediate: true,
+                requestId: line.cancelRequestId,
                 lineId: line.canonicalUid || line.uid || line.id,
                 itemId: line.id || '',
                 qty: 1,
-                reason: caisseSelectedVoidReason,
+                reason: caisseSelectedVoidReason + ($('#cvoi-note').value.trim() ? ' · ' + $('#cvoi-note').value.trim() : ''),
                 isWaste: caisseSelectedVoidIsWaste,
                 actor: (typeof cashierName !== 'undefined' && cashierName) || 'Caisse'
               }
@@ -11988,20 +12013,40 @@
             if (tableId) renderRightPanel(tableId);
             return;
           }
+          // A poll may already have applied this revision while the request
+          // was in flight. Set server quantities, never subtract twice.
+          if (!Array.isArray(data.remainingLines)) throw new Error('réponse incomplète · synchronisez la commande');
+          const reconcile = (list) => (list || []).filter(item => {
+            const owned = item === line || item.uid === line.uid
+              || (line.formulaUid && item.formulaUid === line.formulaUid);
+            if (!owned) return true;
+            const remote = data.remainingLines.find(row => String(row.uid || row.id) === String(item.canonicalUid || item.uid))
+              || (!item.canonicalUid && data.remainingLines.find(row => !row.uid && row.id === item.id));
+            if (!remote) return false;
+            item.qty = Number(remote.qty); item.voidPending = !!remote.voidAlert;
+            delete item.cancelRequestId;
+            return item.qty > 0;
+          });
+          if (scope.cart) cart = reconcile(cart);
+          else tableOrders[tableId] = reconcile(tableOrders[tableId]);
+          try { persistShift(); } catch (_) {}
+          target.applied = true;
+          delete line.cancelRequestId;
           toast(`${line.name} annulé en cuisine`);
         } catch (err) {
           toast(`Annulation : ${err.message || 'erreur réseau'}`);
+          $('#cvoi-status').textContent = `Annulation non confirmée · ${err.message || 'erreur réseau'}. Réessayez pour vérifier la même demande, ou fermez.`;
           if (confirmBtn) confirmBtn.disabled = false;
           return;
         }
       }
 
       /* La cuisine est prévenue : on peut retirer la ligne là où elle vit. */
-      if (scope.cart) {
+      if (!target.applied && scope.cart) {
         cart = applyGroupedLineQtyDelta(cart, line, -1);
         renderMenu();
         renderCart();
-      } else {
+      } else if (!target.applied) {
         tableOrders[tableId] = applyGroupedLineQtyDelta(tableOrders[tableId] || [], line, -1);
       }
       const modal = $('#caisse-void-modal');
@@ -12089,7 +12134,6 @@
       if (!line) return;
       /* Si le plat a déjà été transmis en cuisine, on ouvre le motif d'annulation pour avertir la brigade */
       if (line.sent) {
-        if (line.voidPending) { toast('Annulation déjà en attente de la cuisine'); return; }
         if (delta < 0) openCaisseVoidModal(tableId, line);
         return;
       }
@@ -12168,7 +12212,7 @@
         $('#rp-items').innerHTML = order.map(l => l.sent ? `
           <div class="rp-item rp-item--cart rp-item--sent" data-order-uid="${l.uid}">
             ${l.kind === 'formula-part' ? `<span class="rp-sent-qty">${l.qty}×</span>` : `<div class="qty-control">
-              <button type="button" class="qty-btn" data-cart-action="dec" aria-label="Annuler un ${kdsEsc(l.name)} envoyé en cuisine" ${l.voidPending ? 'disabled title="En attente de la cuisine"' : ''}>−</button>
+              <button type="button" class="qty-btn" data-cart-action="dec" aria-label="Annuler un ${kdsEsc(l.name)} envoyé en cuisine">−</button>
               <span class="qty-num mono">${l.qty}</span>
             </div>`}
             <span class="rp-item-name">${lineName(l)}${(l.opts && l.opts.length) ? `<i class="rp-item-opts">${kdsEsc(optText(l.opts))}</i>` : ''}</span>

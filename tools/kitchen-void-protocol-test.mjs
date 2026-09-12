@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 
-import { employeeToken, EMPLOYEE_COOKIE, tillToken, TILL_COOKIE } from '../functions/auth/_lib.js';
+import { employeeToken, EMPLOYEE_COOKIE, tillToken, TILL_COOKIE, tillActorProof } from '../functions/auth/_lib.js';
 import * as queue from '../functions/api/order/queue.js';
 import { newSessionId } from '../functions/api/order/_lib.js';
 
@@ -711,6 +711,70 @@ const paidAck = await postQueue({ merchant: MERCHANT,
   ackVoid: { orderId: 'ord-paid-alert', action: 'accept' } }, employeeCookie);
 check('Paid bill cannot be voided by a late kitchen acknowledgement',
   paidAck.status === 404 && db._db.prepare("SELECT total FROM orders WHERE id='ord-paid-alert'").get().total === 50);
+
+// Regression: an authorised till must not wait for a kitchen-screen approval.
+const proof = await tillActorProof(AUTH_SECRET, MERCHANT, { id: 'test-cashier', name: 'Test cashier', role: 'Caissier' });
+const immediateLines = [
+  { id: 'shawarma', uid: 'uid-cancel-a', name: 'Shawarma', qty: 2, unitPrice: 25, stationAccepted: true },
+  { id: 'shawarma', uid: 'uid-cancel-b', name: 'Shawarma sans sauce', qty: 1, unitPrice: 25, stationAccepted: true },
+];
+exec(`INSERT INTO orders (id, merchant, number, mode, table_no, total, lines, status, session_id, created_ts, updated_ts)
+  VALUES ('ord-immediate', ?, 310, 'table', '1', 75, ?, 'accepted', 'ses-v1', ?, ?)`, MERCHANT, JSON.stringify(immediateLines), now, now);
+const immediateBody = { merchant: MERCHANT, actorProof: proof, voidLine: {
+  orderId: 'ord-immediate', lineId: 'uid-cancel-a', itemId: 'shawarma', qty: 1,
+  immediate: true, requestId: 'voi-test-immediate-0001', reason: 'client_change · erreur client', actor: 'Spoofed' } };
+const unproved = await postQueue({ ...immediateBody, actorProof: undefined }, tillCookie);
+check('Immediate item cancellation requires a verified operator', unproved.status === 403);
+const immediateResult = await postQueue(immediateBody, tillCookie);
+check('Cashier cancels a cooking item immediately, without a kitchen approval', immediateResult.status === 200
+  && immediateResult.data.directVoid && !immediateResult.data.alertSent && immediateResult.data.total === 50);
+check('Only the selected UID loses a unit', immediateResult.data.remainingLines?.every(l => l.qty === 1));
+check('Immediate cancellation records the verified cashier and typed reason',
+  db._db.prepare('SELECT actor, reason FROM kitchen_voids WHERE id=?').get(immediateBody.voidLine.requestId)?.actor === 'Test cashier');
+const repeatImmediate = await postQueue(immediateBody, tillCookie);
+check('Lost-response retry does not cancel another unit', repeatImmediate.data.replayed && repeatImmediate.data.total === 50);
+const staleUid = await postQueue({ ...immediateBody, voidLine: { ...immediateBody.voidLine,
+  requestId: 'voi-test-stale-uid-0001', lineId: 'uid-missing' } }, tillCookie);
+check('Stale UID never falls back to another variant of the product', staleUid.status === 404);
+await postQueue({ merchant: MERCHANT, voidLine: { orderId: 'ord-immediate', lineId: 'uid-cancel-b', qty: 1 } }, tillCookie);
+const finishPending = await postQueue({ ...immediateBody, voidLine: { ...immediateBody.voidLine,
+  requestId: 'voi-test-finish-pending-0001', lineId: 'uid-cancel-b' } }, tillCookie);
+check('Cashier can finish a previously stuck kitchen request', finishPending.data.directVoid && finishPending.data.total === 25);
+check('Replaced kitchen approval is no longer pending',
+  db._db.prepare("SELECT COUNT(*) n FROM kitchen_voids WHERE order_id='ord-immediate' AND status='pending'").get().n === 0);
+// Payment racing between the read and the atomic write must win safely.
+const originalBatch = db.batch;
+db.batch = async statements => {
+  exec("UPDATE orders SET paid_ts=? WHERE id='ord-immediate'", now);
+  return originalBatch(statements);
+};
+const racedVoid = await postQueue({ ...immediateBody, voidLine: { ...immediateBody.voidLine,
+  requestId: 'voi-test-payment-race-0001' } }, tillCookie);
+db.batch = originalBatch;
+check('Racing payment preserves the paid bill', racedVoid.status === 409
+  && db._db.prepare("SELECT total FROM orders WHERE id='ord-immediate'").get().total === 25);
+check('Racing payment leaves no false cancellation audit',
+  !db._db.prepare("SELECT id FROM kitchen_voids WHERE id='voi-test-payment-race-0001'").get());
+
+const formulaVoidLines = [
+  { id: 'menu', uid: 'f-parent', name: 'Menu', kind: 'formula', formulaUid: 'f-test', qty: 2, unitPrice: 40, stationAccepted: true },
+  { id: 'drink', uid: 'f-child', name: 'Boisson', kind: 'formula-part', formulaUid: 'f-test', qty: 2, unitPrice: 0, stationAccepted: true },
+  { id: 'drink', uid: 'f-other', name: 'Boisson seule', qty: 1, unitPrice: 10 },
+];
+exec(`INSERT INTO orders (id, merchant, number, mode, total, lines, status, created_ts, updated_ts)
+  VALUES ('ord-formula-immediate', ?, 311, 'takeout', 90, ?, 'ready', ?, ?)`, MERCHANT, JSON.stringify(formulaVoidLines), now, now);
+const formulaBody = { ...immediateBody, voidLine: { ...immediateBody.voidLine, orderId: 'ord-formula-immediate',
+  lineId: 'f-parent', itemId: 'menu', isWaste: 1, requestId: 'voi-formula-immediate-0001' } };
+const formulaImmediate = await postQueue(formulaBody, tillCookie);
+check('One ready formula cancels with its components, keeping standalone drinks', formulaImmediate.data.total === 50
+  && formulaImmediate.data.remainingLines?.every(l => l.qty === 1));
+check('Each formula component has exactly one approved waste audit',
+  db._db.prepare("SELECT COUNT(*) n FROM kitchen_voids WHERE order_id='ord-formula-immediate' AND qty=1 AND is_waste=1 AND status='approved'").get().n === 2);
+exec("CREATE TRIGGER fail_void_audit BEFORE INSERT ON kitchen_voids BEGIN SELECT RAISE(ABORT, 'test audit unavailable'); END");
+const auditFailure = await postQueue({ ...formulaBody, voidLine: { ...formulaBody.voidLine, requestId: 'voi-audit-failure-0001' } }, tillCookie);
+exec('DROP TRIGGER fail_void_audit');
+check('Audit failure rolls back the bill instead of silently removing food', auditFailure.status === 503
+  && db._db.prepare("SELECT total FROM orders WHERE id='ord-formula-immediate'").get().total === 50);
 
 const cashierSource = fs.readFileSync(path.join(ROOT, 'kiwi-caisse.html'), 'utf8');
 const relaySource = fs.readFileSync(path.join(ROOT, 'assets', 'kitchen-relay.js'), 'utf8');

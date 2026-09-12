@@ -732,6 +732,9 @@ if (!dispatchPendingVoidMatch || !voidLineServerBlockMatch) {
     const normTable = (t) => String(t || '');
     const json = (data, status = 200) => ({ data, status });
     const employee = { member: 'Hamza' };
+    const pinActor = null;
+    const statement = (env, sql, ...args) => env.DB.prepare(sql).bind(...args);
+    const atomicStatements = (_env, statements) => Promise.all(statements.map(s => s.run()));
     const employeeName = (m) => m;
 
     let insertedKitchenVoids = [];
@@ -783,7 +786,7 @@ if (!dispatchPendingVoidMatch || !voidLineServerBlockMatch) {
                   orderId: args[2]
                 });
               }
-              return { success: true };
+              return { success: true, meta: { changes: 1 } };
             }
           })
         })

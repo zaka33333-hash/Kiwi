@@ -1170,6 +1170,7 @@ section('Whole-project regressions');
     'field-orderpro-acceptance-test.mjs',
     'field-table-transfer-test.mjs',
     'caisse-table-actions-test.mjs',
+    'caisse-item-cancel-browser-test.mjs',
     'trade-copy-test.mjs',
     'floor-accept-test.mjs',
     'onboarding-gate-test.mjs',

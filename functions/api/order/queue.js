@@ -1394,15 +1394,31 @@ export async function onRequestPost(context) {
    *    -> La brigade reçoit une alerte visuelle et sonore sur le KDS avec boutons d'acquittement.
    * 3. Toutes les annulations sont auditées dans `kitchen_voids` avec leur motif et statut. */
   if (b && b.voidLine && typeof b.voidLine === 'object') {
+    // Cashier confirmation is final for an unpaid item. A kitchen screen
+    // remains informed through the audited void, but cannot indefinitely
+    // block the guest's bill. Service-phone requests retain the two-tier flow.
+    const immediate = b.voidLine.immediate === true;
+    if (immediate && !pinActor) return json({ error: 'operator-proof-required' }, 403);
+    const requestId = String(b.voidLine.requestId || '');
+    if (immediate && !/^voi-[a-zA-Z0-9-]{16,80}$/.test(requestId)) return json({ error: 'void-request-id-required' }, 400);
     const table = normTable(b.voidLine.table);
     const lineId = String(b.voidLine.lineId || b.voidLine.itemId || b.voidLine.id || '').trim();
     const fallbackItemId = String(b.voidLine.itemId || '').trim();
     const qtyToVoid = Math.max(1, Number(b.voidLine.qty) || 1);
     const reason = String(b.voidLine.reason || 'client_change').trim();
     const isWaste = b.voidLine.isWaste ? 1 : 0;
-    const actor = String(b.voidLine.actor || (employee && employeeName(employee.member)) || 'Serveur').trim().slice(0, 40);
+    const actor = String(pinActor?.name || b.voidLine.actor || (employee && employeeName(employee.member)) || 'Serveur').trim().slice(0, 40);
 
     if (!lineId) return json({ error: 'line-id-required' }, 400);
+    if (immediate) {
+      const replay = await env.DB.prepare(
+        `SELECT o.id, o.table_no, o.lines, o.total FROM kitchen_voids v
+         JOIN orders o ON o.id = v.order_id AND o.merchant = v.merchant
+         WHERE v.id = ? AND v.merchant = ? AND v.status = 'approved'`
+      ).bind(requestId, merchant).first();
+      if (replay) return json({ ok: true, directVoid: true, replayed: true,
+        orderId: replay.id, table: replay.table_no, total: replay.total, remainingLines: storedOrderLines(replay) });
+    }
 
     // Trouver la commande active
     let targetOrder = null;
@@ -1438,8 +1454,14 @@ export async function onRequestPost(context) {
     let lines = [];
     try { lines = JSON.parse(targetOrder.lines) || []; } catch (_) { lines = []; }
 
-    const targetLine = lines.find(l => String(l.uid) === lineId || String(l.id) === lineId || String(l.name) === lineId)
-      || (fallbackItemId && lines.find(l => String(l.id) === fallbackItemId));
+    // Never use a product fallback to cancel another variant when the UID
+    // explicitly identifies a different (or already removed) line.
+    let targetLine = lines.find(l => String(l.uid || '') === lineId);
+    if (!targetLine) {
+      const legacy = lines.filter(l => String(l.id) === lineId || (!l.uid && String(l.id) === fallbackItemId));
+      if (legacy.length > 1) return json({ error: 'ambiguous-line' }, 409);
+      targetLine = legacy[0];
+    }
     if (!targetLine) return json({ error: 'line-not-on-order' }, 404);
 
     const isFormula = targetLine.kind === 'formula' && !!targetLine.formulaUid;
@@ -1447,14 +1469,16 @@ export async function onRequestPost(context) {
       ? lines.filter(l => l.formulaUid === targetLine.formulaUid || l === targetLine)
       : [targetLine];
 
-    if (affectedLines.some(line => line.voidAlert)) {
+    if (!immediate && affectedLines.some(line => line.voidAlert)) {
       return json({ error: 'pending-kitchen-approval', orderId: targetOrder.id }, 409);
     }
 
     const isCooking = affectedLines.some(l => l.stationAccepted === true);
-    const voidId = 'voi-' + now.toString(36) + '-' + crypto.randomUUID().slice(0, 8);
+    let voidId = 'voi-' + now.toString(36) + '-' + crypto.randomUUID().slice(0, 8);
 
-    if (!isCooking) {
+    if (!isCooking || immediate) {
+      const pendingIds = affectedLines.map(line => line.voidAlert?.id).filter(Boolean);
+      if (immediate) affectedLines.forEach(line => { delete line.voidAlert; });
       // ── Niveau 1 : Annulation immédiate (plat non entamé) ──────────────────
       const directVoidQty = new Map();
       if (isFormula) {
@@ -1480,20 +1504,32 @@ export async function onRequestPost(context) {
       const newTotal = lines.reduce((s, l) => s + ((Number(l.unitPrice ?? l.price) || 0) * (Number(l.qty) || 0)), 0);
       const nextTs = Math.max(now, (Number(targetOrder.updated_ts) || 0) + 1);
 
-      await env.DB.prepare(
-        `UPDATE orders SET lines = ?, total = ?, updated_ts = ? WHERE id = ? AND merchant = ?`
-      ).bind(JSON.stringify(lines), newTotal, nextTs, targetOrder.id, merchant).run();
-
-      for (const affLine of affectedLines) {
-        const vId = 'voi-' + now.toString(36) + '-' + crypto.randomUUID().slice(0, 8);
-        try {
-          await env.DB.prepare(
+      const guard = `id = ? AND merchant = ? AND paid_ts IS NULL AND status <> 'rejected' AND updated_ts = ? AND lines = ?`;
+      const guardArgs = [targetOrder.id, merchant, targetOrder.updated_ts, targetOrder.lines];
+      const statements = [];
+      // Audit and bill change share a transaction and the same revision guard.
+      // A racing payment or cancellation must leave both untouched.
+      for (const [index, affLine] of affectedLines.entries()) {
+        const vId = immediate ? (index ? requestId + '-' + index : requestId) : 'voi-' + crypto.randomUUID();
+        if (!index) voidId = vId;
+        statements.push(statement(env,
             `INSERT INTO kitchen_voids (id, merchant, order_id, table_no, item_id, item_name, qty, price, reason, is_waste, actor, status, created_ts)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', ?)`
-          ).bind(vId, merchant, targetOrder.id, targetOrder.table_no, affLine.id || affLine.uid || lineId, affLine.name || lineId, directVoidQty.get(affLine) || qtyToVoid, affLine.unitPrice ?? affLine.price ?? 0, reason, isWaste, actor, now).run();
-        } catch (err) {
-          console.error('[queue] Failed to insert approved kitchen void record', vId, 'merchant', merchant);
-        }
+             SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', ? WHERE EXISTS (SELECT 1 FROM orders WHERE ${guard})`,
+          vId, merchant, targetOrder.id, targetOrder.table_no, affLine.id || affLine.uid || lineId,
+          affLine.name || lineId, directVoidQty.get(affLine) || qtyToVoid, affLine.unitPrice ?? affLine.price ?? 0,
+          reason, isWaste, actor, now, ...guardArgs));
+      }
+      for (const pendingId of pendingIds) statements.push(statement(env,
+        `UPDATE kitchen_voids SET status = 'rejected' WHERE id = ? AND merchant = ? AND status = 'pending'
+         AND EXISTS (SELECT 1 FROM orders WHERE ${guard})`, pendingId, merchant, ...guardArgs));
+      statements.push(statement(env,
+        `UPDATE orders SET lines = ?, total = ?, updated_ts = ? WHERE ${guard}`,
+        JSON.stringify(lines), newTotal, nextTs, ...guardArgs));
+      try {
+        const result = await atomicStatements(env, statements);
+        if (!Number(result[result.length - 1]?.meta?.changes)) return json({ error: 'concurrent-update', retry: true }, 409);
+      } catch (_) {
+        return json({ error: 'item-cancellation-write-failed', retry: true }, 503);
       }
 
       return json({
