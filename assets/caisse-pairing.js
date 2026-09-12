@@ -775,8 +775,11 @@
     var venue = pinVenue || pairedVenue();
     var merchant = (venue && venue.merchant) || '';
     if (!/^\d{4}$/.test(code) || !merchant) return Promise.resolve(null);
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, 12000);
     return fetch('/api/pin/verify', {
       method: 'POST',
+      signal: controller.signal,
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ merchant: merchant, pin: code, ...(action ? { action: action } : {}) }),
     })
@@ -785,7 +788,8 @@
         if (!(d && d.ok && d.staff)) return null;
         return Object.assign({}, d.staff, d.approval ? { approval: String(d.approval) } : {}, d.actorProof ? { actorProof: String(d.actorProof) } : {});
       })
-      .catch(function () { return null; });
+      .catch(function () { return null; })
+      .finally(function () { clearTimeout(timer); });
   }
 
   window.KiwiCaissePairing = {

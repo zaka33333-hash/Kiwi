@@ -42,7 +42,7 @@
 //    dans la même réponse : la caisse allume ses tables sur le plan de salle
 //    sans un deuxième sondage, et sans une deuxième horloge à désynchroniser.
 
-import { json, entitledMerchant, activeServiceEmployee, readTillActorProof } from '../../auth/_lib.js';
+import { json, entitledMerchant, activeServiceEmployee, isTillFor, readTillActorProof } from '../../auth/_lib.js';
 import { startOfDay, nextOrderNumber, deskTouch, normTable, priceOrder, newSessionId, SESSION_ID, CURSOR_LAG_MS, pollCursor } from './_lib.js';
 import { recordOrderCourse, closeOrderCourses } from './_course.js';
 
@@ -676,7 +676,10 @@ export async function onRequestPost(context) {
    * another on-duty server may help, while notifications continue to follow
    * the table's owner. A paused employee cannot submit orders. */
   const employee = await activeServiceEmployee(request, env, merchant);
-  if (employee) {
+  /* A shared tablet can retain a service cookie after the cashier pairs it.
+   * The till credential, not the incidental employee cookie, decides whether
+   * a cashier may void another server's table or a table-less takeaway. */
+  if (employee && !await isTillFor(request, env, merchant)) {
     const scope = await serviceScope(request, env, merchant);
     const employeeTable = b && b.create === true && b.mode !== 'takeout' ? normTable(b.table) : '';
     const employeeOpenTable = b && b.openTable != null ? normTable(b.openTable) : '';
@@ -1702,7 +1705,8 @@ export async function onRequestPost(context) {
     if (!orderId) return json({ error: 'order-id-required' }, 400);
 
     const targetOrder = await env.DB.prepare(
-      `SELECT id, table_no, total, lines, status, updated_ts FROM orders WHERE id = ? AND merchant = ?`
+      `SELECT id, table_no, total, lines, status, updated_ts FROM orders
+       WHERE id = ? AND merchant = ? AND paid_ts IS NULL AND status <> 'rejected'`
     ).bind(orderId, merchant).first();
 
     if (!targetOrder) return json({ error: 'order-not-found' }, 404);
@@ -1710,6 +1714,7 @@ export async function onRequestPost(context) {
     let lines = [];
     try { lines = JSON.parse(targetOrder.lines) || []; } catch (_) { lines = []; }
 
+    const voids = [];
     let voidIdFound = null;
     let voidItemFound = null;
     let voidQtyFound = 1;
@@ -1718,6 +1723,8 @@ export async function onRequestPost(context) {
         voidIdFound = line.voidAlert.id;
         voidItemFound = line.id || line.uid || line.name;
         voidQtyFound = Math.max(1, Number(line.voidAlert.qty) || 1);
+        voids.push({ voidId: voidIdFound, itemId: voidItemFound, qty: voidQtyFound,
+          isWaste: isWaste !== null ? isWaste : (line.voidAlert.isWaste ? 1 : 0) });
         if (action === 'accept') {
           const vQty = voidQtyFound;
           if (line.qty > vQty) {
@@ -1733,20 +1740,23 @@ export async function onRequestPost(context) {
       return line;
     }).filter(Boolean);
 
+    if (!voids.length) return json({ error: 'no-pending-kitchen-void', retry: true }, 409);
     const newTotal = lines.reduce((s, l) => s + ((Number(l.unitPrice ?? l.price) || 0) * (Number(l.qty) || 0)), 0);
     const nextTs = Math.max(now, (Number(targetOrder.updated_ts) || 0) + 1);
 
-    await env.DB.prepare(
-      `UPDATE orders SET lines = ?, total = ?, updated_ts = ? WHERE id = ? AND merchant = ?`
-    ).bind(JSON.stringify(lines), newTotal, nextTs, targetOrder.id, merchant).run();
+    const applied = await env.DB.prepare(
+      `UPDATE orders SET lines = ?, total = ?, updated_ts = ?
+       WHERE id = ? AND merchant = ? AND paid_ts IS NULL AND status <> 'rejected' AND updated_ts = ?`
+    ).bind(JSON.stringify(lines), newTotal, nextTs, targetOrder.id, merchant, targetOrder.updated_ts).run();
+    if (!Number(applied?.meta?.changes)) return json({ error: 'order-changed', retry: true }, 409);
 
-    if (voidIdFound) {
+    for (const entry of voids) {
       try {
         await env.DB.prepare(
           `UPDATE kitchen_voids SET status = ?, is_waste = COALESCE(?, is_waste) WHERE id = ? AND merchant = ?`
-        ).bind(action === 'accept' ? 'approved' : 'rejected', isWaste, voidIdFound, merchant).run();
+        ).bind(action === 'accept' ? 'approved' : 'rejected', isWaste, entry.voidId, merchant).run();
       } catch (err) {
-        console.error('[queue] Failed to update kitchen void status for void', voidIdFound, 'merchant', merchant);
+        console.error('[queue] Failed to update kitchen void status for void', entry.voidId, 'merchant', merchant);
       }
     }
 
@@ -1757,7 +1767,8 @@ export async function onRequestPost(context) {
       voidId: voidIdFound,
       itemId: voidItemFound,
       qty: voidQtyFound,
-      isWaste: isWaste !== null ? isWaste : 0,
+      isWaste: voids[voids.length - 1].isWaste,
+      voids: voids.map(entry => ({ ...entry, orderId: targetOrder.id, table: targetOrder.table_no })),
       table: targetOrder.table_no,
       total: newTotal,
       lines,

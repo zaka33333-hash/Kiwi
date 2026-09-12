@@ -5567,7 +5567,7 @@
   <meta name="apple-mobile-web-app-title" content="Caisse" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/kiwi-employee-180.png?v=2" />
   <script src="assets/pwa-update.js?v=359" defer></script>
-  <script src="assets/caisse-pwa.js?v=513" defer></script>
+  <script src="assets/caisse-pwa.js?v=514" defer></script>
   <script src="assets/live-link.js?v=35" defer></script>
   <!-- The staff-role catalogue · says which roles may open the register. Loaded
        before the pad that asks the question. Missing ⇒ every valid code opens. -->
@@ -5580,7 +5580,7 @@
        avec kiwi-cuisine.html, qui s'appaire sur la même route. -->
   <script src="assets/pairing-commit.js?v=2" defer></script>
   <!-- Hosted: 6-digit pairing pad binds this caisse to its store (no demo PINs). -->
-  <script src="assets/caisse-pairing.js?v=22" defer></script>
+  <script src="assets/caisse-pairing.js?v=23" defer></script>
   <script src="assets/kiwi-select.js?v=2" defer></script>
   <script src="assets/cash-sessions.js?v=5" defer></script>
   <!-- La copie serveur des données d'établissement (fidélité, carnet) : une
@@ -5638,7 +5638,7 @@
        pose le bon sur le serveur (file de secours hors ligne comprise) pour que
        kiwi-cuisine.html l'affiche. Après caisse-pairing.js : il lit le magasin
        appairé. -->
-  <script src="assets/kitchen-relay.js?v=5" defer></script>
+  <script src="assets/kitchen-relay.js?v=6" defer></script>
   <script src="assets/kitchen-print-queue.js?v=12" defer></script>
   <script src="assets/food-production-print.js?v=2" defer></script>
   <!-- OrderPro · orders placed on a customer's phone arrive here over WiFi;
@@ -11908,6 +11908,27 @@
     let caisseSelectedVoidReason = 'client_change';
     let caisseSelectedVoidIsWaste = 0;
 
+    /* Never leave a destructive confirmation locked behind a stalled network.
+       A timed-out write may still have committed: refresh the canonical order
+       before the operator decides whether another cancellation is needed. */
+    async function postCaisseCancellation(body) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 12000);
+      try {
+        const res = await fetch('/api/order/queue', {
+          method: 'POST', credentials: 'same-origin', cache: 'no-store',
+          headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.ok) throw new Error(data?.error || `serveur ${res.status}`);
+        return data;
+      } catch (err) {
+        if (controller.signal.aborted) throw new Error('délai dépassé · vérifiez la commande après synchronisation avant de réessayer');
+        throw err;
+      } finally { clearTimeout(timer); }
+    }
+
     /* `scope` dit OÙ retirer la ligne une fois la cuisine prévenue :
      *  · { tableId }            · une addition de salle (tableOrders)
      *  · { orderId, cart: true } · une commande à emporter en cours d'édition
@@ -11942,10 +11963,7 @@
       }
       if (slug) {
         try {
-          const res = await fetch('/api/order/queue', {
-            method: 'POST', credentials: 'same-origin', cache: 'no-store',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          const data = await postCaisseCancellation({
               merchant: slug,
               voidLine: {
                 /* Une commande à emporter n'a pas de table : elle se désigne
@@ -11960,10 +11978,7 @@
                 isWaste: caisseSelectedVoidIsWaste,
                 actor: (typeof cashierName !== 'undefined' && cashierName) || 'Caisse'
               }
-            })
           });
-          const data = await res.json().catch(() => null);
-          if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || 'void-failed');
           if (data && data.alertSent) {
             line.voidPending = true;
             toast(`Annulation demandée · attente de la cuisine · ${line.name}`);
@@ -12013,6 +12028,7 @@
     document.getElementById('caisse-void-modal') && document.getElementById('caisse-void-modal').addEventListener('click', (e) => {
       if (e.target.closest('#cvoi-confirm')) { confirmCaisseVoid(); return; }
       if (e.target.closest('#cvoi-cancel') || e.target === $('#caisse-void-modal')) {
+        if ($('#cvoi-confirm')?.disabled) { toast('Annulation en cours · attendez la réponse du serveur'); return; }
         $('#caisse-void-modal').classList.remove('is-open');
         caisseVoidTarget = null;
         return;
@@ -12474,14 +12490,8 @@
     async function cancelOneTableOrder(tableId, orderId, who) {
       const entry = canonicalOrdersForTable(tableId).find(candidate => candidate.id === orderId);
       if (!entry) throw new Error('commande introuvable · synchronisez et réessayez');
-      const response = await fetch('/api/order/queue', {
-        method: 'POST', credentials: 'same-origin', cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchant: currentMerchantSlug(), id: orderId,
-          status: 'rejected', actorProof: who?.actorProof || '', server: who?.name || 'Caisse' }),
-      });
-      const result = await response.json().catch(() => null);
-      if (!response.ok || !result?.ok) throw new Error(result?.error || 'annulation non transmise');
+      await postCaisseCancellation({ merchant: currentMerchantSlug(), id: orderId,
+        status: 'rejected', actorProof: who?.actorProof || '', server: who?.name || 'Caisse' });
       const owned = new Set((entry.order.relayLines || []).map(line => String(line?.uid || '')).filter(Boolean));
       tableOrders[tableId] = (tableOrders[tableId] || []).filter(line =>
         !String(line.orderProLine || '').startsWith(orderId + ':') && !owned.has(String(line.uid || '')));
@@ -12501,8 +12511,14 @@
          ticket with the operator proof, and only then release the table. */
       const localTickets = kdsOrders.filter(order => order && order.type === 'dineIn'
         && String(order.table) === String(id) && !order.paid && order.status !== 'rejected');
-      await Promise.all(localTickets.map(order => Promise.resolve(order.canonicalNumberPromise).catch(() => null)));
-      const expectedSession = phoneSessionOf(id) || String(tables[id]?.timerSession || '');
+      let expectedSession = phoneSessionOf(id) || String(tables[id]?.timerSession || '');
+      if (!expectedSession && localTickets.length) {
+        await Promise.race([
+          Promise.all(localTickets.map(order => Promise.resolve(order.canonicalNumberPromise).catch(() => null))),
+          new Promise(resolve => setTimeout(resolve, 8000)),
+        ]);
+        expectedSession = phoneSessionOf(id) || String(tables[id]?.timerSession || '');
+      }
       if (!expectedSession) {
         if (localTickets.length || tableSentCount(id) > 0 || canonicalOrdersForTable(id).length) {
           throw new Error('visite en cours de synchronisation · réessayez');
@@ -12510,14 +12526,8 @@
         cancelOpenTable(id, who);
         return;
       }
-      const res = await fetch('/api/order/queue', {
-        method: 'POST', credentials: 'same-origin', cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchant: currentMerchantSlug(),
-          cancelTable: { table: id, expectedSession }, actorProof: (who && who.actorProof) || '' })
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || 'annulation non transmise');
+      await postCaisseCancellation({ merchant: currentMerchantSlug(),
+        cancelTable: { table: id, expectedSession }, actorProof: (who && who.actorProof) || '' });
       canonicalOrdersForTable(id).forEach(entry => {
         entry.order.status = 'rejected'; entry.order.paid = false;
         const kitchenTicket = kdsOrders.find(order => order && String(order.opId || '') === entry.id);
@@ -19990,12 +20000,9 @@
       const label = ticketNo(o);
       const proceed = (who) => {
         toast(`Annulation de ${label}…`);
-        dismissExpired(o.opId);
-        Promise.resolve(opPush(o, 'rejected', { server: 'dismissed', actorProof: who && who.actorProof || '' })).then((result) => {
-          if (!result || !result.ok) {
-            toast(`Commande ${label} non annulée · réessayez`);
-            return;
-          }
+        postCaisseCancellation({ merchant: currentMerchantSlug(), id: o.opId,
+          status: 'rejected', server: 'dismissed', actorProof: who && who.actorProof || '' }).then(() => {
+          dismissExpired(o.opId);
           opTickets.delete(o.opId);
           const index = kdsOrders.indexOf(o);
           if (index >= 0) kdsOrders.splice(index, 1);
@@ -20009,6 +20016,8 @@
           try { persistShift(); } catch (_) {}
           const by = who && who.name ? ` · ${who.name}` : '';
           toast(`Commande ${label} annulée${by}`);
+        }).catch((error) => {
+          toast(`Commande ${label} conservée · ${error.message || 'annulation non transmise'}`);
         });
       };
       if (authorizedWho) { proceed(authorizedWho); return true; }

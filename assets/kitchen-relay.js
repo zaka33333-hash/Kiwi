@@ -237,21 +237,27 @@
   function ackVoid(orderId, action, isWaste) {
     var m = merchant();
     if (!m || !orderId) return Promise.resolve(null);
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, 12000);
     return fetch('/api/order/queue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ merchant: m, ackVoid: { orderId: orderId, action: action || 'accept', isWaste: isWaste } }),
+      signal: controller.signal,
       cache: 'no-store',
     }).then(function (r) { return r.ok ? r.json() : null; })
       .then(function (res) {
-        if (res && res.action === 'accepted' && !res.isWaste && !isWaste) {
-          try {
-            window.KiwiInventoryConsumption?.reverseVoid?.(res);
-          } catch (_) {}
+        if (res && res.action === 'accepted') {
+          var entries = Array.isArray(res.voids) ? res.voids : [res];
+          entries.forEach(function (entry) {
+            if (entry.isWaste || isWaste) return;
+            try { window.KiwiInventoryConsumption?.reverseVoid?.(entry); } catch (_) {}
+          });
         }
         return res;
       })
-      .catch(function () { return null; });
+      .catch(function () { return null; })
+      .finally(function () { clearTimeout(timer); });
   }
 
   // Le réseau revient : on vide la file sans attendre le prochain quart d'heure.

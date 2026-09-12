@@ -43,6 +43,7 @@ const screen = vm.createContext({
   phoneSessionOf: () => 'ses-table-13', tableSentCount: () => 1,
   canonicalOrdersForTable: () => [{ id: ticket.opId, order: ticket }],
   currentMerchantSlug: () => 'test-restaurant',
+  postCaisseCancellation: async (body) => { requested = body; return { ok: true, ordersCancelled: 1 }; },
   fetch: async (_url, options) => { requested = JSON.parse(options.body); return { ok: true, json: async () => ({ ok: true, ordersCancelled: 1 }) }; },
   caisseTableId: (v) => v, renderRightPanel() {}, refreshTableNode() {},
   resetTableTimer: (table) => { delete table.timerSession; },

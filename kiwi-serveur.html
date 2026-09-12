@@ -4861,7 +4861,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
   <script src="assets/staff-roles.js?v=1" defer></script>
   <!-- Real employee identity, planning, floor and attendance bridge. -->
   <script src="assets/pwa-update.js?v=359" defer></script>
-  <script src="assets/employee-live.js?v=505" defer></script>
+  <script src="assets/employee-live.js?v=506" defer></script>
   <script src="assets/employee-planning.js?v=8" defer></script>
   <link rel="stylesheet" href="assets/employee-trade-shell.css?v=2">
   <script src="assets/employee-trade-shell.js?v=2" defer></script>
@@ -7977,14 +7977,10 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
         let result;
         if (!SV_DEMO) {
           try {
-            const response = await fetch('/api/order/queue', {
-              method: 'POST', credentials: 'same-origin', cache: 'no-store',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ merchant: svSlug(), cancelTable: { table: id, expectedSession } }),
-            });
-            const data = await response.json().catch(() => null);
-            if (!response.ok || !data?.ok) throw new Error(data?.error || 'annulation non transmise');
-            result = await publishServiceTableState(id, 'khawya', 0, false);
+            const data = await postServiceCancellation({ merchant: svSlug(),
+              cancelTable: { table: id, expectedSession } });
+            try { result = await publishServiceTableState(id, 'khawya', 0, false); }
+            catch (_) { result = { ok: true }; /* canonical visit was already closed */ }
             result.cancelled = Number(data.ordersCancelled) || 0;
             result.sessionClosed = true;
           } catch (error) {
@@ -8144,6 +8140,23 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
     });
 
     let voidLineTarget = null;
+    async function postServiceCancellation(body) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 12000);
+      try {
+        const res = await fetch('/api/order/queue', {
+          method: 'POST', credentials: 'same-origin', cache: 'no-store',
+          headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.ok) throw new Error(data?.error || `serveur ${res.status}`);
+        return data;
+      } catch (err) {
+        if (controller.signal.aborted) throw new Error('délai dépassé · synchronisez la table avant de réessayer');
+        throw err;
+      } finally { clearTimeout(timer); }
+    }
     let selectedVoidReason = 'client_change';
     let selectedVoidIsWaste = 0;
 
@@ -8183,10 +8196,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
 
       if (!SV_DEMO) {
         try {
-          const res = await fetch('/api/order/queue', {
-            method: 'POST', credentials: 'same-origin', cache: 'no-store',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+          const data = await postServiceCancellation({
               merchant: svSlug(),
               voidLine: {
                 table: tableId,
@@ -8197,10 +8207,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
                 isWaste: selectedVoidIsWaste,
                 actor: activeRole.fullName || activeRole.name || 'Serveur'
               }
-            })
           });
-          const data = await res.json().catch(() => null);
-          if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || 'void-failed');
           if (data.alertSent) {
             line.voidPending = true;
             toast(`Annulation demandée · attente de la cuisine · ${line.name}`);
@@ -8238,6 +8245,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
     document.getElementById('void-reason-modal').addEventListener('click', (e) => {
       if (e.target.closest('#void-confirm')) { confirmVoidLine(); return; }
       if (e.target.closest('#void-cancel') || e.target === $('#void-reason-modal')) {
+        if ($('#void-confirm')?.disabled) { toast('Annulation en cours · attendez la réponse du serveur'); return; }
         $('#void-reason-modal').classList.remove('is-open');
         voidLineTarget = null;
         return;

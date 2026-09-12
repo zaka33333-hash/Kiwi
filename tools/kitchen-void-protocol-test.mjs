@@ -666,5 +666,61 @@ check('Caisse can cancel one sent kitchen order without closing the table',
 check('Single-order cancellation leaves an immutable kitchen cancellation trace',
   db._db.prepare("SELECT COUNT(*) AS n FROM kitchen_voids WHERE order_id='ord-one-cancel' AND reason='order_rejected' AND status='approved'").get().n === 1);
 
+// A paired cashier may still have a service cookie from the same browser.
+// The employee floor restriction must not override the verified till identity.
+exec(`INSERT INTO orders (id, merchant, number, mode, total, lines, status, created_ts, updated_ts)
+  VALUES ('ord-shared-tablet', ?, 307, 'takeout', 55, ?, 'accepted', ?, ?)`, MERCHANT,
+  JSON.stringify([{ id: 'item-coffee', uid: 'uid-shared-tablet', name: 'Café', qty: 1, unitPrice: 55 }]), now, now);
+const takeawayVoid = { merchant: MERCHANT, voidLine: {
+  orderId: 'ord-shared-tablet', lineId: 'uid-shared-tablet', reason: 'client_change', qty: 1 } };
+const serviceOnlyVoid = await postQueue(takeawayVoid, employeeCookie);
+check('Service cookie alone cannot void a table-less takeaway', serviceOnlyVoid.status === 403);
+const sharedTabletVoid = await postQueue(takeawayVoid, `${employeeCookie}; ${tillCookie}`);
+check('Paired till can void takeaway despite a lingering service cookie',
+  sharedTabletVoid.status === 200 && sharedTabletVoid.data.directVoid
+  && db._db.prepare("SELECT total FROM orders WHERE id='ord-shared-tablet'").get().total === 0);
+
+exec(`INSERT INTO orders (id, merchant, number, mode, table_no, total, lines, status, session_id, created_ts, updated_ts)
+  VALUES ('ord-multi-alert', ?, 308, 'table', '1', 130, ?, 'accepted', 'ses-v1', ?, ?)`, MERCHANT,
+  JSON.stringify([{ id: 'item-a', uid: 'uid-a', name: 'A', qty: 1, unitPrice: 60, stationAccepted: true },
+    { id: 'item-b', uid: 'uid-b', name: 'B', qty: 1, unitPrice: 70, stationAccepted: true }]), now, now);
+for (const lineId of ['uid-a', 'uid-b']) {
+  const alerted = await postQueue({ merchant: MERCHANT,
+    voidLine: { orderId: 'ord-multi-alert', table: '1', lineId,
+      reason: lineId === 'uid-b' ? 'kitchen_waste' : 'client_change', isWaste: lineId === 'uid-b' ? 1 : 0 } }, employeeCookie);
+  check(`Cooking ${lineId} receives an alert`, alerted.status === 200 && alerted.data.alertSent);
+}
+const multiAck = await postQueue({ merchant: MERCHANT,
+  ackVoid: { orderId: 'ord-multi-alert', action: 'accept' } }, employeeCookie);
+check('Kitchen confirmation removes both pending items and their balance',
+  multiAck.status === 200 && multiAck.data.lines.length === 0 && multiAck.data.total === 0);
+check('Every kitchen void audit is approved, not only the last one',
+  db._db.prepare("SELECT COUNT(*) AS n FROM kitchen_voids WHERE order_id='ord-multi-alert' AND status='approved'").get().n === 2);
+check('Chef response preserves each item waste flag for stock accounting',
+  multiAck.data.voids.length === 2 && multiAck.data.voids[0].isWaste === 0
+  && multiAck.data.voids[1].isWaste === 1 && multiAck.data.voids[0].voidId !== multiAck.data.voids[1].voidId);
+const replayAck = await postQueue({ merchant: MERCHANT,
+  ackVoid: { orderId: 'ord-multi-alert', action: 'accept' } }, employeeCookie);
+check('Repeat kitchen acknowledgement cannot create a second cancellation',
+  replayAck.status === 409 && replayAck.data.error === 'no-pending-kitchen-void');
+
+exec(`INSERT INTO orders (id, merchant, number, mode, table_no, total, lines, status, session_id, paid_ts, created_ts, updated_ts)
+  VALUES ('ord-paid-alert', ?, 309, 'table', '1', 50, ?, 'served', 'ses-v1', ?, ?, ?)`, MERCHANT,
+  JSON.stringify([{ id: 'item-paid', uid: 'uid-paid', qty: 1, unitPrice: 50, voidAlert: { id: 'voi-paid', qty: 1 } }]), now, now, now);
+const paidAck = await postQueue({ merchant: MERCHANT,
+  ackVoid: { orderId: 'ord-paid-alert', action: 'accept' } }, employeeCookie);
+check('Paid bill cannot be voided by a late kitchen acknowledgement',
+  paidAck.status === 404 && db._db.prepare("SELECT total FROM orders WHERE id='ord-paid-alert'").get().total === 50);
+
+const cashierSource = fs.readFileSync(path.join(ROOT, 'kiwi-caisse.html'), 'utf8');
+const relaySource = fs.readFileSync(path.join(ROOT, 'assets', 'kitchen-relay.js'), 'utf8');
+check('Cashier and server cancellation calls are bounded instead of freezing indefinitely',
+  cashierSource.includes('async function postCaisseCancellation')
+  && fs.readFileSync(path.join(ROOT, 'kiwi-serveur.html'), 'utf8').includes('async function postServiceCancellation'));
+check('Kitchen acknowledgement waits for authoritative server lines and has a timeout',
+  kitchenSource.includes('if (!result || !result.ok || !Array.isArray(result.lines))')
+  && relaySource.includes('controller.abort(); }, 12000)')
+  && relaySource.includes('entries.forEach(function (entry)'));
+
 console.log(failures ? `\n✗ ${failures} failure(s)\n` : `\n✓ All kitchen void protocol behavioural checks green.\n`);
 process.exitCode = failures ? 1 : 0;

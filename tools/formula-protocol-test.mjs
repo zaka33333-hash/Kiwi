@@ -576,7 +576,10 @@ if (!caisseFormulaGroupMatch || !caisseGroupedDeltaMatch || !caisseGroupedRemove
   ok(caisseAfterDec.find(line => line.uid === 'cash-standalone').qty === 1, 'caisse formula decrement does not touch an identical standalone drink');
   ok(/cart = removeGroupedLine\(cart, uid\)/.test(caisseSource) && /tableOrders\[selectedId\] = removeGroupedLine\(tableOrders\[selectedId\], uid\)/.test(caisseSource), 'caisse review trash routes takeaway and table formulas through grouped removal');
   ok(/l\.sent \|\| l\.kind === 'formula-part' \? ''/.test(caisseSource) && /l\.kind === 'formula-part' \? `<span class="rp-sent-qty">/.test(caisseSource), 'caisse component rows expose no independent delete or quantity controls');
-  ok(/if \(!res\.ok \|\| !data \|\| !data\.ok\) throw/.test(confirmCaisseVoidMatch[0]) && /catch \(err\) \{[\s\S]*?return;/.test(confirmCaisseVoidMatch[0]), 'caisse failed kitchen void preserves local formula group for retry');
+  ok(/await postCaisseCancellation\(\{/.test(confirmCaisseVoidMatch[0])
+    && /catch \(err\) \{[\s\S]*?return;/.test(confirmCaisseVoidMatch[0])
+    && /if \(!res\.ok \|\| !data\?\.ok\) throw/.test(caisseSource),
+  'caisse failed kitchen void preserves local formula group for retry');
 
   const editSlots = [
     { id: 'bread', label: 'Pain', choices: [{ itemId: 'p1', extra: 0 }, { itemId: 'p2', extra: 8 }] },

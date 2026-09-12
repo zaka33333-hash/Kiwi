@@ -384,7 +384,8 @@ function invoiceEnv(sale) {
 /* ── 9 · `closeSession` est le signal de la caisse, pas d'un employé ──────── */
 {
   const queue = fs.readFileSync(new URL('../functions/api/order/queue.js', import.meta.url), 'utf8');
-  const block = queue.slice(queue.indexOf('if (employee) {'), queue.indexOf("error: 'floor-table-required'"));
+  const block = queue.slice(queue.indexOf('if (employee && !await isTillFor(request, env, merchant)) {'),
+    queue.indexOf("error: 'floor-table-required'"));
   ok('le bloc employé refuse closeSession avant tout autre contrôle',
     /if \(b && b\.closeSession\) \{[^]{0,120}403\)/.test(block), 'garde absente du bloc employé');
   ok('seule une fermeture pour règlement marque les commandes payées',
