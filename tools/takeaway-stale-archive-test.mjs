@@ -137,16 +137,54 @@ assert.equal(context.kdsOrders.length, 0, 'a legacy card without opId is matched
 
 const cardContext = vm.createContext({
   vrapSelectedPaidNum: 134,
-  vrapIsCounterSale: () => false, savedTakeawaySplitFor: () => null,
+  savedTakeawaySplitFor: () => null,
   vrapElapsed: () => 'il y a 936 min', vrapItemsLine: () => '1× Tiramisu',
   fmtMAD: value => `${value} MAD`, kdsEsc: value => String(value), ticketNo: o => String(o.opNum),
 });
-vm.runInContext(extract('vrapOrderCard'), cardContext);
-const card = cardContext.vrapOrderCard({ ...ticket, status: 'ready', pickedUp: false,
-  sentAt: new Date(now - 16 * 3600000), items: [{ n: 'Tiramisu' }], total: 35 });
-assert.match(card, /data-vrap-archive="134"/, 'paid pickup has an explicit remove-from-tracking action');
+vm.runInContext(['vrapIsCounterSale', 'vrapOrderCard'].map(extract).join('\n'), cardContext);
+const counterCard = { ...ticket, opChannel: 'caisse', status: 'ready', pickedUp: false,
+  sentAt: new Date(now - 16 * 3600000), items: [{ n: 'Tiramisu' }], total: 35 };
+const card = cardContext.vrapOrderCard(counterCard);
+assert.equal(cardContext.vrapIsCounterSale(counterCard), true, 'the reported cashier sale is classified as counter sale');
+assert.match(card, /data-vrap-archive="134"/, 'paid counter sale has an explicit remove-from-tracking action');
+assert.doesNotMatch(card, /data-vrap-handover/, 'archiving a counter sale cannot invent a handover');
 assert.match(card, /Commande payée/, 'tapping a paid card reveals read-only details');
 assert.match(card, /ne modifie ni le paiement ni les ventes/, 'the UI states the nonfinancial effect');
+assert.match(cardContext.vrapOrderCard({ ...counterCard, opChannel: 'kiwi' }), /data-vrap-handover="134"/,
+  'phone-origin pickup keeps the explicit handover action');
+assert.doesNotMatch(cardContext.vrapOrderCard({ ...counterCard, paid: false }), /data-vrap-archive/,
+  'unpaid counter sale cannot be archived');
+assert.doesNotMatch(cardContext.vrapOrderCard({ ...counterCard, pickedUp: true }), /data-vrap-archive/,
+  'already-completed counter sale cannot be archived again');
+assert.doesNotMatch(cardContext.vrapOrderCard({ ...counterCard, opId: '' }), /data-vrap-archive/,
+  'a sale without server identity cannot be silently hidden locally');
+
+let archiveReply = { ok: false, error: 'archive-not-eligible' };
+const archiveCalls = [];
+const archiveContext = vm.createContext({
+  kdsOrders: [counterCard], window: { confirm: () => true },
+  ticketNo: o => String(o.opNum),
+  requireTillOperator: (_label, next) => next({ actorProof: 'test-actor' }),
+  opPush: (_order, status, extra) => {
+    archiveCalls.push({ status, actorProof: extra.actorProof });
+    return Promise.resolve(archiveReply);
+  },
+  rememberArchivedTakeaway: () => archiveCalls.push('remembered'),
+  retireRejectedKitchenTicket: () => archiveCalls.push('retired'),
+  vrapSelectedPaidNum: null, updateKdsCount() {},
+  kdsEl: { classList: { contains: () => false } }, renderVrapBoard() {}, toast() {},
+});
+vm.runInContext(extract('vrapArchivePaid'), archiveContext);
+archiveContext.vrapArchivePaid(134);
+await new Promise(setImmediate);
+assert.equal(archiveCalls[0].status, 'archived', 'counter sale uses the audited server archive endpoint');
+assert.equal(archiveCalls[0].actorProof, 'test-actor', 'counter-sale archive carries named operator proof');
+assert.equal(archiveCalls.length, 1, 'server rejection cannot remove the local card');
+archiveReply = { ok: true };
+archiveContext.vrapArchivePaid(134);
+await new Promise(setImmediate);
+assert.deepEqual(archiveCalls.slice(2), ['remembered', 'retired'],
+  'confirmed server archive retires the local card and prevents saved-shift resurrection');
 
 console.log('Takeaway stale archive: server, ledger, tombstone and local replay checks passed.');
 db.close();

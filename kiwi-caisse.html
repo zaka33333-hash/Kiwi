@@ -5568,7 +5568,7 @@
   <meta name="apple-mobile-web-app-title" content="Caisse" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/kiwi-employee-180.png?v=2" />
   <script src="assets/pwa-update.js?v=359" defer></script>
-  <script src="assets/caisse-pwa.js?v=515" defer></script>
+  <script src="assets/caisse-pwa.js?v=516" defer></script>
   <script src="assets/live-link.js?v=35" defer></script>
   <!-- The staff-role catalogue · says which roles may open the register. Loaded
        before the pad that asks the question. Missing ⇒ every valid code opens. -->
@@ -19828,11 +19828,16 @@
       let action = '';
       if (!o.paid) {
         action = `<div class="vrap-order-acts">${cancelBtn}${sendBtn}${readyBtn}<button class="vrap-act vrap-act-pay">${savedSplit ? 'Reprendre le split · ' : 'Encaisser · '}${fmtMAD(splitRemaining != null ? splitRemaining : o.total)}</button></div>`;
-      } else if (!o.pickedUp && !counterSale) {
-        /* Do not offer handover while the card still says "En préparation".
-           That shortcut silently marked the order ready and served in one
-           click, hiding the readiness step from every KDS-enabled merchant. */
-        action = readyBtn || `<button class="vrap-act" data-vrap-handover="${o.num}">Remettre au client</button>`;
+      } else if (!o.pickedUp) {
+        if (!counterSale) {
+          /* Do not offer handover while the card still says "En préparation".
+             That shortcut silently marked the order ready and served in one
+             click, hiding the readiness step from every KDS-enabled merchant. */
+          action = readyBtn || `<button class="vrap-act" data-vrap-handover="${o.num}">Remettre au client</button>`;
+        }
+        /* Older paid counter sales can lack a served milestone. They need the
+           same audited, non-financial escape hatch as phone orders; payment
+           alone must not fabricate a customer handover. */
         if (o.opId) action += `<button class="vrap-act vrap-act-archive" data-vrap-archive="${o.num}">Retirer du suivi</button>`;
       }
       const notes = o.items.filter(i => (i.note || '').trim())

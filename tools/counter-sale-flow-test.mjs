@@ -76,7 +76,9 @@ await check('provenance is known at creation, not only once the queue answers', 
 
 await check('a counter sale offers neither "Marquer prêt" nor "Remettre au client"', () => {
   assert.match(caisse, /const readyBtn = \(!ready && o\.status !== 'held' && !counterSale\)/);
-  assert.match(caisse, /\} else if \(!o\.pickedUp && !counterSale\) \{/);
+  assert.match(caisse, /\} else if \(!o\.pickedUp\) \{\s*if \(!counterSale\) \{/);
+  assert.match(caisse, /if \(o\.opId\) action \+= .*data-vrap-archive/,
+    'a legacy paid counter sale still offers audited removal from live tracking');
   /* …et une commande OrderPro les garde : c'est tout l'intérêt de la
    * distinction, le client absent doit toujours être prévenu puis constaté. */
   assert.match(caisse, /data-vrap-handover="\$\{o\.num\}">Remettre au client<\/button>/);

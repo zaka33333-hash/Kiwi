@@ -273,10 +273,10 @@ async function get(fn, qs, headers = {}) {
   })();
   ok('cancelOrderProTakeaway requiert le code opérateur en son sein et n’utilise aucun confirm natif',
     cancelTakeawayFn.includes('requireTillOperator(') && !cancelTakeawayFn.includes('confirm('));
-  ok('cancelOrderProTakeaway place la destruction (opPush, dismissExpired) dans le rappel d’approbation',
-    cancelTakeawayFn.indexOf('requireTillOperator(') > 0
-      && cancelTakeawayFn.indexOf('const proceed =') < cancelTakeawayFn.indexOf('dismissExpired(')
-      && cancelTakeawayFn.indexOf('dismissExpired(') < cancelTakeawayFn.indexOf('opPush('));
+  ok('cancelOrderProTakeaway ne retire la carte qu’après confirmation serveur et code opérateur',
+    cancelTakeawayFn.includes('const proceed = (who) =>')
+      && cancelTakeawayFn.includes('requireTillOperator(`Annuler la commande ${label}`, proceed)')
+      && /postCaisseCancellation\(\{[\s\S]*?actorProof:[\s\S]*?\}\)\.then\(\(\) => \{[\s\S]*?dismissExpired\(o\.opId\)/.test(cancelTakeawayFn));
   ok('le clic data-vrap-cancel sur le tableau passe par cancelOrderProTakeaway',
     caissePage.includes('cancel.dataset.vrapCancel') && caissePage.includes('cancelOrderProTakeaway(kdsOrders.find('));
 
