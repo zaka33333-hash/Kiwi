@@ -9,6 +9,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sqlite = new DatabaseSync(':memory:');
 const schema = fs.readFileSync(path.join(ROOT, 'schema.sql'), 'utf8');
 sqlite.exec(schema);
+sqlite.exec('ALTER TABLE merchant_config ADD COLUMN timezone TEXT');
 const authMigration = fs.readFileSync(path.join(ROOT, 'migrations/2026-09-08-auth-session-revocation.sql'), 'utf8');
 for (const statement of authMigration.replace(/--[^\n]*/g, '').split(';').map((s) => s.trim()).filter(Boolean)) {
   if (/^ALTER TABLE accounts ADD COLUMN session_epoch\b/i.test(statement)
@@ -128,6 +129,22 @@ ok(!sqlite.prepare("SELECT 1 FROM staff_pins WHERE merchant='amira-cafe'").get()
 const stateRes = await get(cookie);
 const state = await stateRes.json();
 ok(stateRes.status === 200 && state.employee.id === 'mem-sara', 'le profil vient du roster cloud du magasin');
+// The same UTC pointage belongs to different civil days in Auckland and
+// Casablanca. Both the employee and manager APIs must key it to the store.
+const crossZoneTs = Date.parse('2026-09-26T12:30:00Z');
+put("UPDATE merchant_config SET timezone='Pacific/Auckland' WHERE merchant='amira-cafe'");
+put('INSERT INTO store_docs (merchant,feature,data,rev,updated_ts) VALUES (?,?,?,?,?)',
+  'amira-cafe', 'attendance', JSON.stringify({ entries:[{
+    id:'tz-entry', staffId:'mem-sara', memberId:'mem-sara', inTs:crossZoneTs, outTs:crossZoneTs+3600000,
+  }] }), 1, now);
+const zonedEmployee = await (await get(cookie)).json();
+const zonedManager = await (await teamLiveGet()).json();
+ok(zonedEmployee.store.timezone === 'Pacific/Auckland' && zonedEmployee.pointedHours['2026-09-27'] === 1,
+  'l’app employé reçoit le fuseau du magasin et date les heures dans ce fuseau');
+ok(zonedManager.pointedHours['mem-sara']['2026-09-27'] === 1,
+  'le dashboard date les heures pointées dans le même fuseau');
+put("DELETE FROM store_docs WHERE merchant='amira-cafe' AND feature='attendance'");
+put("UPDATE merchant_config SET timezone=NULL WHERE merchant='amira-cafe'");
 ok(state.floor.tables.length === 1 && state.floor.tables[0].num === '1', 'le plan de salle réel atteint l’app employé');
 ok(JSON.stringify(state.floor.tables[0].servers) === JSON.stringify(['mem-sara', 'mem-nora', 'fs3'])
   && state.floor.tables[0].server === 'mem-sara',
@@ -515,7 +532,8 @@ ok(serviceSource.includes('id="hours-history-modal"')
   "l'employé peut contrôler chaque mois depuis le registre de pointage");
 const challengeBlock = serviceSource.match(/const KG_DEFIS = \[([\s\S]*?)\n\s*\];/);
 ok(challengeBlock && (challengeBlock[1].match(/metric:/g) || []).length >= 14
-  && serviceSource.includes('kgDayNumber % KG_DEFIS.length'),
+  && serviceSource.includes('dayNumber % KG_DEFIS.length')
+  && serviceSource.includes("Date.parse(employeeDayKey() + 'T12:00:00Z')"),
   'quatorze défis distincts tournent sans répétition pendant deux semaines');
 ok(serviceSource.includes("lifetimeXP: 0")
   && serviceSource.includes("bestNight: 0")

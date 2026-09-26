@@ -4,6 +4,7 @@
 
   var lastData = null;
   var currentTrade = '';
+  var renderedDay = '';
 
   var TRADES = {
     fastfood:      { label: 'Restauration rapide', icon: 'sandwich', steps: ['Comptoir', 'Préparation', 'Remise', 'Nettoyage'] },
@@ -105,7 +106,7 @@
     };
   }
   function dateKey() {
-    try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Casablanca' }).format(new Date()); }
+    try { return new Intl.DateTimeFormat('en-CA', { timeZone: lastData && lastData.store && lastData.store.timezone || 'Africa/Casablanca' }).format(new Date()); }
     catch (_) { return new Date().toISOString().slice(0, 10); }
   }
   function dateLabel(day) {
@@ -115,7 +116,7 @@
   function timeLabel(ts) {
     var n = Number(ts);
     if (!n) return '';
-    try { return new Date(n).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }); }
+    try { return new Date(n).toLocaleTimeString(locale(), { timeZone: lastData && lastData.store && lastData.store.timezone || 'Africa/Casablanca', hour: '2-digit', minute: '2-digit' }); }
     catch (_) { return ''; }
   }
   function nextShift(data) {
@@ -223,6 +224,7 @@
       installActions(root);
     }
     render(root, data, trade);
+    renderedDay = dateKey();
     if (window.lucide) window.lucide.createIcons();
   }
   function render(root, data, trade) {
@@ -260,6 +262,9 @@
     var data = window.KiwiEmployeeLive && KiwiEmployeeLive.data && KiwiEmployeeLive.data();
     if (data) mount(data);
   });
+  function redrawOnDayChange() { if (lastData && renderedDay !== dateKey()) mount(lastData); }
+  window.addEventListener('focus', redrawOnDayChange);
+  setInterval(redrawOnDayChange, 60000);
   window.KiwiEmployeeTradeShell = {
     canonical: canonical, isDining: isDining, isRestaurantService: isRestaurantService,
     usesTradeWorkspace: usesTradeWorkspace, trades: Object.keys(TRADES), mount: mount,

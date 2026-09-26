@@ -13,6 +13,7 @@ import {
   findEmployeeCredential, employeeAuthRevision, limitCheck, limitFail, limitClear, targetKey, rateLimitUnavailable,
 } from '../auth/_lib.js';
 import { storeOperationalState } from './_private.js';
+import { businessDate, merchantZone } from './_business-day.js';
 
 const ATTENDANCE_FEATURE = 'attendance';
 const ATTENDANCE_CODE_FEATURE = 'attendance-code';
@@ -51,10 +52,10 @@ function memberFor(team, pinRow) {
   const want = String(pinRow.name || '').trim().toLocaleLowerCase('fr');
   return want ? members.find((m) => fullName(m).toLocaleLowerCase('fr') === want) || null : null;
 }
-function planningState(team, memberId, currentRole) {
+function planningState(team, memberId, currentRole, zone) {
   const raw = team && team.planning && typeof team.planning === 'object' ? team.planning : {};
   const ownRole = roleKey(currentRole);
-  const today = dateKey(Date.now());
+  const today = dateKey(Date.now(), zone);
   const members = Array.isArray(team && team.members) ? team.members : [];
   const roles = new Map(members.map((member) => [String(member.id || ''), roleKey(member.function || member.department || member.role)]));
   const requests = (Array.isArray(raw.requests) ? raw.requests : [])
@@ -133,12 +134,8 @@ async function liveEmployee(request, env) {
     return pin ? { session, pin } : null;
   } catch (_) { return null; }
 }
-function dateKey(ts) {
-  try {
-    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Casablanca', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ts));
-    const get = (t) => (parts.find((p) => p.type === t) || {}).value || '';
-    return `${get('year')}-${get('month')}-${get('day')}`;
-  } catch (_) { return new Date(ts).toISOString().slice(0, 10); }
+function dateKey(ts, zone) {
+  return businessDate(ts, 0, zone);
 }
 function attendanceView(doc, staffId) {
   const entries = Array.isArray(doc && doc.entries) ? doc.entries : [];
@@ -146,7 +143,7 @@ function attendanceView(doc, staffId) {
   const open = mine.slice().reverse().find((e) => !e.outTs) || null;
   return { open, recent: mine.slice(-31).reverse() };
 }
-function pointedHours(doc, memberId, staffId) {
+function pointedHours(doc, memberId, staffId, zone) {
   const out = {};
   (Array.isArray(doc && doc.entries) ? doc.entries : []).forEach((entry) => {
     if (!entry || !entry.outTs) return;
@@ -157,7 +154,7 @@ function pointedHours(doc, memberId, staffId) {
       const a = Number(pause && pause.inTs) || 0, b = Number(pause && pause.outTs) || 0;
       return sum + (a && b > a ? b - a : 0);
     }, 0);
-    const key = dateKey(start);
+    const key = dateKey(start, zone);
     out[key] = Math.round(((Number(out[key]) || 0) + Math.max(0, end - start - pauseMs) / 3600000) * 100) / 100;
   });
   return out;
@@ -211,6 +208,7 @@ async function payloadFor(request, env) {
   const auth = await liveEmployee(request, env);
   if (!auth) return null;
   const merchant = auth.session.merchant;
+  const zone = await merchantZone(env, merchant);
   const [teamRow, floorRow, attendanceRow, messagesRow, progressRow, cfg] = await Promise.all([
     readDoc(env, merchant, TEAM_FEATURE, { members: [], hours: {}, shifts: {} }),
     readDoc(env, merchant, FLOOR_FEATURE, { zones: [], tables: [], staff: [] }),
@@ -222,7 +220,7 @@ async function payloadFor(request, env) {
   if (cfg && String(cfg.status || '') === 'suspended') return { suspended: true };
   const member = memberFor(teamRow.data, auth.pin);
   const me = safeMember(member, auth.pin);
-  const planning = planningState(teamRow.data, me.id, me.role || me.department);
+  const planning = planningState(teamRow.data, me.id, me.role || me.department, zone);
   const members = Array.isArray(teamRow.data.members) ? teamRow.data.members : [];
   const entries = Array.isArray(attendanceRow.data.entries) ? attendanceRow.data.entries : [];
   const openEntries = new Map(entries.filter((e) => e && !e.outTs)
@@ -237,7 +235,7 @@ async function payloadFor(request, env) {
     colleagues.unshift({ ...me, status: open ? (open.pauseTs ? 'on-pause' : 'on-duty') : 'off-duty' });
   }
   return {
-    ok: true, merchant, store: { name: String((cfg && cfg.name) || merchant), type: String((cfg && cfg.type) || '') },
+    ok: true, merchant, store: { name: String((cfg && cfg.name) || merchant), type: String((cfg && cfg.type) || ''), timezone: zone },
     employee: me,
     schedule: planning.schedule,
     planning: {
@@ -248,7 +246,7 @@ async function payloadFor(request, env) {
       notices:planning.notices,
     },
     hours: (teamRow.data.hours && teamRow.data.hours[me.id]) || {},
-    pointedHours: pointedHours(attendanceRow.data, me.id, auth.pin.id),
+    pointedHours: pointedHours(attendanceRow.data, me.id, auth.pin.id, zone),
     progress: safeProgress(progressRow.data.members && progressRow.data.members[me.id]),
     attendance: attendanceView(attendanceRow.data, auth.pin.id),
     colleagues,
@@ -355,6 +353,7 @@ export async function onRequestPost({ request, env }) {
   // owned by the paired caisse through /api/team/live; an employee cannot grant
   // or end their own pause by crafting this request.
   const merchant = auth.session.merchant;
+  const zone = await merchantZone(env, merchant);
   const storeState = await storeOperationalState(env, merchant);
   if (!storeState.ok) return json({ error: 'auth-verification-unavailable' }, 503);
   if (storeState.suspended) return json({ error: 'store-suspended' }, 403);
@@ -424,7 +423,7 @@ export async function onRequestPost({ request, env }) {
         const shift = planning.openShifts.find((item) => item && item.id === resultId);
         if (!shift || shift.status !== 'open') { operationError = 'open-shift-unavailable'; return doc; }
         if (!validISODate(shift.day) || !validTime(shift.start) || !validTime(shift.end) || shift.start === shift.end) { operationError = 'open-shift-invalid'; return doc; }
-        if (shift.day < dateKey(Date.now())) { operationError = 'open-shift-past'; return doc; }
+        if (shift.day < dateKey(Date.now(), zone)) { operationError = 'open-shift-past'; return doc; }
         if (shift.role && memberRole && roleKey(shift.role) !== memberRole) { operationError = 'open-shift-role-mismatch'; return doc; }
         if (planning.publishedShifts[memberId] && planning.publishedShifts[memberId][shift.day]) { operationError = 'open-shift-schedule-conflict'; return doc; }
         const activeClaims = planning.openShifts.filter((item) => item && item.claimantId === memberId && item.status === 'claimed').length;
@@ -434,7 +433,7 @@ export async function onRequestPost({ request, env }) {
         const day = String(body.day || '');
         const ownShift = planning.publishedShifts[memberId] && planning.publishedShifts[memberId][day];
         if (!validISODate(day) || !ownShift || !validTime(ownShift.start) || !validTime(ownShift.end)) { operationError = 'swap-shift-invalid'; return doc; }
-        if (day < dateKey(Date.now())) { operationError = 'swap-shift-past'; return doc; }
+        if (day < dateKey(Date.now(), zone)) { operationError = 'swap-shift-past'; return doc; }
         const activeMine = planning.swapRequests.filter((item) => item && item.memberId === memberId && ['open','claimed'].includes(item.status)).length;
         if (activeMine >= 20) { operationError = 'planning-opportunity-limit'; return doc; }
         if (planning.swapRequests.some((item) => item && item.memberId === memberId && item.day === day && ['open','claimed'].includes(item.status))) { operationError = 'swap-already-open'; return doc; }
@@ -447,7 +446,7 @@ export async function onRequestPost({ request, env }) {
         const offeredShift = planning.publishedShifts[memberId] && planning.publishedShifts[memberId][offeredDay];
         if (!request || request.status !== 'open' || request.memberId === memberId) { operationError = 'swap-unavailable'; return doc; }
         if (!validISODate(offeredDay) || !offeredShift || !validTime(offeredShift.start) || !validTime(offeredShift.end)) { operationError = 'swap-offer-invalid'; return doc; }
-        if (request.day < dateKey(Date.now()) || offeredDay < dateKey(Date.now())) { operationError = 'swap-shift-past'; return doc; }
+        if (request.day < dateKey(Date.now(), zone) || offeredDay < dateKey(Date.now(), zone)) { operationError = 'swap-shift-past'; return doc; }
         const owner = (Array.isArray(doc.members) ? doc.members : []).find((item) => item && String(item.id || '') === String(request.memberId || ''));
         const ownerRole = roleKey(owner && (owner.function || owner.department || owner.role));
         if (ownerRole && memberRole && ownerRole !== memberRole) { operationError = 'swap-role-mismatch'; return doc; }
@@ -510,7 +509,7 @@ export async function onRequestPost({ request, env }) {
       return sum + (start && end > start ? end - start : 0);
     }, 0);
     const hours = Math.round((Math.max(0, changedEntry.outTs - changedEntry.inTs - pauseMs) / 3600000) * 100) / 100;
-    const day = dateKey(changedEntry.inTs);
+    const day = dateKey(changedEntry.inTs, zone);
     await mutateDoc(env, merchant, TEAM_FEATURE, { members: [], hours: {}, shifts: {} }, (doc) => {
       doc.members = Array.isArray(doc.members) ? doc.members : [];
       doc.hours = doc.hours && typeof doc.hours === 'object' ? doc.hours : {};

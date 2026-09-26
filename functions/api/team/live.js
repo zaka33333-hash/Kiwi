@@ -5,6 +5,7 @@
 
 import { json, entitledMerchant } from '../../auth/_lib.js';
 import { storeOperationalState } from '../_private.js';
+import { businessDate, merchantZone } from '../_business-day.js';
 
 const TEAM = 'team';
 const ACCESS = 'employee-access';
@@ -77,14 +78,10 @@ function liveMembers(roster, attendance) {
     };
   });
 }
-function dateKey(ts) {
-  try {
-    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Casablanca', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ts));
-    const get = (type) => (parts.find((part) => part.type === type) || {}).value || '';
-    return `${get('year')}-${get('month')}-${get('day')}`;
-  } catch (_) { return new Date(ts).toISOString().slice(0, 10); }
+function dateKey(ts, zone) {
+  return businessDate(ts, 0, zone);
 }
-function pointedHours(attendance, now) {
+function pointedHours(attendance, now, zone) {
   const hours = {};
   (Array.isArray(attendance && attendance.entries) ? attendance.entries : []).forEach((entry) => {
     if (!entry || !entry.inTs) return;
@@ -98,7 +95,7 @@ function pointedHours(attendance, now) {
       return sum + (a && b > a ? b - a : 0);
     }, 0);
     if (!entry.outTs && entry.pauseTs) pauseMs += Math.max(0, now - Number(entry.pauseTs));
-    const day = dateKey(start);
+    const day = dateKey(start, zone);
     const row = hours[memberId] || (hours[memberId] = {});
     row[day] = Math.round(((Number(row[day]) || 0) + Math.max(0, end - start - pauseMs) / 3600000) * 100) / 100;
   });
@@ -110,6 +107,7 @@ export async function onRequestGet({ request, env }) {
   const asked = String(new URL(request.url).searchParams.get('merchant') || '').trim().toLowerCase().slice(0, 64);
   const merchant = await entitledMerchant(request, env, asked, { allowTill: true });
   if (!merchant) return json({ error: 'forbidden-merchant' }, 403);
+  const zone = await merchantZone(env, merchant);
   const [team, access, attendance, messages] = await Promise.all([
     readDoc(env, merchant, TEAM, { members: [] }),
     readDoc(env, merchant, ACCESS, { members: [] }),
@@ -120,7 +118,7 @@ export async function onRequestGet({ request, env }) {
     ok: true,
     merchant,
     members: liveMembers(rosterFor(team.data, access.data), attendance.data),
-    pointedHours: pointedHours(attendance.data, Date.now()),
+    pointedHours: pointedHours(attendance.data, Date.now(), zone),
     recentAttendance: (Array.isArray(attendance.data.entries) ? attendance.data.entries : [])
       .slice(-20).reverse().map((entry) => ({
         id: String(entry && entry.id || ''),

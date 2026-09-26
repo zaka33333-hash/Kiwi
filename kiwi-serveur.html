@@ -4862,9 +4862,9 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
   <!-- Real employee identity, planning, floor and attendance bridge. -->
   <script src="assets/pwa-update.js?v=359" defer></script>
   <script src="assets/employee-live.js?v=549" defer></script>
-  <script src="assets/employee-planning.js?v=8" defer></script>
+  <script src="assets/employee-planning.js?v=11" defer></script>
   <link rel="stylesheet" href="assets/employee-trade-shell.css?v=2">
-  <script src="assets/employee-trade-shell.js?v=2" defer></script>
+  <script src="assets/employee-trade-shell.js?v=4" defer></script>
   <!-- Canal de poussée facultatif : quand le concentrateur temps réel est
        déployé, le serveur relit dès qu'une table change en caisse, au lieu
        d'attendre son prochain tour. Absent → sondage d'origine, inchangé. -->
@@ -5314,14 +5314,20 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
     const monthsEn = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
     /* ---------- Live clock ---------- */
+    let employeeStoreZone = '';
+    function employeeDayKey() {
+      try { return new Intl.DateTimeFormat('en-CA', { timeZone: employeeStoreZone || Intl.DateTimeFormat().resolvedOptions().timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
+      catch (_) { return new Date().toISOString().slice(0, 10); }
+    }
+    function employeeCivilDate() { return new Date(employeeDayKey() + 'T12:00:00'); }
+    function employeeCivilKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
     function tickClock() {
       const now = new Date();
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-      const t = `${hh}:${mm}`;
+      const zone = employeeStoreZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const t = now.toLocaleTimeString(employeeLocale(), { timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
       const ciTime = $('#ci-time'); if (ciTime) ciTime.textContent = t;
       const ciDate = $('#ci-date');
-      if (ciDate) ciDate.textContent = now.toLocaleDateString(employeeLocale(), { weekday: 'long', day: 'numeric', month: 'long' });
+      if (ciDate) ciDate.textContent = now.toLocaleDateString(employeeLocale(), { timeZone: zone, weekday: 'long', day: 'numeric', month: 'long' });
     }
     tickClock();
     setInterval(tickClock, 1000);
@@ -5366,7 +5372,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
 
     /* ---------- Time-of-day greeting helper ---------- */
     function timeOfDay() {
-      const h = new Date().getHours();
+      const h = Number(new Intl.DateTimeFormat('en-GB', { timeZone: employeeStoreZone || Intl.DateTimeFormat().resolvedOptions().timeZone, hour: '2-digit', hourCycle: 'h23' }).format(new Date()));
       const period = h >= 5 && h < 11 ? 'morning' : h >= 11 && h < 15 ? 'lunch' : h >= 15 && h < 18 ? 'afternoon' : h >= 18 && h < 23 ? 'evening' : 'night';
       const copy = {
         fr: { morning:'ce matin', lunch:'ce midi', afternoon:'cet après-midi', evening:'ce soir', night:'cette nuit' },
@@ -6238,6 +6244,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
 
     function openEmployeeSession(data) {
       liveEmployeeState = data;
+      employeeStoreZone = data.store && data.store.timezone || '';
       try { localStorage.setItem('kiwiEmployeeMerchant', data.merchant || ''); } catch (_) {}
       applyEmployeeLive(data);
       /* Bootstrap ran before login and therefore had no tenant yet. Load the
@@ -6409,13 +6416,13 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
     }
     function employeeSchedule(data) {
       const map = (data && data.schedule) || {};
-      const monday = new Date();
+      const monday = employeeCivilDate();
       monday.setHours(12, 0, 0, 0);
       monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
       const week = [];
       for (let i = 0; i < 7; i++) {
         const d = new Date(monday); d.setDate(monday.getDate() + i);
-        const key = d.toISOString().slice(0, 10);
+        const key = employeeCivilKey(d);
         const s = map[key];
         week.push(s && !s.off && s.start && s.end ? { in: s.start, out: s.end } : null);
       }
@@ -6425,6 +6432,8 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
       if (!data || !data.employee) return;
       const wasPaused = isEmployeePaused();
       liveEmployeeState = data;
+      employeeStoreZone = data.store && data.store.timezone || '';
+      tickClock();
       const emp = data.employee;
       currentUser = emp.id || 'employee';
       loadServiceHistory();
@@ -9552,7 +9561,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
       }
 
       // More than 59 min ago: show exact time (e.g. 14:32)
-      return d.toLocaleTimeString(employeeLocale(), { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleTimeString(employeeLocale(), { timeZone: employeeStoreZone || Intl.DateTimeFormat().resolvedOptions().timeZone, hour: '2-digit', minute: '2-digit' });
     }
 
     function notificationOrigin(type) {
@@ -9622,9 +9631,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
     function renderProfil() {
       if (!shiftStart) return;
       renderPauseControl();
-      const hh = String(shiftStart.getHours()).padStart(2,'0');
-      const mm = String(shiftStart.getMinutes()).padStart(2,'0');
-      $('#profil-shift-start').textContent = `${hh}:${mm}`;
+      $('#profil-shift-start').textContent = shiftStart.toLocaleTimeString(employeeLocale(), { timeZone: employeeStoreZone || Intl.DateTimeFormat().resolvedOptions().timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 
       const elapsed = Date.now() - shiftStart.getTime();
       const totalMin = Math.floor(elapsed / 60000);
@@ -9714,7 +9721,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
       const week  = $('#kg-week');
       if (!sched || !week) return;
       // Mon=0 … Sun=6 (we display the week starting Monday).
-      const today    = new Date();
+      const today    = employeeCivilDate();
       const todayIdx = (today.getDay() + 6) % 7;
       const monday   = new Date(today);
       monday.setDate(today.getDate() - todayIdx);
@@ -9789,7 +9796,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
       const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2026, 7, 3 + i, 12).toLocaleDateString(employeeLocale(), { weekday: 'short' }));
       const blanks = (new Date(year, month, 1).getDay() + 6) % 7;
       const days = new Date(year, month + 1, 0).getDate();
-      const now = new Date();
+      const now = employeeCivilDate();
       let html = weekdays.map((day) => `<div class="kg-month-weekday">${day}</div>`).join('');
       for (let i = 0; i < blanks; i++) html += '<div class="kg-month-day is-blank"></div>';
       for (let day = 1; day <= days; day++) {
@@ -9805,7 +9812,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
     }
     function closeMonthSchedule() { $('#month-schedule-modal').classList.remove('is-open'); }
     $('#kg-month-open').addEventListener('click', () => {
-      const now = new Date(); scheduleMonthCursor = new Date(now.getFullYear(), now.getMonth(), 1);
+      const now = employeeCivilDate(); scheduleMonthCursor = new Date(now.getFullYear(), now.getMonth(), 1);
       renderMonthSchedule(); $('#month-schedule-modal').classList.add('is-open');
     });
     $('#kg-month-prev').addEventListener('click', () => { scheduleMonthCursor.setMonth(scheduleMonthCursor.getMonth() - 1); renderMonthSchedule(); });
@@ -9836,7 +9843,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
     }
     function closeHoursHistory() { $('#hours-history-modal').classList.remove('is-open'); }
     $('#kg-hours-open').addEventListener('click', () => {
-      const now = new Date(); hoursHistoryCursor = new Date(now.getFullYear(), now.getMonth(), 1);
+      const now = employeeCivilDate(); hoursHistoryCursor = new Date(now.getFullYear(), now.getMonth(), 1);
       renderHoursHistory(); $('#hours-history-modal').classList.add('is-open');
     });
     $('#hours-history-prev').addEventListener('click', () => { hoursHistoryCursor.setMonth(hoursHistoryCursor.getMonth() - 1); renderHoursHistory(); });
@@ -9863,7 +9870,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
       if (todayEl) todayEl.textContent = `${Math.floor(todayMin / 60)}h ${String(todayMin % 60).padStart(2, '0')}`;
 
       // This week — cloud hours already completed + the active shift.
-      const today    = new Date();
+      const today    = employeeCivilDate();
       const todayIdx = (today.getDay() + 6) % 7;
       let weekMin = todayMin;
       if (real && liveEmployeeState) {
@@ -9871,7 +9878,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
         const hmap = liveEmployeeState.hours || {};
         for (let i = 0; i < 7; i++) {
           const d = new Date(monday); d.setDate(monday.getDate() + i);
-          weekMin += Math.round((Number(hmap[d.toISOString().slice(0, 10)]) || 0) * 60);
+          weekMin += Math.round((Number(hmap[employeeCivilKey(d)]) || 0) * 60);
         }
       } else if (sched) { for (let i = 0; i < todayIdx; i++) weekMin += shiftMinutes(sched.week[i]); }
       const weekEl = $('#kg-h-week');
@@ -11112,8 +11119,10 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
         { text: 'Réglez 7 tables avant la fermeture', target: 7,    metric: 'tables'  },
         { text: 'Atteignez 1 250 MAD ce service',     target: 1250, metric: 'revenue' },
       ];
-      const kgDayNumber = Math.floor(new Date().setHours(12, 0, 0, 0) / 86400000);
-      const kgDefi = KG_DEFIS[((kgDayNumber % KG_DEFIS.length) + KG_DEFIS.length) % KG_DEFIS.length];
+      function kgDefi() {
+        const dayNumber = Math.floor(Date.parse(employeeDayKey() + 'T12:00:00Z') / 86400000);
+        return KG_DEFIS[((dayNumber % KG_DEFIS.length) + KG_DEFIS.length) % KG_DEFIS.length];
+      }
 
       /* --- persistence (keyed by server initials) --- */
       const KG_KEY = 'kiwi-serveur-progress';
@@ -11221,8 +11230,9 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
       }
       function kgDefiProgress() {
         const snap = kgSnapshot();
-        const val = kgDefi.metric === 'tables' ? snap.paid : snap.revenue;
-        return { val: val, target: kgDefi.target, frac: Math.min(1, val / kgDefi.target), done: val >= kgDefi.target };
+        const challenge = kgDefi();
+        const val = challenge.metric === 'tables' ? snap.paid : snap.revenue;
+        return { val: val, target: challenge.target, frac: Math.min(1, val / challenge.target), done: val >= challenge.target };
       }
 
       /* --- profil card rendering --- */
@@ -11286,13 +11296,13 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
         const defiText = document.getElementById('kg-defi-text');
         if (defiText) defiText.textContent = dp.done
           ? (employeeLanguage === 'ar' ? 'اكتمل التحدي' : employeeLanguage === 'en' ? 'Challenge complete' : 'Défi accompli')
-          : kgChallengeText(kgDefi);
+          : kgChallengeText(kgDefi());
         const defiFill = document.getElementById('kg-defi-fill');
         if (defiFill) defiFill.style.width = Math.round(dp.frac * 100) + '%';
         const defiMeta = document.getElementById('kg-defi-meta');
         if (defiMeta) {
           const tableUnit = employeeLanguage === 'ar' ? 'طاولات' : employeeLanguage === 'en' ? 'tables' : 'tables';
-          defiMeta.textContent = kgDefi.metric === 'tables'
+          defiMeta.textContent = kgDefi().metric === 'tables'
             ? (kgNum(dp.val) + ' / ' + kgNum(dp.target) + ' ' + tableUnit)
             : (kgNum(dp.val) + ' / ' + kgNum(dp.target) + ' MAD');
         }
@@ -11329,7 +11339,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
         }
         if (kgDefiProgress().done) {
           return { label: 'Défi accompli', icon: 'flag',
-                   text: 'Défi du soir relevé, <em>' + kgDefi.text.toLowerCase() + '</em>.',
+                   text: 'Défi du soir relevé, <em>' + kgDefi().text.toLowerCase() + '</em>.',
                    share: 'Défi du soir accompli' };
         }
         const lines = [
@@ -11339,7 +11349,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
           'Régulier et solide, c\'est ça le métier.',
         ];
         return { label: 'Ce soir', icon: 'sparkles',
-                 text: lines[(snap.paid + new Date().getDate()) % lines.length],
+                 text: lines[(snap.paid + employeeCivilDate().getDate()) % lines.length],
                  share: 'Service bouclé' };
       }
 
@@ -11349,7 +11359,7 @@ html[lang="ar"] { --sans: "IBM Plex Sans Arabic", "Inter Tight", "Cairo", sans-s
         if (!veil) { clockOut(); return; }
         const snap = kgSnapshot();
 
-        const now = new Date();
+        const now = employeeCivilDate();
         const metaEl = document.getElementById('kg-sc-meta');
         if (metaEl) metaEl.textContent = (svName('Café Atlas') ? svName('Café Atlas') + ' · ' : '') +
           dafrDays[now.getDay()] + ' ' + now.getDate() + ' ' + monthsEn[now.getMonth()];

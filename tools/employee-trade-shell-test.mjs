@@ -15,7 +15,7 @@ const document = {
   querySelector() { return null; }, getElementById() { return null; },
 };
 const window = { addEventListener(name, fn) { listeners[`window:${name}`] = fn; } };
-vm.runInNewContext(source('assets/employee-trade-shell.js'), { window, document, Date, Intl, String, Object, Array, Number, setTimeout });
+vm.runInNewContext(source('assets/employee-trade-shell.js'), { window, document, Date, Intl, String, Object, Array, Number, setTimeout, setInterval() {} });
 const api = window.KiwiEmployeeTradeShell;
 ok(api && typeof api.canonical === 'function', 'trade shell exports a deterministic mapper');
 ok(api.isDining('restaurant') && api.isDining('café'), 'restaurant and café remain on the dining app');
@@ -40,7 +40,8 @@ ok(!api.usesTradeWorkspace({ store:{ type:'' }, employee:{ role:'Manager' }, flo
 const server = source('kiwi-serveur.html');
 ok(server.includes("tabs: ['tables', 'notifications', 'profil']"), 'non-dining staff receive self-service tabs without menu');
 ok(server.includes('tradeWorkspace: true'), 'role explicitly identifies trade workspace');
-ok(server.includes('assets/employee-trade-shell.js?v=2'), 'employee app loads the role-safe workspace');
+const jsStamp = (file) => (source(file).match(/assets\/employee-trade-shell\.js\?v=(\d+)/) || [])[1];
+ok(jsStamp('kiwi-serveur.html'), 'employee app loads the role-safe workspace');
 /* L'estampille est VOLATILE : toute modification du fichier la déplace, et la
    figer ici faisait échouer la suite sur un correctif parfaitement valide. On
    n'assouplit pas pour autant jusqu'à ne plus rien prouver — on vérifie que la
@@ -52,7 +53,7 @@ ok(cssStamp('kiwi-serveur.html') === cssStamp('kiwi-sw.js'),
   'the shell and the offline precache agree on the design stamp');
 const shell = source('assets/employee-trade-shell.js');
 for (const field of ['attendance', 'schedule', 'planning', 'colleagues', 'messages']) ok(shell.includes(field), `workspace reads live ${field} data`);
-ok(!/Math\.random|setInterval\s*\(/.test(shell), 'workspace does not invent operational activity');
+ok(!/Math\.random/.test(shell), 'workspace does not invent operational activity');
 ok(source('assets/employee-trade-shell.css').includes('employee-trade-mode #tables-zones'), 'restaurant floor is hidden only in trade mode');
-ok(source('kiwi-sw.js').includes("'/assets/employee-trade-shell.js?v=2'"), 'role-safe workspace works from the employee offline shell');
+ok(jsStamp('kiwi-serveur.html') === jsStamp('kiwi-sw.js'), 'role-safe workspace works from the same offline shell version');
 console.log(`✓ Employee trade workspace — ${controls} controls`);
