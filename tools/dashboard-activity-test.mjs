@@ -135,15 +135,17 @@ db.close();
 const source = read('assets/pages-pro.js');
 const fragment = source.slice(source.indexOf('  function ensureRtxStyles()'), source.indexOf('  function renderStarter(nav, meta)'));
 const nodes = new Map();
-let html = '', title = '', tenant = merchant, fail = false, sales = [{ id: 'sale1', amount: 50.25, ts: now, method: 'cash', lines: [] }];
+let html = '', title = '', renderCount = 0, tenant = merchant, fail = false, sales = [{ id: 'sale1', amount: 50.25, ts: now, method: 'cash', lines: [] }];
 let refunds = [{ id: 'refund1', amount: 12.25, ts: now, method: 'cash' }];
 const fixtureEvents = events.filter(e => e.kind !== 'void').concat(events.find(e => e.kind === 'void'));
 const document = { hidden: false, getElementById: id => nodes.get(id), createElement: () => ({}),
-  head: { appendChild: n => nodes.set(n.id, n) }, querySelector: () => ({}) };
+  head: { appendChild: n => nodes.set(n.id, n) },
+  body: { classList: { contains: name => name === 'page-genpage' } },
+  querySelector: selector => selector.includes('[data-real-tx]') ? {} : null };
 const ctx = vm.createContext({ console, document, Date, URLSearchParams, AbortController, setTimeout, clearTimeout,
   T: o => o.fr, escS: s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])), STARTERS: { transactions: {} },
   window: { KiwiLive: { merchant: () => tenant }, KiwiSales: { list: () => sales }, KiwiRefunds: { list: () => refunds },
-    Kiwi: { appPage: (_page, data) => { html = data.body; title = data.title; } } },
+    Kiwi: { activePage: 'transactions', appPage: (_page, data) => { html = data.body; title = data.title; renderCount++; } } },
   fetch: async url => {
     if (fail) return { ok: false };
     const q = new URL(url, 'https://kiwi.test').searchParams;
@@ -174,6 +176,13 @@ tenant = 'empty-merchant'; sales = []; refunds = []; render(); await drain();
 check('merchant switch clears old history and supports empty real accounts', () => {
   assert.ok(!html.includes('101 MAD')); assert.ok(html.includes('Aucune activité'));
 });
+ctx.window.Kiwi.activePage = 'accueil';
+const rendersBeforeHiddenAudit = renderCount;
+vm.runInContext('loadCancelAudit(true)', ctx); await drain();
+check('late activity response cannot reopen hidden Commandes page', () => {
+  assert.equal(renderCount, rendersBeforeHiddenAudit);
+});
+ctx.window.Kiwi.activePage = 'transactions';
 fail = true; vm.runInContext('loadCancelAudit(true)', ctx); await drain();
 check('failed refresh explicitly warns about incomplete activity', () => assert.ok(html.includes('Journal indisponible')));
 console.log(`Dashboard activity: ${checks} behavioral checks passed.`);

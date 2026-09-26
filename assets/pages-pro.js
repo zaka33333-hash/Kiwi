@@ -16054,6 +16054,16 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
   function auditMerchant() {
     try { return String(window.KiwiLive?.merchant?.() || ''); } catch (_) { return ''; }
   }
+  /* appPage() leaves its old host in the DOM when the cashier goes home or to
+   * another section; pageShell() hides it instead of deleting it. A bare
+   * querySelector('[data-real-tx]') therefore says nothing about which page is
+   * visible. Live-Link's sales subscription used that stale node as permission
+   * to call nav-transactions on every poll, pulling the owner out of Accueil. */
+  function transactionsOnScreen() {
+    return window.Kiwi?.activePage === 'transactions'
+      && document.body.classList.contains('page-genpage')
+      && !!document.querySelector('.dash-genpage [data-real-tx], .dash-genpage [data-starter-nav="transactions"]');
+  }
   function loadCancelAudit(force) {
     const merchant = auditMerchant();
     const windowKey = cancelAuditWindow;
@@ -16094,7 +16104,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       if (generation !== cancelAuditRequest) return;
       cancelAuditLoading = false;
       cancelAuditLoadedAt = Date.now();
-      if (merchant === auditMerchant() && document.querySelector('[data-real-tx]')) renderRealTransactions('transactions', STARTERS.transactions);
+      if (merchant === auditMerchant() && transactionsOnScreen()) renderRealTransactions('transactions', STARTERS.transactions);
     });
   }
 
@@ -16442,21 +16452,21 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
      * the one on screen — the real list, or the empty starter that a first sale
      * should flip into the list. */
     if (window.KiwiSales?.subscribe) window.KiwiSales.subscribe(() => {
-      if (!document.querySelector('[data-real-tx], [data-starter-nav="transactions"]')) return;
+      if (!transactionsOnScreen()) return;
       const H = window.Kiwi && window.Kiwi.handlers;
       try { if (H && H['nav-transactions']) H['nav-transactions'](); } catch (_) {}
     });
     if (window.KiwiRefunds?.subscribe) window.KiwiRefunds.subscribe(() => {
-      if (document.querySelector('[data-real-tx]')) renderRealTransactions('transactions', STARTERS.transactions);
+      if (transactionsOnScreen()) renderRealTransactions('transactions', STARTERS.transactions);
     });
     const refreshActivity = () => {
-      if (!document.hidden && document.querySelector('[data-real-tx]')) loadCancelAudit();
+      if (!document.hidden && transactionsOnScreen()) loadCancelAudit();
     };
     window.setInterval(refreshActivity, 30000);
     window.addEventListener('online', refreshActivity);
     document.addEventListener('visibilitychange', refreshActivity);
     window.addEventListener('kiwi-day-report-ready', () => {
-      if (!document.querySelector('[data-real-tx], [data-starter-nav="transactions"]')) return;
+      if (!transactionsOnScreen()) return;
       const H = window.Kiwi && window.Kiwi.handlers;
       try { if (H && H['nav-transactions']) H['nav-transactions'](); } catch (_) {}
     });

@@ -1160,6 +1160,7 @@ section('Whole-project regressions');
     'maison-dashboard-browser-test.mjs',
     'maison-movement-kpis-browser-test.mjs',
     'avoir-customer-scope-browser-test.mjs',
+    'transactions-nav-stability-browser-test.mjs',
     'boutique-printer-settings-test.mjs',
     /* Le panneau d'activation : il doit pouvoir se fermer. Il ne le pouvait
        pas, et rien ne le disait — voir l'en-tête de la suite. */
@@ -1317,7 +1318,7 @@ section('Whole-project regressions');
     const out = (r.stdout || '') + (r.stderr || '');
     if (r.status === 0) ok(name + ' green');
     else {
-      const lines = out.split('\n').filter((l) => /[✗·]/.test(l)).slice(-8);
+      const lines = out.split('\n').filter((l) => /[✗·]|AssertionError|TimeoutError|Error:|ERR_ASSERTION|actual:|expected:/.test(l)).slice(-8);
       if (lines.length) lines.forEach((l) => fail(name + ' — ' + l.trim()));
       else fail(`${name} exited ${r.status} — ${out.trim().split('\n').slice(-3).join(' | ')}`);
     }
