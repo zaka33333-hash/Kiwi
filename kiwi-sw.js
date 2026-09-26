@@ -16,7 +16,7 @@
  * waiting for every tab to close; it does NOT force a reload, so a caisse sale in
  * progress is never interrupted · fresh assets are simply served on the next load. */
 'use strict';
-var CACHE = 'kiwi-app-v610';
+var CACHE = 'kiwi-app-v611';
 var SHELL = [
   '/dashboard.html',
   '/kiwi-caisse.html',
@@ -149,13 +149,13 @@ var SHELL = [
   // offline with no table geometry at all.
   '/assets/floorplan-core.js?v=2050',
   '/assets/oppo-cards.js?v=2',
-  '/assets/dashboard-pwa.js?v=550',
+  '/assets/dashboard-pwa.js?v=551',
   '/assets/dashboard-native.js?v=1',
   '/assets/pwa-update.js?v=359',
   '/assets/caisse-skin.css?v=3',
   '/assets/pos-mobile.css?v=3',
   '/assets/caisse-motion.js?v=1',
-  '/assets/caisse-pwa.js?v=561',
+  '/assets/caisse-pwa.js?v=562',
   '/assets/vendor/dexie.min.js?v=1',
   '/assets/offline-db.js?v=9',
   '/assets/platform-kernel.js?v=5',
@@ -169,7 +169,7 @@ var SHELL = [
      peut pas dépendre du réseau : un commerçant ferme sa caisse le soir, parfois
      dans un sous-sol sans wifi, et c'est précisément le moment où le Z doit
      s'écrire et s'imprimer. La remontée serveur, elle, retentera plus tard. */
-  '/assets/day-report.js?v=14',
+  '/assets/day-report.js?v=15',
   '/assets/report.js?v=4',
   '/assets/day-report-dash.js?v=11',
   '/assets/day-report-export.js?v=7',
@@ -187,7 +187,7 @@ var SHELL = [
   '/assets/receipt.js?v=4',
   '/assets/receipt-ui.js?v=1',
   '/assets/invoice.js?v=8',
-  '/assets/merchant-config.js?v=273',
+  '/assets/merchant-config.js?v=276',
   '/assets/entitlements.css?v=5',
   '/assets/entitlements-v2.js?v=1',
   '/assets/staff-roles.js?v=1',
@@ -240,7 +240,7 @@ var SHELL = [
   '/assets/stock-identity.js?v=2',
   '/assets/restaurant-recipes.js?v=8',
   '/assets/restaurant-units.js?v=1',
-  '/assets/employee-live.js?v=549',
+  '/assets/employee-live.js?v=550',
   '/assets/employee-planning.js?v=11',
   '/assets/employee-trade-shell.css?v=2',
   '/assets/employee-trade-shell.js?v=4',

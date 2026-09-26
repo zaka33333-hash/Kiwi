@@ -259,6 +259,7 @@
     var v = parseInt(h, 10);
     if (!isFinite(v) || v < 0 || v > 12) return cutoff(slug);
     lset(CUTOFF_KEY + ':' + (slug || storeSlug()), String(v));
+    try { window.dispatchEvent(new CustomEvent('kiwi:business-cutoff-changed')); } catch (_) {}
     return v;
   }
 
@@ -561,6 +562,13 @@
       if (raw && (raw.voided || raw.void_ts)) return;
       var s = normSale(raw);
       if (!s || s.voided || s.ts < b.from || s.ts >= b.to) return;
+      /* /api/sale can acknowledge the same bill under an earlier server id
+         when waiter and till settle concurrently. Use that canonical identity
+         before the Z dedup, just as the reconciliation manifest does. */
+      try {
+        if (window.KiwiLive && window.KiwiLive.canonicalSaleId)
+          s.id = window.KiwiLive.canonicalSaleId(slug, String(raw.serverSaleId || s.id));
+      } catch (_) {}
       var k = s.id || (s.ts + ':' + s.amount + ':' + s.ref);
       if (seen[k]) return;
       seen[k] = 1;

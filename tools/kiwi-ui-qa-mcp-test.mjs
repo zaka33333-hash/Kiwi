@@ -142,6 +142,8 @@ try {
   ok(validateUiProof(proofFile, 999001).environment === 'synthetic-maison-caisse', 'ticket MCP accepts approved Maison caisse proof');
   fs.writeFileSync(proofFile, JSON.stringify({ ...clean, environment: 'synthetic-client-dashboard' }));
   ok(validateUiProof(proofFile, 999001).environment === 'synthetic-client-dashboard', 'ticket MCP accepts approved client dashboard proof');
+  fs.writeFileSync(proofFile, JSON.stringify({ ...clean, environment: 'synthetic-restaurant-dashboard' }));
+  ok(validateUiProof(proofFile, 999001).environment === 'synthetic-restaurant-dashboard', 'ticket MCP accepts approved restaurant dashboard proof');
   fs.writeFileSync(proofFile, JSON.stringify(clean));
   assert.throws(() => validateUiProof(proofFile, 999002), /match/);
   count++; console.log('  ✓ ticket mismatch rejected');
@@ -154,6 +156,27 @@ try {
   count++; console.log('  ✓ stale UI proof rejected');
   const closed = await call('close_session');
   ok(!closed.isError, 'fixture and Chromium close cleanly');
+  const restaurant = await call('start_retail_fixture', { scenario: 'restaurant' });
+  ok(!restaurant.isError && body(restaurant).includes('restaurant dashboard'), 'synthetic restaurant Z dashboard starts');
+  const visibleZ = await call('ui_assert', { selector: '[data-hero-amount]', condition: 'text_contains', expected: '75,00',
+    description: 'Closed restaurant Z net amount is visible on Accueil', timeoutMs: 15000 });
+  if (visibleZ.isError) console.log('RESTAURANT Z:', body(visibleZ), '\nSCREEN:', body(await call('ui_snapshot')));
+  ok(!visibleZ.isError, 'restaurant Z amount renders in browser');
+  const restaurantScreen = body(await call('ui_snapshot'));
+  const bellLine = restaurantScreen.split('\n').find(line => /^q\d+ button/.test(line) && line.includes('Notifications'));
+  assert.ok(bellLine, `restaurant notifications button missing: ${restaurantScreen}`);
+  const bell = await call('ui_click', { ref: bellLine.match(/^q\d+/)[0] });
+  ok(!bell.isError, 'cash discrepancy reached through actual Notifications click');
+  const gap = await call('ui_assert', { selector: '#fixture-drawer', condition: 'text_contains', expected: 'écart : 5,00 MAD',
+    description: 'Restaurant Z notification shows the five-dirham server gap' });
+  ok(!gap.isError, 'restaurant Z gap is visible in rendered notification');
+  const restaurantProof = await call('finish_ui_proof', { ticketId: 999096,
+    expectedOutcome: 'Restaurant dashboard discloses the Z versus ledger gap after clicking Notifications' });
+  const restaurantPath = body(restaurantProof).match(/UI proof saved: (\/[^\n]+proof\.json)/)?.[1];
+  ok(!restaurantProof.isError && restaurantPath && JSON.parse(fs.readFileSync(restaurantPath, 'utf8')).merchant === 'restaurant-fixture',
+    'restaurant proof names only the isolated synthetic merchant');
+  const restaurantClosed = await call('close_session');
+  ok(!restaurantClosed.isError, 'restaurant fixture closes without production access');
   console.log(`kiwi-ui-qa-mcp-test: ${count} controls passed`);
 } finally {
   child.stdin.end();

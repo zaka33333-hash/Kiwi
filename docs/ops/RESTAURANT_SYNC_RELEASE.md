@@ -28,12 +28,55 @@ of verification.
   manifests are unioned by receipt ID, never summed twice. Mixed open/closed
   terminals are labelled partial. Multiple old reports without manifests cannot
   safely be unioned and are labelled unverifiable instead of inventing a total.
-- Current open days use live server money and waiting debt. Without an available
-  observation, sync status is unknown rather than a claimed zero.
+- Current open days use live server money. A provisional Z discrepancy is
+  surfaced without replacing that live amount; without an available observation,
+  sync status is unknown rather than a claimed zero.
 - Historical days without comparisons use the exact ledger with an explicit
   cannot-verify note. Legacy `store_docs.dayreports` aggregates are not used.
-- Server day boundaries are Africa/Casablanca 05:00, including winter clock
-  changes. Restaurant and boutique headline selection uses the same convention.
+- The paired till now publishes its store zone and business-day cutoff. Older
+  stores without a published cutoff retain the historical 05:00 fallback.
+
+## Ticket #96 / #77 forward safeguards (2026-09-26)
+
+The 21 September incident was a delayed outbox delivery, not evidence that Z
+totals can reconstruct receipts. The owner's read-only production observations
+are recorded below; they were supplied to this task, not independently
+re-queried here. D1's later count is not a contemporaneous dashboard snapshot.
+
+| Pasta Corner business day | Till Z | Dashboard at incident | Later D1 / Z reconciliation |
+| --- | ---: | ---: | ---: |
+| 21 Sep | 11 / 1,507 MAD | 2 / 314 MAD | 27 / 3,571 MAD in D1 after delayed delivery |
+| 24 Sep | — | — | 27 / 4,648 MAD; 0 missing, 0 blocked |
+| 25 Sep | — | — | 27 / 4,824 MAD; 0 missing, 0 blocked |
+| 26 Sep | — | — | 24 / 4,251 MAD; 0 missing, 0 blocked |
+
+The later D1 figure for 21 Sep includes sales delivered after the ticket photos;
+it must not be used to claim that the original Z and dashboard agreed. No
+receipt-level history is invented from a Z total. The supplied read reported
+no refunds or voids in D1 since 23 Sep.
+
+- The till sends its actual 0–12 h business cutoff with the zone and with each
+  Z manifest. The server uses the same boundary for `/api/sale` bill identity,
+  Z comparison and dashboard day lookup. Two tills reporting different cutoffs
+  for one day make the comparison explicitly ambiguous rather than matched.
+- A Z manifest contains negative refund rows as well as live payment rows;
+  voids are excluded. Transaction count counts positive receipts only. The
+  reported, recorded and printed amount is net of refunds. The printed Z still
+  distinguishes receivables (`TOTAL FACTURÉ` / `NET ENCAISSÉ`).
+- The local Z report and its manifest deduplicate on the same canonical server
+  sale ID and exact settlement fingerprint. Distinct split IDs remain distinct.
+  A saved provisional alias is folded into the canonical ID on later close.
+- A locally detected journal/manifest delta becomes an explicit `unqueued`
+  amount/count in the durable comparison, never a fabricated receipt ID. An
+  open-day mismatch is visible in the dashboard notification; a rejected
+  receipt in heartbeat telemetry shows a scoped sync gap even before a Z
+  manifest arrives. A missing refund is never retried as a positive sale.
+
+The synthetic single-day fixture has one void, two split parts, a refund, and
+one ordinary payment: 3 live transactions, 80 MAD gross, 5 MAD refunded,
+75 MAD printed/recorded net. See the updated `z-reconciliation-*`,
+`day-report-multi-service-test`, `day-report-print-format-test`, and
+`device-timezone-test` gates. This is forward protection, not a backfill.
 
 ## Reproducible evidence
 

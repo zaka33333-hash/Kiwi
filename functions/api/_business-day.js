@@ -63,3 +63,14 @@ export async function merchantZone(env, merchant) {
     return validZone(row && row.timezone) || DEFAULT_ZONE;
   } catch (_) { return DEFAULT_ZONE; }
 }
+
+// Paired till publishes the same 0–12 h cutoff used by KiwiDayReport. A
+// missing column (pre-upgrade stores) retains the historical 05:00 boundary.
+export async function merchantCutoff(env, merchant) {
+  if (!env?.DB || !merchant) return 5;
+  try {
+    const row = await env.DB.prepare('SELECT business_cutoff FROM merchant_config WHERE merchant = ?').bind(merchant).first();
+    const value = row && row.business_cutoff;
+    return Number.isInteger(value) && value >= 0 && value <= 12 ? value : 5;
+  } catch (_) { return 5; }
+}

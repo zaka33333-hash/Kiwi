@@ -115,5 +115,20 @@ DR2.save(DR2.build({
 const overlap = DR2.load(day, 'resto-test');
 ok(overlap.gross === 340 && !overlap.carried, `an overlapping service replaces instead of double counting (gross ${overlap.gross})`);
 
+/* The server can collapse waiter/till concurrent retries under one canonical
+   receipt ID even when their clocks differ by a couple of seconds. The Z must
+   use that same identity, while preserving equal split parts and net refund. */
+ctx.window.KiwiLive = { canonicalSaleId: (_slug, id) => id === 'local-replay' ? 'local-original' : id };
+const aliasReport = DR.build({ day, store, source: 'caisse', sales: [
+  { id: 'local-original', ts: at('2026-09-12T20:00:00Z'), amount: 50, method: 'cash', ref: 'Table 3 #251' },
+  { id: 'local-replay', ts: at('2026-09-12T20:00:02Z'), amount: 50, method: 'cash', ref: 'Table 3 #251' },
+  { id: 'bill-split-1', ts: at('2026-09-12T20:02:00Z'), amount: 15, method: 'card', ref: 'Table 4 #252' },
+  { id: 'bill-split-2', ts: at('2026-09-12T20:02:00Z'), amount: 15, method: 'card', ref: 'Table 4 #252' },
+  { id: 'refund', ts: at('2026-09-12T20:03:00Z'), amount: -5, method: 'cash', kind: 'refund' },
+  { id: 'void', ts: at('2026-09-12T20:04:00Z'), amount: 9, method: 'cash', voided: true },
+], session: { sessionId: 'alias-shift', terminalId: 'alias-till' } });
+ok(aliasReport.txns === 3 && aliasReport.gross === 80 && aliasReport.net === 75,
+  `canonical ID, split, refund, void agree with server measure (${aliasReport.txns} / ${aliasReport.net})`);
+
 if (process.exitCode) process.exit(process.exitCode);
 console.log(`  ✓ day report keeps every service of a business day and excludes proven duplicate settlements (${pass} controls)`);

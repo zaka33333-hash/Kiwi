@@ -17,13 +17,17 @@ let serverHasSale = false, requests = 0, requeues = 0, reactivations = 0, alias 
 function instance(online) {
   const Live = {
     merchant: () => 'restaurant-fixture', saleIdFor: entry => entry.id,
-    canonicalSaleId: (_slug, id) => id === 'receipt-1' ? (alias || id) : id,
+    canonicalSaleId: (_slug, id) => id === 'receipt-1' ? (alias || id)
+      : id === 'bill-replay' ? 'bill-original' : id,
     retrySale: async () => { reactivations++; return true; },
     postSale: () => { requeues++; serverHasSale = true; alias = 'canonical-receipt-1'; return { ok: true }; },
     flush: () => Promise.resolve(),
   };
   const window = { KiwiOffline: O, KiwiLive: Live,
-    KiwiDayReport: { dayBounds: () => ({ from: 0, to: 2000000000000 }) }, addEventListener() {} };
+    KiwiDayReport: { dayBounds: () => ({ from: 0, to: 2000000000000 }),
+      normSale: entry => ({ ...entry, ts: new Date(entry.time).getTime() }),
+      settlementKey: entry => /-split-/.test(entry.id) ? '' : entry.ref
+        ? [entry.ref, entry.ts, entry.amount, JSON.stringify(entry.lines || [])].join('#') : '' }, addEventListener() {} };
   const ctx = vm.createContext({ window, KiwiLive: Live, navigator: { onLine: online },
     localStorage: { getItem: key => storage.get(key) || null, setItem: (key, value) => storage.set(key, value) },
     document: { readyState: 'complete', getElementById: () => null, querySelector: () => null, addEventListener() {} },
@@ -82,3 +86,60 @@ assert.equal((await fullyVoided.queueClose({ ...report, txns: 0, gross: 0 },
   [{ ...receipt, voided: true }, { ...second, voided: true }])).ok, true);
 assert.equal([...rows.values()][0].payload.entries.length, 0,
   'fully voided day closes with an empty durable Z manifest');
+
+// The till report and Z manifest must use the same fingerprint; legitimate
+// split parts remain separate even when they share the same bill and instant.
+rows.clear();
+const splitDay = '2026-02-19', instant = new Date('2026-02-19T20:00:00Z');
+const shared = { time: instant, ref: 'T-17', lines: [{ name: 'Pasta', qty: 1, total: 50 }] };
+const base = { ...shared, id: 'bill-original', amount: 50, method: 'cash' };
+const replay = { ...base, id: 'bill-replay', time: new Date(instant.getTime() + 2000) };
+const part1 = { ...shared, id: 'bill-split-a', amount: 15, method: 'card' };
+const part2 = { ...shared, id: 'bill-split-b', amount: 15, method: 'card' };
+const splitReport = { ...report, day: splitDay, cutoff: 7, txns: 3, gross: 80, net: 80 };
+const splitClient = instance(false);
+assert.equal((await splitClient.queueSnapshot(splitReport, [base, replay, part1, part2])).ok, true);
+let splitJob = [...rows.values()][0].payload;
+assert.deepEqual(Array.from(splitJob.entries, r => r.id), ['bill-original', 'bill-split-a', 'bill-split-b']);
+assert.equal(splitJob.unqueuedCount, 0);
+assert.equal(splitJob.cutoff, 7);
+
+// A refund reduces the printed net without creating a fourth transaction.
+const refund = { id: 'refund-1', time: instant, kind: 'refund', amount: -5, method: 'cash' };
+assert.equal((await splitClient.queueSnapshot({ ...splitReport, net: 75 },
+  [base, replay, part1, part2, refund])).ok, true);
+splitJob = [...rows.values()][0].payload;
+assert.equal(splitJob.entries.find(r => r.id === 'refund-1').amountCents, -500);
+assert.equal(splitJob.unqueuedCents, 0);
+
+// An unqueued paid receipt is a published discrepancy, never a silent failed
+// snapshot or a fabricated receipt ID.
+assert.equal((await splitClient.queueSnapshot({ ...splitReport, txns: 4, gross: 87, net: 82 },
+  [base, replay, part1, part2, refund])).ok, true);
+splitJob = [...rows.values()][0].payload;
+assert.equal(splitJob.unqueuedCount, 1);
+assert.equal(splitJob.unqueuedCents, 700);
+
+// An earlier provisional manifest can contain the retry ID before /api/sale
+// returns duplicateOf. Canonicalising that saved manifest must merge its alias
+// rather than permanently reject every later Z close.
+rows.clear();
+const aliasDay = '2026-02-20';
+storage.set('kiwi:z-manifest:restaurant-fixture:till-a:' + aliasDay, JSON.stringify([
+  { id: 'bill-original', amountCents: 5000, method: 'cash' },
+  { id: 'bill-replay', amountCents: 5000, method: 'cash' },
+]));
+const aliasResult = await splitClient.queueClose({ ...report, day: aliasDay, txns: 1, gross: 50, net: 50 }, [base, replay]);
+assert.equal(aliasResult.ok, true, 'previous provisional alias collapses to the canonical receipt');
+assert.deepEqual(Array.from([...rows.values()][0].payload.entries, row => row.id), ['bill-original']);
+
+// A later shift may encounter the same exact settlement before the alias is
+// known. The saved manifest and current journal share the report fingerprint;
+// they must not become two server receipts or strand the Z job.
+rows.clear();
+const fingerprintDay = '2026-02-21';
+assert.equal((await splitClient.queueSnapshot({ ...report, day: fingerprintDay, txns: 1, gross: 50, net: 50 }, [base])).ok, true);
+const fingerprintReplay = { ...base, id: 'bill-fingerprint' };
+assert.equal((await splitClient.queueClose({ ...report, day: fingerprintDay, txns: 1, gross: 50, net: 50 },
+  [fingerprintReplay])).ok, true, 'saved and current fingerprint collapse to one payment');
+assert.deepEqual(Array.from([...rows.values()][0].payload.entries, row => row.id), ['bill-original']);

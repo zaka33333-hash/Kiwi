@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { DatabaseSync } from 'node:sqlite';
 import { tillToken, TILL_COOKIE } from '../functions/auth/_lib.js';
-import { businessDate, businessBoundary, merchantZone, validZone, DEFAULT_ZONE } from '../functions/api/_business-day.js';
+import { businessDate, businessBoundary, merchantZone, merchantCutoff, validZone, DEFAULT_ZONE } from '../functions/api/_business-day.js';
 import * as timezone from '../functions/api/timezone.js';
 
 const ROOT = new URL('..', import.meta.url);
@@ -54,6 +54,13 @@ check(await post({ merchant: 'tz-shop', timeZone: 'Europe/Paris' }, tillCookie) 
 check(await post({ merchant: 'tz-shop', timeZone: 'Europe/Paris' }, tillCookie) === 200, 'repeat report is idempotent');
 check(await merchantZone(env, 'tz-shop') === 'Europe/Paris', 'server reads the stored store zone');
 check(await merchantZone(env, 'other-shop') === DEFAULT_ZONE, 'other stores unchanged');
+check(await merchantCutoff(env, 'tz-shop') === 5, 'legacy till retains 05:00 cutoff');
+check(await post({ merchant: 'tz-shop', timeZone: 'Europe/Paris', businessCutoff: 13 }, tillCookie) === 400,
+  'out-of-range cutoff is refused');
+check(await post({ merchant: 'tz-shop', timeZone: 'Europe/Paris', businessCutoff: 7 }, tillCookie) === 200,
+  'paired till publishes its actual cutoff');
+check(await merchantCutoff(env, 'tz-shop') === 7, 'server reads the paired till cutoff');
+check(await merchantCutoff(env, 'other-shop') === 5, 'other merchant cutoff is isolated');
 
 // 3. Browser: which zone each surface uses.
 const source = fs.readFileSync(new URL('assets/day-report.js', ROOT), 'utf8');
@@ -95,6 +102,11 @@ const caisse = fs.readFileSync(new URL('kiwi-caisse.html', ROOT), 'utf8');
 check(/function tickClock\(\)[\s\S]{0,900}resolvedOptions\(\)\.timeZone/.test(caisse), 'till clock falls back to the device zone');
 const config = fs.readFileSync(new URL('assets/merchant-config.js', ROOT), 'utf8');
 check(/function reportTillZone[\s\S]{0,900}\/api\/timezone/.test(config) && /op=1/.test(config), 'paired till reports its zone, never in God Mode');
+check(config.includes('businessCutoff: cutoff') && config.includes('KiwiDayReport.cutoff'), 'paired till reports the Z cutoff with its zone');
+check(config.includes('KiwiHours.subscribe') && config.includes('reportTillZone(cfg.timezone, cfg.businessCutoff)'),
+  'editing trading hours republishes the derived cutoff before the next shift');
+check(config.includes("var clock = slug + ':' + zone + ':' + cutoff"),
+  'same browser pairing to another merchant cannot reuse the first merchant clock acknowledgement');
 const middleware = fs.readFileSync(new URL('functions/_middleware.js', ROOT), 'utf8');
 check(middleware.includes("path === '/api/timezone'"), 'till report passes the site gate to its own handler');
 

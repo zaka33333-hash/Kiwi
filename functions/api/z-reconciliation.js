@@ -2,7 +2,7 @@
 // Missing receipts are never fabricated here: only the originating till can
 // requeue their full, locally preserved payment payloads.
 import { entitledMerchant, isTillFor } from '../auth/_lib.js';
-import { businessDate, businessBoundary, addBusinessDays, merchantZone } from './_business-day.js';
+import { businessDate, businessBoundary, addBusinessDays, merchantZone, merchantCutoff } from './_business-day.js';
 
 function json(value, status = 200) {
   return new Response(JSON.stringify(value), { status,
@@ -40,24 +40,35 @@ export async function onRequestPost({ request, env }) {
   const sales = body.sales;
   if (!validDay(day) || !/^[A-Za-z0-9:_-]{1,64}$/.test(terminalId)
     || !Array.isArray(sales) || sales.length > 5000
-    || !Number.isSafeInteger(body.count) || body.count !== sales.length
-    || !Number.isSafeInteger(body.totalCents) || body.totalCents < 0) return json({ error: 'bad-z-report' }, 400);
+    || !Number.isSafeInteger(body.count) || body.count < 0
+    || !Number.isSafeInteger(body.totalCents) || body.totalCents < -20000000 || body.totalCents > 100000000000
+    || (body.cutoff != null && (!Number.isInteger(body.cutoff) || body.cutoff < 0 || body.cutoff > 12))
+    || (body.unqueuedCount != null && (!Number.isSafeInteger(body.unqueuedCount) || body.unqueuedCount < 0 || body.unqueuedCount > 5000))
+    || (body.unqueuedCents != null && (!Number.isSafeInteger(body.unqueuedCents) || Math.abs(body.unqueuedCents) > 100000000)))
+    return json({ error: 'bad-z-report' }, 400);
   const seen = new Set();
-  let sum = 0;
+  let sum = 0, saleCount = 0;
   const local = new Map();
   for (const sale of sales) {
     const id = String(sale?.id || '').trim();
     const cents = sale?.amountCents;
     const method = String(sale?.method || '');
     if (!/^[A-Za-z0-9:_-]{1,64}$/.test(id) || seen.has(id)
-      || !Number.isSafeInteger(cents) || cents < 0 || cents > 20000000
+      || !Number.isSafeInteger(cents) || cents < -20000000 || cents > 20000000
+      || (cents < 0 && sale.kind !== 'refund') || (cents >= 0 && sale.kind === 'refund')
       || !/^[a-z-]{1,16}$/.test(method)) return json({ error: 'bad-z-sale' }, 400);
-    seen.add(id); sum += cents; local.set(id, { amountCents: cents, method });
+    seen.add(id); sum += cents; if (cents >= 0) saleCount++; local.set(id, { amountCents: cents, method });
   }
-  if (sum !== body.totalCents) return json({ error: 'z-total-mismatch' }, 400);
+  const unqueuedCount = body.unqueuedCount || 0, unqueuedCents = body.unqueuedCents || 0;
+  if (saleCount + unqueuedCount !== body.count || sum + unqueuedCents !== body.totalCents)
+    return json({ error: 'z-total-mismatch' }, 400);
   const zone = await merchantZone(env, merchant);
-  const from = businessBoundary(day, 5, zone);
-  const to = businessBoundary(addBusinessDays(day, 1), 5, zone);
+  // Jobs queued before this protocol carried no cutoff and were compared at
+  // 05:00 by the old server. Do not reinterpret a durable old Z after the
+  // merchant changes trading hours. New tills always send report.cutoff.
+  const cutoff = body.cutoff == null ? 5 : body.cutoff;
+  const from = businessBoundary(day, cutoff, zone);
+  const to = businessBoundary(addBusinessDays(day, 1), cutoff, zone);
   let remote;
   try {
     remote = (await env.DB.prepare(`SELECT id, amount, amount_cents, method FROM sales
@@ -87,7 +98,7 @@ export async function onRequestPost({ request, env }) {
   // identities and malformed payloads stay quarantined for human resolution.
   const comparisonId = crypto.randomUUID(), comparedAt = Date.now();
   const blocked = (Array.isArray(body.blocked) ? body.blocked : []).slice(0, 200).filter(row =>
-    local.has(String(row?.id)) && Number.isSafeInteger(row.amountCents) && row.amountCents >= 0
+    local.has(String(row?.id)) && Number.isSafeInteger(row.amountCents) && Math.abs(row.amountCents) <= 20000000
   ).map(row => ({ id: String(row.id).slice(0,64), amountCents: row.amountCents,
     method: String(row.method || '').slice(0,16), ts: Number(row.ts) || 0,
     reason: String(row.reason || 'unknown').slice(0,96), status: Number(row.status) || 0 }));
@@ -97,11 +108,12 @@ export async function onRequestPost({ request, env }) {
     && [404,409].includes(row.status)).map(row => ({ id: row.id, reason: row.reason,
       status: row.status, comparisonId, comparedAt, merchant, changed: 'visit-rule-relaxed' }));
   const result = { comparisonId, blocked, retryable,
-    manifest: sales.map(row => ({ id: row.id, amountCents: row.amountCents, method: row.method })), day, terminalId, reportedCount: body.count, reportedCents: sum,
+    manifest: sales.map(row => ({ id: row.id, amountCents: row.amountCents, method: row.method })), day, terminalId, cutoff,
+    unqueuedCount, unqueuedCents, reportedCount: body.count, reportedCents: body.totalCents,
     serverCount, serverCents, missing, missingCents, mismatched, extra,
     closed: body.closed !== false,
-    gapCents: sum - serverCents,
-    status: missing.length || mismatched.length || sum !== serverCents ? 'mismatch' : 'matched' };
+    gapCents: body.totalCents - serverCents,
+    status: missing.length || mismatched.length || unqueuedCount || unqueuedCents || body.totalCents !== serverCents ? 'mismatch' : 'matched' };
   try {
     await schema(env.DB);
     await env.DB.prepare(`INSERT INTO z_reconciliations
@@ -114,7 +126,7 @@ export async function onRequestPost({ request, env }) {
        missing_count=excluded.missing_count,missing_cents=excluded.missing_cents,
        mismatch_count=excluded.mismatch_count,extra_count=excluded.extra_count,
        status=excluded.status,result_json=excluded.result_json,updated_ts=excluded.updated_ts`)
-      .bind(merchant, day, terminalId, body.count, sum, serverCount, serverCents,
+      .bind(merchant, day, terminalId, body.count, body.totalCents, serverCount, serverCents,
         missing.length, missingCents, mismatched.length, extra.length, result.status, JSON.stringify(result), Date.now()).run();
   } catch (error) { return json({ error: 'db-write-failed' }, 503); }
   return json({ ok: true, ...result });
@@ -127,6 +139,7 @@ export async function onRequestGet({ request, env }) {
   const merchant = asked && await entitledMerchant(request, env, asked);
   if (!merchant || merchant !== asked) return json({ error: 'forbidden-merchant' }, 403);
   const zone = await merchantZone(env, merchant);
+  const configuredCutoff = await merchantCutoff(env, merchant);
   try {
     await schema(env.DB);
     const rows = (await env.DB.prepare(`SELECT business_day, terminal_id, reported_count, reported_cents,
@@ -141,17 +154,29 @@ export async function onRequestGet({ request, env }) {
     const conflicts = (await env.DB.prepare(`SELECT sale_id, amount_cents, method, updated_ts
       FROM sale_sync_conflicts WHERE merchant = ? ORDER BY updated_ts DESC LIMIT 14`)
       .bind(merchant).all()).results || [];
-    const day = url.searchParams.get('day') || businessDate(Date.now(), 5, zone);
+    const day = url.searchParams.get('day') || businessDate(Date.now(), configuredCutoff, zone);
     if (!validDay(day)) return json({ error: 'bad-day' }, 400);
     const dayRows = (await env.DB.prepare(`SELECT * FROM z_reconciliations
       WHERE merchant = ? AND business_day = ? ORDER BY updated_ts DESC`).bind(merchant, day).all()).results || [];
+    const reportedCutoffs = dayRows.map(row => {
+      try { return JSON.parse(row.result_json || '{}').cutoff; } catch (_) { return null; }
+    });
+    const cutoffs = [...new Set(reportedCutoffs.filter(value => Number.isInteger(value) && value >= 0 && value <= 12))];
+    // A report written before this release used 05:00. Never reinterpret that
+    // historical document under a newer merchant setting, or union it with
+    // a 07:00 report as though the two tills described the same interval.
+    const legacyCutoff = reportedCutoffs.some(value => !Number.isInteger(value) || value < 0 || value > 12);
+    const cutoffConflict = cutoffs.length > 1 || legacyCutoff && cutoffs.some(value => value !== 5);
+    const cutoff = cutoffs.length === 1 ? cutoffs[0] : dayRows.length ? 5 : configuredCutoff;
     const ledger = (await env.DB.prepare(`SELECT id, amount, amount_cents, method FROM sales
       WHERE merchant = ? AND ts >= ? AND ts < ? AND void_ts IS NULL`)
-      .bind(merchant, businessBoundary(day, 5, zone), businessBoundary(addBusinessDays(day, 1), 5, zone)).all()).results || [];
+      .bind(merchant, businessBoundary(day, cutoff, zone), businessBoundary(addBusinessDays(day, 1), cutoff, zone)).all()).results || [];
     const recordedCents = ledger.reduce((n,r) => n + Math.round(r.amount_cents == null ? Number(r.amount)*100 : Number(r.amount_cents)), 0);
+    const recordedCount = ledger.filter(r => Number(r.amount_cents == null ? Number(r.amount)*100 : r.amount_cents) >= 0).length;
     const remote = new Map(ledger.map(r => [r.id,r]));
     const reports = dayRows.map(row => ({ row, result: JSON.parse(row.result_json || '{}') }));
     const closed = reports.filter(x => x.result.closed !== false);
+    const comparison = closed.length ? closed : reports;
     // Manifests allow exact union across tills (imported receipts can overlap).
     // Older single-terminal comparisons still carry their exact aggregate.
     const union = new Map(), waiting = new Set(), blockedById = new Map();
@@ -175,9 +200,10 @@ export async function onRequestGet({ request, env }) {
         if (beat.sync) syncObserved = true;
         pendingCount += Math.max(0,Math.min(100000,Number(beat.sync?.pending)||0));
         for (const r of (Array.isArray(beat.sync?.blockedEntries) ? beat.sync.blockedEntries : []).slice(0,200)) {
-          if (!r?.id) continue;
+          if (!r?.id || !Number.isFinite(Number(r.ts))
+            || businessDate(Number(r.ts), cutoff, zone) !== day) continue;
           blockedById.set(String(r.id).slice(0,64), {id:String(r.id).slice(0,64),
-            amountCents:Math.max(0,Math.min(20000000,Math.round(Number(r.amountCents)||0))),
+            amountCents:Math.max(-20000000,Math.min(20000000,Math.round(Number(r.amountCents)||0))),
             method:String(r.method||'').slice(0,16),ts:Number(r.ts)||0,reason:String(r.reason||'unknown').slice(0,96)});
         }
       }
@@ -187,23 +213,35 @@ export async function onRequestGet({ request, env }) {
       if (stored && Number(stored.amount_cents ?? Math.round(Number(stored.amount)*100)) === r.amountCents
         && stored.method === r.method) blockedById.delete(id);
     }
-    for (const {result} of closed) for (const item of result.manifest || []) {
+    const blockedCents = [...blockedById.values()].reduce((n,r) => n + (Number(r.amountCents) || 0), 0);
+    for (const {result} of comparison) for (const item of result.manifest || []) {
       const old = union.get(item.id);
       if (old && (old.amountCents !== item.amountCents || old.method !== item.method)) overlappingConflict = true;
       union.set(item.id,item);
     }
-    const exactUnion = closed.length && closed.every(x => Array.isArray(x.result.manifest)) && !overlappingConflict;
-    const reportedCents = !closed.length ? null : exactUnion
-      ? [...union.values()].reduce((n,r) => n + r.amountCents,0)
-      : closed.length === 1 ? Number(closed[0].row.reported_cents) : null;
-    const missingCount = exactUnion ? [...union.keys()].filter(id => !remote.has(id)).length
-      : closed.length === 1 ? (closed[0].result.missing || []).filter(id => !remote.has(id)).length : null;
-    const source = reportedCents != null ? 'closed-z' : day === businessDate(Date.now(), 5, zone) ? 'live-ledger' : 'ledger-only';
+    const exactUnion = comparison.length && comparison.every(x => Array.isArray(x.result.manifest)) && !overlappingConflict;
+    const unqueuedCount = comparison.reduce((n,x) => n + (Number(x.result.unqueuedCount) || 0), 0);
+    const unqueuedCents = comparison.reduce((n,x) => n + (Number(x.result.unqueuedCents) || 0), 0);
+    const reportedCents = !comparison.length ? null : exactUnion
+      ? [...union.values()].reduce((n,r) => n + r.amountCents,0) + unqueuedCents
+      : comparison.length === 1 ? Number(comparison[0].row.reported_cents) : null;
+    const missingCount = exactUnion ? [...union.keys()].filter(id => !remote.has(id)).length + unqueuedCount
+      : comparison.length === 1 ? (comparison[0].result.missing || []).filter(id => !remote.has(id)).length + unqueuedCount : null;
+    const openProblem = !closed.length && reportedCents != null &&
+      (reportedCents !== recordedCents || Number(missingCount) > 0 || unqueuedCount > 0 || blockedById.size > 0);
+    const source = cutoffConflict ? 'ambiguous-z'
+      : closed.length && reportedCents != null ? 'closed-z'
+      : openProblem ? 'open-z'
+      : blockedById.size ? 'sync-gap'
+      : day === businessDate(Date.now(), configuredCutoff, zone) ? 'live-ledger' : 'ledger-only';
     const daySummary = { day, source, syncObserved, closedTerminals: closed.length, totalTerminals: reports.length, comparisonAvailable: reports.length > 0,
-      referenceCents: reportedCents == null ? recordedCents : reportedCents, reportedCents, recordedCents,
-      recordedCount: ledger.length, gapCents: reportedCents == null ? null : reportedCents - recordedCents,
-      missingCount, waitingCount: day === businessDate(Date.now(), 5, zone) ? Math.max(waiting.size,pendingCount) : waiting.size, blocked: [...blockedById.values()],
-      ambiguous: closed.length > 1 && reportedCents == null };
+      referenceCents: closed.length && reportedCents != null && !cutoffConflict ? reportedCents : recordedCents, reportedCents, recordedCents,
+      recordedCount, gapCents: cutoffConflict ? null : reportedCents == null ? (blockedById.size ? blockedCents : null) : reportedCents - recordedCents,
+      missingCount: cutoffConflict ? null : missingCount == null && blockedById.size ? blockedById.size : missingCount,
+      unqueuedCount, unqueuedCents, cutoff,
+      waitingCount: day === businessDate(Date.now(), configuredCutoff, zone) ? Math.max(waiting.size,pendingCount) : waiting.size, blocked: [...blockedById.values()],
+      ambiguous: (closed.length > 1 && reportedCents == null) || cutoffConflict,
+      ambiguousReason: cutoffConflict ? 'cutoff-conflict' : '' };
     return json({ ok: true, merchant, rows, conflicts, daySummary });
   } catch (_) { return json({ error: 'db-read-failed' }, 503); }
 }

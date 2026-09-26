@@ -25,4 +25,15 @@ assert.match(text, /Fond d'ouverture\s+1 000 MAD/, 'opening float uses a printab
 assert.match(text, /ATTENDU EN CAISSE\s+1 163 MAD/, 'expected cash uses a printable thousands separator');
 assert.doesNotMatch(text, /1\?000|1\?163/, 'unsupported Unicode spaces never become question marks');
 
-console.log('day-report-print-format-test: 3 controls passed');
+// This is the exact amount /api/z-reconciliation and the dashboard compare:
+// three live payments, one void excluded upstream, and a five-dirham refund.
+const netBytes = context.window.KiwiEscPos.dayReport({ paper: '80', shop: 'Restaurant fixture',
+  fmt: n => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 }).format(n),
+  report: { day: '2026-02-18', txns: 3, gross: 80, net: 75,
+    refunds: { count: 1, amount: 5 }, methods: { cash: 45, card: 30 }, categories: [],
+    cash: { opening: 0, sales: 45, expected: 45, counted: null, movements: [] } } });
+const netText = Buffer.from(netBytes).toString('latin1');
+assert.match(netText, /TOTAL ENCAISS[^\n]*75 MAD/, 'printed Total encaissé is net of refund');
+assert.doesNotMatch(netText, /TOTAL ENCAISS[^\n]*80 MAD/, 'printed total never uses pre-refund gross');
+
+console.log('day-report-print-format-test: 5 controls passed');

@@ -52,11 +52,42 @@ function clientsPage() {
   </body></html>`;
 }
 
+function restaurantPage() {
+  return `<!doctype html><html lang="fr"><head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Kiwi Restaurant · preuve synthétique</title>
+    <link rel="stylesheet" href="/assets/tokens.css">
+    <style>*{box-sizing:border-box}body{margin:0;background:#f7f5f0;color:#10251c;font-family:Arial,sans-serif}header{display:flex;align-items:center;gap:16px;padding:18px;background:#10251c;color:white}button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 14px}main{padding:24px}.hero{background:white;border-radius:20px;padding:28px;max-width:760px}.hero-label{font-size:14px;font-weight:700;letter-spacing:.06em}.hero-amount{font-size:48px;font-weight:800}.drawer{margin:12px 24px;background:white;border-radius:16px;padding:16px;max-width:760px}.notif{padding:12px}.n-title{font-weight:700}.n-desc{margin-top:8px}.badge{margin-left:5px;background:#e44;color:white;border-radius:50%;padding:2px 6px}</style>
+    <script>const venue={id:'restaurant-fixture',name:'Restaurant de test',slug:'restaurant-fixture',type:'restaurant',custom:true};
+      window.KiwiEnv={isReal:()=>true};window.KiwiMe={merchant:venue.slug,business:venue.name};window.__kiwiRole='owner';
+      window.Kiwi={handlers:{},toast:()=>{}};window.KiwiLive={merchant:()=>venue.slug};
+      window.KiwiVenue={isCustom:()=>true,getVenue:()=>venue.id,getVenueType:()=>venue.type,getCurrentVenueData:()=>venue,subscribe:()=>{}};
+      window.KiwiSales={list:()=>[],subscribe:()=>{}};
+    </script>
+  </head><body><header><strong>Kiwi · restaurant synthétique</strong><button id="fixture-home">Accueil</button><button aria-label="Notifications" id="fixture-notifications">Notifications</button></header>
+    <main id="kw-main"><section class="hero"><div data-hero-label class="hero-label">ACCUEIL</div><div data-hero-amount class="hero-amount">0,00 MAD</div></section></main>
+    <section id="fixture-drawer" class="drawer" hidden></section>
+    <script src="/assets/dateRange.js?v=${stamps['assets/dateRange.js'].v}"></script>
+    <script src="/assets/z-reconciliation.js?v=${stamps['assets/z-reconciliation.js'].v}"></script>
+    <script>document.getElementById('fixture-home').onclick=()=>window.KiwiZReconciliation.showDashboard();
+      document.getElementById('fixture-notifications').onclick=()=>{const d=document.getElementById('fixture-drawer');d.hidden=false;d.innerHTML=window.KiwiZReconciliation.notificationHtml();};
+      window.addEventListener('load',()=>setTimeout(()=>window.dispatchEvent(new Event('kiwi:dashboard-unlocked')),100));</script>
+  </body></html>`;
+}
+
 const server = http.createServer((req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-  if (pathname === '/maison.html' || pathname === '/clients.html') {
+  if (pathname === '/maison.html' || pathname === '/clients.html' || pathname === '/dashboard.html') {
     res.writeHead(200, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-store' });
-    res.end(pathname === '/maison.html' ? maisonPage() : clientsPage()); return;
+    res.end(pathname === '/maison.html' ? maisonPage() : pathname === '/clients.html' ? clientsPage() : restaurantPage()); return;
+  }
+  if (pathname === '/api/z-reconciliation') {
+    const day = new URL(req.url, 'http://localhost').searchParams.get('day');
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    res.end(JSON.stringify({ ok: true, daySummary: { day, source: 'closed-z', referenceCents: 7500,
+      reportedCents: 7500, recordedCents: 7000, recordedCount: 2, gapCents: 500,
+      missingCount: 1, unqueuedCount: 0, unqueuedCents: 0, blocked: [],
+      closedTerminals: 1, totalTerminals: 1, comparisonAvailable: true, syncObserved: true } })); return;
   }
   if (pathname.startsWith('/api/')) { res.writeHead(404, { 'Content-Type': 'application/json' }); res.end('{"error":"synthetic-fixture-only"}'); return; }
   const file = path.resolve(ROOT, pathname.replace(/^\/+/, ''));

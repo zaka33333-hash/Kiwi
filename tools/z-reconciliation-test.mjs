@@ -78,5 +78,113 @@ db.prepare("INSERT INTO sales(id,merchant,amount,amount_cents,method,ts) VALUES(
   .run('next-day', merchant, businessBoundary('2026-02-15'));
 result = await post(report);
 assert.equal(result.body.status, 'matched');
+// The merchant closes at 07:00, not the historical fallback 05:00. A 06:00
+// receipt must stay on yesterday's Z even when the server is in another zone.
+db.exec('ALTER TABLE merchant_config ADD COLUMN business_cutoff INTEGER');
+db.prepare('UPDATE merchant_config SET business_cutoff=7 WHERE merchant=?').run(merchant);
+const longDay = '2026-02-16';
+const beforeSeven = businessBoundary('2026-02-17', 5) + 3600000;
+db.prepare("INSERT INTO sales(id,merchant,amount,amount_cents,method,ts) VALUES(?,?,10,1000,'cash',?)")
+  .run('late-night-sale', merchant, beforeSeven);
+result = await post({ day: longDay, cutoff: 7, sales: [{ id: 'late-night-sale', amountCents: 1000, method: 'cash' }], count: 1, totalCents: 1000 });
+assert.equal(result.body.status, 'matched', 'merchant cutoff, not 05:00, decides the Z day');
+const oldJob = await post({ day: longDay, terminalId: 'old-job', sales: [
+  { id: 'late-night-sale', amountCents: 1000, method: 'cash' }], count: 1, totalCents: 1000 });
+assert.equal(oldJob.body.cutoff, 5, 'a durable pre-upgrade Z keeps its original 05:00 comparison');
+assert.equal(oldJob.body.status, 'mismatch', 'old jobs are not silently reinterpreted under a new cutoff');
+
+// One day has a void, two independent split parts, and a partial refund.
+const netDay = '2026-02-18', netTs = businessBoundary(netDay, 7) + 1000;
+for (const [id, cents, method, channel, voided] of [
+  ['bill-one', 1000, 'cash', 'caisse', false],
+  ['bill-split-1', 200, 'card', 'caisse', false],
+  ['bill-split-2', 300, 'card', 'caisse', false],
+  ['refund-one', -500, 'cash', 'refund', false],
+  ['void-one', 700, 'cash', 'caisse', true],
+]) db.prepare('INSERT INTO sales(id,merchant,amount,amount_cents,method,ts,channel,void_ts) VALUES(?,?,?,?,?,?,?,?)')
+  .run(id, merchant, cents / 100, cents, method, netTs, channel, voided ? netTs + 1 : null);
+const netManifest = [
+  { id: 'bill-one', amountCents: 1000, method: 'cash' },
+  { id: 'bill-split-1', amountCents: 200, method: 'card' },
+  { id: 'bill-split-2', amountCents: 300, method: 'card' },
+  { id: 'refund-one', amountCents: -500, method: 'cash', kind: 'refund' },
+];
+result = await post({ day: netDay, cutoff: 7, sales: netManifest, count: 3, totalCents: 1000, closed: true });
+assert.equal(result.status, 200, JSON.stringify(result.body));
+assert.equal(result.body.status, 'matched', 'refund nets the same Z measure as the ledger');
+assert.equal(result.body.serverCents, 1000);
+const netRead = await endpoint.onRequestGet({ env, request: new Request(
+  `https://kiwi.test/api/z-reconciliation?merchant=${merchant}&day=${netDay}`, { headers: { Cookie: owner } }) });
+const netSummary = (await netRead.json()).daySummary;
+assert.equal(netSummary.recordedCents, 1000, 'dashboard reference is net of refund and void');
+assert.equal(netSummary.recordedCount, 3, 'split parts count separately; refund and void do not');
+assert.equal(netSummary.gapCents, 0);
+
+// If a paid receipt never reached the outbox, do not invent its identity.
+// Publish the unexplained Z delta and make the dashboard explicitly warn.
+result = await post({ day: netDay, terminalId: 'other-till', cutoff: 7, sales: [netManifest[0]],
+  count: 2, totalCents: 1700, unqueuedCount: 1, unqueuedCents: 700, closed: true });
+assert.equal(result.status, 200, JSON.stringify(result.body));
+assert.equal(result.body.status, 'mismatch');
+assert.equal(result.body.unqueuedCount, 1);
+const gapRead = await endpoint.onRequestGet({ env, request: new Request(
+  `https://kiwi.test/api/z-reconciliation?merchant=${merchant}&day=${netDay}`, { headers: { Cookie: owner } }) });
+const gapSummary = (await gapRead.json()).daySummary;
+assert.ok(gapSummary.unqueuedCount > 0, 'dashboard must surface a receipt absent from the outbox');
+assert.ok(gapSummary.gapCents !== 0, 'unexplained Z delta cannot look matched');
+result = await post({ day: netDay, terminalId: 'other-till', cutoff: 5, sales: [netManifest[0]],
+  count: 2, totalCents: 1700, unqueuedCount: 1, unqueuedCents: 700, closed: true });
+assert.equal(result.status, 200);
+const conflictRead = await endpoint.onRequestGet({ env, request: new Request(
+  `https://kiwi.test/api/z-reconciliation?merchant=${merchant}&day=${netDay}`, { headers: { Cookie: owner } }) });
+const conflictSummary = (await conflictRead.json()).daySummary;
+assert.equal(conflictSummary.source, 'ambiguous-z', 'two till cutoffs cannot silently claim a matched Z');
+assert.equal(conflictSummary.ambiguousReason, 'cutoff-conflict');
+assert.equal(conflictSummary.gapCents, null, 'a conflicting day boundary cannot produce a trusted numeric gap');
+const openDay = '2026-02-19', openTs = businessBoundary(openDay, 7) + 1000;
+db.prepare("INSERT INTO sales(id,merchant,amount,amount_cents,method,ts) VALUES(?,?,10,1000,'cash',?)")
+  .run('open-sale', merchant, openTs);
+result = await post({ day: openDay, sales: [
+  { id: 'open-sale', amountCents: 1000, method: 'cash' },
+  { id: 'rejected-sale', amountCents: 500, method: 'card' },
+], count: 2, totalCents: 1500, closed: false,
+blocked: [{ id: 'rejected-sale', amountCents: 500, method: 'card', ts: openTs, reason: 'sale-conflict', status: 409 }] });
+assert.equal(result.body.status, 'mismatch');
+const openRead = await endpoint.onRequestGet({ env, request: new Request(
+  `https://kiwi.test/api/z-reconciliation?merchant=${merchant}&day=${openDay}`, { headers: { Cookie: owner } }) });
+const openSummary = (await openRead.json()).daySummary;
+assert.equal(openSummary.source, 'open-z', 'provisional comparison stays visible during service');
+assert.equal(openSummary.gapCents, 500);
+assert.equal(openSummary.missingCount, 1);
+assert.equal(openSummary.blocked.length, 1);
+// Even before a provisional Z reaches D1, the till heartbeat must reveal a
+// rejected paid receipt as a scoped, non-fabricated dashboard gap.
+const beatDay = '2026-02-20', beatTs = businessBoundary(beatDay, 7) + 1000;
+db.prepare(`INSERT INTO operational_commands
+  (id,merchant,domain,action,status,idempotency_key,payload,created_ts,updated_ts)
+  VALUES (?,?,'device','heartbeat','done',?,?,?,?)`).run('beat-one', merchant, 'beat-one',
+    JSON.stringify({ deviceId: 'terminal-z', sync: { pending: 0,
+      blockedEntries: [{ id: 'rejected-without-z', amountCents: 800, method: 'card', ts: beatTs, reason: 'sale-conflict' }] } }),
+    beatTs, beatTs);
+const beatRead = await endpoint.onRequestGet({ env, request: new Request(
+  `https://kiwi.test/api/z-reconciliation?merchant=${merchant}&day=${beatDay}`, { headers: { Cookie: owner } }) });
+const beatSummary = (await beatRead.json()).daySummary;
+assert.equal(beatSummary.source, 'sync-gap');
+assert.equal(beatSummary.gapCents, 800);
+assert.equal(beatSummary.missingCount, 1);
+assert.equal(beatSummary.blocked[0].id, 'rejected-without-z');
+const legacyDay = '2026-02-21';
+db.prepare("INSERT INTO sales(id,merchant,amount,amount_cents,method,ts) VALUES(?,?,6,600,'cash',?)")
+  .run('legacy-next-day', merchant, businessBoundary('2026-02-22', 5) + 3600000);
+db.prepare(`INSERT INTO z_reconciliations
+  (merchant,business_day,terminal_id,reported_count,reported_cents,server_count,server_cents,
+   missing_count,missing_cents,mismatch_count,extra_count,status,result_json,updated_ts)
+  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(merchant, legacyDay, 'legacy-till', 0, 0, 0, 0,
+    0, 0, 0, 0, 'matched', JSON.stringify({ closed: true, manifest: [], missing: [] }), Date.now());
+const legacyRead = await endpoint.onRequestGet({ env, request: new Request(
+  `https://kiwi.test/api/z-reconciliation?merchant=${merchant}&day=${legacyDay}`, { headers: { Cookie: owner } }) });
+const legacySummary = (await legacyRead.json()).daySummary;
+assert.equal(legacySummary.cutoff, 5, 'old Z keeps the historical 05:00 boundary after the store changes hours');
+assert.equal(legacySummary.recordedCents, 0);
 db.close();
 console.log('✓ Z reconciliation: till auth, missing receipt, repair, idempotent upsert, winter boundary');

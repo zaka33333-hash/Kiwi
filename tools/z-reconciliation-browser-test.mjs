@@ -20,10 +20,12 @@ const server=http.createServer((req,res)=>{
   if(fail){res.writeHead(503);res.end('{}');return;}
   const day=url.searchParams.get('day');
   res.setHeader('Content-Type','application/json');
-  res.end(JSON.stringify({ok:true,daySummary:{day,source:mode==='closed'||mode==='zero'?'closed-z':mode==='open'?'live-ledger':'ledger-only',
-   referenceCents:mode==='closed'?150700:mode==='zero'?0:31400,recordedCents:mode==='zero'?0:31400,reportedCents:mode==='closed'?150700:mode==='zero'?0:null,
-   gapCents:mode==='zero'?0:119300,missingCount:mode==='zero'?0:9,waitingCount:9,comparisonAvailable:mode!=='history',
-   blocked:mode==='closed'?[{id:'synthetic-blocked',amountCents:5700,method:'card',ts:Date.now(),reason:'sale-conflict'}]:[]}}));
+  res.end(JSON.stringify({ok:true,daySummary:{day,source:mode==='closed'||mode==='zero'?'closed-z':mode==='open-gap'?'open-z':mode==='sync-gap'?'sync-gap':mode==='open'?'live-ledger':'ledger-only',
+   referenceCents:mode==='closed'?150700:mode==='zero'?0:31400,recordedCents:mode==='zero'?0:31400,reportedCents:mode==='closed'?150700:mode==='zero'?0:mode==='open-gap'?37100:null,
+   gapCents:mode==='zero'?0:mode==='open-gap'?5700:mode==='sync-gap'?800:119300,missingCount:mode==='zero'?0:mode==='open-gap'||mode==='sync-gap'?1:9,
+   unqueuedCount:mode==='open-gap'?1:0,unqueuedCents:mode==='open-gap'?5700:0,
+   waitingCount:9,comparisonAvailable:mode!=='history',
+   blocked:mode==='closed'||mode==='sync-gap'?[{id:'synthetic-blocked',amountCents:mode==='sync-gap'?800:5700,method:'card',ts:Date.now(),reason:'sale-conflict'}]:[]}}));
  }else if(url.pathname==='/kiwi-caisse.html'){
   res.setHeader('Content-Type','text/html; charset=utf-8');
   res.end(`<html><body><h1>Amira · synthetic till</h1><div class="quick-actions"></div>
@@ -82,6 +84,15 @@ try{
   mode='open';await page.evaluate(()=>KiwiZReconciliation.showDashboard());
   await page.waitForFunction(()=>document.querySelector('[data-hero-amount]')?.textContent.replace(/\s/g,'')==='314,00MAD');checks++;
   assert.equal(await badge(),null,'an open day has no notification');checks++;
+  mode='open-gap';await page.evaluate(()=>KiwiZReconciliation.showDashboard());
+  await page.waitForSelector('button[aria-label="Notifications"] [data-z-badge]');checks++;
+  text=(await drawerText()).replace(/\s/g,' ');
+  assert.match(text,/rapport provisoire de la caisse/i);checks++;
+  assert.match(text,/hors file/);checks++;
+  mode='sync-gap';await page.evaluate(()=>KiwiZReconciliation.showDashboard());
+  await page.waitForSelector('button[aria-label="Notifications"] [data-z-badge]');checks++;
+  text=(await drawerText()).replace(/\s/g,' ');
+  assert.match(text,/Reçus refusés non enregistrés : 8,00 MAD/);checks++;
   mode='history';await page.evaluate(()=>KiwiDateRange.setDateRange('hier'));
   await page.waitForFunction(()=>/VENTES ENREGISTRÉES/.test(document.querySelector('[data-hero-label]')?.textContent||''));checks++;
   assert.equal(await badge(),null,'a past day without Z has no notification');checks++;

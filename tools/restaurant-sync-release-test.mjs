@@ -76,11 +76,12 @@ test('blocked replay requires changed server reason and a comparison bound permi
  const relaxed=await post(z.onRequestPost,{merchant,terminalId:'release-till',day,count:1,totalCents:1000,sales:[{id:'blocked-002',amountCents:1000,method:'cash'}],blocked:[{id:'blocked-002',amountCents:1000,method:'cash',ts:at,reason:'table-session-missing',status:404}]});
  assert.deepEqual(relaxed.body.retryable.map(x=>x.id),['blocked-002']);
 });
-test('closed day uses Z reference; open day uses live server total',async()=>{
+test('closed day uses Z reference; open mismatch keeps live total but alerts',async()=>{
  const r=await post(z.onRequestPost,{merchant,terminalId:'release-till',day,closed:true,count:1,totalCents:150700,sales:[{id:'z-missing-001',amountCents:150700,method:'cash'}]}); assert.equal(r.status,200);
  let s=await summary(); assert.equal(s.source,'closed-z'); assert.equal(s.referenceCents,150700); assert.equal(s.missingCount,1); assert.equal(s.gapCents,150700-s.recordedCents);
  await post(z.onRequestPost,{merchant,terminalId:'release-till',day,closed:false,count:1,totalCents:150700,sales:[{id:'z-missing-001',amountCents:150700,method:'cash'}]});
- s=await summary(); assert.equal(s.source,'live-ledger'); assert.equal(s.referenceCents,s.recordedCents); assert.equal(s.waitingCount,1);
+ s=await summary(); assert.equal(s.source,'open-z'); assert.equal(s.referenceCents,s.recordedCents);
+ assert.equal(s.gapCents,150700-s.recordedCents); assert.equal(s.waitingCount,1);
 });
 test('pre-comparison history uses only ledger even if a legacy Z exists',async()=>{
  const d='2026-01-12';

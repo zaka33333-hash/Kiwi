@@ -20,7 +20,7 @@ let stdinEnded = false;
 const TOOLS = [
   { name: 'start_hotel_fixture', description: 'Start a fresh real dashboard + real hotel API/SQLite on a synthetic merchant. Opens Chromium, enters only the fixture PIN, and returns visible UI. Never touches production.', inputSchema: { type: 'object', properties: {} } },
   { name: 'start_tickets_fixture', description: 'Start the real Kiwi Tickets page against an isolated in-memory ticket API. Opens Chromium and never touches production.', inputSchema: { type: 'object', properties: {} } },
-  { name: 'start_retail_fixture', description: 'Start a real Maison caisse or client-directory module with synthetic Amira data. Opens Chromium on loopback only and never touches production.', inputSchema: { type: 'object', properties: { scenario: { type: 'string', enum: ['maison', 'clients'] } }, required: ['scenario'] } },
+  { name: 'start_retail_fixture', description: 'Start a real Maison caisse, client-directory, or restaurant dashboard module with synthetic data. Opens Chromium on loopback only and never touches production.', inputSchema: { type: 'object', properties: { scenario: { type: 'string', enum: ['maison', 'clients', 'restaurant'] } }, required: ['scenario'] } },
   { name: 'ui_snapshot', description: 'Compact visible text and interactive controls with temporary q-refs; no screenshot tokens. Call again after navigation.', inputSchema: { type: 'object', properties: {} } },
   { name: 'ui_click', description: 'Click a visible control through Chromium, not a JS handler or API. Use a q-ref from ui_snapshot.', inputSchema: { type: 'object', properties: { ref: { type: 'string' } }, required: ['ref'] } },
   { name: 'ui_fill', description: 'Fill a visible input through the rendered control. Use a q-ref from ui_snapshot.', inputSchema: { type: 'object', properties: { ref: { type: 'string' }, value: { type: 'string' } }, required: ['ref', 'value'] } },
@@ -201,7 +201,7 @@ function retailFixtureProcess() {
 async function startRetailFixture(args) {
   await closeSession();
   const scenario = String(args.scenario || '');
-  if (!['maison', 'clients'].includes(scenario)) throw new Error('scenario must be maison or clients.');
+  if (!['maison', 'clients', 'restaurant'].includes(scenario)) throw new Error('scenario must be maison, clients or restaurant.');
   const bin = chromiumBinary();
   if (!bin) throw new Error('Chromium not found; set KIWI_CHROMIUM_BIN. UI proof cannot be skipped.');
   const puppeteer = createRequire(path.join(ROOT, 'app/package.json'))('puppeteer-core');
@@ -219,10 +219,12 @@ async function startRetailFixture(args) {
       if (u.startsWith(fixture.base + '/') || u.startsWith('data:') || u.startsWith('blob:')) req.continue().catch(() => {});
       else req.abort().catch(() => {});
     });
-    await page.goto(fixture.base + (scenario === 'maison' ? '/maison.html' : '/clients.html'), { waitUntil: 'load', timeout: 60000 });
-    await page.waitForSelector(scenario === 'maison' ? '#pos-maison.is-on .mz-view.is-on' : '[data-open-clients]', { visible: true, timeout: 15000 });
-    session = { ...fixture, kind: scenario === 'maison' ? 'retail-maison' : 'retail-clients', browser, context, page, actions: [], assertions: [], refs: new Set(), startedAt: Date.now() };
-    return `Synthetic ${scenario === 'maison' ? 'Maison caisse' : 'Amira client directory'} ready at ${origin.origin}; no live merchant access.\n${await snapshot()}`;
+    await page.goto(fixture.base + (scenario === 'maison' ? '/maison.html' : scenario === 'clients' ? '/clients.html' : '/dashboard.html'), { waitUntil: 'load', timeout: 60000 });
+    await page.waitForSelector(scenario === 'maison' ? '#pos-maison.is-on .mz-view.is-on' : scenario === 'clients' ? '[data-open-clients]' : '#kw-main [data-hero-amount]', { visible: true, timeout: 15000 });
+    session = { ...fixture, merchant: scenario === 'restaurant' ? 'restaurant-fixture' : fixture.merchant,
+      kind: scenario === 'maison' ? 'retail-maison' : scenario === 'clients' ? 'retail-clients' : 'retail-restaurant',
+      browser, context, page, actions: [], assertions: [], refs: new Set(), startedAt: Date.now() };
+    return `Synthetic ${scenario === 'maison' ? 'Maison caisse' : scenario === 'clients' ? 'Amira client directory' : 'restaurant dashboard'} ready at ${origin.origin}; no live merchant access.\n${await snapshot()}`;
   } catch (e) {
     if (browser) await browser.close().catch(() => {});
     fixture.child.kill('SIGTERM');
@@ -574,6 +576,7 @@ async function finishProof(args) {
     environment: s.kind === 'tickets' ? 'synthetic-kiwi-tickets'
       : s.kind === 'retail-maison' ? 'synthetic-maison-caisse'
         : s.kind === 'retail-clients' ? 'synthetic-client-dashboard'
+          : s.kind === 'retail-restaurant' ? 'synthetic-restaurant-dashboard'
           : 'synthetic-hotel-dashboard', merchant: s.merchant, origin: s.base,
     path: new URL(s.page.url()).pathname, viewport: s.page.viewport(), startedAt: new Date(s.startedAt).toISOString(),
     finishedAt: new Date().toISOString(), gitHead: head, gitDirty: !!dirty,

@@ -5557,7 +5557,7 @@
   <meta name="apple-mobile-web-app-title" content="Caisse" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/kiwi-employee-180.png?v=2" />
   <script src="assets/pwa-update.js?v=359" defer></script>
-  <script src="assets/caisse-pwa.js?v=561" defer></script>
+  <script src="assets/caisse-pwa.js?v=562" defer></script>
   <script src="assets/live-link.js?v=50" defer></script>
   <!-- The staff-role catalogue · says which roles may open the register. Loaded
        before the pad that asks the question. Missing ⇒ every valid code opens. -->
@@ -5585,8 +5585,8 @@
        avec le tableau de bord. Après cloud-doc.js, dont il tient sa copie
        serveur · c'est ce qui fait qu'un Z clôturé sur l'iPad du comptoir
        s'ouvre le lendemain sur le téléphone du patron. -->
-  <script src="assets/day-report.js?v=14" defer></script>
-  <script src="assets/z-reconciliation.js?v=14" defer></script>
+  <script src="assets/day-report.js?v=15" defer></script>
+  <script src="assets/z-reconciliation.js?v=20" defer></script>
   <!-- Fidélité · Carnet clients: the shared client book (KiwiStore), captured on
        the till, read live on the owner's dashboard. venue-store → clients-store → book. -->
   <script src="assets/venue-store.js?v=4" defer></script>
@@ -5639,7 +5639,7 @@
   <script src="assets/service-requests.js?v=1" defer></script>
   <script src="assets/caisse-menu-availability.js?v=4" defer></script>
   <!-- Operator feature flags + managed PINs. Fail-safe: no backend ⇒ no change. -->
-  <script src="assets/merchant-config.js?v=273" defer></script>
+  <script src="assets/merchant-config.js?v=276" defer></script>
   <!-- « Rafraîchir » · un bouton commun à toutes les caisses (restaurant,
        pressing, et les seize métiers de pos-dispatch) : il redemande au serveur
        l'inventaire, les documents du magasin, les commandes en ligne et les
@@ -15715,7 +15715,11 @@
              receipts previously snapshotted during this shift. The report
              itself still excludes them via buildDayReport(). */
           window.KiwiZReconciliation.queueSnapshot(r, journal)
-            .then((result) => { if (!result?.ok) toast('Rapprochement des ventes en attente · conservez cette caisse'); });
+            .then((result) => {
+              if (!result?.ok) toast('Rapprochement des ventes en attente · conservez cette caisse');
+              else if (result.unqueuedCount || result.unqueuedCents)
+                toast('Écart caisse détecté · ' + result.unqueuedCount + ' reçu(s) hors file · conservez cette caisse');
+            });
         }
       } catch (_) {}
     }
@@ -15880,6 +15884,8 @@
         toast('Rapprochement Z non protégé · poste conservé. Vérifiez le stockage puis réessayez.');
         return;
       }
+      if (zQueued.unqueuedCount || zQueued.unqueuedCents)
+        toast('Écart Z conservé · ' + zQueued.unqueuedCount + ' reçu(s) hors file · contactez le support');
 
       const closedAt = Date.now();
       const tot = journalTotals();

@@ -13,16 +13,27 @@
     var slug = report && report.store && report.store.slug;
     if (!DR || !Live || !slug || !Array.isArray(journal)) return null;
     var bounds = DR.dayBounds(report.day, slug);
+    var seenIds = Object.create(null), seenSettlements = Object.create(null);
     return journal.filter(function (entry) {
-      if (!entry || entry.voided || entry.kind === 'refund' || Number(entry.amount) < 0) return false;
+      if (!entry || entry.voided || entry.void_ts) return false;
+      if (entry.kind === 'refund' && entry.refundSyncStatus === 'rejected'
+        && !(entry.cashHandedOut === true || Number(entry.cashHandedOutAt) > 0
+          || entry.refundReconciliation === 'cash-handed-out')) return false;
       var ts = new Date(entry.time).getTime();
       return ts >= bounds.from && ts < bounds.to;
     }).map(function (entry) {
       var requested = String(entry.serverSaleId || (entry.origin ? entry.id : Live.saleIdFor(entry, slug)) || '');
-      return { id: Live.canonicalSaleId ? Live.canonicalSaleId(slug, requested) : requested,
-        amountCents: Math.round(Number(entry.amount) * 100), method: String(entry.method || 'cash'),
+      var id = Live.canonicalSaleId ? Live.canonicalSaleId(slug, requested) : requested;
+      var normalized = DR.normSale ? DR.normSale(entry) : entry;
+      var key = DR.settlementKey ? DR.settlementKey(normalized) : '';
+      if (seenIds[id] || key && seenSettlements[key]) return null;
+      seenIds[id] = 1; if (key) seenSettlements[key] = 1;
+      return { id: id,
+        amountCents: entry.kind === 'refund' ? -Math.abs(Math.round(Number(entry.amount) * 100))
+          : Math.round(Number(entry.amount) * 100), method: String(entry.method || 'cash'),
+        settlementKey: key.length <= 12000 ? key : '',
         local: entry.origin ? null : entry };
-    });
+    }).filter(Boolean);
   }
   function manifestKey(slug, day, terminalId) { return 'kiwi:z-manifest:' + slug + ':' + terminalId + ':' + day; }
   function manifest(slug, day, terminalId) {
@@ -31,7 +42,9 @@
       return Array.isArray(rows) ? rows.filter(function (row) {
         return row && typeof row.id === 'string' && Number.isSafeInteger(row.amountCents)
           && typeof row.method === 'string';
-      }) : [];
+      }).map(function (row) { return Object.assign({}, row, {
+        settlementKey: typeof row.settlementKey === 'string' && row.settlementKey.length <= 12000
+          ? row.settlementKey : '' }); }) : [];
     } catch (_) { return []; }
   }
   function queueSnapshot(report, journal, closed) {
@@ -46,34 +59,49 @@
     var voided = new Set((journal || []).filter(function(e) { return e && e.voided; }).map(function(e) {
       return canonical(String(e.serverSaleId || (e.origin ? e.id : Live.saleIdFor(e,slug)) || ''));
     }));
-    var entries = prior.map(function(e) { return Object.assign({},e,{id:canonical(e.id)}); })
-      .filter(function(e) { return !voided.has(e.id); });
-    var overlapConflict = false;
+    var entries = [], overlapConflict = false;
+    prior.forEach(function (entry) {
+      var row = Object.assign({}, entry, { id: canonical(entry.id) });
+      if (voided.has(row.id)) return;
+      var previous = entries.find(function (candidate) { return candidate.id === row.id
+        || row.settlementKey && candidate.settlementKey === row.settlementKey; });
+      if (previous) {
+        if (previous.amountCents !== row.amountCents || previous.method !== row.method) overlapConflict = true;
+      } else entries.push(row);
+    });
     (current || []).forEach(function (entry) {
-      var previous = entries.find(function (row) { return row.id === entry.id; });
+      var previous = entries.find(function (row) { return row.id === entry.id
+        || entry.settlementKey && row.settlementKey === entry.settlementKey; });
       if (!previous) entries.push(entry);
       else {
         if (previous.amountCents !== entry.amountCents || previous.method !== entry.method) overlapConflict = true;
         if (!previous.local) previous.local = entry.local;
       }
     });
+    var presentCount = entries.filter(function (row) { return row.amountCents >= 0; }).length;
+    var presentCents = entries.reduce(function (sum, row) { return sum + row.amountCents; }, 0);
+    var reportNet = Math.round(Number(report.net == null ? report.gross : report.net) * 100);
+    var unqueuedCount = Number(report.txns) - presentCount;
+    var unqueuedCents = reportNet - presentCents;
     if (!current || overlapConflict || new Set(entries.map(function (row) { return row.id; })).size !== entries.length
-      || entries.length !== Number(report.txns)
-      || entries.reduce(function (sum, row) { return sum + row.amountCents; }, 0) !== Math.round(Number(report.gross) * 100)
-      || entries.some(function (row) { return !row.id || row.amountCents < 0; })) {
+      || !Number.isSafeInteger(unqueuedCount) || unqueuedCount < 0 || !Number.isSafeInteger(unqueuedCents)
+      || entries.some(function (row) { return !row.id || !Number.isSafeInteger(row.amountCents)
+        || Math.abs(row.amountCents) > 20000000; })) {
       return Promise.resolve({ ok: false, reason: 'z-journal-mismatch' });
     }
     var hash = 2166136261, source = slug + ':' + terminalId;
     for (var i = 0; i < source.length; i++) { hash ^= source.charCodeAt(i); hash = Math.imul(hash, 16777619); }
     var id = 'z:' + (hash >>> 0).toString(16) + ':' + report.day;
     var payload = { id: id, merchant: slug, day: report.day,
-      terminalId: terminalId, closed: !!closed, entries: entries };
+      terminalId: terminalId, cutoff: report.cutoff, closed: !!closed, entries: entries,
+      unqueuedCount: unqueuedCount, unqueuedCents: unqueuedCents };
     return O.enqueue(CHANNEL, slug, payload, { id: id, replaceExisting: true })
       .then(function () {
         try { localStorage.setItem(manifestKey(slug, report.day, terminalId), JSON.stringify(entries.map(function (row) {
-          return { id: row.id, amountCents: row.amountCents, method: row.method };
+          return { id: row.id, amountCents: row.amountCents, method: row.method,
+            settlementKey: row.settlementKey || '' };
         }))); } catch (_) { /* IndexedDB still owns this close; next shift may need support. */ }
-        flush(); return { ok: true, queued: true };
+        flush(); return { ok: true, queued: true, unqueuedCount: unqueuedCount, unqueuedCents: unqueuedCents };
       })
       .catch(function () { return { ok: false, reason: 'outbox-write-failed' }; });
   }
@@ -85,15 +113,17 @@
       if (!row) return;
       var payload = row.payload;
       var body = { merchant: slug, day: payload.day, terminalId: payload.terminalId,
-        closed: !!payload.closed,
+        closed: !!payload.closed, cutoff: payload.cutoff,
+        unqueuedCount: payload.unqueuedCount || 0, unqueuedCents: payload.unqueuedCents || 0,
         blocked: window.KiwiLive && KiwiLive.queueStatus ? (KiwiLive.queueStatus().blockedEntries || []) : [],
         sales: payload.entries.map(function (entry) {
           var Live = window.KiwiLive;
           var id = Live && Live.canonicalSaleId ? Live.canonicalSaleId(slug, entry.id) : entry.id;
-          return { id: id, amountCents: entry.amountCents, method: entry.method };
+          return { id: id, amountCents: entry.amountCents, method: entry.method,
+            kind: entry.amountCents < 0 ? 'refund' : 'sale' };
         }),
-        count: payload.entries.length,
-        totalCents: payload.entries.reduce(function (sum, entry) { return sum + entry.amountCents; }, 0) };
+        count: payload.entries.filter(function (entry) { return entry.amountCents >= 0; }).length + (payload.unqueuedCount || 0),
+        totalCents: payload.entries.reduce(function (sum, entry) { return sum + entry.amountCents; }, 0) + (payload.unqueuedCents || 0) };
       return fetch('/api/z-reconciliation', { method: 'POST', credentials: 'same-origin', cache: 'no-store',
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       }).then(function (response) {
@@ -106,9 +136,11 @@
                 return candidate.id === id || window.KiwiLive && KiwiLive.canonicalSaleId
                   && KiwiLive.canonicalSaleId(slug, candidate.id) === id;
               });
-              if (entry && entry.local && window.KiwiLive && KiwiLive.postSale) {
+              if (entry && entry.local && entry.amountCents >= 0 && window.KiwiLive && KiwiLive.postSale) {
                 // Re-arm only with evidence that the original blocking rule changed.
-                // Permanent 400/422/conflicts remain visible for support.
+                // Permanent 400/422/conflicts and refunds remain visible for
+                // support. A refund needs manager approval and must NEVER be
+                // replayed through postSale() as a positive payment.
                 repairs.push(Promise.resolve(KiwiLive.retrySale
                   ? KiwiLive.retrySale(entry.local, (result.retryable || []).find(function (permit) { return permit.id === id; })) : true).then(function (ready) {
                   if (ready === false) return false;
@@ -151,21 +183,31 @@
   // A day that matches (or can't be compared yet) stays quiet.
   function needsAttention(s) {
     if (!s) return false;
+    if (s.ambiguous) return true;
     if (Array.isArray(s.blocked) && s.blocked.length) return true;
-    return s.source === 'closed-z' && (Number(s.gapCents) !== 0 || Number(s.missingCount) > 0);
+    return (s.source === 'closed-z' || s.source === 'open-z')
+      && (Number(s.gapCents) !== 0 || Number(s.missingCount) > 0 || Number(s.unqueuedCount) > 0);
   }
   function referenceText(s) {
     if (!needsAttention(s)) return '';
-    var text = s.source === 'closed-z'
-      ? 'Rapport Z de la caisse : ' + amount(s.reportedCents) + ' · enregistré : ' + amount(s.recordedCents)
+    var text = s.source === 'ambiguous-z'
+      ? 'Rapports Z avec seuils de journée différents · rapprochement impossible sans vérification humaine'
+      : s.source === 'sync-gap'
+      ? 'Reçus refusés non enregistrés : ' + amount(s.gapCents) + ' · ' + s.missingCount
+        + ' reçu(s) bloqué(s) · Z indisponible tant que la caisse ne l’a pas transmis'
+      : s.source === 'closed-z' || s.source === 'open-z'
+      ? (s.source === 'closed-z' ? 'Rapport Z de la caisse : ' : 'Rapport provisoire de la caisse : ') + amount(s.reportedCents) + ' · enregistré : ' + amount(s.recordedCents)
         + ' · écart : ' + amount(s.gapCents) + ' · ' + s.missingCount + ' reçu(s) manquant(s)'
+        + (s.unqueuedCount || s.unqueuedCents ? ' · ' + (s.unqueuedCount
+          ? s.unqueuedCount + ' reçu(s) hors file (' + amount(s.unqueuedCents) + ')'
+          : 'écart local non associé à un reçu (' + amount(s.unqueuedCents) + ')') : '')
         + ' · ' + (Array.isArray(s.blocked) ? s.blocked.length : 0) + ' reçu(s) bloqué(s)'
       : 'Enregistré : ' + amount(s.recordedCents) + (s.source === 'live-ledger'
         ? (s.syncObserved === false ? ' · état de synchronisation de la caisse inconnu' : ' · synchronisation : ' + s.waitingCount + ' reçu(s) en attente (dernière déclaration)')
         : s.comparisonAvailable ? ' · Z non clôturé : référence de caisse indisponible.'
         : ' · Journée antérieure sans comparaison Z : impossible de vérifier avec la caisse.');
     if (s.closedTerminals > 0 && s.closedTerminals < s.totalTerminals) text += ' · ' + s.closedTerminals + '/' + s.totalTerminals + ' caisses clôturées (Z partiel).';
-    if (s.ambiguous) text += ' · Plusieurs anciens Z sans détail : total Z non vérifiable.';
+    if (s.ambiguous && s.ambiguousReason !== 'cutoff-conflict') text += ' · Plusieurs anciens Z sans détail : total Z non vérifiable.';
     return text;
   }
   // A Z problem is a notification, not a banner: a badge on the bell, the

@@ -15,14 +15,21 @@ export async function onRequestPost({ request, env }) {
   const merchant = String((body && body.merchant) || '').trim().slice(0, 64);
   const zone = validZone(body && body.timeZone);
   if (!merchant || !zone) return json({ error: 'bad-zone' }, 400);
+  const cutoff = body && body.businessCutoff;
+  if (cutoff != null && (!Number.isInteger(cutoff) || cutoff < 0 || cutoff > 12))
+    return json({ error: 'bad-business-cutoff' }, 400);
   let till = false;
   try { till = await isTillFor(request, env, merchant); } catch (_) { till = false; }
   if (!till) return json({ error: 'till-required' }, 403);
   try { await env.DB.prepare('ALTER TABLE merchant_config ADD COLUMN timezone TEXT').run(); }
   catch (error) { if (!/duplicate column/i.test(String(error && error.message || error))) return json({ error: 'unavailable' }, 503); }
+  try { await env.DB.prepare('ALTER TABLE merchant_config ADD COLUMN business_cutoff INTEGER').run(); }
+  catch (error) { if (!/duplicate column/i.test(String(error && error.message || error))) return json({ error: 'unavailable' }, 503); }
   try {
     await env.DB.prepare('UPDATE merchant_config SET timezone = ? WHERE merchant = ? AND (timezone IS NULL OR timezone <> ?)')
       .bind(zone, merchant, zone).run();
+    if (cutoff != null) await env.DB.prepare('UPDATE merchant_config SET business_cutoff = ? WHERE merchant = ? AND (business_cutoff IS NULL OR business_cutoff <> ?)')
+      .bind(cutoff, merchant, cutoff).run();
   } catch (_) { return json({ error: 'unavailable' }, 503); }
-  return json({ ok: true, merchant, timeZone: zone });
+  return json({ ok: true, merchant, timeZone: zone, businessCutoff: cutoff });
 }

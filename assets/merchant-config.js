@@ -500,22 +500,24 @@
    * phones, server reports). When the device's zone differs from the one the
    * server holds, tell it once per page life per zone. Any failure is silent:
    * the till keeps using its own zone locally either way. */
-  var reportedZone = '';
-  function reportTillZone(stored) {
+  var reportedClock = '';
+  function reportTillZone(storedZone, storedCutoff) {
     try {
       // A God Mode support session (?op=1) runs on the operator's device, not at the store.
       if (!/caisse/i.test(location.pathname) || /[?&]op=1(?:&|$)/.test(location.search)
         || localStorage.getItem('kiwiPaired') !== '1') return;
       var zone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
       var slug = merchant();
-      if (!zone || !slug || zone === stored || zone === reportedZone) return;
-      reportedZone = zone;
+      var cutoff = window.KiwiDayReport && KiwiDayReport.cutoff ? KiwiDayReport.cutoff(slug) : 5;
+      var clock = slug + ':' + zone + ':' + cutoff;
+      if (!zone || !slug || (zone === storedZone && cutoff === storedCutoff) || clock === reportedClock) return;
+      reportedClock = clock;
       fetch('/api/timezone', {
         method: 'POST', credentials: 'same-origin', cache: 'no-store',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchant: slug, timeZone: zone })
-      }).then(function (r) { if (r && r.ok) cfg.timezone = zone; else reportedZone = ''; })
-        .catch(function () { reportedZone = ''; });
+        body: JSON.stringify({ merchant: slug, timeZone: zone, businessCutoff: cutoff })
+      }).then(function (r) { if (r && r.ok) { cfg.timezone = zone; cfg.businessCutoff = cutoff; } else reportedClock = ''; })
+        .catch(function () { reportedClock = ''; });
     } catch (_) {}
   }
 
@@ -531,7 +533,8 @@
         rememberPins(cfg.pins);
         cfg.type = data.type || '';
         cfg.timezone = typeof data.timezone === 'string' ? data.timezone : '';
-        reportTillZone(data.timezone);
+        cfg.businessCutoff = Number.isInteger(data.businessCutoff) ? data.businessCutoff : null;
+        reportTillZone(data.timezone, data.businessCutoff);
         /* Server-authoritative entitlement. Empty means unresolved/offline and
            must never be interpreted as a paid tier. planExplicit mirrors the
            row: only an explicitly stored tier counts for venue-count gates
@@ -706,9 +709,19 @@
     fetchConfig();
     fetchAccountPins();
     watchStore();
+    /* Derived cutoff can change when an owner edits closing hours without
+       reloading the till. Publish that change before the next settlement. */
+    try {
+      if (window.KiwiHours && window.KiwiHours.subscribe) window.KiwiHours.subscribe(function () {
+        reportTillZone(cfg.timezone, cfg.businessCutoff);
+      });
+    } catch (_) {}
   }
 
   window.addEventListener('focus', function () { fetchConfig(); });
+  window.addEventListener('kiwi:business-cutoff-changed', function () {
+    reportTillZone(cfg.timezone, cfg.businessCutoff);
+  });
   document.addEventListener('kiwi-paired', function (e) {
     if (e && e.detail && e.detail.merchant) {
       try { localStorage.setItem('kiwiLiveMerchant', e.detail.merchant); } catch (_) {}

@@ -279,6 +279,7 @@ export async function onRequestGet(context) {
   let suspended = false;
   let subscription = 'active';
   let timezone = '';
+  let businessCutoff = null;
   try {
     let cfg;
     try {
@@ -309,6 +310,11 @@ export async function onRequestGet(context) {
       const tz = await env.DB.prepare('SELECT timezone FROM merchant_config WHERE merchant = ?').bind(merchant).first();
       timezone = validZone(tz && tz.timezone);
     } catch (_) {}
+    try {
+      const row = await env.DB.prepare('SELECT business_cutoff FROM merchant_config WHERE merchant = ?').bind(merchant).first();
+      if (Number.isInteger(row?.business_cutoff) && row.business_cutoff >= 0 && row.business_cutoff <= 12)
+        businessCutoff = row.business_cutoff;
+    } catch (_) {}
 
     if (mayReadPins) {
       const rows = await env.DB.prepare(
@@ -327,7 +333,7 @@ export async function onRequestGet(context) {
     }
   } catch (_) { /* table missing / db error → neutral config */ }
 
-  return json({ features, pins, pinGateConfigured, type, plan, planExplicit, suspended, timezone,
+  return json({ features, pins, pinGateConfigured, type, plan, planExplicit, suspended, timezone, businessCutoff,
     subscription: { state: subscription, active: subscription === 'active' } });
 }
 
