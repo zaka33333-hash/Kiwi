@@ -134,9 +134,18 @@
   background: var(--n-300);
 }
 
-.dash-genpage .genpage-body { max-width: 1080px; }
+/* One frame for every page. The cap lives on the page host, not the body:
+ * capping only .genpage-body left the header and its hairline running to the
+ * edge while the content stopped at 1080px, a 500px dead strip on the right of
+ * a 1920 screen. Header, body and foot now share one pair of edges; the page
+ * is fluid up to --page-max, then centred so a wide screen gets even margins.
+ * Readable text and single-column forms constrain themselves, not the page. */
+:root { --page-max: 1600px; }
+#kw-main > .container > :is(.dash-genpage, .dash-standard, .dash-fusion, .dash-equipe, .dash-menu, .dash-stock, .dash-finance, .dash-conformite, .dash-payroll) {
+  max-width: var(--page-max);
+  margin-inline: auto;
+}
 .dash-genpage .genpage-foot {
-  max-width: 1080px;
   margin-top: 24px;
   padding-top: 18px;
   border-top: 1px solid var(--n-100);

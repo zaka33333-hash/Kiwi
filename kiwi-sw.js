@@ -50,18 +50,18 @@ var SHELL = [
   '/assets/polish.css',
   '/assets/simple.css',
   '/assets/ux.css',
-  '/assets/pages-pro.css?v=2',
+  '/assets/pages-pro.css?v=3',
   '/assets/catalog-workspace.css?v=21',
   '/assets/catalog-workspace.js?v=5',
   '/assets/help-centre.css?v=4',
   '/assets/polish-dashboard.css',
   '/assets/pressing-catalog.css?v=4',
   '/assets/pressing-dashboard.css?v=11',
-  '/assets/trade-workspaces.css?v=4',
-  '/assets/reservations.css?v=8',
+  '/assets/trade-workspaces.css?v=5',
+  '/assets/reservations.css?v=9',
   '/assets/hotel.css?v=39',
   '/assets/hotel-economat.js?v=3',
-  '/assets/genpage.css?v=4',
+  '/assets/genpage.css?v=5',
   '/assets/mobile.css?v=8',
   '/assets/sold-insights.js?v=9',
   '/assets/design-2026.css?v=1',
@@ -224,7 +224,7 @@ var SHELL = [
      qui a perdu ses promotions vend au prix plein pendant que la vitrine
      annonce −30 % · et c'est la caissière qui doit s'en expliquer. */
   '/assets/promos.js?v=2',
-  '/assets/boutique-promos-dashboard.js?v=10',
+  '/assets/boutique-promos-dashboard.js?v=12',
   /* La langue du comptoir. Dans la coquille : une caissière arabophone hors
      ligne ne doit pas retrouver son écran en français au premier creux réseau. */
   '/assets/caisse-lang.js?v=15',

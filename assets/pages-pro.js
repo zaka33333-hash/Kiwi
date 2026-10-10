@@ -319,10 +319,10 @@ handlers['nav-transactions'] = () => {
         </div>
       ` : ''}
 
-      <div style="display:flex; gap:4px; padding:4px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:11px; margin-bottom:14px;">
+      <div class="kx-tabs tx-tabs" role="tablist" style="margin-bottom:14px;">
         ${tabs.map(([k, l]) => {
           const on = activeTab === k;
-          return `<button class="tx-tab ${on ? 'on' : ''}" data-tx-tab="${k}" style="flex:1; padding:9px 12px; border:0; background:${on?'var(--surface)':'transparent'}; color:${on?'var(--ink)':'var(--n-500)'}; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; box-shadow:${on?'0 1px 2px rgba(0,0,0,0.05)':'none'};">${l}</button>`;
+          return `<button type="button" role="tab" aria-selected="${on}" class="kx-tab tx-tab ${on ? 'on' : ''}" data-tx-tab="${k}">${l}</button>`;
         }).join('')}
       </div>
 
@@ -519,7 +519,7 @@ const TERMINAUX_STR = {
         replacement: 'Remplacement dû',
         title: 'Parc terminaux',
         subtitle: (active, total) => `${active} / ${total} actifs · uptime 24h ${termPct(94.2)} · 273 tx aujourd'hui`,
-        heroTitle: 'ÉTAT DU PARC · CAFÉ ATLAS',
+        heroTitle: 'ÉTAT DU PARC',
         online: 'en ligne',
         heroSubtitle: () => `Batterie moy. ${termPct(78, 0)} · firmware à jour majoritaire · 1 mise à jour disponible`,
         deployedDevices: 'Appareils déployés',
@@ -586,7 +586,7 @@ const TERMINAUX_STR = {
         replacement: 'Replacement due',
         title: 'Terminal Fleet',
         subtitle: (active, total) => `${active} / ${total} active · 24h uptime ${termPct(94.2)} · 273 tx today`,
-        heroTitle: 'FLEET STATUS · CAFÉ ATLAS',
+        heroTitle: 'FLEET STATUS',
         online: 'online',
         heroSubtitle: () => `Avg. battery ${termPct(78, 0)} · majority firmware up-to-date · 1 update available`,
         deployedDevices: 'Deployed Devices',
@@ -653,7 +653,7 @@ const TERMINAUX_STR = {
         replacement: 'يجب استبداله',
         title: 'أسطول الأجهزة',
         subtitle: (active, total) => `${active} / ${total} نشط · وقت التشغيل 24 ساعة ${termPct(94.2)} · 273 معاملة اليوم`,
-        heroTitle: 'حالة الأسطول · مقهى أطلس',
+        heroTitle: 'حالة الأسطول',
         online: 'متصل',
         heroSubtitle: () => `متوسط البطارية ${termPct(78, 0)} · معظم البرامج الثابتة محدثة · 1 تحديث متوفر`,
         deployedDevices: 'الأجهزة المنشورة',
@@ -766,7 +766,9 @@ handlers['nav-terminaux'] = () => {
     const max = Math.max(...arr, 1);
     const w = 120, h = 28;
     const pts = arr.map((v, i) => `${(i / (arr.length - 1)) * w},${h - (v / max) * h}`).join(' ');
-    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    /* The trace fills its column: a fixed 120px line left two thirds of every
+       diagnostics cell empty on a wide screen. The stroke keeps its weight. */
+    return `<svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="display:block;"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
   };
   const battCurve = (start, end) => {
     const pts = [];
@@ -779,7 +781,7 @@ handlers['nav-terminaux'] = () => {
   function fleetHtml() {
     return `
       <div class="p-hero">
-        <div class="l">${T.heroTitle}</div>
+        <div class="l">${T.heroTitle}${(() => { const n = window.KiwiVenue?.getCurrentVenueData?.()?.name; return n ? ' · ' + String(n).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])) : ''; })()}</div>
         <div class="big">${activeCount()} / ${fleet.length} <span style="font-size:18px; opacity:0.7;">${T.online}</span></div>
         <div class="sub">${T.heroSubtitle()}</div>
       </div>
@@ -10029,7 +10031,6 @@ function _bqxCss() {
     /* ── Inventaire · mise en page ───────────────────────────────────────
        La page prend la largeur de l'écran : un catalogue se parcourt, il
        ne se lit pas comme un formulaire. */
-    .dash-genpage:has(.bqx-inv) .genpage-body { max-width: 1440px; }
     .bqx-kpis .kx-kpi .l { text-transform: none; letter-spacing: 0; font-family: var(--sans); font-size: 12.5px; font-weight: 500; }
     .bqx-kpis .kx-kpi .v { font-family: var(--num, var(--sans)); }
     .bqx-kpi-btn { display: block; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; transition: background-color 160ms; }
@@ -12352,7 +12353,6 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     const st = document.createElement('style');
     st.id = 'rx-css';
     st.textContent = `
-      .dash-genpage:has(.rx-page) .genpage-body { max-width: 1440px; }
       .rx-kpis .kx-kpi .l { text-transform: none; letter-spacing: 0; font-family: var(--sans); font-size: 12.5px; font-weight: 500; }
       .rx-panel { margin-bottom: 18px; border: 1px solid var(--n-200, #e7e3da); border-radius: 16px; background: var(--surface, #fff); overflow: hidden; }
       html[data-theme="dark"] .rx-panel { background: var(--paper-soft); }

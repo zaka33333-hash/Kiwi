@@ -1683,6 +1683,13 @@ html[data-theme="dark"] .kx-filter-chip { background: var(--paper-soft); }
   margin-bottom: 16px;
 }
 html[data-theme="dark"] .kx-tabs { background: var(--paper-muted); }
+/* On a page the control sizes to its labels, like a segmented control: three
+ * tabs stretched across a 1600px frame read as a table header, not a choice.
+ * Drawers and narrow screens keep the full-width version. */
+@media (min-width: 761px) {
+  .dash-genpage .kx-tabs { width: fit-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .dash-genpage .kx-tab { flex: 0 0 auto; padding-inline: 16px; }
+}
 
 .kx-tab {
   flex: 1;

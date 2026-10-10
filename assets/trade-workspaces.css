@@ -1,5 +1,5 @@
 /* Kiwi exact-trade workspaces — operational, responsive and theme-stable. */
-.dash-genpage:has(.tw-shell),.dash-genpage:has(.tw-shell) .genpage-head,.dash-genpage:has(.tw-shell) .genpage-body{min-width:0;max-width:100%}.dash-genpage:has(.tw-shell) .genpage-head h1,.dash-genpage:has(.tw-shell) .genpage-head p{max-width:100%;overflow-wrap:anywhere}.tw-shell{display:flex;flex-direction:column;gap:18px;max-width:1180px;min-width:0;color:var(--ink)}
+.dash-genpage:has(.tw-shell),.dash-genpage:has(.tw-shell) .genpage-head,.dash-genpage:has(.tw-shell) .genpage-body{min-width:0;max-width:100%}.dash-genpage:has(.tw-shell) .genpage-head h1,.dash-genpage:has(.tw-shell) .genpage-head p{max-width:100%;overflow-wrap:anywhere}.tw-shell{display:flex;flex-direction:column;gap:18px;min-width:0;color:var(--ink)}
 .tw-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .tw-stat,.tw-toolbar,.tw-board{background:var(--surface);border:1px solid var(--n-200);border-radius:18px;box-shadow:0 8px 24px color-mix(in srgb,var(--ink) 6%,transparent)}
 .tw-stat{padding:16px 18px;min-width:0;min-height:84px;display:flex;flex-direction:column;justify-content:space-between}

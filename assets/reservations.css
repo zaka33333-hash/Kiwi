@@ -1,4 +1,4 @@
-.dash-genpage.kr-page .genpage-head{display:none}.dash-genpage.kr-page .genpage-body{padding-top:22px}.kr-shell{max-width:1240px;margin:0 auto 64px;padding:0;color:var(--ink)}
+.dash-genpage.kr-page .genpage-head{display:none}.dash-genpage.kr-page .genpage-body{padding-top:22px}.kr-shell{margin:0 0 64px;padding:0;color:var(--ink)}
 .kr-command{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:2px 2px 18px;margin-bottom:16px;border:0;border-bottom:1px solid var(--n-200);border-radius:0;background:transparent}.kr-command-main{min-width:0}.kr-command-side{display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex:none}
 .kr-kicker{display:block;margin-bottom:8px;color:var(--n-500);font:600 10.5px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase}
 .kr-command h2{margin:0;font-size:28px;line-height:1.1;font-weight:600;letter-spacing:-.03em}.kr-command p{margin:7px 0 0;color:var(--n-500);font-size:13px;line-height:1.45}

@@ -88,8 +88,8 @@
     "sha": "fc48d2896e10020c"
   },
   "assets/boutique-promos-dashboard.js": {
-    "v": "10",
-    "sha": "4951ec0313d7dbe1"
+    "v": "12",
+    "sha": "67f92e412701c9d4"
   },
   "assets/briefing.js": {
     "v": "20",
@@ -340,8 +340,8 @@
     "sha": "882eee0288f15d96"
   },
   "assets/genpage.css": {
-    "v": "4",
-    "sha": "e07560310bca9432"
+    "v": "5",
+    "sha": "1096727dfb835ea4"
   },
   "assets/growth-crm.js": {
     "v": "5",
@@ -620,12 +620,12 @@
     "sha": "57b562b061dc24d0"
   },
   "assets/pages-pro.css": {
-    "v": "2",
-    "sha": "e39b5476609be7a0"
+    "v": "3",
+    "sha": "380167a745c162c8"
   },
   "assets/pages-pro.js": {
-    "v": "2136",
-    "sha": "f6c564814b08b386"
+    "v": "2140",
+    "sha": "c70f212070688727"
   },
   "assets/pages.js": {
     "v": "12",
@@ -896,8 +896,8 @@
     "sha": "4e42ba6726baa3ba"
   },
   "assets/reservations.css": {
-    "v": "8",
-    "sha": "74d43128c668e2ca"
+    "v": "9",
+    "sha": "e0c1975882b9cc50"
   },
   "assets/reservations.js": {
     "v": "20",
@@ -992,8 +992,8 @@
     "sha": "4b5bd14061b03143"
   },
   "assets/trade-workspaces.css": {
-    "v": "4",
-    "sha": "7bb9dd988de8edcf"
+    "v": "5",
+    "sha": "0d177857ab8af3b9"
   },
   "assets/trade-workspaces.js": {
     "v": "4",

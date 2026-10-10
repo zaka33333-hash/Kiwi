@@ -58,11 +58,19 @@ if (URL_PATH === '/dashboard.html') {
       await page.evaluate(() => { try { window.KiwiVenue.enterFusion(); } catch (e) {} });
       await wait(4000);
     } else {
-      await page.evaluate((v) => { try { window.KiwiVenue.setVenue(v); } catch (e) {} }, VENUE);
-      await wait(1200);
-      await page.goto(BASE + URL_PATH, { waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {});
-      await wait(2000);
+      // The demo gate can reset the venue on entry, so switch, pass the gate,
+      // then switch again in place if the gate undid it.
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await page.evaluate((v) => { try { window.KiwiVenue.setVenue(v); } catch (e) {} }, VENUE);
+        await wait(1500);
+        const locked = await page.evaluate(() => /Bienvenue|On met tout en place/.test(document.body.innerText.slice(0, 400)));
+        if (locked) await enterDemo();
+        const now = await page.evaluate(() => window.KiwiVenue?.getVenue?.()?.id || window.KiwiVenue?.getVenue?.());
+        if (now === VENUE) break;
+      }
     }
+    const landed = await page.evaluate(() => window.KiwiVenue?.getVenue?.()?.id || window.KiwiVenue?.getVenue?.());
+    if (VENUE !== 'fusion' && landed !== VENUE) { console.error('venue switch failed: wanted ' + VENUE + ', got ' + landed); process.exit(2); }
   }
 }
 await page.evaluate((t) => {
@@ -117,7 +125,7 @@ for (const nav of navs.filter((n) => !ONLY.length || ONLY.includes(n))) {
   await page.evaluate(() => document.querySelectorAll('.kiwi-drawer-close, .kiwi-modal-close').forEach((b) => b.click()));
   await page.evaluate((n) => document.querySelector('.sidebar [data-nav="' + n + '"]')?.click(), nav);
   await wait(1800);
-  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.evaluate(() => { window.scrollTo(0, 0); (document.scrollingElement || document.body).scrollTop = 0; document.body.scrollTop = 0; });
   const locked = await page.evaluate(() => /Bienvenue/.test(document.body.innerText.slice(0, 300)));
   if (locked) { await enterDemo(); await page.evaluate((n) => document.querySelector('.sidebar [data-nav="' + n + '"]')?.click(), nav); await wait(1800); }
   metrics[nav] = await page.evaluate(measure);
