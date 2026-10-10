@@ -737,7 +737,7 @@
       .mx-cat-head:hover { background: var(--paper-soft); }
       .mx-cat.on .mx-cat-head:hover { background: var(--mint-soft); }
       .mx-cat-head .nm { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.005em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .mx-cat-head .ct { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); background: var(--paper-soft); padding: 2px 7px; border-radius: 999px; }
+      .mx-cat-head .ct { font-family: var(--mono); font-size: 11px; color: var(--n-500); background: var(--paper-soft); padding: 2px 7px; border-radius: 999px; }
       .mx-cat.on .mx-cat-head .ct { color: var(--atlas); background: var(--surface); }
       .mx-cat-head .ed { display: inline-flex; color: var(--n-500); padding: 2px; border-radius: 6px; }
       .mx-cat-head .ed:hover { color: var(--ink); background: var(--surface); }
@@ -754,18 +754,18 @@
       .mx-item:last-child { border-bottom: 0; }
       .mx-item.off { opacity: 0.5; }
       .mx-item .nm { font-size: 14px; font-weight: 500; color: var(--ink); letter-spacing: -0.005em; }
-      .mx-item .nm .tag { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--n-500); background: var(--paper-soft); padding: 2px 6px; border-radius: 6px; margin-left: 8px; }
+      .mx-item .nm .tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--n-500); background: var(--paper-soft); padding: 2px 6px; border-radius: 6px; margin-left: 8px; }
       .mx-item .d { font-size: 12px; color: var(--n-500); margin-top: 3px; }
       .mx-item .pr { font-family: var(--mono); font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap; text-align: right; }
       /* La marge se lit sous le prix, jamais à sa place : c'est le prix qui est
          l'information principale de cette ligne. Roman, comme tout le reste. */
-      .mx-item .pr .mg { display: block; font-size: 10.5px; font-weight: 500; font-style: normal; letter-spacing: .01em; color: var(--atlas); margin-top: 2px; }
+      .mx-item .pr .mg { display: block; font-size: 11px; font-weight: 500; font-style: normal; letter-spacing: .01em; color: var(--atlas); margin-top: 2px; }
       .mx-item .pr .mg.none { color: var(--n-500); }
       .mx-item .pr .mg.bad { color: var(--danger); }
       .mx-cost-live { min-height: 16px; margin-top: 7px; font-size: 12px; color: var(--atlas); font-weight: 500; }
       .mx-cost-live.bad { color: var(--danger); }
       .mx-cost-live i { font-style: normal; color: var(--n-500); font-weight: 400; }
-      .mx-opt-note { font-family: var(--mono); font-size: 9.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--n-500); margin-left: 6px; }
+      .mx-opt-note { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--n-500); margin-left: 6px; }
       .mx-item .sw { width: 34px; height: 20px; border-radius: 999px; background: var(--n-300); position: relative; cursor: pointer; transition: background 160ms; flex-shrink: 0; }
       .mx-item .sw.on { background: var(--atlas); }
       .mx-item .sw::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); transition: transform 160ms; }
@@ -844,7 +844,7 @@
       .mx-og-ch .pr input { width: 62px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px;
         font: inherit; font-size: 13px; font-family: var(--mono); text-align: right; color: var(--ink);
         background: var(--paper-soft); outline: none; }
-      .mx-og-ch .pr span { font-family: var(--mono); font-size: 10px; color: var(--n-500); }
+      .mx-og-ch .pr span { font-family: var(--mono); font-size: 11px; color: var(--n-500); }
       .mx-og-ch .del { display: inline-flex; color: var(--n-500); padding: 4px; border-radius: 7px;
         border: 0; background: none; cursor: pointer; }
       .mx-og-ch .del:hover { color: var(--danger); background: var(--paper-soft); }
@@ -857,11 +857,11 @@
         background: var(--paper-soft); cursor: pointer; }
       .mx-opts-pick label:has(input:checked) { border-color: var(--atlas); color: var(--riad);
         background: var(--mint-soft); font-weight: 600; }
-      .mx-opts-pick .req { font-family: var(--mono); font-size: 9px; letter-spacing: .06em; color: var(--atlas); }
+      .mx-opts-pick .req { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--atlas); }
       .mx-opts-none { font-size: 12.5px; color: var(--n-500); }
-      .mx-item .otag { font-family: var(--mono); font-size: 9.5px; letter-spacing: .05em; color: var(--n-500);
+      .mx-item .otag { font-family: var(--mono); font-size: 11px; letter-spacing: .05em; color: var(--n-500);
         background: var(--paper-soft); border-radius: 999px; padding: 2px 7px; margin-inline-start: 7px; }
-      .mx-item .nm .stag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--n-600); background: var(--paper-soft); padding: 2px 7px; border-radius: 6px; margin-left: 8px; vertical-align: 1px; }
+      .mx-item .nm .stag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--n-600); background: var(--paper-soft); padding: 2px 7px; border-radius: 6px; margin-left: 8px; vertical-align: 1px; }
       .mx-st-hint { font-size: 12.5px; color: var(--n-600); line-height: 1.5; margin: 0 0 14px; }
       .mx-st-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
       .mx-st-row { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border: 1px solid var(--mx-line); border-radius: 11px; background: var(--surface); }
@@ -873,7 +873,7 @@
       .mx-st-sw { width: 22px; height: 22px; border-radius: 7px; border: 1px solid var(--mx-line); cursor: pointer; flex: 0 0 22px; padding: 0; }
       .mx-st-nm { flex: 1; min-width: 0; font-size: 14px; color: var(--ink); background: transparent; border: none; outline: none; font-family: var(--sans); padding: 2px 0; border-bottom: 1.5px solid transparent; }
       .mx-st-nm:focus { border-bottom-color: var(--atlas); }
-      .mx-st-def { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--atlas); background: var(--mint-soft); padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+      .mx-st-def { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--atlas); background: var(--mint-soft); padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
       .mx-st-act { display: inline-flex; gap: 3px; }
       .mx-st-act button { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--mx-line); background: var(--surface); color: var(--n-500); cursor: pointer; transition: transform 130ms, opacity 130ms, background-color 130ms, border-color 130ms, color 130ms; }
       .mx-st-act button:hover:not(:disabled) { color: var(--ink); border-color: var(--n-400); }
@@ -900,7 +900,7 @@
       .mx-filter-edit { display: inline-flex; align-items: center; justify-content: center; width: 34px; border: 0; border-inline-start: 1px solid var(--mx-line); background: transparent; color: var(--n-500); cursor: pointer; }
       .mx-filter-edit:hover { color: var(--ink); background: var(--paper-soft); }
       .mx-filter-pair.on .mx-filter-edit { color: var(--inverse-ink); border-inline-start-color: color-mix(in srgb, var(--inverse-ink) 24%, transparent); }
-      .mx-filter-count { margin-inline-start: 6px; font-family: var(--mono); font-size: 10px; opacity: .66; }
+      .mx-filter-count { margin-inline-start: 6px; font-family: var(--mono); font-size: 11px; opacity: .66; }
       .mx-subfilters { display: flex; align-items: center; gap: 7px; margin: -6px 0 18px; overflow-x: auto; scrollbar-width: none; }
       .mx-subfilters::-webkit-scrollbar { display: none; }
       .mx-subfilter { flex: 0 0 auto; padding: 7px 12px; border: 1px solid var(--mx-line); border-radius: 999px; background: var(--surface); color: var(--n-500); font: 500 11.5px/1 var(--sans); cursor: pointer; }
@@ -909,11 +909,11 @@
       .mx-product-card { display: flex; flex-direction: column; min-width: 0; min-height: 176px; padding: 18px 18px 14px; border: 1px solid var(--mx-line); border-top: 3px solid color-mix(in srgb, var(--atlas) 30%, var(--n-200)); border-radius: 16px; background: var(--surface); box-shadow: 0 8px 18px color-mix(in srgb, var(--ink) 7%, transparent); transition: transform 150ms, box-shadow 150ms, border-color 150ms; }
       .mx-product-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--atlas) 46%, var(--n-200)); box-shadow: 0 13px 26px color-mix(in srgb, var(--ink) 11%, transparent); }
       .mx-product-card.off { opacity: .55; }
-      .mx-product-card .cat { font-family: var(--mono); font-size: 9.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--n-500); }
+      .mx-product-card .cat { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--n-500); }
       .mx-product-card .name { margin-top: 14px; color: var(--ink); font-size: 15px; font-weight: 600; letter-spacing: -.015em; line-height: 1.25; }
       .mx-product-card .desc { min-height: 18px; margin-top: 4px; color: var(--n-500); font-size: 11.5px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .mx-product-card .price { margin-top: 10px; color: var(--atlas); font-family: var(--mono); font-size: 24px; font-weight: 600; letter-spacing: -.035em; }
-      .mx-product-card .price .mg { display: inline; margin-inline-start: 7px; color: var(--n-500); font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0; }
+      .mx-product-card .price .mg { display: inline; margin-inline-start: 7px; color: var(--n-500); font-size: 11px; font-style: normal; font-weight: 500; letter-spacing: 0; }
       .mx-product-card .price .mg.bad { color: var(--danger); }
       .mx-product-card .foot { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--mx-line); color: var(--n-500); font-size: 11.5px; }
       .mx-product-card .foot .meta { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -952,7 +952,7 @@
       .mx-formula-picker-trigger svg { width: 18px; height: 18px; fill: currentColor; }
       .mx-formula-picker-copy { min-width: 0; display: grid; gap: 2px; }
       .mx-formula-picker-copy strong { font-size: 13px; font-weight: 650; }
-      .mx-formula-picker-copy small { overflow: hidden; color: var(--n-500); font-size: 10.5px; text-overflow: ellipsis; white-space: nowrap; }
+      .mx-formula-picker-copy small { overflow: hidden; color: var(--n-500); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
       .mx-formula-picker-chevron { color: var(--n-500); transition: transform .16s ease; }
       .mx-formula-picker-trigger[aria-expanded="true"] .mx-formula-picker-chevron { transform: rotate(180deg); }
       .mx-formula-picker { margin-top: 8px; overflow: hidden; border: 1px solid var(--n-200); border-radius: 15px; background: var(--surface); box-shadow: 0 18px 44px -30px rgba(0,0,0,.48); }
@@ -969,7 +969,7 @@
       .mx-formula-picker-option:hover, .mx-formula-picker-option:focus-visible { outline: 0; background: color-mix(in srgb,var(--atlas) 10%,transparent); }
       .mx-formula-picker-option-copy { min-width: 0; display: grid; gap: 2px; }
       .mx-formula-picker-option-copy strong { overflow: hidden; font-size: 12.5px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-      .mx-formula-picker-option-copy small { overflow: hidden; color: var(--n-500); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+      .mx-formula-picker-option-copy small { overflow: hidden; color: var(--n-500); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
       .mx-formula-picker-price { color: var(--n-600); font: 600 10.5px var(--mono); white-space: nowrap; }
       .mx-formula-picker-add { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 7px; background: color-mix(in srgb,var(--atlas) 12%,transparent); color: var(--atlas); }
       .mx-formula-picker-add svg { width: 13px; height: 13px; }
@@ -1642,7 +1642,7 @@
           return `
             <div class="mx-slot-choice-row" data-si="${si}" data-ci="${ci}">
               <div class="mx-slot-choice-name">
-                ${esc(chName)} ${matchCat ? `<span style="font-size:10px;color:var(--n-500);margin-left:4px;">(${esc(matchCat.name)})</span>` : ''}
+                ${esc(chName)} ${matchCat ? `<span style="font-size:11px;color:var(--n-500);margin-left:4px;">(${esc(matchCat.name)})</span>` : ''}
               </div>
               <div class="mx-slot-choice-extra">
                 <span>+</span>

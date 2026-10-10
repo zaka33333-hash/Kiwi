@@ -5746,10 +5746,10 @@
       h2 { font-size: 13px; margin: 16px 0 6px; color: #0B6E4F; text-transform: uppercase; letter-spacing: 0.06em; }
       table { width: 100%; border-collapse: collapse; }
       th, td { border: 1px solid #bbb; padding: 6px 8px; text-align: ${rtl ? 'right' : 'left'}; font-size: 11.5px; }
-      th { background: #F7F5F0; text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.05em; color: #444; }
+      th { background: #F7F5F0; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; color: #444; }
       td { height: 18px; }
       .w-count { width: 110px; } .w-note { width: 170px; } .mono { font-family: monospace; }
-      footer { margin-top: 18px; font-size: 10.5px; color: #666; }
+      footer { margin-top: 18px; font-size: 11px; color: #666; }
     </style></head><body>
       <header>
         <h1>${esc(t('mSheetTitle'))}${venueName ? ' · ' + esc(venueName) : ''}</h1>

@@ -167,7 +167,7 @@
       '.opp-rmeta{flex:1;min-width:200px}',
       '.opp-rmeta b{display:block;font-size:14px;letter-spacing:-.01em}',
       '.opp-rmeta span{display:block;font-size:11.5px;color:var(--n-500,#6c766e);margin-top:2px;line-height:1.4}',
-      '.opp-rmeta code{display:block;font-family:var(--mono,ui-monospace);font-size:10.5px;color:var(--n-500,#6c766e);margin-top:6px;word-break:break-all}',
+      '.opp-rmeta code{display:block;font-family:var(--mono,ui-monospace);font-size:11px;color:var(--n-500,#6c766e);margin-top:6px;word-break:break-all}',
       '.opp-racts{display:flex;gap:7px;flex-wrap:wrap}',
       '.opp-racts .kb{padding:9px 13px;font-size:12.5px}',
       '.opp-more{margin-top:14px;text-align:center}',

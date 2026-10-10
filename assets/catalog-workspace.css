@@ -233,9 +233,9 @@ html body:not(#kno) .bqx-facts b { font:600 13px/1.35 var(--sans);font-variant-n
     compact card with its stepper in reach. */
  html body:not(#kno) .kiwi-drawer .kx-stat-3 { grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important; }
  html body:not(#kno) .kiwi-drawer .kx-stat-3 .stat { padding:10px!important;min-width:0; }
- html body:not(#kno) .kiwi-drawer .kx-stat-3 .stat .l { font-size:9.5px!important;letter-spacing:.04em; }
+ html body:not(#kno) .kiwi-drawer .kx-stat-3 .stat .l { font-size:11px!important;letter-spacing:.04em; }
  html body:not(#kno) .kiwi-drawer .kx-stat-3 .stat .v { font-size:16px!important;overflow-wrap:anywhere; }
- html body:not(#kno) .kiwi-drawer .kx-stat-3 .stat .sub { font-size:10.5px!important; }
+ html body:not(#kno) .kiwi-drawer .kx-stat-3 .stat .sub { font-size:11px!important; }
  html body:not(#kno) .bqx-vwrap { overflow:visible!important;border:0!important;background:transparent!important; }
  html body:not(#kno) .bqx-vtable,html body:not(#kno) .bqx-vtable tbody { display:block!important;width:100%!important; }
  html body:not(#kno) .bqx-vtable thead { display:none!important; }
@@ -260,6 +260,6 @@ html body:not(#kno) .bqx-facts b { font:600 13px/1.35 var(--sans);font-variant-n
  html body:not(#kno) .kx-kpi-strip:has(+ .bqx-toolbar) { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
  html body:not(#kno) .kx-kpi-strip:has(+ .bqx-toolbar)>.kx-kpi { padding:14px!important;min-width:0; }
  html body:not(#kno) .kx-kpi-strip:has(+ .bqx-toolbar) .v { font-size:clamp(20px,6vw,26px)!important;overflow-wrap:anywhere; }
- html body:not(#kno) .kx-kpi-strip:has(+ .bqx-toolbar) .l { font-size:10px!important; }
+ html body:not(#kno) .kx-kpi-strip:has(+ .bqx-toolbar) .l { font-size:11px!important; }
  html body:not(#kno) .kx-kpi-strip:has(+ .bqx-toolbar) .d { font-size:11px!important; }
 }

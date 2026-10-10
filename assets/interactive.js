@@ -507,8 +507,8 @@ ar: {
   .kp-head input { flex: 1; border: 0; outline: 0; background: none; font-size: 16px; color: var(--ink); font-family: var(--sans); letter-spacing: -0.005em; }
   .kp-head input::placeholder { color: var(--n-500); }
   .kp-list { padding: 8px 0; max-height: 420px; overflow-y: auto; }
-  .kp-head .kp-esc { font-family: var(--mono); font-size: 10.5px; background: var(--n-100); padding: 3px 8px; border-radius: 5px; color: var(--n-500); border: 1px solid var(--n-200); flex-shrink: 0; }
-  .kp-sect { padding: 12px 20px 6px; font-size: 10.5px; font-weight: 500; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--mono);
+  .kp-head .kp-esc { font-family: var(--mono); font-size: 11px; background: var(--n-100); padding: 3px 8px; border-radius: 5px; color: var(--n-500); border: 1px solid var(--n-200); flex-shrink: 0; }
+  .kp-sect { padding: 12px 20px 6px; font-size: 11px; font-weight: 500; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--mono);
              display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
   .kp-sect .n { text-transform: none; letter-spacing: 0; color: var(--n-500); }
   .kp-item { margin: 1px 8px; padding: 10px 12px; border-radius: 10px; display: flex; align-items: center; gap: 14px; cursor: pointer; font-size: 13.5px; color: var(--ink); transition: background 160ms cubic-bezier(0.32,0.72,0,1); }
@@ -525,7 +525,7 @@ ar: {
      marque suffit, et elle survit au thème sombre. */
   .kp-item mark { background: none; color: var(--atlas); font-weight: 600; }
   .kp-item .kpi-amt { font-family: var(--mono); font-size: 12.5px; color: var(--ink); font-variant-numeric: tabular-nums; flex-shrink: 0; }
-  .kp-item .kpi-k { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); background: var(--n-100); padding: 2px 6px; border-radius: 5px; border: 1px solid var(--n-200); }
+  .kp-item .kpi-k { font-family: var(--mono); font-size: 11px; color: var(--n-500); background: var(--n-100); padding: 2px 6px; border-radius: 5px; border: 1px solid var(--n-200); }
   .kp-empty { padding: 34px 20px 32px; text-align: center; }
   .kp-empty-t { font-size: 14px; font-weight: 500; color: var(--ink); }
   .kp-empty-s { margin-top: 6px; font-size: 12.5px; color: var(--n-500); max-width: 340px; margin-inline: auto; line-height: 1.5; }
@@ -535,7 +535,7 @@ ar: {
      dessine un tofu, et le raccourci se lit comme une croix. */
   .kp-foot .kp-sc { font-family: var(--mono), -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", sans-serif; color: var(--n-500); }
   .kp-foot span { display: inline-flex; align-items: center; gap: 6px; }
-  .kp-foot kbd { font-family: var(--mono); background: var(--n-100); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--n-200); font-size: 10px; }
+  .kp-foot kbd { font-family: var(--mono); background: var(--n-100); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--n-200); font-size: 11px; }
 
   /* Notification item in drawer */
   .notif { display: flex; gap: 12px; padding: 14px 4px; border-bottom: 1px solid var(--n-200); align-items: flex-start; cursor: pointer; transition: background 120ms; border-radius: 8px; }
@@ -571,7 +571,7 @@ ar: {
   .kiwi-menu-item.active { background: var(--mint-soft); color: var(--atlas); }
   .kiwi-menu-item.danger { color: var(--danger); }
   .kiwi-menu-sep { height: 1px; background: var(--n-200); margin: 6px -6px; }
-  .kiwi-menu-head { padding: 8px 12px; font-size: 10.5px; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
+  .kiwi-menu-head { padding: 8px 12px; font-size: 11px; color: var(--n-500); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
 
   /* Confetti */
   .kiwi-confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10000; overflow: hidden; }
@@ -625,11 +625,11 @@ ar: {
   .ord-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--n-200); border-radius: 12px; overflow: hidden; margin-bottom: 22px; }
   .ord-stat { padding: 12px 14px; border-right: 1px solid var(--n-200); background: var(--surface); }
   .ord-stat:last-child { border-right: 0; }
-  .ord-stat .lbl { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
+  .ord-stat .lbl { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
   .ord-stat .val { font-size: 14.5px; font-weight: 600; margin-top: 4px; letter-spacing: -0.01em; color: var(--ink); }
   .ord-stat .sub { font-size: 11px; color: var(--n-500); margin-top: 1px; }
 
-  .ord-section-lbl { font-size: 10.5px; letter-spacing: 0.10em; color: var(--n-500); font-family: var(--mono); text-transform: uppercase; margin-bottom: 10px; }
+  .ord-section-lbl { font-size: 11px; letter-spacing: 0.10em; color: var(--n-500); font-family: var(--mono); text-transform: uppercase; margin-bottom: 10px; }
 
   .ord-items { display: flex; flex-direction: column; gap: 1px; background: var(--n-200); border-radius: 12px; overflow: hidden; margin-bottom: 22px; }
   .ord-item { background: var(--surface); display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; }
@@ -2006,7 +2006,7 @@ ar: {
             :root[data-theme="dark"] .gp-set-title { color: #F5FAF7; }
             .gp-set-tag {
               font-family: var(--mono);
-              font-size: 10px;
+              font-size: 11px;
               font-weight: 600;
               letter-spacing: 0.08em;
               text-transform: uppercase;
@@ -2078,7 +2078,7 @@ ar: {
             :root[data-theme="dark"] .kset-toggle.on .kset-knob { background: #04140E; }
             .kset-badge {
               font-family: var(--mono);
-              font-size: 10px;
+              font-size: 11px;
               font-weight: 600;
               letter-spacing: 0.08em;
               color: var(--atlas, #0C6B4E);
@@ -2900,7 +2900,7 @@ ar: {
           const optWord = tr({fr:'optionnel', en:'optional', ar:'اختياري'});
           m.el.querySelector('.kiwi-modal-body').innerHTML = `
             <style>.ob-field:focus{border-color:var(--atlas)!important;}</style>
-            <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;color:var(--atlas);margin:2px 0 10px;">${tr({fr:'ÉTAPE 2 / 2 · TOUT EST OPTIONNEL', en:'STEP 2 / 2 · ALL OPTIONAL', ar:'الخطوة 2/2 · كل شيء اختياري'})}</div>
+            <div style="font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--atlas);margin:2px 0 10px;">${tr({fr:'ÉTAPE 2 / 2 · TOUT EST OPTIONNEL', en:'STEP 2 / 2 · ALL OPTIONAL', ar:'الخطوة 2/2 · كل شيء اختياري'})}</div>
             <div style="font-size:17px;font-weight:600;letter-spacing:-0.01em;">${tr({fr:'Parlez-nous de votre activité', en:'Tell us about your business', ar:'حدثنا عن نشاطك'})} · ${def.label}</div>
             <p style="font-size:13px;color:var(--n-500);margin:6px 0 2px;line-height:1.5;">${tr({fr:'30 secondes, Kiwi personnalise vos indicateurs et vos modules. Modifiable plus tard dans Paramètres.', en:'30 seconds, Kiwi tailors your indicators and modules. Editable later in Settings.', ar:'30 ثانية, يخصص كيوي مؤشراتك ووحداتك. قابل للتعديل لاحقًا في الإعدادات.'})}</p>
             ${prof.questions.map((q) => `
@@ -3356,7 +3356,7 @@ ar: {
             .kup-card { display:flex; flex-direction:column; border:1px solid var(--n-200); border-radius:14px; padding:18px 14px 14px; background:var(--surface); position:relative; }
             .kup-card.is-current { background:var(--paper-soft); }
             .kup-card.is-reco { background:linear-gradient(165deg,#0c4a35,#08311f); border-color:transparent; color:#fff; box-shadow:0 14px 34px -18px rgba(11,110,79,0.55); }
-            .kup-badge { position:absolute; top:-9px; inset-inline-start:14px; font-size:8.5px; font-weight:700; letter-spacing:0.06em; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+            .kup-badge { position:absolute; top:-9px; inset-inline-start:14px; font-size:11px; font-weight:700; letter-spacing:0.06em; padding:3px 8px; border-radius:999px; white-space:nowrap; }
             .kup-card.is-current .kup-badge { background:var(--ink); color:var(--paper); }
             .kup-card.is-reco .kup-badge { background:var(--mint); color:#06371f; }
             .kup-name { font-family:var(--mono); font-size:11px; letter-spacing:0.08em; color:var(--n-500); margin-bottom:9px; }
@@ -4220,7 +4220,7 @@ ar: {
                 return `<div style="flex:1; background:${peak ? 'var(--atlas)' : '#B9E5CC'}; height:${(n/25)*100}%; border-radius:3px 3px 0 0; min-height:5px; transition:opacity 200ms;" title="${n} tx"></div>`;
               }).join('')}
             </div>
-            <div style="display:flex; gap:4px; margin-top:8px; font-family:var(--mono); font-size:9.5px; color:var(--n-500);">
+            <div style="display:flex; gap:4px; margin-top:8px; font-family:var(--mono); font-size:11px; color:var(--n-500);">
               ${['8h','9h','10h','11h','12h','13h','14h','15h','16h','17h','18h','19h','20h'].map(t => `<span style="flex:1; text-align:center;">${t}</span>`).join('')}
             </div>
           </div>
@@ -4354,7 +4354,7 @@ ar: {
                 <div style="font-weight:500; font-size:13.5px;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_card}</div>
                 <div style="font-size:11.5px; color:#9B2F22; margin-top:3px;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_reason}</div>
               </div>
-              <span style="background:var(--surface); color:#9B2F22; padding:2px 8px; border-radius:999px; font-size:10.5px; font-family:var(--mono); font-weight:600;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_status}</span>
+              <span style="background:var(--surface); color:#9B2F22; padding:2px 8px; border-radius:999px; font-size:11px; font-family:var(--mono); font-weight:600;">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_status}</span>
             </div>
             <div style="font-size:12px; color:var(--n-700);">${(KPI_DATA_STR[kiwiLang()] || KPI_DATA_STR.fr).success_failure_recovery}</div>
           </div>

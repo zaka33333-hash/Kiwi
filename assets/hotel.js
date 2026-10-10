@@ -1267,7 +1267,7 @@
                 return `<span><b>Ch. ${cr.n}</b> (${esc(roomTypeOf(cr.n).name)}) · ${esc(availLabel)}</span>`;
               }).filter(Boolean).join('')}
             </div>
-            <small style="color:var(--n-500);font-size:10.5px;">Chambre communicante vendue séparément. Non réservée automatiquement.</small>
+            <small style="color:var(--n-500);font-size:11px;">Chambre communicante vendue séparément. Non réservée automatiquement.</small>
           </div>` : ''}
           ${liveStatus.key === 'sale' ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--n-500);">Ménage</span><b>${isCustomHotel() ? 'à remettre à blanc' : ((HK_QUEUE.find((q) => q.room === n) || {}).who || 'à assigner')}</b></div>` : ''}
         </div>
@@ -1531,13 +1531,13 @@
     const donutParts = CHANNELS.map((c) => ({ pct: c.pct, color: c.color }));
     const rows = CHANNELS.map((c) => `<div class="r">
       <span class="sw" style="background:${c.color};"></span>
-      <span>${c.label}<div style="font-size:10.5px;color:var(--n-500);">${c.nights} nuitées · ${MAD(c.rev)}</div></span>
+      <span>${c.label}<div style="font-size:11px;color:var(--n-500);">${c.nights} nuitées · ${MAD(c.rev)}</div></span>
       <span class="pc">${c.pct} %</span>
       <span class="am">${c.fee ? '−' + MAD(c.fee) : '0 MAD'}</span>
     </div>`).join('');
     const trend = DIRECT_TREND.map((v, i) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
       <div style="width:100%;max-width:34px;height:${v * 2.6}px;background:${i === DIRECT_TREND.length - 1 ? 'var(--atlas)' : 'var(--n-200)'};border-radius:6px 6px 0 0;align-self:center;"></div>
-      <span style="font-size:9.5px;font-family:var(--mono);color:var(--n-500);">${['J', 'F', 'M', 'A', 'M', 'J'][i]}</span>
+      <span style="font-size:11px;font-family:var(--mono);color:var(--n-500);">${['J', 'F', 'M', 'A', 'M', 'J'][i]}</span>
     </div>`).join('');
     return `<div class="hx-page">
       <div class="hx-row r-21">
@@ -4523,7 +4523,7 @@
         if (isSaved) {
           badge = '<span class="hx-badge-saved">Chambre enregistrée</span>';
         } else if (isFailed) {
-          badge = '<span class="hx-badge-dup" style="font-size:10px;">Échec : ' + esc(failedRooms[r.id]) + '</span>';
+          badge = '<span class="hx-badge-dup" style="font-size:11px;">Échec : ' + esc(failedRooms[r.id]) + '</span>';
         }
 
         return `
@@ -6951,7 +6951,7 @@
         const optWord = trL({fr:'optionnel', en:'optional', ar:'اختياري'});
         m.el.querySelector('.kiwi-modal-body').innerHTML = `
           <style>.ob-field:focus{border-color:var(--atlas)!important;}</style>
-          <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.1em;color:var(--atlas);margin:2px 0 10px;">${trL({fr:'ÉTAPE 2 / 2 · TOUT EST OPTIONNEL', en:'STEP 2 / 2 · ALL OPTIONAL', ar:'الخطوة 2/2 · كل شيء اختياري'})}</div>
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--atlas);margin:2px 0 10px;">${trL({fr:'ÉTAPE 2 / 2 · TOUT EST OPTIONNEL', en:'STEP 2 / 2 · ALL OPTIONAL', ar:'الخطوة 2/2 · كل شيء اختياري'})}</div>
           <div style="font-size:17px;font-weight:600;letter-spacing:-0.01em;">${trL({fr:'Parlez-nous de votre activité', en:'Tell us about your business', ar:'حدثنا عن نشاطك'})} · ${def.label}</div>
           <p style="font-size:13px;color:var(--n-500);margin:6px 0 2px;line-height:1.5;">${trL({fr:'30 secondes, Kiwi personnalise vos indicateurs et vos modules. Modifiable plus tard dans Paramètres.', en:'30 seconds, Kiwi tailors your indicators and modules. Editable later in Settings.', ar:'30 ثانية, يخصص كيوي مؤشراتك ووحداتك. قابل للتعديل لاحقًا في الإعدادات.'})}</p>
           ${prof.questions.map((q) => `

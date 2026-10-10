@@ -889,7 +889,7 @@
 
   /* Data table */
   .p-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  .p-table thead th { text-align: left; padding: 9px 12px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; color: var(--n-500); text-transform: uppercase; background: var(--paper-soft); border-bottom: 1px solid var(--n-300); font-weight: 500; }
+  .p-table thead th { text-align: left; padding: 9px 12px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--n-500); text-transform: uppercase; background: var(--paper-soft); border-bottom: 1px solid var(--n-300); font-weight: 500; }
   .p-table tbody td { padding: 11px 12px; border-bottom: 1px solid var(--n-300); }
   .p-table tbody tr { transition: background 160ms cubic-bezier(0.32, 0.72, 0, 1), transform 80ms var(--spring); }
   .p-table tbody tr:active { transform: scale(0.995); }
@@ -952,7 +952,7 @@
   html[data-theme="dark"] .tbl { background: var(--paper-muted); }
   .tbl:hover { border-color: var(--atlas); transform: translateY(-2px); }
   .tbl .tbl-n { font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
-  .tbl .tbl-state { font-size: 10.5px; font-family: var(--mono); color: var(--n-500); margin-top: 4px; letter-spacing: 0.04em; }
+  .tbl .tbl-state { font-size: 11px; font-family: var(--mono); color: var(--n-500); margin-top: 4px; letter-spacing: 0.04em; }
   .tbl .tbl-amt { font-size: 12px; font-weight: 600; font-feature-settings: "tnum" 1; margin-top: 6px; }
   .tbl.occupied { border-color: var(--atlas); background: var(--mint-soft); }
   html[data-theme="dark"] .tbl.occupied { background: rgba(125,242,176,0.06); }
@@ -1045,7 +1045,7 @@
   .settle-cell.settled { border-color: var(--success); }
   .settle-cell.settled .amt { color: var(--success); font-weight: 600; }
   .settle-cell .d { font-weight: 600; font-size: 13px; }
-  .settle-cell .amt { font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
+  .settle-cell .amt { font-family: var(--mono); font-size: 11px; font-weight: 500; }
 
   /* Reservations & appointments */
   .resv-tabs { display: flex; gap: 6px; margin: 18px 0 16px; padding: 4px; background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 12px; }
@@ -1069,7 +1069,7 @@
   .resv-card { background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 14px; padding: 16px; }
   html[data-theme="dark"] .resv-card { background: var(--paper-muted); }
   .resv-card .rc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; }
-  .resv-card .rc-tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--n-500); font-weight: 500; }
+  .resv-card .rc-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); font-weight: 500; }
   .resv-card .rc-count { font-family: var(--mono); font-size: 11px; color: var(--atlas); background: var(--mint-soft); padding: 2px 8px; border-radius: 999px; font-weight: 500; }
   .resv-card .rc-foot { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--n-200); font-size: 11.5px; color: var(--n-500); line-height: 1.45; }
   .resv-wait { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--n-200); font-size: 13px; }
@@ -1103,8 +1103,8 @@
   .rcal-name { font-size: 12.5px; font-weight: 500; color: var(--n-700); letter-spacing: -0.005em; }
   .rcal-track { position: relative; height: 28px; background: var(--surface); border: 1px solid var(--n-200); border-radius: 8px; }
   html[data-theme="dark"] .rcal-track { background: var(--paper-soft); }
-  .rcal-block { position: absolute; top: 3px; bottom: 3px; border-radius: 6px; padding: 0 8px; font-size: 10.5px; color: var(--paper); display: flex; align-items: center; font-weight: 500; white-space: nowrap; overflow: hidden; cursor: pointer; }
-  .rcal-axis { display: flex; justify-content: space-between; padding-left: 152px; padding-right: 4px; font-family: var(--mono); font-size: 10px; color: var(--n-500); margin-top: 6px; letter-spacing: 0.04em; }
+  .rcal-block { position: absolute; top: 3px; bottom: 3px; border-radius: 6px; padding: 0 8px; font-size: 11px; color: var(--paper); display: flex; align-items: center; font-weight: 500; white-space: nowrap; overflow: hidden; cursor: pointer; }
+  .rcal-axis { display: flex; justify-content: space-between; padding-left: 152px; padding-right: 4px; font-family: var(--mono); font-size: 11px; color: var(--n-500); margin-top: 6px; letter-spacing: 0.04em; }
   .resv-walkin { display: flex; flex-direction: column; gap: 6px; }
   .wk { display: grid; grid-template-columns: 32px 1fr; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--surface); border: 1px solid var(--n-200); font-size: 12.5px; }
   html[data-theme="dark"] .wk { background: var(--paper-soft); }
@@ -1114,7 +1114,7 @@
   .wk .m { font-size: 11px; color: var(--n-500); margin-top: 2px; }
   .resv-engine { background: linear-gradient(135deg, var(--ink), var(--ink-soft)); color: var(--paper); border-radius: 16px; padding: 22px; margin-top: 18px; position: relative; overflow: hidden; }
   .resv-engine::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; background: radial-gradient(circle, var(--mint), transparent 60%); opacity: 0.18; pointer-events: none; }
-  .resv-engine .re-tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; color: var(--mint); }
+  .resv-engine .re-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--mint); }
   .resv-engine h4 { margin: 6px 0 4px; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: var(--paper); }
   .resv-engine .re-sub { font-size: 12.5px; color: #a7d5b9; margin: 0 0 16px; line-height: 1.45; max-width: 540px; }
   .re-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; position: relative; z-index: 1; }
@@ -1153,11 +1153,11 @@
   .sh-bar > div.brk { background: var(--warning); opacity: 0.75; }
   .sh-bar > div.now { width: 2px; background: var(--mint); top: -3px; bottom: -3px; border-radius: 1px; box-shadow: 0 0 6px rgba(125,242,176,0.8); }
   .sh-clock-row .dur { font-family: var(--mono); font-weight: 500; font-size: 12.5px; color: var(--ink); text-align: right; }
-  .sh-clock-row .dur .l { font-size: 9.5px; color: var(--n-500); letter-spacing: 0.08em; display: block; margin-bottom: 1px; }
+  .sh-clock-row .dur .l { font-size: 11px; color: var(--n-500); letter-spacing: 0.08em; display: block; margin-bottom: 1px; }
 
   /* Weekly grid */
   .sh-week { display: grid; grid-template-columns: 150px repeat(7, 1fr); gap: 4px; }
-  .sh-week .head { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); padding: 6px 4px; text-align: center; letter-spacing: 0.06em; text-transform: uppercase; }
+  .sh-week .head { font-family: var(--mono); font-size: 11px; color: var(--n-500); padding: 6px 4px; text-align: center; letter-spacing: 0.06em; text-transform: uppercase; }
   .sh-week .head.today { color: var(--atlas); font-weight: 600; }
   .sh-week .name { font-size: 12px; font-weight: 500; padding: 14px 4px; color: var(--n-700); display: flex; align-items: center; }
   .sh-week .cell { padding: 8px 4px; border-radius: 8px; background: var(--surface); border: 1px solid var(--n-200); text-align: center; min-height: 56px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; transition: transform 140ms, opacity 140ms, background-color 140ms, border-color 140ms, color 140ms, box-shadow 140ms; }
@@ -1168,7 +1168,7 @@
   .sh-week .cell.day { background: rgba(217,154,43,0.16); border-color: rgba(217,154,43,0.3); color: var(--warn-ink); }
   .sh-week .cell.off { background: var(--n-100); color: var(--n-500); border-color: transparent; }
   .sh-week .cell .h { font-weight: 600; font-size: 12px; font-family: var(--mono); letter-spacing: -0.01em; }
-  .sh-week .cell .d { font-size: 9px; opacity: 0.78; margin-top: 3px; letter-spacing: 0.06em; font-family: var(--mono); }
+  .sh-week .cell .d { font-size: 11px; opacity: 0.78; margin-top: 3px; letter-spacing: 0.06em; font-family: var(--mono); }
 
   /* Tip pooling */
   .sh-tip-cfg { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--n-200); border-radius: 10px; margin-bottom: 12px; }

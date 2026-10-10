@@ -4351,7 +4351,7 @@
             <div style="width: 44px; height: 44px; border-radius: 13px; background: rgba(11,110,79,0.10); border: 1px solid rgba(11,110,79,0.18); color: var(--atlas); display: grid; place-items: center; margin-bottom: 14px;">
               <svg width="22" height="22" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M200-80q-33 0-56.5-23.5T120-160v-451q-18-11-29-28.5T80-680v-120q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v120q0 23-11 40.5T840-611v451q0 33-23.5 56.5T760-80H200Zm0-520v440h560v-440H200Zm-40-80h640v-120H160v120Zm200 280h240v-80H360v80Zm120 20Z"/></svg>
             </div>
-            <div style="display:inline-flex; align-items:center; gap:8px; padding:4px 12px; background:var(--paper-soft); border-radius:999px; font-family:var(--mono); font-size:10.5px; letter-spacing:0.06em; color:var(--n-600); margin-bottom:8px; border:1px solid var(--n-200);">
+            <div style="display:inline-flex; align-items:center; gap:8px; padding:4px 12px; background:var(--paper-soft); border-radius:999px; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; color:var(--n-600); margin-bottom:8px; border:1px solid var(--n-200);">
               <span class="pulse-dot" style="width:6px; height:6px; background:var(--atlas);"></span>${escTxt(fe.badge)}
             </div>
             <div style="font-weight: 600; color: var(--ink); font-size: 14.5px; letter-spacing: -0.01em;">${escTxt(fe.title)}</div>
@@ -4815,7 +4815,7 @@
               `</div>` +
               `<div style="text-align:right;font-family:var(--mono);color:${dead ? 'var(--danger)' : 'var(--ink)'};">` +
               `<div style="font-size:14px;font-weight:600;">${r.stock} ${escTxt(r.unit || '')}</div>` +
-              `${r.suggested ? `<div style="font-size:10.5px;color:var(--n-500);">+${r.suggested} ${escTxt(r.unit)}${r.cost ? ` · ${frInt(r.suggested * r.cost)} MAD` : ''}</div>` : ''}</div>` +
+              `${r.suggested ? `<div style="font-size:11px;color:var(--n-500);">+${r.suggested} ${escTxt(r.unit)}${r.cost ? ` · ${frInt(r.suggested * r.cost)} MAD` : ''}</div>` : ''}</div>` +
               `</div>`;
           }).join('');
         el['inner' + 'HTML'] += `<a href="#" data-action="nav-stock" style="display:block;margin-top:12px;text-align:center;font-size:12.5px;color:var(--atlas);font-weight:600;">${lang === 'en' ? 'Open inventory & purchasing →' : lang === 'ar' ? 'فتح المخزون والمشتريات ←' : 'Ouvrir Stock & approvisionnement →'}</a>`;
@@ -5051,7 +5051,7 @@
             <div class="role">${s.role}</div>
           </div>
           <div class="shift"${s.shift === '·' ? ' style="color: var(--n-500);"' : ''}>${s.shift}</div>
-          <div class="tx-n"${s.amt === '·' ? ' style="color: var(--n-500);"' : ''}>${s.amt}${s.tx ? `<br/><span style="color: var(--success); font-size: 10.5px;">${s.tx}</span>` : ''}</div>
+          <div class="tx-n"${s.amt === '·' ? ' style="color: var(--n-500);"' : ''}>${s.amt}${s.tx ? `<br/><span style="color: var(--success); font-size: 11px;">${s.tx}</span>` : ''}</div>
         </div>
       `).join('');
     }

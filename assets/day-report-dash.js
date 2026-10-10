@@ -220,7 +220,7 @@
       '.kdr-sd:hover .kdr-sd-b{background:color-mix(in srgb,var(--atlas) 62%,transparent)}',
       '.kdr-sd.is-void .kdr-sd-b{background:var(--n-200)}',
       '.kdr-sd.is-sel .kdr-sd-b{background:var(--riad)}',
-      '.kdr-sd-n{font-family:var(--mono);font-size:10.5px;color:var(--n-500);line-height:1}',
+      '.kdr-sd-n{font-family:var(--mono);font-size:11px;color:var(--n-500);line-height:1}',
       '.kdr-sd.is-sel .kdr-sd-n{color:var(--ink);font-weight:600}',
       '.kdr-sd:focus-visible{outline:2px solid var(--atlas);outline-offset:2px}',
       /* ── en-tête d'identité — l'établissement et la séance ── */
@@ -268,7 +268,7 @@
       '.kdr-hr.is-peak .kdr-hr-b{background:var(--atlas)}',
       '.kdr-hr.is-peak:hover .kdr-hr-b{background:var(--atlas)}',
       '.kdr-hrx{display:flex;gap:4px;margin-top:8px}',
-      '.kdr-hrx span{flex:1;min-width:0;text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--n-500);white-space:nowrap;overflow:hidden}',
+      '.kdr-hrx span{flex:1;min-width:0;text-align:center;font-family:var(--mono);font-size:11px;color:var(--n-500);white-space:nowrap;overflow:hidden}',
       /* ── mode sombre ── */
       'html[data-theme="dark"] .kdr-hr-b{background:color-mix(in srgb,var(--mint) 50%,transparent)}',
       'html[data-theme="dark"] .kdr-hr.is-void .kdr-hr-b{background:rgba(255,255,255,0.2);opacity:0.5}',

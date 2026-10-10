@@ -231,7 +231,7 @@
       .kst-tx{min-width:0}
       .kst-tx b{display:block;font-size:13.5px;font-weight:600;line-height:1.25}
       .kst-tx span{display:block;font-size:11.5px;line-height:1.4;color:var(--n-500,#77807b);margin-top:3px}
-      .kst-n{display:inline-block;margin-top:6px;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;
+      .kst-n{display:inline-block;margin-top:6px;font-size:11px;letter-spacing:.04em;text-transform:uppercase;
         color:var(--atlas,#0B6E4F);font-weight:600}
       .kst-note{margin:12px 0 0;font-size:11.5px;line-height:1.5;color:var(--n-500,#77807b)}
       .kst-empty{margin:0 0 12px;font-size:12.5px;line-height:1.55}

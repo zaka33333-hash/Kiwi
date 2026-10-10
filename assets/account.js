@@ -30,7 +30,7 @@
       @media (max-width:820px){ .acc-grid { grid-template-columns:1fr; } }
       .acc-card { border:1px solid var(--n-200); border-radius:14px; padding:16px 18px; background:var(--surface); }
       .acc-card.span2 { grid-column:1 / -1; }
-      .acc-eyebrow { font-family:var(--mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); margin-bottom:12px; }
+      .acc-eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); margin-bottom:12px; }
       .acc-row { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:8px 0; border-bottom:1px solid var(--n-100); font-size:13.5px; }
       .acc-row:last-child { border-bottom:0; }
       .acc-row > span { color:var(--n-500); }
@@ -59,7 +59,7 @@
       .acc-plan-meta { font-size:12.5px; color:rgba(255,255,255,0.8); margin-top:4px; }
       .acc-plan-acts { margin-inline-start:auto; display:flex; gap:10px; flex-wrap:wrap; }
       .acc-tbl { width:100%; border-collapse:collapse; font-size:13px; }
-      .acc-tbl th { text-align:start; font-family:var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--n-500); padding:8px 6px; border-bottom:1px solid var(--n-200); font-weight:500; }
+      .acc-tbl th { text-align:start; font-family:var(--mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--n-500); padding:8px 6px; border-bottom:1px solid var(--n-200); font-weight:500; }
       .acc-tbl td { padding:11px 6px; border-bottom:1px solid var(--n-100); }
       .acc-tbl tr:last-child td { border-bottom:0; }
       .acc-paid { font-size:11px; font-weight:600; color:var(--success); }
@@ -90,14 +90,14 @@
       .acc-biz-logo img { width:100%; height:100%; object-fit:contain; background:#fff; }
       .acc-biz-name { font-size:15.5px; font-weight:600; letter-spacing:-0.01em; }
       .acc-biz-meta { font-size:12px; color:var(--n-500); margin-top:2px; }
-      .acc-biz-badge { font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:999px; background:var(--atlas); color:#fff; letter-spacing:0.06em; }
+      .acc-biz-badge { font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px; background:var(--atlas); color:#fff; letter-spacing:0.06em; }
       .acc-stat-row { display:flex; gap:10px; margin:15px 0; flex-wrap:wrap; }
       .acc-stat { flex:1; min-width:120px; background:var(--paper-soft); border-radius:12px; padding:11px 14px; }
       .acc-stat .v { font-size:18px; font-weight:600; font-family:var(--mono); letter-spacing:-0.02em; color:var(--ink); }
-      .acc-stat .l { font-size:10px; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
+      .acc-stat .l { font-size:11px; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
       .acc-legal { display:grid; grid-template-columns:repeat(3,1fr); gap:12px 18px; border-top:1px solid var(--n-100); padding-top:14px; }
       @media (max-width:820px){ .acc-legal { grid-template-columns:repeat(2,1fr); } }
-      .acc-legal .k { font-size:9.5px; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.05em; }
+      .acc-legal .k { font-size:11px; color:var(--n-500); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.05em; }
       .acc-legal .v { font-size:13px; font-weight:500; margin-top:2px; font-variant-numeric:tabular-nums; }
       .acc-add-biz { width:100%; border:1.5px dashed var(--n-300); border-radius:14px; padding:14px; background:transparent; color:var(--atlas); font-weight:600; font-size:13.5px; font-family:var(--sans); cursor:pointer; transition:border-color 140ms, background 140ms; }
       .acc-add-biz:hover { border-color:var(--atlas); background:var(--mint-soft); }
@@ -125,7 +125,7 @@
          champ et donnait deux barres de défilement imbriquées. */
       .acc-form { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
       @media (max-width:560px){ .acc-form { grid-template-columns:1fr; } }
-      .acc-form-sec { grid-column:1/-1; font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); margin:20px 0 2px; padding-top:14px; border-top:1px solid var(--n-100); }
+      .acc-form-sec { grid-column:1/-1; font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--n-500); margin:20px 0 2px; padding-top:14px; border-top:1px solid var(--n-100); }
       .acc-form-sec:first-child { margin-top:4px; padding-top:0; border-top:0; }
       .acc-form-sec .why { display:block; font-family:var(--sans); font-size:11.5px; letter-spacing:0; text-transform:none; color:var(--n-500); margin-top:5px; line-height:1.5; }
       .acc-f, .acc-sel { width:100%; padding:11px 13px; border:1px solid var(--n-200); border-radius:10px; font-family:var(--sans); font-size:14px; color:var(--ink); background:var(--surface); outline:none; box-sizing:border-box; }

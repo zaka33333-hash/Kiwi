@@ -3919,7 +3919,7 @@
   function eqAvatarMini(o) {
     const s = eqFindStaff(o.id);
     const c = s ? eqDeptColor(s.department) : 'var(--n-400)';
-    return `<span class="eq-av sm" style="width:22px;height:22px;font-size:9px;background:${c}">${eqEsc(eqInitials(o.name))}</span>`;
+    return `<span class="eq-av sm" style="width:22px;height:22px;font-size:11px;background:${c}">${eqEsc(eqInitials(o.name))}</span>`;
   }
 
   /* ── Section 2 · Staff table ──────────────────────────────────────────── */
@@ -5837,7 +5837,7 @@
         <div class="mi-bar-track"><div class="mi-bar-fill" data-miw="${(f.count / maxFreq * 100).toFixed(1)}" style="background:var(--danger)"></div></div>
         <div class="mi-bar-val">${f.count}×</div>
       </div>
-      <div style="font-size:10.5px;color:var(--n-500);margin:-2px 0 4px 168px;">${eqEsc(f.reason)}</div>`).join('');
+      <div style="font-size:11px;color:var(--n-500);margin:-2px 0 4px 168px;">${eqEsc(f.reason)}</div>`).join('');
 
     return `
       <div class="mi-section">
@@ -7079,7 +7079,7 @@
         </div>
         ${attachedRows}
         ${detached.length ? `
-          <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--n-500);font-family:var(--mono);margin:14px 0 4px;">Groupes disponibles</div>
+          <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--n-500);font-family:var(--mono);margin:14px 0 4px;">Groupes disponibles</div>
           ${detachedRows}
         ` : ''}
       </div>`;

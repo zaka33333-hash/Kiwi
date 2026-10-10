@@ -469,7 +469,7 @@
     @keyframes ac-rise { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
 
     /* generic pieces */
-    .ac-eyebrow { font-size:10.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:var(--atlas); }
+    .ac-eyebrow { font-size:11px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:var(--atlas); }
     .ac-h { font-family:"Inter Tight", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; font-weight:400; font-size:24px; color:var(--ink); margin:3px 0 2px; }
     .ac-sub { font-size:12.5px; color:var(--n-500); }
     .ac-card { background:var(--surface); border:1px solid var(--n-200); border-radius:18px; padding:18px 18px;
@@ -517,7 +517,7 @@
     /* big stat trio */
     .ac-trio { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:4px; }
     .ac-trio .t { background:var(--paper-soft); border-radius:12px; padding:11px 12px; }
-    .ac-trio .t .l { font-size:9.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--n-500); }
+    .ac-trio .t .l { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--n-500); }
     .ac-trio .t .n { font-size:16px; font-weight:600; margin-top:4px; color:var(--ink); font-variant-numeric:tabular-nums; }
     .ac-trio .t.hl { background:rgba(11,110,79,.09); }
     .ac-trio .t.hl .n { color:var(--atlas); }
@@ -545,14 +545,14 @@
     /* tax calendar */
     .ac-cal { display:flex; gap:13px; padding:13px 2px; border-bottom:1px solid var(--n-200); align-items:flex-start; }
     .ac-cal:last-child { border-bottom:0; }
-    .ac-cal-tag { font-size:10px; font-weight:700; letter-spacing:.04em; padding:4px 8px; border-radius:7px;
+    .ac-cal-tag { font-size:11px; font-weight:700; letter-spacing:.04em; padding:4px 8px; border-radius:7px;
       background:var(--paper-soft); color:var(--atlas); flex-shrink:0; min-width:46px; text-align:center; }
     .ac-cal-m { flex:1; min-width:0; }
     .ac-cal-m .l { font-size:13px; color:var(--ink); font-weight:500; }
     .ac-cal-m .d { font-size:11.5px; color:var(--n-500); margin-top:2px; }
     .ac-cal-r { text-align:end; white-space:nowrap; }
     .ac-cal-r .a { font-size:13px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
-    .ac-cal-r .st { font-size:10px; font-weight:600; margin-top:3px; }
+    .ac-cal-r .st { font-size:11px; font-weight:600; margin-top:3px; }
     .ac-cal-r .st.todo { color:var(--warn-ink); }
     .ac-cal-r .st.soon { color:var(--n-500); }
 

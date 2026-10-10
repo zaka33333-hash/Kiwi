@@ -163,12 +163,12 @@
           <div class="p-card" style="margin-bottom:8px;">
             <div style="display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center;">
               <div>
-                <div style="font-weight:600; font-size:14.5px;">${s.name}${s.openPo ? ` <span class="chip info-soft" style="font-size:10px; padding:1px 7px;">${s.openPo} ${str.inProgress}</span>` : ''}</div>
+                <div style="font-weight:600; font-size:14.5px;">${s.name}${s.openPo ? ` <span class="chip info-soft" style="font-size:11px; padding:1px 7px;">${s.openPo} ${str.inProgress}</span>` : ''}</div>
                 <div style="font-size:11.5px; color:var(--n-500); margin-top:3px;">${s.cat} · ${str.leadTime} ${s.lead} · ${str.lastOrder} ${s.last}</div>
               </div>
               <div style="text-align:right;">
                 <div style="font-family:var(--mono); font-size:13px; font-weight:600; color:${s.reliab >= 95 ? 'var(--success)' : 'var(--warning)'};">${s.reliab}%</div>
-                <div style="font-family:var(--mono); font-size:10px; color:var(--n-500);">${str.reliability}</div>
+                <div style="font-family:var(--mono); font-size:11px; color:var(--n-500);">${str.reliability}</div>
               </div>
             </div>
           </div>
@@ -668,7 +668,7 @@
       transition:opacity 160ms ease,transform 200ms cubic-bezier(.2,.8,.2,1);font-family:var(--sans);}
     .kdr-pop.in{opacity:1;transform:translateY(0) scale(1);}
     html[dir="rtl"] .kdr-pop{transform-origin:top left;}
-    .kdr-hd{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    .kdr-hd{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
       color:var(--n-500);padding:8px 10px 6px;}
     .kdr-opt{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:10px;cursor:pointer;
       transition:background 120ms;}
@@ -684,10 +684,10 @@
     .kdr-opt.sel .ck{opacity:1;}
     .kdr-sep{height:1px;background:var(--n-200);margin:6px 4px;}
     .kdr-custom{padding:4px 10px 8px;}
-    .kdr-custom .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    .kdr-custom .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
       color:var(--n-500);margin-bottom:8px;}
     .kdr-dates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-    .kdr-field label{display:block;font-size:10.5px;color:var(--n-500);margin-bottom:3px;}
+    .kdr-field label{display:block;font-size:11px;color:var(--n-500);margin-bottom:3px;}
     .kdr-date{width:100%;box-sizing:border-box;border:1px solid var(--n-200);border-radius:9px;
       padding:8px 9px;font-size:12.5px;font-family:var(--sans);color:var(--ink);background:var(--paper-soft);}
     .kdr-date:focus{outline:none;border-color:var(--atlas);}

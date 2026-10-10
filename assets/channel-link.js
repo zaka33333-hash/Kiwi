@@ -737,7 +737,7 @@
   .shp-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(96px,1fr)); gap:8px; }\
   .shp-metric { padding:10px; border:1px solid var(--n-200); border-radius:10px; background:var(--paper-soft); display:flex; flex-direction:column; gap:3px; }\
   .shp-metric strong { font-size:20px; color:var(--ink); }\
-  .shp-metric span { font-size:10.5px; color:var(--n-500); }\
+  .shp-metric span { font-size:11px; color:var(--n-500); }\
   .shp-warn { padding:10px 12px; border-inline-start:3px solid var(--atlas); background:var(--paper-soft); }\
   .shp-actions { display:flex; flex-wrap:wrap; gap:8px; }\
   .shp-guide { border:1px solid var(--n-200); border-radius:11px; padding:10px 12px; background:var(--paper-soft); color:var(--n-600); font-size:11.5px; }\
@@ -752,7 +752,7 @@
   .shp-import-row input { width:17px; height:17px; margin-top:2px; accent-color:var(--atlas); }\
   .shp-import-row span { display:flex; flex-direction:column; gap:3px; min-width:0; }\
   .shp-import-row strong { color:var(--ink); font-size:11.5px; overflow-wrap:anywhere; }\
-  .shp-import-row small { color:var(--n-500); font-size:10.5px; overflow-wrap:anywhere; }\
+  .shp-import-row small { color:var(--n-500); font-size:11px; overflow-wrap:anywhere; }\
   .shp-import-row:has(input:disabled) { cursor:not-allowed; opacity:.58; }\
   .shp-import-search { width:100%; margin-top:10px; padding:10px 12px; border:1px solid var(--n-200); border-radius:10px; background:var(--surface); color:var(--ink); font:inherit; }\
   .shp-import-count { display:block; margin:5px 0 3px; color:var(--n-500); text-align:right; }\

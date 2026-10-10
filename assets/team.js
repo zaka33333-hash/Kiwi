@@ -3373,7 +3373,7 @@
     .kt-sh-next {
       display: inline-block; margin: 0 2px 0 3px; padding: 0 3px; border-radius: 4px;
       background: var(--mint-soft, rgba(125,242,176,0.35)); color: var(--atlas);
-      font-family: var(--mono); font-size: 8.5px; font-style: normal; font-weight: 600;
+      font-family: var(--mono); font-size: 11px; font-style: normal; font-weight: 600;
       vertical-align: 1px; letter-spacing: 0;
     }
     .kt-plan-cell.on  { background: rgba(11,110,79,0.055); }
@@ -3391,8 +3391,8 @@
       .dash-equipe .kt-plan-table .kt-h-member { gap: 6px; padding-left: 8px; }
       .dash-equipe .kt-plan-table .kt-h-member .r { display: none; }
       .dash-equipe .kt-plan-table .kt-day-cell { padding: 4px 1px; }
-      .dash-equipe .kt-sh { font-size: 9.5px; padding: 4px 1px; min-height: 38px; }
-      .dash-equipe .kt-sh-rest { font-size: 9.5px; }
+      .dash-equipe .kt-sh { font-size: 11px; padding: 4px 1px; min-height: 38px; }
+      .dash-equipe .kt-sh-rest { font-size: 11px; }
       .dash-equipe .kt-sh .kt-sh-next { display: block; margin: 1px 0 0; }
     }
 
@@ -3411,7 +3411,7 @@
     .kt-shpop-head span::first-letter { text-transform: uppercase; }
     .kt-shpop-times { display: flex; gap: 8px; }
     .kt-shpop-times label { flex: 1; min-width: 0; }
-    .kt-shpop-times span { display: block; font-size: 10px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); margin-bottom: 4px; }
+    .kt-shpop-times span { display: block; font-size: 11px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); margin-bottom: 4px; }
     .kt-shpop-times input {
       width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--n-200);
       border-radius: 9px; background: var(--surface); color: var(--ink);
@@ -3440,11 +3440,11 @@
     .dash-equipe .kt-searchbar input:focus { border-color: var(--atlas); box-shadow: 0 0 0 3px rgba(11,110,79,0.10); }
 
     /* Tag chips (contract type) */
-    .dash-equipe .kt-tag { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.04em; }
+    .dash-equipe .kt-tag { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.04em; }
     .dash-equipe .kt-tag-ok      { background: var(--mint-soft); color: var(--atlas); border: 1px solid rgba(11,110,79,0.18); }
     .dash-equipe .kt-tag-pend    { background: var(--warn-soft); color: var(--warn-ink); border: 1px solid color-mix(in srgb, var(--warn-ink) 25%, transparent); }
     .dash-equipe .kt-tag-neutral { background: var(--paper-soft); color: var(--n-600); border: 1px solid var(--n-200); }
-    .dash-equipe .kt-langchip { background: var(--paper-soft); border: 1px solid var(--n-200); padding: 2px 7px; border-radius: 5px; font-size: 10.5px; color: var(--n-700); }
+    .dash-equipe .kt-langchip { background: var(--paper-soft); border: 1px solid var(--n-200); padding: 2px 7px; border-radius: 5px; font-size: 11px; color: var(--n-700); }
     .dash-equipe .kt-chips { display: flex; flex-wrap: wrap; gap: 4px; }
     .dash-equipe .kt-cell-strong { font-weight: 500; color: var(--ink); }
 
@@ -3453,10 +3453,10 @@
     .dash-equipe .kt-hbar-right { display: inline-flex; gap: 6px; flex-wrap: wrap; }
     .dash-equipe .kt-h-tablewrap { border: 1px solid var(--n-200); border-radius: 12px; overflow-x: auto; background: var(--surface); }
     .dash-equipe .kt-h-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-    .dash-equipe .kt-h-table thead th { background: var(--paper-soft); padding: 11px 9px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.10em; color: var(--n-500); font-weight: 500; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--n-200); position: sticky; top: 0; }
+    .dash-equipe .kt-h-table thead th { background: var(--paper-soft); padding: 11px 9px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.10em; color: var(--n-500); font-weight: 500; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--n-200); position: sticky; top: 0; }
     .dash-equipe .kt-h-table .kt-day-head { text-align: center; min-width: 54px; }
     .dash-equipe .kt-h-table .kt-day-head .d { display: block; font-size: 12.5px; color: var(--ink); font-weight: 600; }
-    .dash-equipe .kt-h-table .kt-day-head .m { display: block; font-size: 9.5px; color: var(--n-500); text-transform: lowercase; letter-spacing: 0.04em; margin-top: 2px; }
+    .dash-equipe .kt-h-table .kt-day-head .m { display: block; font-size: 11px; color: var(--n-500); text-transform: lowercase; letter-spacing: 0.04em; margin-top: 2px; }
     .dash-equipe .kt-h-table .kt-day-head .kt-day-hours { display: block; overflow: hidden; margin-top: 5px; color: var(--n-700); font: 600 8px/1.25 var(--mono); letter-spacing: 0; text-overflow: ellipsis; white-space: nowrap; text-transform: none; }
     .dash-equipe .kt-h-table .kt-day-head .kt-day-special { display: block; overflow: hidden; margin-top: 4px; padding: 3px 4px; border-radius: 999px; background: color-mix(in srgb, var(--atlas) 10%, var(--surface)); color: var(--atlas); font: 700 7px/1.2 var(--mono); letter-spacing: .03em; text-overflow: ellipsis; white-space: nowrap; text-transform: none; }
     .dash-equipe .kt-h-table .kt-day-head.is-closed { background: color-mix(in srgb, var(--n-200) 45%, var(--paper-soft)); }
@@ -3464,7 +3464,7 @@
     .dash-equipe .kt-h-table tbody td { border-top: 1px solid var(--n-200); padding: 9px 9px; vertical-align: middle; }
     .dash-equipe .kt-h-table .kt-h-member { display: flex; align-items: center; gap: 10px; min-width: 200px; }
     .dash-equipe .kt-h-table .kt-h-member .n { font-weight: 600; font-size: 12.5px; color: var(--ink); }
-    .dash-equipe .kt-h-table .kt-h-member .r { font-size: 10.5px; color: var(--n-500); margin-top: 1px; }
+    .dash-equipe .kt-h-table .kt-h-member .r { font-size: 11px; color: var(--n-500); margin-top: 1px; }
     .dash-equipe .kt-h-table .kt-day-cell { text-align: center; padding: 7px 4px; }
     .dash-equipe .kt-h-table .kt-day-cell input { width: 50px; padding: 5px 4px; border: 1px solid var(--n-200); border-radius: 6px; font-family: var(--mono); font-size: 12px; background: var(--surface); color: var(--ink); text-align: center; outline: none; -moz-appearance: textfield; }
     .dash-equipe .kt-h-table .kt-day-cell input::-webkit-outer-spin-button, .dash-equipe .kt-h-table .kt-day-cell input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -3475,11 +3475,11 @@
     .dash-equipe .kt-h-table .kt-day-cell.locked input { background: var(--paper-soft); color: var(--n-500); cursor: not-allowed; }
     .dash-equipe .kt-h-table .kt-h-total, .dash-equipe .kt-h-table .kt-h-pay { text-align: right; min-width: 82px; padding-right: 14px; }
     .dash-equipe .kt-h-table .kt-h-total b, .dash-equipe .kt-h-table .kt-h-pay b { font-size: 13px; color: var(--ink); }
-    .dash-equipe .kt-h-table .kt-h-total span, .dash-equipe .kt-h-table .kt-h-pay span { color: var(--n-500); font-size: 10px; margin-left: 3px; font-weight: 400; }
+    .dash-equipe .kt-h-table .kt-h-total span, .dash-equipe .kt-h-table .kt-h-pay span { color: var(--n-500); font-size: 11px; margin-left: 3px; font-weight: 400; }
     .dash-equipe .kt-h-table tfoot td { padding: 11px 9px; background: var(--paper-soft); border-top: 2px solid var(--ink); font-size: 12.5px; }
-    .dash-equipe .kt-h-table .kt-h-foot-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.10em; color: var(--n-700); text-transform: uppercase; padding-left: 16px; }
+    .dash-equipe .kt-h-table .kt-h-foot-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.10em; color: var(--n-700); text-transform: uppercase; padding-left: 16px; }
     .dash-equipe .kt-h-table .kt-h-foot-tot b { font-size: 14px; color: var(--ink); }
-    .dash-equipe .kt-h-table .kt-h-foot-tot span { color: var(--n-500); font-size: 10px; margin-left: 3px; font-weight: 400; }
+    .dash-equipe .kt-h-table .kt-h-foot-tot span { color: var(--n-500); font-size: 11px; margin-left: 3px; font-weight: 400; }
 
     /* Fusion-mode overrides for the bits we added */
     body.fusion-mode .dash-equipe .kt-searchbar input,
@@ -3505,8 +3505,8 @@
       .dash-equipe .kt-searchbar input { font-size: 16px; }
     }
     @media (max-width: 900px) {
-      .dash-equipe .kt-h-table .kt-day-head .kt-day-hours { font-size: 10px; }
-      .dash-equipe .kt-h-table .kt-day-head .kt-day-special { font-size: 10px; }
+      .dash-equipe .kt-h-table .kt-day-head .kt-day-hours { font-size: 11px; }
+      .dash-equipe .kt-h-table .kt-day-head .kt-day-special { font-size: 11px; }
     }
   `;
 
@@ -3521,7 +3521,7 @@
   /* ═══════════════ MODAL CSS (kept from the previous design — user loved it) ═══════════════ */
   const MODAL_CSS = `
     [data-kt-form] .kt-fsec, .kt-profile .kt-pf-sec, .kt-qe-form, .kt-profile-head { margin-bottom: 18px; }
-    [data-kt-form] .kt-fseclabel { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--n-500); text-transform: uppercase; margin-bottom: 9px; }
+    [data-kt-form] .kt-fseclabel { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--n-500); text-transform: uppercase; margin-bottom: 9px; }
     [data-kt-form] label { display: block; margin-bottom: 10px; }
     [data-kt-form] label .l, .kt-qe-form label .l { display: block; font-size: 11px; color: var(--n-600); margin-bottom: 5px; font-weight: 500; }
     [data-kt-form] input[type=text],
@@ -3561,15 +3561,15 @@
     .kt-profile-tags { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
     .kt-pf-sec { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--n-200); }
     .kt-pf-sec:last-of-type { border-bottom: 0; }
-    .kt-pf-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--n-500); text-transform: uppercase; margin-bottom: 8px; }
+    .kt-pf-title { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--n-500); text-transform: uppercase; margin-bottom: 8px; }
     .kt-pf-row { display: grid; grid-template-columns: 160px 1fr; gap: 12px; align-items: baseline; padding: 4px 0; }
     .kt-pf-l { font-size: 12px; color: var(--n-500); }
     .kt-pf-v { font-size: 13px; color: var(--ink); word-break: break-word; }
-    .kt-tag { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.04em; }
+    .kt-tag { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.04em; }
     .kt-tag-ok      { background: var(--mint-soft); color: var(--atlas); border: 1px solid rgba(11,110,79,0.18); }
     .kt-tag-pend    { background: var(--warn-soft); color: var(--warn-ink); border: 1px solid color-mix(in srgb, var(--warn-ink) 25%, transparent); }
     .kt-tag-neutral { background: var(--paper-soft); color: var(--n-600); border: 1px solid var(--n-200); }
-    .kt-langchip { background: var(--paper-soft); border: 1px solid var(--n-200); padding: 2px 7px; border-radius: 5px; font-size: 10.5px; color: var(--n-700); }
+    .kt-langchip { background: var(--paper-soft); border: 1px solid var(--n-200); padding: 2px 7px; border-radius: 5px; font-size: 11px; color: var(--n-700); }
     /* Phone: the contract row put a select and two date inputs in three
        100 px columns, and iOS date fields overflowed them. Fields stack, and
        16 px text keeps Safari from zooming the page on focus. */

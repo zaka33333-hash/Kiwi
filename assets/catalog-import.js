@@ -618,7 +618,7 @@
       '.kci-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}',
       '.kci-tbl th{text-align:left;font-weight:600;color:var(--n-600,#6f6c65);font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:0 8px 6px 0;}',
       '.kci-tbl td{padding:5px 8px 5px 0;border-top:1px solid var(--n-200,#e7e3db);color:var(--ink,#0A0F0D);vertical-align:top;}',
-      '.kci-tag{display:inline-block;font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:5px;background:var(--n-200,#e7e3db);color:var(--n-700,#544f48);}',
+      '.kci-tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:5px;background:var(--n-200,#e7e3db);color:var(--n-700,#544f48);}',
       '.kci-tag.new{background:color-mix(in srgb,var(--atlas,#0B6E4F) 14%,transparent);color:var(--atlas,#0B6E4F);}',
       '.kci-tag.warn{background:color-mix(in srgb,#B0613F 16%,transparent);color:#8A4A22;}',
       '.kci-scroll{max-height:210px;overflow:auto;margin:0 0 4px;}',

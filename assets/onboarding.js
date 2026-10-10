@@ -180,14 +180,14 @@
        legacy text mark for it (design-vexel.css § 13). Hidden by default so the
        pre-Vexel presentation is untouched. */
     .kob-brand .vx-entry-logo{display:none;}
-    .kob-config-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(233,239,233,.4);}
+    .kob-config-label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(233,239,233,.4);}
     .kob-rail{display:flex;gap:6px;align-items:center;}
     .kob-rail b{width:20px;height:4px;border-radius:2px;background:rgba(255,255,255,.16);transition:background .3s,width .3s;display:block;}
     .kob-rail b.on{background:var(--mint);width:30px;}
     .kob-rail b.done{background:rgba(125,242,176,.55);}
     .kob-body{overflow-y:auto;overflow-x:hidden;flex:1;margin:-4px -6px 0;padding:4px 6px 2px;}
     .kob-body::-webkit-scrollbar{width:7px;}.kob-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:6px;}
-    .kob-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);margin:0 0 12px;}
+    .kob-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint);margin:0 0 12px;}
     .kob-h{font-family:var(--serif);font-weight:400;font-size:clamp(30px,5vw,42px);line-height:1.04;letter-spacing:-.01em;margin:0 0 10px;color:#fff;}
     .kob-h .k-sans{font-family:var(--sans);font-style:normal;font-weight:600;letter-spacing:-.02em;}
     .kob-sub{font-size:14.5px;line-height:1.55;color:rgba(233,239,233,.72);margin:0 0 22px;max-width:44ch;}
@@ -236,7 +236,7 @@
     .kob-acc-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px;}
     .kob-acc-ttl{font-family:var(--sans);font-weight:600;font-size:14.5px;color:#fff;letter-spacing:-.01em;}
     .kob-acc-perm{font-size:11.5px;color:rgba(233,239,233,.52);line-height:1.4;margin-top:2px;}
-    .kob-acc-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:99px;white-space:nowrap;
+    .kob-acc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:99px;white-space:nowrap;
       background:rgba(125,242,176,.14);color:var(--mint);}
     .kob-acc-tag.req{background:rgba(217,154,43,.16);color:#f0c46a;}
     .kob-acc-row{display:flex;gap:9px;}

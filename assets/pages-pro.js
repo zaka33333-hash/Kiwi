@@ -805,11 +805,11 @@ handlers['nav-terminaux'] = () => {
             </div>
             <div class="term-device-info">
               <div style="font-weight:600; font-size:14.5px; letter-spacing:-0.005em;">${esc(t.model)} · ${esc(locName(t.loc))}</div>
-              <div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:2px;">S/N ${esc(t.id)} · firmware ${t.fw}${t.fwUpdate ? ` · <span class="chip pend" style="padding:1px 7px; font-size:10px; margin-left:4px;">${T.updateAvailable}</span>` : ''}</div>
+              <div style="font-family:var(--mono); font-size:11px; color:var(--n-500); margin-top:2px;">S/N ${esc(t.id)} · firmware ${t.fw}${t.fwUpdate ? ` · <span class="chip pend" style="padding:1px 7px; font-size:11px; margin-left:4px;">${T.updateAvailable}</span>` : ''}</div>
               <div style="display:flex; gap:14px; margin-top:8px; font-size:11.5px; color:var(--n-600); flex-wrap:wrap;">
                 <span style="display:inline-flex; align-items:center; gap:5px;"><i style="width:6px; height:6px; border-radius:50%; background:${dot};"></i>${statusTxt}</span>
                 <span>${t.txDay} ${T.txToday}</span>
-                <span class="chip ${lifeChip[t.life] || 'neutral'}" style="padding:1px 8px; font-size:10px;">${lifeText[t.life] || ''}</span>
+                <span class="chip ${lifeChip[t.life] || 'neutral'}" style="padding:1px 8px; font-size:11px;">${lifeText[t.life] || ''}</span>
               </div>
             </div>
             <div class="term-device-actions" style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
@@ -819,15 +819,15 @@ handlers['nav-terminaux'] = () => {
           </div>
           <div class="term-device-diagnostics" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; padding-top:12px; border-top:1px solid var(--n-200);">
             <div>
-              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.beats}</div>
+              <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.beats}</div>
               ${spark(beat(t.id, t.state === 'on' ? t.pulse : 0.05), sparkColor)}
             </div>
             <div>
-              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.battery} · ${termPct(t.batt, 0)}</div>
+              <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.battery} · ${termPct(t.batt, 0)}</div>
               ${battCurve(t.battStart / 100, t.batt / 100)}
             </div>
             <div>
-              <div style="font-size:10px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.lastTx}</div>
+              <div style="font-size:11px; letter-spacing:0.08em; color:var(--n-500); font-family:var(--mono); margin-bottom:4px;">${T.lastTx}</div>
               <div style="font-family:var(--mono); font-weight:500; font-size:13px;">${t.state === 'on' ? '14:' + (28 + Math.floor(demoUnit(`${t.id}:minute`) * 9)) : '09:18'}</div>
               <div style="font-size:11px; color:var(--n-500); margin-top:2px;">${t.state === 'on' ? (window.KiwiNumber?.money(Math.round(40 + demoUnit(`${t.id}:amount`) * 200), 2) || Math.round(40 + demoUnit(`${t.id}:amount`) * 200) + ',00 MAD') : T.beforeDisconnect}</div>
             </div>
@@ -855,7 +855,7 @@ handlers['nav-terminaux'] = () => {
 
   /* shared form styling for the Manage / Add modals */
   const fieldCss = 'width:100%; padding:9px 12px; border:1px solid var(--n-300); border-radius:9px; font-size:13px; font-family:inherit; background:var(--surface); color:var(--ink); box-sizing:border-box;';
-  const labelCss = 'display:block; font-size:10px; letter-spacing:0.08em; font-family:var(--mono); color:var(--n-500); text-transform:uppercase; margin-bottom:6px;';
+  const labelCss = 'display:block; font-size:11px; letter-spacing:0.08em; font-family:var(--mono); color:var(--n-500); text-transform:uppercase; margin-bottom:6px;';
 
   /* ── MANAGE one terminal · rename · activate/deactivate · diagnose · remove ── */
   function openManage(t) {
@@ -894,7 +894,7 @@ handlers['nav-terminaux'] = () => {
         </div>
 
         <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--n-200);">
-          <div style="font-size:10px; letter-spacing:0.08em; font-family:var(--mono); color:var(--danger); text-transform:uppercase; margin-bottom:8px;">${T.dangerZone}</div>
+          <div style="font-size:11px; letter-spacing:0.08em; font-family:var(--mono); color:var(--danger); text-transform:uppercase; margin-bottom:8px;">${T.dangerZone}</div>
           <button id="term-mremove" class="kb ghost" style="width:100%; justify-content:center; padding:9px 12px; font-size:12.5px; color:var(--danger); border-color:rgba(193,58,46,0.45);">${T.removeBtn}</button>
         </div>
       `,
@@ -1162,7 +1162,7 @@ handlers['terminal-catalog'] = () => {
           <div class="p-card" style="margin:0; padding:0; overflow:hidden; background:var(--surface); ${p.featured ? 'grid-column:1 / -1; display:grid; grid-template-columns:1.1fr 1fr;' : ''} border:1px solid ${p.featured ? 'rgba(11,110,79,0.22)' : 'var(--n-200)'}; ${p.featured ? 'box-shadow:0 1px 0 rgba(11,110,79,0.06), 0 14px 32px -18px rgba(11,110,79,0.22);' : ''}">
             <div style="position:relative; ${p.featured ? 'aspect-ratio:auto; min-height:260px;' : 'aspect-ratio:5/3;'} background:var(--paper-soft); display:flex; align-items:center; justify-content:center; padding:${p.featured ? '20' : '14'}px; ${p.featured ? 'border-right:1px solid var(--n-200);' : 'border-bottom:1px solid var(--n-200);'}">
               <img src="${p.img}" alt="${p.name}" style="max-width:100%; max-height:100%; object-fit:contain; display:block;" loading="lazy">
-              ${p.featured ? `<span class="chip" style="position:absolute; top:12px; left:12px; background:var(--ink); color:var(--mint); font-size:10px; padding:4px 10px; letter-spacing:0.08em;">${T.flagship}</span>` : ''}
+              ${p.featured ? `<span class="chip" style="position:absolute; top:12px; left:12px; background:var(--ink); color:var(--mint); font-size:11px; padding:4px 10px; letter-spacing:0.08em;">${T.flagship}</span>` : ''}
               <span style="position:absolute; top:${p.featured ? '12' : '10'}px; right:${p.featured ? '12' : '10'}px; background:var(--surface); border:1px solid var(--n-200); border-radius:999px; padding:4px 10px; font-family:var(--mono); font-size:12px; font-weight:600; color:var(--ink);">${p.price}</span>
             </div>
             <div style="padding:${p.featured ? '20px 22px' : '14px 16px 16px'}; display:flex; flex-direction:column;">
@@ -1181,7 +1181,7 @@ handlers['terminal-catalog'] = () => {
       <div style="padding:16px 18px; background:var(--inverse-surface); color:var(--inverse-ink); border-radius:14px;">
         <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
           <div style="flex:1; min-width:240px;">
-            <div style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--mint); margin-bottom:4px;">${T.proProgram}</div>
+            <div style="font-family:var(--mono); font-size:11px; letter-spacing:0.12em; color:var(--mint); margin-bottom:4px;">${T.proProgram}</div>
             <div style="font-size:14px; font-weight:600;">${T.proProgramTitle}</div>
             <div style="font-size:12px; color:#a7d5b9; margin-top:3px;">${T.proProgramDesc}</div>
           </div>
@@ -1407,18 +1407,18 @@ handlers['nav-reglements'] = () => {
 
       <div style="background:var(--paper-soft); border-radius:14px; padding:16px; margin:10px 0; display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px;">
         <div>
-          <div style="font-size:10.5px; color:var(--n-500); letter-spacing:0.08em; font-family:var(--mono);">PROCHAIN T+1</div>
+          <div style="font-size:11px; color:var(--n-500); letter-spacing:0.08em; font-family:var(--mono);">PROCHAIN T+1</div>
           <div style="font-size:21px; font-weight:600; margin-top:4px; letter-spacing:-0.02em;">23 091 MAD</div>
           <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">Demain 9h00</div>
           <button class="kb atlas" data-action="settle-now" style="margin-top:10px; padding:6px 12px; font-size:12px;">Régler maintenant</button>
         </div>
         <div>
-          <div style="font-size:10.5px; color:var(--n-500); letter-spacing:0.08em; font-family:var(--mono);">COMMISSIONS</div>
+          <div style="font-size:11px; color:var(--n-500); letter-spacing:0.08em; font-family:var(--mono);">COMMISSIONS</div>
           <div style="font-size:21px; font-weight:600; margin-top:4px; color:var(--danger); letter-spacing:-0.02em;">−4 128 MAD</div>
           <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">1,18 % blended</div>
         </div>
         <div>
-          <div style="font-size:10.5px; color:var(--n-500); letter-spacing:0.08em; font-family:var(--mono);">ÉCONOMIE vs CMI</div>
+          <div style="font-size:11px; color:var(--n-500); letter-spacing:0.08em; font-family:var(--mono);">ÉCONOMIE vs CMI</div>
           <div style="font-size:21px; font-weight:600; margin-top:4px; color:var(--atlas); letter-spacing:-0.02em;">+5 240 MAD</div>
           <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">Vs 2,0 % + loc TPE</div>
         </div>
@@ -1434,7 +1434,7 @@ handlers['nav-reglements'] = () => {
           ['Attijariwafa', '••8104', 'Backup · 0 % flux configuré', 'neutral', 'En attente'],
         ].map(([b, m, d, st, lbl]) => `
           <div style="display:grid; grid-template-columns:auto 1fr auto auto; gap:14px; padding:11px 0; border-top:1px solid var(--n-200); align-items:center;">
-            <div style="width:32px; height:32px; border-radius:8px; background:var(--ink); color:var(--mint); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:10px; font-weight:600;">${b.slice(0,2).toUpperCase()}</div>
+            <div style="width:32px; height:32px; border-radius:8px; background:var(--ink); color:var(--mint); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; font-weight:600;">${b.slice(0,2).toUpperCase()}</div>
             <div>
               <div style="font-weight:500; font-size:13.5px;">${b} <span style="color:var(--n-500); font-family:var(--mono); font-size:12px;">${m}</span></div>
               <div style="font-size:11.5px; color:var(--n-500); margin-top:2px;">${d}</div>
@@ -1717,7 +1717,7 @@ handlers['nav-conformite'] = () => {
           ${aml.map(([list, res, t]) => `
             <div style="display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:10px 0; border-top:1px solid var(--n-200); font-size:12.5px;">
               <div><b>${list}</b><div style="font-size:11px; color:var(--n-500); margin-top:2px;">${t}</div></div>
-              <span class="chip ok" style="font-size:10.5px;">${res}</span>
+              <span class="chip ok" style="font-size:11px;">${res}</span>
             </div>
           `).join('')}
           <div class="rc-foot" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--n-200); font-size:11.5px; color:var(--n-500); line-height:1.45;">
@@ -1905,8 +1905,8 @@ handlers['nav-equipe'] = () => {
         </div>
         <!-- end labels (NO whitespace-collapsing, dedicated start + end) -->
         <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-          <span class="mono" style="font-size: 10.5px; color: var(--n-500); letter-spacing: 0.04em;">${formatTimeHr(startH)}</span>
-          <span class="mono" style="font-size: 10.5px; color: var(--n-500); letter-spacing: 0.04em;">${formatTimeHr(endH >= 24 ? endH - 24 : endH)}</span>
+          <span class="mono" style="font-size: 11px; color: var(--n-500); letter-spacing: 0.04em;">${formatTimeHr(startH)}</span>
+          <span class="mono" style="font-size: 11px; color: var(--n-500); letter-spacing: 0.04em;">${formatTimeHr(endH >= 24 ? endH - 24 : endH)}</span>
         </div>
       </div>
     `;
@@ -1996,7 +1996,7 @@ handlers['nav-equipe'] = () => {
           ['HORS SERVICE',   counts.off,     'var(--n-400)',   'var(--paper-soft)'],
         ].map(([label, n, dot, bg]) => `
           <div style="padding:14px 16px; border:1px solid var(--n-200); border-radius:12px; background:${bg};">
-            <div style="display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:10.5px; letter-spacing:0.1em; color:var(--n-500);">
+            <div style="display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; letter-spacing:0.1em; color:var(--n-500);">
               <span style="width:7px; height:7px; border-radius:50%; background:${dot};"></span>${label}
             </div>
             <div style="font-size:24px; font-weight:600; letter-spacing:-0.02em; margin-top:6px;">${n}<span style="font-size:13px; color:var(--n-500); font-weight:400; margin-left:4px;">/ ${decorated.length}</span></div>
@@ -2012,11 +2012,11 @@ handlers['nav-equipe'] = () => {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="2"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
             </div>
             <div>
-              <div style="font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--mint);">KIWI AI · POINTAGES</div>
+              <div style="font-family:var(--mono); font-size:11px; letter-spacing:0.12em; color:var(--mint);">KIWI AI · POINTAGES</div>
               <div style="font-size:13.5px; font-weight:600; margin-top:2px;">${AI_ALERTS.length} anomalies détectées cette semaine</div>
             </div>
           </div>
-          <span class="chip" style="background:rgba(125,242,176,0.16); color:var(--mint); font-size:10.5px; padding:3px 9px;">recommandations</span>
+          <span class="chip" style="background:rgba(125,242,176,0.16); color:var(--mint); font-size:11px; padding:3px 9px;">recommandations</span>
         </div>
         ${AI_ALERTS.map(a => `
           <div style="display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center; padding:10px 0; border-top:1px solid rgba(255,255,255,0.07);">
@@ -2069,7 +2069,7 @@ handlers['nav-equipe'] = () => {
         </style>
         ${sorted.map(m => {
           const info = STATUS_INFO[m._status];
-          const newChip = m.isNew ? `<span class="chip" style="background:rgba(125,242,176,0.20); color:var(--riad); font-size:9.5px; padding:2px 7px; margin-left:6px; letter-spacing:0.05em;">NOUV.</span>` : '';
+          const newChip = m.isNew ? `<span class="chip" style="background:rgba(125,242,176,0.20); color:var(--riad); font-size:11px; padding:2px 7px; margin-left:6px; letter-spacing:0.05em;">NOUV.</span>` : '';
           const roleC = ROLE_COLOR[m.kind] || 'var(--atlas)';
           const isActive = m._status === 'on-shift' || m._status === 'on-break';
           const durationMins  = isActive ? Math.round((nowHours() - m.shift[0]) * 60) : 0;
@@ -2099,7 +2099,7 @@ handlers['nav-equipe'] = () => {
                     </div>
                   </div>
                   <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
-                    <span class="chip ${info.cls}" style="font-size: 10.5px; padding: 3px 10px;">
+                    <span class="chip ${info.cls}" style="font-size: 11px; padding: 3px 10px;">
                       <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${info.dot}; margin-right: 6px; animation: kw-eq-pulse 1.8s ease-in-out infinite;"></span>${info.label}
                     </span>
                     <div style="display: flex; gap: 5px;">
@@ -2148,10 +2148,10 @@ handlers['nav-equipe'] = () => {
                 </div>
               </div>
               <div style="text-align: right; display: flex; flex-direction: column; gap: 3px;">
-                <span class="chip ${info.cls}" style="font-size: 10.5px; padding: 3px 9px;">
+                <span class="chip ${info.cls}" style="font-size: 11px; padding: 3px 9px;">
                   <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: ${info.dot}; margin-right: 5px;"></span>${info.label}
                 </span>
-                <span style="font-size: 10.5px; color: var(--n-500);">${offSubline}</span>
+                <span style="font-size: 11px; color: var(--n-500);">${offSubline}</span>
               </div>
               <div style="display: flex; gap: 5px;">
                 <button class="kw-eq-iconbtn" data-action="member-reset-pin" data-arg="${m.id}" title="Réinitialiser le PIN">
@@ -2184,7 +2184,7 @@ handlers['nav-equipe'] = () => {
                     <i style="width:9px; height:9px; border-radius:50%; background:${roleC};"></i>
                     <b style="font-size:13.5px; letter-spacing:-0.005em;">${r.role}</b>
                   </div>
-                  <span class="mono" style="font-size:10.5px; color:var(--n-500); background:var(--paper-soft); padding:2px 7px; border-radius:5px;">${active} / ${CAPS.length}</span>
+                  <span class="mono" style="font-size:11px; color:var(--n-500); background:var(--paper-soft); padding:2px 7px; border-radius:5px;">${active} / ${CAPS.length}</span>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 12px;">
                   ${CAPS.map((c, i) => `
@@ -2252,7 +2252,7 @@ handlers['nav-equipe'] = () => {
           [data-eq-form] input::placeholder { color: var(--n-500); }
           [data-eq-form] .eq-section-label {
             font-family: var(--mono);
-            font-size: 10px;
+            font-size: 11px;
             letter-spacing: 0.14em;
             color: var(--n-500);
             text-transform: uppercase;
@@ -2473,8 +2473,8 @@ handlers['nav-payroll'] = () => {
           ${days.map((d, i) => `<div class="head${i === 5 ? ' today' : ''}">${d}</div>`).join('')}
           ${staff.map(s => `
             <div class="name" style="display:flex; align-items:center; gap:8px;">
-              <span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:${s.k === 'a' ? 'var(--atlas)' : s.k === 'b' ? 'var(--riad)' : s.k === 'c' ? '#D99A2B' : 'var(--atlas-700)'}; color:var(--paper); font-size:9.5px; font-weight:600; font-family:var(--mono);">${s.i}</span>
-              <div style="line-height:1.2;"><div style="font-size:12px; font-weight:500;">${s.n}</div><div style="font-size:9.5px; color:var(--n-500); font-family:var(--mono);">${s.role}</div></div>
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:${s.k === 'a' ? 'var(--atlas)' : s.k === 'b' ? 'var(--riad)' : s.k === 'c' ? '#D99A2B' : 'var(--atlas-700)'}; color:var(--paper); font-size:11px; font-weight:600; font-family:var(--mono);">${s.i}</span>
+              <div style="line-height:1.2;"><div style="font-size:12px; font-weight:500;">${s.n}</div><div style="font-size:11px; color:var(--n-500); font-family:var(--mono);">${s.role}</div></div>
             </div>
             ${s.shifts.map(sh => {
               const [hours, label, cls] = slot[sh];
@@ -2799,7 +2799,7 @@ handlers['nav-reservations'] = () => {
         <div class="resv-cal">
           ${days.map(d => `
             <div class="rcal-row">
-              <div class="rcal-name" style="${d.today ? 'color:var(--atlas); font-weight:600;' : ''}">${d.n}${d.today ? ' · ' + T.today : ''}<div style="font-size:10.5px; color:var(--n-500); font-family:var(--mono); margin-top:2px;">${d.covers} ${T.cov}</div></div>
+              <div class="rcal-name" style="${d.today ? 'color:var(--atlas); font-weight:600;' : ''}">${d.n}${d.today ? ' · ' + T.today : ''}<div style="font-size:11px; color:var(--n-500); font-family:var(--mono); margin-top:2px;">${d.covers} ${T.cov}</div></div>
               <div class="rcal-track">
                 ${d.blocks.map(([from, to, cap, type]) => {
                   /* La piste couvre TRACK.a → TRACK.b, calculé sur la semaine
@@ -2834,7 +2834,7 @@ handlers['nav-reservations'] = () => {
                   <td><b>${escV(b.n)}</b><div style="font-size:11px; color:var(--n-500); margin-top:2px;">${pk(b.tag)}</div></td>
                   <td class="mono right"><b>${b.p}</b> ${T.cov}</td>
                   <td style="color:var(--n-500); font-size:12px;">${pk(b.note)}</td>
-                  <td><span class="chip ${chipKind}" style="font-size:10.5px;">${chipLabel}</span></td>
+                  <td><span class="chip ${chipKind}" style="font-size:11px;">${chipLabel}</span></td>
                   <td><span class="chip ${b.st}">${b.st === 'ok' ? T.confirmed : T.deposit}</span></td>
                 </tr>
               `;
@@ -4860,7 +4860,7 @@ const PDS_PHONE_CSS = `
 .pdsp-t:active{transform:scale(.95)}
 .pdsp-t b{font:600 16px/1.1 "JetBrains Mono",monospace}
 .pdsp-t small{font-size:11px;color:var(--n-500)}
-.pdsp-t i{position:absolute;top:3px;inset-inline-end:5px;font-size:9px;font-weight:600;color:var(--n-500)}
+.pdsp-t i{position:absolute;top:3px;inset-inline-end:5px;font-size:11px;font-weight:600;color:var(--n-500)}
 .pdsp-t.on{background:var(--c);border-color:var(--c);color:#fff}
 .pdsp-t.on small,.pdsp-t.on i{color:rgba(255,255,255,.8)}
 html[data-theme="dark"] .pdsp-t:not(.on){background:rgba(255,255,255,.04)}
@@ -8038,7 +8038,7 @@ const PDS_INLINE_CSS = `
   .pds-mode-desc { flex:1; font-size:12px; color:var(--n-600); padding:0 6px; min-width:240px; }
   .pds-zone-tabs { display:flex; gap:4px; padding:3px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:10px; }
   .pds-zone { background:transparent; border:none; padding:7px 12px; border-radius:7px; font-size:12px; font-weight:500; color:var(--n-700); cursor:pointer; display:flex; align-items:center; gap:6px; transition:.16s; }
-  .pds-zone em { font-style:normal; font-family:var(--mono); font-size:10px; color:var(--n-500); }
+  .pds-zone em { font-style:normal; font-family:var(--mono); font-size:11px; color:var(--n-500); }
   .pds-zone:hover { color:var(--ink); }
   .pds-zone.active { background:var(--paper); color:var(--ink); box-shadow:0 1px 3px rgba(10,15,13,0.08); font-weight:600; }
   .pds-zone.active em { color:var(--atlas); font-weight:600; }
@@ -8089,7 +8089,7 @@ const PDS_INLINE_CSS = `
   .pds-pal-round { border-radius:50%; }
   .pds-pal-square { border-radius:3px; }
   .pds-pal-rect { border-radius:3px; }
-  .pds-pal-label { font-size:10.5px; color:var(--n-700); font-weight:500; letter-spacing:0.01em; text-align:center; }
+  .pds-pal-label { font-size:11px; color:var(--n-700); font-weight:500; letter-spacing:0.01em; text-align:center; }
   .pds-pal-icon { width:24px; height:24px; }
   .pds-pal-el-wall { background:#2C2520; height:5px !important; margin-top:9px; width:24px; }
   .pds-pal-el-door { background:var(--atlas); height:5px !important; margin-top:9px; width:18px; border-radius:1px; }
@@ -8100,7 +8100,7 @@ const PDS_INLINE_CSS = `
   .pds-canvas-wrap { display:flex; flex-direction:column; gap:10px; min-width:0; }
   .pds-canvas-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:var(--paper-soft); border:1px solid var(--n-200); border-radius:10px; flex-wrap:wrap; }
   .pds-legend { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .pds-legend-title { font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-right:4px; }
+  .pds-legend-title { font-size:11px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-right:4px; }
   .pds-legend-item { display:inline-flex; align-items:center; gap:6px; color:rgba(10,15,13,0.55); font:400 11px/1.2 var(--font-ui, 'Inter Tight'), system-ui; letter-spacing:-0.01em; }
   /* Légende jour : les mêmes cases 17 × 13 rx 4 que la nuit, à l'encre sur
      papier · l'atlas ne s'allume que pour l'occupée, comme dans la scène. */
@@ -8109,7 +8109,7 @@ const PDS_INLINE_CSS = `
   .pds-sw-occupied  { background:rgba(11,110,79,0.10); border-color:#0B6E4F; }
   .pds-sw-reserved  { background:rgba(200,146,53,0.10); border-style:dashed; border-color:#C89235; }
   .pds-sw-cleaning  { background:rgba(10,15,13,0.02); border-style:dotted; border-color:rgba(10,15,13,0.45); }
-  .pds-pill { font-size:10px; font-family:var(--mono); letter-spacing:0.06em; padding:3px 8px; border-radius:99px; text-transform:uppercase; font-weight:600; border:1px solid transparent; }
+  .pds-pill { font-size:11px; font-family:var(--mono); letter-spacing:0.06em; padding:3px 8px; border-radius:99px; text-transform:uppercase; font-weight:600; border:1px solid transparent; }
   .pds-pill-free { background:rgba(10,15,13,0.06); color:var(--n-700); }
   .pds-pill-occupied { background:rgba(11,110,79,0.14); color:var(--atlas); }
   /* Les mêmes traits que le plan : tiret riad pour réservée, pointillé encre
@@ -8415,7 +8415,7 @@ const PDS_INLINE_CSS = `
   .pds-inspect-close:active { transform:translateY(1px); }
   .pds-inspect-close svg { display:block; }
   .pds-form-row { margin-bottom:10px; }
-  .pds-form-row > label { display:block; font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-bottom:5px; font-weight:600; }
+  .pds-form-row > label { display:block; font-size:11px; font-family:var(--mono); letter-spacing:0.1em; color:var(--n-500); text-transform:uppercase; margin-bottom:5px; font-weight:600; }
   .pds-input { width:100%; padding:7px 9px; font-size:12.5px; }
   .pds-resv-fields { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(96px,.65fr); gap:7px; margin:-2px 0 10px; }
   .pds-resv-field { min-width:0; }
@@ -8423,7 +8423,7 @@ const PDS_INLINE_CSS = `
   .pds-resv-field .pds-input { min-width:0; height:32px; padding:6px 8px; background:#F7F5F0; border-color:rgba(11,110,79,0.34); color:#053B2C; font-size:11.5px; }
   .pds-resv-field .pds-input:focus { border-color:#0B6E4F; box-shadow:0 0 0 2px rgba(11,110,79,0.12); outline:0; }
   .pds-status-pills { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
-  .pds-status-pill { padding:6px 8px; border:1.5px solid transparent; background:transparent; border-radius:7px; font-size:10.5px; font-weight:600; cursor:pointer; font-family:var(--mono); letter-spacing:0.04em; text-transform:uppercase; transition:.16s; }
+  .pds-status-pill { padding:6px 8px; border:1.5px solid transparent; background:transparent; border-radius:7px; font-size:11px; font-weight:600; cursor:pointer; font-family:var(--mono); letter-spacing:0.04em; text-transform:uppercase; transition:.16s; }
   .pds-status-pill.pds-pill-free { background:rgba(10,15,13,0.06); color:var(--n-700); border-color:transparent; }
   .pds-status-pill.pds-pill-occupied { background:rgba(11,110,79,0.10); color:var(--atlas); }
   .pds-status-pill.pds-pill-reserved { background:rgba(232,200,138,0.14); color:#7D5A1A; border-style:dashed; border-color:rgba(200,146,53,0.55); }
@@ -8457,7 +8457,7 @@ const PDS_INLINE_CSS = `
   .pds-chip-dot { width:14px; height:14px; border-radius:50%; background:var(--chip); flex-shrink:0; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.4); }
   .pds-chip-body { display:flex; flex-direction:column; line-height:1.25; min-width:0; flex:1; }
   .pds-chip-body b { font-size:12.5px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .pds-chip-body em { font-style:normal; font-size:10.5px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.02em; margin-top:1px; }
+  .pds-chip-body em { font-style:normal; font-size:11px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.02em; margin-top:1px; }
   .pds-chip-x { flex-shrink:0; width:20px; height:20px; display:grid; place-items:center; padding:0; border:0; border-radius:6px; background:transparent; color:var(--n-500); font-size:15px; line-height:1; cursor:pointer; opacity:0; transition:.16s; }
   .pds-chip:hover .pds-chip-x, .pds-chip-x:focus-visible { opacity:1; }
   .pds-chip-x:hover { background:var(--n-100); color:var(--ink); }
@@ -8482,13 +8482,13 @@ const PDS_INLINE_CSS = `
   @media (max-width: 1100px) { .pds-rotate-grid { grid-template-columns:1fr; } }
   .pds-rot-meta { display:flex; flex-direction:column; gap:6px; margin:6px 0 10px; }
   .pds-rot-meta > div { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--paper); border:1px solid var(--n-200); border-radius:9px; font-size:12.5px; }
-  .pds-rot-lbl { font-size:10.5px; font-family:var(--mono); letter-spacing:0.08em; color:var(--n-500); text-transform:uppercase; }
+  .pds-rot-lbl { font-size:11px; font-family:var(--mono); letter-spacing:0.08em; color:var(--n-500); text-transform:uppercase; }
   .pds-rot-val { font-weight:600; color:var(--ink); }
   .pds-rot-actions { display:flex; gap:6px; }
   .pds-rot-actions .kb { flex:1; justify-content:center; }
   .pds-rot-preview { display:flex; flex-direction:column; gap:8px; }
   .pds-rot-step { background:var(--paper); border:1px solid var(--n-200); border-radius:10px; padding:10px; }
-  .pds-rot-step-h { font-size:10.5px; font-family:var(--mono); letter-spacing:0.1em; color:var(--atlas); text-transform:uppercase; font-weight:700; margin-bottom:6px; }
+  .pds-rot-step-h { font-size:11px; font-family:var(--mono); letter-spacing:0.1em; color:var(--atlas); text-transform:uppercase; font-weight:700; margin-bottom:6px; }
   .pds-rot-line { display:grid; grid-template-columns:14px 1fr auto; gap:6px; align-items:center; font-size:11.5px; padding:2px 0; }
   .pds-rot-line .pds-asum-dot { width:9px; height:9px; }
   .pds-rot-line b { font-weight:600; }
@@ -8502,17 +8502,17 @@ const PDS_INLINE_CSS = `
   .pds-fair-bar .pds-fair-high { background:linear-gradient(90deg, var(--atlas), var(--mint)); }
   .pds-fair-bar .pds-fair-mid { background:linear-gradient(90deg, #D99A2B, #F2C24B); }
   .pds-fair-bar .pds-fair-low { background:linear-gradient(90deg, #C0306E, #E45990); }
-  .pds-fair-pct { font-family:var(--mono); font-size:10.5px; color:var(--n-600); text-align:right; font-weight:600; }
-  .pds-fair-note { font-size:10.5px; color:var(--n-500); padding:0 0 4px 20px; line-height:1.4; }
+  .pds-fair-pct { font-family:var(--mono); font-size:11px; color:var(--n-600); text-align:right; font-weight:600; }
+  .pds-fair-note { font-size:11px; color:var(--n-500); padding:0 0 4px 20px; line-height:1.4; }
   .pds-fair-note b { color:var(--ink); }
 
   .pds-rot-history { padding:14px; }
   .pds-history-grid { display:flex; flex-direction:column; gap:4px; }
   .pds-hist-h, .pds-hist-row { display:grid; grid-template-columns: 100px repeat(7, 1fr); gap:4px; align-items:center; }
-  .pds-hist-h > span { font-size:10.5px; font-family:var(--mono); letter-spacing:0.08em; color:var(--n-500); text-transform:uppercase; text-align:center; }
+  .pds-hist-h > span { font-size:11px; font-family:var(--mono); letter-spacing:0.08em; color:var(--n-500); text-transform:uppercase; text-align:center; }
   .pds-hist-h > span:first-child { text-align:left; }
   .pds-hist-name { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink); }
-  .pds-hist-cell { height:24px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:var(--paper); font-family:var(--mono); }
+  .pds-hist-cell { height:24px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--paper); font-family:var(--mono); }
   .pds-hist-a { background:var(--atlas); }
   .pds-hist-b { background:#D99A2B; color:var(--paper); }
   .pds-hist-c { background:#1A8FE3; }
@@ -9230,7 +9230,7 @@ handlers['nav-menu'] = () => {
         <div class="photo">${name.includes('Tajine') ? '◉' : name.includes('Couscous') ? '◓' : name.includes('Café') || name.includes('Thé') ? '☕' : name.includes('Pastilla') ? '✦' : name.includes('Salade') ? '◴' : '●'}</div>
         <div class="nm">${name}<div class="desc">${desc}</div><div class="tags">${stockChip(is86 ? 'out' : st)} ${mod ? `<span class="tg">${mod.split(' · ').length} modif.</span>` : ''} ${tagsHtml('', free)}</div></div>
         <div class="pr">${(window.KiwiNumber?.format(price, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? price.toLocaleString(document.documentElement?.lang === 'en' ? 'en-GB' : 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))} MAD</div>
-        <div class="rk"><b>#${rank}</b><div style="font-size:10px; color:var(--n-500);">${sold} vendus</div></div>
+        <div class="rk"><b>#${rank}</b><div style="font-size:11px; color:var(--n-500);">${sold} vendus</div></div>
         <div class="menu-cat-actions" style="justify-content:flex-end;">
           <button class="ord-arrow" data-row-act="up" data-id="${id}" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''} aria-label="Monter">▲</button>
           <button class="ord-arrow" data-row-act="dn" data-id="${id}" ${idx === total - 1 ? 'disabled style="opacity:0.3;"' : ''} aria-label="Descendre">▼</button>
@@ -9916,7 +9916,7 @@ function _bqxCss() {
   st.textContent = `
     .bqx-vwrap { margin-top: 10px; border: 1px solid var(--line, #e7e3da); border-radius: 12px; overflow: hidden; }
     .bqx-vtable { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .bqx-vtable th { text-align: left; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--n-500, #77807b); padding: 8px 10px; background: var(--paper-soft, #f3f1ea); }
+    .bqx-vtable th { text-align: left; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--n-500, #77807b); padding: 8px 10px; background: var(--paper-soft, #f3f1ea); }
     .bqx-vtable td { padding: 9px 10px; border-top: 1px solid var(--line, #eee); vertical-align: middle; }
     /* Les pastilles elles-mêmes viennent de color-palette.js (.kc-sw) · un seul
        dessin pour le tableau de bord et la caisse. Ici : ce qui les entoure. */
@@ -9929,9 +9929,9 @@ function _bqxCss() {
     .bqx-ccell .bqx-cbtn span { white-space: nowrap; }
     .bqx-csrc { font-style: normal; font-size: 11px; color: var(--n-500, #77807b); margin-left: 24px; white-space: nowrap; }
     .bqx-card-cols { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin: 2px 0 1px; min-height: 16px; }
-    .bqx-card-cols em { font-style: normal; font-size: 10.5px; color: var(--n-500, #77807b); }
+    .bqx-card-cols em { font-style: normal; font-size: 11px; color: var(--n-500, #77807b); }
     .bqx-cfilter { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin: 2px 0 6px; }
-    .bqx-cfilter-l { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--n-500, #77807b); margin-right: 2px; }
+    .bqx-cfilter-l { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--n-500, #77807b); margin-right: 2px; }
     /* Sélectionné dans le filtre = anneau + coche, jamais la couleur seule. */
     .bqx-cfilter .kc-sw.is-on { box-shadow: 0 0 0 2px var(--paper, #F7F5F0), 0 0 0 4px var(--atlas, #0B6E4F); transform: scale(1.06); }
     html[data-theme="dark"] .bqx-cfilter .kc-sw.is-on { box-shadow: 0 0 0 2px var(--paper, #0f1512), 0 0 0 4px var(--mint, #7DF2B0); }
@@ -9944,7 +9944,7 @@ function _bqxCss() {
     .bqx-bc { display: flex; align-items: center; gap: 9px; }
     .bqx-bc svg { display: block; }
     .bqx-bc-code { font-family: var(--mono, monospace); font-size: 11px; color: var(--n-600, #555); white-space: nowrap; }
-    .bqx-badge { font-size: 9px; padding: 1px 6px; border-radius: 6px; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+    .bqx-badge { font-size: 11px; padding: 1px 6px; border-radius: 6px; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
     .bqx-badge.gen { background: rgba(11,110,79,.12); color: #0B6E4F; }
     .bqx-badge.imp { background: rgba(217,154,43,.16); color: #8A6210; }
     .bqx-vact { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
@@ -9965,7 +9965,7 @@ function _bqxCss() {
     .bqx-ab label:has(input:checked) { border-color: var(--atlas, #0B6E4F); box-shadow: inset 0 0 0 1px var(--atlas, #0B6E4F); }
     .bqx-ab input { accent-color: var(--atlas, #0B6E4F); }
     .bqx-ab b { display: block; font-size: 13px; font-weight: 600; }
-    .bqx-ab-b { font-family: var(--mono, monospace); font-size: 10px; letter-spacing: .06em; color: var(--atlas, #0B6E4F);
+    .bqx-ab-b { font-family: var(--mono, monospace); font-size: 11px; letter-spacing: .06em; color: var(--atlas, #0B6E4F);
       border: 1px solid var(--atlas, #0B6E4F); border-radius: 999px; padding: 0 5px; margin-left: 6px; vertical-align: 1px; }
     /* Variant colour editor: the active choice reads as a labelled value, not
        merely as a ring around one of fourteen anonymous dots. The optional
@@ -9991,7 +9991,7 @@ function _bqxCss() {
     .bqx-color-field { padding: 14px 16px; border: 1px solid var(--n-200, #e7e3da); border-radius: 14px; background: color-mix(in srgb, var(--surface, #fff) 62%, transparent); }
     .bqx-color-field .kf-group { margin: 0; }
     .bqx-color-field .kf-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; font-size: 12.5px; color: var(--ink, #0A0F0D); }
-    .bqx-color-optional { color: var(--n-500, #77807b); font-size: 10.5px; font-weight: 500; }
+    .bqx-color-optional { color: var(--n-500, #77807b); font-size: 11px; font-weight: 500; }
     .bqx-color-safe { display: flex; align-items: center; gap: 8px; padding: 2px 3px; color: var(--n-500, #77807b); font-size: 11.5px; line-height: 1.35; }
     .bqx-color-safe svg { flex: none; color: var(--atlas, #0B6E4F); }
     @media (max-width: 520px) {
@@ -11062,7 +11062,7 @@ function _mzCss() {
   st.id = 'mzs-css';
   st.textContent = `
     .mzs-table { width:100%; border-collapse:collapse; font-size:13px; }
-    .mzs-table th { text-align:left; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--n-500,#77807b); padding:8px 10px; background:var(--paper-soft,#f3f1ea); position:sticky; top:0; z-index:1; }
+    .mzs-table th { text-align:left; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--n-500,#77807b); padding:8px 10px; background:var(--paper-soft,#f3f1ea); position:sticky; top:0; z-index:1; }
     .mzs-table td { padding:10px; border-top:1px solid var(--line,#eee); vertical-align:middle; }
     .mzs-table tr:hover td { background:rgba(11,110,79,0.035); }
     .mzs-qty { font-variant-numeric:tabular-nums; font-weight:600; white-space:nowrap; }
@@ -11075,7 +11075,7 @@ function _mzCss() {
     .mzs-filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:8px; }
     .mzs-filters select, .mzs-filters input { font:inherit; font-size:13px; padding:7px 9px; border:1px solid var(--line,#e7e3da); border-radius:9px; background:var(--paper,#F7F5F0); color:inherit; min-height:38px; }
     .mzs-sub { color:var(--n-500,#77807b); font-size:11px; }
-    .mzs-pend { font-size:10px; color:#D99A2B; }
+    .mzs-pend { font-size:11px; color:#D99A2B; }
     .mzs-hist { margin-top:14px; }
     .mzs-hist h4 { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--n-500,#77807b); margin:0 0 6px; }
     @media (max-width: 860px) { .mzs-table td, .mzs-table th { padding:8px 7px; } .mzs-hide-s { display:none; } }
@@ -12051,17 +12051,17 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
 
         <div class="p-grid-3" style="margin-bottom: 18px;">
           <div class="p-card" style="margin-bottom: 0;">
-            <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase;">UPLIFT TOTAL</div>
+            <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase;">UPLIFT TOTAL</div>
             <div style="font-size: 26px; font-weight: 600; font-family: var(--mono); font-feature-settings: 'tnum' 1; margin-top: 4px; letter-spacing: -0.02em;">+${fmtInt(totalUplift)} <span style="font-size: 13px; color: var(--n-500); font-weight: 500;">MAD</span></div>
             <div style="font-size: 12px; color: var(--n-500); margin-top: 4px;">vs panier sans promo · 30 j glissants</div>
           </div>
           <div class="p-card" style="margin-bottom: 0;">
-            <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase;">ÉCHANGES AUJOURD'HUI</div>
+            <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase;">ÉCHANGES AUJOURD'HUI</div>
             <div style="font-size: 26px; font-weight: 600; font-family: var(--mono); font-feature-settings: 'tnum' 1; margin-top: 4px; letter-spacing: -0.02em;">${fmtInt(totalRedem)}</div>
             <div style="font-size: 12px; color: var(--n-500); margin-top: 4px;">+${fmtInt(48)} vs hier · 14,8 % du trafic</div>
           </div>
           <div class="p-card" style="margin-bottom: 0;">
-            <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase;">MEILLEURE CAMPAGNE</div>
+            <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase;">MEILLEURE CAMPAGNE</div>
             <div style="font-size: 17px; font-weight: 600; margin-top: 4px; letter-spacing: -0.015em;">Tax-free Touristes UE</div>
             <div style="font-size: 12px; color: var(--atlas); margin-top: 4px; font-weight: 500;">+34,1 % uplift · 184 redem.</div>
           </div>
@@ -12097,12 +12097,12 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
                     <b style="font-weight: 600;">${p.name}</b>
                   </div>
                 </td>
-                <td><span class="chip ${p.scheduled ? 'pend' : 'ok'}" style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em;">${p.kind.toUpperCase()}</span></td>
+                <td><span class="chip ${p.scheduled ? 'pend' : 'ok'}" style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em;">${p.kind.toUpperCase()}</span></td>
                 <td class="mono right">${p.value}</td>
                 <td class="mono right">${p.redem === 0 ? '·' : fmtInt(p.redem)}</td>
                 <td class="mono right" style="color: ${p.uplift.startsWith('+') ? 'var(--atlas)' : 'var(--n-500)'}; font-weight: 600;">${p.uplift}</td>
                 <td class="mono right" style="color: var(--n-500);">${p.aov}</td>
-                <td><span class="chip ${p.expiry === 'Permanent' ? 'neutral' : p.scheduled ? 'pend' : 'ok'}" style="font-family: var(--mono); font-size: 10.5px;">${p.expiry}</span></td>
+                <td><span class="chip ${p.expiry === 'Permanent' ? 'neutral' : p.scheduled ? 'pend' : 'ok'}" style="font-family: var(--mono); font-size: 11px;">${p.expiry}</span></td>
                 <td style="text-align: right;">
                   <button class="kb ghost" style="padding: 5px 10px; font-size: 11.5px;" data-action="${p.scheduled ? 'promo-edit' : 'promo-pause'}" data-arg="${p.id}" data-bubble="stop">
                     ${p.scheduled ? SVG.edit : SVG.pause}
@@ -12125,7 +12125,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
               <button class="b-promo-seg ${s.on ? 'on' : ''}" data-action="promo-segment" data-arg="${s.id}">
                 ${s.on ? SVG.check : ''}
                 <span>${s.n}</span>
-                <span style="opacity: 0.6; font-family: var(--mono); font-size: 10.5px;">${s.count}</span>
+                <span style="opacity: 0.6; font-family: var(--mono); font-size: 11px;">${s.count}</span>
               </button>
             `).join('')}
           </div>
@@ -12151,7 +12151,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
                 <td class="mono right">${fmtInt(a.redem)}</td>
                 <td class="mono right" style="color: var(--atlas); font-weight: 600;">${a.uplift}</td>
                 <td class="mono right">${a.revenue}</td>
-                <td><span class="chip ${a.verdict === 'Excellent' ? 'ok' : a.verdict === 'Tiède' ? 'neutral' : 'ok'}" style="font-size: 10.5px;">${a.verdict}</span></td>
+                <td><span class="chip ${a.verdict === 'Excellent' ? 'ok' : a.verdict === 'Tiède' ? 'neutral' : 'ok'}" style="font-size: 11px;">${a.verdict}</span></td>
               </tr>
             `).join('')}
           </tbody>
@@ -12240,7 +12240,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
             <div class="kf-group"><label class="kf-label">Date de fin</label><input class="kf-input" value="${state.end}"/></div>
           </div>
           <div style="background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 14px; padding: 18px; margin-top: 10px;">
-            <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin-bottom: 8px;">APERÇU CAMPAGNE</div>
+            <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin-bottom: 8px;">APERÇU CAMPAGNE</div>
             <dl class="tx-detail-grid" style="margin: 0;">
               <dt>Type</dt><dd>${typLabel || '·'}</dd>
               <dt>Valeur</dt><dd>${state.value || '·'}</dd>
@@ -12649,7 +12649,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
                 <div style="font-size: 11px; color: var(--n-500); margin-top: 4px;">pourcentage retenu</div>
               </div>
             </div>
-            <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 14px 0 8px;">RÈGLES DE CONDITION</div>
+            <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 14px 0 8px;">RÈGLES DE CONDITION</div>
             <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; color: var(--n-700); line-height: 1.7;">
               ${[
                 'Article non porté, non lavé, étiquette d\'origine présente',
@@ -12754,19 +12754,19 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
           <div class="stat"><div class="l">CLIENT</div><div class="v">3</div><div class="sub">achats antérieurs</div></div>
         </div>
 
-        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 14px 0 8px;">MOTIF DÉTAILLÉ</div>
+        <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 14px 0 8px;">MOTIF DÉTAILLÉ</div>
         <div style="font-size: 13px; color: var(--n-700); line-height: 1.55; padding: 12px; background: var(--paper-soft); border-radius: 10px;">
           « La taille S est trop serrée à l'épaule pour ma morphologie. Je souhaite échanger contre une taille M ou être remboursée. L'article n'a pas été porté, l'étiquette est encore présente. »
         </div>
 
-        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 16px 0 8px;">PHOTOS FOURNIES</div>
+        <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 16px 0 8px;">PHOTOS FOURNIES</div>
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
           ${samplePhotos.map((c, i) => `
             <div style="aspect-ratio: 1; background: ${c}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--n-500); font-size: 11px; font-family: var(--mono); border: 1px solid var(--n-200);">PHOTO ${i+1}</div>
           `).join('')}
         </div>
 
-        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 16px 0 8px;">HISTORIQUE CLIENTE · 3 ACHATS</div>
+        <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 16px 0 8px;">HISTORIQUE CLIENTE · 3 ACHATS</div>
         <div style="display: flex; flex-direction: column; gap: 6px;">
           ${[
             ['17/04/2026', 'Caftan brodé taille S',     '2 450 MAD', 'achat actuel'],
@@ -12871,7 +12871,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
           <label class="kf-label">Rechercher dans le catalogue</label>
           <input class="kf-input" placeholder="Caftan brodé, babouches…" value="caftan brodé"/>
         </div>
-        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 14px 0 8px;">5 RÉSULTATS</div>
+        <div style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--n-500); text-transform: uppercase; margin: 14px 0 8px;">5 RÉSULTATS</div>
         <div style="display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto;">
           ${items.map(([n, p, st], idx) => `
             <div class="wiz-choice" data-pick="${idx}" style="padding: 12px 14px;">
@@ -13797,7 +13797,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     .pr-blob.c { background: linear-gradient(135deg, var(--atlas-700, #054C36), var(--atlas)); }
     .pr-card .nm { font-weight: 600; font-size: 16px; letter-spacing: -0.015em; }
     .pr-card .rl { font-size: 12px; color: var(--n-500); margin-top: 3px; line-height: 1.4; }
-    .pr-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.06em; font-weight: 600; }
+    .pr-badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-family: var(--mono); letter-spacing: 0.06em; font-weight: 600; }
     .pr-badge.sr { background: var(--mint-soft); color: var(--riad); }
     .pr-badge.cf { background: rgba(217,154,43,0.16); color: var(--warn-ink); }
     .pr-badge.jr { background: rgba(11,110,79,0.1); color: var(--atlas); }
@@ -13806,27 +13806,27 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     .pr-chip { font-size: 11px; padding: 3px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--n-200); color: var(--n-700); font-weight: 500; }
     html[data-theme="dark"] .pr-chip { background: var(--inverse-surface); }
     .pr-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px 0; border-top: 1px solid var(--n-200); border-bottom: 1px solid var(--n-200); margin-bottom: 12px; }
-    .pr-kpis .k { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
+    .pr-kpis .k { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
     .pr-kpis .v { font-family: var(--mono); font-weight: 600; font-size: 14px; margin-top: 3px; letter-spacing: -0.01em; font-feature-settings: "tnum" 1; }
     .pr-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 12px; }
-    .pr-day { aspect-ratio: 1; border-radius: 6px; background: var(--n-100); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--mono); font-size: 9px; color: var(--n-500); }
+    .pr-day { aspect-ratio: 1; border-radius: 6px; background: var(--n-100); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--n-500); }
     .pr-day.busy { background: var(--mint-soft); color: var(--riad); }
     .pr-day.full { background: var(--atlas); color: var(--mint); }
     .pr-day.off { background: transparent; border: 1px dashed var(--n-200); }
-    .pr-day .d { font-weight: 600; font-size: 10px; }
-    .pr-day .h { font-size: 8.5px; opacity: 0.85; margin-top: 1px; }
+    .pr-day .d { font-weight: 600; font-size: 11px; }
+    .pr-day .h { font-size: 11px; opacity: 0.85; margin-top: 1px; }
     .pr-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
     .pr-actions .kb { padding: 8px 10px; font-size: 11.5px; justify-content: center; }
     .pr-cert { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--n-200); font-size: 12.5px; }
     .pr-cert:last-child { border-bottom: 0; }
     .pr-cert .n { font-weight: 500; }
     .pr-cert .m { font-size: 11px; color: var(--n-500); margin-top: 2px; font-family: var(--mono); letter-spacing: 0.04em; }
-    .pr-cert-stat { font-size: 10.5px; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.04em; }
+    .pr-cert-stat { font-size: 11px; padding: 3px 9px; border-radius: 999px; font-family: var(--mono); font-weight: 600; letter-spacing: 0.04em; }
     .pr-cert-stat.ok { background: color-mix(in srgb, var(--atlas) 14%, var(--surface)); color: var(--atlas); }
     .pr-cert-stat.warn { background: var(--warn-soft); color: var(--warn-ink); }
     .pr-cert-stat.exp { background: color-mix(in srgb, var(--danger) 14%, var(--surface)); color: var(--danger); }
     .pr-calc-out { background: linear-gradient(135deg, var(--atlas), var(--brand-deep)); color: var(--inverse-ink); border-radius: 14px; padding: 18px; margin-top: 14px; }
-    .pr-calc-out .l { font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.1em; color: var(--mint); text-transform: uppercase; }
+    .pr-calc-out .l { font-size: 11px; font-family: var(--mono); letter-spacing: 0.1em; color: var(--mint); text-transform: uppercase; }
     .pr-calc-out .v { font-size: 32px; font-weight: 600; letter-spacing: -0.025em; margin-top: 4px; font-feature-settings: "tnum" 1; }
     .pr-calc-out .br { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(125,242,176,0.18); font-size: 12px; }
     .pr-calc-out .br span { color: #c6ead4; font-family: var(--mono); }
@@ -14251,7 +14251,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     .sc-pill:hover { color: var(--ink); }
     .sc-pill.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     html[data-theme="dark"] .sc-pill.on { background: var(--ink-soft); color: var(--paper); }
-    .sc-pill .ct { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); background: var(--n-100); padding: 1px 7px; border-radius: 999px; letter-spacing: 0.04em; }
+    .sc-pill .ct { font-family: var(--mono); font-size: 11px; color: var(--n-500); background: var(--n-100); padding: 1px 7px; border-radius: 999px; letter-spacing: 0.04em; }
     .sc-pill.on .ct { background: var(--mint-soft); color: var(--atlas); }
 
     .sc-flag { display: inline-block; width: 12px; height: 8px; border-radius: 2px; vertical-align: middle; margin-right: 7px; box-shadow: inset 0 0 0 1px rgba(10,15,13,0.08); }
@@ -14261,14 +14261,14 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     .sc-flag.us { background: linear-gradient(180deg, #B22234 50%, #fff 50%); }
     .sc-flag.de { background: linear-gradient(180deg, #000 33%, #DD0000 33% 66%, #FFCE00 66%); }
 
-    .sc-tier { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+    .sc-tier { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
     .sc-tier.bronze { background: rgba(217,154,43,0.16); color: var(--warn-ink); }
     .sc-tier.argent { background: var(--n-100); color: var(--n-600); }
     .sc-tier.or { background: var(--mint-soft); color: var(--atlas); }
     .sc-tier.platine { background: var(--riad); color: var(--mint); }
     html[data-theme="dark"] .sc-tier.argent { background: rgba(255,255,255,0.06); color: var(--paper); }
 
-    .sc-bday { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; background: rgba(217,154,43,0.18); color: var(--warn-ink); font-size: 10.5px; font-weight: 500; font-family: var(--mono); letter-spacing: 0.04em; margin-left: 6px; }
+    .sc-bday { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; background: rgba(217,154,43,0.18); color: var(--warn-ink); font-size: 11px; font-weight: 500; font-family: var(--mono); letter-spacing: 0.04em; margin-left: 6px; }
     html[data-theme="dark"] .sc-bday { background: rgba(217,154,43,0.22); color: #E5B764; }
 
     .sc-bday-panel { background: linear-gradient(135deg, rgba(217,154,43,0.14), rgba(217,154,43,0.04)); border: 1px solid rgba(217,154,43,0.32); border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
@@ -14306,7 +14306,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
 
     .sc-gift { background: linear-gradient(135deg, var(--inverse-surface), #15201A); color: var(--inverse-ink); border-radius: 14px; padding: 18px; margin-bottom: 12px; position: relative; overflow: hidden; }
     .sc-gift::after { content: ""; position: absolute; right: -50px; top: -50px; width: 160px; height: 160px; background: radial-gradient(circle, var(--mint), transparent 60%); opacity: 0.18; pointer-events: none; }
-    .sc-gift .l { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; color: var(--mint); }
+    .sc-gift .l { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--mint); }
     .sc-gift .v { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-top: 4px; font-feature-settings: "tnum" 1; }
     .sc-gift .s { font-size: 12px; color: #c6ead4; margin-top: 4px; }
     .sc-gift .ac { display: flex; gap: 8px; margin-top: 12px; position: relative; z-index: 1; }
@@ -14327,7 +14327,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     html[data-theme="dark"] .sc-wa-preview { background: var(--paper-muted); }
     .sc-wa-bubble { background: #DCF8C6; border-radius: 8px 8px 8px 2px; padding: 10px 12px; max-width: 90%; font-size: 13px; color: #0A0F0D; line-height: 1.5; }
     html[data-theme="dark"] .sc-wa-bubble { background: rgba(125,242,176,0.18); color: var(--paper); }
-    .sc-wa-time { font-size: 10px; color: var(--n-500); margin-top: 4px; text-align: right; font-family: var(--mono); }
+    .sc-wa-time { font-size: 11px; color: var(--n-500); margin-top: 4px; text-align: right; font-family: var(--mono); }
 
     .sc-table tbody tr.sc-hide { display: none; }
     `;
@@ -14822,7 +14822,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
     const css = document.createElement('style');
     css.id = 'kiwi-stations-css';
     css.textContent = `
-      .kiwi-st-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.04em; padding: 3px 7px 3px 6px; border-radius: 7px; background: var(--paper-soft); border: 1px solid var(--n-200); color: var(--n-600); white-space: nowrap; line-height: 1.2; }
+      .kiwi-st-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-family: var(--mono); letter-spacing: 0.04em; padding: 3px 7px 3px 6px; border-radius: 7px; background: var(--paper-soft); border: 1px solid var(--n-200); color: var(--n-600); white-space: nowrap; line-height: 1.2; }
       html[data-theme="dark"] .kiwi-st-chip { background: var(--paper-muted); }
       .kiwi-st-chip i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
       .kiwi-st-chip.solid { background: var(--ink); color: var(--paper); border-color: transparent; }
@@ -14836,7 +14836,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       .kiwi-st-opt.on { background: var(--atlas); color: var(--paper); border-color: var(--atlas); }
       .kiwi-st-opt.on i { background: var(--mint) !important; }
       .kiwi-st-opt i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
-      .kiwi-st-opt .kind { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.08em; opacity: 0.66; text-transform: uppercase; }
+      .kiwi-st-opt .kind { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; opacity: 0.66; text-transform: uppercase; }
 
       .kiwi-st-mgr { display: grid; grid-template-columns: 28px 1fr auto auto; gap: 14px; align-items: center; padding: 13px 4px; border-bottom: 1px solid var(--n-200); }
       .kiwi-st-mgr:last-child { border-bottom: 0; }
@@ -14855,7 +14855,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       .kds-st-tab.on { color: var(--ink); background: var(--paper); border-color: var(--n-200); border-bottom-color: var(--paper); }
       html[data-theme="dark"] .kds-st-tab.on { background: var(--paper-muted); border-bottom-color: var(--paper-muted); }
       .kds-st-tab i { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-      .kds-st-tab .ct { font-family: var(--mono); font-size: 10.5px; color: var(--n-500); padding: 1px 6px; background: var(--paper-soft); border-radius: 999px; }
+      .kds-st-tab .ct { font-family: var(--mono); font-size: 11px; color: var(--n-500); padding: 1px 6px; background: var(--paper-soft); border-radius: 999px; }
       html[data-theme="dark"] .kds-st-tab .ct { background: var(--paper-muted); }
       .kds-st-tab.on .ct { color: var(--atlas); background: var(--mint-soft); }
 
@@ -14880,7 +14880,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
   const stationKindLabel = (k) => (k === 'bar' ? 'BAR' : 'CUISINE');
   const stationSummaryHtml = () => STATIONS.map((s) => {
     const stats = stationStats(s.id);
-    return `<div style="display:grid; grid-template-columns:14px 1fr auto; gap:10px; align-items:center; background:var(--surface); border:1px solid var(--n-200); border-radius:10px; padding:10px 12px;"><span style="width:10px; height:10px; border-radius:50%; background:${s.raw};"></span><div><div style="font-weight:500;">${s.name}</div><div style="font-size:10.5px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em; text-transform:uppercase;">${stationKindLabel(s.kind)}${s.custom ? ' · custom' : ''}</div></div><span class="mono" style="font-size:11px; color:var(--n-500);">${stats.items} items · ${stats.sold} vendus</span></div>`;
+    return `<div style="display:grid; grid-template-columns:14px 1fr auto; gap:10px; align-items:center; background:var(--surface); border:1px solid var(--n-200); border-radius:10px; padding:10px 12px;"><span style="width:10px; height:10px; border-radius:50%; background:${s.raw};"></span><div><div style="font-weight:500;">${s.name}</div><div style="font-size:11px; color:var(--n-500); font-family:var(--mono); letter-spacing:0.06em; text-transform:uppercase;">${stationKindLabel(s.kind)}${s.custom ? ' · custom' : ''}</div></div><span class="mono" style="font-size:11px; color:var(--n-500);">${stats.items} items · ${stats.sold} vendus</span></div>`;
   }).join('');
 
   /* ───────────── helper: dismiss buttons ───────────── */
@@ -14943,8 +14943,8 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
 
     const stockChip = (st) =>
       st === 'ok'  ? '' :
-      st === 'low' ? '<span class="chip pend" style="font-size:9.5px;">stock bas</span>' :
-                     '<span class="chip ref" style="font-size:9.5px;">RUPTURE</span>';
+      st === 'low' ? '<span class="chip pend" style="font-size:11px;">stock bas</span>' :
+                     '<span class="chip ref" style="font-size:11px;">RUPTURE</span>';
 
     /* ── helpers ─────────────────────────────────────────────────────────── */
     const catItems = (key) => MENU[key] || [];
@@ -15381,7 +15381,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
         <div class="kf-group" style="margin-top:8px;">
           <label class="kf-label" style="display:flex; justify-content:space-between; align-items:center;">
             <span>Stations de préparation</span>
-            <span class="meta" style="font-family:var(--mono); font-size:10.5px; color:var(--n-500); letter-spacing:0.06em;">SÉLECTIONNEZ 1 OU PLUSIEURS</span>
+            <span class="meta" style="font-family:var(--mono); font-size:11px; color:var(--n-500); letter-spacing:0.06em;">SÉLECTIONNEZ 1 OU PLUSIEURS</span>
           </label>
           <div class="kiwi-st-pick" id="kiwi-st-pick">${renderStationPicker()}</div>
           <div class="kf-help">Le ticket KDS apparaîtra simultanément sur chaque station sélectionnée. Idéal pour les plats croisés (ex. pastilla = cuisson + pâtisserie).</div>
@@ -15466,7 +15466,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
           <span class="ct">${stats.items} item${stats.items > 1 ? 's' : ''} · ${stats.sold} vendus</span>
           ${s.custom
             ? `<button class="kb ghost xs" data-st-delete-id="${s.id}">Supprimer</button>`
-            : `<span class="chip neutral mono" style="font-size:9.5px; padding:3px 8px;">SYSTÈME</span>`}
+            : `<span class="chip neutral mono" style="font-size:11px; padding:3px 8px;">SYSTÈME</span>`}
         </div>`;
     }).join('');
 
@@ -15776,7 +15776,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       .kit-type.glovo { background: rgba(242,145,55,0.20); color: #99540F; }
       .kit-type.yassir { background: rgba(43,90,168,0.16); color: #2B5AA8; }
       .kit-type.takeaway { background: var(--paper-soft); color: var(--n-600); }
-      .kit-status { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--n-500); }
+      .kit-status { font-family: var(--mono); font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--n-500); }
       .kit-order.is-new .kit-status { color: var(--atlas); font-weight: 600; }
       .kit-items { list-style: none; margin: 0; padding: 13px 15px 15px; border-top: 1px solid var(--n-200); display: flex; flex-direction: column; gap: 10px; flex: 1; }
       .kit-item { display: flex; align-items: flex-start; gap: 11px; }
@@ -15833,7 +15833,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       /* Fire-schedule badge on each ticket item · shows when a sync-enabled
          station is being delayed so the plate finishes with the slowest one,
          or signals "served first" for stations with sync OFF (drinks etc.). */
-      .kit-fire { display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 99px; font-size: 9.5px; font-weight: 700; font-family: var(--mono); letter-spacing: 0.02em; vertical-align: middle; }
+      .kit-fire { display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 700; font-family: var(--mono); letter-spacing: 0.02em; vertical-align: middle; }
       .kit-fire-wait { background: rgba(217,154,43,0.18); color: var(--warning); }
       .kit-fire-now  { background: rgba(11,110,79,0.14); color: var(--atlas); }
       .kit-fire-fast { background: rgba(54,119,166,0.16); color: #3677A6; }
@@ -15846,7 +15846,7 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       .kit-recipe-backdrop.in .kit-recipe { transform: scale(1); }
       html[data-theme="dark"] .kit-recipe { background: var(--paper-soft); }
       .kit-recipe-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 20px 22px 16px; border-bottom: 1px solid var(--n-200); }
-      .kit-recipe-eyebrow { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--atlas); font-family: var(--mono); font-weight: 700; margin-bottom: 5px; }
+      .kit-recipe-eyebrow { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--atlas); font-family: var(--mono); font-weight: 700; margin-bottom: 5px; }
       .kit-recipe-title { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; color: var(--ink); line-height: 1.2; }
       .kit-recipe-close { width: 34px; height: 34px; flex-shrink: 0; padding: 0; border: 1px solid var(--n-200); background: var(--paper); border-radius: 10px; cursor: pointer; color: var(--n-500); display: flex; align-items: center; justify-content: center; transition: color 120ms, border-color 120ms; }
       .kit-recipe-close:hover { color: var(--ink); border-color: var(--n-400); }
@@ -15854,8 +15854,8 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       .kit-recipe-body { padding: 16px 22px 22px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
       .kit-recipe-meta { display: flex; flex-wrap: wrap; gap: 8px; }
       .kit-recipe-yield { font-size: 11.5px; font-weight: 600; padding: 4px 10px; background: rgba(11,110,79,0.10); color: var(--atlas); border-radius: 99px; }
-      .kit-recipe-cat { font-size: 10.5px; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px; background: var(--paper-soft); color: var(--n-500); border-radius: 99px; }
-      .kit-recipe-section-t { font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); font-weight: 700; margin-bottom: 10px; }
+      .kit-recipe-cat { font-size: 11px; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px; background: var(--paper-soft); color: var(--n-500); border-radius: 99px; }
+      .kit-recipe-section-t { font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); font-weight: 700; margin-bottom: 10px; }
       .kit-recipe-ings { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
       .kit-recipe-ing { display: flex; align-items: baseline; gap: 14px; font-size: 14.5px; line-height: 1.4; padding-bottom: 9px; border-bottom: 1px dashed var(--n-200); }
       .kit-recipe-ing:last-child { border-bottom: 0; padding-bottom: 0; }
@@ -16719,13 +16719,13 @@ handlers['bqx-cat-del-ok'] = (_el, arg) => {
       '.rtx-row.is-new{animation:rtx-in .45s cubic-bezier(.32,.72,0,1)}' +
       '@keyframes rtx-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}' +
       '.rtx-t{font-family:var(--mono);font-size:12.5px;color:var(--n-500)}' +
-      '.rtx-m{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--atlas) 12%,transparent);color:var(--atlas);white-space:nowrap}' +
+      '.rtx-m{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--atlas) 12%,transparent);color:var(--atlas);white-space:nowrap}' +
       '.rtx-products{display:flex;flex-direction:column;gap:5px;min-width:0}.rtx-product{display:flex;justify-content:space-between;gap:14px;font-size:14px;color:var(--ink)}' +
       '.rtx-identity{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px}.rtx-ref{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink)}.rtx-source{font-size:11px;color:var(--n-500)}' +
       '.rtx-product-name{overflow:hidden;text-overflow:ellipsis}.rtx-product-amount{font-family:var(--mono);font-size:12px;white-space:nowrap;color:var(--n-500)}' +
       '.rtx-products-missing{font-size:13px;color:var(--n-500)}' +
       '.rtx-a{font-family:var(--mono);font-size:14.5px;font-weight:600;color:var(--ink);white-space:nowrap}' +
-      '.rtx-cur{font-size:10px;color:var(--n-500)}' +
+      '.rtx-cur{font-size:11px;color:var(--n-500)}' +
       '.rtx-actions{display:flex;align-items:center;gap:6px;margin-inline-start:4px}' +
       '.rtx-act-btn{border:1px solid var(--n-200);background:var(--surface);color:var(--n-600);border-radius:6px;padding:5px 7px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}' +
       '.rtx-act-btn:hover{background:var(--n-100);color:var(--ink);border-color:var(--n-300)}' +

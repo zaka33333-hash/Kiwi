@@ -206,7 +206,7 @@
 .kb-overlay .kb-head h3 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
 .kb-overlay .kb-head .hint { font-family: var(--mono); font-size: 11px; color: var(--n-500); }
 .kb-list { padding: 10px 10px 18px; }
-.kb-section-head { padding: 14px 18px 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--n-500); font-weight: 600; }
+.kb-section-head { padding: 14px 18px 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--n-500); font-weight: 600; }
 .kb-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; border-radius: 10px; gap: 16px; transition: background 140ms; cursor: default; }
 .kb-row:hover { background: var(--paper-soft); }
 .kb-row .kb-label { font-size: 14px; letter-spacing: -0.005em; color: var(--ink); }
@@ -295,7 +295,7 @@ body.grabbing { cursor: grabbing; user-select: none; }
   border: 1px solid var(--n-200);
   border-radius: 999px;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--n-500);
   cursor: pointer;
   transition: transform 160ms, opacity 160ms, background-color 160ms, border-color 160ms, color 160ms, box-shadow 160ms;
@@ -303,7 +303,7 @@ body.grabbing { cursor: grabbing; user-select: none; }
 .kbd-hint:hover { background: var(--surface); border-color: var(--n-400); color: var(--ink); }
 .kbd-hint kbd {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   padding: 1px 5px;
   background: var(--surface);
   border: 1px solid var(--n-300);

@@ -1202,7 +1202,7 @@
     if (!ins.length) return sOverview();
     const list = ins.slice(0, 3).map((i) =>
       `<div style="border-inline-start:2px solid var(--atlas);padding:1px 0 1px 12px;margin:11px 0;">` +
-        `<div style="font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--atlas);">${escHtml(i.kpi)}</div>` +
+        `<div style="font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--atlas);">${escHtml(i.kpi)}</div>` +
         `<div style="font-weight:600;margin:3px 0 2px;line-height:1.3;">${escHtml(i.title)}</div>` +
         `<div style="font-size:13px;color:var(--n-600);line-height:1.45;">${escHtml(i.act)}</div>` +
       `</div>`).join('');
@@ -4640,10 +4640,10 @@
     .fa-stat { background:var(--surface); border:1px solid var(--n-200); border-radius:14px; padding:12px 14px;
       transition:border-color 150ms; }
     .fa-stat:hover { border-color:var(--n-300); }
-    .fa-stat .l { font-size:9.5px; letter-spacing:.085em; text-transform:uppercase; color:var(--n-500); font-weight:600; }
+    .fa-stat .l { font-size:11px; letter-spacing:.085em; text-transform:uppercase; color:var(--n-500); font-weight:600; }
     .fa-stat .v { font-size:18.5px; font-weight:600; margin-top:5px; color:var(--ink);
       font-variant-numeric:tabular-nums; letter-spacing:-.012em; }
-    .fa-stat .h { font-size:10.5px; color:var(--n-500); margin-top:3px; line-height:1.4; }
+    .fa-stat .h { font-size:11px; color:var(--n-500); margin-top:3px; line-height:1.4; }
 
     /* verdict */
     .fa-verdict { margin-top:14px; padding:12px 14px; border-radius:13px; font-size:12.5px;
@@ -4655,12 +4655,12 @@
     /* La provenance : établissement · période · module · volume · fraîcheur.
        Discrète par construction · elle ne s'adresse pas au commerçant tous les
        jours, elle sert le jour où deux surfaces annoncent deux chiffres. */
-    .fa-meta { margin-top:9px; font-size:10.5px; color:var(--n-500); opacity:.8;
+    .fa-meta { margin-top:9px; font-size:11px; color:var(--n-500); opacity:.8;
       letter-spacing:.015em; line-height:1.45; }
     .fa-evidence { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; }
     .fa-evidence-chip { display:inline-flex; align-items:center; gap:5px; border:1px solid var(--n-200);
       border-radius:999px; background:var(--paper-soft); color:var(--n-600); padding:5px 9px;
-      font-size:10.5px; line-height:1.2; font-weight:550; }
+      font-size:11px; line-height:1.2; font-weight:550; }
     button.fa-evidence-chip { cursor:pointer; font-family:inherit; }
     button.fa-evidence-chip:hover { color:var(--atlas); border-color:rgba(11,110,79,.35); }
 
@@ -4742,12 +4742,12 @@
     /* context rail */
     .fa-context { width:312px; flex-shrink:0; border-inline-start:1px solid var(--n-200);
       background:var(--paper); padding:28px 22px; overflow-y:auto; }
-    .fa-ctx-eyebrow { font-size:10px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:var(--n-500); }
+    .fa-ctx-eyebrow { font-size:11px; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:var(--n-500); }
     .fa-ctx-biz { font-size:14.5px; font-weight:600; color:var(--ink); margin-top:5px; line-height:1.2; }
     .fa-ctx-sub { font-size:11px; color:var(--n-500); margin-top:3px; }
     .fa-ctx-group { margin-top:6px; }
     .fa-ctx-gh { display:flex; justify-content:space-between; align-items:baseline; gap:8px;
-      font-size:10px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--n-500);
+      font-size:11px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--n-500);
       margin:18px 0 5px; padding:0 10px; }
     .fa-ctx-gh .tot { color:var(--atlas); letter-spacing:.02em; }
     .fa-ctx-item { display:flex; justify-content:space-between; align-items:baseline; gap:12px; width:100%;
@@ -4766,7 +4766,7 @@
     .fa-ctx-net:hover { transform:translateY(-2px); }
     .fa-ctx-net.fa-flash { animation:fa-flash-net 540ms ease; }
     @keyframes fa-flash-net { 0%{ filter:brightness(1.4); } 100%{ filter:brightness(1); } }
-    .fa-ctx-net .k { font-size:10px; letter-spacing:.1em; text-transform:uppercase; opacity:.82; }
+    .fa-ctx-net .k { font-size:11px; letter-spacing:.1em; text-transform:uppercase; opacity:.82; }
     .fa-ctx-net .v { font-size:23px; font-weight:600; margin-top:6px; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
     .fa-ctx-net .s { font-size:11.5px; opacity:.82; margin-top:2px; }
     .fa-ctx-note { margin-top:20px; font-size:11.5px; color:var(--n-500); line-height:1.55; }
@@ -4817,7 +4817,7 @@
     .fa-ctx-kpi.hl .v { color:var(--atlas); }
     .fa-ctx-viz { margin-top:20px; padding-top:18px; border-top:1px solid var(--n-200); }
     .fa-ctx-viz-h { display:flex; justify-content:space-between; align-items:baseline;
-      font-size:10px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--n-500); }
+      font-size:11px; font-weight:600; letter-spacing:.11em; text-transform:uppercase; color:var(--n-500); }
     .fa-ctx-viz-h .t { color:var(--atlas); letter-spacing:.02em; }
     .fa-ctx-bar { display:flex; height:10px; border-radius:999px; overflow:hidden; margin-top:10px; gap:2px; }
     .fa-ctx-bar span { display:block; height:100%; }

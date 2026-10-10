@@ -89,7 +89,7 @@
   .kc-card .row .v { font-family: var(--mono); font-size: 13px; font-weight: 500; margin-top: 3px; }
   .kc-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
   .kc-stat { padding: 14px; background: var(--paper-soft); border: 1px solid var(--n-200); border-radius: 12px; }
-  .kc-stat .l { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
+  .kc-stat .l { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-500); font-family: var(--mono); }
   .kc-stat .v { font-size: 20px; font-weight: 600; letter-spacing: -0.025em; margin-top: 4px; font-feature-settings: "tnum" 1; }
 
   /* Diaspora */
@@ -149,7 +149,7 @@
   .agent-action .b { flex: 1; }
   .agent-action .n { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; }
   .agent-action .d { font-size: 12.5px; color: var(--n-500); margin-top: 3px; line-height: 1.45; }
-  .agent-action .t { font-family: var(--mono); font-size: 10.5px; color: var(--atlas); margin-top: 8px; letter-spacing: 0.08em; }
+  .agent-action .t { font-family: var(--mono); font-size: 11px; color: var(--atlas); margin-top: 8px; letter-spacing: 0.08em; }
   .agent-action .acts { display: flex; gap: 6px; margin-top: 10px; }
   .agent-action button { font-family: var(--sans); font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
   .agent-action .approve { background: var(--atlas); color: var(--paper); border: 0; }

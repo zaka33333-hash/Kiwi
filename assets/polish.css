@@ -97,7 +97,7 @@ html[data-theme="dark"] .nav.scrolled { background: rgba(11,18,16,0.94); }
   100% { r: 20; opacity: 0; }
 }
 .ma-city-label { fill: var(--paper); font-family: var(--sans); font-size: 11px; font-weight: 500; opacity: 0.9; }
-.ma-city-pop { fill: var(--mint); font-family: 'JetBrains Mono'; font-size: 9px; }
+.ma-city-pop { fill: var(--mint); font-family: 'JetBrains Mono'; font-size: 11px; }
 .ma-city-ring { fill: none; stroke: var(--mint); stroke-width: 1.5; }
 
 /* ─── Press bar with styled logos ─── */

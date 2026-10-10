@@ -36,7 +36,7 @@
      name fails silently as `inherit`, never as an error. */
   --num: "Inter Tight", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   /* Micro-labels above a number or a section. */
-  --gp-label-size: 10px;
+  --gp-label-size: 11px;
   --gp-label-track: 0.085em;
 }
 
